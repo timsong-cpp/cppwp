@@ -13,5 +13,9 @@ rm -r 14882
 cd ../gh-pages
 git add -A
 git commit -m 'Update'
+git push
 
 cd ..
+git commit -am 'Update'
+git push
+
