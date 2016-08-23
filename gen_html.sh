@@ -1,5 +1,7 @@
 #! /bin/sh
 
+git submodule foreach git pull origin
+
 cd draft/source
 latexmk -pdf std
 
