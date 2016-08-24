@@ -19,7 +19,7 @@ mv 14882.css.html 14882.css
 mv index.html.html index.html
 git add -A
 git commit -m 'Update'
-#git push
+git push
 
 cd ..
 git commit -am 'Update'
