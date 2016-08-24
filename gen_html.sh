@@ -17,6 +17,7 @@ rm -r 14882
 cd ../gh-pages
 mv 14882.css.html 14882.css
 mv index.html.html index.html
+cp ../draft/source/std.pdf ./draft.pdf
 git add -A
 git commit -m 'Update'
 git push
