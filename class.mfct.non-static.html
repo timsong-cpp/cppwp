@@ -1,0 +1,133 @@
+<!DOCTYPE html><html lang='en'><head><title>[class.mfct.non-static]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>9</a> Classes <a class='abbr_ref' href='./#class'>[class]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>9.2</a> Class members <a class='abbr_ref' href='class.mem#class.mfct.non-static'>[class.mem]</a></h2><div id='class.mfct.non-static'><h3 ><a class='secnum' style='min-width:103pt'>9.2.2</a> Non-static member functions <a class='abbr_ref'>[class.mfct.non-static]</a></h3><p ><span class='indexparent'><a class='index' id='member function!non-static'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A non-static member function may be called for an object of
+its class type, or for an object of a class derived
+(Clause <a href='class.derived'>[class.derived]</a>) from its class type, using the class member
+access syntax (<a href='expr.ref'>[expr.ref]</a>, <a href='over.match.call'>[over.match.call]</a>). A non-static
+member function may also be called directly using the function call
+syntax (<a href='expr.call'>[expr.call]</a>, <a href='over.match.call'>[over.match.call]</a>) from within
+the body of a member function of its class or of a class derived from
+its class.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='indexparent'><a class='index' id='member function!call undefined'></a></span>If a non-static member function of a class <span class='texttt'>X</span> is called for an
+object that is not of type <span class='texttt'>X</span>, or of a type derived from
+<span class='texttt'>X</span>, the behavior is undefined.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >When an <i ><a href='expr.prim.id#id-expression'>id-expression</a></i> (<a href='expr.prim'>[expr.prim]</a>) that is not part of a
+class member access syntax (<a href='expr.ref'>[expr.ref]</a>) and not used to form a
+pointer to member (<a href='expr.unary.op'>[expr.unary.op]</a>) is used in
+a member of class <span class='texttt'>X</span> in a context where <span class='texttt'>this</span> can be
+used (<a href='expr.prim.this'>[expr.prim.this]</a>),
+if name
+lookup (<a href='basic.lookup'>[basic.lookup]</a>) resolves the name in the
+<i ><a href='expr.prim.id#id-expression'>id-expression</a></i> to a non-static non-type member of some class
+<span class='texttt'>C</span>,
+and if either the <i ><a href='expr.prim.id#id-expression'>id-expression</a></i> is potentially evaluated or
+<span class='texttt'>C</span> is <span class='texttt'>X</span> or a base class of <span class='texttt'>X</span>,
+the <i ><a href='expr.prim.id#id-expression'>id-expression</a></i> is transformed into a class
+member access expression (<a href='expr.ref'>[expr.ref]</a>) using
+<span class='texttt'>(*this)</span> (<a href='class.this'>[class.this]</a>) as the <i ><a href='expr.post#postfix-expression'>postfix-expression</a></i>
+to the left of the <span class='texttt'>.</span> operator.
+[&nbsp;<i>Note:</i><span class='space'></span>
+If <span class='texttt'>C</span> is not <span class='texttt'>X</span> or a base class of <span class='texttt'>X</span>, the class
+member access expression is ill-formed.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+Similarly during name lookup, when an
+<i ><a href='expr.prim.id.unqual#unqualified-id'>unqualified-id</a></i> (<a href='expr.prim'>[expr.prim]</a>) used in the definition of a
+member function for class <span class='texttt'>X</span> resolves to a static member,
+an enumerator or a nested type of class <span class='texttt'>X</span> or of a base class of
+<span class='texttt'>X</span>, the <i ><a href='expr.prim.id.unqual#unqualified-id'>unqualified-id</a></i> is transformed into a
+<i ><a href='expr.prim.id.qual#qualified-id'>qualified-id</a></i> (<a href='expr.prim'>[expr.prim]</a>) in which the
+<i ><a href='expr.prim.id.qual#nested-name-specifier'>nested-name-specifier</a></i> names the class of the member function.
+These transformations do not apply in the
+template definition context (<a href='temp.dep.type'>[temp.dep.type]</a>).
+<span class='indexparent'><a class='index' id='example!member~function'></a></span>[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+struct tnode {
+  char tword[20];
+  int count;
+  tnode* left;
+  tnode* right;
+  void set(const char*, tnode* l, tnode* r);
+};
+
+void tnode::set(const char* w, tnode* l, tnode* r) {
+  count = strlen(w)+1;
+  if (sizeof(tword)&lt;=count)
+      perror("tnode string too long");
+  strcpy(tword,w);
+  left = l;
+  right = r;
+}
+
+void f(tnode n1, tnode n2) {
+  n1.set("abc",&amp;n2,0);
+  n2.set("def",0,0);
+}
+</pre><p >In the body of the member function <span class='texttt'>tnode::set</span>, the member names
+<span class='texttt'>tword</span>, <span class='texttt'>count</span>, <span class='texttt'>left</span>, and <span class='texttt'>right</span> refer to
+members of the object for which the function is called. Thus, in the
+call <span class='texttt'>n1.set("abc",&amp;n2,0)</span>, <span class='texttt'>tword</span> refers to
+<span class='texttt'>n1.tword</span>, and in the call <span class='texttt'>n2.set("def",0,0)</span>, it refers
+to <span class='texttt'>n2.tword</span>. The functions <span class='texttt'>strlen</span>, <span class='texttt'>perror</span>, and
+<span class='texttt'>strcpy</span> are not members of the class <span class='texttt'>tnode</span> and should be
+declared elsewhere.<a class='footnotenum' href='#footnote-109'>109</a>
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >A non-static member function may be declared <span class='texttt'>const</span>,
+<span class='texttt'>volatile</span>, or <span class='texttt'>const</span> <span class='texttt'>volatile</span>. These
+<span class='grammarterm'>cv-qualifiers</span> affect the type of the <span class='texttt'>this</span>
+pointer (<a href='class.this'>[class.this]</a>). They also affect the function
+type (<a href='dcl.fct'>[dcl.fct]</a>) of the member function; a member function declared
+<span class='texttt'>const</span> is a <i>const</i> member function, a member function
+declared <span class='texttt'>volatile</span> is a <i>volatile</i> member function and a
+member function declared <span class='texttt'>const</span> <span class='texttt'>volatile</span> is a
+<i>const volatile</i> member function.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+struct X {
+  void g() const;
+  void h() const volatile;
+};
+</pre><p ><span class='texttt'>X::g</span> is a <span class='texttt'>const</span> member function and <span class='texttt'>X::h</span> is a
+<span class='texttt'>const</span> <span class='texttt'>volatile</span> member function.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >A non-static member function may be declared with a <i ><a href='dcl.decl#ref-qualifier'>ref-qualifier</a></i> (<a href='dcl.fct'>[dcl.fct]</a>); see <a href='over.match.funcs'>[over.match.funcs]</a>.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >A non-static member function may be declared
+<i>virtual</i> (<a href='class.virtual'>[class.virtual]</a>) or <i>pure virtual</i> (<a href='class.abstract'>[class.abstract]</a>).</p></div><div class='footnote' id='footnote-109'><div class='marginalizedparent'><a class='marginalized' href='#footnote-109'>109)</a></div><p >See, for example, <span class='texttt'>&lt;cstring&gt;</span> (<a href='c.strings'>[c.strings]</a>).</p></div><div id='class.this'><h4 ><a class='secnum' href='#class.this' style='min-width:118pt'>9.2.2.1</a> The <span class='texttt'>this</span> pointer <a class='abbr_ref' href='class.this'>[class.this]</a></h4><p ><span class='indexparent'><a class='index' id='this'></a></span>
+<span class='indexparent'><a class='index' id='member function!this'></a></span></p><div class='para' id='class.this-1'><div class='marginalizedparent'><a class='marginalized' href='#class.this-1'>1</a></div><p ><span class='indexparent'><a class='index' id='this pointer'></a></span>In the body of a non-static (<a href='class.mfct'>[class.mfct]</a>) member function, the
+keyword <span class='texttt'>this</span> is a prvalue expression whose value is the
+address of the object for which the function is called.
+<span class='indexparent'><a class='index' id='this!type~of'></a></span>The type of <span class='texttt'>this</span> in a member function of a class <span class='texttt'>X</span> is
+<span class='texttt'>X*</span>.
+<span class='indexparent'><a class='index' id='member function!const'></a></span>If the member function is declared <span class='texttt'>const</span>, the type of
+<span class='texttt'>this</span> is <span class='texttt'>const</span> <span class='texttt'>X*</span>,
+<span class='indexparent'><a class='index' id='member function!volatile'></a></span>if the member function is declared <span class='texttt'>volatile</span>, the type of
+<span class='texttt'>this</span> is <span class='texttt'>volatile</span> <span class='texttt'>X*</span>, and if the member function
+is declared <span class='texttt'>const</span> <span class='texttt'>volatile</span>, the type of <span class='texttt'>this</span> is
+<span class='texttt'>const</span> <span class='texttt'>volatile</span> <span class='texttt'>X*</span>.
+<span class='indexparent'><a class='index' id='member function!const'></a></span>[&nbsp;<i>Note:</i><span class='space'></span> thus in a <span class='texttt'>const</span> member function, the object for which the function is
+called is accessed through a <span class='texttt'>const</span> access path. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+struct s {
+  int a;
+  int f() const;
+  int g() { return a++; }
+  int h() const { return a++; } <span class='comment'>// error
+</span>};
+
+int s::f() const { return a; }
+</pre><p >The <span class='texttt'>a++</span> in the body of <span class='texttt'>s::h</span> is ill-formed because it
+tries to modify (a part of) the object for which <span class='texttt'>s::h()</span> is
+called. This is not allowed in a <span class='texttt'>const</span> member function because
+<span class='texttt'>this</span> is a pointer to <span class='texttt'>const</span>; that is, <span class='texttt'>*this</span> has
+<span class='texttt'>const</span> type.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.this-2'><div class='marginalizedparent'><a class='marginalized' href='#class.this-2'>2</a></div><p >Similarly, <span class='texttt'>volatile</span> semantics (<a href='dcl.type.cv'>[dcl.type.cv]</a>) apply in
+<span class='texttt'>volatile</span> member functions when accessing the object and its
+non-static data members.</p></div><div class='para' id='class.this-3'><div class='marginalizedparent'><a class='marginalized' href='#class.this-3'>3</a></div><p >A <span class='grammarterm'>cv-qualified</span> member function can be called on an
+object-expression (<a href='expr.ref'>[expr.ref]</a>) only if the object-expression is as
+cv-qualified or less-cv-qualified than the member function.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+void k(s&amp; x, const s&amp; y) {
+  x.f();
+  x.g();
+  y.f();
+  y.g();                        <span class='comment'>// error
+</span>}
+</pre><p >The call <span class='texttt'>y.g()</span> is ill-formed because <span class='texttt'>y</span> is <span class='texttt'>const</span>
+and <span class='texttt'>s::g()</span> is a non-<span class='texttt'>const</span> member function, that is,
+<span class='texttt'>s::g()</span> is less-qualified than the object-expression <span class='texttt'>y</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.this-4'><div class='marginalizedparent'><a class='marginalized' href='#class.this-4'>4</a></div><p ><span class='indexparent'><a class='index' id='const!constructor~and'></a></span><span class='indexparent'><a class='index' id='const!destructor~and'></a></span><span class='indexparent'><a class='index' id='volatile!constructor~and'></a></span><span class='indexparent'><a class='index' id='volatile!destructor~and'></a></span>Constructors (<a href='class.ctor'>[class.ctor]</a>) and destructors (<a href='class.dtor'>[class.dtor]</a>) shall
+not be declared <span class='texttt'>const</span>, <span class='texttt'>volatile</span> or <span class='texttt'>const</span>
+<span class='texttt'>volatile</span>. [&nbsp;<i>Note:</i><span class='space'></span> However, these functions can be invoked to
+create and destroy objects with cv-qualified types,
+see (<a href='class.ctor'>[class.ctor]</a>) and (<a href='class.dtor'>[class.dtor]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div></div></div></body></html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html><html lang='en'><head><title>[func.not_fn]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.14</a> Function objects <a class='abbr_ref' href='function.objects#func.not_fn'>[function.objects]</a></h2><div id='func.not_fn'><h3 ><a class='secnum' style='min-width:103pt'>20.14.9</a> Function template <span class='texttt'>not_fn</span> <a class='abbr_ref'>[func.not_fn]</a></h3><p ><span class='indexparent'><a class='index' id='not_fn'></a></span><code class='itemdecl'>
+template &lt;class F&gt; <i><span class='texttt'>unspecified</span></i> not_fn(F&amp;&amp; f);
+</code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to <span class='texttt'>return <i>call_wrapper</i>(std::forward&lt;F&gt;(f));</span>
+where <i>call_wrapper</i> is an exposition only class defined as follows:
+</p><pre class='codeblock'>
+class <i>call_wrapper</i>{
+   using FD = decay_t&lt;F&gt;;
+   explicit <i>call_wrapper</i>(F&amp;&amp; f);
+
+public:
+   <i>call_wrapper</i>(<i>call_wrapper</i>&amp;&amp;) = default;
+   <i>call_wrapper</i>(<i>call_wrapper</i> const&amp;) = default;
+
+   template&lt;class... Args&gt;
+     auto operator()(Args&amp;&amp;...) &amp;
+       -&gt; decltype(!declval&lt;result_of_t&lt;FD&amp;(Args...)&gt;&gt;());
+
+   template&lt;class... Args&gt;
+     auto operator()(Args&amp;&amp;...) const&amp;
+       -&gt; decltype(!declval&lt;result_of_t&lt;FD const&amp;(Args...)&gt;&gt;());
+
+   template&lt;class... Args&gt;
+     auto operator()(Args&amp;&amp;...) &amp;&amp;
+       -&gt; decltype(!declval&lt;result_of_t&lt;FD(Args...)&gt;&gt;());
+
+   template&lt;class... Args&gt;
+     auto operator()(Args&amp;&amp;...) const&amp;&amp;
+       -&gt; decltype(!declval&lt;result_of_t&lt;FD const(Args...)&gt;&gt;());
+
+private:
+  FD fd;
+};
+</pre></div></div><p ><code class='itemdecl'>
+explicit <i>call_wrapper</i>(F&amp;&amp; f);
+</code></p><div class='itemdescr'></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>FD</span> shall satisfy the requirements of <span class='texttt'>MoveConstructible</span>.
+<span class='texttt'>is_constructible_v&lt;FD, F&gt;</span> shall be <span class='texttt'>true</span>.
+<span class='texttt'>fd</span> shall be a callable object (<a href='func.def'>[func.def]</a>).</p></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Initializes <span class='texttt'>fd</span> from <span class='texttt'>std::forward&lt;F&gt;(f)</span>.</p></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><i>Throws:</i>
+Any exception thrown by construction of <span class='texttt'>fd</span>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class... Args&gt;
+  auto operator()(Args&amp;&amp;... args) &amp;
+    -&gt; decltype(!declval&lt;result_of_t&lt;FD&amp;(Args...)&gt;&gt;());
+template&lt;class... Args&gt;
+  auto operator()(Args&amp;&amp;... args) const&amp;
+    -&gt; decltype(!declval&lt;result_of_t&lt;FD const&amp;(Args...)&gt;&gt;());
+</code></p><div class='itemdescr'></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:
+<span class='texttt'>return !<i>INVOKE</i>(fd, std::forward&lt;Args&gt;(args)...);</span> (<a href='func.require'>[func.require]</a>).
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class... Args&gt;
+  auto operator()(Args&amp;&amp;... args) &amp;&amp;
+    -&gt; decltype(!declval&lt;result_of_t&lt;FD(Args...)&gt;&gt;());
+template&lt;class... Args&gt;
+  auto operator()(Args&amp;&amp;... args) const&amp;&amp;
+    -&gt; decltype(!declval&lt;result_of_t&lt;FD const(Args...)&gt;&gt;());
+</code></p><div class='itemdescr'></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:
+<span class='texttt'>return !<i>INVOKE</i>(std::move(fd), std::forward&lt;Args&gt;(args)...);</span> (<a href='func.require'>[func.require]</a>).
+</p></div></div></div></div></body></html>

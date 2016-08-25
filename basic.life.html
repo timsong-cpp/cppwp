@@ -1,0 +1,182 @@
+<!DOCTYPE html><html lang='en'><head><title>[basic.life]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>3</a> Basic concepts <a class='abbr_ref' href='./#basic'>[basic]</a></h1><div id='basic.life'><h2 ><a class='secnum' style='min-width:88pt'>3.8</a> Object lifetime <a class='abbr_ref'>[basic.life]</a></h2><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='object~lifetime'></a></span><span class='indexparent'><a class='index' id='initialization!non-vacuous'></a></span>The <a id='lifetime'><i>lifetime</i></a> of an object or reference is a runtime property of the
+object or reference.
+An object is said to have <i>non-vacuous initialization</i> if it is of a class or
+aggregate type and it or one of its subobjects is initialized by a constructor
+other than a trivial default constructor. [&nbsp;<i>Note:</i><span class='space'></span> initialization by a
+trivial copy/move constructor is non-vacuous initialization. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+The lifetime of an object of type <span class='texttt'>T</span> begins when:</p><ul ><li ><p >storage with the proper alignment and size for type <span class='texttt'>T</span> is
+obtained, and</p></li><li ><p >if the object has non-vacuous initialization, its initialization is complete,
+</p></li></ul><p >except that if the object is a union member or subobject thereof,
+its lifetime only begins if that union member is the
+initialized member in the union (<a href='dcl.init.aggr'>[dcl.init.aggr]</a>, <a href='class.base.init'>[class.base.init]</a>),
+or as described in <a href='class.union'>[class.union]</a>.
+The lifetime of an object <i>o</i> of type <span class='texttt'>T</span> ends when:</p><ul ><li ><p >if <span class='texttt'>T</span> is a class type with a non-trivial
+destructor (<a href='class.dtor'>[class.dtor]</a>), the destructor call starts, or</p></li><li ><p >the storage which the object occupies is released,
+or is reused by an object that is not nested within <i>o</i> (<a href='intro.object'>[intro.object]</a>).
+</p></li></ul></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >The lifetime of a reference begins when its initialization is complete.
+The lifetime of a reference ends as if it were a scalar object.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >[&nbsp;<i>Note:</i><span class='space'></span> <a href='class.base.init'>[class.base.init]</a>
+describes the lifetime of base and member subobjects. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >The properties ascribed to objects and references throughout this International
+Standard apply for a given object or reference only during its lifetime. [&nbsp;<i>Note:</i><span class='space'></span>
+In particular, before the lifetime of an object starts and after its
+lifetime ends there are significant restrictions on the use of the
+object, as described below, in <a href='class.base.init'>[class.base.init]</a> and
+in <a href='class.cdtor'>[class.cdtor]</a>. Also, the behavior of an object under construction
+and destruction might not be the same as the behavior of an object whose
+lifetime has started and not ended. <a href='class.base.init'>[class.base.init]</a>
+and <a href='class.cdtor'>[class.cdtor]</a> describe the behavior of objects during the
+construction and destruction phases. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >A program may end the lifetime of any object by reusing the storage
+which the object occupies or by explicitly calling the destructor for an
+object of a class type with a non-trivial destructor. For an object of a
+class type with a non-trivial destructor, the program is not required to
+call the destructor explicitly before the storage which the object
+occupies is reused or released; however, if there is no explicit call to
+the destructor or if a <i ><a href='expr.delete#delete-expression'>delete-expression</a></i> (<a href='expr.delete'>[expr.delete]</a>)
+is not used to release the storage, the destructor shall not be
+implicitly called and any program that depends on the side effects
+produced by the destructor has undefined behavior.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >Before the lifetime of an object has started but after the storage which
+the object will occupy has been allocated<a class='footnotenum' href='#footnote-40'>40</a>
+or, after the lifetime of an object has ended and before the storage
+which the object occupied is reused or released, any pointer that represents the address of
+the storage location where the object will be or was located may be
+used but only in limited ways.
+For an object under construction or destruction, see <a href='class.cdtor'>[class.cdtor]</a>.
+Otherwise, such
+a pointer refers to allocated
+storage (<a href='basic.stc.dynamic.deallocation'>[basic.stc.dynamic.deallocation]</a>), and using the pointer as
+if the pointer were of type <span class='texttt'>void*</span>, is
+well-defined. Indirection through such a pointer is permitted but the resulting lvalue may only be used in
+limited ways, as described below. The
+program has undefined behavior if:</p><ul ><li ><p >the object will be or was of a class type with a non-trivial destructor
+and the pointer is used as the operand of a <i ><a href='expr.delete#delete-expression'>delete-expression</a></i>,</p></li><li ><p >the pointer is used to access a non-static data member or call a
+non-static member function of the object, or</p></li><li ><p >the pointer is implicitly converted (<a href='conv.ptr'>[conv.ptr]</a>) to a pointer
+to a virtual base class, or</p></li><li ><p >the pointer is used as the operand of a
+<span class='texttt'>static_cast</span> (<a href='expr.static.cast'>[expr.static.cast]</a>), except when the conversion
+is to pointer to <i>cv</i> <span class='texttt'>void</span>, or to pointer to <i>cv</i>
+<span class='texttt'>void</span> and subsequently to pointer to either <i>cv</i>
+<span class='texttt'>char</span> or <i>cv</i> <span class='texttt'>unsigned char</span>, or</p></li><li ><p >the pointer is used as the operand of a
+<span class='texttt'>dynamic_cast</span> (<a href='expr.dynamic.cast'>[expr.dynamic.cast]</a>). [&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+#include &lt;cstdlib&gt;
+
+struct B {
+  virtual void f();
+  void mutate();
+  virtual ~B();
+};
+
+struct D1 : B { void f(); };
+struct D2 : B { void f(); };
+
+void B::mutate() {
+  new (this) D2;    <span class='comment'>// reuses storage — ends the lifetime of <span class='texttt'>*this</span>
+</span>  f();              <span class='comment'>// undefined behavior
+</span>  ... = this;       <span class='comment'>// OK, <span class='texttt'>this</span> points to valid memory
+</span>}
+
+void g() {
+  void* p = std::malloc(sizeof(D1) + sizeof(D2));
+  B* pb = new (p) D1;
+  pb-&gt;mutate();
+  &amp;pb;              <span class='comment'>// OK: <span class='texttt'>pb</span> points to valid memory
+</span>  void* q = pb;     <span class='comment'>// OK: <span class='texttt'>pb</span> points to valid memory
+</span>  pb-&gt;f();          <span class='comment'>// undefined behavior, lifetime of <span class='texttt'>*pb</span> has ended
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></li></ul></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >Similarly, before the lifetime of an object has started but after the
+storage which the object will occupy has been allocated or, after the
+lifetime of an object has ended and before the storage which the object
+occupied is reused or released, any glvalue that refers to the original
+object may be used but only in limited ways.
+For an object under construction or destruction, see <a href='class.cdtor'>[class.cdtor]</a>.
+Otherwise, such
+a glvalue refers to
+allocated storage (<a href='basic.stc.dynamic.deallocation'>[basic.stc.dynamic.deallocation]</a>), and using the
+properties of the glvalue that do not depend on its value is
+well-defined. The program has undefined behavior if:</p><ul ><li ><p >the glvalue is used to access the object, or</p></li><li ><p >the glvalue is used to call a non-static member function of the object, or</p></li><li ><p >the glvalue is bound to a reference
+to a virtual base class (<a href='dcl.init.ref'>[dcl.init.ref]</a>), or</p></li><li ><p >the glvalue is used as the operand of a
+<span class='texttt'>dynamic_cast</span> (<a href='expr.dynamic.cast'>[expr.dynamic.cast]</a>) or as the operand of
+<span class='texttt'>typeid</span>.
+</p></li></ul></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >If, after the lifetime of an object has ended and before the storage
+which the object occupied is reused or released, a new object is created
+at the storage location which the original object occupied, a pointer
+that pointed to the original object, a reference that referred to the
+original object, or the name of the original object will automatically
+refer to the new object and, once the lifetime of the new object has
+started, can be used to manipulate the new object, if:</p><ul ><li ><p >the storage for the new object exactly overlays the storage
+location which the original object occupied, and</p></li><li ><p >the new object is of the same type as the original object
+(ignoring the top-level cv-qualifiers), and</p></li><li ><p >the type of the original object is not const-qualified, and, if a
+class type, does not contain any non-static data member whose type is
+const-qualified or a reference type, and</p></li><li ><p >the original object was a most derived object (<a href='intro.object'>[intro.object]</a>)
+of type <span class='texttt'>T</span> and the new object is a most derived object of type
+<span class='texttt'>T</span> (that is, they are not base class subobjects).
+</p></li></ul><p >[&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+struct C {
+  int i;
+  void f();
+  const C&amp; operator=( const C&amp; );
+};
+
+const C&amp; C::operator=( const C&amp; other) {
+  if ( this != &amp;other ) {
+    this-&gt;~C();                 <span class='comment'>// lifetime of <span class='texttt'>*this</span> ends
+</span>    new (this) C(other);        <span class='comment'>// new object of type <span class='texttt'>C</span> created
+</span>    f();                        <span class='comment'>// well-defined
+</span>  }
+  return *this;
+}
+
+C c1;
+C c2;
+c1 = c2;                        <span class='comment'>// well-defined
+</span>c1.f();                         <span class='comment'>// well-defined; <span class='texttt'>c1</span> refers to a new object of type <span class='texttt'>C</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+[&nbsp;<i>Note:</i><span class='space'></span>
+If these conditions are not met,
+a pointer to the new object can be obtained from
+a pointer that represents the address of its storage
+by calling <span class='texttt'>std::launder</span> (<a href='support.dynamic'>[support.dynamic]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >If a program ends the lifetime of an object of type <span class='texttt'>T</span> with
+static (<a href='basic.stc.static'>[basic.stc.static]</a>), thread (<a href='basic.stc.thread'>[basic.stc.thread]</a>),
+or automatic (<a href='basic.stc.auto'>[basic.stc.auto]</a>)
+storage duration and if <span class='texttt'>T</span> has a non-trivial destructor,<a class='footnotenum' href='#footnote-41'>41</a>
+the program must ensure that an object of the original type occupies
+that same storage location when the implicit destructor call takes
+place; otherwise the behavior of the program is undefined. This is true
+even if the block is exited with an exception. [&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class T { };
+struct B {
+   ~B();
+};
+
+void h() {
+   B b;
+   new (&amp;b) T;
+}                               <span class='comment'>// undefined behavior at block exit
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >Creating a new object within the storage that a <span class='texttt'>const</span> complete
+object with static, thread, or automatic storage duration occupies,
+or within the storage that such a <span class='texttt'>const</span> object used to occupy before
+its lifetime ended, results in undefined behavior.
+[&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+struct B {
+  B();
+  ~B();
+};
+
+const B b;
+
+void h() {
+  b.~B();
+  new (const_cast&lt;B*&gt;(&amp;b)) const B;             <span class='comment'>// undefined behavior
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><p >In this section, “before” and “after” refer to the “happens before”
+relation (<a href='intro.multithread'>[intro.multithread]</a>). [&nbsp;<i>Note:</i><span class='space'></span> Therefore, undefined behavior results
+if an object that is being constructed in one thread is referenced from another
+thread without adequate synchronization. <i>&nbsp;—&nbsp;end note</i>&nbsp;]<span class='indexparent'><a class='index' id='object~lifetime'></a></span></p></div><div class='footnote' id='footnote-40'><div class='marginalizedparent'><a class='marginalized' href='#footnote-40'>40)</a></div><p >For example, before the
+construction of a global object of
+non-POD class type (<a href='class.cdtor'>[class.cdtor]</a>).</p></div><div class='footnote' id='footnote-41'><div class='marginalizedparent'><a class='marginalized' href='#footnote-41'>41)</a></div><p >That
+is, an object for which a destructor will be called
+implicitly—upon exit from the block for an object with
+automatic storage duration, upon exit from the thread for an object with
+thread storage duration, or upon exit from the program for an object
+with static storage duration.</p></div></div></div></body></html>

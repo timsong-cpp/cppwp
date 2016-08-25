@@ -1,0 +1,253 @@
+<!DOCTYPE html><html lang='en'><head><title>[locale.time.get]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>22</a> Localization library <a class='abbr_ref' href='./#localization'>[localization]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>22.4</a> Standard <span class='texttt'>locale</span> categories <a class='abbr_ref' href='locale.categories#locale.time.get'>[locale.categories]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>22.4.5</a> The time category <a class='abbr_ref' href='category.time#locale.time.get'>[category.time]</a></h3><div id='locale.time.get'><h4 ><a class='secnum' style='min-width:118pt'>22.4.5.1</a> Class template <span class='texttt'>time_get</span> <a class='abbr_ref'>[locale.time.get]</a></h4><p ><span class='indexparent'><a class='index' id='time_get'></a></span></p><pre class='codeblock'>
+namespace std {
+  class time_base {
+  public:
+    enum dateorder { no_order, dmy, mdy, ymd, ydm };
+  };
+
+  template &lt;class charT, class InputIterator = istreambuf_iterator&lt;charT&gt; &gt;
+  class time_get : public locale::facet, public time_base {
+  public:
+    using char_type = charT;
+    using iter_type = InputIterator;
+
+    explicit time_get(size_t refs = 0);
+
+    dateorder date_order()  const { return do_date_order(); }
+    iter_type get_time(iter_type s, iter_type end, ios_base&amp; f,
+                       ios_base::iostate&amp; err, tm* t)  const;
+    iter_type get_date(iter_type s, iter_type end, ios_base&amp; f,
+                       ios_base::iostate&amp; err, tm* t)  const;
+    iter_type get_weekday(iter_type s, iter_type end, ios_base&amp; f,
+                       ios_base::iostate&amp; err, tm* t) const;
+    iter_type get_monthname(iter_type s, iter_type end, ios_base&amp; f,
+                       ios_base::iostate&amp; err, tm* t) const;
+    iter_type get_year(iter_type s, iter_type end, ios_base&amp; f,
+                       ios_base::iostate&amp; err, tm* t) const;
+    iter_type get(iter_type s, iter_type end, ios_base&amp; f,
+                       ios_base::iostate&amp; err, tm* t, char format, char modifier = 0) const;
+    iter_type get(iter_type s, iter_type end, ios_base&amp; f,
+                       ios_base::iostate&amp; err, tm* t, const char_type* fmt,
+                       const char_type* fmtend) const;
+
+    static locale::id id;
+
+  protected:
+    ~time_get();
+    virtual dateorder do_date_order()  const;
+    virtual iter_type do_get_time(iter_type s, iter_type end, ios_base&amp;,
+                                  ios_base::iostate&amp; err, tm* t) const;
+    virtual iter_type do_get_date(iter_type s, iter_type end, ios_base&amp;,
+                                  ios_base::iostate&amp; err, tm* t) const;
+    virtual iter_type do_get_weekday(iter_type s, iter_type end, ios_base&amp;,
+                                     ios_base::iostate&amp; err, tm* t) const;
+    virtual iter_type do_get_monthname(iter_type s, iter_type end, ios_base&amp;,
+                                       ios_base::iostate&amp; err, tm* t) const;
+    virtual iter_type do_get_year(iter_type s, iter_type end, ios_base&amp;,
+                                  ios_base::iostate&amp; err, tm* t) const;
+    virtual iter_type do_get(iter_type s, iter_type end, ios_base&amp; f,
+                             ios_base::iostate&amp; err, tm* t, char format, char modifier) const;
+  };
+}
+</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='texttt'>time_get</span>
+is used to
+parse a character sequence, extracting components of a time or date
+into a
+<span class='texttt'>struct tm</span>
+record.
+Each
+<span class='texttt'>get</span>
+member parses a format as produced by a corresponding format specifier to
+<span class='texttt'>time_put&lt;&gt;::put</span>.
+If the sequence being parsed matches the correct format, the corresponding
+members of the
+<span class='texttt'>struct tm</span>
+argument are set to the values used to produce the sequence; otherwise
+either an error is reported or unspecified values are assigned.<a class='footnotenum' href='#footnote-246'>246</a></p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >If the end iterator is reached during parsing by any of the
+<span class='texttt'>get()</span>
+member functions, the member sets
+<span class='texttt'>ios_base::eofbit</span>
+in <span class='texttt'>err</span>.</p></div><div class='footnote' id='footnote-246'><div class='marginalizedparent'><a class='marginalized' href='#footnote-246'>246)</a></div><p >In
+other words, user confirmation is required for reliable parsing of
+user-entered dates and times, but machine-generated formats can be
+parsed reliably.
+This allows parsers to be aggressive about
+interpreting user variations on standard formats.</p></div><div id='members'><h4 ><a class='secnum' href='#members' style='min-width:133pt'>22.4.5.1.1</a> <span class='texttt'>time_get</span> members <a class='abbr_ref' href='locale.time.get.members'>[locale.time.get.members]</a></h4><p ><span class='indexparent'><a class='index' id='time_get!date_order'></a></span><span class='indexparent'><a class='index' id='date_order!time_get'></a></span><code class='itemdecl'>
+dateorder date_order() const;
+</code></p><div class='itemdescr'></div><div class='para' id='members-1'><div class='marginalizedparent'><a class='marginalized' href='#members-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>do_date_order()</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='time_get!get_time'></a></span><span class='indexparent'><a class='index' id='get_time!time_get'></a></span><code class='itemdecl'>
+iter_type get_time(iter_type s, iter_type end, ios_base&amp; str,
+                   ios_base::iostate&amp; err, tm* t) const;
+</code></p><div class='itemdescr'></div><div class='para' id='members-2'><div class='marginalizedparent'><a class='marginalized' href='#members-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>do_get_time(s, end, str, err, t)</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='time_get!get_date'></a></span><span class='indexparent'><a class='index' id='get_date!time_get'></a></span><code class='itemdecl'>
+iter_type get_date(iter_type s, iter_type end, ios_base&amp; str,
+                   ios_base::iostate&amp; err, tm* t) const;
+</code></p><div class='itemdescr'></div><div class='para' id='members-3'><div class='marginalizedparent'><a class='marginalized' href='#members-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>do_get_date(s, end, str, err, t)</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='time_get!get_weekday'></a></span><span class='indexparent'><a class='index' id='get_weekday!time_get'></a></span><span class='indexparent'><a class='index' id='time_get!get_monthname'></a></span><span class='indexparent'><a class='index' id='get_monthname!time_get'></a></span><code class='itemdecl'>
+iter_type get_weekday(iter_type s, iter_type end, ios_base&amp; str,
+                      ios_base::iostate&amp; err, tm* t) const;
+iter_type get_monthname(iter_type s, iter_type end, ios_base&amp; str,
+                        ios_base::iostate&amp; err, tm* t) const;
+</code></p><div class='itemdescr'></div><div class='para' id='members-4'><div class='marginalizedparent'><a class='marginalized' href='#members-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>do_get_weekday(s, end, str, err, t)</span>
+or
+<span class='texttt'>do_get_monthname(s, end, str, err, t)</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='time_get!get_year'></a></span><span class='indexparent'><a class='index' id='get_year!time_get'></a></span><code class='itemdecl'>
+iter_type get_year(iter_type s, iter_type end, ios_base&amp; str,
+                   ios_base::iostate&amp; err, tm* t) const;
+</code></p><div class='itemdescr'></div><div class='para' id='members-5'><div class='marginalizedparent'><a class='marginalized' href='#members-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>do_get_year(s, end, str, err, t)</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='get!time_get'></a></span><span class='indexparent'><a class='index' id='time_get!get'></a></span><code class='itemdecl'>
+iter_type get(iter_type s, iter_type end, ios_base&amp; f,
+    ios_base::iostate&amp; err, tm* t, char format, char modifier = 0) const;
+</code></p><div class='itemdescr'></div><div class='para' id='members-6'><div class='marginalizedparent'><a class='marginalized' href='#members-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>do_get(s, end, f, err, t, format, modifier)</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='get!time_get'></a></span><span class='indexparent'><a class='index' id='time_get!get'></a></span><code class='itemdecl'>
+iter_type get(iter_type s, iter_type end, ios_base&amp; f,
+    ios_base::iostate&amp; err, tm* t, const char_type* fmt, const char_type* fmtend) const;
+</code></p><div class='itemdescr'></div><div class='para' id='members-7'><div class='marginalizedparent'><a class='marginalized' href='#members-7'>7</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>[fmt, <span class='discretionary'></span>fmtend)</span> shall be a valid range.</p></div></div><div class='para' id='members-8'><div class='marginalizedparent'><a class='marginalized' href='#members-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i> The function starts by evaluating
+<span class='texttt'>err = ios_base::goodbit</span>. It then enters a loop, reading zero or more
+characters from <span class='texttt'>s</span> at each iteration. Unless otherwise specified below,
+the loop terminates when the first of the following conditions holds:</p><ul ><li ><p >The expression <span class='texttt'>fmt == fmtend</span> evaluates to true.</p></li><li ><p >The expression <span class='texttt'>err == ios_base::goodbit</span> evaluates to false.</p></li><li ><p >The expression <span class='texttt'>s == end</span> evaluates to true,
+in which case the function
+evaluates <span class='texttt'>err = ios_base::eofbit | ios_base::failbit</span>.</p></li><li ><p >The next element of <span class='texttt'>fmt</span> is equal to
+<span class='texttt'>'%'</span>, optionally followed by a
+modifier character, followed by a conversion specifier character,
+<span class='texttt'>format</span>, together forming a conversion specification valid for the
+ISO/IEC 9945 function <span class='texttt'>strptime</span>. If the number of elements in the range
+<span class='texttt'>[fmt, <span class='discretionary'></span>fmtend)</span> is not sufficient to unambiguously determine whether the
+conversion specification is complete and valid, the function evaluates
+<span class='texttt'>err = ios_base::failbit</span>. Otherwise, the function evaluates
+<span class='texttt'>s = do_get(s, end, f, err, t, format, modifier)</span>, where the value
+of <span class='texttt'>modifier</span> is <span class='texttt'>'\0'</span>
+when the optional modifier is absent from the conversion specification.
+If <span class='texttt'>err == ios_base::goodbit</span> holds after the evaluation of the
+expression, the function increments <span class='texttt'>fmt</span> to point just past the end of
+the conversion specification and continues looping.</p></li><li ><p >The expression <span class='texttt'>isspace(*fmt, f.getloc())</span> evaluates to true,
+in which case
+the function first increments <span class='texttt'>fmt</span> until
+<span class='texttt'>fmt == fmtend || !isspace(*fmt, f.getloc())</span> evaluates to true,
+then advances <span class='texttt'>s</span> until
+<span class='texttt'>s == end || !isspace(*s, f.getloc())</span> is true, and finally resumes looping.</p></li><li ><p >The next character read from <span class='texttt'>s</span> matches the element
+pointed to by <span class='texttt'>fmt</span> in
+a case-insensitive comparison, in which case the function evaluates
+<span class='texttt'>++fmt, ++s</span> and continues looping. Otherwise, the function evaluates
+<span class='texttt'>err = ios_base::failbit</span>.
+</p></li></ul></div></div><div class='para' id='members-9'><div class='marginalizedparent'><a class='marginalized' href='#members-9'>9</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i><span class='space'></span> The function uses the <span class='texttt'>ctype&lt;charT&gt;</span>
+facet installed in <span class='texttt'>f</span>'s locale
+to determine valid whitespace characters. It is unspecified by what
+means the function performs case-insensitive comparison or whether
+multi-character sequences are considered while doing so. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='members-10'><div class='marginalizedparent'><a class='marginalized' href='#members-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>s</span>
+</p></div></div></div><div id='virtuals'><h4 ><a class='secnum' href='#virtuals' style='min-width:133pt'>22.4.5.1.2</a> <span class='texttt'>time_get</span> virtual functions <a class='abbr_ref' href='locale.time.get.virtuals'>[locale.time.get.virtuals]</a></h4><p ><span class='indexparent'><a class='index' id='time_get!do_date_order'></a></span><span class='indexparent'><a class='index' id='do_date_order!time_get'></a></span><code class='itemdecl'>
+dateorder do_date_order() const;
+</code></p><div class='itemdescr'></div><div class='para' id='virtuals-1'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+An enumeration value indicating the preferred order of components for
+those date formats that are composed of day, month, and year.<a class='footnotenum' href='#footnote-247'>247</a>
+Returns
+<span class='texttt'>no_order</span>
+if the date format specified by
+<span class='texttt'>'x'</span>
+contains other variable components (e.g., Julian day, week number, week day).
+</p></div></div><p ><span class='indexparent'><a class='index' id='time_get!do_get_time'></a></span><span class='indexparent'><a class='index' id='do_get_time!time_get'></a></span><code class='itemdecl'>
+iter_type do_get_time(iter_type s, iter_type end, ios_base&amp; str,
+                      ios_base::iostate&amp; err, tm* t) const;
+</code></p><div class='itemdescr'></div><div class='para' id='virtuals-2'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Reads characters starting at <span class='texttt'>s</span>
+until it has extracted those
+<span class='texttt'>struct tm</span>
+members, and remaining format characters, used by
+<span class='texttt'>time_put&lt;&gt;::put</span>
+to produce the format specified by
+<span class='texttt'>"%H:%M:%S"</span>,
+or until it encounters an error or end of sequence.</p></div></div><div class='para' id='virtuals-3'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+An iterator pointing immediately beyond the last character recognized
+as possibly part of a valid time.
+</p></div></div><p ><span class='indexparent'><a class='index' id='time_get!do_get_date'></a></span><span class='indexparent'><a class='index' id='do_get_date!time_get'></a></span><code class='itemdecl'>
+iter_type do_get_date(iter_type s, iter_type end, ios_base&amp; str,
+                      ios_base::iostate&amp; err, tm* t) const;
+</code></p><div class='itemdescr'></div><div class='para' id='virtuals-4'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Reads characters starting at <span class='texttt'>s</span>
+until it has extracted those
+<span class='texttt'>struct tm</span>
+members and remaining format characters used by
+<span class='texttt'>time_put&lt;&gt;::put</span>
+to produce one of the following formats,
+or until it encounters an error. The format depends on the value returned
+by <span class='texttt'>date_order()</span> as shown in
+Table <a href='#tab:lib.locale.time.get.virtuals.dogetdate'>[tab:lib.locale.time.get.virtuals.dogetdate]</a>.</p><div class='numberedTable' id='tab:lib.locale.time.get.virtuals.dogetdate'>Table <a href='#tab:lib.locale.time.get.virtuals.dogetdate'>73</a> — <span class='texttt'>do_get_date</span> effects<br><table ><tr class='rowsep'><td colspan='1' class='center'><b><span class='texttt'>date_order()</span></b></td><td colspan='1' class='center'><b>Format</b></td></tr><tr class='capsep'><td class='left'> 
+
+<span class='texttt'>no_order</span>  </td><td class='left'> <span class='texttt'>"%m%d%y"</span> </td></tr><tr ><td class='left'>
+<span class='texttt'>dmy</span>       </td><td class='left'> <span class='texttt'>"%d%m%y"</span> </td></tr><tr ><td class='left'>
+<span class='texttt'>mdy</span>       </td><td class='left'> <span class='texttt'>"%m%d%y"</span> </td></tr><tr ><td class='left'>
+<span class='texttt'>ymd</span>       </td><td class='left'> <span class='texttt'>"%y%m%d"</span> </td></tr><tr ><td class='left'>
+<span class='texttt'>ydm</span>       </td><td class='left'> <span class='texttt'>"%y%d%m"</span> </td></tr></table></div></div></div><div class='para' id='virtuals-5'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-5'>5</a></div><div class='itemdescr'><p >An implementation may also accept additional <span class='indexparent'><a class='index' id='additional formats for time_get::do_get_date'></a></span>implementation-defined formats.</p></div></div><div class='para' id='virtuals-6'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
+An iterator pointing immediately beyond the last character recognized
+as possibly part of a valid date.
+</p></div></div><p ><span class='indexparent'><a class='index' id='time_get!do_get_weekday'></a></span><span class='indexparent'><a class='index' id='do_get_weekday!time_get'></a></span><span class='indexparent'><a class='index' id='time_get!do_get_monthname'></a></span><span class='indexparent'><a class='index' id='do_get_monthname!time_get'></a></span><code class='itemdecl'>
+iter_type do_get_weekday(iter_type s, iter_type end, ios_base&amp; str,
+                         ios_base::iostate&amp; err, tm* t) const;
+iter_type do_get_monthname(iter_type s, iter_type end, ios_base&amp; str,
+                           ios_base::iostate&amp; err, tm* t) const;
+</code></p><div class='itemdescr'></div><div class='para' id='virtuals-7'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Reads characters starting at <span class='texttt'>s</span>
+until it has extracted the (perhaps abbreviated) name of a weekday or month.
+If it finds an abbreviation that is followed by characters that could
+match a full name, it continues reading until it matches the full name or
+fails.
+It sets the appropriate
+<span class='texttt'>struct tm</span>
+member accordingly.</p></div></div><div class='para' id='virtuals-8'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>
+An iterator pointing immediately beyond the last character recognized
+as part of a valid name.
+</p></div></div><p ><span class='indexparent'><a class='index' id='time_get!do_get_year'></a></span><span class='indexparent'><a class='index' id='do_get_year!time_get'></a></span><code class='itemdecl'>
+iter_type do_get_year(iter_type s, iter_type end, ios_base&amp; str,
+                      ios_base::iostate&amp; err, tm* t) const;
+</code></p><div class='itemdescr'></div><div class='para' id='virtuals-9'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Reads characters starting at <span class='texttt'>s</span>
+until it has extracted an unambiguous year identifier.
+It is
+<span class='indexparent'><a class='index' id='whether time_get::do_get_year accepts two-digit year numbers'></a></span>implementation-defined whether
+two-digit year numbers are accepted,
+and (if so) what century they are assumed to lie in.
+Sets the
+<span class='texttt'>t-&gt;tm_year</span>
+member accordingly.</p></div></div><div class='para' id='virtuals-10'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i>
+An iterator pointing immediately beyond the last character recognized
+as part of a valid year identifier.
+</p></div></div><p ><span class='indexparent'><a class='index' id='do_get!time_get'></a></span><span class='indexparent'><a class='index' id='time_get!do_get'></a></span><code class='itemdecl'>
+iter_type do_get(iter_type s, iter_type end, ios_base&amp; f,
+    ios_base::iostate&amp; err, tm* t, char format, char modifier) const;
+</code></p><div class='itemdescr'></div><div class='para' id='virtuals-11'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-11'>11</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>t</span> shall point to an object.</p></div></div><div class='para' id='virtuals-12'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-12'>12</a></div><div class='itemdescr'><p ><i>Effects:</i> The function starts by evaluating
+<span class='texttt'>err = ios_base::goodbit</span>. It
+then reads characters starting at <span class='texttt'>s</span> until it encounters an error, or
+until it has extracted and assigned those <span class='texttt'>struct tm</span> members, and any
+remaining format characters, corresponding to a conversion directive
+appropriate for the ISO/IEC 9945 function <span class='texttt'>strptime</span>, formed by
+concatenating <span class='texttt'>'%'</span>, the <span class='texttt'>modifier</span> character,
+when non-NUL, and the <span class='texttt'>format</span>
+character. When the concatenation fails to yield a complete valid
+directive the function leaves the object pointed to by <span class='texttt'>t</span> unchanged and
+evaluates <span class='texttt'>err |= ios_base::failbit</span>. When <span class='texttt'>s == end</span>
+evaluates to true after reading a character the function evaluates
+<span class='texttt'>err |= ios_base::eofbit</span>.</p></div></div><div class='para' id='virtuals-13'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-13'>13</a></div><div class='itemdescr'><p >For complex conversion directives such as <span class='texttt'>%c</span>,
+<span class='texttt'>%x</span>, or <span class='texttt'>%X</span>, or directives
+that involve the optional modifiers <span class='texttt'>E</span> or <span class='texttt'>O</span>,
+when the function is unable
+to unambiguously determine some or all <span class='texttt'>struct tm</span> members from the input
+sequence <span class='texttt'>[s, <span class='discretionary'></span>end)</span>, it evaluates <span class='texttt'>err |= ios_base::eofbit</span>.
+In such cases the values of those <span class='texttt'>struct tm</span> members are unspecified
+and may be outside their valid range.</p></div></div><div class='para' id='virtuals-14'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-14'>14</a></div><div class='itemdescr'><p ><i>Remark:</i> It is unspecified whether multiple calls to
+<span class='texttt'>do_get()</span> with the
+address of the same <span class='texttt'>struct tm</span> object will update the current contents of
+the object or simply overwrite its members. Portable programs must zero
+out the object before invoking the function.</p></div></div><div class='para' id='virtuals-15'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-15'>15</a></div><div class='itemdescr'><p ><i>Returns:</i> An iterator pointing immediately beyond the last character
+recognized as possibly part of a valid input sequence for the given
+<span class='texttt'>format</span> and <span class='texttt'>modifier</span>.
+</p></div></div><div class='footnote' id='footnote-247'><div class='marginalizedparent'><a class='marginalized' href='#footnote-247'>247)</a></div><p >This
+function is intended as a convenience only, for common
+formats, and may return
+<span class='texttt'>no_order</span>
+in valid locales.</p></div></div></div></div></body></html>

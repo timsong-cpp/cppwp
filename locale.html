@@ -1,0 +1,499 @@
+<!DOCTYPE html><html lang='en'><head><title>[locale]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>22</a> Localization library <a class='abbr_ref' href='./#localization'>[localization]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>22.3</a> Locales <a class='abbr_ref' href='locales#locale'>[locales]</a></h2><div id='locale'><h3 ><a class='secnum' style='min-width:103pt'>22.3.1</a> Class <span class='texttt'>locale</span> <a class='abbr_ref'>[locale]</a></h3><p ><span class='indexparent'><a class='index' id='locale'></a></span></p><pre class='codeblock'>
+namespace std {
+  class locale {
+  public:
+    <span class='comment'>// types:
+</span>    class facet;
+    class id;
+    using category = int;
+    static const category   <span class='comment'>// values assigned here are for exposition only
+</span>      none     = 0,
+      collate  = 0x010, ctype    = 0x020,
+      monetary = 0x040, numeric  = 0x080,
+      time     = 0x100, messages = 0x200,
+      all = collate | ctype | monetary | numeric | time  | messages;
+
+    <span class='comment'>// construct/copy/destroy:
+</span>    locale() noexcept;
+    locale(const locale&amp; other) noexcept;
+    explicit locale(const char* std_name);
+    explicit locale(const string&amp; std_name);
+    locale(const locale&amp; other, const char* std_name, category);
+    locale(const locale&amp; other, const string&amp; std_name, category);
+    template &lt;class Facet&gt; locale(const locale&amp; other, Facet* f);
+    locale(const locale&amp; other, const locale&amp; one, category);
+    ~locale();                  <span class='comment'>// not virtual
+</span>    const locale&amp; operator=(const locale&amp; other) noexcept;
+    template &lt;class Facet&gt; locale combine(const locale&amp; other) const;
+
+    <span class='comment'>// locale operations:
+</span>    basic_string&lt;char&gt;                  name() const;
+
+    bool operator==(const locale&amp; other) const;
+    bool operator!=(const locale&amp; other) const;
+
+    template &lt;class charT, class traits, class Allocator&gt;
+      bool operator()(const basic_string&lt;charT,traits,Allocator&gt;&amp; s1,
+                      const basic_string&lt;charT,traits,Allocator&gt;&amp; s2) const;
+
+    <span class='comment'>// global locale objects:
+</span>    static       locale  global(const locale&amp;);
+    static const locale&amp; classic();
+  };
+}
+</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Class
+<span class='texttt'>locale</span>
+implements a type-safe polymorphic set of facets, indexed by facet
+<i>type</i>.
+In other words, a facet has a dual role: in one
+sense, it's just a class interface; at the same time, it's an index
+into a locale's set of facets.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Access to the facets of a
+<span class='texttt'>locale</span>
+is via two function templates,
+<span class='texttt'>use_facet&lt;&gt;</span>
+and
+<span class='texttt'>has_facet&lt;&gt;</span>.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >[&nbsp;<i>Example:</i><span class='space'></span>
+An iostream
+<span class='texttt'>operator&lt;&lt;</span>
+might be implemented as:<a class='footnotenum' href='#footnote-234'>234</a></p><pre class='codeblock'>
+template &lt;class charT, class traits&gt;
+basic_ostream&lt;charT,traits&gt;&amp;
+operator&lt;&lt; (basic_ostream&lt;charT,traits&gt;&amp; s, Date d) {
+  typename basic_ostream&lt;charT,traits&gt;::sentry cerberos(s);
+  if (cerberos) {
+    ios_base::iostate err = ios_base::iostate::goodbit;
+    tm tmbuf; d.extract(tmbuf);
+    use_facet&lt; time_put&lt;charT,ostreambuf_iterator&lt;charT,traits&gt; &gt; &gt;(
+      s.getloc()).put(s, s, s.fill(), err, &amp;tmbuf, 'x');
+    s.setstate(err);            <span class='comment'>// might throw
+</span>  }
+  return s;
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >In the call to
+<span class='texttt'>use_facet&lt;Facet&gt;(loc)</span>,
+the type argument chooses a facet, making available all members
+of the named type.
+If
+<span class='texttt'>Facet</span>
+is not present in a
+locale,
+it throws the standard exception
+<span class='texttt'>bad_cast</span>.
+A C++ program can check if a locale implements a particular
+facet with the
+function template
+<span class='texttt'>has_facet&lt;Facet&gt;()</span>.
+User-defined facets may be installed in a locale, and used identically as
+may standard facets (<a href='facets.examples'>[facets.examples]</a>).</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >[&nbsp;<i>Note:</i><span class='space'></span>
+All locale semantics are accessed via
+<span class='texttt'>use_facet&lt;&gt;</span>
+and
+<span class='texttt'>has_facet&lt;&gt;</span>,
+except that:</p><ul ><li ><p >A member operator template
+<span class='texttt'>operator()(const basic_string&lt;C, T, A&gt;&amp;, const basic_string&lt;<span class='discretionary'></span>C, T, A&gt;&amp;)</span>
+is provided so that a locale may be used as a predicate argument to
+the standard collections, to collate strings.
+</p></li><li ><p >Convenient global interfaces are provided for traditional
+<span class='texttt'>ctype</span>
+functions such as
+<span class='texttt'>isdigit()</span>
+and
+<span class='texttt'>isspace()</span>,
+so that given a locale
+object <span class='texttt'>loc</span> a C++ program can call
+<span class='texttt'>isspace(c,loc)</span>.
+(This eases upgrading existing extractors (<a href='istream.formatted'>[istream.formatted]</a>).)
+</p></li></ul><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >Once a facet reference is obtained from a locale object by calling
+<span class='texttt'>use_facet&lt;&gt;</span>,
+that reference remains usable, and the results from member functions
+of it may be cached and re-used, as long as some locale object refers
+to that facet.</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >In successive calls to a locale facet member function on a facet object
+installed in the same locale, the returned result shall be identical.</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >A
+<span class='texttt'>locale</span>
+constructed from a name string (such as <span class='texttt'>"POSIX"</span>), or from parts of
+two named locales, has a name; all others do not.
+Named locales may be compared for equality; an unnamed locale is equal
+only to (copies of) itself.
+For an unnamed locale,
+<span class='texttt'>locale::name()</span>
+returns the string
+<span class='texttt'>"*"</span>.</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >Whether there is one global locale object for the entire program or one global locale
+object per thread is <span class='indexparent'><a class='index' id='whether locale object is global or per-thread'></a></span>implementation-defined.
+Implementations should provide one global locale object per
+thread. If there is a single global locale object for the entire program,
+implementations are not required to avoid data races on it (<a href='res.on.data.races'>[res.on.data.races]</a>).</p></div><div class='footnote' id='footnote-234'><div class='marginalizedparent'><a class='marginalized' href='#footnote-234'>234)</a></div><p >Note that in the call to
+<span class='texttt'>put</span>
+the stream is implicitly converted to an
+<span class='texttt'>ostreambuf_iterator&lt;charT,traits&gt;</span>.</p></div><div id='types'><h4 ><a class='secnum' href='#types' style='min-width:118pt'>22.3.1.1</a> <span class='texttt'>locale</span> types <a class='abbr_ref' href='locale.types'>[locale.types]</a></h4><div id='category'><h4 ><a class='secnum' href='#category' style='min-width:133pt'>22.3.1.1.1</a> Type <span class='texttt'>locale::category</span> <a class='abbr_ref' href='locale.category'>[locale.category]</a></h4><p ><span class='indexparent'><a class='index' id='locale!category'></a></span><span class='indexparent'><a class='index' id='category!locale'></a></span><code class='itemdecl'>
+using category = int;
+</code></p><div class='para' id='category-1'><div class='marginalizedparent'><a class='marginalized' href='#category-1'>1</a></div><p ><i>Valid</i>
+<span class='texttt'>category</span>
+values include the
+<span class='texttt'>locale</span>
+member bitmask elements
+<span class='texttt'>collate</span>,
+<span class='texttt'>ctype</span>,
+<span class='texttt'>monetary</span>,
+<span class='texttt'>numeric</span>,
+<span class='texttt'>time</span>,
+and
+<span class='texttt'>messages</span>,
+each of which represents a single locale category.
+In addition,
+<span class='texttt'>locale</span>
+member bitmask constant
+<span class='texttt'>none</span>
+is defined as zero and represents no category. And
+<span class='texttt'>locale</span>
+member bitmask constant
+<span class='texttt'>all</span>
+is defined such that the expression</p><pre class='codeblock'>
+(collate | ctype | monetary | numeric | time | messages | all) == all
+</pre><p >is
+<span class='texttt'>true</span>,
+and represents the union of all categories.
+Further, the expression
+<span class='texttt'>(X | Y)</span>,
+where
+<span class='texttt'>X</span>
+and
+<span class='texttt'>Y</span>
+each represent a single category, represents the union of the two categories.</p></div><div class='para' id='category-2'><div class='marginalizedparent'><a class='marginalized' href='#category-2'>2</a></div><p ><span class='texttt'>locale</span>
+member functions expecting a
+<span class='texttt'>category</span>
+argument require one of the
+<span class='texttt'>category</span>
+values defined above, or the union of two or more such values.
+Such a
+<span class='texttt'>category</span>
+value identifies a set of locale categories.
+Each locale category,
+in turn, identifies a set of locale facets, including at least those
+shown in Table <a href='#tab:localization.category.facets'>[tab:localization.category.facets]</a>.</p><div class='numberedTable' id='tab:localization.category.facets'>Table <a href='#tab:localization.category.facets'>62</a> — Locale category facets<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Category</b></td><td colspan='1' class='center'><b>Includes facets</b></td></tr><tr class='capsep'><td class='left'> 
+collate     </td><td class='left'>   <span class='texttt'>collate&lt;char&gt;</span>, <span class='texttt'>collate&lt;wchar_t&gt;</span>                 </td></tr><tr class='rowsep'><td class='left'> 
+ctype       </td><td class='left'>   <span class='texttt'>ctype&lt;char&gt;</span>, <span class='texttt'>ctype&lt;wchar_t&gt;</span>                     </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>codecvt&lt;char,char,mbstate_t&gt;</span>                            </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>codecvt&lt;char16_t,char,mbstate_t&gt;</span>        </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>codecvt&lt;char32_t,char,mbstate_t&gt;</span>        </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>codecvt&lt;wchar_t,char,mbstate_t&gt;</span>                         </td></tr><tr class='rowsep'><td class='left'> 
+monetary    </td><td class='left'>   <span class='texttt'>moneypunct&lt;char&gt;</span>, <span class='texttt'>moneypunct&lt;wchar_t&gt;</span>           </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>moneypunct&lt;char,true&gt;</span>, <span class='texttt'>moneypunct&lt;wchar_t,true&gt;</span> </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>money_get&lt;char&gt;</span>, <span class='texttt'>money_get&lt;wchar_t&gt;</span>             </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>money_put&lt;char&gt;</span>, <span class='texttt'>money_put&lt;wchar_t&gt;</span>             </td></tr><tr class='rowsep'><td class='left'> 
+numeric     </td><td class='left'>   <span class='texttt'>numpunct&lt;char&gt;</span>, <span class='texttt'>numpunct&lt;wchar_t&gt;</span>               </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>num_get&lt;char&gt;</span>, <span class='texttt'>num_get&lt;wchar_t&gt;</span>                 </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>num_put&lt;char&gt;</span>, <span class='texttt'>num_put&lt;wchar_t&gt;</span>                 </td></tr><tr class='rowsep'><td class='left'> 
+time        </td><td class='left'>   <span class='texttt'>time_get&lt;char&gt;</span>, <span class='texttt'>time_get&lt;wchar_t&gt;</span>               </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>time_put&lt;char&gt;</span>, <span class='texttt'>time_put&lt;wchar_t&gt;</span>               </td></tr><tr class='rowsep'><td class='left'> 
+messages    </td><td class='left'>   <span class='texttt'>messages&lt;char&gt;</span>, <span class='texttt'>messages&lt;wchar_t&gt;</span>               </td></tr></table></div></div><div class='para' id='category-3'><div class='marginalizedparent'><a class='marginalized' href='#category-3'>3</a></div><p >For any locale <span class='texttt'>loc</span>
+either constructed, or returned by
+<span class='texttt'>locale::classic()</span>,
+and any facet <span class='texttt'>Facet</span>
+shown in Table <a href='#tab:localization.category.facets'>[tab:localization.category.facets]</a>,
+<span class='texttt'>has_facet&lt;Facet&gt;(loc)</span>
+is true.
+Each
+<span class='texttt'>locale</span>
+member function which takes a
+<span class='texttt'>locale::category</span>
+argument operates on the corresponding set of facets.</p></div><div class='para' id='category-4'><div class='marginalizedparent'><a class='marginalized' href='#category-4'>4</a></div><p >An implementation is required to provide those specializations for
+facet templates identified as members of a category, and for those
+shown in Table <a href='#tab:localization.required.specializations'>[tab:localization.required.specializations]</a>.</p><div class='numberedTable' id='tab:localization.required.specializations'>Table <a href='#tab:localization.required.specializations'>63</a> — Required specializations<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Category</b></td><td colspan='1' class='center'><b>Includes facets</b></td></tr><tr class='capsep'><td class='left'> 
+collate     </td><td class='left'>   <span class='texttt'>collate_byname&lt;char&gt;</span>, <span class='texttt'>collate_byname&lt;wchar_t&gt;</span>       </td></tr><tr class='rowsep'><td class='left'> 
+ctype       </td><td class='left'>   <span class='texttt'>ctype_byname&lt;char&gt;</span>, <span class='texttt'>ctype_byname&lt;wchar_t&gt;</span>           </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>codecvt_byname&lt;char,char,mbstate_t&gt;</span>                         </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>codecvt_byname&lt;char16_t,char,mbstate_t&gt;</span>     </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>codecvt_byname&lt;char32_t,char,mbstate_t&gt;</span>     </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>codecvt_byname&lt;wchar_t,char,mbstate_t&gt;</span>                      </td></tr><tr class='rowsep'><td class='left'> 
+monetary    </td><td class='left'>   <span class='texttt'>moneypunct_byname&lt;char,International&gt;</span>                       </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>moneypunct_byname&lt;wchar_t,International&gt;</span>                    </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>money_get&lt;C,InputIterator&gt;</span>                                  </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>money_put&lt;C,OutputIterator&gt;</span>                                 </td></tr><tr class='rowsep'><td class='left'> 
+numeric     </td><td class='left'>   <span class='texttt'>numpunct_byname&lt;char&gt;</span>, <span class='texttt'>numpunct_byname&lt;wchar_t&gt;</span>     </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>num_get&lt;C,InputIterator&gt;</span>, <span class='texttt'>num_put&lt;C,OutputIterator&gt;</span> </td></tr><tr class='rowsep'><td class='left'> 
+time        </td><td class='left'>   <span class='texttt'>time_get&lt;char,InputIterator&gt;</span>                                </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>time_get_byname&lt;char,InputIterator&gt;</span>                         </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>time_get&lt;wchar_t,InputIterator&gt;</span>                             </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>time_get_byname&lt;wchar_t,InputIterator&gt;</span>                      </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>time_put&lt;char,OutputIterator&gt;</span>                               </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>time_put_byname&lt;char,OutputIterator&gt;</span>                        </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>time_put&lt;wchar_t,OutputIterator&gt;</span>                            </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>time_put_byname&lt;wchar_t,OutputIterator&gt;</span>                     </td></tr><tr class='rowsep'><td class='left'> 
+messages    </td><td class='left'>   <span class='texttt'>messages_byname&lt;char&gt;</span>, <span class='texttt'>messages_byname&lt;wchar_t&gt;</span>     </td></tr></table></div></div><div class='para' id='category-5'><div class='marginalizedparent'><a class='marginalized' href='#category-5'>5</a></div><p >The provided implementation of members of facets
+<span class='texttt'>num_get&lt;charT&gt;</span>
+and
+<span class='texttt'>num_put&lt;charT&gt;</span>
+calls
+<span class='texttt'>use_facet&nbsp;&lt;F&gt;&nbsp;(l)</span>
+only for facet
+<span class='texttt'>F</span>
+of types
+<span class='texttt'>numpunct&lt;charT&gt;</span>
+and
+<span class='texttt'>ctype&lt;charT&gt;</span>,
+and for locale
+<span class='texttt'>l</span>
+the value obtained
+by calling member
+<span class='texttt'>getloc()</span>
+on the
+<span class='texttt'>ios_base&amp;</span>
+argument to these functions.</p></div><div class='para' id='category-6'><div class='marginalizedparent'><a class='marginalized' href='#category-6'>6</a></div><p >In declarations of facets, a template parameter with name
+<span class='texttt'>InputIterator</span>
+or
+<span class='texttt'>OutputIterator</span>
+indicates the set of
+all possible specializations on parameters that satisfy the
+requirements of an Input Iterator or an Output Iterator, respectively (<a href='iterator.requirements'>[iterator.requirements]</a>).
+A template parameter with name
+<span class='texttt'>C</span>
+represents the set
+of types containing <span class='texttt'>char</span>, <span class='texttt'>wchar_t</span>, and any other implementation-defined
+character types that satisfy
+the requirements for a character on which any of the iostream
+components can be instantiated.
+A template parameter with name
+<span class='texttt'>International</span>
+represents the set of all possible specializations on a bool parameter.</p></div></div><div id='facet'><h4 ><a class='secnum' href='#facet' style='min-width:133pt'>22.3.1.1.2</a> Class <span class='texttt'>locale::facet</span> <a class='abbr_ref' href='locale.facet'>[locale.facet]</a></h4><p ><span class='indexparent'><a class='index' id='locale!facet'></a></span><span class='indexparent'><a class='index' id='facet!locale'></a></span></p><pre class='codeblock'>
+namespace std {
+  class locale::facet {
+  protected:
+    explicit facet(size_t refs = 0);
+    virtual ~facet();
+    facet(const facet&amp;) = delete;
+    void operator=(const facet&amp;) = delete;
+  };
+}
+</pre><div class='para' id='facet-1'><div class='marginalizedparent'><a class='marginalized' href='#facet-1'>1</a></div><p >Template parameters in this Clause which are required to be facets are those named
+<span class='texttt'>Facet</span>
+in declarations.
+A program that passes a type that is
+<i>not</i>
+a facet, or a type that refers to a volatile-qualified facet, as an
+(explicit or deduced) template parameter to a locale
+function expecting a facet, is ill-formed. A const-qualified facet is a
+valid template argument to any locale function that expects a Facet template
+parameter.</p></div><div class='para' id='facet-2'><div class='marginalizedparent'><a class='marginalized' href='#facet-2'>2</a></div><p >The <span class='texttt'>refs</span>
+argument to the constructor is used for lifetime management.</p><ul ><li ><p >For
+<span class='texttt'>refs == 0</span>,
+the implementation performs
+<span class='texttt'>delete static_cast&lt;locale::facet*&gt;(f)</span>
+(where
+<span class='texttt'>f</span>
+is a pointer to the facet) when the last
+<span class='texttt'>locale</span>
+object containing the facet is destroyed;
+for
+<span class='texttt'>refs == 1</span>,
+the implementation never destroys the facet.
+</p></li></ul></div><div class='para' id='facet-3'><div class='marginalizedparent'><a class='marginalized' href='#facet-3'>3</a></div><p >Constructors of all
+facets defined in this Clause take such an argument and pass it
+along to their
+<span class='texttt'>facet</span>
+base class constructor.
+All one-argument constructors defined
+in this Clause are
+<i>explicit</i>,
+preventing their participation in automatic conversions.</p></div><div class='para' id='facet-4'><div class='marginalizedparent'><a class='marginalized' href='#facet-4'>4</a></div><p >For some standard facets a standard
+“<span class='math'>&hellip;</span><span class='texttt'>_byname</span>”
+class, derived from it, implements the virtual function semantics
+equivalent to that facet of the locale constructed by
+<span class='texttt'>locale(const char*)</span>
+with the same name.
+Each such facet provides a constructor that takes a
+<span class='texttt'>const char*</span>
+argument, which names the locale, and a <span class='texttt'>refs</span>
+argument, which is passed to the base class constructor.
+Each such facet also provides a constructor that takes a
+<span class='texttt'>string</span> argument <span class='texttt'>str</span> and a <span class='texttt'>refs</span>
+argument, which has the same effect as calling the first constructor with the
+two arguments <span class='texttt'>str.c_str()</span> and <span class='texttt'>refs</span>.
+If there is no
+“<span class='math'>&hellip;</span><span class='texttt'>_byname</span>”
+version of a facet, the base class implements named locale
+semantics itself by reference to other facets.</p></div></div><div id='id'><h4 ><a class='secnum' href='#id' style='min-width:133pt'>22.3.1.1.3</a> Class <span class='texttt'>locale::id</span> <a class='abbr_ref' href='locale.id'>[locale.id]</a></h4><p ><span class='indexparent'><a class='index' id='locale!id'></a></span><span class='indexparent'><a class='index' id='id!locale'></a></span></p><pre class='codeblock'>
+namespace std {
+  class locale::id {
+  public:
+    id();
+    void operator=(const id&amp;) = delete;
+    id(const id&amp;) = delete;
+  };
+}
+</pre><div class='para' id='id-1'><div class='marginalizedparent'><a class='marginalized' href='#id-1'>1</a></div><p >The class <span class='texttt'>locale::id</span> provides identification of a locale facet
+interface, used as an index for lookup
+and to encapsulate initialization.</p></div><div class='para' id='id-2'><div class='marginalizedparent'><a class='marginalized' href='#id-2'>2</a></div><p >[&nbsp;<i>Note:</i><span class='space'></span>
+Because facets are used by iostreams, potentially while static constructors are
+running, their initialization cannot depend on programmed static
+initialization.
+One initialization strategy is for
+<span class='texttt'>locale</span>
+to initialize each facet's
+<span class='texttt'>id</span>
+member the first time an instance of the facet is installed into a locale.
+This depends only on static storage being zero before constructors run (<a href='basic.start.static'>[basic.start.static]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div></div><div id='cons'><h4 ><a class='secnum' href='#cons' style='min-width:118pt'>22.3.1.2</a> <span class='texttt'>locale</span> constructors and destructor <a class='abbr_ref' href='locale.cons'>[locale.cons]</a></h4><p ><span class='indexparent'><a class='index' id='locale!constructor'></a></span><code class='itemdecl'>
+locale() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='cons-1'><div class='marginalizedparent'><a class='marginalized' href='#cons-1'>1</a></div><div class='itemdescr'><p >Default constructor: a snapshot of the current global locale.</p></div></div><div class='para' id='cons-2'><div class='marginalizedparent'><a class='marginalized' href='#cons-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs a copy of the argument last passed to
+<span class='texttt'>locale::global(locale&amp;)</span>,
+if it has been called; else, the resulting facets have virtual
+function semantics identical to those of
+<span class='texttt'>locale::classic()</span>.
+[&nbsp;<i>Note:</i><span class='space'></span>
+This constructor is commonly used as the default value for arguments
+of functions that take a
+<span class='texttt'>const locale&amp;</span>
+argument.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='locale!constructor'></a></span><code class='itemdecl'>
+locale(const locale&amp; other) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='cons-3'><div class='marginalizedparent'><a class='marginalized' href='#cons-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs a locale which is a copy of <span class='texttt'>other</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='locale!constructor'></a></span><code class='itemdecl'>
+explicit locale(const char* std_name);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-4'><div class='marginalizedparent'><a class='marginalized' href='#cons-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs a locale using standard C locale names, e.g., <span class='texttt'>"POSIX"</span>.
+The resulting locale implements semantics defined to be associated
+with that name.</p></div></div><div class='para' id='cons-5'><div class='marginalizedparent'><a class='marginalized' href='#cons-5'>5</a></div><div class='itemdescr'><p ><i>Throws:</i>
+<span class='texttt'>runtime_error</span>
+if the argument is not valid, or is null.</p></div></div><div class='para' id='cons-6'><div class='marginalizedparent'><a class='marginalized' href='#cons-6'>6</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The set of valid string argument values is <span class='texttt'>"C"</span>, <span class='texttt'>""</span>,
+and any <span class='indexparent'><a class='index' id='locale names'></a></span>implementation-defined values.
+</p></div></div><p ><span class='indexparent'><a class='index' id='locale!constructor'></a></span><code class='itemdecl'>
+explicit locale(const string&amp; std_name);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-7'><div class='marginalizedparent'><a class='marginalized' href='#cons-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> The same as <span class='texttt'>locale(std_name.c_str())</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='locale!constructor'></a></span><code class='itemdecl'>
+locale(const locale&amp; other, const char* std_name, category);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-8'><div class='marginalizedparent'><a class='marginalized' href='#cons-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs a locale as a copy of
+<span class='texttt'>other</span>
+except for the facets identified by the
+<span class='texttt'>category</span>
+argument, which instead implement the same semantics as
+<span class='texttt'>locale(std_name)</span>.</p></div></div><div class='para' id='cons-9'><div class='marginalizedparent'><a class='marginalized' href='#cons-9'>9</a></div><div class='itemdescr'><p ><i>Throws:</i>
+<span class='texttt'>runtime_error</span>
+if the argument is not valid, or is null.</p></div></div><div class='para' id='cons-10'><div class='marginalizedparent'><a class='marginalized' href='#cons-10'>10</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The locale has a name if and only if
+<span class='texttt'>other</span>
+has a name.
+</p></div></div><p ><span class='indexparent'><a class='index' id='locale!constructor'></a></span><code class='itemdecl'>
+locale(const locale&amp; other, const string&amp; std_name, category cat);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-11'><div class='marginalizedparent'><a class='marginalized' href='#cons-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> The same as <span class='texttt'>locale(other, std_name.c_str(), cat)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='locale!constructor'></a></span><code class='itemdecl'>
+template &lt;class Facet&gt; locale(const locale&amp; other, Facet* f);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-12'><div class='marginalizedparent'><a class='marginalized' href='#cons-12'>12</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs a locale incorporating all facets from the first
+argument except that of type
+<span class='texttt'>Facet</span>,
+and installs the second argument as the remaining facet.
+If <span class='texttt'>f</span>
+is null, the resulting object is a copy of <span class='texttt'>other</span>.</p></div></div><div class='para' id='cons-13'><div class='marginalizedparent'><a class='marginalized' href='#cons-13'>13</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The resulting locale has no name.
+</p></div></div><p ><span class='indexparent'><a class='index' id='locale!constructor'></a></span><code class='itemdecl'>
+locale(const locale&amp; other, const locale&amp; one, category cats);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-14'><div class='marginalizedparent'><a class='marginalized' href='#cons-14'>14</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs a locale incorporating all facets from the first argument
+except those that implement
+<span class='texttt'>cats</span>,
+which are instead incorporated from the second argument.</p></div></div><div class='para' id='cons-15'><div class='marginalizedparent'><a class='marginalized' href='#cons-15'>15</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The resulting locale has a name if and only if the first two arguments
+have names.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=!locale'></a></span><span class='indexparent'><a class='index' id='locale!operator='></a></span><code class='itemdecl'>
+const locale&amp; operator=(const locale&amp; other) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='cons-16'><div class='marginalizedparent'><a class='marginalized' href='#cons-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Creates a copy of <span class='texttt'>other</span>, replacing the current value.</p></div></div><div class='para' id='cons-17'><div class='marginalizedparent'><a class='marginalized' href='#cons-17'>17</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='locale!destructor'></a></span><code class='itemdecl'>
+~locale();
+</code></p><div class='itemdescr'></div><div class='para' id='cons-18'><div class='marginalizedparent'><a class='marginalized' href='#cons-18'>18</a></div><div class='itemdescr'><p >A non-virtual destructor that throws no exceptions.
+</p></div></div></div><div id='members'><h4 ><a class='secnum' href='#members' style='min-width:118pt'>22.3.1.3</a> <span class='texttt'>locale</span> members <a class='abbr_ref' href='locale.members'>[locale.members]</a></h4><p ><span class='indexparent'><a class='index' id='locale!combine'></a></span><span class='indexparent'><a class='index' id='combine!locale'></a></span><code class='itemdecl'>
+template &lt;class Facet&gt; locale combine(const locale&amp; other) const;
+</code></p><div class='itemdescr'></div><div class='para' id='members-1'><div class='marginalizedparent'><a class='marginalized' href='#members-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs a locale incorporating
+all facets from
+<span class='texttt'>*this</span>
+except for that one facet of
+<span class='texttt'>other</span>
+that is identified by
+<span class='texttt'>Facet</span>.</p></div></div><div class='para' id='members-2'><div class='marginalizedparent'><a class='marginalized' href='#members-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The newly created locale.</p></div></div><div class='para' id='members-3'><div class='marginalizedparent'><a class='marginalized' href='#members-3'>3</a></div><div class='itemdescr'><p ><i>Throws:</i>
+<span class='texttt'>runtime_error</span>
+if
+<span class='texttt'>has_facet&lt;Facet&gt;(other)</span>
+is false.</p></div></div><div class='para' id='members-4'><div class='marginalizedparent'><a class='marginalized' href='#members-4'>4</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The resulting locale has no name.
+</p></div></div><p ><span class='indexparent'><a class='index' id='locale!name'></a></span><span class='indexparent'><a class='index' id='name!locale'></a></span><code class='itemdecl'>
+basic_string&lt;char&gt; name() const;
+</code></p><div class='itemdescr'></div><div class='para' id='members-5'><div class='marginalizedparent'><a class='marginalized' href='#members-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The name of
+<span class='texttt'>*this</span>,
+if it has one; otherwise, the string <span class='texttt'>"*"</span>.
+If
+<span class='texttt'>*this</span>
+has a name, then
+<span class='texttt'>locale(name().<span class='discretionary'></span>c_str())</span>
+is equivalent to
+<span class='texttt'>*this</span>.
+Details of the contents of the resulting string are otherwise implementation-defined.<span class='indexparent'><a class='index' id='implementation-defined'></a></span>
+</p></div></div></div><div id='operators'><h4 ><a class='secnum' href='#operators' style='min-width:118pt'>22.3.1.4</a> <span class='texttt'>locale</span> operators <a class='abbr_ref' href='locale.operators'>[locale.operators]</a></h4><p ><span class='indexparent'><a class='index' id='locale!operator=='></a></span><span class='indexparent'><a class='index' id='operator==!locale'></a></span><code class='itemdecl'>
+bool operator==(const locale&amp; other) const;
+</code></p><div class='itemdescr'></div><div class='para' id='operators-1'><div class='marginalizedparent'><a class='marginalized' href='#operators-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>true</span>
+if both arguments are the same locale, or one is a copy of the
+other, or each has a name and the names are identical;
+<span class='texttt'>false</span>
+otherwise.
+</p></div></div><p ><span class='indexparent'><a class='index' id='locale!operator!='></a></span><span class='indexparent'><a class='index' id='operator!=!locale'></a></span><code class='itemdecl'>
+bool operator!=(const locale&amp; other) const;
+</code></p><div class='itemdescr'></div><div class='para' id='operators-2'><div class='marginalizedparent'><a class='marginalized' href='#operators-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The result of the expression:
+<span class='texttt'>!(*this == other)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='locale!operator()'></a></span><span class='indexparent'><a class='index' id='operator()!locale'></a></span><code class='itemdecl'>
+template &lt;class charT, class traits, class Allocator&gt;
+  bool operator()(const basic_string&lt;charT,traits,Allocator&gt;&amp; s1,
+                  const basic_string&lt;charT,traits,Allocator&gt;&amp; s2) const;
+</code></p><div class='itemdescr'></div><div class='para' id='operators-3'><div class='marginalizedparent'><a class='marginalized' href='#operators-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Compares two strings according to the
+<span class='texttt'>collate&lt;charT&gt;</span>
+facet.</p></div></div><div class='para' id='operators-4'><div class='marginalizedparent'><a class='marginalized' href='#operators-4'>4</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+This member operator template (and therefore
+<span class='texttt'>locale</span>
+itself) satisfies requirements for a comparator predicate template argument
+(Clause <a href='algorithms'>[algorithms]</a>) applied to strings.</p></div></div><div class='para' id='operators-5'><div class='marginalizedparent'><a class='marginalized' href='#operators-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The result of the following expression:</p><pre class='codeblock'>
+use_facet&lt; collate&lt;charT&gt; &gt;(*this).compare
+  (s1.data(), s1.data()+s1.size(), s2.data(), s2.data()+s2.size()) &lt; 0;
+</pre></div></div><div class='para' id='operators-6'><div class='marginalizedparent'><a class='marginalized' href='#operators-6'>6</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i><span class='space'></span>
+A vector of strings
+<span class='texttt'>v</span>
+can be collated according to collation rules in locale
+<span class='texttt'>loc</span>
+simply by (<a href='alg.sort'>[alg.sort]</a>, <a href='vector'>[vector]</a>):</p><pre class='codeblock'>
+std::sort(v.begin(), v.end(), loc);
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div></div><div id='statics'><h4 ><a class='secnum' href='#statics' style='min-width:118pt'>22.3.1.5</a> <span class='texttt'>locale</span> static members <a class='abbr_ref' href='locale.statics'>[locale.statics]</a></h4><p ><span class='indexparent'><a class='index' id='locale!global'></a></span><span class='indexparent'><a class='index' id='global!locale'></a></span><code class='itemdecl'>
+static locale global(const locale&amp; loc);
+</code></p><div class='itemdescr'></div><div class='para' id='statics-1'><div class='marginalizedparent'><a class='marginalized' href='#statics-1'>1</a></div><div class='itemdescr'><p >Sets the global locale to its argument.</p></div></div><div class='para' id='statics-2'><div class='marginalizedparent'><a class='marginalized' href='#statics-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Causes future calls to the constructor
+<span class='texttt'>locale()</span>
+to return a copy of the argument.
+If the argument has a name, does</p><pre class='codeblock'>
+std::setlocale(LC_ALL, loc.name().c_str());
+</pre><p >otherwise, the effect on the C locale, if any, is <span class='indexparent'><a class='index' id='effect on C locale of calling locale::global'></a></span>implementation-defined.
+No library function other than
+<span class='texttt'>locale<span class='discretionary'></span>::<span class='discretionary'></span>global()</span>
+shall affect the value returned by
+<span class='texttt'>locale()</span>.
+[&nbsp;<i>Note:</i><span class='space'></span> See <a href='c.locales'>[c.locales]</a> for data race considerations when
+<span class='texttt'>setlocale</span> is invoked. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='statics-3'><div class='marginalizedparent'><a class='marginalized' href='#statics-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The previous value of
+<span class='texttt'>locale()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='locale!classic'></a></span><span class='indexparent'><a class='index' id='classic!locale'></a></span><code class='itemdecl'>
+static const locale&amp; classic();
+</code></p><div class='itemdescr'></div><div class='para' id='statics-4'><div class='marginalizedparent'><a class='marginalized' href='#statics-4'>4</a></div><div class='itemdescr'><p >The <span class='texttt'>"C"</span> locale.</p></div></div><div class='para' id='statics-5'><div class='marginalizedparent'><a class='marginalized' href='#statics-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A locale that implements the classic <span class='texttt'>"C"</span> locale semantics, equivalent
+to the value <span class='texttt'>locale("C")</span>.</p></div></div><div class='para' id='statics-6'><div class='marginalizedparent'><a class='marginalized' href='#statics-6'>6</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+This locale, its facets, and their member functions, do not change
+with time.
+</p></div></div></div></div></div></body></html>

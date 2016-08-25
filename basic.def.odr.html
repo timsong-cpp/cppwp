@@ -1,0 +1,208 @@
+<!DOCTYPE html><html lang='en'><head><title>[basic.def.odr]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>3</a> Basic concepts <a class='abbr_ref' href='./#basic'>[basic]</a></h1><div id='basic.def.odr'><h2 ><a class='secnum' style='min-width:88pt'>3.2</a> One-definition rule <a class='abbr_ref'>[basic.def.odr]</a></h2><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >No translation unit shall contain more than one definition of any
+variable, function, class type, enumeration type, or template.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >An expression is <a id='potentially evaluated'><i>potentially evaluated</i></a> unless it is an
+unevaluated operand (Clause <a href='expr'>[expr]</a>) or a subexpression thereof.
+The set of <a id='potential results'><i>potential results</i></a> of an expression <span class='texttt'>e</span> is
+defined as follows:</p><ul ><li ><p >If <span class='texttt'>e</span> is an
+<i ><a href='expr.prim.id#id-expression'>id-expression</a></i> (<a href='expr.prim.id'>[expr.prim.id]</a>), the set
+contains only <span class='texttt'>e</span>.
+</p></li><li ><p >If <span class='texttt'>e</span> is a subscripting operation (<a href='expr.sub'>[expr.sub]</a>) with
+an array operand, the set contains the potential results of that operand.
+</p></li><li ><p >If <span class='texttt'>e</span> is a class member access
+expression (<a href='expr.ref'>[expr.ref]</a>), the set contains the potential results of
+the object expression.
+</p></li><li ><p >If <span class='texttt'>e</span> is a pointer-to-member
+expression (<a href='expr.mptr.oper'>[expr.mptr.oper]</a>) whose second operand is a constant
+expression, the set contains the potential results of the object
+expression.
+</p></li><li ><p >If <span class='texttt'>e</span> has the form <span class='texttt'>(e1)</span>, the set contains the
+potential results of <span class='texttt'>e1</span>.
+</p></li><li ><p >If <span class='texttt'>e</span> is a glvalue conditional
+expression (<a href='expr.cond'>[expr.cond]</a>), the set is the union of the sets of
+potential results of the second and third operands.
+</p></li><li ><p >If <span class='texttt'>e</span> is a comma expression (<a href='expr.comma'>[expr.comma]</a>), the set
+contains the potential results of the right operand.
+</p></li><li ><p >Otherwise, the set is empty.
+</p></li></ul><p >[&nbsp;<i>Note:</i><span class='space'></span>
+This set is a (possibly-empty) set of <i ><a href='expr.prim.id#id-expression'>id-expressions</a></i>,
+each of which is either <span class='texttt'>e</span> or a subexpression of <span class='texttt'>e</span>.
+[&nbsp;<i>Example:</i><span class='space'></span>
+In the following example, the set of potential results of the initializer
+of <span class='texttt'>n</span> contains the first <span class='texttt'>S::x</span> subexpression, but not the second
+<span class='texttt'>S::x</span> subexpression.
+</p><pre class='codeblock'>
+struct S { static const int x = 0; };
+const int &amp;f(const int &amp;r);
+int n = b ? (1, S::x)  <span class='comment'>// <span class='texttt'>S::x</span> is not odr-used here
+</span>          : f(S::x);   <span class='comment'>// <span class='texttt'>S::x</span> is odr-used here, so
+</span>                       <span class='comment'>// a definition is required
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >A variable <span class='texttt'>x</span> whose name appears as a
+potentially-evaluated expression <span class='texttt'>ex</span> is <a id='odr-used'><i>odr-used</i></a> by <span class='texttt'>ex</span> unless
+applying the lvalue-to-rvalue conversion (<a href='conv.lval'>[conv.lval]</a>) to <span class='texttt'>x</span> yields
+a constant expression (<a href='expr.const'>[expr.const]</a>) that does not invoke any non-trivial
+functions
+and, if <span class='texttt'>x</span> is an object, <span class='texttt'>ex</span> is an element of
+the set of potential results of an expression <span class='texttt'>e</span>, where either the lvalue-to-rvalue
+conversion (<a href='conv.lval'>[conv.lval]</a>) is applied to <span class='texttt'>e</span>, or <span class='texttt'>e</span> is
+a discarded-value expression (Clause <a href='expr'>[expr]</a>).
+<span class='texttt'>this</span> is odr-used if it appears as a potentially-evaluated expression
+(including as the result of the implicit transformation in the body of a non-static
+member function (<a href='class.mfct.non-static'>[class.mfct.non-static]</a>)).
+A virtual member
+function is odr-used if it is not pure.
+A function whose name appears as a potentially-evaluated
+expression is odr-used if it is the unique lookup result or the selected
+member of a set of overloaded functions (<a href='basic.lookup'>[basic.lookup]</a>, <a href='over.match'>[over.match]</a>, <a href='over.over'>[over.over]</a>),
+unless it is a pure virtual function and either
+its name is not explicitly qualified or
+the expression forms a pointer to member (<a href='expr.unary.op'>[expr.unary.op]</a>).
+[&nbsp;<i>Note:</i><span class='space'></span> This covers calls to named
+functions (<a href='expr.call'>[expr.call]</a>), operator overloading (Clause <a href='over'>[over]</a>),
+user-defined conversions (<a href='class.conv.fct'>[class.conv.fct]</a>), allocation functions for
+placement <i ><a href='expr.new#new-expression'>new-expressions</a></i> (<a href='expr.new'>[expr.new]</a>), as well as non-default
+initialization (<a href='dcl.init'>[dcl.init]</a>). A constructor selected to copy or move an
+object of class type is odr-used even if the
+call is actually elided by the implementation (<a href='class.copy'>[class.copy]</a>). <i>&nbsp;—&nbsp;end note</i>&nbsp;] An allocation
+or deallocation function for a class is odr-used by a <i ><a href='expr.new#new-expression'>new-expression</a></i>
+appearing in a potentially-evaluated expression as specified
+in <a href='expr.new'>[expr.new]</a> and <a href='class.free'>[class.free]</a>. A deallocation function for a
+class is odr-used by a delete expression appearing in a
+potentially-evaluated expression as specified in <a href='expr.delete'>[expr.delete]</a>
+and <a href='class.free'>[class.free]</a>. A non-placement allocation or deallocation
+function for a class is odr-used by the definition of a constructor of that
+class. A non-placement deallocation function for a class is odr-used by the
+definition of the destructor of that class, or by being selected by the
+lookup at the point of definition of a virtual
+destructor (<a href='class.dtor'>[class.dtor]</a>).<a class='footnotenum' href='#footnote-26'>26</a>
+An assignment operator function in a class is odr-used by an
+implicitly-defined
+copy-assignment or move-assignment function for another class as specified
+in <a href='class.copy'>[class.copy]</a>.
+A constructor for a class is odr-used as specified
+in <a href='dcl.init'>[dcl.init]</a>. A destructor for a class is odr-used if it is potentially
+invoked (<a href='class.dtor'>[class.dtor]</a>).</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Every program shall contain exactly one definition of every non-inline
+function or variable that is odr-used in that program
+outside of a discarded statement (<a href='stmt.if'>[stmt.if]</a>); no diagnostic required.
+The definition can appear explicitly in the program, it can be found in
+the standard or a user-defined library, or (when appropriate) it is
+implicitly defined (see <a href='class.ctor'>[class.ctor]</a>, <a href='class.dtor'>[class.dtor]</a> and
+<a href='class.copy'>[class.copy]</a>). An inline function or variable shall be defined in every
+translation unit in which it is odr-used outside of a discarded statement.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p ><span class='indexparent'><a class='index' id='type!incomplete'></a></span>Exactly one definition of a class is required in a translation unit if
+the class is used in a way that requires the class type to be complete.
+[&nbsp;<i>Example:</i><span class='space'></span> the following complete translation unit is well-formed,
+even though it never defines <span class='texttt'>X</span>:</p><pre class='codeblock'>
+struct X;                       <span class='comment'>// declare <span class='texttt'>X</span> as a struct type
+</span>struct X* x1;                   <span class='comment'>// use <span class='texttt'>X</span> in pointer formation
+</span>X* x2;                          <span class='comment'>// use <span class='texttt'>X</span> in pointer formation
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+[&nbsp;<i>Note:</i><span class='space'></span> The rules for declarations and expressions
+describe in which contexts complete class types are required. A class
+type <span class='texttt'>T</span> must be complete if:</p><ul ><li ><p >an object of type <span class='texttt'>T</span> is defined (<a href='basic.def'>[basic.def]</a>), or
+</p></li><li ><p >a non-static class data member of type <span class='texttt'>T</span> is
+declared (<a href='class.mem'>[class.mem]</a>), or
+</p></li><li ><p ><span class='texttt'>T</span> is used as the object type or array element type in a
+<i ><a href='expr.new#new-expression'>new-expression</a></i> (<a href='expr.new'>[expr.new]</a>), or
+</p></li><li ><p >an lvalue-to-rvalue conversion is applied to
+a glvalue referring
+to an object of type <span class='texttt'>T</span> (<a href='conv.lval'>[conv.lval]</a>), or
+</p></li><li ><p >an expression is converted (either implicitly or explicitly) to
+type <span class='texttt'>T</span> (Clause <a href='conv'>[conv]</a>, <a href='expr.type.conv'>[expr.type.conv]</a>,
+<a href='expr.dynamic.cast'>[expr.dynamic.cast]</a>, <a href='expr.static.cast'>[expr.static.cast]</a>, <a href='expr.cast'>[expr.cast]</a>), or
+</p></li><li ><p >an expression that is not a null pointer constant, and has type
+other than <i>cv</i> <span class='texttt'>void*</span>, is converted to the type pointer to <span class='texttt'>T</span>
+or reference to <span class='texttt'>T</span> using a standard conversion
+(Clause <a href='conv'>[conv]</a>), a <span class='texttt'>dynamic_cast</span> (<a href='expr.dynamic.cast'>[expr.dynamic.cast]</a>) or
+a <span class='texttt'>static_cast</span> (<a href='expr.static.cast'>[expr.static.cast]</a>), or
+</p></li><li ><p >a class member access operator is applied to an expression of type
+<span class='texttt'>T</span> (<a href='expr.ref'>[expr.ref]</a>), or
+</p></li><li ><p >the <span class='texttt'>typeid</span> operator (<a href='expr.typeid'>[expr.typeid]</a>) or the
+<span class='texttt'>sizeof</span> operator (<a href='expr.sizeof'>[expr.sizeof]</a>) is applied to an operand of
+type <span class='texttt'>T</span>, or
+</p></li><li ><p >a function with a return type or argument type of type <span class='texttt'>T</span>
+is defined (<a href='basic.def'>[basic.def]</a>) or called (<a href='expr.call'>[expr.call]</a>), or
+</p></li><li ><p >a class with a base class of type <span class='texttt'>T</span> is
+defined (Clause <a href='class.derived'>[class.derived]</a>), or
+</p></li><li ><p >an lvalue of type <span class='texttt'>T</span> is assigned to (<a href='expr.ass'>[expr.ass]</a>), or
+</p></li><li ><p >the type <span class='texttt'>T</span> is the subject of an
+<span class='texttt'>alignof</span> expression (<a href='expr.alignof'>[expr.alignof]</a>), or
+</p></li><li ><p >an <i ><a href='except#exception-declaration'>exception-declaration</a></i> has type <span class='texttt'>T</span>, reference to
+<span class='texttt'>T</span>, or pointer to <span class='texttt'>T</span> (<a href='except.handle'>[except.handle]</a>).
+</p></li></ul><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >There can be more than one definition of a class type
+(Clause <a href='class'>[class]</a>), enumeration type (<a href='dcl.enum'>[dcl.enum]</a>), inline function
+with external linkage (<a href='dcl.fct.spec'>[dcl.fct.spec]</a>), inline variable with external
+linkage, class template
+(Clause <a href='temp'>[temp]</a>), non-static function template (<a href='temp.fct'>[temp.fct]</a>),
+static data member of a class template (<a href='temp.static'>[temp.static]</a>), member
+function of a class template (<a href='temp.mem.func'>[temp.mem.func]</a>), or template
+specialization for which some template parameters are not
+specified (<a href='temp.spec'>[temp.spec]</a>, <a href='temp.class.spec'>[temp.class.spec]</a>) in a program provided
+that each definition appears in a different translation unit, and
+provided the definitions satisfy the following requirements. Given such
+an entity named <span class='texttt'>D</span> defined in more than one translation unit,
+then</p><ul ><li ><p >each definition of <span class='texttt'>D</span> shall consist of the same sequence of
+tokens; and</p></li><li ><p >in each definition of <span class='texttt'>D</span>, corresponding names, looked up
+according to <a href='basic.lookup'>[basic.lookup]</a>, shall refer to an entity defined within
+the definition of <span class='texttt'>D</span>, or shall refer to the same entity, after
+overload resolution (<a href='over.match'>[over.match]</a>) and after matching of partial
+template specialization (<a href='temp.over'>[temp.over]</a>), except that a name can refer to
+</p><ul ><li ><p >a non-volatile <span class='texttt'>const</span> object with internal or no linkage if the object
+</p><ul ><li ><p >has the same literal type in all definitions of <span class='texttt'>D</span>,
+</p></li><li ><p >is initialized with a constant expression (<a href='expr.const'>[expr.const]</a>),
+</p></li><li ><p >is not odr-used, and
+</p></li><li ><p >has the same value in all definitions of <span class='texttt'>D</span>,
+</p></li></ul><p >or
+</p></li><li ><p >a reference with internal or no linkage
+initialized with a constant expression such that
+the reference refers to the same entity in all definitions of <span class='texttt'>D</span>;
+</p></li></ul><p >and</p></li><li ><p >in each definition of <span class='texttt'>D</span>, corresponding entities shall have the
+same language linkage; and</p></li><li ><p >in each definition of <span class='texttt'>D</span>, the overloaded operators referred
+to, the implicit calls to conversion functions, constructors, operator
+new functions and operator delete functions, shall refer to the same
+function, or to a function defined within the definition of <span class='texttt'>D</span>;
+and</p></li><li ><p >in each definition of <span class='texttt'>D</span>, a default argument used by an
+(implicit or explicit) function call is treated as if its token sequence
+were present in the definition of <span class='texttt'>D</span>; that is, the default
+argument is subject to the three requirements described above (and, if
+the default argument has sub-expressions with default arguments, this
+requirement applies recursively).<a class='footnotenum' href='#footnote-27'>27</a></p></li><li ><p >if <span class='texttt'>D</span> is a class with an implicitly-declared
+constructor (<a href='class.ctor'>[class.ctor]</a>), it is as if the constructor was
+implicitly defined in every translation unit where it is odr-used, and the
+implicit definition in every translation unit shall call the same
+constructor for a subobject of <span class='texttt'>D</span>.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+<span class='comment'>//translation unit 1:
+</span>struct X {
+  X(int, int);
+  X(int, int, int);
+};
+X::X(int, int = 0) { }
+class D {
+  X x = 0;
+};
+D d2;                           <span class='comment'>// <span class='texttt'>X(int, int)</span> called by <span class='texttt'>D()</span>
+</span>
+<span class='comment'>//translation unit 2:
+</span>struct X {
+  X(int, int);
+  X(int, int, int);
+};
+X::X(int, int = 0, int = 0) { }
+class D {
+  X x = 0;
+};                              <span class='comment'>// <span class='texttt'>X(int, int, int)</span> called by <span class='texttt'>D()</span>;
+</span>                                <span class='comment'>// <span class='texttt'>D()</span>'s implicit definition
+</span>                                <span class='comment'>// violates the ODR
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></li></ul><p >If <span class='texttt'>D</span> is a template and is defined in more than one
+translation unit, then the preceding requirements
+shall apply both to names from the template's enclosing scope used in the
+template definition (<a href='temp.nondep'>[temp.nondep]</a>), and also to dependent names at
+the point of instantiation (<a href='temp.dep'>[temp.dep]</a>). If the definitions of
+<span class='texttt'>D</span> satisfy all these requirements, then the behavior is
+as if there were a single definition of <span class='texttt'>D</span>. If the definitions of
+<span class='texttt'>D</span> do not satisfy these requirements, then the behavior is
+undefined.<span class='indexparent'><a class='index' id='one-definition~rule'></a></span></p></div><div class='footnote' id='footnote-26'><div class='marginalizedparent'><a class='marginalized' href='#footnote-26'>26)</a></div><p >An implementation is not required
+to call allocation and
+deallocation functions from constructors or destructors; however, this
+is a permissible implementation technique.</p></div><div class='footnote' id='footnote-27'><div class='marginalizedparent'><a class='marginalized' href='#footnote-27'>27)</a></div><p ><a href='dcl.fct.default'>[dcl.fct.default]</a> 
+describes how default argument names are looked up.</p></div></div></div></body></html>

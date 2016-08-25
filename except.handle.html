@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang='en'><head><title>[except.handle]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>15</a> Exception handling <a class='abbr_ref' href='./#except'>[except]</a></h1><div id='except.handle'><h2 ><a class='secnum' style='min-width:88pt'>15.3</a> Handling an exception <a class='abbr_ref'>[except.handle]</a></h2><p ><span class='indexparent'><a class='index' id='exception handling!handler'></a></span>
+</p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The
+<i ><a href='except#exception-declaration'>exception-declaration</a></i>
+in a
+<i>handler</i>
+describes the type(s) of exceptions that can cause
+that
+<i>handler</i>
+to be entered.
+<span class='indexparent'><a class='index' id='exception handling!handler!incomplete type in'></a></span><span class='indexparent'><a class='index' id='exception handling!handler!rvalue reference in'></a></span><span class='indexparent'><a class='index' id='exception handling!handler!array in'></a></span><span class='indexparent'><a class='index' id='exception handling!handler!pointer to function in'></a></span>The
+<i ><a href='except#exception-declaration'>exception-declaration</a></i>
+shall not denote an incomplete type, an abstract class type, or an rvalue reference type.
+The
+<i ><a href='except#exception-declaration'>exception-declaration</a></i>
+shall not denote a pointer or reference to an
+incomplete type, other than
+<span class='texttt'>void*</span>,
+<span class='texttt'>const</span>
+<span class='texttt'>void*</span>,
+<span class='texttt'>volatile</span>
+<span class='texttt'>void*</span>,
+or
+<span class='texttt'>const</span>
+<span class='texttt'>volatile</span>
+<span class='texttt'>void*</span>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >A handler of type
+<span class='indexparent'><a class='index' id='array!handler~of~type'></a></span>“array of <span class='texttt'>T</span>” or
+<span class='indexparent'><a class='index' id='function!handler~of~type'></a></span>function type <span class='texttt'>T</span>
+is adjusted to be of type
+“pointer to <span class='texttt'>T</span>”.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p ><span class='indexparent'><a class='index' id='exception handling!handler!match'></a></span>A
+<i>handler</i>
+is a match for
+an exception object
+of type
+<span class='texttt'>E</span>
+if
+</p><ul ><li ><p >The <i>handler</i> is of type <i>cv</i> <span class='texttt'>T</span> or
+<i>cv</i> <span class='texttt'>T&amp;</span> and
+<span class='texttt'>E</span> and <span class='texttt'>T</span>
+are the same type (ignoring the top-level <span class='grammarterm'>cv-qualifiers</span>), or
+</p></li><li ><p >the <i>handler</i> is of type <i>cv</i> <span class='texttt'>T</span> or
+<i>cv</i> <span class='texttt'>T&amp;</span> and
+<span class='texttt'>T</span> is an unambiguous public base class of <span class='texttt'>E</span>, or
+</p></li><li ><p >the <i>handler</i> is of type <i>cv</i> <span class='texttt'>T</span> or <span class='texttt'>const T&amp;</span>
+where <span class='texttt'>T</span> is a pointer or pointer to member type and
+<span class='texttt'>E</span> is a pointer or pointer to member type
+that can be converted to <span class='texttt'>T</span> by one or more of
+</p><ul ><li ><p >a standard pointer conversion (<a href='conv.ptr'>[conv.ptr]</a>) not involving conversions
+to pointers to private or protected or ambiguous classes
+</p></li><li ><p >a function pointer conversion (<a href='conv.fctptr'>[conv.fctptr]</a>)
+</p></li><li ><p >a qualification conversion (<a href='conv.qual'>[conv.qual]</a>), or</p></li></ul></li><li ><p >the <i>handler</i> is of type <i>cv</i> <span class='texttt'>T</span> or <span class='texttt'>const T&amp;</span> where <span class='texttt'>T</span> is a pointer or pointer to member type and <span class='texttt'>E</span> is <span class='texttt'>std::nullptr_t</span>.</p></li></ul><p >[&nbsp;<i>Note:</i><span class='space'></span>
+A
+<i ><a href='expr.throw#throw-expression'>throw-expression</a></i>
+whose operand is an integer literal with value zero does not match a handler of
+pointer or pointer to member type.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p >[&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+class Matherr { <span class='comment'>/* ... */</span> virtual void vf(); };
+class Overflow: public Matherr { <span class='comment'>/* ... */</span> };
+class Underflow: public Matherr { <span class='comment'>/* ... */</span> };
+class Zerodivide: public Matherr { <span class='comment'>/* ... */</span> };
+
+void f() {
+  try {
+    g();
+  } catch (Overflow oo) {
+        <span class='comment'>// ...
+</span>  } catch (Matherr mm) {
+        <span class='comment'>// ...
+</span>  }
+}
+</pre><p >Here, the
+<span class='texttt'>Overflow</span>
+handler will catch exceptions of type
+<span class='texttt'>Overflow</span>
+and the
+<span class='texttt'>Matherr</span>
+handler will catch exceptions of type
+<span class='texttt'>Matherr</span>
+and of all types publicly derived from
+<span class='texttt'>Matherr</span>
+including exceptions of type
+<span class='texttt'>Underflow</span>
+and
+<span class='texttt'>Zerodivide</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >The handlers for a try block are tried in order of appearance.
+That makes it possible to write handlers that can never be
+executed, for example by placing a handler for a derived class after
+a handler for a corresponding base class.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >A
+<span class='texttt'>...</span>
+in a handler's
+<i ><a href='except#exception-declaration'>exception-declaration</a></i>
+functions similarly to
+<span class='texttt'>...</span>
+in a function parameter declaration;
+it specifies a match for any exception.
+If present, a
+<span class='texttt'>...</span>
+handler shall be the last handler for its try block.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >If no match is found among the handlers for a try block,
+the search for a matching
+handler continues in a dynamically surrounding try block
+of the same thread.</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >A handler is considered active when initialization is complete for
+the parameter (if any) of the catch clause.
+[&nbsp;<i>Note:</i><span class='space'></span>
+The stack will have been unwound at that point.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+Also, an implicit handler is considered active when
+<span class='texttt'>std::terminate()</span>
+or
+<span class='texttt'>std::unexpected()</span>
+is entered due to a throw. A handler is no longer considered active when the
+catch clause exits or when
+<span class='texttt'>std::unexpected()</span>
+exits after being entered due to a throw.</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >The exception with the most recently activated handler that is
+still active is called the
+<i>currently handled exception</i>.</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >If no matching handler is found,
+the function
+<span class='texttt'>std::terminate()</span>
+is called;
+whether or not the stack is unwound before this call to
+<span class='texttt'>std::terminate()</span>
+is <span class='indexparent'><a class='index' id='stack unwinding before call to std::terminate()'></a></span>implementation-defined (<a href='except.terminate'>[except.terminate]</a>).</p></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >Referring to any non-static member or base class of an object
+in the handler for a
+<i ><a href='except#function-try-block'>function-try-block</a></i>
+of a constructor or destructor for that object results in undefined behavior.</p></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><p >The scope and lifetime of the parameters of a function or constructor
+extend into the handlers of a
+<i ><a href='except#function-try-block'>function-try-block</a></i>.</p></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><p >Exceptions thrown in destructors of objects with static storage duration or in
+constructors of namespace-scope objects with static storage duration are not caught by a
+<i ><a href='except#function-try-block'>function-try-block</a></i>
+on
+<span class='texttt'>main()</span>. Exceptions thrown in destructors of objects with thread storage duration or in constructors of namespace-scope objects with thread storage duration are not caught by a
+<i ><a href='except#function-try-block'>function-try-block</a></i>
+on the initial function of the thread.</p></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><p >If a return statement appears in a handler of the
+<i ><a href='except#function-try-block'>function-try-block</a></i>
+of a
+constructor, the program is ill-formed.</p></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><p >The currently handled exception
+is rethrown if control reaches the end of a handler of the
+<i ><a href='except#function-try-block'>function-try-block</a></i>
+of a constructor or destructor.
+Otherwise, flowing off the end of
+the <i ><a href='stmt.block#compound-statement'>compound-statement</a></i>
+of a <i ><a href='except#handler'>handler</a></i>
+of a <i ><a href='except#function-try-block'>function-try-block</a></i>
+is equivalent to flowing off the end of
+the <i ><a href='stmt.block#compound-statement'>compound-statement</a></i>
+of that function (see <a href='stmt.return'>[stmt.return]</a>).</p></div><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><p >The variable declared by the <i ><a href='except#exception-declaration'>exception-declaration</a></i>, of type
+<i>cv</i> <span class='texttt'>T</span> or <i>cv</i> <span class='texttt'>T&amp;</span>, is initialized from the exception object,
+of type <span class='texttt'>E</span>, as follows:</p><ul ><li ><p >if <span class='texttt'>T</span> is a base class of <span class='texttt'>E</span>, the variable is
+copy-initialized (<a href='dcl.init'>[dcl.init]</a>) from the corresponding base class subobject
+of the exception object;
+</p></li><li ><p >otherwise, the variable is copy-initialized (<a href='dcl.init'>[dcl.init]</a>)
+from the exception object.
+</p></li></ul><p >The lifetime of the variable ends
+when the handler exits, after the
+destruction of any automatic objects initialized
+within the handler.</p></div><div class='para' id='16'><div class='marginalizedparent'><a class='marginalized' href='#16'>16</a></div><p >When the handler declares an object,
+any changes to that object will not affect the exception object.
+When the handler declares a reference to an object,
+any changes to the referenced object are changes to the
+exception object and will have effect should that object be rethrown.<span class='indexparent'><a class='index' id='exception handling!handler!match'></a></span><span class='indexparent'><a class='index' id='exception handling!handler'></a></span></p></div></div></div></body></html>

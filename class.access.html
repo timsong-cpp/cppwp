@@ -1,0 +1,761 @@
+<!DOCTYPE html><html lang='en'><head><title>[class.access]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><div id='class.access'><h1 ><a class='secnum' style='min-width:73pt'>11</a> Member access control <a class='abbr_ref' href='./#class.access'>[class.access]</a></h1><p ><span class='indexparent'><a class='index' id='access control'></a></span></p><p ><span class='indexparent'><a class='index' id='protection'></a></span>
+<span class='indexparent'><a class='index' id='private'></a></span>
+<span class='indexparent'><a class='index' id='protected'></a></span>
+<span class='indexparent'><a class='index' id='public'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A member of a class can be
+</p><ul ><li ><p ><span class='indexparent'><a class='index' id='access control!private'></a></span><span class='texttt'>private</span>;
+that is, its name can be used only by members and friends
+of the class in which it is declared.
+</p></li><li ><p ><span class='indexparent'><a class='index' id='access control!protected'></a></span><span class='texttt'>protected</span>;
+that is, its name can be used only by members and friends
+of the class in which it is declared, by classes derived from that class, and by their
+friends (see <a href='class.protected'>[class.protected]</a>).
+</p></li><li ><p ><span class='indexparent'><a class='index' id='access control!public'></a></span><span class='texttt'>public</span>;
+that is, its name can be used anywhere without access restriction.
+</p></li></ul></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >A member of a class can also access all the names to which the class has access.
+A local class of a member function may access
+the same names that the member function itself may access.<a class='footnotenum' href='#footnote-112'>112</a></p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p ><span class='indexparent'><a class='index' id='access control!member name'></a></span><span class='indexparent'><a class='index' id='default access control'></a></span><span class='indexparent'><a class='index' id='access control!default'></a></span>Members of a class defined with the keyword
+<span class='texttt'>class</span>
+are
+<span class='texttt'>private</span>
+by default.
+Members of a class defined with the keywords
+<span class='texttt'>struct</span>
+or
+<span class='texttt'>union</span>
+are
+<span class='texttt'>public</span>
+by default.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class X {
+  int a;            <span class='comment'>// <span class='texttt'>X::a</span> is private by default
+</span>};
+
+struct S {
+  int a;            <span class='comment'>// <span class='texttt'>S::a</span> is public by default
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Access control is applied uniformly to all names, whether the names are
+referred to from declarations or expressions.
+[&nbsp;<i>Note:</i><span class='space'></span>
+Access control applies to names nominated by
+<span class='texttt'>friend</span>
+declarations (<a href='class.friend'>[class.friend]</a>) and
+<i ><a href='namespace.udecl#using-declaration'>using-declarations</a></i> (<a href='namespace.udecl'>[namespace.udecl]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+In the case of overloaded function names, access control is applied to
+the function selected by overload resolution.
+[&nbsp;<i>Note:</i><span class='space'></span>
+Because access control applies to names, if access control is applied to a
+typedef name, only the accessibility of the typedef name itself is considered.
+The accessibility of the entity referred to by the typedef is not considered.
+For example,</p><pre class='codeblock'>
+class A {
+  class B { };
+public:
+  typedef B BB;
+};
+
+void f() {
+  A::BB x;          <span class='comment'>// OK, typedef name <span class='texttt'>A::BB</span> is public
+</span>  A::B y;           <span class='comment'>// access error, <span class='texttt'>A::B</span> is private
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >It should be noted that it is
+<i>access</i>
+to members and base classes that is controlled, not their
+<i>visibility</i>.
+Names of members are still visible, and implicit conversions to base
+classes are still considered, when those members and base classes are
+inaccessible.
+The interpretation of a given construct is
+established without regard to access control.
+If the interpretation
+established makes use of inaccessible member names or base classes,
+the construct is ill-formed.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >All access controls in Clause <a href='class.access'>[class.access]</a> affect the ability to access a class member
+name from the declaration of a particular
+entity, including parts of the declaration preceding the name of the entity
+being declared and, if the entity is a class, the definitions of members of
+the class appearing outside the class's <i ><a href='class.mem#member-specification'>member-specification.</a></i>
+[&nbsp;<i>Note:</i><span class='space'></span> this access also applies to implicit references to constructors,
+conversion functions, and destructors. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class A {
+  typedef int I;    <span class='comment'>// private member
+</span>  I f();
+  friend I g(I);
+  static I x;
+  template&lt;int&gt; struct Q;
+  template&lt;int&gt; friend struct R;
+protected:
+    struct B { };
+};
+
+A::I A::f() { return 0; }
+A::I g(A::I p = A::x);
+A::I g(A::I p) { return 0; }
+A::I A::x = 0;
+template&lt;A::I&gt; struct A::Q { };
+template&lt;A::I&gt; struct R { };
+
+struct D: A::B, A { };
+</pre></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >Here, all the uses of
+<span class='texttt'>A::I</span>
+are well-formed because
+<span class='texttt'>A::f</span>,
+<span class='texttt'>A::x</span>, and <span class='texttt'>A::Q</span>
+are members of class
+<span class='texttt'>A</span>
+and
+<span class='texttt'>g</span>
+and <span class='texttt'>R</span> are friends of class
+<span class='texttt'>A</span>.
+This implies, for example, that access checking on the first use of
+<span class='texttt'>A::I</span>
+must be deferred until it is determined that this use of
+<span class='texttt'>A::I</span>
+is as the return type of a member of class
+<span class='texttt'>A</span>.
+Similarly, the use of <span class='texttt'>A::B</span> as a
+<i ><a href='class.derived#base-specifier'>base-specifier</a></i> is well-formed because <span class='texttt'>D</span>
+is derived from <span class='texttt'>A</span>, so checking of <i ><a href='class.derived#base-specifier'>base-specifiers</a></i>
+must be deferred until the entire <i ><a href='class.derived#base-specifier-list'>base-specifier-list</a></i> has been seen.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p ><span class='indexparent'><a class='index' id='argument!access checking~and default'></a></span><span class='indexparent'><a class='index' id='access control!default argument'></a></span>The names in a default argument (<a href='dcl.fct.default'>[dcl.fct.default]</a>) are
+bound at the point of declaration, and access is checked at that
+point rather than at any points of use of the default argument.
+Access checking for default arguments in function templates and in
+member functions of class templates is performed as described in <a href='temp.inst'>[temp.inst]</a>.</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >The names in a default <i ><a href='temp.names#template-argument'>template-argument</a></i> (<a href='temp.param'>[temp.param]</a>)
+have their access checked in the context in which they appear rather than at any
+points of use of the default <i ><a href='temp.names#template-argument'>template-argument</a></i>. [&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+class B { };
+template &lt;class T&gt; class C {
+protected:
+  typedef T TT;
+};
+
+template &lt;class U, class V = typename U::TT&gt;
+class D : public U { };
+
+D &lt;C&lt;B&gt; &gt;* d;       <span class='comment'>// access error, C::TT is protected
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-112'><div class='marginalizedparent'><a class='marginalized' href='#footnote-112'>112)</a></div><p >Access
+permissions are thus transitive and cumulative to nested
+and local classes.</p></div><div id='spec'><h2 ><a class='secnum' href='#spec' style='min-width:88pt'>11.1</a> Access specifiers <a class='abbr_ref' href='class.access.spec'>[class.access.spec]</a></h2><p ><span class='indexparent'><a class='index' id='access~specifier'></a></span></p><div class='para' id='spec-1'><div class='marginalizedparent'><a class='marginalized' href='#spec-1'>1</a></div><p >Member declarations can be labeled by an
+<i ><a href='class.derived#access-specifier'>access-specifier</a></i>
+(Clause <a href='class.derived'>[class.derived]</a>):</p><pre class='bnf'><i ><a href='class.derived#access-specifier'>access-specifier</a></i> <span class='terminal'>:</span> <i ><a href='class.mem#member-specification'>member-specification</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span></pre><p >An
+<i ><a href='class.derived#access-specifier'>access-specifier</a></i>
+specifies the access rules for members following it
+until the end of the class or until another
+<i ><a href='class.derived#access-specifier'>access-specifier</a></i>
+is encountered.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class X {
+  int a;            <span class='comment'>// <span class='texttt'>X::a</span> is private by default: <span class='texttt'>class</span> used
+</span>public:
+  int b;            <span class='comment'>// <span class='texttt'>X::b</span> is public
+</span>  int c;            <span class='comment'>// <span class='texttt'>X::c</span> is public
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='spec-2'><div class='marginalizedparent'><a class='marginalized' href='#spec-2'>2</a></div><p >Any number of access specifiers is allowed and no particular order is required.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+struct S {
+  int a;            <span class='comment'>// <span class='texttt'>S::a</span> is public by default: <span class='texttt'>struct</span> used
+</span>protected:
+  int b;            <span class='comment'>// <span class='texttt'>S::b</span> is protected
+</span>private:
+  int c;            <span class='comment'>// <span class='texttt'>S::c</span> is private
+</span>public:
+  int d;            <span class='comment'>// <span class='texttt'>S::d</span> is public
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='spec-3'><div class='marginalizedparent'><a class='marginalized' href='#spec-3'>3</a></div><p >[&nbsp;<i>Note:</i><span class='space'></span> The effect of access control on the order of allocation
+of data members is described in <a href='class.mem'>[class.mem]</a>.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='spec-4'><div class='marginalizedparent'><a class='marginalized' href='#spec-4'>4</a></div><p >When a member is redeclared within its class definition,
+the access specified at its redeclaration shall
+be the same as at its initial declaration.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+struct S {
+  class A;
+  enum E : int;
+private:
+  class A { };        <span class='comment'>// error: cannot change access
+</span>  enum E: int { e0 }; <span class='comment'>// error: cannot change access
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='spec-5'><div class='marginalizedparent'><a class='marginalized' href='#spec-5'>5</a></div><p >[&nbsp;<i>Note:</i><span class='space'></span>
+In a derived class, the lookup of a base class name will find the
+injected-class-name instead of the name of the base class in the scope
+in which it was declared. The injected-class-name might be less accessible
+than the name of the base class in the scope in which it was declared.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p >[&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+class A { };
+class B : private A { };
+class C : public B {
+  A* p;             <span class='comment'>// error: injected-class-name <span class='texttt'>A</span> is inaccessible
+</span>  ::A* q;           <span class='comment'>// OK
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div id='base'><h2 ><a class='secnum' href='#base' style='min-width:88pt'>11.2</a> Accessibility of base classes and base class members <a class='abbr_ref' href='class.access.base'>[class.access.base]</a></h2><p ><span class='indexparent'><a class='index' id='access control!base~class'></a></span><span class='indexparent'><a class='index' id='access~specifier'></a></span><span class='indexparent'><a class='index' id='base~class!private'></a></span><span class='indexparent'><a class='index' id='base~class!protected'></a></span><span class='indexparent'><a class='index' id='base~class!public'></a></span></p><div class='para' id='base-1'><div class='marginalizedparent'><a class='marginalized' href='#base-1'>1</a></div><p >If a class is declared to be a base class (Clause <a href='class.derived'>[class.derived]</a>) for another class using the
+<span class='texttt'>public</span>
+access specifier, the
+<span class='texttt'>public</span>
+members of the base class are accessible as
+<span class='texttt'>public</span>
+members of the derived class and
+<span class='texttt'>protected</span>
+members of the base class are accessible as
+<span class='texttt'>protected</span>
+members of the derived class.
+If a class is declared to be a base class for another class using the
+<span class='texttt'>protected</span>
+access specifier, the
+<span class='texttt'>public</span>
+and
+<span class='texttt'>protected</span>
+members of the base class are accessible as
+<span class='texttt'>protected</span>
+members of the derived class.
+If a class is declared to be a base class for another class using the
+<span class='texttt'>private</span>
+access specifier, the
+<span class='texttt'>public</span>
+and
+<span class='texttt'>protected</span>
+members of the base class are accessible as
+<span class='texttt'>private</span>
+members of the derived class<a class='footnotenum' href='#footnote-113'>113</a>.</p></div><div class='para' id='base-2'><div class='marginalizedparent'><a class='marginalized' href='#base-2'>2</a></div><p >In the absence of an
+<i ><a href='class.derived#access-specifier'>access-specifier</a></i>
+for a base class,
+<span class='texttt'>public</span>
+is assumed when the derived class is
+defined with the <i ><a href='class#class-key'>class-key</a></i>
+<span class='texttt'>struct</span>
+and
+<span class='texttt'>private</span>
+is assumed when the class is
+defined with the <i ><a href='class#class-key'>class-key</a></i>
+<span class='texttt'>class</span>.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class B { <span class='comment'>/* ... */</span> };
+class D1 : private B { <span class='comment'>/* ... */</span> };
+class D2 : public B { <span class='comment'>/* ... */</span> };
+class D3 : B { <span class='comment'>/* ... */</span> };     <span class='comment'>// <span class='texttt'>B</span> private by default
+</span>struct D4 : public B { <span class='comment'>/* ... */</span> };
+struct D5 : private B { <span class='comment'>/* ... */</span> };
+struct D6 : B { <span class='comment'>/* ... */</span> };    <span class='comment'>// <span class='texttt'>B</span> public by default
+</span>class D7 : protected B { <span class='comment'>/* ... */</span> };
+struct D8 : protected B { <span class='comment'>/* ... */</span> };
+</pre><p >Here
+<span class='texttt'>B</span>
+is a public base of
+<span class='texttt'>D2</span>,
+<span class='texttt'>D4</span>,
+and
+<span class='texttt'>D6</span>,
+a private base of
+<span class='texttt'>D1</span>,
+<span class='texttt'>D3</span>,
+and
+<span class='texttt'>D5</span>,
+and a protected base of
+<span class='texttt'>D7</span>
+and
+<span class='texttt'>D8</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='base-3'><div class='marginalizedparent'><a class='marginalized' href='#base-3'>3</a></div><p >[&nbsp;<i>Note:</i><span class='space'></span>
+A member of a private base class might be inaccessible as an inherited
+member name, but accessible directly.
+Because of the rules on pointer conversions (<a href='conv.ptr'>[conv.ptr]</a>) and explicit casts (<a href='expr.cast'>[expr.cast]</a>), a conversion from a pointer to a derived class to a pointer
+to an inaccessible base class might be ill-formed if an implicit conversion
+is used, but well-formed if an explicit cast is used.
+For example,</p><pre class='codeblock'>
+class B {
+public:
+  int mi;                       <span class='comment'>// non-static member
+</span>  static int si;                <span class='comment'>// static member
+</span>};
+class D : private B {
+};
+class DD : public D {
+  void f();
+};
+
+void DD::f() {
+  mi = 3;                       <span class='comment'>// error: <span class='texttt'>mi</span> is private in <span class='texttt'>D</span>
+</span>  si = 3;                       <span class='comment'>// error: <span class='texttt'>si</span> is private in <span class='texttt'>D</span>
+</span>  ::B  b;
+  b.mi = 3;                     <span class='comment'>// OK (<span class='texttt'>b.mi</span> is different from <span class='texttt'>this-&gt;mi</span>)
+</span>  b.si = 3;                     <span class='comment'>// OK (<span class='texttt'>b.si</span> is different from <span class='texttt'>this-&gt;si</span>)
+</span>  ::B::si = 3;                  <span class='comment'>// OK
+</span>  ::B* bp1 = this;              <span class='comment'>// error: <span class='texttt'>B</span> is a private base class
+</span>  ::B* bp2 = (::B*)this;        <span class='comment'>// OK with cast
+</span>  bp2-&gt;mi = 3;                  <span class='comment'>// OK: access through a pointer to <span class='texttt'>B</span>.
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='base-4'><div class='marginalizedparent'><a class='marginalized' href='#base-4'>4</a></div><p >A base class
+<span class='texttt'>B</span>
+of
+<span class='texttt'>N</span>
+is
+<i>accessible</i>
+at
+<i>R</i>,
+if
+</p><ul ><li ><p >an invented public member of
+<span class='texttt'>B</span>
+would be a public member of
+<span class='texttt'>N</span>, or
+</p></li><li ><p ><i>R</i>
+occurs in a member or friend of class
+<span class='texttt'>N</span>,
+and an invented public member of
+<span class='texttt'>B</span>
+would be a private or protected member of
+<span class='texttt'>N</span>, or
+</p></li><li ><p ><i>R</i>
+occurs in a member or friend of a class
+<span class='texttt'>P</span>
+derived from
+<span class='texttt'>N</span>,
+and an invented public member of
+<span class='texttt'>B</span>
+would be a private or protected member of
+<span class='texttt'>P</span>, or
+</p></li><li ><p >there exists a class
+<span class='texttt'>S</span>
+such that
+<span class='texttt'>B</span>
+is a base class of
+<span class='texttt'>S</span>
+accessible at
+<i>R</i>
+and
+<span class='texttt'>S</span>
+is a base class of
+<span class='texttt'>N</span>
+accessible at
+<i>R</i>.
+</p></li></ul><p >[&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+class B {
+public:
+  int m;
+};
+
+class S: private B {
+  friend class N;
+};
+
+class N: private S {
+  void f() {
+    B* p = this;    <span class='comment'>// OK because class <span class='texttt'>S</span> satisfies the fourth condition
+</span>                    <span class='comment'>// above: <span class='texttt'>B</span> is a base class of <span class='texttt'>N</span> accessible in <span class='texttt'>f()</span> because
+</span>                    <span class='comment'>// <span class='texttt'>B</span> is an accessible base class of <span class='texttt'>S</span> and <span class='texttt'>S</span> is an accessible
+</span>                    <span class='comment'>// base class of <span class='texttt'>N</span>.
+</span>  }
+};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='base-5'><div class='marginalizedparent'><a class='marginalized' href='#base-5'>5</a></div><p >If a base class is accessible, one can implicitly convert a pointer to
+a derived class to a pointer to that base class (<a href='conv.ptr'>[conv.ptr]</a>, <a href='conv.mem'>[conv.mem]</a>).
+[&nbsp;<i>Note:</i><span class='space'></span>
+It follows that
+members and friends of a class
+<span class='texttt'>X</span>
+can implicitly convert an
+<span class='texttt'>X*</span>
+to a pointer to a private or protected immediate base class of
+<span class='texttt'>X</span>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+The access to a member is affected by the class in which the member is
+named.
+This naming class is the class in which the member name was looked
+up and found.
+[&nbsp;<i>Note:</i><span class='space'></span>
+This class can be explicit, e.g., when a
+<i ><a href='expr.prim.id.qual#qualified-id'>qualified-id</a></i>
+is used, or implicit, e.g., when a class member access operator (<a href='expr.ref'>[expr.ref]</a>) is used (including cases where an implicit
+“<span class='texttt'>this-&gt;</span>”
+is
+added).
+If both a class member access operator and a
+<i ><a href='expr.prim.id.qual#qualified-id'>qualified-id</a></i>
+are used to name the member (as in
+<span class='texttt'>p-&gt;T::m</span>),
+the class naming the member is the class denoted by the
+<i ><a href='expr.prim.id.qual#nested-name-specifier'>nested-name-specifier</a></i>
+of the
+<i ><a href='expr.prim.id.qual#qualified-id'>qualified-id</a></i>
+(that is,
+<span class='texttt'>T</span>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+A member
+<span class='texttt'>m</span>
+is accessible at the point
+<i>R</i>
+when named in class
+<span class='texttt'>N</span>
+if
+</p><ul ><li ><p ><span class='texttt'>m</span>
+as a member of
+<span class='texttt'>N</span>
+is public, or
+</p></li><li ><p ><span class='texttt'>m</span>
+as a member of
+<span class='texttt'>N</span>
+is private, and
+<i>R</i>
+occurs in a member or friend of class
+<span class='texttt'>N</span>,
+or
+</p></li><li ><p ><span class='texttt'>m</span>
+as a member of
+<span class='texttt'>N</span>
+is protected, and
+<i>R</i>
+occurs in a member or friend of class
+<span class='texttt'>N</span>,
+or in a member of a class
+<span class='texttt'>P</span>
+derived from
+<span class='texttt'>N</span>,
+where
+<span class='texttt'>m</span>
+as a member of
+<span class='texttt'>P</span>
+is public, private, or protected, or
+</p></li><li ><p >there exists a base class
+<span class='texttt'>B</span>
+of
+<span class='texttt'>N</span>
+that is accessible at
+<i>R</i>,
+and
+<span class='texttt'>m</span>
+is accessible at
+<i>R</i>
+when named in class
+<span class='texttt'>B</span>.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class B;
+class A {
+private:
+  int i;
+  friend void f(B*);
+};
+class B : public A { };
+void f(B* p) {
+  p-&gt;i = 1;         <span class='comment'>// OK: <span class='texttt'>B*</span> can be implicitly converted to <span class='texttt'>A*</span>,
+</span>                    <span class='comment'>// and <span class='texttt'>f</span> has access to <span class='texttt'>i</span> in <span class='texttt'>A</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></li></ul></div><div class='para' id='base-6'><div class='marginalizedparent'><a class='marginalized' href='#base-6'>6</a></div><p >If a class member access operator, including an implicit
+“<span class='texttt'>this-&gt;</span>”,
+is used to access a non-static data member or non-static
+member function, the reference is ill-formed if the
+left operand (considered as a pointer in the
+“<span class='texttt'>.</span>”
+operator case) cannot be implicitly converted to a
+pointer to the naming class of the right operand.
+[&nbsp;<i>Note:</i><span class='space'></span>
+This requirement is in addition to the requirement that
+the member be accessible as named.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-113'><div class='marginalizedparent'><a class='marginalized' href='#footnote-113'>113)</a></div><p >As specified previously in Clause <a href='class.access'>[class.access]</a>,
+private members of a base class remain inaccessible even to derived classes
+unless
+<span class='texttt'>friend</span>
+declarations within the base class definition are used to grant access explicitly.</p></div></div><div id='class.friend'><h2 ><a class='secnum' href='#class.friend' style='min-width:88pt'>11.3</a> Friends <a class='abbr_ref' href='class.friend'>[class.friend]</a></h2><p ><span class='indexparent'><a class='index' id='friend function!access and'></a></span><span class='indexparent'><a class='index' id='access control!friend function'></a></span></p><div class='para' id='class.friend-1'><div class='marginalizedparent'><a class='marginalized' href='#class.friend-1'>1</a></div><p >A friend of a class is a function or class that is
+given permission to use the private and protected member names from the class.
+A class specifies its friends, if any, by way of friend declarations.
+Such declarations give special access rights to the friends, but they
+do not make the nominated friends members of the befriending class.
+[&nbsp;<i>Example:</i><span class='space'></span>
+the following example illustrates the differences between
+members and friends:
+<span class='indexparent'><a class='index' id='friend function!member~function~and'></a></span><span class='indexparent'><a class='index' id='example!friend function'></a></span><span class='indexparent'><a class='index' id='example!member~function'></a></span>
+</p><pre class='codeblock'>
+class X {
+  int a;
+  friend void friend_set(X*, int);
+public:
+  void member_set(int);
+};
+
+void friend_set(X* p, int i) { p-&gt;a = i; }
+void X::member_set(int i) { a = i; }
+
+void f() {
+  X obj;
+  friend_set(&amp;obj,10);
+  obj.member_set(10);
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.friend-2'><div class='marginalizedparent'><a class='marginalized' href='#class.friend-2'>2</a></div><p ><span class='indexparent'><a class='index' id='friend!class access~and'></a></span>Declaring a class to be a friend implies that the names of private and
+protected members from the class granting friendship can be accessed in the
+<i ><a href='class.derived#base-specifier'>base-specifiers</a></i> and member declarations of the befriended
+class. [&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class A {
+  class B { };
+  friend class X;
+};
+
+struct X : A::B {   <span class='comment'>// OK: <span class='texttt'>A::B</span> accessible to friend
+</span>  A::B mx;          <span class='comment'>// OK: <span class='texttt'>A::B</span> accessible to member of friend
+</span>  class Y {
+    A::B my;        <span class='comment'>// OK: <span class='texttt'>A::B</span> accessible to nested member of friend
+</span>  };
+};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class X {
+  enum { a=100 };
+  friend class Y;
+};
+
+class Y {
+  int v[X::a];      <span class='comment'>// OK, <span class='texttt'>Y</span> is a friend of <span class='texttt'>X</span>
+</span>};
+
+class Z {
+  int v[X::a];      <span class='comment'>// error: <span class='texttt'>X::a</span> is private
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p >A class shall not be defined in a friend declaration. [&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+class A {
+  friend class B { }; <span class='comment'>// error: cannot define class in friend declaration
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.friend-3'><div class='marginalizedparent'><a class='marginalized' href='#class.friend-3'>3</a></div><p >A <span class='texttt'>friend</span> declaration that does not declare a function
+shall have one of the following forms:</p><pre class='bnf'><span class='terminal'>friend</span> <i ><a href='dcl.type.elab#elaborated-type-specifier'>elaborated-type-specifier</a></i> <span class='terminal'>;</span>
+<span class='terminal'>friend</span> <i ><a href='dcl.type.simple#simple-type-specifier'>simple-type-specifier</a></i> <span class='terminal'>;</span>
+<span class='terminal'>friend</span> <i ><a href='temp.res#typename-specifier'>typename-specifier</a></i> <span class='terminal'>;</span></pre><p >[&nbsp;<i>Note:</i><span class='space'></span> A <span class='texttt'>friend</span> declaration may be the
+<i>declaration</i> in a <i ><a href='temp#template-declaration'>template-declaration</a></i>
+(Clause <a href='temp'>[temp]</a>, <a href='temp.friend'>[temp.friend]</a>).<i>&nbsp;—&nbsp;end note</i>&nbsp;] If the
+type specifier in a <span class='texttt'>friend</span> declaration designates a (possibly
+cv-qualified) class type, that class is declared as a friend; otherwise, the
+<span class='texttt'>friend</span> declaration is ignored. [&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class C;
+typedef C Ct;
+
+class X1 {
+  friend C;         <span class='comment'>// OK: <span class='texttt'>class C</span> is a friend
+</span>};
+
+class X2 {
+  friend Ct;        <span class='comment'>// OK: <span class='texttt'>class C</span> is a friend
+</span>  friend D;         <span class='comment'>// error: no type-name <span class='texttt'>D</span> in scope
+</span>  friend class D;   <span class='comment'>// OK: elaborated-type-specifier declares new class
+</span>};
+
+template &lt;typename T&gt; class R {
+  friend T;
+};
+
+R&lt;C&gt; rc;            <span class='comment'>// <span class='texttt'>class C</span> is a friend of <span class='texttt'>R&lt;C&gt;</span>
+</span>R&lt;int&gt; Ri;          <span class='comment'>// OK: <span class='texttt'>"friend int;"</span> is ignored
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.friend-4'><div class='marginalizedparent'><a class='marginalized' href='#class.friend-4'>4</a></div><p ><span class='indexparent'><a class='index' id='friend function!linkage~of'></a></span>A function first declared in a friend declaration
+has the linkage of the namespace of which it is a member (<a href='basic.link'>[basic.link]</a>).
+Otherwise, the function retains its previous linkage (<a href='dcl.stc'>[dcl.stc]</a>).</p></div><div class='para' id='class.friend-5'><div class='marginalizedparent'><a class='marginalized' href='#class.friend-5'>5</a></div><p ><span class='indexparent'><a class='index' id='declaration!overloaded~name~and friend'></a></span>When a
+<span class='texttt'>friend</span>
+declaration refers to an overloaded name or operator, only the function specified
+by the parameter types becomes a friend.
+A member function of a class
+<span class='texttt'>X</span>
+can be a friend of
+a class
+<span class='texttt'>Y</span>.
+<span class='indexparent'><a class='index' id='member function!friend'></a></span>[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class Y {
+  friend char* X::foo(int);
+  friend X::X(char);            <span class='comment'>// constructors can be friends
+</span>  friend X::~X();               <span class='comment'>// destructors can be friends
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.friend-6'><div class='marginalizedparent'><a class='marginalized' href='#class.friend-6'>6</a></div><p ><span class='indexparent'><a class='index' id='friend function!inline'></a></span>A function can be defined in a friend declaration of a class if and only if the
+class is a non-local class (<a href='class.local'>[class.local]</a>), the function name is unqualified,
+and the function has namespace scope.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class M {
+  friend void f() { }           <span class='comment'>// definition of global <span class='texttt'>f</span>, a friend of <span class='texttt'>M</span>,
+</span>                                <span class='comment'>// not the definition of a member function
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.friend-7'><div class='marginalizedparent'><a class='marginalized' href='#class.friend-7'>7</a></div><p >Such a function is implicitly an inline function (<a href='dcl.fct.spec'>[dcl.fct.spec]</a>).
+A
+<span class='texttt'>friend</span>
+function defined in a class is in the (lexical) scope of the class in which it is defined.
+A friend function defined outside the class is not (<a href='basic.lookup.unqual'>[basic.lookup.unqual]</a>).</p></div><div class='para' id='class.friend-8'><div class='marginalizedparent'><a class='marginalized' href='#class.friend-8'>8</a></div><p >No
+<i ><a href='dcl.stc#storage-class-specifier'>storage-class-specifier</a></i>
+shall appear in the
+<i ><a href='dcl.spec#decl-specifier-seq'>decl-specifier-seq</a></i>
+of a friend declaration.</p></div><div class='para' id='class.friend-9'><div class='marginalizedparent'><a class='marginalized' href='#class.friend-9'>9</a></div><p ><span class='indexparent'><a class='index' id='friend!access~specifier~and'></a></span>A name nominated by a friend declaration shall be accessible in the scope of the
+class containing the friend declaration.
+The meaning of the friend declaration is the same whether the friend declaration
+appears in the
+<span class='texttt'>private</span>,
+<span class='texttt'>protected</span>
+or
+<span class='texttt'>public</span> (<a href='class.mem'>[class.mem]</a>)
+portion of the class
+<i ><a href='class.mem#member-specification'>member-specification</a></i>.</p></div><div class='para' id='class.friend-10'><div class='marginalizedparent'><a class='marginalized' href='#class.friend-10'>10</a></div><p ><span class='indexparent'><a class='index' id='friend!inheritance~and'></a></span>Friendship is neither inherited nor transitive.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class A {
+  friend class B;
+  int a;
+};
+
+class B {
+  friend class C;
+};
+
+class C  {
+  void f(A* p) {
+    p-&gt;a++;         <span class='comment'>// error: <span class='texttt'>C</span> is not a friend of <span class='texttt'>A</span>
+</span>                    <span class='comment'>// despite being a friend of a friend
+</span>  }
+};
+
+class D : public B  {
+  void f(A* p) {
+    p-&gt;a++;         <span class='comment'>// error: <span class='texttt'>D</span> is not a friend of <span class='texttt'>A</span>
+</span>                    <span class='comment'>// despite being derived from a friend
+</span>  }
+};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.friend-11'><div class='marginalizedparent'><a class='marginalized' href='#class.friend-11'>11</a></div><p ><span class='indexparent'><a class='index' id='local~class!friend'></a></span><span class='indexparent'><a class='index' id='friend!local~class~and'></a></span>If a friend declaration appears in a local class (<a href='class.local'>[class.local]</a>) and the
+name specified is an unqualified name, a prior declaration is looked
+up without considering scopes that are outside the innermost enclosing
+non-class scope.
+For a friend function declaration, if there is no
+prior declaration, the program is ill-formed.
+For a friend class
+declaration, if there is no prior declaration, the class that is
+specified belongs to the innermost enclosing non-class scope, but if it is
+subsequently referenced, its name is not found by name lookup
+until a matching declaration is provided in the innermost enclosing
+non-class scope.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class X;
+void a();
+void f() {
+  class Y;
+  extern void b();
+  class A {
+  friend class X;   <span class='comment'>// OK, but <span class='texttt'>X</span> is a local class, not <span class='texttt'>::X</span>
+</span>  friend class Y;   <span class='comment'>// OK
+</span>  friend class Z;   <span class='comment'>// OK, introduces local class <span class='texttt'>Z</span>
+</span>  friend void a();  <span class='comment'>// error, <span class='texttt'>::a</span> is not considered
+</span>  friend void b();  <span class='comment'>// OK
+</span>  friend void c();  <span class='comment'>// error
+</span>  };
+  X* px;            <span class='comment'>// OK, but <span class='texttt'>::X</span> is found
+</span>  Z* pz;            <span class='comment'>// error, no <span class='texttt'>Z</span> is found
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div id='class.protected'><h2 ><a class='secnum' href='#class.protected' style='min-width:88pt'>11.4</a> Protected member access <a class='abbr_ref' href='class.protected'>[class.protected]</a></h2><p ><span class='indexparent'><a class='index' id='access control!protected'></a></span>
+</p><div class='para' id='class.protected-1'><div class='marginalizedparent'><a class='marginalized' href='#class.protected-1'>1</a></div><p >An additional access check beyond those described earlier in Clause <a href='class.access'>[class.access]</a>
+is applied when a non-static data member or non-static member function is a
+protected member of its naming class (<a href='class.access.base'>[class.access.base]</a>)<a class='footnotenum' href='#footnote-114'>114</a>
+As described earlier, access to a protected member is granted because the
+reference occurs in a friend or member of some class <span class='texttt'>C</span>. If the access is
+to form a pointer to member (<a href='expr.unary.op'>[expr.unary.op]</a>), the
+<i ><a href='expr.prim.id.qual#nested-name-specifier'>nested-name-specifier</a></i> shall denote <span class='texttt'>C</span> or a class derived from
+<span class='texttt'>C</span>. All other accesses involve a (possibly implicit) object
+expression (<a href='expr.ref'>[expr.ref]</a>). In this case, the class of the object expression shall be
+<span class='texttt'>C</span> or a class derived from <span class='texttt'>C</span>.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class B {
+protected:
+  int i;
+  static int j;
+};
+
+class D1 : public B {
+};
+
+class D2 : public B {
+  friend void fr(B*,D1*,D2*);
+  void mem(B*,D1*);
+};
+
+void fr(B* pb, D1* p1, D2* p2) {
+  pb-&gt;i = 1;                    <span class='comment'>// ill-formed
+</span>  p1-&gt;i = 2;                    <span class='comment'>// ill-formed
+</span>  p2-&gt;i = 3;                    <span class='comment'>// OK (access through a <span class='texttt'>D2</span>)
+</span>  p2-&gt;B::i = 4;                 <span class='comment'>// OK (access through a <span class='texttt'>D2</span>, even though
+</span>                                <span class='comment'>// naming class is <span class='texttt'>B</span>)
+</span>  int B::* pmi_B = &amp;B::i;       <span class='comment'>// ill-formed
+</span>  int B::* pmi_B2 = &amp;D2::i;     <span class='comment'>// OK (type of <span class='texttt'>&amp;D2::i</span> is <span class='texttt'>int B::*</span>)
+</span>  B::j = 5;                     <span class='comment'>// ill-formed (not a friend of naming class <span class='texttt'>B</span>)
+</span>  D2::j = 6;                    <span class='comment'>// OK (because refers to static member)
+</span>}
+
+void D2::mem(B* pb, D1* p1) {
+  pb-&gt;i = 1;                    <span class='comment'>// ill-formed
+</span>  p1-&gt;i = 2;                    <span class='comment'>// ill-formed
+</span>  i = 3;                        <span class='comment'>// OK (access through <span class='texttt'>this</span>)
+</span>  B::i = 4;                     <span class='comment'>// OK (access through <span class='texttt'>this</span>, qualification ignored)
+</span>  int B::* pmi_B = &amp;B::i;       <span class='comment'>// ill-formed
+</span>  int B::* pmi_B2 = &amp;D2::i;     <span class='comment'>// OK
+</span>  j = 5;                        <span class='comment'>// OK (because <span class='texttt'>j</span> refers to static member)
+</span>  B::j = 6;                     <span class='comment'>// OK (because <span class='texttt'>B::j</span> refers to static member)
+</span>}
+
+void g(B* pb, D1* p1, D2* p2) {
+  pb-&gt;i = 1;                    <span class='comment'>// ill-formed
+</span>  p1-&gt;i = 2;                    <span class='comment'>// ill-formed
+</span>  p2-&gt;i = 3;                    <span class='comment'>// ill-formed
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-114'><div class='marginalizedparent'><a class='marginalized' href='#footnote-114'>114)</a></div><p >This
+additional check does not apply to other members,
+e.g., static data members or enumerator member constants.</p></div></div><div id='virt'><h2 ><a class='secnum' href='#virt' style='min-width:88pt'>11.5</a> Access to virtual functions <a class='abbr_ref' href='class.access.virt'>[class.access.virt]</a></h2><p ><span class='indexparent'><a class='index' id='access control!virtual function'></a></span></p><div class='para' id='virt-1'><div class='marginalizedparent'><a class='marginalized' href='#virt-1'>1</a></div><p >The access rules (Clause <a href='class.access'>[class.access]</a>) for a virtual function are determined by its declaration
+and are not affected by the rules for a function that later overrides it.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class B {
+public:
+  virtual int f();
+};
+
+class D : public B {
+private:
+  int f();
+};
+
+void f() {
+  D d;
+  B* pb = &amp;d;
+  D* pd = &amp;d;
+
+  pb-&gt;f();                      <span class='comment'>// OK: <span class='texttt'>B::f()</span> is public,
+</span>                                <span class='comment'>// <span class='texttt'>D::f()</span> is invoked
+</span>  pd-&gt;f();                      <span class='comment'>// error: <span class='texttt'>D::f()</span> is private
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='virt-2'><div class='marginalizedparent'><a class='marginalized' href='#virt-2'>2</a></div><p >Access is checked at the call point using the type of the expression used
+to denote the object for which the member function is called
+(<span class='texttt'>B*</span>
+in the example above).
+The access of the member function in the class in which it was defined
+(<span class='texttt'>D</span>
+in the example above) is in general not known.</p></div></div><div id='class.paths'><h2 ><a class='secnum' href='#class.paths' style='min-width:88pt'>11.6</a> Multiple access <a class='abbr_ref' href='class.paths'>[class.paths]</a></h2><p ><span class='indexparent'><a class='index' id='access control!multiple access'></a></span></p><div class='para' id='class.paths-1'><div class='marginalizedparent'><a class='marginalized' href='#class.paths-1'>1</a></div><p >If a name can be reached by several paths through a multiple inheritance
+graph, the access is that of the path that gives most access.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class W { public: void f(); };
+class A : private virtual W { };
+class B : public virtual W { };
+class C : public A, public B {
+  void f() { W::f(); }          <span class='comment'>// OK
+</span>};
+</pre></div><div class='para' id='class.paths-2'><div class='marginalizedparent'><a class='marginalized' href='#class.paths-2'>2</a></div><p >Since
+<span class='texttt'>W::f()</span>
+is available to
+<span class='texttt'>C::f()</span>
+along the public path through
+<span class='texttt'>B</span>,
+access is allowed.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div id='nest'><h2 ><a class='secnum' href='#nest' style='min-width:88pt'>11.7</a> Nested classes <a class='abbr_ref' href='class.access.nest'>[class.access.nest]</a></h2><p ><span class='indexparent'><a class='index' id='access control!nested class'></a></span><span class='indexparent'><a class='index' id='member function!nested class'></a></span></p><div class='para' id='nest-1'><div class='marginalizedparent'><a class='marginalized' href='#nest-1'>1</a></div><p >A nested class is a member and as such has the same access rights as any other member.
+The members of an enclosing class have no special access to members of a nested
+class; the usual access rules (Clause <a href='class.access'>[class.access]</a>) shall be obeyed.
+[&nbsp;<i>Example:</i><span class='space'></span>
+<span class='indexparent'><a class='index' id='example!nested~class definition'></a></span>
+</p><pre class='codeblock'>
+class E {
+  int x;
+  class B { };
+
+  class I {
+    B b;                        <span class='comment'>// OK: <span class='texttt'>E::I</span> can access <span class='texttt'>E::B</span>
+</span>    int y;
+    void f(E* p, int i) {
+      p-&gt;x = i;                 <span class='comment'>// OK: <span class='texttt'>E::I</span> can access <span class='texttt'>E::x</span>
+</span>    }
+  };
+
+  int g(I* p) {
+    return p-&gt;y;                <span class='comment'>// error: <span class='texttt'>I::y</span> is private
+</span>  }
+};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]<span class='indexparent'><a class='index' id='access control'></a></span>
+</p></div></div></div></div></body></html>

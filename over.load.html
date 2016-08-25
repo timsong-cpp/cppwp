@@ -1,0 +1,189 @@
+<!DOCTYPE html><html lang='en'><head><title>[over.load]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>13</a> Overloading <a class='abbr_ref' href='./#over'>[over]</a></h1><div id='over.load'><h2 ><a class='secnum' style='min-width:88pt'>13.1</a> Overloadable declarations <a class='abbr_ref'>[over.load]</a></h2><p ><span class='indexparent'><a class='index' id='overloading!declarations'></a></span>
+</p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='overloading!prohibited'></a></span>Not all function declarations can be overloaded.
+Those that cannot be
+overloaded are specified here.
+A program is ill-formed if it contains
+two such non-overloadable declarations in the same scope.
+[&nbsp;<i>Note:</i><span class='space'></span>
+This restriction applies to explicit declarations in a scope, and between
+such declarations and
+declarations made through a
+<i ><a href='namespace.udecl#using-declaration'>using-declaration</a></i> (<a href='namespace.udecl'>[namespace.udecl]</a>).
+It does not apply to sets of functions fabricated as a result of
+name lookup (e.g., because of
+<i ><a href='namespace.udir#using-directive'>using-directives</a></i>)
+or overload resolution
+(e.g., for operator functions).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Certain function declarations cannot be overloaded:</p><ul ><li ><p ><span class='indexparent'><a class='index' id='return~type!overloading~and'></a></span>Function declarations that differ only in the return type,
+the exception specification (<a href='except.spec'>[except.spec]</a>), or both
+cannot be overloaded.
+</p></li><li ><p ><span class='indexparent'><a class='index' id='static!overloading~and'></a></span>Member function declarations with the same name and the same
+parameter-type-list (<a href='dcl.fct'>[dcl.fct]</a>) cannot be overloaded if any of them is a
+<span class='texttt'>static</span>
+member function declaration (<a href='class.static'>[class.static]</a>).
+Likewise, member function template declarations with the same name,
+the same parameter-type-list, and the same template parameter lists cannot be
+overloaded if any of them is a
+<span class='texttt'>static</span>
+member function template declaration.
+The types of the implicit object parameters constructed for the member
+functions for the purpose of overload resolution (<a href='over.match.funcs'>[over.match.funcs]</a>)
+are not considered when comparing parameter-type-lists for enforcement of
+this rule.
+In contrast, if there is no
+<span class='texttt'>static</span>
+member function declaration among a set of member function
+declarations with the same name and the same parameter-type-list, then
+these member function declarations can be overloaded if they differ in
+the type of their implicit object parameter.
+[&nbsp;<i>Example:</i><span class='space'></span>
+the following illustrates this distinction:</p><pre class='codeblock'>
+class X {
+  static void f();
+  void f();                     <span class='comment'>// ill-formed
+</span>  void f() const;               <span class='comment'>// ill-formed
+</span>  void f() const volatile;      <span class='comment'>// ill-formed
+</span>  void g();
+  void g() const;               <span class='comment'>// OK: no static <span class='texttt'>g</span>
+</span>  void g() const volatile;      <span class='comment'>// OK: no static <span class='texttt'>g</span>
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></li><li ><p >Member function declarations with the same name and the same
+parameter-type-list (<a href='dcl.fct'>[dcl.fct]</a>) as well as member function template
+declarations with the same name, the same parameter-type-list, and
+the same template parameter lists cannot be overloaded if any of them, but not
+all, have a <i ><a href='dcl.decl#ref-qualifier'>ref-qualifier</a></i> (<a href='dcl.fct'>[dcl.fct]</a>). [&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+class Y {
+  void h() &amp;;
+  void h() const &amp;;             <span class='comment'>// OK
+</span>  void h() &amp;&amp;;                  <span class='comment'>// OK, all declarations have a ref-qualifier
+</span>  void i() &amp;;
+  void i() const;               <span class='comment'>// ill-formed, prior declaration of <span class='texttt'>i</span>
+</span>                                <span class='comment'>// has a ref-qualifier
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></li></ul></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p ><span class='indexparent'><a class='index' id='equivalent~parameter~declarations'></a></span><span class='indexparent'><a class='index' id='equivalent~parameter~declarations!overloading~and'></a></span>[&nbsp;<i>Note:</i><span class='space'></span>
+As specified in <a href='dcl.fct'>[dcl.fct]</a>,
+function declarations that have equivalent parameter declarations declare
+the same function and therefore cannot
+be overloaded:</p><ul ><li ><p ><span class='indexparent'><a class='index' id='typedef!overloading~and'></a></span>Parameter declarations that differ only in the use of equivalent typedef
+“types” are equivalent.
+A
+<span class='texttt'>typedef</span>
+is not a separate type, but only a synonym for another type (<a href='dcl.typedef'>[dcl.typedef]</a>).
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+typedef int Int;
+
+void f(int i);
+void f(Int i);                  <span class='comment'>// OK: redeclaration of <span class='texttt'>f(int)</span>
+</span>void f(int i) <span class='texttt'>{ /* ... */ }</span>
+void f(Int i) <span class='texttt'>{ /* ... */ }</span>    <span class='comment'>// error: redefinition of <span class='texttt'>f(int)</span>
+</span>
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='enum!overloading~and'></a></span>Enumerations, on the other hand, are distinct types and can be used to
+distinguish
+overloaded function declarations.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+enum E { a };
+
+void f(int i) <span class='texttt'>{ /* ... */ }</span>
+void f(E i)   <span class='texttt'>{ /* ... */ }</span>
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></li><li ><p ><span class='indexparent'><a class='index' id='overloading!array~versus~pointer'></a></span><span class='indexparent'><a class='index' id='array!overloading~and pointer~versus'></a></span>Parameter declarations that differ only in a pointer
+<span class='texttt'>*</span>
+versus an array
+<span class='texttt'>[]</span>
+are equivalent.
+That is, the array declaration is adjusted to become a pointer
+declaration (<a href='dcl.fct'>[dcl.fct]</a>).
+Only the second and subsequent array dimensions are significant in
+parameter types (<a href='dcl.array'>[dcl.array]</a>).
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+int f(char*);
+int f(char[]);                  <span class='comment'>// same as <span class='texttt'>f(char*);</span>
+</span>int f(char[7]);                 <span class='comment'>// same as <span class='texttt'>f(char*);</span>
+</span>int f(char[9]);                 <span class='comment'>// same as <span class='texttt'>f(char*);</span>
+</span>
+int g(char(*)[10]);
+int g(char[5][10]);             <span class='comment'>// same as <span class='texttt'>g(char(*)[10]);</span>
+</span>int g(char[7][10]);             <span class='comment'>// same as <span class='texttt'>g(char(*)[10]);</span>
+</span>int g(char(*)[20]);             <span class='comment'>// different from <span class='texttt'>g(char(*)[10]);</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></li><li ><p ><span class='indexparent'><a class='index' id='overloading!function~versus~pointer'></a></span><span class='indexparent'><a class='index' id='function!overloading~and pointer~versus'></a></span>Parameter declarations that differ only in that one is a function type
+and the other is a pointer to the same function type are equivalent.
+That is, the function type is adjusted to become a pointer to function type (<a href='dcl.fct'>[dcl.fct]</a>).
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+void h(int());
+void h(int (*)());              <span class='comment'>// redeclaration of <span class='texttt'>h(int())</span>
+</span>void h(int x()) { }             <span class='comment'>// definition of <span class='texttt'>h(int())</span>
+</span>void h(int (*x)()) { }          <span class='comment'>// ill-formed: redefinition of <span class='texttt'>h(int())</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></li><li ><p ><span class='indexparent'><a class='index' id='const!overloading~and'></a></span><span class='indexparent'><a class='index' id='volatile!overloading~and'></a></span>Parameter declarations that differ only in the presence or absence of
+<span class='texttt'>const</span>
+and/or
+<span class='texttt'>volatile</span>
+are equivalent.
+That is, the
+<span class='texttt'>const</span>
+and
+<span class='texttt'>volatile</span>
+type-specifiers for
+each parameter type are ignored when determining which function is being
+declared,
+defined, or called.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+typedef const int cInt;
+
+int f (int);
+int f (const int);              <span class='comment'>// redeclaration of <span class='texttt'>f(int)</span>
+</span>int f (int) <span class='texttt'>{ /* ... */ }</span>      <span class='comment'>// definition of <span class='texttt'>f(int)</span>
+</span>int f (cInt) <span class='texttt'>{ /* ... */ }</span>     <span class='comment'>// error: redefinition of <span class='texttt'>f(int)</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p >Only the
+<span class='texttt'>const</span>
+and
+<span class='texttt'>volatile</span>
+type-specifiers at the outermost level of the
+parameter type specification are ignored in this fashion;
+<span class='texttt'>const</span>
+and
+<span class='texttt'>volatile</span>
+type-specifiers buried within a parameter type specification are significant
+and can be used to distinguish overloaded function
+declarations.<a class='footnotenum' href='#footnote-122'>122</a>
+In particular, for any type
+<span class='texttt'>T</span>,
+“pointer to
+<span class='texttt'>T</span>”,
+“pointer to
+<span class='texttt'>const</span>
+<span class='texttt'>T</span>”,
+and
+“pointer to
+<span class='texttt'>volatile</span>
+<span class='texttt'>T</span>”
+are considered distinct parameter types, as are
+“reference to
+<span class='texttt'>T</span>”,
+“reference to
+<span class='texttt'>const</span>
+<span class='texttt'>T</span>”,
+and
+“reference to
+<span class='texttt'>volatile</span>
+<span class='texttt'>T</span>”.
+</p></li><li ><p ><span class='indexparent'><a class='index' id='default~initializers!overloading~and'></a></span>Two parameter declarations that differ only in their default arguments
+are equivalent.
+[&nbsp;<i>Example:</i><span class='space'></span>
+consider the following:</p><pre class='codeblock'>
+void f (int i, int j);
+void f (int i, int j = 99);     <span class='comment'>// OK: redeclaration of <span class='texttt'>f(int, int)</span>
+</span>void f (int i = 88, int j);     <span class='comment'>// OK: redeclaration of <span class='texttt'>f(int, int)</span>
+</span>void f ();                      <span class='comment'>// OK: overloaded declaration of <span class='texttt'>f</span>
+</span>
+void prog () {
+    f (1, 2);                   <span class='comment'>// OK: call <span class='texttt'>f(int, int)</span>
+</span>    f (1);                      <span class='comment'>// OK: call <span class='texttt'>f(int, int)</span>
+</span>    f ();                       <span class='comment'>// Error: <span class='texttt'>f(int, int)</span> or <span class='texttt'>f()</span>?
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></li></ul><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-122'><div class='marginalizedparent'><a class='marginalized' href='#footnote-122'>122)</a></div><p >When a parameter type includes a function type,
+such as in the case of a parameter type that is a pointer to function, the
+<span class='texttt'>const</span>
+and
+<span class='texttt'>volatile</span>
+type-specifiers at the outermost level of the parameter type
+specifications for the inner function type are also ignored.</p></div></div></div></body></html>

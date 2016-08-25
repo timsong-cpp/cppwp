@@ -1,0 +1,127 @@
+<!DOCTYPE html><html lang='en'><head><title>[over.ics.list]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>13</a> Overloading <a class='abbr_ref' href='./#over'>[over]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>13.3</a> Overload resolution <a class='abbr_ref' href='over.match#over.ics.list'>[over.match]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>13.3.3</a> Best viable function <a class='abbr_ref' href='over.match.best#over.ics.list'>[over.match.best]</a></h3><h4 ><a class='secnum' style='min-width:118pt'>13.3.3.1</a> Implicit conversion sequences <a class='abbr_ref' href='over.best.ics#over.ics.list'>[over.best.ics]</a></h4><div id='over.ics.list'><h4 ><a class='secnum' style='min-width:133pt'>13.3.3.1.5</a> List-initialization sequence <a class='abbr_ref'>[over.ics.list]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >When an argument is an initializer list (<a href='dcl.init.list'>[dcl.init.list]</a>), it is not an
+expression and special rules apply for converting it to a parameter type.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >If the parameter type is an aggregate class <span class='texttt'>X</span> and the initializer list has a
+single element of type <i>cv</i> <span class='texttt'>U</span>, where <span class='texttt'>U</span> is <span class='texttt'>X</span>
+or a class derived from <span class='texttt'>X</span>, the implicit conversion sequence is the one
+required to convert the element to the parameter type.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >Otherwise, if the parameter type is a character array<a class='footnotenum' href='#footnote-133'>133</a>
+and the initializer list has a single element that is an appropriately-typed
+string literal (<a href='dcl.init.string'>[dcl.init.string]</a>), the implicit conversion
+sequence is the identity conversion.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Otherwise, if the parameter type is <span class='texttt'>std::initializer_list&lt;X&gt;</span>
+and all the elements
+of the initializer list can be implicitly converted to <span class='texttt'>X</span>, the implicit
+conversion sequence is the worst conversion necessary to convert an element of
+the list to <span class='texttt'>X</span>, or if the initializer list has no elements, the identity
+conversion. This conversion can be a user-defined conversion even in
+the context of a call to an initializer-list constructor. [&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+void f(std::initializer_list&lt;int&gt;);
+f( {} );                    <span class='comment'>// OK: <span class='texttt'>f(initializer_list&lt;int&gt;)</span> identity conversion
+</span>f( {1,2,3} );               <span class='comment'>// OK: <span class='texttt'>f(initializer_list&lt;int&gt;)</span> identity conversion
+</span>f( {'a','b'} );             <span class='comment'>// OK: <span class='texttt'>f(initializer_list&lt;int&gt;)</span> integral promotion
+</span>f( {1.0} );                 <span class='comment'>// error: narrowing
+</span>
+struct A {
+  A(std::initializer_list&lt;double&gt;);           <span class='comment'>// #1
+</span>  A(std::initializer_list&lt;complex&lt;double&gt;&gt;);  <span class='comment'>// #2
+</span>  A(std::initializer_list&lt;std::string&gt;);      <span class='comment'>// #3
+</span>};
+A a{ 1.0,2.0 };             <span class='comment'>// OK, uses #1
+</span>
+void g(A);
+g({ "foo", "bar" });        <span class='comment'>// OK, uses #3
+</span>
+typedef int IA[3];
+void h(const IA&amp;);
+h({ 1, 2, 3 });             <span class='comment'>// OK: identity conversion
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >Otherwise, if the parameter type is “array of <span class='texttt'>N</span> <span class='texttt'>X</span>”,
+if there exists an implicit conversion sequence for each element of the array
+from the corresponding element of the initializer list (or from <span class='texttt'>{}</span>
+if there is no such element), the implicit conversion sequence is
+the worst such implicit conversion sequence.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >Otherwise, if the parameter is a non-aggregate class <span class='texttt'>X</span> and overload
+resolution per <a href='over.match.list'>[over.match.list]</a> chooses a single best constructor <span class='texttt'>C</span> of
+<span class='texttt'>X</span> to perform the initialization of an object of type <span class='texttt'>X</span> from the
+argument initializer list:
+</p><ul ><li ><p >If <span class='texttt'>C</span> is not an initializer-list constructor
+and the initializer list has a single element of type <i>cv</i> <span class='texttt'>U</span>,
+where <span class='texttt'>U</span> is <span class='texttt'>X</span> or a class derived from <span class='texttt'>X</span>,
+the implicit conversion sequence has Exact Match rank if <span class='texttt'>U</span> is <span class='texttt'>X</span>,
+or Conversion rank if <span class='texttt'>U</span> is derived from <span class='texttt'>X</span>.
+</p></li><li ><p >Otherwise, the implicit conversion sequence is a user-defined
+conversion sequence with the second standard conversion sequence an
+identity conversion.
+</p></li></ul><p >If multiple constructors are viable but none is better than
+the others, the implicit conversion sequence is the ambiguous conversion
+sequence. User-defined conversions are allowed for conversion of the initializer
+list elements to the constructor parameter types except as noted
+in <a href='over.best.ics'>[over.best.ics]</a>. [&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+struct A {
+  A(std::initializer_list&lt;int&gt;);
+};
+void f(A);
+f( {'a', 'b'} );            <span class='comment'>// OK: <span class='texttt'>f(A(std::initializer_list&lt;int&gt;))</span> user-defined conversion
+</span>
+struct B {
+  B(int, double);
+};
+void g(B);
+g( {'a', 'b'} );            <span class='comment'>// OK: <span class='texttt'>g(B(int,double))</span> user-defined conversion
+</span>g( {1.0, 1.0} );            <span class='comment'>// error: narrowing
+</span>
+void f(B);
+f( {'a', 'b'} );            <span class='comment'>// error: ambiguous <span class='texttt'>f(A)</span> or <span class='texttt'>f(B)</span>
+</span>
+struct C {
+  C(std::string);
+};
+void h(C);
+h({"foo"});                 <span class='comment'>// OK: <span class='texttt'>h(C(std::string("foo")))</span>
+</span>
+struct D {
+  D(A, C);
+};
+void i(D);
+i({ {1,2}, {"bar"} });      <span class='comment'>// OK: <span class='texttt'>i(D(A(std::initializer_list&lt;int&gt;{1,2}),C(std::string("bar"))))</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >Otherwise, if the parameter has an aggregate type which can be initialized from
+the initializer list according to the rules for aggregate
+initialization (<a href='dcl.init.aggr'>[dcl.init.aggr]</a>), the implicit conversion sequence is a
+user-defined conversion sequence with the second standard conversion
+sequence an identity conversion. [&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+struct A {
+  int m1;
+  double m2;
+};
+
+void f(A);
+f( {'a', 'b'} );            <span class='comment'>// OK: <span class='texttt'>f(A(int,double))</span> user-defined conversion 
+</span>f( {1.0} );                 <span class='comment'>// error: narrowing
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >Otherwise, if the parameter is a reference, see <a href='over.ics.ref'>[over.ics.ref]</a>. [&nbsp;<i>Note:</i><span class='space'></span>
+The rules in this section will apply for initializing the underlying temporary
+for the reference. <i>&nbsp;—&nbsp;end note</i>&nbsp;] [&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+struct A {
+  int m1;
+  double m2;
+};
+
+void f(const A&amp;);
+f( {'a', 'b'} );            <span class='comment'>// OK: <span class='texttt'>f(A(int,double))</span> user-defined conversion 
+</span>f( {1.0} );                 <span class='comment'>// error: narrowing
+</span>
+void g(const double &amp;);
+g({1});                     <span class='comment'>// same conversion as <span class='texttt'>int</span> to <span class='texttt'>double</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >Otherwise, if the parameter type is not a class:</p><ul ><li ><p >if the initializer list has one element that is not itself an initializer list,
+the implicit conversion sequence is the one required to convert the element to
+the parameter type; [&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+void f(int);
+f( {'a'} );                 <span class='comment'>// OK: same conversion as <span class='texttt'>char</span> to <span class='texttt'>int</span>
+</span>f( {1.0} );                 <span class='comment'>// error: narrowing
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></li><li ><p >if the initializer list has no elements, the implicit conversion sequence
+is the identity conversion. [&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+void f(int);
+f( { } );                   <span class='comment'>// OK: identity conversion 
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></li></ul></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >In all cases other than those enumerated above, no conversion is possible.</p></div><div class='footnote' id='footnote-133'><div class='marginalizedparent'><a class='marginalized' href='#footnote-133'>133)</a></div><p >Since there are no parameters of array type,
+this will only occur as the underlying type of a reference parameter.</p></div></div></div></body></html>

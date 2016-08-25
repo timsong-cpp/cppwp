@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang='en'><head><title>[basic.start.static]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>3</a> Basic concepts <a class='abbr_ref' href='./#basic'>[basic]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>3.6</a> Start and termination <a class='abbr_ref' href='basic.start#static'>[basic.start]</a></h2><div id='basic.start.static'><h3 ><a class='secnum' style='min-width:103pt'>3.6.2</a> Static initialization <a class='abbr_ref'>[basic.start.static]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='initialization'></a></span><span class='indexparent'><a class='index' id='initialization!static and thread'></a></span>Variables with static storage duration
+are initialized as a consequence of program initiation. Variables with
+thread storage duration are initialized as a consequence of thread execution.
+Within each of these phases of initiation, initialization occurs as follows.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='indexparent'><a class='index' id='initialization!static object'></a></span><span class='indexparent'><a class='index' id='initialization!constant'></a></span>A <a id='constant initializer'><i>constant initializer</i></a> for an object <span class='texttt'>o</span> is an expression that is a
+constant expression, except that it may also invoke <span class='texttt'>constexpr</span> constructors
+for <span class='texttt'>o</span> and its subobjects even if those objects are of non-literal class
+types. [&nbsp;<i>Note:</i><span class='space'></span> Such a class may have a non-trivial destructor <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+<a id='constant initialization'><i>Constant initialization</i></a> is performed:</p><ul ><li ><p >if each full-expression (including implicit conversions) that appears in
+the initializer of a reference with static or thread storage duration is a
+constant expression (<a href='expr.const'>[expr.const]</a>) and the reference is bound to a glvalue
+designating an object with static storage duration, to a temporary object
+(see <a href='class.temporary'>[class.temporary]</a>) or subobject thereof, or to a function;</p></li><li ><p >if an object with static or thread storage duration is initialized
+by a constructor call, and if the initialization full-expression is a constant
+initializer for the object;</p></li><li ><p >if an object with static or thread storage duration is not initialized by a constructor call
+and if either the object is value-initialized or every full-expression that
+appears in its initializer is a constant expression.</p></li></ul><p ><span class='indexparent'><a class='index' id='initialization!run-time'></a></span>If constant initialization is not performed, a variable with static
+storage duration (<a href='basic.stc.static'>[basic.stc.static]</a>) or thread storage
+duration (<a href='basic.stc.thread'>[basic.stc.thread]</a>) is zero-initialized (<a href='dcl.init'>[dcl.init]</a>).
+Together, zero-initialization and constant initialization are called
+<span class='indexparent'><a class='index' id='initialization!dynamic'></a></span><a id='static initialization'><i>static initialization</i></a>;
+all other initialization is <a id='dynamic initialization'><i>dynamic initialization</i></a>.
+Static initialization shall be performed before any dynamic initialization takes place.
+[&nbsp;<i>Note:</i><span class='space'></span> The dynamic initialization of non-local variables is described
+in <a href='basic.start.dynamic'>[basic.start.dynamic]</a>; that of local static variables is described
+in <a href='stmt.dcl'>[stmt.dcl]</a>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >An implementation is permitted to perform the initialization of a
+variable with static or thread storage duration as a static
+initialization even if such initialization is not required to be done
+statically, provided that</p><ul ><li ><p >the dynamic version of the initialization does not change the
+value of any other object of static or thread storage duration
+prior to its initialization, and</p></li><li ><p >the static version of the initialization produces the same value
+in the initialized variable as would be produced by the dynamic
+initialization if all variables not required to be initialized statically
+were initialized dynamically.
+</p></li></ul><p >[&nbsp;<i>Note:</i><span class='space'></span> As a consequence, if the initialization of an object <span class='texttt'>obj1</span> refers to an
+object <span class='texttt'>obj2</span> of namespace scope potentially requiring dynamic initialization and defined
+later in the same translation unit, it is unspecified whether the value of <span class='texttt'>obj2</span> used
+will be the value of the fully initialized <span class='texttt'>obj2</span> (because <span class='texttt'>obj2</span> was statically
+initialized) or will be the value of <span class='texttt'>obj2</span> merely zero-initialized. For example,</p><pre class='codeblock'>
+inline double fd() { return 1.0; }
+extern double d1;
+double d2 = d1;     <span class='comment'>// unspecified:
+</span>                    <span class='comment'>// may be statically initialized to <span class='texttt'>0.0</span> or
+</span>                    <span class='comment'>// dynamically initialized to <span class='texttt'>0.0</span> if <span class='texttt'>d1</span> is
+</span>                    <span class='comment'>// dynamically initialized, or <span class='texttt'>1.0</span> otherwise
+</span>double d1 = fd();   <span class='comment'>// may be initialized statically or dynamically to <span class='texttt'>1.0</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div></div></body></html>

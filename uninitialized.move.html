@@ -1,0 +1,29 @@
+<!DOCTYPE html><html lang='en'><head><title>[uninitialized.move]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.10</a> Memory <a class='abbr_ref' href='memory#uninitialized.move'>[memory]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>20.10.10</a> Specialized algorithms <a class='abbr_ref' href='specialized.algorithms#uninitialized.move'>[specialized.algorithms]</a></h3><div id='uninitialized.move'><h4 ><a class='secnum' style='min-width:118pt'>20.10.10.5</a> <span class='texttt'>uninitialized_move</span> <a class='abbr_ref'>[uninitialized.move]</a></h4><p ><span class='indexparent'><a class='index' id='uninitialized_move'></a></span><code class='itemdecl'>
+template &lt;class InputIterator, class ForwardIterator&gt;
+  ForwardIterator uninitialized_move(InputIterator first, InputIterator last,
+                                     ForwardIterator result);
+</code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:
+</p><pre class='codeblock'>
+for (; first != last; (void)++result, ++first)
+  ::new (static_cast&lt;void*&gt;(addressof(*result)))
+    typename iterator_traits&lt;ForwardIterator&gt;::value_type(std::move(*first));
+return result;
+</pre></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+If an exception is thrown, some objects in the range <span class='texttt'>[first, <span class='discretionary'></span>last)</span>
+are left in a valid but unspecified state.
+</p></div></div><p ><span class='indexparent'><a class='index' id='uninitialized_move_n'></a></span><code class='itemdecl'>
+template &lt;class InputIterator, class Size, class ForwardIterator&gt;
+  pair&lt;InputIterator, ForwardIterator&gt;
+    uninitialized_move_n(InputIterator first, Size n, ForwardIterator result);
+</code></p><div class='itemdescr'></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:
+</p><pre class='codeblock'>
+for (; n &gt; 0; ++result, (void) ++first, --n)
+  ::new (static_cast&lt;void*&gt;(addressof(*result)))
+    typename iterator_traits&lt;ForwardIterator&gt;::value_type(std::move(*first));
+return {first,result};
+</pre></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+If an exception is thrown, some objects in the range <span class='texttt'>[first, <span class='discretionary'></span>std::next(first,n))</span>
+are left in a valid but unspecified state.
+</p></div></div></div></div></body></html>

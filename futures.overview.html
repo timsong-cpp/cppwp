@@ -1,0 +1,74 @@
+<!DOCTYPE html><html lang='en'><head><title>[futures.overview]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>30</a> Thread support library <a class='abbr_ref' href='./#thread'>[thread]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>30.6</a> Futures <a class='abbr_ref' href='futures#overview'>[futures]</a></h2><div id='futures.overview'><h3 ><a class='secnum' style='min-width:103pt'>30.6.1</a> Overview <a class='abbr_ref'>[futures.overview]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><a href='futures'>[futures]</a> describes components that a C++ program can use to retrieve in one thread the
+result (value or exception) from a function that has run in the same thread or another thread.
+[&nbsp;<i>Note:</i><span class='space'></span> These components are not restricted to multi-threaded programs but can be useful in
+single-threaded programs as well. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><b>Header <span class='texttt'>&lt;future&gt;</span> synopsis</b></p><pre class='codeblock'>
+namespace std {
+  enum class future_errc {
+    broken_promise = <i>implementation-defined</i>,
+    future_already_retrieved = <i>implementation-defined</i>,
+    promise_already_satisfied = <i>implementation-defined</i>,
+    no_state = <i>implementation-defined</i>
+  };
+
+  enum class launch : <i><span class='texttt'>unspecified</span></i> {
+    async = <i><span class='texttt'>unspecified</span></i>,
+    deferred = <i><span class='texttt'>unspecified</span></i>,
+    <i>implementation-defined</i>
+  };
+
+  enum class future_status {
+    ready,
+    timeout,
+    deferred
+  };
+
+  template &lt;&gt; struct is_error_code_enum&lt;future_errc&gt; : public true_type { };
+  error_code make_error_code(future_errc e) noexcept;
+  error_condition make_error_condition(future_errc e) noexcept;
+
+  const error_category&amp; future_category() noexcept;
+
+  class future_error;
+
+  template &lt;class R&gt; class promise;
+  template &lt;class R&gt; class promise&lt;R&amp;&gt;;
+  template &lt;&gt; class promise&lt;void&gt;;
+
+  template &lt;class R&gt;
+    void swap(promise&lt;R&gt;&amp; x, promise&lt;R&gt;&amp; y) noexcept;
+
+  template &lt;class R, class Alloc&gt;
+    struct uses_allocator&lt;promise&lt;R&gt;, Alloc&gt;;
+
+  template &lt;class R&gt; class future;
+  template &lt;class R&gt; class future&lt;R&amp;&gt;;
+  template &lt;&gt; class future&lt;void&gt;;
+
+  template &lt;class R&gt; class shared_future;
+  template &lt;class R&gt; class shared_future&lt;R&amp;&gt;;
+  template &lt;&gt; class shared_future&lt;void&gt;;
+
+  template &lt;class&gt; class packaged_task;   <span class='comment'>// undefined
+</span>  template &lt;class R, class... ArgTypes&gt;
+    class packaged_task&lt;R(ArgTypes...)&gt;;
+
+  template &lt;class R, class... ArgTypes&gt;
+    void swap(packaged_task&lt;R(ArgTypes...)&gt;&amp;, packaged_task&lt;R(ArgTypes...)&gt;&amp;) noexcept;
+
+  template &lt;class R, class Alloc&gt;
+    struct uses_allocator&lt;packaged_task&lt;R&gt;, Alloc&gt;;
+
+  template &lt;class F, class... Args&gt;
+    future&lt;result_of_t&lt;decay_t&lt;F&gt;(decay_t&lt;Args&gt;...)&gt;&gt;
+    async(F&amp;&amp; f, Args&amp;&amp;... args);
+  template &lt;class F, class... Args&gt;
+    future&lt;result_of_t&lt;decay_t&lt;F&gt;(decay_t&lt;Args&gt;...)&gt;&gt;
+    async(launch policy, F&amp;&amp; f, Args&amp;&amp;... args);
+}
+</pre></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >The <span class='texttt'>enum</span> type <span class='texttt'>launch</span> is a bitmask type (<a href='bitmask.types'>[bitmask.types]</a>) with
+<span class='texttt'>launch::async</span> and <span class='texttt'>launch::deferred</span> denoting individual bits.
+[&nbsp;<i>Note:</i><span class='space'></span> Implementations can provide bitmasks to specify restrictions on task
+interaction by functions launched by <span class='texttt'>async()</span> applicable to a
+corresponding subset of available launch policies. Implementations can extend
+the behavior of the first overload of <span class='texttt'>async()</span> by adding their extensions
+to the launch policy under the “as if” rule. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The enum values of <span class='texttt'>future_errc</span> are distinct and not zero.</p></div></div></div></body></html>

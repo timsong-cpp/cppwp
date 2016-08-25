@@ -1,0 +1,650 @@
+<!DOCTYPE html><html lang='en'><head><title>[optional]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><div id='optional'><h2 ><a class='secnum' style='min-width:88pt'>20.6</a> Optional objects <a class='abbr_ref'>[optional]</a></h2><div id='general'><h3 ><a class='secnum' href='#general' style='min-width:103pt'>20.6.1</a> In general <a class='abbr_ref' href='optional.general'>[optional.general]</a></h3><div class='para' id='general-1'><div class='marginalizedparent'><a class='marginalized' href='#general-1'>1</a></div><p >This subclause describes class template <span class='texttt'>optional</span> that represents
+<a id='optional object'><i>optional object</i></a>s. An <a id='optional object for object types'><i>optional object for object types</i></a> is an
+object that contains the storage for another object and manages the lifetime of
+this contained object, if any. The contained object may be initialized after
+the optional object has been initialized, and may be destroyed before the
+optional object has been destroyed. The initialization state of the contained
+object is tracked by the optional object.</p></div></div><div id='syn'><h3 ><a class='secnum' href='#syn' style='min-width:103pt'>20.6.2</a> Header <span class='texttt'>&lt;optional&gt;</span> synopsis <a class='abbr_ref' href='optional.syn'>[optional.syn]</a></h3><p ><span class='indexparent'><a class='index' id='optional'></a></span></p><pre class='codeblock'>
+namespace std {
+  <span class='comment'>// <a href='optional.object'>[optional.object]</a>, optional for object types
+</span>  template &lt;class T&gt; class optional;
+
+  <span class='comment'>// <a href='optional.nullopt'>[optional.nullopt]</a>, no-value state indicator
+</span>  struct nullopt_t{<i><span class='texttt'>see below</span></i>};
+  constexpr nullopt_t nullopt(<i><span class='texttt'>unspecified</span></i>);
+
+  <span class='comment'>// <a href='optional.bad_optional_access'>[optional.bad_optional_access]</a>, class <span class='texttt'>bad_optional_access</span>
+</span>  class bad_optional_access;
+
+  <span class='comment'>// <a href='optional.relops'>[optional.relops]</a>, relational operators
+</span>  template &lt;class T&gt;
+  constexpr bool operator==(const optional&lt;T&gt;&amp;, const optional&lt;T&gt;&amp;);
+  template &lt;class T&gt;
+  constexpr bool operator!=(const optional&lt;T&gt;&amp;, const optional&lt;T&gt;&amp;);
+  template &lt;class T&gt;
+  constexpr bool operator&lt;(const optional&lt;T&gt;&amp;, const optional&lt;T&gt;&amp;);
+  template &lt;class T&gt;
+  constexpr bool operator&gt;(const optional&lt;T&gt;&amp;, const optional&lt;T&gt;&amp;);
+  template &lt;class T&gt;
+  constexpr bool operator&lt;=(const optional&lt;T&gt;&amp;, const optional&lt;T&gt;&amp;);
+  template &lt;class T&gt;
+  constexpr bool operator&gt;=(const optional&lt;T&gt;&amp;, const optional&lt;T&gt;&amp;);
+
+  <span class='comment'>// <a href='optional.nullops'>[optional.nullops]</a>, comparison with <span class='texttt'>nullopt</span>
+</span>  template &lt;class T&gt; constexpr bool operator==(const optional&lt;T&gt;&amp;, nullopt_t) noexcept;
+  template &lt;class T&gt; constexpr bool operator==(nullopt_t, const optional&lt;T&gt;&amp;) noexcept;
+  template &lt;class T&gt; constexpr bool operator!=(const optional&lt;T&gt;&amp;, nullopt_t) noexcept;
+  template &lt;class T&gt; constexpr bool operator!=(nullopt_t, const optional&lt;T&gt;&amp;) noexcept;
+  template &lt;class T&gt; constexpr bool operator&lt;(const optional&lt;T&gt;&amp;, nullopt_t) noexcept;
+  template &lt;class T&gt; constexpr bool operator&lt;(nullopt_t, const optional&lt;T&gt;&amp;) noexcept;
+  template &lt;class T&gt; constexpr bool operator&lt;=(const optional&lt;T&gt;&amp;, nullopt_t) noexcept;
+  template &lt;class T&gt; constexpr bool operator&lt;=(nullopt_t, const optional&lt;T&gt;&amp;) noexcept;
+  template &lt;class T&gt; constexpr bool operator&gt;(const optional&lt;T&gt;&amp;, nullopt_t) noexcept;
+  template &lt;class T&gt; constexpr bool operator&gt;(nullopt_t, const optional&lt;T&gt;&amp;) noexcept;
+  template &lt;class T&gt; constexpr bool operator&gt;=(const optional&lt;T&gt;&amp;, nullopt_t) noexcept;
+  template &lt;class T&gt; constexpr bool operator&gt;=(nullopt_t, const optional&lt;T&gt;&amp;) noexcept;
+
+  <span class='comment'>// <a href='optional.comp_with_t'>[optional.comp_with_t]</a>, comparison with <span class='texttt'>T</span>
+</span>  template &lt;class T&gt; constexpr bool operator==(const optional&lt;T&gt;&amp;, const T&amp;);
+  template &lt;class T&gt; constexpr bool operator==(const T&amp;, const optional&lt;T&gt;&amp;);
+  template &lt;class T&gt; constexpr bool operator!=(const optional&lt;T&gt;&amp;, const T&amp;);
+  template &lt;class T&gt; constexpr bool operator!=(const T&amp;, const optional&lt;T&gt;&amp;);
+  template &lt;class T&gt; constexpr bool operator&lt;(const optional&lt;T&gt;&amp;, const T&amp;);
+  template &lt;class T&gt; constexpr bool operator&lt;(const T&amp;, const optional&lt;T&gt;&amp;);
+  template &lt;class T&gt; constexpr bool operator&lt;=(const optional&lt;T&gt;&amp;, const T&amp;);
+  template &lt;class T&gt; constexpr bool operator&lt;=(const T&amp;, const optional&lt;T&gt;&amp;);
+  template &lt;class T&gt; constexpr bool operator&gt;(const optional&lt;T&gt;&amp;, const T&amp;);
+  template &lt;class T&gt; constexpr bool operator&gt;(const T&amp;, const optional&lt;T&gt;&amp;);
+  template &lt;class T&gt; constexpr bool operator&gt;=(const optional&lt;T&gt;&amp;, const T&amp;);
+  template &lt;class T&gt; constexpr bool operator&gt;=(const T&amp;, const optional&lt;T&gt;&amp;);
+
+  <span class='comment'>// <a href='optional.specalg'>[optional.specalg]</a>, specialized algorithms
+</span>  template &lt;class T&gt; void swap(optional&lt;T&gt;&amp;, optional&lt;T&gt;&amp;) noexcept(<i><span class='texttt'>see below</span></i>);
+  template &lt;class T&gt; constexpr optional&lt;<i><span class='texttt'>see below</span></i>&gt; make_optional(T&amp;&amp;);
+  template &lt;class T, class... Args&gt;
+    constexpr optional&lt;T&gt; make_optional(Args&amp;&amp;... args);
+  template &lt;class T, class U, class... Args&gt;
+    constexpr optional&lt;T&gt; make_optional(initializer_list&lt;U&gt; il, Args&amp;&amp;... args);
+
+  <span class='comment'>// <a href='optional.hash'>[optional.hash]</a>, hash support
+</span>  template &lt;class T&gt; struct hash;
+  template &lt;class T&gt; struct hash&lt;optional&lt;T&gt;&gt;;
+}
+</pre><div class='para' id='syn-1'><div class='marginalizedparent'><a class='marginalized' href='#syn-1'>1</a></div><p >A program that necessitates the instantiation of template <span class='texttt'>optional</span> for
+a reference type, or for possibly cv-qualified types <span class='texttt'>in_place_t</span> or
+<span class='texttt'>nullopt_t</span> is ill-formed.</p></div></div><div id='object'><h3 ><a class='secnum' href='#object' style='min-width:103pt'>20.6.3</a> <span class='texttt'>optional</span> for object types <a class='abbr_ref' href='optional.object'>[optional.object]</a></h3><p ><span class='indexparent'><a class='index' id='optional'></a></span></p><pre class='codeblock'>
+template &lt;class T&gt; class optional {
+public:
+  using value_type = T;
+
+  <span class='comment'>// <a href='optional.object.ctor'>[optional.object.ctor]</a>, constructors
+</span>  constexpr optional() noexcept;
+  constexpr optional(nullopt_t) noexcept;
+  optional(const optional &amp;);
+  optional(optional &amp;&amp;) noexcept(<i><span class='texttt'>see below</span></i>);
+  constexpr optional(const T &amp;);
+  constexpr optional(T &amp;&amp;);
+  template &lt;class... Args&gt; constexpr explicit optional(in_place_t, Args &amp;&amp;...);
+  template &lt;class U, class... Args&gt;
+    constexpr explicit optional(in_place_t, initializer_list&lt;U&gt;, Args &amp;&amp;...);
+
+  <span class='comment'>// <a href='optional.object.dtor'>[optional.object.dtor]</a>, destructor
+</span>  ~optional();
+
+  <span class='comment'>// <a href='optional.object.assign'>[optional.object.assign]</a>, assignment
+</span>  optional &amp;operator=(nullopt_t) noexcept;
+  optional &amp;operator=(const optional &amp;);
+  optional &amp;operator=(optional &amp;&amp;) noexcept(<i><span class='texttt'>see below</span></i>);
+  template &lt;class U&gt; optional &amp;operator=(U &amp;&amp;);
+  template &lt;class... Args&gt; void emplace(Args &amp;&amp;...);
+  template &lt;class U, class... Args&gt;
+    void emplace(initializer_list&lt;U&gt;, Args &amp;&amp;...);
+
+  <span class='comment'>// <a href='optional.object.swap'>[optional.object.swap]</a>, swap
+</span>  void swap(optional &amp;) noexcept(<i><span class='texttt'>see below</span></i>);
+
+  <span class='comment'>// <a href='optional.object.observe'>[optional.object.observe]</a>, observers
+</span>  constexpr T const *operator-&gt;() const;
+  constexpr T *operator-&gt;();
+  constexpr T const &amp;operator*() const &amp;;
+  constexpr T &amp;operator*() &amp;;
+  constexpr T &amp;&amp;operator*() &amp;&amp;;
+  constexpr const T &amp;&amp;operator*() const &amp;&amp;;
+  constexpr explicit operator bool() const noexcept;
+  constexpr bool has_value() const noexcept;
+  constexpr T const &amp;value() const &amp;;
+  constexpr T &amp;value() &amp;;
+  constexpr T &amp;&amp;value() &amp;&amp;;
+  constexpr const T &amp;&amp;value() const &amp;&amp;;
+  template &lt;class U&gt; constexpr T value_or(U &amp;&amp;) const &amp;;
+  template &lt;class U&gt; constexpr T value_or(U &amp;&amp;) &amp;&amp;;
+
+  <span class='comment'>// <a href='optional.object.mod'>[optional.object.mod]</a>, modifiers
+</span>  void reset() noexcept;
+
+private:
+  T *val; <span class='comment'>// <i>exposition only</i>
+</span>};
+</pre><div class='para' id='object-1'><div class='marginalizedparent'><a class='marginalized' href='#object-1'>1</a></div><p >Any instance of <span class='texttt'>optional&lt;T&gt;</span> at any given time either contains a value or does not contain a value.
+When an instance of <span class='texttt'>optional&lt;T&gt;</span> <a id='contains a value!optional'><i>contains a value</i></a>,
+it means that an object of type <span class='texttt'>T</span>, referred to as the optional object's <a id='contained value!optional'><i>contained value</i></a>,
+is allocated within the storage of the optional object.
+Implementations are not permitted to use additional storage, such as dynamic memory, to allocate its contained value.
+The contained value shall be allocated in a region of the <span class='texttt'>optional&lt;T&gt;</span> storage suitably aligned for the type <span class='texttt'>T</span>.
+When an object of type <span class='texttt'>optional&lt;T&gt;</span> is contextually converted to <span class='texttt'>bool</span>,
+the conversion returns <span class='texttt'>true</span> if the object contains a value;
+otherwise the conversion returns <span class='texttt'>false</span>.</p></div><div class='para' id='object-2'><div class='marginalizedparent'><a class='marginalized' href='#object-2'>2</a></div><p >Member <span class='texttt'>val</span> is provided for exposition only. When an <span class='texttt'>optional&lt;T&gt;</span> object contains a value, <span class='texttt'>val</span> points to the contained value.</p></div><div class='para' id='object-3'><div class='marginalizedparent'><a class='marginalized' href='#object-3'>3</a></div><p ><span class='texttt'>T</span> shall be an object type and shall satisfy the requirements of <span class='texttt'>Destructible</span> (Table <a href='utility.arg.requirements#tab:destructible'>[tab:destructible]</a>).</p></div><div id='object.ctor'><h4 ><a class='secnum' href='#object.ctor' style='min-width:118pt'>20.6.3.1</a> Constructors <a class='abbr_ref' href='optional.object.ctor'>[optional.object.ctor]</a></h4><p ><span class='indexparent'><a class='index' id='optional!constructor'></a></span><code class='itemdecl'>
+constexpr optional() noexcept;
+constexpr optional(nullopt_t) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='object.ctor-1'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-1'>1</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+<span class='texttt'>*this</span> does not contain a value.</p></div></div><div class='para' id='object.ctor-2'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-2'>2</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+No contained value is initialized.
+For every object type <span class='texttt'>T</span> these constructors shall be <span class='texttt'>constexpr</span> constructors (<a href='dcl.constexpr'>[dcl.constexpr]</a>).
+</p></div></div><p ><span class='indexparent'><a class='index' id='optional!constructor'></a></span><code class='itemdecl'>
+optional(const optional&lt;T&gt;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='object.ctor-3'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-3'>3</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>is_copy_constructible_v&lt;T&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='object.ctor-4'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+If <span class='texttt'>rhs</span> contains a value, initializes the contained value as if
+direct-non-list-initializing an object of type <span class='texttt'>T</span> with the expression <span class='texttt'>*rhs</span>.</p></div></div><div class='para' id='object.ctor-5'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-5'>5</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+<span class='texttt'>bool(rhs) == bool(*this)</span>.</p></div></div><div class='para' id='object.ctor-6'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-6'>6</a></div><div class='itemdescr'><p ><i>Throws:</i>
+Any exception thrown by the selected constructor of <span class='texttt'>T</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='optional!constructor'></a></span><code class='itemdecl'>
+optional(optional&lt;T&gt;&amp;&amp; rhs) noexcept(<i><span class='texttt'>see below</span></i>);
+</code></p><div class='itemdescr'></div><div class='para' id='object.ctor-7'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-7'>7</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>is_move_constructible_v&lt;T&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='object.ctor-8'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i>
+If <span class='texttt'>rhs</span> contains a value, initializes the contained value as if
+direct-non-list-initializing an object of type <span class='texttt'>T</span> with the expression <span class='texttt'>std::move(*rhs)</span>.
+<span class='texttt'>bool(rhs)</span> is unchanged.</p></div></div><div class='para' id='object.ctor-9'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-9'>9</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+<span class='texttt'>bool(rhs) == bool(*this)</span>.</p></div></div><div class='para' id='object.ctor-10'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-10'>10</a></div><div class='itemdescr'><p ><i>Throws:</i>
+Any exception thrown by the selected constructor of <span class='texttt'>T</span>.</p></div></div><div class='para' id='object.ctor-11'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-11'>11</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The expression inside <span class='texttt'>noexcept</span> is equivalent to
+<span class='texttt'>is_nothrow_move_constructible_v&lt;T&gt;</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='optional!constructor'></a></span><code class='itemdecl'>
+constexpr optional(const T&amp; v);
+</code></p><div class='itemdescr'></div><div class='para' id='object.ctor-12'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-12'>12</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>is_copy_constructible_v&lt;T&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='object.ctor-13'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Initializes the contained value as if direct-non-list-initializing an object of type <span class='texttt'>T</span> with the expression <span class='texttt'>v</span>.</p></div></div><div class='para' id='object.ctor-14'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-14'>14</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+<span class='texttt'>*this</span> contains a value.</p></div></div><div class='para' id='object.ctor-15'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-15'>15</a></div><div class='itemdescr'><p ><i>Throws:</i>
+Any exception thrown by the selected constructor of <span class='texttt'>T</span>.</p></div></div><div class='para' id='object.ctor-16'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-16'>16</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+If <span class='texttt'>T</span>'s selected constructor is a <span class='texttt'>constexpr</span> constructor, this constructor shall be a <span class='texttt'>constexpr</span> constructor.
+</p></div></div><p ><span class='indexparent'><a class='index' id='optional!constructor'></a></span><code class='itemdecl'>
+constexpr optional(T&amp;&amp; v);
+</code></p><div class='itemdescr'></div><div class='para' id='object.ctor-17'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-17'>17</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>is_move_constructible_v&lt;T&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='object.ctor-18'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-18'>18</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Initializes the contained value as if direct-non-list-initializing an object of type <span class='texttt'>T</span> with the expression <span class='texttt'>std::move(v)</span>.</p></div></div><div class='para' id='object.ctor-19'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-19'>19</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+<span class='texttt'>*this</span> contains a value.</p></div></div><div class='para' id='object.ctor-20'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-20'>20</a></div><div class='itemdescr'><p ><i>Throws:</i>
+Any exception thrown by the selected constructor of <span class='texttt'>T</span>.</p></div></div><div class='para' id='object.ctor-21'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-21'>21</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+If <span class='texttt'>T</span>'s selected constructor is a <span class='texttt'>constexpr</span> constructor, this constructor shall be a <span class='texttt'>constexpr</span> constructor.
+</p></div></div><p ><span class='indexparent'><a class='index' id='optional!constructor'></a></span><code class='itemdecl'>
+template &lt;class... Args&gt; constexpr explicit optional(in_place_t, Args&amp;&amp;... args);
+</code></p><div class='itemdescr'></div><div class='para' id='object.ctor-22'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-22'>22</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>is_constructible_v&lt;T, Args&amp;&amp;...&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='object.ctor-23'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-23'>23</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Initializes the contained value as if direct-non-list-initializing an object of type <span class='texttt'>T</span> with the arguments <span class='texttt'>std::forward&lt;Args&gt;(args)...</span>.</p></div></div><div class='para' id='object.ctor-24'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-24'>24</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+<span class='texttt'>*this</span> contains a value.</p></div></div><div class='para' id='object.ctor-25'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-25'>25</a></div><div class='itemdescr'><p ><i>Throws:</i>
+Any exception thrown by the selected constructor of <span class='texttt'>T</span>.</p></div></div><div class='para' id='object.ctor-26'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-26'>26</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+If <span class='texttt'>T</span>'s constructor selected for the initialization is a <span class='texttt'>constexpr</span> constructor, this constructor shall be a <span class='texttt'>constexpr</span> constructor.
+</p></div></div><p ><span class='indexparent'><a class='index' id='optional!constructor'></a></span><code class='itemdecl'>
+template &lt;class U, class... Args&gt;
+  constexpr explicit optional(in_place_t, initializer_list&lt;U&gt; il, Args&amp;&amp;... args);
+</code></p><div class='itemdescr'></div><div class='para' id='object.ctor-27'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-27'>27</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>is_constructible_v&lt;T, initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='object.ctor-28'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-28'>28</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Initializes the contained value as if direct-non-list-initializing an object of type <span class='texttt'>T</span> with the arguments <span class='texttt'>il, std::forward&lt;Args&gt;(args)...</span>.</p></div></div><div class='para' id='object.ctor-29'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-29'>29</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+<span class='texttt'>*this</span> contains a value.</p></div></div><div class='para' id='object.ctor-30'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-30'>30</a></div><div class='itemdescr'><p ><i>Throws:</i>
+Any exception thrown by the selected constructor of <span class='texttt'>T</span>.</p></div></div><div class='para' id='object.ctor-31'><div class='marginalizedparent'><a class='marginalized' href='#object.ctor-31'>31</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The function shall not participate in overload resolution unless <span class='texttt'>is_constructible_v&lt;T, initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</span> is <span class='texttt'>true</span>.
+If <span class='texttt'>T</span>'s constructor selected for the initialization is a <span class='texttt'>constexpr</span> constructor, this constructor shall be a <span class='texttt'>constexpr</span> constructor.
+</p></div></div></div><div id='object.dtor'><h4 ><a class='secnum' href='#object.dtor' style='min-width:118pt'>20.6.3.2</a> Destructor <a class='abbr_ref' href='optional.object.dtor'>[optional.object.dtor]</a></h4><p ><span class='indexparent'><a class='index' id='optional!destructor'></a></span><code class='itemdecl'>
+~optional();
+</code></p><div class='itemdescr'></div><div class='para' id='object.dtor-1'><div class='marginalizedparent'><a class='marginalized' href='#object.dtor-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+If <span class='texttt'>is_trivially_destructible_v&lt;T&gt; != true</span> and <span class='texttt'>*this</span> contains a value, calls <span class='texttt'>val-&gt;T::~T()</span>.</p></div></div><div class='para' id='object.dtor-2'><div class='marginalizedparent'><a class='marginalized' href='#object.dtor-2'>2</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+If <span class='texttt'>is_trivially_destructible_v&lt;T&gt; == true</span> then this destructor shall be a trivial destructor.
+</p></div></div></div><div id='object.assign'><h4 ><a class='secnum' href='#object.assign' style='min-width:118pt'>20.6.3.3</a> Assignment <a class='abbr_ref' href='optional.object.assign'>[optional.object.assign]</a></h4><p ><span class='indexparent'><a class='index' id='operator=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator='></a></span><code class='itemdecl'>
+optional&lt;T&gt;&amp; operator=(nullopt_t) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='object.assign-1'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+If <span class='texttt'>*this</span> contains a value, calls <span class='texttt'>val-&gt;T::~T()</span> to destroy the contained value; otherwise no effect.</p></div></div><div class='para' id='object.assign-2'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.</p></div></div><div class='para' id='object.assign-3'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-3'>3</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+<span class='texttt'>*this</span> does not contain a value.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator='></a></span><code class='itemdecl'>
+optional&lt;T&gt;&amp; operator=(const optional&lt;T&gt;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='object.assign-4'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-4'>4</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>is_copy_constructible_v&lt;T&gt;</span> is <span class='texttt'>true</span> and <span class='texttt'>is_copy_assignable_v&lt;T&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='object.assign-5'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+See Table <a href='#tab:optional.assign.copy'>[tab:optional.assign.copy]</a>.
+
+ 
+     
+ 
+ 
+ 
+ 
+ 
+ 
+  <div class='table'>
+ 
+ <span class='center'>
+ <div class='tabular'>
+  
+ <td colspan='1'></td>&amp;&amp;<td colspan='1'><b><span class='texttt'>*this</span> contains a value</b></td>&amp;<td colspan='1'><b><span class='texttt'>*this</span> does not contain a value</b></td><br/>
+ 
+
+
+
+<b><span class='texttt'>rhs</span> contains a value</b>&amp; &amp;
+assigns <span class='texttt'>*rhs</span> to the contained value &amp;
+initializes the contained value as if direct-non-list-initializing an object of type <span class='texttt'>T</span> with <span class='texttt'>*rhs</span> <br/>
+
+
+<b><span class='texttt'>rhs</span> does not contain a value</b>&amp; &amp;
+destroys the contained value by calling <span class='texttt'>val-&gt;T::~T()</span> &amp;
+no effect <br/>
+
+ 
+ 
+ </div>
+ </span>
+ </div>
+
+</p></div></div><div class='para' id='object.assign-6'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.</p></div></div><div class='para' id='object.assign-7'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-7'>7</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+<span class='texttt'>bool(rhs) == bool(*this)</span>.</p></div></div><div class='para' id='object.assign-8'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-8'>8</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+If any exception is thrown, the result of the expression <span class='texttt'>bool(*this)</span> remains unchanged.
+If an exception is thrown during the call to <span class='texttt'>T</span>'s copy constructor, no effect.
+If an exception is thrown during the call to <span class='texttt'>T</span>'s copy assignment,
+the state of its contained value is as defined by the exception safety guarantee of <span class='texttt'>T</span>'s copy assignment.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator='></a></span><code class='itemdecl'>
+optional&lt;T&gt;&amp; operator=(optional&lt;T&gt;&amp;&amp; rhs) noexcept(<i><span class='texttt'>see below</span></i>);
+</code></p><div class='itemdescr'></div><div class='para' id='object.assign-9'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-9'>9</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>is_move_constructible_v&lt;T&gt;</span> is <span class='texttt'>true</span> and <span class='texttt'>is_move_assignable_v&lt;T&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='object.assign-10'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i>
+See Table <a href='#tab:optional.assign.move'>[tab:optional.assign.move]</a>.
+The result of the expression <span class='texttt'>bool(rhs)</span> remains unchanged.
+
+ 
+     
+ 
+ 
+ 
+ 
+ 
+ 
+  <div class='table'>
+ 
+ <span class='center'>
+ <div class='tabular'>
+  
+ <td colspan='1'></td>&amp;&amp;<td colspan='1'><b><span class='texttt'>*this</span> contains a value</b></td>&amp;<td colspan='1'><b><span class='texttt'>*this</span> does not contain a value</b></td><br/>
+ 
+
+
+
+<b><span class='texttt'>rhs</span> contains a value</b>&amp; &amp;
+assigns <span class='texttt'>std::move(*rhs)</span> to the contained value &amp;
+initializes the contained value as if direct-non-list-initializing an object of type <span class='texttt'>T</span> with <span class='texttt'>std::move(*rhs)</span> <br/>
+
+
+<b><span class='texttt'>rhs</span> does not contain a value</b>&amp; &amp;
+destroys the contained value by calling <span class='texttt'>val-&gt;T::~T()</span> &amp;
+no effect <br/>
+
+ 
+ 
+ </div>
+ </span>
+ </div>
+
+</p></div></div><div class='para' id='object.assign-11'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-11'>11</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.</p></div></div><div class='para' id='object.assign-12'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-12'>12</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+<span class='texttt'>bool(rhs) == bool(*this)</span>.</p></div></div><div class='para' id='object.assign-13'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-13'>13</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The expression inside <span class='texttt'>noexcept</span> is equivalent to:
+</p><pre class='codeblock'>
+is_nothrow_move_assignable_v&lt;T&gt; &amp;&amp; is_nothrow_move_constructible_v&lt;T&gt;
+</pre></div></div><div class='para' id='object.assign-14'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-14'>14</a></div><div class='itemdescr'><p >If any exception is thrown, the result of the expression <span class='texttt'>bool(*this)</span> remains unchanged.
+If an exception is thrown during the call to <span class='texttt'>T</span>'s move constructor,
+the state of <span class='texttt'>*rhs.val</span> is determined by the exception safety guarantee of <span class='texttt'>T</span>'s move constructor.
+If an exception is thrown during the call to <span class='texttt'>T</span>'s move assignment,
+the state of <span class='texttt'>*val</span> and <span class='texttt'>*rhs.val</span> is determined by the exception safety guarantee of <span class='texttt'>T</span>'s move assignment.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator='></a></span><code class='itemdecl'>
+template &lt;class U&gt; optional&lt;T&gt;&amp; operator=(U&amp;&amp; v);
+</code></p><div class='itemdescr'></div><div class='para' id='object.assign-15'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-15'>15</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>is_constructible_v&lt;T, U&gt;</span> is <span class='texttt'>true</span> and <span class='texttt'>is_assignable_v&lt;T&amp;, U&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='object.assign-16'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i>
+If <span class='texttt'>*this</span> contains a value, assigns <span class='texttt'>std::forward&lt;U&gt;(v)</span> to the contained value; otherwise initializes the contained value as if direct-non-list-initializing object of type <span class='texttt'>T</span> with <span class='texttt'>std::forward&lt;U&gt;(v)</span>.</p></div></div><div class='para' id='object.assign-17'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-17'>17</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.</p></div></div><div class='para' id='object.assign-18'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-18'>18</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+<span class='texttt'>*this</span> contains a value.</p></div></div><div class='para' id='object.assign-19'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-19'>19</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+If any exception is thrown, the result of the expression <span class='texttt'>bool(*this)</span> remains unchanged. If an exception is thrown during the call to <span class='texttt'>T</span>'s constructor, the state of <span class='texttt'>v</span> is determined by the exception safety guarantee of <span class='texttt'>T</span>'s constructor. If an exception is thrown during the call to <span class='texttt'>T</span>'s assignment, the state of <span class='texttt'>*val</span> and <span class='texttt'>v</span> is determined by the exception safety guarantee of <span class='texttt'>T</span>'s assignment.
+The function shall not participate in overload resolution unless
+<span class='texttt'>is_same_v&lt;decay_t&lt;U&gt;, T&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='object.assign-20'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-20'>20</a></div><div class='itemdescr'><p ><i>Notes:</i>
+The reason for providing such generic assignment and then constraining it so that effectively <span class='texttt'>T</span> == <span class='texttt'>U</span> is to guarantee that assignment of the form <span class='texttt'>o = {}</span> is unambiguous.
+</p></div></div><p ><span class='indexparent'><a class='index' id='emplace!optional'></a></span><span class='indexparent'><a class='index' id='optional!emplace'></a></span><code class='itemdecl'>
+template &lt;class... Args&gt; void emplace(Args&amp;&amp;... args);
+</code></p><div class='itemdescr'></div><div class='para' id='object.assign-21'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-21'>21</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>is_constructible_v&lt;T, Args&amp;&amp;...&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='object.assign-22'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-22'>22</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls <span class='texttt'>*this = nullopt</span>. Then initializes the contained value as if direct-non-list-initializing an object of type <span class='texttt'>T</span> with the arguments <span class='texttt'>std::forward&lt;Args&gt;(args)...</span>.</p></div></div><div class='para' id='object.assign-23'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-23'>23</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+<span class='texttt'>*this</span> contains a value.</p></div></div><div class='para' id='object.assign-24'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-24'>24</a></div><div class='itemdescr'><p ><i>Throws:</i>
+Any exception thrown by the selected constructor of <span class='texttt'>T</span>.</p></div></div><div class='para' id='object.assign-25'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-25'>25</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+If an exception is thrown during the call to <span class='texttt'>T</span>'s constructor, <span class='texttt'>*this</span> does not contain a value, and the previous <span class='texttt'>*val</span> (if any) has been destroyed.
+</p></div></div><p ><span class='indexparent'><a class='index' id='emplace!optional'></a></span><span class='indexparent'><a class='index' id='optional!emplace'></a></span><code class='itemdecl'>
+template &lt;class U, class... Args&gt; void emplace(initializer_list&lt;U&gt; il, Args&amp;&amp;... args);
+</code></p><div class='itemdescr'></div><div class='para' id='object.assign-26'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-26'>26</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls <span class='texttt'>*this = nullopt</span>. Then initializes the contained value as if direct-non-list-initializing an object of type <span class='texttt'>T</span> with the arguments <span class='texttt'>il, std::forward&lt;Args&gt;(args)...</span>.</p></div></div><div class='para' id='object.assign-27'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-27'>27</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+<span class='texttt'>*this</span> contains a value.</p></div></div><div class='para' id='object.assign-28'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-28'>28</a></div><div class='itemdescr'><p ><i>Throws:</i>
+Any exception thrown by the selected constructor of <span class='texttt'>T</span>.</p></div></div><div class='para' id='object.assign-29'><div class='marginalizedparent'><a class='marginalized' href='#object.assign-29'>29</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+If an exception is thrown during the call to <span class='texttt'>T</span>'s constructor, <span class='texttt'>*this</span> does not contain a value, and the previous <span class='texttt'>*val</span> (if any) has been destroyed.
+This function shall not participate in overload resolution unless <span class='texttt'>is_constructible_v&lt;T, initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</span> is <span class='texttt'>true</span>.
+</p></div></div></div><div id='object.swap'><h4 ><a class='secnum' href='#object.swap' style='min-width:118pt'>20.6.3.4</a> Swap <a class='abbr_ref' href='optional.object.swap'>[optional.object.swap]</a></h4><p ><span class='indexparent'><a class='index' id='swap!optional'></a></span><span class='indexparent'><a class='index' id='optional!swap'></a></span><code class='itemdecl'>
+void swap(optional&lt;T&gt;&amp; rhs) noexcept(<i><span class='texttt'>see below</span></i>);
+</code></p><div class='itemdescr'></div><div class='para' id='object.swap-1'><div class='marginalizedparent'><a class='marginalized' href='#object.swap-1'>1</a></div><div class='itemdescr'><p ><i>Requires:</i>
+Lvalues of type <span class='texttt'>T</span> shall be swappable and <span class='texttt'>is_move_constructible_v&lt;T&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='object.swap-2'><div class='marginalizedparent'><a class='marginalized' href='#object.swap-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+See Table <a href='#tab:optional.swap'>[tab:optional.swap]</a>.
+
+ 
+     
+ 
+ 
+ 
+ 
+ 
+ 
+  <div class='table'>
+ 
+ <span class='center'>
+ <div class='tabular'>
+  
+ <td colspan='1'></td>&amp;&amp;<td colspan='1'><b><span class='texttt'>*this</span> contains a value</b></td>&amp;<td colspan='1'><b><span class='texttt'>*this</span> does not contain a value</b></td><br/>
+ 
+
+
+
+<b><span class='texttt'>rhs</span> contains a value</b>&amp; &amp;
+calls <span class='texttt'>swap(*(*this), *rhs)</span> &amp;
+initializes the contained value of <span class='texttt'>*this</span> as if
+direct-non-list-initializing an object of type <span class='texttt'>T</span> with the expression <span class='texttt'>std::move(*rhs)</span>,
+followed by <span class='texttt'>rhs.val-&gt;T::~T()</span>;
+postcondition is that <span class='texttt'>*this</span> contains a value and <span class='texttt'>rhs</span> does not contain a value <br/>
+
+
+<b><span class='texttt'>rhs</span> does not contain a value</b>&amp; &amp;
+initializes the contained value of <span class='texttt'>rhs</span> as if
+direct-non-list-initializing an object of type <span class='texttt'>T</span> with the expression <span class='texttt'>std::move(*(*this))</span>,
+followed by <span class='texttt'>val-&gt;T::~T()</span>;
+postcondition is that <span class='texttt'>*this</span> does not contain a value and <span class='texttt'>rhs</span> contains a value &amp;
+no effect <br/>
+
+ 
+ 
+ </div>
+ </span>
+ </div>
+
+</p></div></div><div class='para' id='object.swap-3'><div class='marginalizedparent'><a class='marginalized' href='#object.swap-3'>3</a></div><div class='itemdescr'><p ><i>Throws:</i>
+Any exceptions thrown by the operations in the relevant part of Table <a href='#tab:optional.swap'>[tab:optional.swap]</a>.</p></div></div><div class='para' id='object.swap-4'><div class='marginalizedparent'><a class='marginalized' href='#object.swap-4'>4</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The expression inside <span class='texttt'>noexcept</span> is equivalent to:
+</p><pre class='codeblock'>
+is_nothrow_move_constructible_v&lt;T&gt; &amp;&amp; noexcept(swap(declval&lt;T&amp;&gt;(), declval&lt;T&amp;&gt;()))
+</pre><p >If any exception is thrown, the results of the expressions <span class='texttt'>bool(*this)</span> and <span class='texttt'>bool(rhs)</span> remain unchanged.
+If an exception is thrown during the call to function <span class='texttt'>swap</span>,
+the state of <span class='texttt'>*val</span> and <span class='texttt'>*rhs.val</span> is determined by the exception safety guarantee of <span class='texttt'>swap</span> for lvalues of <span class='texttt'>T</span>.
+If an exception is thrown during the call to <span class='texttt'>T</span>'s move constructor,
+the state of <span class='texttt'>*val</span> and <span class='texttt'>*rhs.val</span> is determined by the exception safety guarantee of <span class='texttt'>T</span>'s move constructor.
+</p></div></div></div><div id='object.observe'><h4 ><a class='secnum' href='#object.observe' style='min-width:118pt'>20.6.3.5</a> Observers <a class='abbr_ref' href='optional.object.observe'>[optional.object.observe]</a></h4><p ><span class='indexparent'><a class='index' id='operator->!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator->'></a></span><code class='itemdecl'>
+constexpr T const* operator-&gt;() const;
+constexpr T* operator-&gt;();
+</code></p><div class='itemdescr'></div><div class='para' id='object.observe-1'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-1'>1</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>*this</span> contains a value.</p></div></div><div class='para' id='object.observe-2'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>val</span>.</p></div></div><div class='para' id='object.observe-3'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-3'>3</a></div><div class='itemdescr'><p ><i>Throws:</i>
+Nothing.</p></div></div><div class='para' id='object.observe-4'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-4'>4</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Unless <span class='texttt'>T</span> is a user-defined type with overloaded unary <span class='texttt'>operator&amp;</span>, these functions shall be <span class='texttt'>constexpr</span> functions.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator*!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator*'></a></span><code class='itemdecl'>
+constexpr T const&amp; operator*() const &amp;;
+constexpr T&amp; operator*() &amp;;
+</code></p><div class='itemdescr'></div><div class='para' id='object.observe-5'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-5'>5</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>*this</span> contains a value.</p></div></div><div class='para' id='object.observe-6'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*val</span>.</p></div></div><div class='para' id='object.observe-7'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-7'>7</a></div><div class='itemdescr'><p ><i>Throws:</i>
+Nothing.</p></div></div><div class='para' id='object.observe-8'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-8'>8</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+These functions shall be <span class='texttt'>constexpr</span> functions.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator*!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator*'></a></span><code class='itemdecl'>
+constexpr T&amp;&amp; operator*() &amp;&amp;;
+constexpr const T&amp;&amp; operator*() const &amp;&amp;;
+</code></p><div class='itemdescr'></div><div class='para' id='object.observe-9'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-9'>9</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>*this</span> contains a value.</p></div></div><div class='para' id='object.observe-10'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return std::move(*val);</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator bool!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator bool'></a></span><code class='itemdecl'>
+constexpr explicit operator bool() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='object.observe-11'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-11'>11</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>true</span> if and only if <span class='texttt'>*this</span> contains a value.</p></div></div><div class='para' id='object.observe-12'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-12'>12</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+This function shall be a <span class='texttt'>constexpr</span> function.
+</p></div></div><p ><span class='indexparent'><a class='index' id='has_value!optional'></a></span><span class='indexparent'><a class='index' id='optional!has_value'></a></span><code class='itemdecl'>
+constexpr bool has_value() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='object.observe-13'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-13'>13</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>true</span> if and only if <span class='texttt'>*this</span> contains a value.</p></div></div><div class='para' id='object.observe-14'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-14'>14</a></div><div class='itemdescr'><p ><i>Remarks:</i> This function shall be a <span class='texttt'>constexpr</span> function.
+</p></div></div><p ><span class='indexparent'><a class='index' id='value!optional'></a></span><span class='indexparent'><a class='index' id='optional!value'></a></span><code class='itemdecl'>
+constexpr T const&amp; value() const &amp;;
+constexpr T&amp; value() &amp;;
+</code></p><div class='itemdescr'></div><div class='para' id='object.observe-15'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:
+</p><pre class='codeblock'>
+return bool(*this) ? *val : throw bad_optional_access();
+</pre></div></div><p ><span class='indexparent'><a class='index' id='value!optional'></a></span><span class='indexparent'><a class='index' id='optional!value'></a></span><code class='itemdecl'>
+constexpr T&amp;&amp; value() &amp;&amp;;
+constexpr const T&amp;&amp; value() const &amp;&amp;;
+</code></p><div class='itemdescr'></div><div class='para' id='object.observe-16'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:
+</p><pre class='codeblock'>
+return bool(*this) ? std::move(*val) : throw bad_optional_access();
+</pre></div></div><p ><span class='indexparent'><a class='index' id='value_or!optional'></a></span><span class='indexparent'><a class='index' id='optional!value_or'></a></span><code class='itemdecl'>
+template &lt;class U&gt; constexpr T value_or(U&amp;&amp; v) const &amp;;
+</code></p><div class='itemdescr'></div><div class='para' id='object.observe-17'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-17'>17</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:
+</p><pre class='codeblock'>
+return bool(*this) ? **this : static_cast&lt;T&gt;(std::forward&lt;U&gt;(v));
+</pre></div></div><div class='para' id='object.observe-18'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-18'>18</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+If <span class='texttt'>is_copy_constructible_v&lt;T&gt; &amp;&amp; is_convertible_v&lt;U&amp;&amp;, T&gt;</span> is <span class='texttt'>false</span>,
+the program is ill-formed.
+</p></div></div><p ><span class='indexparent'><a class='index' id='value_or!optional'></a></span><span class='indexparent'><a class='index' id='optional!value_or'></a></span><code class='itemdecl'>
+template &lt;class U&gt; constexpr T value_or(U&amp;&amp; v) &amp;&amp;;
+</code></p><div class='itemdescr'></div><div class='para' id='object.observe-19'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-19'>19</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:
+</p><pre class='codeblock'>
+return bool(*this) ? std::move(**this) : static_cast&lt;T&gt;(std::forward&lt;U&gt;(v));
+</pre></div></div><div class='para' id='object.observe-20'><div class='marginalizedparent'><a class='marginalized' href='#object.observe-20'>20</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+If <span class='texttt'>is_move_constructible_v&lt;T&gt; &amp;&amp; is_convertible_v&lt;U&amp;&amp;, T&gt;</span> is <span class='texttt'>false</span>,
+the program is ill-formed.
+</p></div></div></div><div id='object.mod'><h4 ><a class='secnum' href='#object.mod' style='min-width:118pt'>20.6.3.6</a> Modifiers <a class='abbr_ref' href='optional.object.mod'>[optional.object.mod]</a></h4><p ><span class='indexparent'><a class='index' id='reset!optional'></a></span><span class='indexparent'><a class='index' id='optional!reset'></a></span><code class='itemdecl'>
+void reset() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='object.mod-1'><div class='marginalizedparent'><a class='marginalized' href='#object.mod-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+If <span class='texttt'>*this</span> contains a value, calls <span class='texttt'>val-&gt;T::~T()</span> to destroy the contained value;
+otherwise no effect.</p></div></div><div class='para' id='object.mod-2'><div class='marginalizedparent'><a class='marginalized' href='#object.mod-2'>2</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
+<span class='texttt'>*this</span> does not contain a value.
+</p></div></div></div></div><div id='nullopt'><h3 ><a class='secnum' href='#nullopt' style='min-width:103pt'>20.6.4</a> No-value state indicator <a class='abbr_ref' href='optional.nullopt'>[optional.nullopt]</a></h3><p ><span class='indexparent'><a class='index' id='nullopt_t'></a></span><span class='indexparent'><a class='index' id='nullopt'></a></span><code class='itemdecl'>
+struct nullopt_t{<i><span class='texttt'>see below</span></i>};
+constexpr nullopt_t nullopt(<i><span class='texttt'>unspecified</span></i>);
+</code></p><div class='para' id='nullopt-1'><div class='marginalizedparent'><a class='marginalized' href='#nullopt-1'>1</a></div><p >The struct <span class='texttt'>nullopt_t</span> is an empty structure type used as a unique type to indicate the state of not containing a value for <span class='texttt'>optional</span> objects.
+In particular, <span class='texttt'>optional&lt;T&gt;</span> has a constructor with <span class='texttt'>nullopt_t</span> as a single argument;
+this indicates that an optional object not containing a value shall be constructed.</p></div><div class='para' id='nullopt-2'><div class='marginalizedparent'><a class='marginalized' href='#nullopt-2'>2</a></div><p >Type <span class='texttt'>nullopt_t</span> shall not have a default constructor. It shall be a literal type. Constant <span class='texttt'>nullopt</span> shall be initialized with an argument of literal type.</p></div></div><div id='bad_optional_access'><h3 ><a class='secnum' href='#bad_optional_access' style='min-width:103pt'>20.6.5</a> Class <span class='texttt'>bad_optional_access</span> <a class='abbr_ref' href='optional.bad_optional_access'>[optional.bad_optional_access]</a></h3><pre class='codeblock'>
+class bad_optional_access : public logic_error {
+public:
+  bad_optional_access();
+};
+</pre><div class='para' id='bad_optional_access-1'><div class='marginalizedparent'><a class='marginalized' href='#bad_optional_access-1'>1</a></div><p >The class <span class='texttt'>bad_optional_access</span> defines the type of objects thrown as exceptions to report the situation where an attempt is made to access the value of an optional object that does not contain a value.</p><p ><span class='indexparent'><a class='index' id='bad_optional_access!constructor'></a></span><span class='indexparent'><a class='index' id='what!bad_optional_access'></a></span><span class='indexparent'><a class='index' id='bad_optional_access!what'></a></span><code class='itemdecl'>
+bad_optional_access();
+</code></p></div><div class='itemdescr'></div><div class='para' id='bad_optional_access-2'><div class='marginalizedparent'><a class='marginalized' href='#bad_optional_access-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs an object of class <span class='texttt'>bad_optional_access</span>.</p></div></div><div class='para' id='bad_optional_access-3'><div class='marginalizedparent'><a class='marginalized' href='#bad_optional_access-3'>3</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+<span class='texttt'>what()</span> returns an
+<span class='indexparent'><a class='index' id='return value of bad_optional_access::what'></a></span>implementation-defined
+<span class='textsc'>ntbs</span>.
+</p></div></div></div><div id='relops'><h3 ><a class='secnum' href='#relops' style='min-width:103pt'>20.6.6</a> Relational operators <a class='abbr_ref' href='optional.relops'>[optional.relops]</a></h3><p ><span class='indexparent'><a class='index' id='operator==!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator=='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator==(const optional&lt;T&gt;&amp; x, const optional&lt;T&gt;&amp; y);
+</code></p><div class='itemdescr'></div><div class='para' id='relops-1'><div class='marginalizedparent'><a class='marginalized' href='#relops-1'>1</a></div><div class='itemdescr'><p ><i>Requires:</i>
+The expression <span class='texttt'>*x == *y</span> shall be well-formed and
+its result shall be convertible to <span class='texttt'>bool</span>.
+[&nbsp;<i>Note:</i><span class='space'></span> <span class='texttt'>T</span> need not be <span class='texttt'>EqualityComparable</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='relops-2'><div class='marginalizedparent'><a class='marginalized' href='#relops-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If <span class='texttt'>bool(x) != bool(y)</span>, <span class='texttt'>false</span>; otherwise if <span class='texttt'>bool(x) == false</span>, <span class='texttt'>true</span>; otherwise <span class='texttt'>*x == *y</span>.</p></div></div><div class='para' id='relops-3'><div class='marginalizedparent'><a class='marginalized' href='#relops-3'>3</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Specializations of this function template
+for which <span class='texttt'>*x == *y</span> is a core constant expression
+shall be <span class='texttt'>constexpr</span> functions.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator!=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator!='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator!=(const optional&lt;T&gt;&amp; x, const optional&lt;T&gt;&amp; y);
+</code></p><div class='itemdescr'></div><div class='para' id='relops-4'><div class='marginalizedparent'><a class='marginalized' href='#relops-4'>4</a></div><div class='itemdescr'><p ><i>Requires:</i>
+The expression <span class='texttt'>*x != *y</span> shall be well-formed and
+its result shall be convertible to <span class='texttt'>bool</span>.</p></div></div><div class='para' id='relops-5'><div class='marginalizedparent'><a class='marginalized' href='#relops-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If <span class='texttt'>bool(x) != bool(y)</span>, <span class='texttt'>true</span>;
+otherwise, if <span class='texttt'>bool(x) == false</span>, <span class='texttt'>false</span>;
+otherwise <span class='texttt'>*x != *y</span>.</p></div></div><div class='para' id='relops-6'><div class='marginalizedparent'><a class='marginalized' href='#relops-6'>6</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Specializations of this function template
+for which <span class='texttt'>*x != *y</span> is a core constant expression
+shall be constexpr functions.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator<'></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&lt;(const optional&lt;T&gt;&amp; x, const optional&lt;T&gt;&amp; y);
+</code></p><div class='itemdescr'></div><div class='para' id='relops-7'><div class='marginalizedparent'><a class='marginalized' href='#relops-7'>7</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>*x &lt; *y</span> shall be well-formed
+and its result shall be convertible to <span class='texttt'>bool</span>.</p></div></div><div class='para' id='relops-8'><div class='marginalizedparent'><a class='marginalized' href='#relops-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If <span class='texttt'>!y</span>, <span class='texttt'>false</span>;
+otherwise, if <span class='texttt'>!x</span>, <span class='texttt'>true</span>;
+otherwise <span class='texttt'>*x &lt; *y</span>.</p></div></div><div class='para' id='relops-9'><div class='marginalizedparent'><a class='marginalized' href='#relops-9'>9</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Specializations of this function template
+for which <span class='texttt'>*x &lt; *y</span> is a core constant expression
+shall be <span class='texttt'>constexpr</span> functions.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator>'></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&gt;(const optional&lt;T&gt;&amp; x, const optional&lt;T&gt;&amp; y);
+</code></p><div class='itemdescr'></div><div class='para' id='relops-10'><div class='marginalizedparent'><a class='marginalized' href='#relops-10'>10</a></div><div class='itemdescr'><p ><i>Requires:</i>
+The expression <span class='texttt'>*x &gt; *y</span> shall be well-formed and
+its result shall be convertible to <span class='texttt'>bool</span>.</p></div></div><div class='para' id='relops-11'><div class='marginalizedparent'><a class='marginalized' href='#relops-11'>11</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If <span class='texttt'>!x</span>, <span class='texttt'>false</span>;
+otherwise, if <span class='texttt'>!y</span>, <span class='texttt'>true</span>;
+otherwise <span class='texttt'>*x &gt; *y</span>.</p></div></div><div class='para' id='relops-12'><div class='marginalizedparent'><a class='marginalized' href='#relops-12'>12</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Specializations of this function template
+for which <span class='texttt'>*x &gt; *y</span> is a core constant expression
+shall be constexpr functions.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator<='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&lt;=(const optional&lt;T&gt;&amp; x, const optional&lt;T&gt;&amp; y);
+</code></p><div class='itemdescr'></div><div class='para' id='relops-13'><div class='marginalizedparent'><a class='marginalized' href='#relops-13'>13</a></div><div class='itemdescr'><p ><i>Requires:</i>
+The expression <span class='texttt'>*x &lt;= *y</span> shall be well-formed and
+its result shall be convertible to <span class='texttt'>bool</span>.</p></div></div><div class='para' id='relops-14'><div class='marginalizedparent'><a class='marginalized' href='#relops-14'>14</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If <span class='texttt'>!x</span>, <span class='texttt'>true</span>;
+otherwise, if <span class='texttt'>!y</span>, <span class='texttt'>false</span>;
+otherwise <span class='texttt'>*x &lt;= *y</span>.</p></div></div><div class='para' id='relops-15'><div class='marginalizedparent'><a class='marginalized' href='#relops-15'>15</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Specializations of this function template
+for which <span class='texttt'>*x &lt;= *y</span> is a core constant expression
+shall be constexpr functions.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator>='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&gt;=(const optional&lt;T&gt;&amp; x, const optional&lt;T&gt;&amp; y);
+</code></p><div class='itemdescr'></div><div class='para' id='relops-16'><div class='marginalizedparent'><a class='marginalized' href='#relops-16'>16</a></div><div class='itemdescr'><p ><i>Requires:</i>
+The expression <span class='texttt'>*x &gt;= *y</span> shall be well-formed and
+its result shall be convertible to <span class='texttt'>bool</span>.</p></div></div><div class='para' id='relops-17'><div class='marginalizedparent'><a class='marginalized' href='#relops-17'>17</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If <span class='texttt'>!y</span>, <span class='texttt'>true</span>;
+otherwise, if <span class='texttt'>!x</span>, <span class='texttt'>false</span>;
+otherwise <span class='texttt'>*x &gt;= *y</span>.</p></div></div><div class='para' id='relops-18'><div class='marginalizedparent'><a class='marginalized' href='#relops-18'>18</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Specializations of this function template
+for which <span class='texttt'>*x &gt;= *y</span> is a core constant expression
+shall be constexpr functions.
+</p></div></div></div><div id='nullops'><h3 ><a class='secnum' href='#nullops' style='min-width:103pt'>20.6.7</a> Comparison with <span class='texttt'>nullopt</span> <a class='abbr_ref' href='optional.nullops'>[optional.nullops]</a></h3><p ><span class='indexparent'><a class='index' id='operator==!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator=='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator==(const optional&lt;T&gt;&amp; x, nullopt_t) noexcept;
+template &lt;class T&gt; constexpr bool operator==(nullopt_t, const optional&lt;T&gt;&amp; x) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='nullops-1'><div class='marginalizedparent'><a class='marginalized' href='#nullops-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>!x</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator!=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator!='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator!=(const optional&lt;T&gt;&amp; x, nullopt_t) noexcept;
+template &lt;class T&gt; constexpr bool operator!=(nullopt_t, const optional&lt;T&gt;&amp; x) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='nullops-2'><div class='marginalizedparent'><a class='marginalized' href='#nullops-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>bool(x)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator<'></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&lt;(const optional&lt;T&gt;&amp; x, nullopt_t) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='nullops-3'><div class='marginalizedparent'><a class='marginalized' href='#nullops-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>false</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator<'></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&lt;(nullopt_t, const optional&lt;T&gt;&amp; x) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='nullops-4'><div class='marginalizedparent'><a class='marginalized' href='#nullops-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>bool(x)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator<='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&lt;=(const optional&lt;T&gt;&amp; x, nullopt_t) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='nullops-5'><div class='marginalizedparent'><a class='marginalized' href='#nullops-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>!x</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator<='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&lt;=(nullopt_t, const optional&lt;T&gt;&amp; x) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='nullops-6'><div class='marginalizedparent'><a class='marginalized' href='#nullops-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>true</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator>'></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&gt;(const optional&lt;T&gt;&amp; x, nullopt_t) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='nullops-7'><div class='marginalizedparent'><a class='marginalized' href='#nullops-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>bool(x)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator>'></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&gt;(nullopt_t, const optional&lt;T&gt;&amp; x) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='nullops-8'><div class='marginalizedparent'><a class='marginalized' href='#nullops-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>false</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator>='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&gt;=(const optional&lt;T&gt;&amp; x, nullopt_t) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='nullops-9'><div class='marginalizedparent'><a class='marginalized' href='#nullops-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>true</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator>='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&gt;=(nullopt_t, const optional&lt;T&gt;&amp; x) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='nullops-10'><div class='marginalizedparent'><a class='marginalized' href='#nullops-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>!x</span>.
+</p></div></div></div><div id='comp_with_t'><h3 ><a class='secnum' href='#comp_with_t' style='min-width:103pt'>20.6.8</a> Comparison with <span class='texttt'>T</span> <a class='abbr_ref' href='optional.comp_with_t'>[optional.comp_with_t]</a></h3><p ><span class='indexparent'><a class='index' id='operator==!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator=='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator==(const optional&lt;T&gt;&amp; x, const T&amp; v);
+</code></p><div class='itemdescr'></div><div class='para' id='comp_with_t-1'><div class='marginalizedparent'><a class='marginalized' href='#comp_with_t-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return bool(x) ? *x == v : false;</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator==!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator=='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator==(const T&amp; v, const optional&lt;T&gt;&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='comp_with_t-2'><div class='marginalizedparent'><a class='marginalized' href='#comp_with_t-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return bool(x) ? v == *x : false;</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator!=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator!='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator!=(const optional&lt;T&gt;&amp; x, const T&amp; v);
+</code></p><div class='itemdescr'></div><div class='para' id='comp_with_t-3'><div class='marginalizedparent'><a class='marginalized' href='#comp_with_t-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return bool(x) ? *x != v : true;</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator!=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator!='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator!=(const T&amp; v, const optional&lt;T&gt;&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='comp_with_t-4'><div class='marginalizedparent'><a class='marginalized' href='#comp_with_t-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return bool(x) ? v != *x : true;</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator<'></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&lt;(const optional&lt;T&gt;&amp; x, const T&amp; v);
+</code></p><div class='itemdescr'></div><div class='para' id='comp_with_t-5'><div class='marginalizedparent'><a class='marginalized' href='#comp_with_t-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return bool(x) ? *x &lt; v : true;</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator<'></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&lt;(const T&amp; v, const optional&lt;T&gt;&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='comp_with_t-6'><div class='marginalizedparent'><a class='marginalized' href='#comp_with_t-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return bool(x) ? v &lt; *x : false;</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator<='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&lt;=(const optional&lt;T&gt;&amp; x, const T&amp; v);
+</code></p><div class='itemdescr'></div><div class='para' id='comp_with_t-7'><div class='marginalizedparent'><a class='marginalized' href='#comp_with_t-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return bool(x) ? *x &lt;= v : true;</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator<='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&lt;=(const T&amp; v, const optional&lt;T&gt;&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='comp_with_t-8'><div class='marginalizedparent'><a class='marginalized' href='#comp_with_t-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return bool(x) ? v &lt;= *x : false;</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator>'></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&gt;(const optional&lt;T&gt;&amp; x, const T&amp; v);
+</code></p><div class='itemdescr'></div><div class='para' id='comp_with_t-9'><div class='marginalizedparent'><a class='marginalized' href='#comp_with_t-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return bool(x) ? *x &gt; v : false;</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator>'></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&gt;(const T&amp; v, const optional&lt;T&gt;&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='comp_with_t-10'><div class='marginalizedparent'><a class='marginalized' href='#comp_with_t-10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return bool(x) ? v &gt; *x : true;</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator>='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&gt;=(const optional&lt;T&gt;&amp; x, const T&amp; v);
+</code></p><div class='itemdescr'></div><div class='para' id='comp_with_t-11'><div class='marginalizedparent'><a class='marginalized' href='#comp_with_t-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return bool(x) ? *x &gt;= v : false;</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>=!optional'></a></span><span class='indexparent'><a class='index' id='optional!operator>='></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr bool operator&gt;=(const T&amp; v, const optional&lt;T&gt;&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='comp_with_t-12'><div class='marginalizedparent'><a class='marginalized' href='#comp_with_t-12'>12</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return bool(x) ? v &gt;= *x : true;</span>
+</p></div></div></div><div id='specalg'><h3 ><a class='secnum' href='#specalg' style='min-width:103pt'>20.6.9</a> Specialized algorithms <a class='abbr_ref' href='optional.specalg'>[optional.specalg]</a></h3><p ><span class='indexparent'><a class='index' id='swap!optional'></a></span><code class='itemdecl'>
+template &lt;class T&gt; void swap(optional&lt;T&gt;&amp; x, optional&lt;T&gt;&amp; y) noexcept(noexcept(x.swap(y)));
+</code></p><div class='itemdescr'></div><div class='para' id='specalg-1'><div class='marginalizedparent'><a class='marginalized' href='#specalg-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls <span class='texttt'>x.swap(y)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='make_optional'></a></span><code class='itemdecl'>
+template &lt;class T&gt; constexpr optional&lt;decay_t&lt;T&gt;&gt; make_optional(T&amp;&amp; v);
+</code></p><div class='itemdescr'></div><div class='para' id='specalg-2'><div class='marginalizedparent'><a class='marginalized' href='#specalg-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>optional&lt;decay_t&lt;T&gt;&gt;(std::forward&lt;T&gt;(v))</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='make_optional'></a></span><code class='itemdecl'>
+template &lt;class T, class...Args&gt;
+  constexpr optional&lt;T&gt; make_optional(Args&amp;&amp;... args);
+</code></p><div class='itemdescr'></div><div class='para' id='specalg-3'><div class='marginalizedparent'><a class='marginalized' href='#specalg-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>return optional&lt;T&gt;(in_place, std::forward&lt;Args&gt;(args)...);</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='make_optional'></a></span><code class='itemdecl'>
+template &lt;class T, class U, class... Args&gt;
+  constexpr optional&lt;T&gt; make_optional(initializer_list&lt;U&gt; il, Args&amp;&amp;... args);
+</code></p><div class='itemdescr'></div><div class='para' id='specalg-4'><div class='marginalizedparent'><a class='marginalized' href='#specalg-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>return optional&lt;T&gt;(in_place, il, std::forward&lt;Args&gt;(args)...);</span>
+</p></div></div></div><div id='hash'><h3 ><a class='secnum' href='#hash' style='min-width:103pt'>20.6.10</a> Hash support <a class='abbr_ref' href='optional.hash'>[optional.hash]</a></h3><p ><span class='indexparent'><a class='index' id='hash!optional'></a></span><code class='itemdecl'>
+template &lt;class T&gt; struct hash&lt;optional&lt;T&gt;&gt;;
+</code></p><div class='itemdescr'></div><div class='para' id='hash-1'><div class='marginalizedparent'><a class='marginalized' href='#hash-1'>1</a></div><div class='itemdescr'><p ><i>Requires:</i>
+The template specialization <span class='texttt'>hash&lt;T&gt;</span> shall meet the requirements of class template <span class='texttt'>hash</span> (<a href='unord.hash'>[unord.hash]</a>).
+The template specialization <span class='texttt'>hash&lt;optional&lt;T&gt;&gt;</span> shall meet the requirements of class template <span class='texttt'>hash</span>.
+For an object <span class='texttt'>o</span> of type <span class='texttt'>optional&lt;T&gt;</span>, if <span class='texttt'>bool(o) == true</span>,
+<span class='texttt'>hash&lt;optional&lt;T&gt;&gt;()(o)</span> shall evaluate to the same value as <span class='texttt'>hash&lt;T&gt;()(*o)</span>;
+otherwise it evaluates to an unspecified value.
+</p></div></div></div></div></div></body></html>

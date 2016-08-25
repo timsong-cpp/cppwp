@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang='en'><head><title>[default.allocator]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.10</a> Memory <a class='abbr_ref' href='memory#default.allocator'>[memory]</a></h2><div id='default.allocator'><h3 ><a class='secnum' style='min-width:103pt'>20.10.9</a> The default allocator <a class='abbr_ref'>[default.allocator]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >All specializations of the default allocator satisfy the
+allocator completeness requirements <a href='allocator.requirements.completeness'>[allocator.requirements.completeness]</a>.</p><p ><span class='indexparent'><a class='index' id='allocator'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class T&gt; class allocator {
+   public:
+    using value_type      = T;
+    using propagate_on_container_move_assignment = true_type;
+    using is_always_equal = true_type;
+
+    allocator() noexcept;
+    allocator(const allocator&amp;) noexcept;
+    template &lt;class U&gt; allocator(const allocator&lt;U&gt;&amp;) noexcept;
+   ~allocator();
+
+    T* allocate(size_t n);
+    void deallocate(T* p, size_t n);
+  };
+}
+</pre></div><div id='allocator.members'><h4 ><a class='secnum' href='#allocator.members' style='min-width:118pt'>20.10.9.1</a> <span class='texttt'>allocator</span> members <a class='abbr_ref' href='allocator.members'>[allocator.members]</a></h4><div class='para' id='allocator.members-1'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-1'>1</a></div><p >Except for the destructor, member functions of the default allocator shall not introduce
+data races (<a href='intro.multithread'>[intro.multithread]</a>) as a result of concurrent calls to those member
+functions from different threads. Calls to these functions that allocate or deallocate a
+particular unit of storage shall occur in a single total order, and each such
+deallocation call shall happen before the next allocation (if any) in this order.</p><p ><span class='indexparent'><a class='index' id='allocate!allocator'></a></span><span class='indexparent'><a class='index' id='allocator!allocate'></a></span><code class='itemdecl'>
+T* allocate(size_t n);
+</code></p></div><div class='itemdescr'></div><div class='para' id='allocator.members-2'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A pointer to the initial element of an array of storage of size <span class='texttt'>n</span>
+<span class='texttt'>* sizeof(T)</span>, aligned appropriately for objects of type <span class='texttt'>T</span>.</p></div></div><div class='para' id='allocator.members-3'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-3'>3</a></div><div class='itemdescr'><p ><i>Remark:</i>
+the storage is obtained by calling <span class='texttt'>::operator new</span> (<a href='new.delete'>[new.delete]</a>),
+but it is unspecified when or how often this
+function is called.</p></div></div><div class='para' id='allocator.members-4'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-4'>4</a></div><div class='itemdescr'><p ><i>Throws:</i>
+<span class='texttt'>bad_alloc</span> if the storage cannot be obtained.
+</p></div></div><p ><span class='indexparent'><a class='index' id='deallocate!allocator'></a></span><span class='indexparent'><a class='index' id='allocator!deallocate'></a></span><code class='itemdecl'>
+void deallocate(T* p, size_t n);
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.members-5'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-5'>5</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>p</span> shall be a pointer value obtained from <span class='texttt'>allocate()</span>.
+<span class='texttt'>n</span> shall equal the value passed as the first argument
+to the invocation of allocate which returned <span class='texttt'>p</span>.</p></div></div><div class='para' id='allocator.members-6'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Deallocates the storage referenced by <span class='texttt'>p</span> .</p></div></div><div class='para' id='allocator.members-7'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-7'>7</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Uses
+<span class='texttt'>::operator delete</span> (<a href='new.delete'>[new.delete]</a>),
+but it is unspecified
+when this function is called.
+</p></div></div></div><div id='allocator.globals'><h4 ><a class='secnum' href='#allocator.globals' style='min-width:118pt'>20.10.9.2</a> <span class='texttt'>allocator</span> globals <a class='abbr_ref' href='allocator.globals'>[allocator.globals]</a></h4><p ><span class='indexparent'><a class='index' id='operator==!allocator'></a></span><span class='indexparent'><a class='index' id='allocator!operator=='></a></span><code class='itemdecl'>
+template &lt;class T, class U&gt;
+  bool operator==(const allocator&lt;T&gt;&amp;, const allocator&lt;U&gt;&amp;) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.globals-1'><div class='marginalizedparent'><a class='marginalized' href='#allocator.globals-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>true</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator!=!allocator'></a></span><span class='indexparent'><a class='index' id='allocator!operator!='></a></span><code class='itemdecl'>
+template &lt;class T, class U&gt;
+  bool operator!=(const allocator&lt;T&gt;&amp;, const allocator&lt;U&gt;&amp;) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.globals-2'><div class='marginalizedparent'><a class='marginalized' href='#allocator.globals-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>false</span>.
+</p></div></div></div></div></div></body></html>

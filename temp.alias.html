@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang='en'><head><title>[temp.alias]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>14</a> Templates <a class='abbr_ref' href='./#temp'>[temp]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>14.5</a> Template declarations <a class='abbr_ref' href='temp.decls#temp.alias'>[temp.decls]</a></h2><div id='temp.alias'><h3 ><a class='secnum' style='min-width:103pt'>14.5.7</a> Alias templates <a class='abbr_ref'>[temp.alias]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A <i ><a href='temp#template-declaration'>template-declaration</a></i> in which the <i ><a href='dcl.dcl#declaration'>declaration</a></i> is an
+<i ><a href='dcl.dcl#alias-declaration'>alias-declaration</a></i> (Clause <a href='dcl.dcl'>[dcl.dcl]</a>) declares the
+<i ><a href='lex.name#identifier'>identifier</a></i> to be a <a id='alias template'><i>alias template</i></a>.
+An alias template is a name for a family of
+types. The name of the alias template is a <i ><a href='temp.names#template-name'>template-name</a></i>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >When a <i ><a href='temp.names#template-id'>template-id</a></i> refers to the specialization of
+an alias template, it is equivalent to the associated type obtained by
+substitution of its <i ><a href='temp.names#template-argument'>template-arguments</a></i> for the
+<i ><a href='temp.param#template-parameter'>template-parameters</a></i> in the <i ><a href='dcl.name#type-id'>type-id</a></i> of
+the alias template.
+[&nbsp;<i>Note:</i><span class='space'></span> An alias template name is never deduced.<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+template&lt;class T&gt; struct Alloc { <span class='comment'>/* ... */</span> };
+template&lt;class T&gt; using Vec = vector&lt;T, Alloc&lt;T&gt;&gt;;
+Vec&lt;int&gt; v;         <span class='comment'>// same as <span class='texttt'>vector&lt;int, Alloc&lt;int&gt;&gt; v;</span>
+</span>
+template&lt;class T&gt;
+  void process(Vec&lt;T&gt;&amp; v)
+  { <span class='comment'>/* ... */</span> }
+
+template&lt;class T&gt;
+  void process(vector&lt;T, Alloc&lt;T&gt;&gt;&amp; w)
+  { <span class='comment'>/* ... */</span> }     <span class='comment'>// error: redefinition
+</span>
+template&lt;template&lt;class&gt; class TT&gt;
+  void f(TT&lt;int&gt;);
+
+f(v);               <span class='comment'>// error: <span class='texttt'>Vec</span> not deduced
+</span>
+template&lt;template&lt;class,class&gt; class TT&gt;
+  void g(TT&lt;int, Alloc&lt;int&gt;&gt;);
+g(v);               <span class='comment'>// OK: <span class='texttt'>TT</span> = <span class='texttt'>vector</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >However, if the <i ><a href='temp.names#template-id'>template-id</a></i> is dependent, subsequent template
+argument substitution still applies to the <i ><a href='temp.names#template-id'>template-id</a></i>.
+[&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+template&lt;typename...&gt; using void_t = void;
+template&lt;typename T&gt; void_t&lt;typename T::foo&gt; f();
+f&lt;int&gt;(); <span class='comment'>// error, <span class='texttt'>int</span> does not have a nested type <span class='texttt'>foo</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >The <i ><a href='dcl.name#type-id'>type-id</a></i> in an alias template declaration shall not refer to
+the alias template being declared. The type produced by an alias template
+specialization shall not directly or indirectly make use of that specialization.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+template &lt;class T&gt; struct A;
+template &lt;class T&gt; using B = typename A&lt;T&gt;::U;
+template &lt;class T&gt; struct A {
+  typedef B&lt;T&gt; U;
+};
+B&lt;short&gt; b;         <span class='comment'>// error: instantiation of <span class='texttt'>B&lt;short&gt;</span> uses own type via <span class='texttt'>A&lt;short&gt;::U</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>

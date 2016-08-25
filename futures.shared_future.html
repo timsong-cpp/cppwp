@@ -1,0 +1,135 @@
+<!DOCTYPE html><html lang='en'><head><title>[futures.shared_future]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>30</a> Thread support library <a class='abbr_ref' href='./#thread'>[thread]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>30.6</a> Futures <a class='abbr_ref' href='futures#shared_future'>[futures]</a></h2><div id='futures.shared_future'><h3 ><a class='secnum' style='min-width:103pt'>30.6.7</a> Class template <span class='texttt'>shared_future</span> <a class='abbr_ref'>[futures.shared_future]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The class template <span class='texttt'>shared_future</span> defines a type for asynchronous return objects
+which may share their shared state with other asynchronous return
+objects. A default-constructed <span class='texttt'>shared_future</span>
+object has no shared state. A <span class='texttt'>shared_future</span> object with
+shared state can
+be created
+by conversion from a <span class='texttt'>future</span> object and shares its shared state with the
+original asynchronous provider (<a href='futures.state'>[futures.state]</a>) of the shared state.
+The result (value or exception) of a <span class='texttt'>shared_future</span> object
+can be set by
+calling a respective function on an
+object that shares the same shared state.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >[&nbsp;<i>Note:</i><span class='space'></span> Member functions of <span class='texttt'>shared_future</span> do not synchronize with themselves,
+but they synchronize with the shared state. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The effect of calling any member function other than the destructor, the move-assignment
+operator, or <span class='texttt'>valid()</span> on a <span class='texttt'>shared_future</span> object for which <span class='texttt'>valid() ==
+false</span> is undefined.
+[&nbsp;<i>Note:</i><span class='space'></span> Implementations are encouraged to detect this case and throw an object of type
+<span class='texttt'>future_error</span> with an error condition of <span class='texttt'>future_errc::no_state</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><pre class='codeblock'>
+namespace std {
+  template &lt;class R&gt;
+  class shared_future {
+  public:
+    shared_future() noexcept;
+    shared_future(const shared_future&amp; rhs);
+    shared_future(future&lt;R&gt;&amp;&amp;) noexcept;
+    shared_future(shared_future&amp;&amp; rhs) noexcept;
+    ~shared_future();
+    shared_future&amp; operator=(const shared_future&amp; rhs);
+    shared_future&amp; operator=(shared_future&amp;&amp; rhs) noexcept;
+
+    <span class='comment'>// retrieving the value
+</span>    <i><span class='texttt'>see below</span></i> get() const;
+
+    <span class='comment'>// functions to check state
+</span>    bool valid() const noexcept;
+
+    void wait() const;
+    template &lt;class Rep, class Period&gt;
+      future_status wait_for(const chrono::duration&lt;Rep, Period&gt;&amp; rel_time) const;
+    template &lt;class Clock, class Duration&gt;
+      future_status wait_until(const chrono::time_point&lt;Clock, Duration&gt;&amp; abs_time) const;
+  };
+}
+</pre></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >The implementation shall provide the template <span class='texttt'>shared_future</span> and two
+specializations, <span class='texttt'>shared_future&lt;R&amp;&gt;</span> and <span class='texttt'>shared_future&lt;void&gt;</span>. These
+differ only in the return type and return value of the member function <span class='texttt'>get</span>, as
+set out in its description, below.</p><p ><span class='indexparent'><a class='index' id='shared_future!constructor'></a></span><code class='itemdecl'>
+shared_future() noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs an <span class='indexparent'><a class='index' id='empty shared_future object'></a></span><i>empty</i> <span class='texttt'>shared_future</span> object that does not refer to a
+shared state.</p></div></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><i>Postcondition:</i> <span class='texttt'>valid() == false</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='shared_future!constructor'></a></span><code class='itemdecl'>
+shared_future(const shared_future&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>shared_future</span> object that refers to the same
+shared state as <span class='texttt'>rhs</span> (if any).</p></div></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='itemdescr'><p ><i>Postcondition:</i> <span class='texttt'>valid()</span> returns the same value as <span class='texttt'>rhs.valid()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='shared_future!constructor'></a></span><code class='itemdecl'>
+shared_future(future&lt;R&gt;&amp;&amp; rhs) noexcept;
+shared_future(shared_future&amp;&amp; rhs) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i> Move constructs a <span class='texttt'>shared_future</span> object that refers to the
+shared state that was originally referred to by <span class='texttt'>rhs</span> (if any).</p></div></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
+</p><ul ><li ><p ><span class='texttt'>valid()</span> returns the same value as <span class='texttt'>rhs.valid()</span> returned prior to
+the constructor invocation.
+</p></li><li ><p ><span class='texttt'>rhs.valid() == false</span>.
+</p></li></ul></div></div><p ><span class='indexparent'><a class='index' id='shared_future!destructor'></a></span><code class='itemdecl'>
+~shared_future();
+</code></p><div class='itemdescr'></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><ul ><li ><p >Releases any shared state (<a href='futures.state'>[futures.state]</a>);
+</p></li><li ><p >destroys <span class='texttt'>*this</span>.
+</p></li></ul></div></div><p ><span class='indexparent'><a class='index' id='shared_future!operator='></a></span><span class='indexparent'><a class='index' id='operator=!shared_future'></a></span><code class='itemdecl'>
+shared_future&amp; operator=(shared_future&amp;&amp; rhs) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><ul ><li ><p >Releases any shared state (<a href='futures.state'>[futures.state]</a>);
+</p></li><li ><p >move assigns the contents of <span class='texttt'>rhs</span> to <span class='texttt'>*this</span>.
+</p></li></ul></div></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
+</p><ul ><li ><p ><span class='texttt'>valid()</span> returns the same value as <span class='texttt'>rhs.valid()</span> returned prior to
+the assignment.</p></li><li ><p ><span class='texttt'>rhs.valid() == false</span>.
+</p></li></ul></div></div><p ><span class='indexparent'><a class='index' id='shared_future!operator='></a></span><span class='indexparent'><a class='index' id='operator=!shared_future'></a></span><code class='itemdecl'>
+shared_future&amp; operator=(const shared_future&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><ul ><li ><p >Releases any shared state (<a href='futures.state'>[futures.state]</a>);
+</p></li><li ><p >assigns the contents of <span class='texttt'>rhs</span> to <span class='texttt'>*this</span>. [&nbsp;<i>Note:</i><span class='space'></span> As a result,
+<span class='texttt'>*this</span> refers to the same shared state as <span class='texttt'>rhs</span>
+(if any). <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></li></ul></div></div><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>valid() == rhs.valid()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='shared_future!get'></a></span><span class='indexparent'><a class='index' id='get!shared_future'></a></span><code class='itemdecl'>
+const R&amp; shared_future::get() const;
+R&amp; shared_future&lt;R&amp;&gt;::get() const;
+void shared_future&lt;void&gt;::get() const;
+</code></p><div class='itemdescr'></div><div class='para' id='16'><div class='marginalizedparent'><a class='marginalized' href='#16'>16</a></div><div class='itemdescr'><p ><i>Note:</i> as described above, the template and its two required specializations differ only in
+the return type and return value of the member function <span class='texttt'>get</span>.</p></div></div><div class='para' id='17'><div class='marginalizedparent'><a class='marginalized' href='#17'>17</a></div><div class='itemdescr'><p ><i>Note:</i> access to a value object stored in the shared state is
+unsynchronized, so programmers should apply only those operations on <span class='texttt'>R</span> that do not
+introduce a data race (<a href='intro.multithread'>[intro.multithread]</a>).</p></div></div><div class='para' id='18'><div class='marginalizedparent'><a class='marginalized' href='#18'>18</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>wait()</span>s until the shared state is ready, then retrieves the
+value stored in the shared state.</p></div></div><div class='para' id='19'><div class='marginalizedparent'><a class='marginalized' href='#19'>19</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</p><ul ><li ><p ><span class='texttt'>shared_future::get()</span> returns a const reference to the value stored in the object's
+shared state.
+[&nbsp;<i>Note:</i><span class='space'></span> Access through that reference after the shared state has been
+destroyed produces undefined behavior; this can be avoided by not storing the reference in any
+storage with a greater lifetime than the <span class='texttt'>shared_future</span> object that returned the
+reference. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></li><li ><p ><span class='texttt'>shared_future&lt;R&amp;&gt;::get()</span> returns the reference stored as value in the object's
+shared state.</p></li><li ><p ><span class='texttt'>shared_future&lt;void&gt;::get()</span> returns nothing.
+</p></li></ul></div></div><div class='para' id='20'><div class='marginalizedparent'><a class='marginalized' href='#20'>20</a></div><div class='itemdescr'><p ><i>Throws:</i> the stored exception, if an exception was stored in the shared state.
+</p></div></div><p ><span class='indexparent'><a class='index' id='shared_future!valid'></a></span><span class='indexparent'><a class='index' id='valid!shared_future'></a></span><code class='itemdecl'>
+bool valid() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='21'><div class='marginalizedparent'><a class='marginalized' href='#21'>21</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>true</span> only if <span class='texttt'>*this</span> refers to a shared state.
+</p></div></div><p ><span class='indexparent'><a class='index' id='shared_future!wait'></a></span><span class='indexparent'><a class='index' id='wait!shared_future'></a></span><code class='itemdecl'>
+void wait() const;
+</code></p><div class='itemdescr'></div><div class='para' id='22'><div class='marginalizedparent'><a class='marginalized' href='#22'>22</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Blocks until the shared state is ready.
+</p></div></div><p ><span class='indexparent'><a class='index' id='shared_future!wait_for'></a></span><span class='indexparent'><a class='index' id='wait_for!shared_future'></a></span><code class='itemdecl'>
+template &lt;class Rep, class Period&gt;
+  future_status wait_for(const chrono::duration&lt;Rep, Period&gt;&amp; rel_time) const;
+</code></p><div class='itemdescr'></div><div class='para' id='23'><div class='marginalizedparent'><a class='marginalized' href='#23'>23</a></div><div class='itemdescr'><p ><i>Effects:</i>
+None if the shared state contains a deferred function (<a href='futures.async'>[futures.async]</a>),
+otherwise
+blocks until the shared state is ready or until
+the relative timeout (<a href='thread.req.timing'>[thread.req.timing]</a>) specified by
+<span class='texttt'>rel_time</span> has expired.</p></div></div><div class='para' id='24'><div class='marginalizedparent'><a class='marginalized' href='#24'>24</a></div><div class='itemdescr'><p ><i>Returns:</i></p><ul ><li ><p ><span class='texttt'>future_status::deferred</span> if the shared state contains a deferred
+function.</p></li><li ><p ><span class='texttt'>future_status::ready</span> if the shared state is ready.</p></li><li ><p ><span class='texttt'>future_status::timeout</span> if the function is returning because the
+relative timeout (<a href='thread.req.timing'>[thread.req.timing]</a>)
+specified by <span class='texttt'>rel_time</span> has expired.
+</p></li></ul></div></div><div class='para' id='25'><div class='marginalizedparent'><a class='marginalized' href='#25'>25</a></div><div class='itemdescr'><p ><i>Throws:</i>
+timeout-related exceptions (<a href='thread.req.timing'>[thread.req.timing]</a>).
+</p></div></div><p ><span class='indexparent'><a class='index' id='shared_future!wait_until'></a></span><span class='indexparent'><a class='index' id='wait_until!shared_future'></a></span><code class='itemdecl'>
+template &lt;class Clock, class Duration&gt;
+  future_status wait_until(const chrono::time_point&lt;Clock, Duration&gt;&amp; abs_time) const;
+</code></p><div class='itemdescr'></div><div class='para' id='26'><div class='marginalizedparent'><a class='marginalized' href='#26'>26</a></div><div class='itemdescr'><p ><i>Effects:</i>
+None if the shared state contains a deferred function (<a href='futures.async'>[futures.async]</a>),
+otherwise
+blocks until the shared state is ready or until the
+absolute timeout (<a href='thread.req.timing'>[thread.req.timing]</a>) specified by
+<span class='texttt'>abs_time</span> has expired.</p></div></div><div class='para' id='27'><div class='marginalizedparent'><a class='marginalized' href='#27'>27</a></div><div class='itemdescr'><p ><i>Returns:</i></p><ul ><li ><p ><span class='texttt'>future_status::deferred</span> if the shared state contains a deferred
+function.</p></li><li ><p ><span class='texttt'>future_status::ready</span> if the shared state is ready.</p></li><li ><p ><span class='texttt'>future_status::timeout</span> if the function is returning because the
+absolute timeout (<a href='thread.req.timing'>[thread.req.timing]</a>)
+specified by <span class='texttt'>abs_time</span> has expired.
+</p></li></ul></div></div><div class='para' id='28'><div class='marginalizedparent'><a class='marginalized' href='#28'>28</a></div><div class='itemdescr'><p ><i>Throws:</i>
+timeout-related exceptions (<a href='thread.req.timing'>[thread.req.timing]</a>).
+</p></div></div></div></div></body></html>

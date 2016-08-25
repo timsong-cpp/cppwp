@@ -1,0 +1,82 @@
+<!DOCTYPE html><html lang='en'><head><title>[temp.arg.template]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>14</a> Templates <a class='abbr_ref' href='./#temp'>[temp]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>14.3</a> Template arguments <a class='abbr_ref' href='temp.arg#template'>[temp.arg]</a></h2><div id='temp.arg.template'><h3 ><a class='secnum' style='min-width:103pt'>14.3.3</a> Template template arguments <a class='abbr_ref'>[temp.arg.template]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A
+<i ><a href='temp.names#template-argument'>template-argument</a></i>
+for a template
+<i ><a href='temp.param#template-parameter'>template-parameter</a></i>
+shall be the name of a class template or an alias template, expressed as
+<i ><a href='expr.prim.id#id-expression'>id-expression</a></i>.
+When the <i ><a href='temp.names#template-argument'>template-argument</a></i> names a class
+template, only primary class templates are considered when matching the template template
+argument with the corresponding parameter; partial specializations are not
+considered even if their parameter lists match that of the template template
+parameter.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Any partial specializations (<a href='temp.class.spec'>[temp.class.spec]</a>) associated with the
+primary class template or primary variable template are considered when a
+specialization based on the template
+<i ><a href='temp.param#template-parameter'>template-parameter</a></i>
+is instantiated.
+If a specialization is not visible at the point of instantiation,
+and it would have been selected had it been visible, the program is ill-formed;
+no diagnostic is required.
+[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+template&lt;class T&gt; class A {     <span class='comment'>// primary template
+</span>  int x;
+};
+template&lt;class T&gt; class A&lt;T*&gt; { <span class='comment'>// partial specialization
+</span>  long x;
+};
+template&lt;template&lt;class U&gt; class V&gt; class C {
+  V&lt;int&gt;  y;
+  V&lt;int*&gt; z;
+};
+C&lt;A&gt; c;                         <span class='comment'>// <span class='texttt'>V&lt;int&gt;</span> within <span class='texttt'>C&lt;A&gt;</span> uses the primary template,
+</span>                                <span class='comment'>// so <span class='texttt'>c.y.x</span> has type <span class='texttt'>int</span>
+</span>                                <span class='comment'>// <span class='texttt'>V&lt;int*&gt;</span> within <span class='texttt'>C&lt;A&gt;</span> uses the partial specialization,
+</span>                                <span class='comment'>// so <span class='texttt'>c.z.x</span> has type <span class='texttt'>long</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >A <i ><a href='temp.names#template-argument'>template-argument</a></i> matches a template
+<i ><a href='temp.param#template-parameter'>template-parameter</a></i> <span class='texttt'>P</span> when each of the template
+parameters in the <i ><a href='temp#template-parameter-list'>template-parameter-list</a></i> of the
+<i ><a href='temp.names#template-argument'>template-argument</a></i>'s corresponding class template or alias template
+<span class='texttt'>A</span> matches the corresponding template parameter in the
+<i ><a href='temp#template-parameter-list'>template-parameter-list</a></i> of <span class='texttt'>P</span>. 
+Two template parameters match if they are of the same kind (type, non-type, template),
+for non-type <i ><a href='temp.param#template-parameter'>template-parameters</a></i>, their types are
+equivalent (<a href='temp.over.link'>[temp.over.link]</a>), and for template <i ><a href='temp.param#template-parameter'>template-parameters</a></i>,
+each of their corresponding <i ><a href='temp.param#template-parameter'>template-parameters</a></i> matches, recursively.
+When <span class='texttt'>P</span>'s <i ><a href='temp#template-parameter-list'>template-parameter-list</a></i> contains a template parameter
+pack (<a href='temp.variadic'>[temp.variadic]</a>), the template parameter pack will match zero or more template
+parameters or template parameter packs in the <i ><a href='temp#template-parameter-list'>template-parameter-list</a></i> of
+<span class='texttt'>A</span> with the same type and form as the template parameter pack in <span class='texttt'>P</span>
+(ignoring whether those template parameters are template parameter packs).</p><p >[&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+template&lt;class T&gt; class A { <span class='comment'>/* ... */</span> };
+template&lt;class T, class U = T&gt; class B { <span class='comment'>/* ... */</span> };
+template &lt;class ... Types&gt; class C { <span class='comment'>/* ... */</span> };
+
+template&lt;template&lt;class&gt; class P&gt; class X { <span class='comment'>/* ... */</span> };
+template&lt;template&lt;class ...&gt; class Q&gt; class Y { <span class='comment'>/* ... */</span> };
+
+X&lt;A&gt; xa;            <span class='comment'>// OK
+</span>X&lt;B&gt; xb;            <span class='comment'>// ill-formed: default arguments for the parameters of a template argument are ignored
+</span>X&lt;C&gt; xc;            <span class='comment'>// ill-formed: a template parameter pack does not match a template parameter
+</span>
+Y&lt;A&gt; ya;            <span class='comment'>// OK
+</span>Y&lt;B&gt; yb;            <span class='comment'>// OK
+</span>Y&lt;C&gt; yc;            <span class='comment'>// OK
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p >[&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+template &lt;class T&gt; struct eval;
+
+template &lt;template &lt;class, class...&gt; class TT, class T1, class... Rest&gt;
+struct eval&lt;TT&lt;T1, Rest...&gt;&gt; { };
+
+template &lt;class T1&gt; struct A;
+template &lt;class T1, class T2&gt; struct B;
+template &lt;int N&gt; struct C;
+template &lt;class T1, int N&gt; struct D;
+template &lt;class T1, class T2, int N = 17&gt; struct E;
+
+eval&lt;A&lt;int&gt;&gt; eA;                <span class='comment'>// OK: matches partial specialization of <span class='texttt'>eval</span>
+</span>eval&lt;B&lt;int, float&gt;&gt; eB;         <span class='comment'>// OK: matches partial specialization of <span class='texttt'>eval</span>
+</span>eval&lt;C&lt;17&gt;&gt; eC;                 <span class='comment'>// error: <span class='texttt'>C</span> does not match <span class='texttt'>TT</span> in partial specialization
+</span>eval&lt;D&lt;int, 17&gt;&gt; eD;            <span class='comment'>// error: <span class='texttt'>D</span> does not match <span class='texttt'>TT</span> in partial specialization
+</span>eval&lt;E&lt;int, float&gt;&gt; eE;         <span class='comment'>// error: <span class='texttt'>E</span> does not match <span class='texttt'>TT</span> in partial specialization
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>

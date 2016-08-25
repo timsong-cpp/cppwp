@@ -1,0 +1,48 @@
+<!DOCTYPE html><html lang='en'><head><title>[tuple.elem]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.5</a> Tuples <a class='abbr_ref' href='tuple#elem'>[tuple]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>20.5.2</a> Class template <span class='texttt'>tuple</span> <a class='abbr_ref' href='tuple.tuple#tuple.elem'>[tuple.tuple]</a></h3><div id='tuple.elem'><h4 ><a class='secnum' style='min-width:118pt'>20.5.2.7</a> Element access <a class='abbr_ref'>[tuple.elem]</a></h4><p ><span class='indexparent'><a class='index' id='get!tuple'></a></span><span class='indexparent'><a class='index' id='tuple!get'></a></span><code class='itemdecl'>
+template &lt;size_t I, class... Types&gt;
+  constexpr tuple_element_t&lt;I, tuple&lt;Types...&gt;&gt;&amp; get(tuple&lt;Types...&gt;&amp; t) noexcept;
+template &lt;size_t I, class... Types&gt;
+  constexpr tuple_element_t&lt;I, tuple&lt;Types...&gt;&gt;&amp;&amp; get(tuple&lt;Types...&gt;&amp;&amp; t) noexcept; <span class='comment'>// Note A
+</span>template &lt;size_t I, class... Types&gt;
+  constexpr tuple_element_t&lt;I, tuple&lt;Types...&gt;&gt; const&amp; get(const tuple&lt;Types...&gt;&amp; t) noexcept; <span class='comment'>// Note B
+</span>template &lt;size_t I, class... Types&gt;
+  constexpr const tuple_element_t&lt;I, tuple&lt;Types...&gt;&gt;&amp;&amp; get(const tuple&lt;Types...&gt;&amp;&amp; t) noexcept; 
+</code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>I &lt; sizeof...(Types)</span>.
+The program is ill-formed if <span class='texttt'>I</span> is out of bounds.</p></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>  A reference to the <span class='texttt'>I</span>th element of <span class='texttt'>t</span>, where
+indexing is zero-based.</p></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p >[&nbsp;<i>Note A:</i><span class='space'></span>
+If a <span class='texttt'>T</span> in <span class='texttt'>Types</span> is some reference type <span class='texttt'>X&amp;</span>,
+the return type is <span class='texttt'>X&amp;</span>, not <span class='texttt'>X&amp;&amp;</span>.
+However, if the element type is a non-reference type <span class='texttt'>T</span>,
+the return type is <span class='texttt'>T&amp;&amp;</span>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p >[&nbsp;<i>Note B:</i><span class='space'></span>
+Constness is shallow. If a <span class='texttt'>T</span>
+in <span class='texttt'>Types</span> is some
+reference type <span class='texttt'>X&amp;</span>, the return type is <span class='texttt'>X&amp;</span>, not <span class='texttt'>const X&amp;</span>.
+However, if the element type is a non-reference type <span class='texttt'>T</span>,
+the return type is <span class='texttt'>const T&amp;</span>.
+This is consistent with how constness is defined to work
+for member variables of reference type.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='get!tuple'></a></span><span class='indexparent'><a class='index' id='tuple!get'></a></span><code class='itemdecl'>
+template &lt;class T, class... Types&gt;
+  constexpr T&amp; get(tuple&lt;Types...&gt;&amp; t) noexcept;
+template &lt;class T, class... Types&gt;
+  constexpr T&amp;&amp; get(tuple&lt;Types...&gt;&amp;&amp; t) noexcept;
+template &lt;class T, class... Types&gt;
+  constexpr const T&amp; get(const tuple&lt;Types...&gt;&amp; t) noexcept;
+template &lt;class T, class... Types&gt;
+  constexpr const T&amp;&amp; get(const tuple&lt;Types...&gt;&amp;&amp; t) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Requires:</i> The type <span class='texttt'>T</span> occurs exactly once in <span class='texttt'>Types...</span>.
+Otherwise, the program is ill-formed.</p></div></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> A reference to the element of <span class='texttt'>t</span> corresponding to the type
+<span class='texttt'>T</span> in <span class='texttt'>Types...</span>.</p></div></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+  const tuple&lt;int, const int, double, double&gt; t(1, 2, 3.4, 5.6);
+  const int&amp; i1 = get&lt;int&gt;(t);        <span class='comment'>// OK. Not ambiguous. i1 == 1
+</span>  const int&amp; i2 = get&lt;const int&gt;(t);  <span class='comment'>// OK. Not ambiguous. i2 == 2
+</span>  const double&amp; d = get&lt;double&gt;(t);   <span class='comment'>// ERROR. ill-formed
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >[&nbsp;<i>Note:</i><span class='space'></span> The reason <span class='texttt'>get</span> is a
+nonmember function is that if this functionality had been
+provided as a member function, code where the type
+depended on a template parameter would have required using
+the <span class='texttt'>template</span> keyword. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div></div></body></html>

@@ -1,0 +1,1774 @@
+<!DOCTYPE html><html lang='en'><head><title>[container.requirements]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>23</a> Containers library <a class='abbr_ref' href='./#containers'>[containers]</a></h1><div id='container.requirements'><h2 ><a class='secnum' style='min-width:88pt'>23.2</a> Container requirements <a class='abbr_ref'>[container.requirements]</a></h2><p ><span class='indexparent'><a class='index' id='requirements!container'></a></span></p><div id='general'><h3 ><a class='secnum' href='#general' style='min-width:103pt'>23.2.1</a> General container requirements <a class='abbr_ref' href='container.requirements.general'>[container.requirements.general]</a></h3><div class='para' id='general-1'><div class='marginalizedparent'><a class='marginalized' href='#general-1'>1</a></div><p >Containers are objects that store other objects.
+They control allocation and deallocation of these objects
+through constructors, destructors, insert and erase operations.</p></div><div class='para' id='general-2'><div class='marginalizedparent'><a class='marginalized' href='#general-2'>2</a></div><p >All of the complexity requirements in this Clause are stated solely
+in terms of the number of operations on the contained objects.
+[&nbsp;<i>Example:</i><span class='space'></span>
+The copy constructor of type
+<span class='texttt'>vector&lt;vector&lt;int&gt;&gt;</span>
+has linear complexity,
+even though the complexity of copying each contained
+<span class='texttt'>vector&lt;int&gt;</span>
+is itself linear.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='general-3'><div class='marginalizedparent'><a class='marginalized' href='#general-3'>3</a></div><p >For the components affected by this subclause that declare an <span class='texttt'>allocator_type</span>,
+objects stored in these components shall be constructed using the
+<span class='texttt'>allocator_traits&lt;allocator_type&gt;::rebind_traits&lt;U&gt;::construct</span> function
+and destroyed using the
+<span class='texttt'>allocator_traits&lt;allocator_type&gt;::rebind_traits&lt;U&gt;::destroy</span>
+function (<a href='allocator.traits.members'>[allocator.traits.members]</a>),
+where <span class='texttt'>U</span> is either <span class='texttt'>allocator_type::value_type</span> or
+an internal type used by the container.
+These functions are called only for the
+container's element type, not for internal types used by the container. [&nbsp;<i>Note:</i><span class='space'></span> This
+means, for example, that a node-based container might need to construct nodes containing
+aligned buffers and call <span class='texttt'>construct</span> to place the element into the buffer.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='general-4'><div class='marginalizedparent'><a class='marginalized' href='#general-4'>4</a></div><p >In Tables <a href='#tab:containers.container.requirements'>[tab:containers.container.requirements]</a>,
+<a href='#tab:containers.reversible.requirements'>[tab:containers.reversible.requirements]</a>, and
+<a href='#tab:containers.optional.operations'>[tab:containers.optional.operations]</a>
+<span class='texttt'>X</span> denotes a container class containing objects of type
+<span class='texttt'>T</span>, <span class='texttt'>a</span> and <span class='texttt'>b</span>
+denote values of type <span class='texttt'>X</span>, <span class='texttt'>u</span>
+denotes an identifier, <span class='texttt'>r</span> denotes
+a non-const value of type <span class='texttt'>X</span>, and <span class='texttt'>rv</span>
+denotes a non-const rvalue of type <span class='texttt'>X</span>.</p><div class='numberedTable' id='tab:containers.container.requirements'>Table <a href='#tab:containers.container.requirements'>77</a> — Container requirements<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Operational</b></td><td colspan='1' class='center'><b>Assertion/note</b></td><td colspan='1' class='center'><b>Complexity</b></td></tr><tr ><td class='left'>
+    </td><td class='left'>   </td><td colspan='1' class='center'><b>semantics</b></td><td colspan='1' class='center'><b>pre-/post-condition</b></td><td class='left'>      </td></tr><tr class='capsep'><td class='left'> 
+<span class='endhead'></span><span class='texttt'>X::value_type</span>       </td><td class='left'>
+ <span class='texttt'>T</span>                  </td><td class='left'>
+                            </td><td class='left'>
+ <i>Requires:</i> <span class='texttt'>T</span> is <span class='texttt'>Erasable</span> from <span class='texttt'>X</span> (see <a href='container.requirements.general'>[container.requirements.general]</a>, below) </td><td class='left'>
+ compile time               </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::reference</span>        </td><td class='left'>
+ <span class='texttt'>T&amp;</span>                </td><td class='left'>
+                            </td><td class='left'>
+                            </td><td class='left'>
+ compile time               </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::const_reference</span> </td><td class='left'>
+ <span class='texttt'>const T&amp;</span>          </td><td class='left'>
+                            </td><td class='left'>
+                            </td><td class='left'>
+ compile time               </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::iterator</span>         </td><td class='left'>
+ iterator type whose value type is <span class='texttt'>T</span> </td><td class='left'>
+                            </td><td class='left'>
+ any iterator category
+ that meets the forward iterator requirements.
+ convertible to <span class='texttt'>X::const_iterator</span>. </td><td class='left'>
+ compile time               </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::const_iterator</span>  </td><td class='left'>
+ constant iterator type whose value type is <span class='texttt'>T</span> </td><td class='left'>
+                            </td><td class='left'>
+ any iterator category
+ that meets the forward iterator requirements. </td><td class='left'>
+ compile time               </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::difference_type</span>    </td><td class='left'>
+ signed integer type           </td><td class='left'>
+                                </td><td class='left'>
+ is identical to the difference type of <span class='texttt'>X::iterator</span> and <span class='texttt'>X::const_iterator</span> </td><td class='left'>
+ compile time               </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::size_type</span>        </td><td class='left'>
+ unsigned integer type     </td><td class='left'>
+                            </td><td class='left'>
+ <span class='texttt'>size_type</span> can represent any non-negative value of <span class='texttt'>difference_type</span> </td><td class='left'>
+ compile time                </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X u;</span>                </td><td class='left'>
+                            </td><td class='left'>
+                            </td><td class='left'>
+ post: <span class='texttt'>u.empty()</span>    </td><td class='left'>
+ constant                   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X()</span>                 </td><td class='left'>
+                            </td><td class='left'>
+                            </td><td class='left'>
+ post: <span class='texttt'>X().empty()</span>  </td><td class='left'>
+ constant                   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X(a)</span>                </td><td class='left'>
+                            </td><td class='left'>
+                            </td><td class='left'>
+ <i>Requires:</i> <span class='texttt'>T</span> is <span class='texttt'>CopyInsertable</span>
+ into <span class='texttt'>X</span> (see below).<span class='hfill'></span><br/> post: <span class='texttt'>a == X(a)</span>.         </td><td class='left'>
+ linear                     </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X u(a)</span><span class='hfill'></span><br/>
+<span class='texttt'>X u = a;</span>            </td><td class='left'>
+                            </td><td class='left'>
+                            </td><td class='left'>
+ <i>Requires:</i> <span class='texttt'>T</span> is <span class='texttt'>CopyInsertable</span>
+ into <span class='texttt'>X</span> (see below).<span class='hfill'></span><br/>
+ post: <span class='texttt'>u == a</span>       </td><td class='left'>
+ linear                     </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X u(rv)</span><span class='hfill'></span><br/>
+<span class='texttt'>X u = rv</span>            </td><td class='left'>
+                            </td><td class='left'>
+                            </td><td class='left'>
+  post: <span class='texttt'>u</span> shall be equal to the value that <span class='texttt'>rv</span> had before this construction
+                            </td><td class='left'>
+  (Note B)                  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a = rv</span>              </td><td class='left'>
+  <span class='texttt'>X&amp;</span>               </td><td class='left'>
+  All existing elements of <span class='texttt'>a</span> are either move assigned to or destroyed   </td><td class='left'>
+  <span class='texttt'>a</span> shall be equal to the value that <span class='texttt'>rv</span>
+  had before this assignment   </td><td class='left'>
+   linear                     </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>(&amp;a)-&gt;~X()</span>    </td><td class='left'>
+ <span class='texttt'>void</span>               </td><td class='left'>
+                            </td><td class='left'>
+ the destructor is applied to every element of <span class='texttt'>a</span>; any memory obtained is deallocated. </td><td class='left'>
+ linear                     </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.begin()</span>           </td><td class='left'>
+ <span class='texttt'>iterator</span>; <span class='texttt'>const_iterator</span> for constant <span class='texttt'>a</span> </td><td class='left'>
+                            </td><td class='left'>
+                            </td><td class='left'>
+ constant                   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.end()</span>             </td><td class='left'>
+ <span class='texttt'>iterator</span>; <span class='texttt'>const_iterator</span> for constant <span class='texttt'>a</span> </td><td class='left'>
+                            </td><td class='left'>
+                            </td><td class='left'>
+ constant                   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.cbegin()</span>          </td><td class='left'>
+ <span class='texttt'>const_iterator</span>     </td><td class='left'>
+ <span class='texttt'>const_cast&lt;X const&amp;&gt;(a).begin();</span> </td><td class='left'>
+                            </td><td class='left'>
+ constant                   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.cend()</span>            </td><td class='left'>
+ <span class='texttt'>const_iterator</span>     </td><td class='left'>
+ <span class='texttt'>const_cast&lt;X const&amp;&gt;(a).end();</span> </td><td class='left'>
+                            </td><td class='left'>
+ constant                   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a == b</span>                  </td><td class='left'>
+ convertible to <span class='texttt'>bool</span>    </td><td class='left'>
+ <span class='texttt'>==</span> is an equivalence relation. <span class='texttt'>equal(a.begin(),</span>
+ <span class='texttt'>a.end(), b.begin(),</span>
+ <span class='texttt'>b.end())</span>                                   </td><td class='left'>
+ <i>Requires:</i> <span class='texttt'>T</span> is <span class='texttt'>EqualityComparable</span> </td><td class='left'>
+ Constant if <span class='texttt'>a.size() != b.size()</span>,
+ linear otherwise                                   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a != b</span>                      </td><td class='left'>
+ convertible to <span class='texttt'>bool</span>        </td><td class='left'>
+ Equivalent to <span class='texttt'>!(a == b)</span>   </td><td class='left'>
+                                    </td><td class='left'>
+ linear                             </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.swap(b)</span>          </td><td class='left'>
+ <span class='texttt'>void</span>               </td><td class='left'>
+                            </td><td class='left'>
+ exchanges the contents of <span class='texttt'>a</span> and <span class='texttt'>b</span>          </td><td class='left'>
+ (Note A)                   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>swap(a, b)</span>          </td><td class='left'>
+  <span class='texttt'>void</span>              </td><td class='left'>
+  <span class='texttt'>a.swap(b)</span>         </td><td class='left'>
+                            </td><td class='left'>
+  (Note A)                  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>r = a</span>               </td><td class='left'>
+ <span class='texttt'>X&amp;</span>                </td><td class='left'>
+                            </td><td class='left'>
+ post: <span class='texttt'>r == a</span>.      </td><td class='left'>
+ linear                     </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.size()</span>                </td><td class='left'>
+ <span class='texttt'>size_type</span>             </td><td class='left'>
+ <span class='texttt'>distance(a.begin(),</span>
+ <span class='texttt'>a.end())</span>  </td><td class='left'>
+                                </td><td class='left'>
+ constant                       </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.max_size()</span>        </td><td class='left'>
+ <span class='texttt'>size_type</span>         </td><td class='left'>
+ <span class='texttt'>distance(begin(),</span>
+ <span class='texttt'>end())</span>
+ for the largest possible container </td><td class='left'>
+                            </td><td class='left'>
+ constant                   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.empty()</span>               </td><td class='left'>
+ convertible to <span class='texttt'>bool</span>    </td><td class='left'>
+ <span class='texttt'>a.begin() ==</span>
+ <span class='texttt'>a.end()</span>          </td><td class='left'>
+                                </td><td class='left'>
+constant                        </td></tr></table></div><p >Notes: the algorithm
+<span class='texttt'>equal()</span>
+is defined in Clause <a href='algorithms'>[algorithms]</a>.
+Those entries marked “(Note A)” or “(Note B)”
+have linear complexity for <span class='texttt'>array</span> and have constant complexity
+for all other standard containers.</p></div><div class='para' id='general-5'><div class='marginalizedparent'><a class='marginalized' href='#general-5'>5</a></div><p >The member function <span class='texttt'>size()</span> returns the number of elements in the container.
+The number of elements is defined by the rules of
+constructors, inserts, and erases.</p></div><div class='para' id='general-6'><div class='marginalizedparent'><a class='marginalized' href='#general-6'>6</a></div><p ><span class='texttt'>begin()</span>
+returns an iterator referring to the first element in the container.
+<span class='texttt'>end()</span>
+returns an iterator which is the past-the-end value for the container.
+If the container is empty, then
+<span class='texttt'>begin() == end()</span>;</p></div><div class='para' id='general-7'><div class='marginalizedparent'><a class='marginalized' href='#general-7'>7</a></div><p >In the expressions
+</p><pre class='codeblock'>
+i == j
+i != j
+i &lt; j
+i &lt;= j
+i &gt;= j
+i &gt; j
+i - j
+</pre><p >where <span class='texttt'>i</span> and <span class='texttt'>j</span> denote objects of a container's <span class='texttt'>iterator</span>
+type, either or both may be replaced by an object of the container's
+<span class='texttt'>const_iterator</span> type referring to the same element with no change in semantics.</p></div><div class='para' id='general-8'><div class='marginalizedparent'><a class='marginalized' href='#general-8'>8</a></div><p >Unless otherwise specified, all containers defined in this clause obtain memory
+using an allocator (see <a href='allocator.requirements'>[allocator.requirements]</a>).
+Copy constructors for these container types obtain an allocator by calling
+<span class='texttt'>allocator_traits&lt;allocator_type&gt;::select_on_container_copy_construction</span>
+on the allocator belonging to the container being copied.
+Move constructors obtain an allocator by move construction from the allocator belonging to
+the container being moved. Such move construction of the allocator shall not exit via an
+exception.
+All other constructors for these container types take a
+<span class='texttt'>const allocator_type&amp;</span> argument.
+[&nbsp;<i>Note:</i><span class='space'></span> If an invocation of a constructor uses the default value of an optional
+allocator argument, then the <span class='texttt'>Allocator</span> type must support value initialization.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+A copy of this allocator is used for any memory allocation and element construction
+performed, by these constructors and by all member functions,
+during the lifetime of each container object
+or until the allocator is replaced. The allocator may be replaced only via assignment or
+<span class='texttt'>swap()</span>. Allocator replacement is performed by
+copy assignment, move assignment, or swapping of the allocator only if
+<span class='texttt'>allocator_traits&lt;allocator_type&gt;::propagate_on_container_copy_assignment::value</span>,
+<span class='texttt'>allocator_traits&lt;allocator_type&gt;::propagate_on_container_move_assignment::value</span>,
+or <span class='texttt'>allocator_traits&lt;allocator_type&gt;::propagate_on_container_swap::value</span> is true
+within the implementation of the corresponding container operation.
+In all container types defined in this Clause, the member <span class='texttt'>get_allocator()</span>
+returns a copy of the allocator used to construct the container or, if that allocator
+has been replaced, a copy of the most recent replacement.</p></div><div class='para' id='general-9'><div class='marginalizedparent'><a class='marginalized' href='#general-9'>9</a></div><p >The expression <span class='texttt'>a.swap(b)</span>, for containers <span class='texttt'>a</span> and <span class='texttt'>b</span> of a standard
+container type other than <span class='texttt'>array</span>, shall exchange the values of <span class='texttt'>a</span> and
+<span class='texttt'>b</span> without invoking any move, copy, or swap operations on the individual
+container elements.
+Lvalues of any <span class='texttt'>Compare</span>, <span class='texttt'>Pred</span>, or <span class='texttt'>Hash</span> types
+belonging to <span class='texttt'>a</span> and <span class='texttt'>b</span> shall be swappable
+and shall be exchanged by calling <span class='texttt'>swap</span>
+as described in <a href='swappable.requirements'>[swappable.requirements]</a>. If
+<span class='texttt'>allocator_traits&lt;allocator_type&gt;::propagate_on_container_swap::value</span> is
+<span class='texttt'>true</span>, then
+lvalues of type <span class='texttt'>allocator_type</span> shall be swappable and
+the allocators of <span class='texttt'>a</span> and <span class='texttt'>b</span> shall also be exchanged
+by calling <span class='texttt'>swap</span> as described in <a href='swappable.requirements'>[swappable.requirements]</a>.
+Otherwise, the allocators shall not be swapped, and the behavior is
+undefined unless <span class='texttt'>a.get_allocator() == b.get_allocator()</span>. Every iterator
+referring to an element in one container before the swap shall refer to the same
+element in the other container after the swap. It is unspecified whether an iterator
+with value <span class='texttt'>a.end()</span> before the swap will have value <span class='texttt'>b.end()</span> after the
+swap.</p></div><div class='para' id='general-10'><div class='marginalizedparent'><a class='marginalized' href='#general-10'>10</a></div><p >If the iterator type of a container belongs to the bidirectional or
+random access iterator categories (<a href='iterator.requirements'>[iterator.requirements]</a>),
+the container is called
+<i>reversible</i>
+and satisfies the additional requirements
+in Table <a href='#tab:containers.reversible.requirements'>[tab:containers.reversible.requirements]</a>.</p><div class='numberedTable' id='tab:containers.reversible.requirements'>Table <a href='#tab:containers.reversible.requirements'>78</a> — Reversible container requirements<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Assertion/note</b></td><td colspan='1' class='center'><b>Complexity</b></td></tr><tr ><td class='left'>
+    </td><td class='left'>   </td><td colspan='1' class='center'><b>pre-/post-condition</b></td><td class='left'>      </td></tr><tr class='capsep'><td class='left'> 
+<span class='endhead'></span>
+<span class='texttt'>X::reverse_iterator</span>            </td><td class='left'>
+iterator type whose value type is <span class='texttt'>T</span>    </td><td class='left'>
+ <span class='texttt'>reverse_iterator&lt;iterator&gt;</span>   </td><td class='left'>
+ compile time                           </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X::const_reverse_iterator</span>         </td><td class='left'>
+ constant iterator type whose value type is <span class='texttt'>T</span>  </td><td class='left'>
+ <span class='texttt'>reverse_iterator&lt;const_iterator&gt;</span>    </td><td class='left'>
+ compile time                               </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.rbegin()</span>                  </td><td class='left'>
+ <span class='texttt'>reverse_iterator; const_reverse_iterator</span> for constant <span class='texttt'>a</span> </td><td class='left'>
+ <span class='texttt'>reverse_iterator(end())</span>   </td><td class='left'>
+ constant                           </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.rend()</span>                     </td><td class='left'>
+ <span class='texttt'>reverse_iterator; const_reverse_iterator</span> for constant <span class='texttt'>a</span> </td><td class='left'>
+ <span class='texttt'>reverse_iterator(begin())</span>    </td><td class='left'>
+ constant                           </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.crbegin()</span>         </td><td class='left'>
+ <span class='texttt'>const_reverse_iterator</span>     </td><td class='left'>
+ <span class='texttt'>const_cast&lt;X const&amp;&gt;(a).rbegin()</span> </td><td class='left'>
+ constant                   </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.crend()</span>         </td><td class='left'>
+ <span class='texttt'>const_reverse_iterator</span>     </td><td class='left'>
+ <span class='texttt'>const_cast&lt;X const&amp;&gt;(a).rend()</span> </td><td class='left'>
+ constant                   </td></tr></table></div></div><div class='para' id='general-11'><div class='marginalizedparent'><a class='marginalized' href='#general-11'>11</a></div><p >Unless otherwise specified (see <a href='associative.reqmts.except'>[associative.reqmts.except]</a>, <a href='unord.req.except'>[unord.req.except]</a>, <a href='deque.modifiers'>[deque.modifiers]</a>, and
+<a href='vector.modifiers'>[vector.modifiers]</a>)
+all container types defined in this Clause meet
+the following additional requirements:</p><ul ><li ><p >if an exception is thrown by an
+<span class='texttt'>insert()</span> or <span class='texttt'>emplace()</span>
+function while inserting a single element, that
+function has no effects.
+</p></li><li ><p >if an exception is thrown by a
+<span class='texttt'>push_back()</span>,
+<span class='texttt'>push_front()</span>,
+<span class='texttt'>emplace_back()</span>, or <span class='texttt'>emplace_front()</span>
+function, that function has no effects.
+</p></li><li ><p >no
+<span class='texttt'>erase()</span>,
+<span class='texttt'>clear()</span>,
+<span class='texttt'>pop_back()</span>
+or
+<span class='texttt'>pop_front()</span>
+function throws an exception.
+</p></li><li ><p >no copy constructor or assignment operator of a returned iterator
+throws an exception.
+</p></li><li ><p >no
+<span class='texttt'>swap()</span>
+function throws an exception.
+</p></li><li ><p >no
+<span class='texttt'>swap()</span>
+function invalidates any references,
+pointers, or iterators referring to the elements
+of the containers being swapped. [&nbsp;<i>Note:</i><span class='space'></span> The <span class='texttt'>end()</span> iterator does not refer to any element, so it may be invalidated. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></li></ul></div><div class='para' id='general-12'><div class='marginalizedparent'><a class='marginalized' href='#general-12'>12</a></div><p >Unless otherwise specified (either explicitly or by defining a
+function in terms of other functions), invoking a container member
+function or passing a container as an argument to a library function
+shall not invalidate iterators to, or change the values of, objects
+within that container.</p></div><div class='para' id='general-13'><div class='marginalizedparent'><a class='marginalized' href='#general-13'>13</a></div><p ><span class='indexparent'><a class='index' id='container!contiguous'></a></span>A <a id='contiguous container'><i>contiguous container</i></a>
+is a container that supports random access iterators (<a href='random.access.iterators'>[random.access.iterators]</a>)
+and whose member types <span class='texttt'>iterator</span> and <span class='texttt'>const_iterator</span>
+are contiguous iterators (<a href='iterator.requirements.general'>[iterator.requirements.general]</a>).</p></div><div class='para' id='general-14'><div class='marginalizedparent'><a class='marginalized' href='#general-14'>14</a></div><p >Table <a href='#tab:containers.optional.operations'>[tab:containers.optional.operations]</a> lists operations that are provided
+for some types of containers but not others. Those containers for which the
+listed operations are provided shall implement the semantics described in
+Table <a href='#tab:containers.optional.operations'>[tab:containers.optional.operations]</a> unless otherwise stated.</p><div class='numberedTable' id='tab:containers.optional.operations'>Table <a href='#tab:containers.optional.operations'>79</a> — Optional container operations<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Operational</b></td><td colspan='1' class='center'><b>Assertion/note</b></td><td colspan='1' class='center'><b>Complexity</b></td></tr><tr ><td class='left'>
+    </td><td class='left'>   </td><td colspan='1' class='center'><b>semantics</b></td><td colspan='1' class='center'><b>pre-/post-condition</b></td><td class='left'>      </td></tr><tr class='capsep'><td class='left'> 
+<span class='endhead'></span><span class='texttt'>a &lt; b</span>                   </td><td class='left'>
+ convertible to <span class='texttt'>bool</span>    </td><td class='left'>
+ <span class='texttt'>lexicographical_compare( a.begin(), a.end(), b.begin(), b.end())</span> </td><td class='left'>
+ pre: <span class='texttt'>&lt;</span> is defined for values of <span class='texttt'>T</span>. <span class='texttt'>&lt;</span> is a total ordering relationship.    </td><td class='left'>
+ linear                     </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a &gt; b</span>                   </td><td class='left'>
+ convertible to <span class='texttt'>bool</span>    </td><td class='left'>
+ <span class='texttt'>b &lt; a</span>                  </td><td class='left'>
+                                </td><td class='left'>
+ linear                         </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a &lt;= b</span>                  </td><td class='left'>
+ convertible to <span class='texttt'>bool</span>    </td><td class='left'>
+ <span class='texttt'>!(a &gt; b)</span>               </td><td class='left'>
+                                </td><td class='left'>
+ linear                         </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a &gt;= b</span>                  </td><td class='left'>
+ convertible to <span class='texttt'>bool</span>    </td><td class='left'>
+ <span class='texttt'>!(a &lt; b)</span>               </td><td class='left'>
+                                </td><td class='left'>
+ linear                         </td></tr></table></div><p >[&nbsp;<i>Note:</i><span class='space'></span>
+The algorithm <span class='texttt'>lexicographical_compare()</span> is defined in Clause <a href='algorithms'>[algorithms]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='general-15'><div class='marginalizedparent'><a class='marginalized' href='#general-15'>15</a></div><p >All of the containers defined in this Clause and in (<a href='basic.string'>[basic.string]</a>) except <span class='texttt'>array</span>
+meet the additional requirements of an allocator-aware container, as described in
+Table <a href='#tab:containers.allocatoraware'>[tab:containers.allocatoraware]</a>.</p><p >Given an allocator type <span class='texttt'>A</span>
+and given a container type <span class='texttt'>X</span> having a <span class='texttt'>value_type</span> identical to <span class='texttt'>T</span>
+and an <span class='texttt'>allocator_type</span> identical to <span class='texttt'>allocator_traits&lt;A&gt;::rebind_alloc&lt;T&gt;</span>
+and given an lvalue <span class='texttt'>m</span> of type <span class='texttt'>A</span>,
+a pointer <span class='texttt'>p</span> of type <span class='texttt'>T*</span>,
+an expression <span class='texttt'>v</span> of type (possibly <span class='texttt'>const</span>) <span class='texttt'>T</span>,
+and an rvalue <span class='texttt'>rv</span> of type <span class='texttt'>T</span>,
+the following terms are defined. If <span class='texttt'>X</span>
+is not allocator-aware, the terms below are defined as if <span class='texttt'>A</span> were
+<span class='texttt'>std::allocator&lt;T&gt;</span> — no allocator object needs to be created
+and user specializations of <span class='texttt'>std::allocator&lt;T&gt;</span> are not instantiated:</p><ul ><li ><p ><span class='texttt'>T</span> is <a id='DefaultInsertable into X'><i><span class='texttt'>DefaultInsertable</span> into <span class='texttt'>X</span></i></a>
+means that the following expression is well-formed:
+</p><pre class='codeblock'>
+allocator_traits&lt;A&gt;::construct(m, p)
+</pre></li><li ><p >An element of <span class='texttt'>X</span> is <a id='default-inserted'><i>default-inserted</i></a> if it is initialized
+by evaluation of the expression
+</p><pre class='codeblock'>
+allocator_traits&lt;A&gt;::construct(m, p)
+</pre><p >where <span class='texttt'>p</span> is the address of the uninitialized storage for the element
+allocated within <span class='texttt'>X</span>.
+	
+</p></li><li ><p ><span class='texttt'>T</span> is <a id='MoveInsertable into X'><i><span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span></i></a>
+means that the following expression
+is well-formed:
+</p><pre class='codeblock'>
+allocator_traits&lt;A&gt;::construct(m, p, rv)
+</pre><p >and its evaluation causes the following postcondition to hold: The value
+of <span class='texttt'>*p</span> is equivalent to the value of <span class='texttt'>rv</span> before the evaluation.
+[&nbsp;<i>Note:</i><span class='space'></span> <span class='texttt'>rv</span> remains a valid object. Its state is unspecified <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></li><li ><p ><span class='texttt'>T</span> is <a id='CopyInsertable into X'><i><span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span></i></a>
+means that, in addition to <span class='texttt'>T</span> being <span class='texttt'>MoveInsertable</span> into
+<span class='texttt'>X</span>, the following expression is well-formed:
+</p><pre class='codeblock'>
+allocator_traits&lt;A&gt;::construct(m, p, v)
+</pre><p >and its evaluation causes the following postcondition to hold:
+The value of <span class='texttt'>v</span> is unchanged and is equivalent to <span class='texttt'>*p</span>.</p></li><li ><p ><span class='texttt'>T</span> is
+<a id='EmplaceConstructible into X from args'><i><span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>args</span></i></a>,
+for zero
+or more arguments <span class='texttt'>args</span>, means that the following expression is well-formed:
+</p><pre class='codeblock'>
+allocator_traits&lt;A&gt;::construct(m, p, args)
+</pre></li><li ><p ><span class='texttt'>T</span> is
+<a id='Erasable from X'><i><span class='texttt'>Erasable</span> from <span class='texttt'>X</span></i></a>
+means that the following expression is well-formed:
+</p><pre class='codeblock'>
+allocator_traits&lt;A&gt;::destroy(m, p)
+</pre></li></ul><p >[&nbsp;<i>Note:</i><span class='space'></span>
+A container calls <span class='texttt'>allocator_traits&lt;A&gt;::construct(m, p, args)</span>
+to construct an element at <span class='texttt'>p</span> using <span class='texttt'>args</span>,
+with <span class='texttt'>m == get_allocator()</span>.
+The default <span class='texttt'>construct</span> in <span class='texttt'>std::allocator</span> will
+call <span class='texttt'>::new((void*)p) T(args)</span>,
+but specialized allocators may choose a different definition.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='general-16'><div class='marginalizedparent'><a class='marginalized' href='#general-16'>16</a></div><p >In Table <a href='#tab:containers.allocatoraware'>[tab:containers.allocatoraware]</a>, <span class='texttt'>X</span> denotes an allocator-aware container class
+with a <span class='texttt'>value_type</span> of <span class='texttt'>T</span> using allocator of type <span class='texttt'>A</span>, <span class='texttt'>u</span> denotes a
+variable,
+<span class='texttt'>a</span> and <span class='texttt'>b</span> denote non-const lvalues of type <span class='texttt'>X</span>,
+<span class='texttt'>t</span> denotes an lvalue or a const rvalue of type <span class='texttt'>X</span>, <span class='texttt'>rv</span> denotes a
+non-const rvalue of type <span class='texttt'>X</span>, and <span class='texttt'>m</span> is a value of type <span class='texttt'>A</span>.</p><div class='numberedTable' id='tab:containers.allocatoraware'>Table <a href='#tab:containers.allocatoraware'>80</a> — Allocator-aware container requirements<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Assertion/note</b></td><td colspan='1' class='center'><b>Complexity</b></td></tr><tr ><td class='left'>
+    </td><td class='left'>   </td><td colspan='1' class='center'><b>pre-/post-condition</b></td><td class='left'>      </td></tr><tr class='capsep'><td class='left'> 
+<span class='endhead'></span><span class='texttt'>allocator_type</span>		</td><td class='left'>
+  <span class='texttt'>A</span>								</td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>allocator_type::value_type</span> is the same as <span class='texttt'>X::value_type</span>.					</td><td class='left'>
+  compile time										</td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>get_-</span> <span class='texttt'>allocator()</span>	</td><td class='left'>
+  <span class='texttt'>A</span>								</td><td class='left'>
+																				</td><td class='left'>
+  constant												</td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X()</span><span class='hfill'></span><br/>
+<span class='texttt'>X u;</span>							</td><td class='left'>
+													</td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>A</span> is <span class='texttt'>DefaultConstructible</span>.<span class='hfill'></span><br/>
+  post: <span class='texttt'>u.empty()</span> returns <span class='texttt'>true</span>,
+  <span class='texttt'>u.get_allocator() == A()</span> </td><td class='left'>
+  constant												</td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X(m)</span>							</td><td class='left'>
+																				</td><td class='left'>
+post: <span class='texttt'>u.empty()</span> returns <span class='texttt'>true</span>, </td><td class='left'>
+constant												</td></tr><tr ><td class='left'>
+<span class='texttt'>X u(m);</span>					</td><td class='left'>
+																				</td><td class='left'>
+<span class='texttt'>u.get_allocator() == m</span> </td><td class='left'>
+																				</td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X(t, m)</span><span class='hfill'></span><br/>
+<span class='texttt'>X u(t, m);</span>				</td><td class='left'>
+                          </td><td class='left'>
+<i>Requires:</i> <span class='texttt'>T</span> is <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>.<span class='hfill'></span><br/>
+post: <span class='texttt'>u == t</span>, <span class='texttt'>u.get_allocator() == m</span> </td><td class='left'>
+linear													</td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X(rv)</span><span class='hfill'></span><br/>
+<span class='texttt'>X u(rv)</span>
+           </td><td class='left'>
+           </td><td class='left'>
+  <i>Requires:</i> move construction of <span class='texttt'>A</span> shall not exit via an exception.<span class='hfill'></span><br/>
+  post: <span class='texttt'>u</span> shall have the same elements as <span class='texttt'>rv</span> had before this
+  construction; the value of <span class='texttt'>u.get_allocator()</span> shall be the same as the
+  value of <span class='texttt'>rv.get_allocator()</span> before this construction. </td><td class='left'>
+  constant                            </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X(rv, m)</span><span class='hfill'></span><br/>
+<span class='texttt'>X u(rv, m);</span>			</td><td class='left'>
+												</td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>T</span> is
+  <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>.<span class='hfill'></span><br/>
+  post: <span class='texttt'>u</span> shall have the same elements,
+  or copies of the elements, that <span class='texttt'>rv</span> had before
+  this construction, <span class='texttt'>u.get_allocator() == m</span>												</td><td class='left'>
+  constant if <span class='texttt'>m ==</span> <span class='texttt'>rv.get_allocator()</span>, otherwise linear	</td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a = t</span>             </td><td class='left'>
+  <span class='texttt'>X&amp;</span>             </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>T</span> is
+  <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>
+  and <span class='texttt'>CopyAssignable</span>.<span class='hfill'></span><br/>
+  post: <span class='texttt'>a == t</span>    </td><td class='left'>
+  linear                  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a = rv</span>          </td><td class='left'>
+  <span class='texttt'>X&amp;</span>           </td><td class='left'>
+  <i>Requires:</i> If <span class='texttt'>allocator_-</span><span class='hfill'></span><br/>
+  <span class='texttt'>traits&lt;allocator_type&gt;</span><span class='hfill'></span><br/>
+  <span class='texttt'>::propagate_on_container_-</span><span class='hfill'></span><br/>
+  <span class='texttt'>move_assignment::value</span> is<span class='hfill'></span><br/>
+  <span class='texttt'>false</span>, <span class='texttt'>T</span> is
+  <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span> and
+  <span class='texttt'>MoveAssignable</span>. All existing elements of <span class='texttt'>a</span>
+  are either move assigned to or destroyed.<span class='hfill'></span><br/>
+  post: <span class='texttt'>a</span> shall be equal to the value that <span class='texttt'>rv</span> had before
+  this assignment.      </td><td class='left'>
+  linear                </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.swap(b)</span>       </td><td class='left'>
+  <span class='texttt'>void</span>          </td><td class='left'>
+  exchanges the contents of <span class='texttt'>a</span> and <span class='texttt'>b</span> </td><td class='left'>
+  constant      </td></tr></table></div></div></div><div id='dataraces'><h3 ><a class='secnum' href='#dataraces' style='min-width:103pt'>23.2.2</a> Container data races <a class='abbr_ref' href='container.requirements.dataraces'>[container.requirements.dataraces]</a></h3><div class='para' id='dataraces-1'><div class='marginalizedparent'><a class='marginalized' href='#dataraces-1'>1</a></div><p >For purposes of avoiding data races (<a href='res.on.data.races'>[res.on.data.races]</a>), implementations shall
+consider the following functions to be <span class='texttt'>const</span>: <span class='texttt'>begin</span>, <span class='texttt'>end</span>,
+<span class='texttt'>rbegin</span>, <span class='texttt'>rend</span>, <span class='texttt'>front</span>, <span class='texttt'>back</span>, <span class='texttt'>data</span>, <span class='texttt'>find</span>,
+<span class='texttt'>lower_bound</span>, <span class='texttt'>upper_bound</span>, <span class='texttt'>equal_range</span>, <span class='texttt'>at</span> and, except in
+associative or unordered associative containers, <span class='texttt'>operator[]</span>.</p></div><div class='para' id='dataraces-2'><div class='marginalizedparent'><a class='marginalized' href='#dataraces-2'>2</a></div><p >Notwithstanding (<a href='res.on.data.races'>[res.on.data.races]</a>), implementations are required to avoid data
+races when the contents of the contained object in different elements in the same
+container, excepting <span class='texttt'>vector&lt;bool&gt;</span>, are modified concurrently.</p></div><div class='para' id='dataraces-3'><div class='marginalizedparent'><a class='marginalized' href='#dataraces-3'>3</a></div><p >[&nbsp;<i>Note:</i><span class='space'></span> For a <span class='texttt'>vector&lt;int&gt; x</span> with a size greater than one, <span class='texttt'>x[1] = 5</span>
+and <span class='texttt'>*x.begin() = 10</span> can be executed concurrently without a data race, but
+<span class='texttt'>x[0] = 5</span> and <span class='texttt'>*x.begin() = 10</span> executed concurrently may result in a data
+race.
+As an exception to the general rule, for a <span class='texttt'>vector&lt;bool&gt; y</span>, <span class='texttt'>y[0] = true</span>
+may race with <span class='texttt'>y[1] = true</span>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='sequence.reqmts'><h3 ><a class='secnum' href='#sequence.reqmts' style='min-width:103pt'>23.2.3</a> Sequence containers <a class='abbr_ref' href='sequence.reqmts'>[sequence.reqmts]</a></h3><div class='para' id='sequence.reqmts-1'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-1'>1</a></div><p >A sequence container organizes a finite set of objects, all of the same type, into a strictly
+linear arrangement. The library provides four basic kinds of sequence containers:
+<span class='texttt'>vector</span>, <span class='texttt'>forward_list</span>, <span class='texttt'>list</span>, and <span class='texttt'>deque</span>. In addition,
+<span class='texttt'>array</span> is provided as a sequence container which provides limited sequence operations
+because it has a fixed number of elements. The library also provides container adaptors that
+make it easy to construct abstract data types, such as <span class='texttt'>stack</span>s or <span class='texttt'>queue</span>s, out of
+the basic sequence container kinds (or out of other kinds of sequence containers that the user
+might define).</p></div><div class='para' id='sequence.reqmts-2'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-2'>2</a></div><p >The sequence containers
+offer the programmer different complexity trade-offs and should be used
+accordingly.
+<span class='texttt'>vector</span> or <span class='texttt'>array</span>
+is the type of sequence container that should be used by default.
+<span class='texttt'>list</span> or <span class='texttt'>forward_list</span>
+should be used when there are frequent insertions and deletions from the
+middle of the sequence.
+<span class='texttt'>deque</span>
+is the data structure of choice
+when most insertions and deletions take place at the beginning or at the
+end of the sequence.</p></div><div class='para' id='sequence.reqmts-3'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-3'>3</a></div><p >In Tables <a href='#tab:containers.sequence.requirements'>[tab:containers.sequence.requirements]</a>
+and <a href='#tab:containers.sequence.optional'>[tab:containers.sequence.optional]</a>,
+<span class='texttt'>X</span> denotes a sequence container class,
+<span class='texttt'>a</span> denotes a value of type <span class='texttt'>X</span> containing elements of type <span class='texttt'>T</span>,
+<span class='texttt'>u</span> denotes the name of a variable being declared,
+<span class='texttt'>A</span> denotes <span class='texttt'>X::allocator_type</span> if
+the <i ><a href='expr.prim.id.qual#qualified-id'>qualified-id</a></i> <span class='texttt'>X::allocator_type</span> is valid and denotes a
+type (<a href='temp.deduct'>[temp.deduct]</a>) and
+<span class='texttt'>std::allocator&lt;T&gt;</span> if it doesn't,
+<span class='texttt'>i</span> and <span class='texttt'>j</span>
+denote iterators satisfying input iterator requirements
+and refer to elements implicitly convertible to <span class='texttt'>value_type</span>,
+<span class='texttt'>[i, j)</span>
+denotes a valid range,
+<span class='texttt'>il</span> designates an object of type <span class='texttt'>initializer_list&lt;value_type&gt;</span>,
+<span class='texttt'>n</span>
+denotes a value of type <span class='texttt'>X::size_type</span>,
+<span class='texttt'>p</span> denotes a valid const iterator to
+<span class='texttt'>a</span>, <span class='texttt'>q</span>
+denotes a valid dereferenceable const iterator to
+<span class='texttt'>a</span>, <span class='texttt'>[q1, q2)</span>
+denotes a valid range of const iterators in
+<span class='texttt'>a</span>, <span class='texttt'>t</span>
+denotes an lvalue or a const rvalue of
+<span class='texttt'>X::value_type</span>, and <span class='texttt'>rv</span> denotes
+a non-const rvalue of <span class='texttt'>X::value_type</span>.
+<span class='texttt'>Args</span> denotes a template parameter pack;
+<span class='texttt'>args</span> denotes a function parameter pack with the pattern <span class='texttt'>Args&amp;&amp;</span>.</p></div><div class='para' id='sequence.reqmts-4'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-4'>4</a></div><p >The complexities of the expressions are sequence dependent.</p><div class='numberedTable' id='tab:containers.sequence.requirements'>Table <a href='#tab:containers.sequence.requirements'>81</a> — Sequence container requirements (in addition to container)<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Assertion/note</b></td></tr><tr ><td class='left'>
+                        </td><td class='left'>                       </td><td colspan='1' class='center'><b>pre-/post-condition</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='endhead'></span>
+<span class='texttt'>X(n, t)</span><span class='hfill'></span><br/>
+<span class='texttt'>X u(n, t)</span>   </td><td class='left'>
+                </td><td class='left'>
+ <i>Requires:</i> <span class='texttt'>T</span> shall be
+ <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>.<span class='hfill'></span><br/>
+ post: <span class='texttt'>distance(begin(), end()) == n</span><span class='hfill'></span><br/>
+ Constructs a sequence container with <span class='texttt'>n</span> copies of <span class='texttt'>t</span>  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X(i, j)</span><span class='hfill'></span><br/>
+<span class='texttt'>X u(i, j)</span>   </td><td class='left'>
+                    </td><td class='left'>
+ <i>Requires:</i> <span class='texttt'>T</span> shall be <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>*i</span>.
+ For <span class='texttt'>vector</span>, if the iterator does
+ not meet the forward iterator requirements (<a href='forward.iterators'>[forward.iterators]</a>), <span class='texttt'>T</span>
+ shall also be
+ <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>.
+ Each iterator in the range <span class='texttt'>[i, <span class='discretionary'></span>j)</span> shall be dereferenced exactly once.<span class='hfill'></span><br/>
+ post: <span class='texttt'>distance(begin(), end()) ==</span>
+ <span class='texttt'>distance(i, j)</span><span class='hfill'></span><br/>
+ Constructs a sequence container equal to the range <span class='texttt'>[i, j)</span>    </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X(il);</span>      </td><td class='left'>
+                    </td><td class='left'>
+  Equivalent to <span class='texttt'>X(il.begin(), il.end())</span> </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a = il;</span>     </td><td class='left'>
+  <span class='texttt'>X&amp;</span>               </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>T</span> is
+  <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>
+  and <span class='texttt'>CopyAssignable</span>.
+  Assigns the range <span class='texttt'>[il.begin(), <span class='discretionary'></span>il.end())</span> into <span class='texttt'>a</span>. All existing
+  elements of <span class='texttt'>a</span> are either assigned to or destroyed.<span class='hfill'></span><br/>
+  <i>Returns:</i> <span class='texttt'>*this</span>.
+  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.emplace(p, args);</span>  </td><td class='left'>
+ <span class='texttt'>iterator</span>            </td><td class='left'>
+ <i>Requires:</i> <span class='texttt'>T</span> is <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>args</span>. For <span class='texttt'>vector</span> and <span class='texttt'>deque</span>,
+ T is also
+ <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span> and <span class='texttt'>MoveAssignable</span>.
+ <i>Effects:</i> Inserts an object of type <span class='texttt'>T</span> constructed with
+ <span class='texttt'>std::forward&lt;Args&gt;(args)...</span> before <span class='texttt'>p</span>.   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.insert(p,t)</span>   </td><td class='left'>
+ <span class='texttt'>iterator</span>       </td><td class='left'>
+ <i>Requires:</i> <span class='texttt'>T</span> shall be
+ <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>. For <span class='texttt'>vector</span> and <span class='texttt'>deque</span>,
+ <span class='texttt'>T</span> shall also be <span class='texttt'>CopyAssignable</span>.<span class='hfill'></span><br/>
+ <i>Effects:</i> Inserts a copy of <span class='texttt'>t</span> before <span class='texttt'>p</span>. </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.insert(p,rv)</span>   </td><td class='left'>
+ <span class='texttt'>iterator</span>       </td><td class='left'>
+ <i>Requires:</i> <span class='texttt'>T</span> shall be
+ <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>. For <span class='texttt'>vector</span> and <span class='texttt'>deque</span>,
+  <span class='texttt'>T</span> shall also be <span class='texttt'>MoveAssignable</span>.<span class='hfill'></span><br/>
+ <i>Effects:</i> Inserts a copy of <span class='texttt'>rv</span> before <span class='texttt'>p</span>. </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.insert(p,n,t)</span>     </td><td class='left'>
+ <span class='texttt'>iterator</span>               </td><td class='left'>
+ <i>Requires:</i> <span class='texttt'>T</span> shall be
+ <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>
+ and <span class='texttt'>CopyAssignable</span>.<span class='hfill'></span><br/>
+ Inserts <span class='texttt'>n</span> copies of <span class='texttt'>t</span> before <span class='texttt'>p</span>. </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.insert(p,i,j)</span>    </td><td class='left'>
+ <span class='texttt'>iterator</span>           </td><td class='left'>
+ <i>Requires:</i> <span class='texttt'>T</span> shall be <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>*i</span>.
+ For <span class='texttt'>vector</span> and <span class='texttt'>deque</span>, <span class='texttt'>T</span> shall also be
+ <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>, <span class='texttt'>MoveConstructible</span>, <span class='texttt'>MoveAssignable</span>,
+ and swappable (<a href='swappable.requirements'>[swappable.requirements]</a>).
+ Each iterator in the range <span class='texttt'>[i, <span class='discretionary'></span>j)</span> shall be dereferenced exactly once.<span class='hfill'></span><br/>
+ pre: <span class='texttt'>i</span> and <span class='texttt'>j</span> are not iterators into <span class='texttt'>a</span>.<span class='hfill'></span><br/>
+ Inserts copies of elements in <span class='texttt'>[i, j)</span> before <span class='texttt'>p</span>  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.insert(p, il);</span>  </td><td class='left'>
+  <span class='texttt'>iterator</span>            </td><td class='left'>
+  <span class='texttt'>a.insert(p, il.begin(), il.end())</span>.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.erase(q)</span>  </td><td class='left'>
+ <span class='texttt'>iterator</span>   </td><td class='left'>
+ <i>Requires:</i> For <span class='texttt'>vector</span> and <span class='texttt'>deque</span>,
+ <span class='texttt'>T</span> shall be <span class='texttt'>MoveAssignable</span>.<span class='hfill'></span><br/>
+ <i>Effects:</i> Erases the element pointed to by <span class='texttt'>q</span>. </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.erase(q1,q2)</span>  </td><td class='left'>
+ <span class='texttt'>iterator</span>   </td><td class='left'>
+ <i>Requires:</i> For <span class='texttt'>vector</span> and <span class='texttt'>deque</span>,
+ <span class='texttt'>T</span> shall be <span class='texttt'>MoveAssignable</span>.<span class='hfill'></span><br/>
+ <i>Effects:</i> Erases the elements in the range <span class='texttt'>[q1, q2)</span>.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.clear()</span>   </td><td class='left'>
+ <span class='texttt'>void</span>       </td><td class='left'>
+ Destroys all elements in <span class='texttt'>a</span>. Invalidates all references, pointers, and
+ iterators referring to the elements of <span class='texttt'>a</span> and may invalidate the past-the-end iterator.<span class='hfill'></span><br/>
+ post: <span class='texttt'>a.empty()</span> returns <span class='texttt'>true</span>.<span class='hfill'></span><br/>
+ <i>Complexity:</i> Linear.      </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.assign(i,j)</span>   </td><td class='left'>
+ <span class='texttt'>void</span>           </td><td class='left'>
+ <i>Requires:</i> <span class='texttt'>T</span> shall be <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>*i</span>
+ and assignable from <span class='texttt'>*i</span>. For <span class='texttt'>vector</span>, if the iterator does not
+ meet the forward iterator requirements (<a href='forward.iterators'>[forward.iterators]</a>), <span class='texttt'>T</span>
+ shall also be
+ <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>.<span class='hfill'></span><br/>
+ Each iterator in the range <span class='texttt'>[i, <span class='discretionary'></span>j)</span> shall be dereferenced exactly once.<span class='hfill'></span><br/>
+ pre: <span class='texttt'>i</span>, <span class='texttt'>j</span> are not iterators into <span class='texttt'>a</span>.<span class='hfill'></span><br/>
+ Replaces elements in <span class='texttt'>a</span> with a copy of <span class='texttt'>[i, j)</span>.<span class='hfill'></span><br/>
+ Invalidates all references, pointers and iterators
+ referring to the elements of <span class='texttt'>a</span>.
+ For <span class='texttt'>vector</span> and <span class='texttt'>deque</span>,
+ also invalidates the past-the-end iterator.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.assign(il)</span>    </td><td class='left'>
+  <span class='texttt'>void</span>          </td><td class='left'>
+  <span class='texttt'>a.assign(il.begin(), il.end())</span>. </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.assign(n,t)</span>   </td><td class='left'>
+ <span class='texttt'>void</span>           </td><td class='left'>
+ <i>Requires:</i> <span class='texttt'>T</span> shall be
+ <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>
+ and <span class='texttt'>CopyAssignable</span>.<span class='hfill'></span><br/>
+ pre: <span class='texttt'>t</span> is not a reference into <span class='texttt'>a</span>.<span class='hfill'></span><br/>
+ Replaces elements in <span class='texttt'>a</span> with <span class='texttt'>n</span> copies of <span class='texttt'>t</span>.<span class='hfill'></span><br/>
+ Invalidates all references, pointers and iterators
+ referring to the elements of <span class='texttt'>a</span>.
+ For <span class='texttt'>vector</span> and <span class='texttt'>deque</span>,
+ also invalidates the past-the-end iterator.  </td></tr></table></div></div><div class='para' id='sequence.reqmts-5'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-5'>5</a></div><p ><span class='texttt'>iterator</span>
+and
+<span class='texttt'>const_iterator</span>
+types for sequence containers shall be at least of the forward iterator category.</p></div><div class='para' id='sequence.reqmts-6'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-6'>6</a></div><p >The iterator returned from
+<span class='texttt'>a.insert(p, t)</span>
+points to the copy of
+<span class='texttt'>t</span>
+inserted into
+<span class='texttt'>a</span>.</p></div><div class='para' id='sequence.reqmts-7'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-7'>7</a></div><p >The iterator returned from <span class='texttt'>a.insert(p, rv)</span> points to the copy of <span class='texttt'>rv</span>
+inserted into <span class='texttt'>a</span>.</p></div><div class='para' id='sequence.reqmts-8'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-8'>8</a></div><p >The iterator returned from <span class='texttt'>a.insert(p, n, t)</span> points to the copy of the first
+element inserted into <span class='texttt'>a</span>, or <span class='texttt'>p</span> if <span class='texttt'>n == 0</span>.</p></div><div class='para' id='sequence.reqmts-9'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-9'>9</a></div><p >The iterator returned from <span class='texttt'>a.insert(p, i, j)</span> points to the copy of the first
+element inserted into <span class='texttt'>a</span>, or <span class='texttt'>p</span> if <span class='texttt'>i == j</span>.</p></div><div class='para' id='sequence.reqmts-10'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-10'>10</a></div><p >The iterator returned from <span class='texttt'>a.insert(p, il)</span> points to the copy of the first
+element inserted into <span class='texttt'>a</span>, or <span class='texttt'>p</span> if <span class='texttt'>il</span> is empty.</p></div><div class='para' id='sequence.reqmts-11'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-11'>11</a></div><p >The iterator returned from <span class='texttt'>a.emplace(p, args)</span> points to the new element
+constructed from <span class='texttt'>args</span> into <span class='texttt'>a</span>.</p></div><div class='para' id='sequence.reqmts-12'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-12'>12</a></div><p >The iterator returned from
+<span class='texttt'>a.erase(q)</span>
+points to the element immediately following
+<span class='texttt'>q</span>
+prior to the element being erased.
+If no such element exists,
+<span class='texttt'>a.end()</span>
+is returned.</p></div><div class='para' id='sequence.reqmts-13'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-13'>13</a></div><p >The iterator returned by
+<span class='texttt'>a.erase(q1,q2)</span>
+points to the element pointed to by
+<span class='texttt'>q2</span>
+prior to any elements being erased.
+If no such element exists,
+<span class='texttt'>a.end()</span>
+is returned.</p></div><div class='para' id='sequence.reqmts-14'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-14'>14</a></div><p >For every sequence container defined in this Clause and in Clause <a href='strings'>[strings]</a>:</p><ul ><li ><p >If the constructor</p><pre class='codeblock'>
+template &lt;class InputIterator&gt;
+X(InputIterator first, InputIterator last,
+  const allocator_type&amp; alloc = allocator_type())
+</pre><p >is called with a type <span class='texttt'>InputIterator</span> that does not qualify as an input
+iterator, then the constructor
+shall not participate in overload resolution.</p></li><li ><p >If the member functions of the forms:</p><pre class='codeblock'>
+template &lt;class InputIterator&gt;          <span class='comment'>// such as insert()
+</span>  rt fx1(const_iterator p, InputIterator first, InputIterator last);
+
+template &lt;class InputIterator&gt;          <span class='comment'>// such as append(), assign()
+</span>  rt fx2(InputIterator first, InputIterator last);
+
+template &lt;class InputIterator&gt;          <span class='comment'>// such as replace()
+</span>  rt fx3(const_iterator i1, const_iterator i2, InputIterator first, InputIterator last);
+</pre><p >are called with a type <span class='texttt'>InputIterator</span> that does not qualify as an input
+iterator, then these functions
+shall not participate in overload resolution.
+</p></li></ul></div><div class='para' id='sequence.reqmts-15'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-15'>15</a></div><p >The extent to which an implementation determines that a type cannot be an input
+iterator is unspecified, except that as a minimum integral types shall not qualify
+as input iterators.</p></div><div class='para' id='sequence.reqmts-16'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-16'>16</a></div><p >Table <a href='#tab:containers.sequence.optional'>[tab:containers.sequence.optional]</a> lists operations
+that are provided for some types of
+sequence containers but not others.
+An implementation shall provide
+these operations for all container types shown in the “container”
+column, and shall implement them so as to take amortized constant
+time.</p><div class='numberedTable' id='tab:containers.sequence.optional'>Table <a href='#tab:containers.sequence.optional'>82</a> — Optional sequence container operations<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Operational semantics</b></td><td colspan='1' class='center'><b>Container</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='endhead'></span><span class='texttt'>a.front()</span>       </td><td class='left'>
+ <span class='texttt'>reference; const_reference</span> for constant <span class='texttt'>a</span>    </td><td class='left'>
+ <span class='texttt'>*a.begin()</span>     </td><td class='left'>
+ <span class='texttt'>basic_string</span>,
+ <span class='texttt'>array</span>,
+ <span class='texttt'>deque</span>,
+ <span class='texttt'>forward_list</span>,
+ <span class='texttt'>list</span>,
+ <span class='texttt'>vector</span>
+ </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.back()</span>        </td><td class='left'>
+ <span class='texttt'>reference; const_reference</span> for constant <span class='texttt'>a</span>    </td><td class='left'>
+ <span class='texttt'>{ auto tmp = a.end();</span><span class='hfill'></span><br/>
+ <span class='texttt'>    -- tmp;</span><span class='hfill'></span><br/>
+ <span class='texttt'>    return *tmp; }</span>    </td><td class='left'>
+ <span class='texttt'>basic_string</span>,
+ <span class='texttt'>array</span>,
+ <span class='texttt'>deque</span>,
+ <span class='texttt'>list</span>,
+ <span class='texttt'>vector</span>
+ </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.emplace_-</span> <span class='texttt'>front(args)</span>      </td><td class='left'>
+ <span class='texttt'>reference</span>                </td><td class='left'>
+ Prepends an object of type <span class='texttt'>T</span> constructed with <span class='texttt'>std::forward&lt;Args&gt;(args)...</span>.<span class='hfill'></span><br/>
+ <i>Requires:</i> <span class='texttt'>T</span> shall be <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>args</span>.<span class='hfill'></span><br/>
+ <i>Returns:</i> <span class='texttt'>a.front()</span>.  </td><td class='left'>
+ <span class='texttt'>deque</span>,
+ <span class='texttt'>forward_list</span>,
+ <span class='texttt'>list</span>
+ </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.emplace_-</span> <span class='texttt'>back(args)</span>      </td><td class='left'>
+ <span class='texttt'>reference</span>                </td><td class='left'>
+ Appends an object of type <span class='texttt'>T</span> constructed with <span class='texttt'>std::forward&lt;Args&gt;(args)...</span>.<span class='hfill'></span><br/>
+ <i>Requires:</i> <span class='texttt'>T</span> shall be <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>args</span>. For <span class='texttt'>vector</span>, <span class='texttt'>T</span>
+ shall also be
+ <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>.<span class='hfill'></span><br/>
+ <i>Returns:</i> <span class='texttt'>a.back()</span>.  </td><td class='left'>
+ <span class='texttt'>deque</span>,
+ <span class='texttt'>list</span>,
+ <span class='texttt'>vector</span>
+ </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.push_front(t)</span> </td><td class='left'>
+  <span class='texttt'>void</span>          </td><td class='left'>
+  Prepends a copy of <span class='texttt'>t</span>.<span class='hfill'></span><br/>
+  <i>Requires:</i> <span class='texttt'>T</span> shall be
+  <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>.
+    </td><td class='left'>
+  <span class='texttt'>deque</span>,
+  <span class='texttt'>forward_list</span>,
+  <span class='texttt'>list</span>
+  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.push_front(rv)</span> </td><td class='left'>
+  <span class='texttt'>void</span>          </td><td class='left'>
+  Prepends a copy of <span class='texttt'>rv</span>.<span class='hfill'></span><br/>
+  <i>Requires:</i> <span class='texttt'>T</span> shall be
+  <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>.
+    </td><td class='left'>
+  <span class='texttt'>deque</span>,
+  <span class='texttt'>forward_list</span>,
+  <span class='texttt'>list</span>
+  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.push_back(t)</span> </td><td class='left'>
+  <span class='texttt'>void</span>          </td><td class='left'>
+  Appends a copy of <span class='texttt'>t</span>.<span class='hfill'></span><br/>
+  <i>Requires:</i> <span class='texttt'>T</span> shall be
+  <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>.
+    </td><td class='left'>
+  <span class='texttt'>basic_string</span>,
+  <span class='texttt'>deque</span>,
+  <span class='texttt'>list</span>,
+  <span class='texttt'>vector</span>
+  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.push_back(rv)</span> </td><td class='left'>
+  <span class='texttt'>void</span>          </td><td class='left'>
+  Appends a copy of <span class='texttt'>rv</span>.<span class='hfill'></span><br/>
+  <i>Requires:</i> <span class='texttt'>T</span> shall be
+  <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>.
+    </td><td class='left'>
+  <span class='texttt'>basic_string</span>,
+  <span class='texttt'>deque</span>,
+  <span class='texttt'>list</span>,
+  <span class='texttt'>vector</span>
+  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.pop_front()</span>      </td><td class='left'>
+ <span class='texttt'>void</span>               </td><td class='left'>
+ Destroys the first element.<span class='hfill'></span><br/>
+ <i>Requires:</i> <span class='texttt'>a.empty()</span> shall be <span class='texttt'>false</span>. </td><td class='left'>
+ <span class='texttt'>deque</span>,
+ <span class='texttt'>forward_list</span>,
+ <span class='texttt'>list</span>
+ </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.pop_back()</span>       </td><td class='left'>
+ <span class='texttt'>void</span>               </td><td class='left'>
+ Destroys the last element.<span class='hfill'></span><br/>
+ <i>Requires:</i> <span class='texttt'>a.empty()</span> shall be <span class='texttt'>false</span>. </td><td class='left'>
+ <span class='texttt'>basic_string</span>,
+ <span class='texttt'>deque</span>,
+ <span class='texttt'>list</span>,
+ <span class='texttt'>vector</span>
+ </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a[n]</span>                </td><td class='left'>
+ <span class='texttt'>reference; const_reference</span> for constant <span class='texttt'>a</span>    </td><td class='left'>
+ <span class='texttt'>*(a.begin() + n)</span>   </td><td class='left'>
+ <span class='texttt'>basic_string</span>,
+ <span class='texttt'>array</span>,
+ <span class='texttt'>deque</span>,
+ <span class='texttt'>vector</span>
+ </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.at(n)</span>             </td><td class='left'>
+ <span class='texttt'>reference; const_reference</span> for constant <span class='texttt'>a</span>    </td><td class='left'>
+ <span class='texttt'>*(a.begin() + n)</span>   </td><td class='left'>
+ <span class='texttt'>basic_string</span>,
+ <span class='texttt'>array</span>,
+ <span class='texttt'>deque</span>,
+ <span class='texttt'>vector</span>
+ </td></tr></table></div></div><div class='para' id='sequence.reqmts-17'><div class='marginalizedparent'><a class='marginalized' href='#sequence.reqmts-17'>17</a></div><p >The member function
+<span class='texttt'>at()</span>
+provides bounds-checked access to container elements.
+<span class='texttt'>at()</span>
+throws
+<span class='texttt'>out_of_range</span>
+if
+<span class='texttt'>n &gt;= a.size()</span>.</p></div></div><div id='associative.reqmts'><h3 ><a class='secnum' href='#associative.reqmts' style='min-width:103pt'>23.2.4</a> Associative containers <a class='abbr_ref' href='associative.reqmts'>[associative.reqmts]</a></h3><div class='para' id='associative.reqmts-1'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-1'>1</a></div><p >Associative containers provide fast retrieval of data based on keys.
+The library provides four basic kinds of associative containers:
+<span class='texttt'>set</span>,
+<span class='texttt'>multiset</span>,
+<span class='texttt'>map</span>
+and
+<span class='texttt'>multimap</span>.</p></div><div class='para' id='associative.reqmts-2'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-2'>2</a></div><p >Each associative container is parameterized on
+<span class='texttt'>Key</span>
+and an ordering relation
+<span class='texttt'>Compare</span>
+that induces a strict weak ordering (<a href='alg.sorting'>[alg.sorting]</a>) on
+elements of
+<span class='texttt'>Key</span>.
+In addition,
+<span class='texttt'>map</span>
+and
+<span class='texttt'>multimap</span>
+associate an arbitrary <i>mapped type</i>
+<span class='texttt'>T</span>
+with the
+<span class='texttt'>Key</span>.
+The object of type
+<span class='texttt'>Compare</span>
+is called the
+<i>comparison object</i>
+of a container.</p></div><div class='para' id='associative.reqmts-3'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-3'>3</a></div><p >The phrase “equivalence of keys” means the equivalence relation imposed by the
+comparison and
+<i>not</i>
+the
+<span class='texttt'>operator==</span>
+on keys.
+That is, two keys
+<span class='texttt'>k1</span>
+and
+<span class='texttt'>k2</span>
+are considered to be equivalent if for the
+comparison object
+<span class='texttt'>comp</span>,
+<span class='texttt'>comp(k1, k2) == false &amp;&amp; comp(k2, k1) == false</span>.
+For any two keys
+<span class='texttt'>k1</span>
+and
+<span class='texttt'>k2</span>
+in the same container, calling
+<span class='texttt'>comp(k1, k2)</span>
+shall always return the same value.</p></div><div class='para' id='associative.reqmts-4'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-4'>4</a></div><p >An associative container supports <i>unique keys</i> if it may contain at
+most one element for each key. Otherwise, it supports <i>equivalent keys</i>.
+The <span class='texttt'>set</span> and <span class='texttt'>map</span> classes support unique keys; the <span class='texttt'>multiset</span>
+and <span class='texttt'>multimap</span> classes support equivalent keys.
+For <span class='texttt'>multiset</span> and <span class='texttt'>multimap</span>,
+<span class='texttt'>insert</span>, <span class='texttt'>emplace</span>, and <span class='texttt'>erase</span> preserve the relative ordering
+of equivalent elements.</p></div><div class='para' id='associative.reqmts-5'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-5'>5</a></div><p >For <span class='texttt'>set</span> and <span class='texttt'>multiset</span> the value type is the same as the key type.
+For <span class='texttt'>map</span> and <span class='texttt'>multimap</span> it is equal to <span class='texttt'>pair&lt;const Key, T&gt;</span>.</p></div><div class='para' id='associative.reqmts-6'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-6'>6</a></div><p ><span class='texttt'>iterator</span>
+of an associative container is of the bidirectional iterator category.
+For associative containers where the value type is the same as the key type, both
+<span class='texttt'>iterator</span>
+and
+<span class='texttt'>const_iterator</span>
+are constant iterators. It is unspecified whether or not
+<span class='texttt'>iterator</span>
+and
+<span class='texttt'>const_iterator</span>
+are the same type.
+[&nbsp;<i>Note:</i><span class='space'></span> <span class='texttt'>iterator</span> and <span class='texttt'>const_iterator</span> have identical semantics in this case, and <span class='texttt'>iterator</span> is convertible to <span class='texttt'>const_iterator</span>. Users can avoid violating the one-definition rule by always using <span class='texttt'>const_iterator</span> in their function parameter lists. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='associative.reqmts-7'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-7'>7</a></div><p >The associative containers meet all the requirements of Allocator-aware
+containers (<a href='container.requirements.general'>[container.requirements.general]</a>), except that for
+<span class='texttt'>map</span> and <span class='texttt'>multimap</span>, the requirements placed on <span class='texttt'>value_type</span>
+in Table <a href='#tab:containers.container.requirements'>[tab:containers.container.requirements]</a> apply instead to <span class='texttt'>key_type</span>
+and <span class='texttt'>mapped_type</span>. [&nbsp;<i>Note:</i><span class='space'></span> For example, in some cases <span class='texttt'>key_type</span> and <span class='texttt'>mapped_type</span>
+are required to be <span class='texttt'>CopyAssignable</span> even though the associated
+<span class='texttt'>value_type</span>, <span class='texttt'>pair&lt;const key_type, mapped_type&gt;</span>, is not
+<span class='texttt'>CopyAssignable</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='associative.reqmts-8'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-8'>8</a></div><p >In Table <a href='#tab:containers.associative.requirements'>[tab:containers.associative.requirements]</a>,
+<span class='texttt'>X</span> denotes an associative container class,
+<span class='texttt'>a</span> denotes a value of type <span class='texttt'>X</span>,
+<span class='texttt'>a2</span> denotes a value of a type with nodes compatible with type
+<span class='texttt'>X</span> (Table <a href='container.node.overview#tab:containers.node.compat'>[tab:containers.node.compat]</a>),
+<span class='texttt'>b</span> denotes a possibly <span class='texttt'>const</span> value of type <span class='texttt'>X</span>,
+<span class='texttt'>u</span> denotes the name of a variable being declared,
+<span class='texttt'>a_uniq</span> denotes a value of type <span class='texttt'>X</span>
+when <span class='texttt'>X</span> supports unique keys,
+<span class='texttt'>a_eq</span> denotes a value of type <span class='texttt'>X</span>
+when <span class='texttt'>X</span> supports multiple keys,
+<span class='texttt'>a_tran</span> denotes a possibly <span class='texttt'>const</span> value of type <span class='texttt'>X</span>
+when the <i ><a href='expr.prim.id.qual#qualified-id'>qualified-id</a></i>
+<span class='texttt'>X::key_compare::is_transparent</span> is valid
+and denotes a type (<a href='temp.deduct'>[temp.deduct]</a>),
+<span class='texttt'>i</span> and <span class='texttt'>j</span>
+satisfy input iterator requirements and refer to elements
+implicitly convertible to
+<span class='texttt'>value_type</span>, <span class='texttt'>[i, <span class='discretionary'></span>j)</span>
+denotes a valid range,
+<span class='texttt'>p</span> denotes a valid const iterator to <span class='texttt'>a</span>,
+<span class='texttt'>q</span> denotes a valid dereferenceable const iterator to <span class='texttt'>a</span>,
+<span class='texttt'>r</span> denotes a valid dereferenceable iterator to <span class='texttt'>a</span>,
+<span class='texttt'>[q1, q2)</span> denotes a valid range of const iterators in <span class='texttt'>a</span>,
+<span class='texttt'>il</span> designates an object of type <span class='texttt'>initializer_list&lt;value_type&gt;</span>,
+<span class='texttt'>t</span> denotes a value of type <span class='texttt'>X::value_type</span>,
+<span class='texttt'>k</span> denotes a value of type <span class='texttt'>X::key_type</span>
+and <span class='texttt'>c</span> denotes a possibly <span class='texttt'>const</span> value of type <span class='texttt'>X::key_compare</span>;
+<span class='texttt'>kl</span> is a value such that <span class='texttt'>a</span> is partitioned (<a href='alg.sorting'>[alg.sorting]</a>)
+with respect to <span class='texttt'>c(r, kl)</span>, with <span class='texttt'>r</span> the key value of <span class='texttt'>e</span>
+and <span class='texttt'>e</span> in <span class='texttt'>a</span>;
+<span class='texttt'>ku</span> is a value such that <span class='texttt'>a</span> is partitioned with respect to
+<span class='texttt'>!c(ku, r)</span>;
+<span class='texttt'>ke</span> is a value such that <span class='texttt'>a</span> is partitioned with respect to
+<span class='texttt'>c(r, ke)</span> and <span class='texttt'>!c(ke, r)</span>, with <span class='texttt'>c(r, ke)</span> implying
+<span class='texttt'>!c(ke, r)</span>.
+<span class='texttt'>A</span> denotes the storage allocator used by <span class='texttt'>X</span>, if any, or <span class='texttt'>std::allocator&lt;X::value_type&gt;</span> otherwise,
+<span class='texttt'>m</span> denotes an allocator of a type convertible to <span class='texttt'>A</span>,
+and <span class='texttt'>nh</span> denotes a non-const rvalue of type <span class='texttt'>X::node_type</span>.</p><div class='numberedTable' id='tab:containers.associative.requirements'>Table <a href='#tab:containers.associative.requirements'>83</a> — Associative container requirements (in addition to container)<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Assertion/note</b></td><td colspan='1' class='center'><b>Complexity</b></td></tr><tr ><td class='left'>
+                        </td><td class='left'>                       </td><td colspan='1' class='center'><b>pre-/post-condition</b></td><td class='left'>                       </td></tr><tr class='capsep'><td class='left'> 
+<span class='endhead'></span><span class='texttt'>X::key_type</span>     </td><td class='left'>
+ <span class='texttt'>Key</span>            </td><td class='left'>
+                        </td><td class='left'>
+  compile time </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>mapped_type</span> (<span class='texttt'>map</span> and <span class='texttt'>multimap</span> only) </td><td class='left'>
+  <span class='texttt'>T</span>             </td><td class='left'>
+                        </td><td class='left'>
+  compile time          </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::value_type</span> (<span class='texttt'>set</span> and <span class='texttt'>multiset</span> only) </td><td class='left'>
+ <span class='texttt'>Key</span>            </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>value_type</span> is <span class='texttt'>Erasable</span> from <span class='texttt'>X</span> </td><td class='left'>
+  compile time </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::value_type</span> (<span class='texttt'>map</span> and <span class='texttt'>multimap</span> only) </td><td class='left'>
+ <span class='texttt'>pair&lt;const Key, T&gt;</span>            </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>value_type</span> is <span class='texttt'>Erasable</span> from <span class='texttt'>X</span> </td><td class='left'>
+  compile time </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::key_compare</span>  </td><td class='left'>
+  <span class='texttt'>Compare</span>       </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>key_compare</span> is <span class='texttt'>CopyConstructible</span>. </td><td class='left'>
+  compile time   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::value_compare</span>           </td><td class='left'>
+ a binary predicate type           </td><td class='left'>
+ is the same as <span class='texttt'>key_compare</span> for <span class='texttt'>set</span> and
+ <span class='texttt'>multiset</span>; is an ordering relation on pairs induced by the
+ first component (i.e., <span class='texttt'>Key</span>) for <span class='texttt'>map</span> and <span class='texttt'>multimap</span>. </td><td class='left'>
+ compile time                       </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::node_type</span> </td><td class='left'>
+ a specialization of a <span class='texttt'><i>node_handle</i></span>
+ class template, such that the public nested types are
+ the same types as the corresponding types in <span class='texttt'>X</span>. </td><td class='left'>
+ see <a href='container.node'>[container.node]</a> </td><td class='left'>
+ compile time </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::insert_return_type</span> </td><td class='left'>
+ a class type used to describe the results of inserting a
+ <span class='texttt'>node_type</span> that includes at least the following non-static
+ public data members:<span class='hfill'></span><br/>
+   <span class='texttt'>bool inserted;</span><span class='hfill'></span><br/>
+   <span class='texttt'>X::iterator position;</span><span class='hfill'></span><br/>
+   <span class='texttt'>X::node_type node;</span><span class='hfill'></span><br/>
+ The type shall be <span class='texttt'>MoveConstructible</span>, <span class='texttt'>MoveAssignable</span>,
+ <span class='texttt'>DefaultConstructible</span>, <span class='texttt'>Destructible</span>, and
+ lvalues of that type shall be swappable (<a href='swappable.requirements'>[swappable.requirements]</a>).  </td><td class='left'>
+ </td><td class='left'>
+ compile time </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X(c)</span><span class='hfill'></span><br/>
+<span class='texttt'>X u(c);</span>                         </td><td class='left'>
+                                        </td><td class='left'>
+  <i>Effects:</i> Constructs an empty container.
+  Uses a copy of <span class='texttt'>c</span> as a comparison object.  </td><td class='left'>
+ constant                               </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X()</span><span class='hfill'></span><br/><span class='texttt'>X u;</span>                      </td><td class='left'>
+                                                </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>key_compare</span> is <span class='texttt'>DefaultConstructible</span>.<span class='hfill'></span><br/>
+  <i>Effects:</i> Constructs an empty container.
+  Uses <span class='texttt'>Compare()</span> as a comparison object  </td><td class='left'>
+  constant                                       </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X(i,j,c)</span><span class='hfill'></span><br/>
+<span class='texttt'>X u(i,j,c);</span>     </td><td class='left'>
+                        </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>value_type</span> is <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>*i</span>.<span class='hfill'></span><br/>
+  <i>Effects:</i> Constructs an empty container and inserts elements from the
+  range <span class='texttt'>[i, j)</span> into it; uses <span class='texttt'>c</span> as a comparison object. </td><td class='left'>
+  <span class='math'><span class='mathalpha'>N</span> <span class="mathrm">log</span> <span class='mathalpha'>N</span></span> in general (<span class='math'><span class='mathalpha'>N</span></span> has the value <span class='texttt'>distance(i, j)</span>);
+  linear if <span class='texttt'>[i, j)</span> is sorted with <span class='texttt'>value_comp()</span> </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X(i,j)</span><span class='hfill'></span><br/><span class='texttt'>X u(i,j);</span>    </td><td class='left'>
+                                    </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>key_compare</span> is <span class='texttt'>DefaultConstructible</span>.
+  <span class='texttt'>value_type</span> is <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>*i</span>.<span class='hfill'></span><br/>
+  <i>Effects:</i> Same as above, but uses <span class='texttt'>Compare()</span> as a comparison object.  </td><td class='left'>
+  same as above                      </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X(il);</span>            </td><td class='left'>
+                          </td><td class='left'>
+  Same as <span class='texttt'>X(il.begin(), il.end())</span>.  </td><td class='left'>
+  Same as <span class='texttt'>X(il.begin(), il.end())</span>.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X(il,c);</span>          </td><td class='left'>
+                          </td><td class='left'>
+  Same as <span class='texttt'>X(il.begin(), il.end(), c)</span>.  </td><td class='left'>
+  Same as <span class='texttt'>X(il.begin(), il.end(), c)</span>.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a = il</span>     </td><td class='left'>
+  <span class='texttt'>X&amp;</span>               </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>value_type</span> is
+  <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>
+  and <span class='texttt'>CopyAssignable</span>.<span class='hfill'></span><br/>
+  <i>Effects:</i> Assigns the range <span class='texttt'>[il.begin(), <span class='discretionary'></span>il.end())</span> into <span class='texttt'>a</span>. All
+  existing elements of <span class='texttt'>a</span> are either assigned to or destroyed. </td><td class='left'>
+  <span class='math'><span class='mathalpha'>N</span> <span class="mathrm">log</span> <span class='mathalpha'>N</span></span> in general (where <span class='math'><span class='mathalpha'>N</span></span> has the value <span class='texttt'>il.size() + a.size()</span>);
+  linear if <span class='texttt'>[il.begin(), <span class='discretionary'></span>il.end())</span> is sorted with <span class='texttt'>value_comp()</span>.
+  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>b.key_comp()</span>       </td><td class='left'>
+ <span class='texttt'>X::key_compare</span>    </td><td class='left'>
+ returns the comparison object out of which <span class='texttt'>b</span> was constructed. </td><td class='left'>
+ constant                   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>b.value_comp()</span>     </td><td class='left'>
+ <span class='texttt'>X::value_compare</span>  </td><td class='left'>
+ returns an object of <span class='texttt'>value_compare</span> constructed out of the comparison object </td><td class='left'>
+ constant                   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a_uniq.</span> <span class='texttt'>emplace(args)</span> </td><td class='left'>
+ <span class='texttt'>pair&lt;iterator,</span> <span class='texttt'>bool&gt;</span> </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>value_type</span> shall be <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>args</span>.<span class='hfill'></span><br/>
+  <i>Effects:</i> Inserts a <span class='texttt'>value_type</span> object <span class='texttt'>t</span> constructed with
+  <span class='texttt'>std::forward&lt;Args&gt;(args)...</span> if and only if there is no
+  element in the container with key equivalent to the key of <span class='texttt'>t</span>.
+  The <span class='texttt'>bool</span> component of the returned
+  pair is true if and only if the insertion takes place, and the iterator
+  component of the pair points to the element with key equivalent to the
+  key of <span class='texttt'>t</span>.  </td><td class='left'>
+  logarithmic </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a_eq.</span> <span class='texttt'>emplace(args)</span>  </td><td class='left'>
+ <span class='texttt'>iterator</span>    </td><td class='left'>
+ <i>Requires:</i> <span class='texttt'>value_type</span> shall be <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>args</span>.<span class='hfill'></span><br/>
+ <i>Effects:</i> Inserts a <span class='texttt'>value_type</span> object <span class='texttt'>t</span> constructed with
+ <span class='texttt'>std::forward&lt;Args&gt;(args)...</span> and returns the iterator pointing
+ to the newly inserted element.
+ If a range containing elements equivalent to <span class='texttt'>t</span> exists in <span class='texttt'>a_eq</span>,
+ <span class='texttt'>t</span> is inserted at the end of that range. </td><td class='left'>
+ logarithmic    </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.emplace_hint(p, args)</span>  </td><td class='left'>
+ <span class='texttt'>iterator</span>    </td><td class='left'>
+ equivalent to <span class='texttt'>a.emplace(</span> <span class='texttt'>std::forward&lt;Args&gt;(args)...)</span>.
+ Return value is an iterator pointing to the element with the key equivalent
+ to the newly inserted element.
+ The element is inserted as close as possible to the position just prior
+ to <span class='texttt'>p</span>.  </td><td class='left'>
+ logarithmic in general, but amortized constant if the element
+ is inserted right before <span class='texttt'>p</span>    </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a_uniq.</span> <span class='texttt'>insert(t)</span>      </td><td class='left'>
+  <span class='texttt'>pair&lt;iterator, bool&gt;</span>   </td><td class='left'>
+  <i>Requires:</i> If <span class='texttt'>t</span> is a non-const rvalue expression, <span class='texttt'>value_type</span> shall be
+  <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>; otherwise, <span class='texttt'>value_type</span> shall be
+  <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>.<span class='hfill'></span><br/>
+  <i>Effects:</i> Inserts <span class='texttt'>t</span> if and only if there is no element in the container
+  with key equivalent to the key of <span class='texttt'>t</span>. The <span class='texttt'>bool</span> component of
+  the returned pair is true if and only if the insertion
+  takes place, and the <span class='texttt'>iterator</span>
+  component of the pair points to the element with key
+  equivalent to the key of <span class='texttt'>t</span>.    </td><td class='left'>
+  logarithmic                    </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a_eq.insert(t)</span>        </td><td class='left'>
+  <span class='texttt'>iterator</span>               </td><td class='left'>
+  <i>Requires:</i> If <span class='texttt'>t</span> is a non-const rvalue expression, <span class='texttt'>value_type</span> shall be
+  <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>; otherwise, <span class='texttt'>value_type</span> shall be
+  <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>.<span class='hfill'></span><br/>
+  <i>Effects:</i> Inserts <span class='texttt'>t</span> and returns the iterator pointing
+  to the newly inserted element.
+  If a range containing elements equivalent to
+  <span class='texttt'>t</span> exists in <span class='texttt'>a_eq</span>, <span class='texttt'>t</span>
+  is inserted at the end of that range. </td><td class='left'>
+  logarithmic                    </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.insert(</span><span class='hfill'></span><br/>
+  <span class='texttt'>p, t)</span>                         </td><td class='left'>
+  <span class='texttt'>iterator</span>               </td><td class='left'>
+  <i>Requires:</i> If <span class='texttt'>t</span> is a non-const rvalue expression, <span class='texttt'>value_type</span> shall be
+  <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>; otherwise, <span class='texttt'>value_type</span> shall be
+  <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>.<span class='hfill'></span><br/>
+  <i>Effects:</i> Inserts <span class='texttt'>t</span> if and only if there is no element with key
+  equivalent to the key of <span class='texttt'>t</span> in containers with unique keys;
+  always inserts <span class='texttt'>t</span> in containers with equivalent keys. Always
+  returns the iterator pointing to the element with key equivalent to
+  the key of <span class='texttt'>t</span>. <span class='texttt'>t</span> is inserted as close as possible to the position
+  just prior to <span class='texttt'>p</span>.</td><td class='left'>
+  logarithmic in general, but amortized constant if <span class='texttt'>t</span>
+  is inserted right before <span class='texttt'>p</span>. </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.insert(</span><span class='hfill'></span><br/>
+  <span class='texttt'>i, j)</span>          </td><td class='left'>
+  <span class='texttt'>void</span>                   </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>value_type</span> shall be <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>*i</span>.<span class='hfill'></span><br/>
+  pre: <span class='texttt'>i</span>, <span class='texttt'>j</span> are not iterators into <span class='texttt'>a</span>.
+  inserts each element from the range <span class='texttt'>[i, <span class='discretionary'></span>j)</span> if and only if there
+  is no element with key equivalent to the key of that element in containers
+  with unique keys; always inserts that element in containers with equivalent keys.  </td><td class='left'>
+  <span class='math'><span class='mathalpha'>N</span><span class="mathrm">log</span> (<span class='texttt'>a.size()</span> + <span class='mathalpha'>N</span>)</span> (<span class='math'><span class='mathalpha'>N</span></span> has the value <span class='texttt'>distance(i, j)</span>) </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.insert(il)</span>           </td><td class='left'>
+  <span class='texttt'>void</span>                  </td><td class='left'>
+  Equivalent to <span class='texttt'>a.insert(il.begin(), il.end())</span>. </td><td class='left'>
+                                          </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a_uniq.</span><span class='hfill'></span><br/>
+ <span class='texttt'>insert(nh)</span>           </td><td class='left'>
+ <span class='texttt'>insert_return_type</span>   </td><td class='left'>
+ pre: <span class='texttt'>nh</span> is empty or
+ <span class='texttt'>a_uniq.get_allocator() == nh.get_allocator()</span>.<span class='hfill'></span><br/>
+ <i>Effects:</i> If <span class='texttt'>nh</span> is empty, has no effect. Otherwise, inserts the
+ element owned by <span class='texttt'>nh</span> if and only if there is no element in the
+ container with a key equivalent to <span class='texttt'>nh.key()</span>.<span class='hfill'></span><br/>
+ post: If <span class='texttt'>nh</span> is empty, <span class='texttt'>inserted</span> is <span class='texttt'>false</span>,
+ <span class='texttt'>position</span> is <span class='texttt'>end()</span>, and <span class='texttt'>node</span> is empty.
+ Otherwise if the insertion took place, <span class='texttt'>inserted</span> is <span class='texttt'>true</span>,
+ <span class='texttt'>position</span> points to the inserted element, and <span class='texttt'>node</span> is empty;
+ if the insertion failed, <span class='texttt'>inserted</span> is <span class='texttt'>false</span>,
+ <span class='texttt'>node</span> has the previous value of <span class='texttt'>nh</span>, and <span class='texttt'>position</span>
+ points to an element with a key equivalent to <span class='texttt'>nh.key()</span>. </td><td class='left'>
+ logarithmic                             </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a_eq.</span><span class='hfill'></span><br/>
+ <span class='texttt'>insert(nh)</span>           </td><td class='left'>
+ <span class='texttt'>iterator</span>   </td><td class='left'>
+ pre: <span class='texttt'>nh</span> is empty or
+ <span class='texttt'>a_eq.get_allocator() == nh.get_allocator()</span>.<span class='hfill'></span><br/>
+ <i>Effects:</i> If <span class='texttt'>nh</span> is empty, has no effect and returns <span class='texttt'>a_eq.end()</span>.
+ Otherwise, inserts the element owned by <span class='texttt'>nh</span> and returns an iterator
+ pointing to the newly inserted element. If a range containing elements with
+ keys equivalent to <span class='texttt'>nh.key()</span> exists in <span class='texttt'>a_eq</span>, the element is
+ inserted at the end of that range.<span class='hfill'></span><br/>
+ post: <span class='texttt'>nh</span> is empty. </td><td class='left'>
+ logarithmic                             </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.insert(p, nh)</span>           </td><td class='left'>
+ <span class='texttt'>iterator</span>   </td><td class='left'>
+ pre: <span class='texttt'>nh</span> is empty or
+ <span class='texttt'>a.get_allocator() == nh.get_allocator()</span>.<span class='hfill'></span><br/>
+ <i>Effects:</i> If <span class='texttt'>nh</span> is empty, has no effect and returns <span class='texttt'>a.end()</span>.
+ Otherwise, inserts the element owned by <span class='texttt'>nh</span> if and only if there
+ is no element with key equivalent to <span class='texttt'>nh.key()</span> in containers with
+ unique keys; always inserts the element owned by <span class='texttt'>nh</span> in containers
+ with equivalent keys. Always returns the iterator pointing to the element
+ with key equivalent to <span class='texttt'>nh.key()</span>. The element is inserted as close
+ as possible to the position just prior to <span class='texttt'>p</span>.<span class='hfill'></span><br/>
+ post: <span class='texttt'>nh</span> is empty if insertion succeeds, unchanged if insertion fails.  </td><td class='left'>
+ logarithmic in general, but amortized constant if the element is inserted right
+ before <span class='texttt'>p</span>.                             </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.extract(k)</span>              </td><td class='left'>
+ <span class='texttt'>node_type</span>             </td><td class='left'>
+ Removes the first element in the container with key equivalent to <span class='texttt'>k</span>.
+ Returns a <span class='texttt'>node_type</span> owning the element if found, otherwise an empty
+ <span class='texttt'>node_type</span>. </td><td class='left'>
+ <span class='math'><span class="mathrm">log</span> (<span class='texttt'>a.size()</span>)</span>       </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.extract(q)</span>              </td><td class='left'>
+ <span class='texttt'>node_type</span>             </td><td class='left'>
+ Removes the element pointed to by to <span class='texttt'>q</span>.
+ Returns a <span class='texttt'>node_type</span> owning that element. </td><td class='left'>
+ amortized constant       </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.merge(a2)</span>              </td><td class='left'>
+ <span class='texttt'>void</span>             </td><td class='left'>
+ pre: <span class='texttt'>a_eq.get_allocator() == nh.get_allocator()</span>.<span class='hfill'></span><br/>
+ Attempts to extract each element in <span class='texttt'>a2</span> and insert it into <span class='texttt'>a</span>
+ using the comparison object of <span class='texttt'>a</span>. In containers with unique keys,
+ if there is an element in <span class='texttt'>a</span> with key equivalent to the key of an
+ element from <span class='texttt'>a2</span>, then that element is not extracted from <span class='texttt'>a2</span>.<span class='hfill'></span><br/>
+ post: Pointers and references to the transferred elements of <span class='texttt'>a2</span>
+ refer to those same elements but as members of <span class='texttt'>a</span>. Iterators referring
+ to the transferred elements will continue to refer to their elements, but
+ they now behave as iterators into <span class='texttt'>a</span>, not into <span class='texttt'>a2</span>.<span class='hfill'></span><br/>
+ <i>Throws:</i> Nothing unless the comparison object throws.  </td><td class='left'>
+ <span class='math'><span class='mathalpha'>N</span> <span class="mathrm">log</span>(<span class='texttt'>a.size()+</span> <span class='mathalpha'>N</span>)</span> where <span class='math'><span class='mathalpha'>N</span></span> has the value <span class='texttt'>a2.size()</span>.    </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.erase(k)</span>              </td><td class='left'>
+ <span class='texttt'>size_type</span>             </td><td class='left'>
+ erases all elements in the container with key equivalent to
+ <span class='texttt'>k</span>. returns the number of erased elements.  </td><td class='left'>
+ <span class='math'><span class="mathrm">log</span> (<span class='texttt'>a.size()</span>) + <span class='texttt'>a.count(k)</span></span>       </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.erase(q)</span>              </td><td class='left'>
+ <span class='texttt'>iterator</span>               </td><td class='left'>
+ erases the element pointed to by <span class='texttt'>q</span>. Returns an iterator pointing to
+ the element immediately following <span class='texttt'>q</span> prior to the element being erased.
+ If no such element exists, returns <span class='texttt'>a.end()</span>.     </td><td class='left'>
+ amortized constant             </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.erase(r)</span>              </td><td class='left'>
+ <span class='texttt'>iterator</span>               </td><td class='left'>
+ erases the element pointed to by <span class='texttt'>r</span>. Returns an iterator pointing to
+ the element immediately following <span class='texttt'>r</span> prior to the element being erased.
+ If no such element exists, returns <span class='texttt'>a.end()</span>.     </td><td class='left'>
+ amortized constant             </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.erase(</span><span class='hfill'></span><br/>
+ <span class='texttt'>q1, q2)</span>  </td><td class='left'>
+ <span class='texttt'>iterator</span>        </td><td class='left'>
+ erases all the elements in the range <span class='texttt'>[q1, <span class='discretionary'></span>q2)</span>. Returns an iterator pointing to
+ the element pointed to by <span class='texttt'>q2</span> prior to any elements being erased. If no such element
+ exists, <span class='texttt'>a.end()</span> is returned.  </td><td class='left'>
+ <span class='math'><span class="mathrm">log</span>(<span class='texttt'>a.size()</span>) + <span class='mathalpha'>N</span></span> where <span class='math'><span class='mathalpha'>N</span></span> has the value <span class='texttt'>distance(q1, q2)</span>.    </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.clear()</span>       </td><td class='left'>
+ <span class='texttt'>void</span>           </td><td class='left'>
+ <span class='texttt'>a.erase(a.begin(),a.end())</span><span class='hfill'></span><br/>
+ post: <span class='texttt'>a.empty()</span> returns <span class='texttt'>true</span>  </td><td class='left'>
+ linear in <span class='texttt'>a.size()</span>.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>b.find(k)</span>       </td><td class='left'>
+ <span class='texttt'>iterator</span>; <span class='texttt'>const_iterator</span> for constant <span class='texttt'>b</span>.  </td><td class='left'>
+ returns an iterator pointing to an element with the key equivalent
+ to <span class='texttt'>k</span>, or <span class='texttt'>b.end()</span> if such an element is not found    </td><td class='left'>
+ logarithmic            </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a_tran.</span><span class='hfill'></span><br/>
+ <span class='texttt'>find(ke)</span>       </td><td class='left'>
+ <span class='texttt'>iterator</span>; <span class='texttt'>const_iterator</span> for constant <span class='texttt'>a_tran</span>.  </td><td class='left'>
+ returns an iterator pointing to an element with key <span class='texttt'>r</span> such that
+ <span class='texttt'>!c(r, ke) &amp;&amp; !c(ke, r)</span>, or <span class='texttt'>a_tran.end()</span> if such an element
+ is not found    </td><td class='left'>
+ logarithmic            </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>b.count(k)</span>        </td><td class='left'>
+ <span class='texttt'>size_type</span>        </td><td class='left'>
+ returns the number of elements with key equivalent to <span class='texttt'>k</span>    </td><td class='left'>
+ <span class='math'><span class="mathrm">log</span> (<span class='texttt'>b.size()</span>) + <span class='texttt'>b.count(k)</span></span>   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a_tran.</span><span class='hfill'></span><br/>
+ <span class='texttt'>count(ke)</span>        </td><td class='left'>
+ <span class='texttt'>size_type</span>        </td><td class='left'>
+ returns the number of elements with key <span class='texttt'>r</span> such that
+ <span class='texttt'>!c(r, ke) &amp;&amp; !c(ke, r)</span>    </td><td class='left'>
+ <span class='math'><span class="mathrm">log</span> (<span class='texttt'>a_tran.size()</span>) + <span class='texttt'>a_tran.count(ke)</span></span>   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>b.lower_bound(k)</span>   </td><td class='left'>
+ <span class='texttt'>iterator</span>; <span class='texttt'>const_iterator</span> for constant <span class='texttt'>b</span>.  </td><td class='left'>
+ returns an iterator pointing to the first element with
+ key not less than <span class='texttt'>k</span>,
+ or <span class='texttt'>b.end()</span> if such an element is not found.   </td><td class='left'>
+ logarithmic            </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a_tran.</span><span class='hfill'></span><br/>
+ <span class='texttt'>lower_bound(kl)</span>   </td><td class='left'>
+ <span class='texttt'>iterator</span>; <span class='texttt'>const_iterator</span> for constant <span class='texttt'>a_tran</span>.  </td><td class='left'>
+ returns an iterator pointing to the first element with
+ key <span class='texttt'>r</span> such that <span class='texttt'>!c(r, kl)</span>,
+ or <span class='texttt'>a_tran.end()</span> if such an element is not found.   </td><td class='left'>
+ logarithmic            </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>b.upper_bound(k)</span>       </td><td class='left'>
+ <span class='texttt'>iterator</span>; <span class='texttt'>const_iterator</span> for constant <span class='texttt'>b</span>.  </td><td class='left'>
+ returns an iterator pointing to the first element with
+ key greater than <span class='texttt'>k</span>,
+ or <span class='texttt'>b.end()</span> if such an element is not found.   </td><td class='left'>
+ logarithmic                    </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a_tran.</span><span class='hfill'></span><br/>
+ <span class='texttt'>upper_bound(ku)</span>       </td><td class='left'>
+ <span class='texttt'>iterator</span>; <span class='texttt'>const_iterator</span> for constant <span class='texttt'>a_tran</span>.  </td><td class='left'>
+ returns an iterator pointing to the first element with
+ key <span class='texttt'>r</span> such that <span class='texttt'>c(ku, r)</span>,
+ or <span class='texttt'>a_tran.end()</span> if such an element is not found.   </td><td class='left'>
+ logarithmic                    </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>b.equal_range(k)</span>       </td><td class='left'>
+ <span class='texttt'>pair&lt;iterator, iterator&gt;</span>;
+ <span class='texttt'>pair&lt;const_iterator, const_iterator&gt;</span> for constant <span class='texttt'>b</span>.     </td><td class='left'>
+ equivalent to <span class='texttt'>make_pair(b.lower_bound(k), b.upper_bound(k))</span>.    </td><td class='left'>
+ logarithmic                    </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a_tran.</span><span class='hfill'></span><br/>
+ <span class='texttt'>equal_range(ke)</span>       </td><td class='left'>
+ <span class='texttt'>pair&lt;iterator, iterator&gt;</span>;
+ <span class='texttt'>pair&lt;const_iterator, const_iterator&gt;</span> for constant <span class='texttt'>a_tran</span>.     </td><td class='left'>
+ equivalent to <span class='texttt'>make_pair(</span><span class='hfill'></span><br/>
+ <span class='texttt'>a_tran.lower_bound(ke), a_tran.upper_bound(ke))</span>.    </td><td class='left'>
+ logarithmic                    </td></tr></table></div></div><div class='para' id='associative.reqmts-9'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-9'>9</a></div><p >The <span class='texttt'>insert</span> and <span class='texttt'>emplace</span> members shall not affect the validity of
+iterators and references to the container,
+and the <span class='texttt'>erase</span> members shall invalidate only iterators and
+references to the erased elements.</p></div><div class='para' id='associative.reqmts-10'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-10'>10</a></div><p >The <span class='texttt'>extract</span> members invalidate only iterators to the removed element;
+pointers and references to the removed element remain valid. However, accessing
+the element through such pointers and references while the element is owned by
+a <span class='texttt'>node_type</span> is undefined behavior. References and pointers to an element
+obtained while it is owned by a <span class='texttt'>node_type</span> are invalidated if the element
+is successfully inserted.</p></div><div class='para' id='associative.reqmts-11'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-11'>11</a></div><p >The fundamental property of iterators of associative containers is that they iterate through the containers
+in the non-descending order of keys where non-descending is defined by the comparison that was used to
+construct them.
+For any two dereferenceable iterators
+<span class='texttt'>i</span>
+and
+<span class='texttt'>j</span>
+such that distance from
+<span class='texttt'>i</span>
+to
+<span class='texttt'>j</span>
+is positive,</p><pre class='codeblock'>
+value_comp(*j, *i) == false
+</pre></div><div class='para' id='associative.reqmts-12'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-12'>12</a></div><p >For associative containers with unique keys the stronger condition holds,</p><pre class='codeblock'>
+value_comp(*i, *j) != false.
+</pre></div><div class='para' id='associative.reqmts-13'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-13'>13</a></div><p >When an associative container is constructed by passing a comparison object the
+container shall not store a pointer or reference to the passed object,
+even if that object is passed by reference.
+When an associative container is copied, either through a copy constructor
+or an assignment operator,
+the target container shall then use the comparison object from the container
+being copied,
+as if that comparison object had been passed to the target container in
+its constructor.</p></div><div class='para' id='associative.reqmts-14'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-14'>14</a></div><p >The member function templates <span class='texttt'>find</span>, <span class='texttt'>count</span>, <span class='texttt'>lower_bound</span>,
+<span class='texttt'>upper_bound</span>, and <span class='texttt'>equal_range</span> shall not participate in overload
+resolution unless the <i ><a href='expr.prim.id.qual#qualified-id'>qualified-id</a></i> <span class='texttt'>Compare::is_transparent</span> is valid
+and denotes a type (<a href='temp.deduct'>[temp.deduct]</a>).</p><p ><span class='indexparent'><a class='index' id='associative containers!exception safety'></a></span><span class='indexparent'><a class='index' id='associative containers!requirements'></a></span></p></div><div id='associative.reqmts.except'><h4 ><a class='secnum' href='#associative.reqmts.except' style='min-width:118pt'>23.2.4.1</a> Exception safety guarantees <a class='abbr_ref' href='associative.reqmts.except'>[associative.reqmts.except]</a></h4><div class='para' id='associative.reqmts.except-1'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts.except-1'>1</a></div><p >For associative containers, no <span class='texttt'>clear()</span> function throws an exception.
+<span class='texttt'>erase(k)</span> does not throw an exception unless that exception is thrown
+by the container's <span class='texttt'>Compare</span> object (if any).</p></div><div class='para' id='associative.reqmts.except-2'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts.except-2'>2</a></div><p >For associative containers, if an exception is thrown by any operation from
+within an <span class='texttt'>insert</span> or <span class='texttt'>emplace</span> function inserting a single element, the
+insertion has no effect.</p></div><div class='para' id='associative.reqmts.except-3'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts.except-3'>3</a></div><p >For associative containers, no <span class='texttt'>swap</span> function throws an exception unless
+that exception is thrown by the
+swap of the container's <span class='texttt'>Compare</span> object (if any).</p><p ><span class='indexparent'><a class='index' id='unordered associative containers'></a></span>
+<span class='indexparent'><a class='index' id='associative containers!unordered'></a></span>
+<span class='indexparent'><a class='index' id='hash tables'></a></span>
+</p></div></div></div><div id='unord.req'><h3 ><a class='secnum' href='#unord.req' style='min-width:103pt'>23.2.5</a> Unordered associative containers <a class='abbr_ref' href='unord.req'>[unord.req]</a></h3><div class='para' id='unord.req-1'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-1'>1</a></div><p ><span class='indexparent'><a class='index' id='unordered associative containers!complexity'></a></span>Unordered associative containers provide an ability for fast retrieval
+of data based on keys.  The worst-case complexity for most operations
+is linear, but the average case is much faster.  The library provides
+four unordered associative containers: <span class='texttt'>unordered_set</span>,
+<span class='texttt'>unordered_map</span>, <span class='texttt'>unordered_multiset</span>, and
+<span class='texttt'>unordered_multimap</span>.</p></div><div class='para' id='unord.req-2'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-2'>2</a></div><p ><span class='indexparent'><a class='index' id='unordered associative containers!lack of comparison operators'></a></span><span class='indexparent'><a class='index' id='unordered associative containers!requirements'></a></span><span class='indexparent'><a class='index' id='requirements!container!not required for unordered associated containers'></a></span>Unordered associative containers conform to the requirements for
+Containers (<a href='container.requirements'>[container.requirements]</a>), except that
+the expressions
+<span class='texttt'>a == b</span> and <span class='texttt'>a != b</span> have different semantics than for the other
+container types.</p></div><div class='para' id='unord.req-3'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-3'>3</a></div><p >Each unordered associative container is parameterized by <span class='texttt'>Key</span>,
+by a function object type <span class='texttt'>Hash</span> that meets the <span class='texttt'>Hash</span>
+requirements (<a href='hash.requirements'>[hash.requirements]</a>) and acts as a hash function for
+argument values of type <span class='texttt'>Key</span>, and by a binary predicate <span class='texttt'>Pred</span>
+that induces an equivalence relation on values of type <span class='texttt'>Key</span>.
+Additionally, <span class='texttt'>unordered_map</span> and <span class='texttt'>unordered_multimap</span> associate
+an arbitrary <i>mapped type</i> <span class='texttt'>T</span> with the <span class='texttt'>Key</span>.</p></div><div class='para' id='unord.req-4'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-4'>4</a></div><p ><span class='indexparent'><a class='index' id='unordered associative containers!hash function'></a></span><span class='indexparent'><a class='index' id='hash function'></a></span>The container's object of type <span class='texttt'>Hash</span> — denoted by
+<span class='texttt'>hash</span> — is called the <i>hash function</i> of the
+container. The container's object of type <span class='texttt'>Pred</span> —
+denoted by <span class='texttt'>pred</span> — is called the
+<i>key equality predicate</i> of the container.</p></div><div class='para' id='unord.req-5'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-5'>5</a></div><p ><span class='indexparent'><a class='index' id='unordered associative containers!equality function'></a></span>Two values <span class='texttt'>k1</span> and <span class='texttt'>k2</span> of type <span class='texttt'>Key</span> are
+considered equivalent if the container's
+key equality predicate returns
+<span class='texttt'>true</span> when passed those values.  If <span class='texttt'>k1</span> and
+<span class='texttt'>k2</span> are equivalent, the container's hash function shall
+return the same value for both.
+[&nbsp;<i>Note:</i><span class='space'></span> Thus, when an unordered associative container is instantiated with
+a non-default <span class='texttt'>Pred</span> parameter it usually needs a non-default <span class='texttt'>Hash</span>
+parameter as well. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+For any two keys <span class='texttt'>k1</span> and <span class='texttt'>k2</span> in the same container,
+calling <span class='texttt'>pred(k1, k2)</span> shall always return the same value.
+For any key <span class='texttt'>k</span> in a container, calling <span class='texttt'>hash(k)</span>
+shall always return the same value.</p></div><div class='para' id='unord.req-6'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-6'>6</a></div><p ><span class='indexparent'><a class='index' id='unordered associative containers!unique keys'></a></span><span class='indexparent'><a class='index' id='unordered associative containers!equivalent keys'></a></span>An unordered associative container supports <i>unique keys</i> if it
+may contain at most one element for each key.  Otherwise, it supports
+<i>equivalent keys</i>.  <span class='texttt'>unordered_set</span> and <span class='texttt'>unordered_map</span>
+support unique keys. <span class='texttt'>unordered_multiset</span> and <span class='texttt'>unordered_multimap</span>
+support equivalent keys.  In containers that support equivalent keys,
+elements with equivalent keys are adjacent to each other
+in the iteration order of the container. Thus, although the absolute order
+of elements in an unordered container is not specified, its elements are
+grouped into <a id='equivalent-key group'><i>equivalent-key group</i></a>s such that all elements of each
+group have equivalent keys. Mutating operations on unordered containers shall
+preserve the relative order of elements within each equivalent-key group
+unless otherwise specified.</p></div><div class='para' id='unord.req-7'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-7'>7</a></div><p >For <span class='texttt'>unordered_set</span> and <span class='texttt'>unordered_multiset</span> the value type is
+the same as the key type.  For <span class='texttt'>unordered_map</span> and
+<span class='texttt'>unordered_multimap</span> it is <span class='texttt'>std::pair&lt;const Key,
+T&gt;</span>.</p></div><div class='para' id='unord.req-8'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-8'>8</a></div><p >For unordered containers where the value type is the same as the key
+type, both <span class='texttt'>iterator</span> and <span class='texttt'>const_iterator</span> are constant
+iterators. It is unspecified whether or not <span class='texttt'>iterator</span> and
+<span class='texttt'>const_iterator</span> are the same type.
+[&nbsp;<i>Note:</i><span class='space'></span> <span class='texttt'>iterator</span> and <span class='texttt'>const_iterator</span> have identical
+semantics in this case, and <span class='texttt'>iterator</span> is convertible to
+<span class='texttt'>const_iterator</span>. Users can avoid violating the one-definition rule
+by always using <span class='texttt'>const_iterator</span> in their function parameter lists.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='unord.req-9'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-9'>9</a></div><p ><span class='indexparent'><a class='index' id='buckets'></a></span><span class='indexparent'><a class='index' id='hash code'></a></span>The elements of an unordered associative container are organized into
+<i>buckets</i>.  Keys with the same hash code appear in the same
+bucket.  The number of buckets is automatically increased as elements
+are added to an unordered associative container, so that the average
+number of elements per bucket is kept below a bound.  Rehashing
+invalidates iterators, changes ordering between elements, and changes
+which buckets elements appear in, but does not invalidate pointers or
+references to elements. For <span class='texttt'>unordered_multiset</span> and
+<span class='texttt'>unordered_multimap</span>, rehashing preserves the relative ordering of
+equivalent elements.</p></div><div class='para' id='unord.req-10'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-10'>10</a></div><p >The unordered associative containers meet all the requirements of Allocator-aware
+containers (<a href='container.requirements.general'>[container.requirements.general]</a>), except that for
+<span class='texttt'>unordered_map</span> and <span class='texttt'>unordered_multimap</span>, the requirements placed on <span class='texttt'>value_type</span>
+in Table <a href='#tab:containers.container.requirements'>[tab:containers.container.requirements]</a> apply instead to <span class='texttt'>key_type</span>
+and <span class='texttt'>mapped_type</span>. [&nbsp;<i>Note:</i><span class='space'></span> For example, <span class='texttt'>key_type</span> and <span class='texttt'>mapped_type</span>
+are sometimes required to be <span class='texttt'>CopyAssignable</span> even though the associated
+<span class='texttt'>value_type</span>, <span class='texttt'>pair&lt;const key_type, mapped_type&gt;</span>, is not
+<span class='texttt'>CopyAssignable</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='unord.req-11'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-11'>11</a></div><p ><span class='indexparent'><a class='index' id='unordered associative containers'></a></span><span class='indexparent'><a class='index' id='unordered associative containers!requirements'></a></span><span class='indexparent'><a class='index' id='requirements!unordered associative container'></a></span><span class='indexparent'><a class='index' id='unordered associative containers!unique keys'></a></span><span class='indexparent'><a class='index' id='unordered associative containers!equivalent keys'></a></span><span class='indexparent'><a class='index' id='requirements!container'></a></span>In Table <a href='#tab:HashRequirements'>[tab:HashRequirements]</a>:
+<span class='texttt'>X</span> denotes an unordered associative container class,
+<span class='texttt'>a</span> denotes a value of type <span class='texttt'>X</span>,
+<span class='texttt'>a2</span> denotes a value of a type with nodes compatible with type
+<span class='texttt'>X</span> (Table <a href='container.node.overview#tab:containers.node.compat'>[tab:containers.node.compat]</a>),
+<span class='texttt'>b</span> denotes a possibly const value of type <span class='texttt'>X</span>,
+<span class='texttt'>a_uniq</span> denotes a value of type <span class='texttt'>X</span> when <span class='texttt'>X</span> supports unique keys,
+<span class='texttt'>a_eq</span> denotes a value of type <span class='texttt'>X</span> when <span class='texttt'>X</span> supports equivalent keys,
+<span class='texttt'>i</span> and <span class='texttt'>j</span> denote input iterators that refer to <span class='texttt'>value_type</span>,
+<span class='texttt'>[i, j)</span> denotes a valid range,
+<span class='texttt'>p</span> and <span class='texttt'>q2</span> denote valid const iterators to <span class='texttt'>a</span>,
+<span class='texttt'>q</span> and <span class='texttt'>q1</span> denote valid dereferenceable const iterators to <span class='texttt'>a</span>,
+<span class='texttt'>r</span> denotes a valid dereferenceable iterator to <span class='texttt'>a</span>,
+<span class='texttt'>[q1, q2)</span> denotes a valid range in <span class='texttt'>a</span>,
+<span class='texttt'>il</span> denotes a value of type <span class='texttt'>initializer_list&lt;value_type&gt;</span>,
+<span class='texttt'>t</span> denotes a value of type <span class='texttt'>X::value_type</span>,
+<span class='texttt'>k</span> denotes a value of type <span class='texttt'>key_type</span>,
+<span class='texttt'>hf</span> denotes a possibly const value of type <span class='texttt'>hasher</span>,
+<span class='texttt'>eq</span> denotes a possibly const value of type <span class='texttt'>key_equal</span>,
+<span class='texttt'>n</span> denotes a value of type <span class='texttt'>size_type</span>,
+<span class='texttt'>z</span> denotes a value of type <span class='texttt'>float</span>,
+and <span class='texttt'>nh</span> denotes a non-const rvalue of type <span class='texttt'>X::node_type</span>.</p><div class='numberedTable' id='tab:HashRequirements'>Table <a href='#tab:HashRequirements'>84</a> — Unordered associative container requirements (in addition to container)<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Assertion/note pre-/post-condition</b></td><td colspan='1' class='center'><b>Complexity</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='endhead'></span>
+<span class='texttt'>X::key_type</span>   </td><td class='left'>
+<span class='indexparent'><a class='index' id='unordered associative containers!key_type'></a></span><span class='indexparent'><a class='index' id='key_type!unordered associative containers'></a></span>  <span class='texttt'>Key</span>         </td><td class='left'>
+                      </td><td class='left'>
+  compile time        </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::mapped_type</span> (<span class='texttt'>unordered_map</span> and <span class='texttt'>unordered_multimap</span> only)  </td><td class='left'>
+  <span class='texttt'>T</span>             </td><td class='left'>
+                        </td><td class='left'>
+  compile time          </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::value_type</span> (<span class='texttt'>unordered_set</span> and <span class='texttt'>unordered_multiset</span> only) </td><td class='left'>
+ <span class='texttt'>Key</span>            </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>value_type</span> is <span class='texttt'>Erasable</span> from <span class='texttt'>X</span> </td><td class='left'>
+  compile time </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::value_type</span> (<span class='texttt'>unordered_map</span> and <span class='texttt'>unordered_multimap</span> only) </td><td class='left'>
+ <span class='texttt'>pair&lt;const Key, T&gt;</span>            </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>value_type</span> is <span class='texttt'>Erasable</span> from <span class='texttt'>X</span> </td><td class='left'>
+  compile time </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::hasher</span>
+</td><td class='left'>   <span class='texttt'>Hash</span>
+</td><td class='left'>   <span class='texttt'>Hash</span> shall be a unary function object type such that the expression
+    <span class='texttt'>hf(k)</span> has type <span class='texttt'>std::size_t</span>.    <span class='indexparent'><a class='index' id='unordered associative containers!hasher'></a></span>    <span class='indexparent'><a class='index' id='hasher!unordered associative containers'></a></span></td><td class='left'>   compile time
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X::key_equal</span>
+</td><td class='left'>   <span class='texttt'>Pred</span>
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>Pred</span> is <span class='texttt'>CopyConstructible</span>.<span class='hfill'></span><br/>
+    <span class='texttt'>Pred</span> shall be a binary predicate that takes two arguments
+    of type <span class='texttt'>Key</span>.  <span class='texttt'>Pred</span> is an equivalence relation.    <span class='indexparent'><a class='index' id='unordered associative containers!key_equal'></a></span>    <span class='indexparent'><a class='index' id='key_equal!unordered associative containers'></a></span></td><td class='left'>   compile time
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X::local_iterator</span>
+</td><td class='left'>   An iterator type whose category, value type,
+    difference type, and pointer and reference types are the same as
+    <span class='texttt'>X::iterator</span>'s. <span class='indexparent'><a class='index' id='local_iterator'></a></span>
+</td><td class='left'>   A <span class='texttt'>local_iterator</span> object may be used to iterate through a
+    single bucket, but may not be used to iterate across
+    buckets.    <span class='indexparent'><a class='index' id='unordered associative containers!local_iterator'></a></span>    <span class='indexparent'><a class='index' id='local_iterator!unordered associative containers'></a></span></td><td class='left'>   compile time
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X::const_local_iterator</span>
+</td><td class='left'>   An iterator type whose category, value type,
+    difference type, and pointer and reference types are the same as
+    <span class='texttt'>X::const_iterator</span>'s. <span class='indexparent'><a class='index' id='const_local_iterator'></a></span>
+</td><td class='left'>   A <span class='texttt'>const_local_iterator</span> object may be used to iterate through a
+    single bucket, but may not be used to iterate across
+    buckets.    <span class='indexparent'><a class='index' id='unordered associative containers!const_local_iterator'></a></span>    <span class='indexparent'><a class='index' id='const_local_iterator!unordered associative containers'></a></span></td><td class='left'>   compile time
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X::node_type</span> </td><td class='left'>
+ a specialization of a <span class='texttt'><i>node_handle</i></span>
+ class template, such that the public nested types are
+ the same types as the corresponding types in <span class='texttt'>X</span>. </td><td class='left'>
+ see <a href='container.node'>[container.node]</a> </td><td class='left'>
+ compile time </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X::insert_return_type</span> </td><td class='left'>
+ a class type used to describe the results of inserting a
+ <span class='texttt'>node_type</span> that includes at least the following non-static
+ public data members:<span class='hfill'></span><br/>
+   <span class='texttt'>bool inserted;</span><span class='hfill'></span><br/>
+   <span class='texttt'>X::iterator position;</span><span class='hfill'></span><br/>
+   <span class='texttt'>X::node_type node;</span><span class='hfill'></span><br/>
+ The type shall be <span class='texttt'>MoveConstructible</span>, <span class='texttt'>MoveAssignable</span>,
+ <span class='texttt'>DefaultConstructible</span>, <span class='texttt'>Destructible</span>, and
+ lvalues of that type shall be swappable (<a href='swappable.requirements'>[swappable.requirements]</a>).  </td><td class='left'>
+ </td><td class='left'>
+ compile time </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(n, hf, eq)</span><span class='hfill'></span><br/> <span class='texttt'>X a(n, hf, eq)</span>
+</td><td class='left'>   <span class='texttt'>X</span>
+</td><td class='left'>   <i>Effects:</i> Constructs an empty container with at least <span class='texttt'>n</span> buckets,
+using <span class='texttt'>hf</span> as the hash function and <span class='texttt'>eq</span> as the key
+equality predicate.
+</td><td class='left'>   <span class='math'>Ο(<span class='math'><span class='texttt'>n</span></span>)</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(n, hf)</span><span class='hfill'></span><br/> <span class='texttt'>X a(n, hf)</span>
+</td><td class='left'>   <span class='texttt'>X</span>
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>key_equal</span> is <span class='texttt'>DefaultConstructible</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Constructs an empty container with at least <span class='texttt'>n</span> buckets,
+using <span class='texttt'>hf</span> as the hash function and <span class='texttt'>key_equal()</span> as the key
+equality predicate.
+</td><td class='left'>   <span class='math'>Ο(<span class='math'><span class='texttt'>n</span></span>)</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(n)</span><span class='hfill'></span><br/> <span class='texttt'>X a(n)</span>
+</td><td class='left'>   <span class='texttt'>X</span>
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>hasher</span> and <span class='texttt'>key_equal</span> are <span class='texttt'>DefaultConstructible</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Constructs an empty container with at least <span class='texttt'>n</span> buckets,
+using <span class='texttt'>hasher()</span> as the hash function and <span class='texttt'>key_equal()</span>
+as the key equality predicate.
+</td><td class='left'>   <span class='math'>Ο(<span class='math'><span class='texttt'>n</span></span>)</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X()</span><span class='hfill'></span><br/> <span class='texttt'>X a</span>
+</td><td class='left'>   <span class='texttt'>X</span>
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>hasher</span> and <span class='texttt'>key_equal</span> are <span class='texttt'>DefaultConstructible</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Constructs an empty container with an unspecified number of
+  buckets, using <span class='texttt'>hasher()</span> as the hash function and
+  <span class='texttt'>key_equal()</span> as the key equality predicate.
+</td><td class='left'>   constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(i, j, n, hf, eq)</span><span class='hfill'></span><br/> <span class='texttt'>X a(i, j, n, hf, eq)</span>
+</td><td class='left'>   <span class='texttt'>X</span>
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>value_type</span> is <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>*i</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Constructs an empty container with at least <span class='texttt'>n</span> buckets,
+using <span class='texttt'>hf</span> as the hash function and <span class='texttt'>eq</span> as the key
+equality predicate, and inserts elements from <span class='texttt'>[i, j)</span> into it.
+</td><td class='left'>   Average case <span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span></span>)</span> (<span class='math'><span class='mathalpha'>N</span></span> is <span class='texttt'>distance(i, j)</span>), worst case
+<span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span><sup >2</sup></span>)</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(i, j, n, hf)</span><span class='hfill'></span><br/> <span class='texttt'>X a(i, j, n, hf)</span>
+</td><td class='left'>   <span class='texttt'>X</span>
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>key_equal</span> is <span class='texttt'>DefaultConstructible</span>.
+    <span class='texttt'>value_type</span> is <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>*i</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Constructs an empty container with at least <span class='texttt'>n</span> buckets,
+using <span class='texttt'>hf</span> as the hash function and <span class='texttt'>key_equal()</span> as the key
+equality predicate, and inserts elements from <span class='texttt'>[i, j)</span> into it.
+</td><td class='left'>   Average case <span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span></span>)</span> (<span class='math'><span class='mathalpha'>N</span></span> is <span class='texttt'>distance(i, j)</span>), worst case
+<span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span><sup >2</sup></span>)</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(i, j, n)</span><span class='hfill'></span><br/> <span class='texttt'>X a(i, j, n)</span>
+</td><td class='left'>   <span class='texttt'>X</span>
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>hasher</span> and <span class='texttt'>key_equal</span> are <span class='texttt'>DefaultConstructible</span>.
+    <span class='texttt'>value_type</span> is <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>*i</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Constructs an empty container with at least <span class='texttt'>n</span> buckets,
+using <span class='texttt'>hasher()</span> as the hash function and <span class='texttt'>key_equal()</span>
+as the key equality predicate, and inserts elements from <span class='texttt'>[i, j)</span>
+into it.
+</td><td class='left'>   Average case <span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span></span>)</span> (<span class='math'><span class='mathalpha'>N</span></span> is <span class='texttt'>distance(i, j)</span>), worst case
+<span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span><sup >2</sup></span>)</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(i, j)</span><span class='hfill'></span><br/> <span class='texttt'>X a(i, j)</span>
+</td><td class='left'>   <span class='texttt'>X</span>
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>hasher</span> and <span class='texttt'>key_equal</span> are <span class='texttt'>DefaultConstructible</span>.
+    <span class='texttt'>value_type</span> is <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>*i</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Constructs an empty container with an unspecified number of
+buckets, using <span class='texttt'>hasher()</span> as the hash function and
+<span class='texttt'>key_equal()</span> as the key equality predicate, and inserts elements
+from <span class='texttt'>[i, j)</span> into it.
+</td><td class='left'>   Average case <span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span></span>)</span> (<span class='math'><span class='mathalpha'>N</span></span> is <span class='texttt'>distance(i, j)</span>), worst case
+<span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span><sup >2</sup></span>)</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(il)</span>
+</td><td class='left'>   <span class='texttt'>X</span>
+</td><td class='left'>   Same as <span class='texttt'>X(il.begin(), il.end())</span>.
+</td><td class='left'>   Same as <span class='texttt'>X(il.begin(),</span> <span class='texttt'>il.end())</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(il, n)</span>
+</td><td class='left'>   <span class='texttt'>X</span>
+</td><td class='left'>   Same as <span class='texttt'>X(il.begin(), il.end(), n)</span>.
+</td><td class='left'>   Same as <span class='texttt'>X(il.begin(),</span> <span class='texttt'>il.end(), n)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(il, n, hf)</span>
+</td><td class='left'>   <span class='texttt'>X</span>
+</td><td class='left'>   Same as <span class='texttt'>X(il.begin(), il.end(), n, hf)</span>.
+</td><td class='left'>   Same as <span class='texttt'>X(il.begin(),</span> <span class='texttt'>il.end(), n, hf)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(il, n, hf, eq)</span>
+</td><td class='left'>   <span class='texttt'>X</span>
+</td><td class='left'>   Same as <span class='texttt'>X(il.begin(), il.end(), n, hf, eq)</span>.
+</td><td class='left'>   Same as <span class='texttt'>X(il.begin(),</span> <span class='texttt'>il.end(), n, hf, eq)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(b)</span><span class='hfill'></span><br/> <span class='texttt'>X a(b)</span>
+</td><td class='left'>   <span class='texttt'>X</span>
+</td><td class='left'>   Copy constructor.  In addition to the requirements
+    of Table <a href='#tab:containers.container.requirements'>[tab:containers.container.requirements]</a>, copies the
+  hash function, predicate, and maximum load factor.
+</td><td class='left'>   Average case linear in <span class='texttt'>b.size()</span>, worst case quadratic.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a = b</span>
+</td><td class='left'>   <span class='texttt'>X&amp;</span>
+</td><td class='left'>   Copy assignment operator.  In addition to the
+    requirements of Table <a href='#tab:containers.container.requirements'>[tab:containers.container.requirements]</a>, copies
+  the hash function, predicate, and maximum load factor.
+</td><td class='left'>   Average case linear in <span class='texttt'>b.size()</span>, worst case quadratic.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a = il</span>
+</td><td class='left'>   <span class='texttt'>X&amp;</span>
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>value_type</span> is
+<span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>
+and <span class='texttt'>CopyAssignable</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Assigns the range <span class='texttt'>[il.begin(), <span class='discretionary'></span>il.end())</span> into <span class='texttt'>a</span>. All
+    existing elements of <span class='texttt'>a</span> are either assigned to or destroyed.
+</td><td class='left'>   Same as <span class='texttt'>a = X(il).</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.hash_function()</span>
+</td><td class='left'>   <span class='texttt'>hasher</span>
+</td><td class='left'>   Returns <span class='texttt'>b</span>'s hash function.    <span class='indexparent'><a class='index' id='unordered associative containers!hash_function'></a></span>    <span class='indexparent'><a class='index' id='hash_function!unordered associative containers'></a></span></td><td class='left'>   constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.key_eq()</span>
+</td><td class='left'>   <span class='texttt'>key_equal</span>
+</td><td class='left'>   Returns <span class='texttt'>b</span>'s key equality predicate.    <span class='indexparent'><a class='index' id='unordered associative containers!key_eq'></a></span>    <span class='indexparent'><a class='index' id='key_eq!unordered associative containers'></a></span></td><td class='left'>   constant
+</td></tr><tr class='rowsep'><td class='left'> 
+
+<span class='texttt'>a_uniq.</span> <span class='texttt'>emplace(args)</span> </td><td class='left'>
+  <span class='texttt'>pair&lt;iterator,</span> <span class='texttt'>bool&gt;</span> </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>value_type</span> shall be <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>args</span>.<span class='hfill'></span><br/>
+  <i>Effects:</i> Inserts a <span class='texttt'>value_type</span> object <span class='texttt'>t</span> constructed with
+  <span class='texttt'>std::forward&lt;Args&gt;(args)...</span> if and only if there is no
+  element in the container with key equivalent to the key of <span class='texttt'>t</span>.
+  The <span class='texttt'>bool</span> component of the returned
+  pair is true if and only if the insertion takes place, and the iterator
+  component of the pair points to the element with key equivalent to the
+  key of <span class='texttt'>t</span>.  </td><td class='left'>
+  Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a_uniq.</span><span class='hfill'></span><br/><span class='texttt'>size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a_eq.</span><span class='texttt'>emplace(args)</span>  </td><td class='left'>
+  <span class='texttt'>iterator</span>    </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>value_type</span> shall be <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>args</span>.<span class='hfill'></span><br/>
+  <i>Effects:</i> Inserts a <span class='texttt'>value_type</span> object <span class='texttt'>t</span> constructed with
+  <span class='texttt'>std::forward&lt;Args&gt;(args)...</span> and returns the iterator pointing
+  to the newly inserted element.    </td><td class='left'>
+  Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a_eq.</span><span class='hfill'></span><br/><span class='texttt'>size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.emplace_hint(p, args)</span>  </td><td class='left'>
+  <span class='texttt'>iterator</span>    </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>value_type</span> shall be <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>args</span>.<span class='hfill'></span><br/>
+  <i>Effects:</i> Equivalent to <span class='texttt'>a.emplace(</span> <span class='texttt'>std::forward&lt;Args&gt;(args)...)</span>.
+  Return value is an iterator pointing to the element with the key equivalent
+  to the newly inserted element. The <span class='texttt'>const_iterator</span> <span class='texttt'>p</span>
+  is a hint pointing to where the search should start. Implementations are
+  permitted to ignore the hint. </td><td class='left'>
+  Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a.</span> <span class='texttt'>size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a_uniq.insert(t)</span>
+</td><td class='left'>   <span class='texttt'>pair&lt;iterator, bool&gt;</span>
+</td><td class='left'>   <i>Requires:</i> If <span class='texttt'>t</span> is a non-const rvalue expression, <span class='texttt'>value_type</span> shall be
+    <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>; otherwise, <span class='texttt'>value_type</span> shall be
+    <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Inserts <span class='texttt'>t</span> if and only if there is no element in the container
+    with key equivalent to the key of <span class='texttt'>t</span>.  The <span class='texttt'>bool</span>
+    component of the returned pair indicates whether the insertion
+    takes place, and the <span class='texttt'>iterator</span> component points to the element
+    with key equivalent to the key of <span class='texttt'>t</span>.    <span class='indexparent'><a class='index' id='unordered associative containers!insert'></a></span>    <span class='indexparent'><a class='index' id='insert!unordered associative containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a_uniq.</span><span class='hfill'></span><br/><span class='texttt'>size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a_eq.insert(t)</span>
+</td><td class='left'>   <span class='texttt'>iterator</span>
+</td><td class='left'>   <i>Requires:</i> If <span class='texttt'>t</span> is a non-const rvalue expression, <span class='texttt'>value_type</span> shall be
+    <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>; otherwise, <span class='texttt'>value_type</span> shall be
+    <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Inserts <span class='texttt'>t</span>, and returns an iterator pointing to the newly
+    inserted element.
+    <span class='indexparent'><a class='index' id='unordered associative containers!insert'></a></span>    <span class='indexparent'><a class='index' id='insert!unordered associative containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a_eq.</span><span class='hfill'></span><br/><span class='texttt'>size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.insert(q, t)</span>
+</td><td class='left'>   <span class='texttt'>iterator</span>
+</td><td class='left'>   <i>Requires:</i> If <span class='texttt'>t</span> is a non-const rvalue expression, <span class='texttt'>value_type</span> shall be
+    <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>; otherwise, <span class='texttt'>value_type</span> shall be
+    <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Equivalent to a.insert(t).  Return value is an iterator pointing
+to the element with the key equivalent to that of <span class='texttt'>t</span>.  The
+iterator <span class='texttt'>q</span> is a hint pointing to where the search should
+start.  Implementations are permitted to ignore the hint.    <span class='indexparent'><a class='index' id='unordered associative containers!insert'></a></span>    <span class='indexparent'><a class='index' id='insert!unordered associative containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a.size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.insert(i, j)</span>
+</td><td class='left'>   <span class='texttt'>void</span>
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>value_type</span> shall be <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>*i</span>.<span class='hfill'></span><br/>
+    Pre: <span class='texttt'>i</span> and <span class='texttt'>j</span> are not iterators in <span class='texttt'>a</span>.
+    Equivalent to <span class='texttt'>a.insert(t)</span> for each element in <span class='texttt'>[i,j)</span>.    <span class='indexparent'><a class='index' id='unordered associative containers!insert'></a></span>    <span class='indexparent'><a class='index' id='insert!unordered associative containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span></span>)</span>, where <span class='math'><span class='mathalpha'>N</span></span> is <span class='texttt'>distance(i, j)</span>.  Worst
+    case <span class='math'><span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span>(<span class='texttt'>a.size()</span> + 1)</span>)</span></span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.insert(il)</span>
+</td><td class='left'>   <span class='texttt'>void</span>
+</td><td class='left'>   Same as <span class='texttt'>a.insert(il.begin(), il.end())</span>.
+</td><td class='left'>   Same as <span class='texttt'>a.insert(</span> <span class='texttt'>il.begin(),</span> <span class='texttt'>il.end())</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a_uniq.</span><span class='hfill'></span><br/>
+ <span class='texttt'>insert(nh)</span>           </td><td class='left'>
+ <span class='texttt'>insert_return_type</span>   </td><td class='left'>
+ Pre: <span class='texttt'>nh</span> is empty or
+ <span class='texttt'>a_uniq.get_allocator() == nh.get_allocator()</span>.<span class='hfill'></span><br/>
+ <i>Effects:</i> If <span class='texttt'>nh</span> is empty, has no effect. Otherwise, inserts the
+ element owned by <span class='texttt'>nh</span> if and only if there is no element in the
+ container with a key equivalent to <span class='texttt'>nh.key()</span>.<span class='hfill'></span><br/>
+ post: If <span class='texttt'>nh</span> is empty, <span class='texttt'>inserted</span> is <span class='texttt'>false</span>,
+ <span class='texttt'>position</span> is <span class='texttt'>end()</span>, and <span class='texttt'>node</span> is empty.
+ Otherwise if the insertion took place, <span class='texttt'>inserted</span> is <span class='texttt'>true</span>,
+ <span class='texttt'>position</span> points to the inserted element, and <span class='texttt'>node</span> is empty;
+ if the insertion failed, <span class='texttt'>inserted</span> is <span class='texttt'>false</span>,
+ <span class='texttt'>node</span> has the previous value of <span class='texttt'>nh</span>, and <span class='texttt'>position</span>
+ points to an element with a key equivalent to <span class='texttt'>nh.key()</span>. </td><td class='left'>
+ Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a_uniq.</span><span class='hfill'></span><br/><span class='texttt'>size()</span></span>)</span>.  </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a_eq.</span><span class='hfill'></span><br/>
+ <span class='texttt'>insert(nh)</span>           </td><td class='left'>
+ <span class='texttt'>iterator</span>   </td><td class='left'>
+ Pre: <span class='texttt'>nh</span> is empty or
+ <span class='texttt'>a_eq.get_allocator() == nh.get_allocator()</span>.<span class='hfill'></span><br/>
+ <i>Effects:</i> If <span class='texttt'>nh</span> is empty, has no effect and returns <span class='texttt'>a_eq.end()</span>.
+ Otherwise, inserts the element owned by <span class='texttt'>nh</span> and returns an iterator
+ pointing to the newly inserted element.<span class='hfill'></span><br/>
+ Post: <span class='texttt'>nh</span> is empty. </td><td class='left'>
+ Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a_eq.size()</span></span>)</span>.  </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.insert(q, nh)</span>           </td><td class='left'>
+ <span class='texttt'>iterator</span>   </td><td class='left'>
+ Pre: <span class='texttt'>nh</span> is empty or
+ <span class='texttt'>a.get_allocator() == nh.get_allocator()</span>.<span class='hfill'></span><br/>
+ <i>Effects:</i> If <span class='texttt'>nh</span> is empty, has no effect and returns <span class='texttt'>a.end()</span>.
+ Otherwise, inserts the element owned by <span class='texttt'>nh</span> if and only if there
+ is no element with key equivalent to <span class='texttt'>nh.key()</span> in containers with
+ unique keys; always inserts the element owned by <span class='texttt'>nh</span> in containers
+ with equivalent keys. Always returns the iterator pointing to the element
+ with key equivalent to <span class='texttt'>nh.key()</span>. The iterator <span class='texttt'>q</span> is a hint
+ pointing to where the search should start. Implementations are permitted
+ to ignore the hint.<span class='hfill'></span><br/>
+ Post: <span class='texttt'>nh</span> is empty if insertion succeeds, unchanged if insertion fails.  </td><td class='left'>
+ Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a.size()</span></span>)</span>.  </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.extract(k)</span>              </td><td class='left'>
+ <span class='texttt'>node_type</span>             </td><td class='left'>
+ Removes an element in the container with key equivalent to <span class='texttt'>k</span>.
+ Returns a <span class='texttt'>node_type</span> owning the element if found, otherwise an empty
+ <span class='texttt'>node_type</span>. </td><td class='left'>
+ Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a.size()</span></span>)</span>.  </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.extract(q)</span>              </td><td class='left'>
+ <span class='texttt'>node_type</span>             </td><td class='left'>
+ Removes the element pointed to by to <span class='texttt'>q</span>.
+ Returns a <span class='texttt'>node_type</span> owning that element. </td><td class='left'>
+ Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a.size()</span></span>)</span>.  </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.merge(a2)</span>              </td><td class='left'>
+ <span class='texttt'>void</span>             </td><td class='left'>
+ Pre: <span class='texttt'>a_eq.get_allocator() == nh.get_allocator()</span>.<span class='hfill'></span><br/>
+ Attempts to extract each element in <span class='texttt'>a2</span> and insert it into <span class='texttt'>a</span>
+ using the hash function and key equality predicate of <span class='texttt'>a</span>.
+ In containers with unique keys, if there is an element in <span class='texttt'>a</span> with
+ key equivalent to the key of an element from <span class='texttt'>a2</span>, then that
+ element is not extracted from <span class='texttt'>a2</span>.<span class='par'></span>
+ Post: Pointers and references to the transferred elements of <span class='texttt'>a2</span>
+ refer to those same elements but as members of <span class='texttt'>a</span>. Iterators referring
+ to the transferred elements and all iterators referring to <span class='texttt'>a</span> will
+ be invalidated, but iterators to elements remaining in <span class='texttt'>a2</span> will
+ remain valid.<span class='hfill'></span><br/>
+ <i>Throws:</i> Nothing unless the hash function or key equality predicate throws. </td><td class='left'>
+ Average case <span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span></span>)</span>, where <span class='math'><span class='mathalpha'>N</span></span> is <span class='texttt'>a2.size()</span>.
+ Worst case <span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span><span class='texttt'>*a.size()</span><span class='hfill'></span><br/><span class='texttt'>+</span> <span class='mathalpha'>N</span></span>)</span>.  </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.erase(k)</span>
+</td><td class='left'>   <span class='texttt'>size_type</span>
+</td><td class='left'>   Erases all elements with key equivalent to <span class='texttt'>k</span>.  Returns
+the number of elements erased.
+</td><td class='left'>   Average case <span class='math'>Ο(<span class='math'><span class='texttt'>a.count(k)</span></span>)</span>.  Worst case
+    <span class='math'>Ο(<span class='math'><span class='texttt'>a.size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.erase(q)</span>
+</td><td class='left'>   <span class='texttt'>iterator</span>
+</td><td class='left'>   Erases the element pointed to by <span class='texttt'>q</span>. Returns the
+    iterator immediately following <span class='texttt'>q</span> prior to the erasure.
+    <span class='indexparent'><a class='index' id='unordered associative containers!erase'></a></span>    <span class='indexparent'><a class='index' id='erase!unordered associative containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a.size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.erase(r)</span>
+</td><td class='left'>   <span class='texttt'>iterator</span>
+</td><td class='left'>   Erases the element pointed to by <span class='texttt'>r</span>. Returns the
+    iterator immediately following <span class='texttt'>r</span> prior to the erasure.
+    <span class='indexparent'><a class='index' id='unordered associative containers!erase'></a></span>    <span class='indexparent'><a class='index' id='erase!unordered associative containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a.size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.erase(q1, q2)</span>
+</td><td class='left'>   <span class='texttt'>iterator</span>
+</td><td class='left'>   Erases all elements in the range <span class='texttt'>[q1, q2)</span>. Returns
+    the iterator immediately following the erased elements prior to the
+    erasure.    <span class='indexparent'><a class='index' id='unordered associative containers!erase'></a></span>    <span class='indexparent'><a class='index' id='erase!unordered associative containers'></a></span></td><td class='left'>   Average case linear in <span class='texttt'>distance(q1, q2)</span>,
+    worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a.size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.clear()</span>
+</td><td class='left'> <span class='texttt'>void</span>
+</td><td class='left'> Erases all elements in the container.
+   Post: <span class='texttt'>a.empty()</span> returns <span class='texttt'>true</span>    <span class='indexparent'><a class='index' id='unordered associative containers!clear'></a></span>    <span class='indexparent'><a class='index' id='clear!unordered associative containers'></a></span></td><td class='left'> Linear in <span class='texttt'>a.size()</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.find(k)</span>
+</td><td class='left'>   <span class='texttt'>iterator</span>; <span class='hfill'></span><br/> <span class='texttt'>const_iterator</span> for const <span class='texttt'>b</span>.
+</td><td class='left'>   Returns an iterator pointing to an element with key equivalent to
+    <span class='texttt'>k</span>, or <span class='texttt'>b.end()</span> if no such element exists.    <span class='indexparent'><a class='index' id='unordered associative containers!find'></a></span>    <span class='indexparent'><a class='index' id='find!unordered associative containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>b.size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.count(k)</span>
+</td><td class='left'>   <span class='texttt'>size_type</span>
+</td><td class='left'>   Returns the number of elements with key equivalent to <span class='texttt'>k</span>.    <span class='indexparent'><a class='index' id='unordered associative containers!count'></a></span>    <span class='indexparent'><a class='index' id='count!unordered associative containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'><span class='texttt'>b.count(k)</span></span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>b.size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.equal_range(k)</span>
+</td><td class='left'>   <span class='texttt'>pair&lt;iterator, iterator&gt;</span>; <span class='hfill'></span><br/>
+    <span class='texttt'>pair&lt;const_iterator, const_iterator&gt;</span> for const <span class='texttt'>b</span>.
+</td><td class='left'>   Returns a range containing all elements with keys equivalent to
+    <span class='texttt'>k</span>.  Returns <span class='texttt'>make_pair(b.end(), b.end())</span> if
+    no such elements exist.    <span class='indexparent'><a class='index' id='unordered associative containers!equal_range'></a></span>    <span class='indexparent'><a class='index' id='equal_range!unordered associative containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'><span class='texttt'>b.count(k)</span></span>)</span>.  Worst case
+    <span class='math'>Ο(<span class='math'><span class='texttt'>b.size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.bucket_count()</span>
+</td><td class='left'>   <span class='texttt'>size_type</span>
+</td><td class='left'>   Returns the number of buckets that <span class='texttt'>b</span> contains.    <span class='indexparent'><a class='index' id='unordered associative containers!bucket_count'></a></span>    <span class='indexparent'><a class='index' id='bucket_count!unordered associative containers'></a></span></td><td class='left'>   Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.max_bucket_count()</span>
+</td><td class='left'>   <span class='texttt'>size_type</span>
+</td><td class='left'>   Returns an upper bound on the number of buckets that <span class='texttt'>b</span> might
+    ever contain.    <span class='indexparent'><a class='index' id='unordered associative containers!max_bucket_count'></a></span>    <span class='indexparent'><a class='index' id='max_bucket_count!unordered associative containers'></a></span></td><td class='left'>   Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.bucket(k)</span>
+</td><td class='left'> <span class='texttt'>size_type</span>
+</td><td class='left'>
+  Pre: <span class='texttt'>b.bucket_count() &gt; 0</span>.<span class='hfill'></span><br/>
+    Returns the index of the bucket in which elements with keys equivalent
+    to <span class='texttt'>k</span> would be found, if any such element existed.
+    Post: the return value shall be in the range <span class='texttt'>[0, b.bucket_count())</span>.    <span class='indexparent'><a class='index' id='unordered associative containers!bucket'></a></span>    <span class='indexparent'><a class='index' id='bucket!unordered associative containers'></a></span></td><td class='left'> Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.bucket_size(n)</span>
+</td><td class='left'>   <span class='texttt'>size_type</span>
+</td><td class='left'>   Pre: <span class='texttt'>n</span> shall be in the range <span class='texttt'>[0, b.bucket_count())</span>.
+    Returns the number of elements in the <span class='math'><span class='texttt'>n</span><sup ><span class='textrm'> th</span></sup></span> bucket.    <span class='indexparent'><a class='index' id='unordered associative containers!bucket_size'></a></span>    <span class='indexparent'><a class='index' id='bucket_size!unordered associative containers'></a></span></td><td class='left'>   <span class='math'>Ο(<span class='math'><span class='texttt'>b.bucket_</span><span class='texttt'>size(n)</span></span>)</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.begin(n)</span>
+</td><td class='left'>   <span class='texttt'>local_iterator</span>; <span class='hfill'></span><br/>
+    <span class='texttt'>const_local_iterator</span> for const <span class='texttt'>b</span>.
+</td><td class='left'>   Pre: <span class='texttt'>n</span> shall be in the range <span class='texttt'>[0, b.bucket_count())</span>.
+    <span class='texttt'>b.begin(n)</span> returns an iterator referring to the
+    first element in the bucket. If the bucket is empty, then
+    <span class='texttt'>b.begin(n) == b.end(n)</span>.    <span class='indexparent'><a class='index' id='unordered associative containers!begin'></a></span>    <span class='indexparent'><a class='index' id='begin!unordered associative containers'></a></span></td><td class='left'>   Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.end(n)</span>
+</td><td class='left'>   <span class='texttt'>local_iterator</span>; <span class='hfill'></span><br/>
+    <span class='texttt'>const_local_iterator</span> for const <span class='texttt'>b</span>.
+</td><td class='left'>   Pre: <span class='texttt'>n</span> shall be in the range <span class='texttt'>[0, b.bucket_count())</span>.
+    <span class='texttt'>b.end(n)</span> returns an iterator which is the past-the-end
+    value for the bucket.    <span class='indexparent'><a class='index' id='unordered associative containers!end'></a></span>    <span class='indexparent'><a class='index' id='end!unordered associative containers'></a></span></td><td class='left'>   Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.cbegin(n)</span>
+</td><td class='left'>   <span class='texttt'>const_local_iterator</span>
+</td><td class='left'>   Pre: <span class='texttt'>n</span> shall be in the range <span class='texttt'>[0, b.bucket_count())</span>.
+    Note: <span class='texttt'>[b.cbegin(n), b.cend(n))</span> is a valid range containing
+    all of the elements in the <span class='math'><span class='texttt'>n</span><sup ><span class='textrm'> th</span></sup></span> bucket.    <span class='indexparent'><a class='index' id='unordered associative containers!cbegin'></a></span>    <span class='indexparent'><a class='index' id='cbegin!unordered associative containers'></a></span></td><td class='left'>   Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.cend(n)</span>
+</td><td class='left'>   <span class='texttt'>const_local_iterator</span>
+</td><td class='left'>   Pre: <span class='texttt'>n</span> shall be in the range <span class='texttt'>[0, b.bucket_count())</span>.    <span class='indexparent'><a class='index' id='unordered associative containers!cend'></a></span>    <span class='indexparent'><a class='index' id='cend!unordered associative containers'></a></span></td><td class='left'>   Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.load_factor()</span>
+</td><td class='left'>   <span class='texttt'>float</span>
+</td><td class='left'>   Returns the average number of elements per bucket.    <span class='indexparent'><a class='index' id='unordered associative containers!load_factor'></a></span>    <span class='indexparent'><a class='index' id='load_factor!unordered associative containers'></a></span></td><td class='left'>   Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.max_load_factor()</span>
+</td><td class='left'>   <span class='texttt'>float</span>
+</td><td class='left'>   Returns a positive number that the container attempts to keep the load factor
+    less than or equal to. The container automatically increases the
+    number of buckets as necessary to keep the load factor below this
+    number.    <span class='indexparent'><a class='index' id='unordered associative containers!max_load_factor'></a></span>    <span class='indexparent'><a class='index' id='max_load_factor!unordered associative containers'></a></span></td><td class='left'>   Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.max_load_factor(z)</span>
+</td><td class='left'>   <span class='texttt'>void</span>
+</td><td class='left'>   Pre: <span class='texttt'>z</span> shall be positive.
+    May change the container's maximum load factor, using <span class='texttt'>z</span> as a hint.</td><td class='left'> Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.rehash(n)</span>
+</td><td class='left'> <span class='texttt'>void</span>
+</td><td class='left'> Post: <span class='texttt'>a.bucket_count() &gt;= a.size() / a.max_load_factor()</span> and
+        <span class='texttt'>a.bucket_count() &gt;= n</span>.    <span class='indexparent'><a class='index' id='unordered associative containers!rehash'></a></span>    <span class='indexparent'><a class='index' id='rehash!unordered associative containers'></a></span></td><td class='left'> Average case linear in <span class='texttt'>a.size()</span>, worst case quadratic.
+</td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.reserve(n)</span>  </td><td class='left'>
+  <span class='texttt'>void</span>        </td><td class='left'>
+  Same as <span class='texttt'>a.rehash(ceil(n /</span> <span class='texttt'>a.max_load_factor()))</span>.  </td><td class='left'>
+  Average case linear in <span class='texttt'>a.size()</span>, worst case quadratic. </td></tr></table></div></div><div class='para' id='unord.req-12'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-12'>12</a></div><p >Two unordered containers <span class='texttt'>a</span> and <span class='texttt'>b</span> compare equal if
+<span class='texttt'>a.size() == b.size()</span> and, for every equivalent-key group
+<span class='texttt'>[Ea1, <span class='discretionary'></span>Ea2)</span> obtained from <span class='texttt'>a.equal_range(Ea1)</span>, there exists an
+equivalent-key group <span class='texttt'>[Eb1, <span class='discretionary'></span>Eb2)</span> obtained from <span class='texttt'>b.equal_range(Ea1)</span>,
+such that
+<span class='texttt'>is_permutation(Ea1, Ea2, Eb1, Eb2)</span> returns <span class='texttt'>true</span>. For
+<span class='texttt'>unordered_set</span> and <span class='texttt'>unordered_map</span>, the complexity of
+<span class='texttt'>operator==</span> (i.e., the number of calls to the <span class='texttt'>==</span> operator
+of the <span class='texttt'>value_type</span>, to the predicate returned by <span class='texttt'>key_eq()</span>,
+and to the hasher returned by <span class='texttt'>hash_function()</span>) is proportional to
+<span class='math'><span class='mathalpha'>N</span></span> in the average case and to <span class='math'><span class='mathalpha'>N</span><sup >2</sup></span> in the worst case, where <span class='math'><span class='mathalpha'>N</span></span> is
+a.size(). For <span class='texttt'>unordered_multiset</span> and <span class='texttt'>unordered_multimap</span>,
+the complexity of <span class='texttt'>operator==</span> is proportional to <img src='math/617882118394775188.png' class='mathinlineimg' alt='$\sum E_i^2$'/>
+in the average case and to <span class='math'><span class='mathalpha'>N</span><sup >2</sup></span> in the worst case, where <span class='math'><span class='mathalpha'>N</span></span> is <span class='texttt'>a.size()</span>,
+and <span class='math'><span class='mathalpha'>E</span><sub ><span class='mathalpha'>i</span></sub></span> is the size of the <span class='math'><span class='mathalpha'>i</span><sup ><span class='mathalpha'>th</span></sup></span> equivalent-key group in <span class='texttt'>a</span>.
+However, if the respective elements of each corresponding pair of
+equivalent-key groups <span class='math'><span class='mathalpha'>Ea</span><sub ><span class='mathalpha'>i</span></sub></span> and <span class='math'><span class='mathalpha'>Eb</span><sub ><span class='mathalpha'>i</span></sub></span> are arranged in the same order
+(as is commonly the case, e.g., if <span class='texttt'>a</span> and <span class='texttt'>b</span> are unmodified copies
+of the same container), then the average-case complexity for
+<span class='texttt'>unordered_multiset</span> and <span class='texttt'>unordered_multimap</span> becomes
+proportional to <span class='math'><span class='mathalpha'>N</span></span> (but worst-case complexity remains <span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span><sup >2</sup></span>)</span>, e.g., for
+a pathologically bad hash function). The behavior of a program that uses
+<span class='texttt'>operator==</span> or <span class='texttt'>operator!=</span> on unordered containers is undefined
+unless the <span class='texttt'>Hash</span> and <span class='texttt'>Pred</span> function objects respectively have
+the same behavior for both containers and the equality comparison operator
+for <span class='texttt'>Key</span> is a refinement<a class='footnotenum' href='#footnote-260'>260</a>
+of the partition into equivalent-key groups produced by <span class='texttt'>Pred</span>.</p></div><div class='para' id='unord.req-13'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-13'>13</a></div><p ><span class='indexparent'><a class='index' id='unordered associative containers!iterators'></a></span>The iterator types <span class='texttt'>iterator</span> and <span class='texttt'>const_iterator</span> of
+an unordered associative container are of at least the forward iterator
+category.  For unordered associative containers where the key type and
+value type are the same, both <span class='texttt'>iterator</span> and
+<span class='texttt'>const_iterator</span> are const iterators.</p></div><div class='para' id='unord.req-14'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-14'>14</a></div><p ><span class='indexparent'><a class='index' id='unordered associative containers!iterator invalidation'></a></span>The <span class='texttt'>insert</span> and <span class='texttt'>emplace</span> members shall not affect the validity of references to
+container elements, but may invalidate all iterators to the
+container.  The <span class='texttt'>erase</span> members shall invalidate only iterators and
+references to the erased elements, and preserve the relative order of the
+elements that are not erased.</p></div><div class='para' id='unord.req-15'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-15'>15</a></div><p ><span class='indexparent'><a class='index' id='unordered associative containers!iterator invalidation'></a></span><span class='indexparent'><a class='index' id='unordered associative containers!requirements'></a></span>The <span class='texttt'>insert</span> and <span class='texttt'>emplace</span> members shall not affect the validity of iterators if
+<span class='texttt'>(N+n) &lt;= z * B</span>, where <span class='texttt'>N</span> is the number of elements in
+the container prior to the insert operation, <span class='texttt'>n</span> is the
+number of elements inserted, <span class='texttt'>B</span> is the container's bucket count, and
+<span class='texttt'>z</span> is the container's maximum load factor.</p></div><div class='para' id='unord.req-16'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-16'>16</a></div><p >The <span class='texttt'>extract</span> members invalidate only iterators to the removed element,
+and preserve the relative order of the elements that are not erased; pointers
+and references to the removed element remain valid. However, accessing the
+element through such pointers and references while the element is owned by a
+<span class='texttt'>node_type</span> is undefined behavior. References and pointers to an element
+obtained while it is owned by a <span class='texttt'>node_type</span> are invalidated if the
+element is successfully inserted.</p></div><div class='footnote' id='footnote-260'><div class='marginalizedparent'><a class='marginalized' href='#footnote-260'>260)</a></div><p >Equality comparison is a refinement
+of partitioning if no two objects that
+compare equal fall into different partitions.</p></div><div id='unord.req.except'><h4 ><a class='secnum' href='#unord.req.except' style='min-width:118pt'>23.2.5.1</a> Exception safety guarantees <a class='abbr_ref' href='unord.req.except'>[unord.req.except]</a></h4><div class='para' id='unord.req.except-1'><div class='marginalizedparent'><a class='marginalized' href='#unord.req.except-1'>1</a></div><p ><span class='indexparent'><a class='index' id='unordered associative containers!exception safety'></a></span><span class='indexparent'><a class='index' id='unordered associative containers!requirements'></a></span>For unordered associative containers, no <span class='texttt'>clear()</span> function
+throws an exception. <span class='texttt'>erase(k)</span> does not throw an
+exception unless that exception is thrown by the container's <span class='texttt'>Hash</span> or
+<span class='texttt'>Pred</span> object (if any).</p></div><div class='para' id='unord.req.except-2'><div class='marginalizedparent'><a class='marginalized' href='#unord.req.except-2'>2</a></div><p >For unordered associative containers, if an exception is thrown by any
+operation other than the container's hash function from within an
+<span class='texttt'>insert</span> or <span class='texttt'>emplace</span> function inserting a single element,
+the insertion has no effect.</p></div><div class='para' id='unord.req.except-3'><div class='marginalizedparent'><a class='marginalized' href='#unord.req.except-3'>3</a></div><p >For unordered associative containers, no <span class='texttt'>swap</span> function throws
+an exception unless that exception is thrown by the swap of the container's
+Hash or Pred object (if any).</p></div><div class='para' id='unord.req.except-4'><div class='marginalizedparent'><a class='marginalized' href='#unord.req.except-4'>4</a></div><p ><span class='indexparent'><a class='index' id='unordered associative containers!exception safety'></a></span><span class='indexparent'><a class='index' id='unordered associative containers!requirements'></a></span>For unordered associative containers, if an exception is thrown
+from within a <span class='texttt'>rehash()</span> function other than by the container's hash
+function or comparison function, the <span class='texttt'>rehash()</span> function has no effect.</p></div></div></div></div></div></body></html>

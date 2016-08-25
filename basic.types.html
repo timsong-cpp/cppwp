@@ -1,0 +1,450 @@
+<!DOCTYPE html><html lang='en'><head><title>[basic.types]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>3</a> Basic concepts <a class='abbr_ref' href='./#basic'>[basic]</a></h1><div id='basic.types'><h2 ><a class='secnum' style='min-width:88pt'>3.9</a> Types <a class='abbr_ref'>[basic.types]</a></h2><p ><span class='indexparent'><a class='index' id='type'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >[&nbsp;<i>Note:</i><span class='space'></span>
+<a href='basic.types'>[basic.types]</a> and the subclauses thereof
+impose requirements on implementations regarding the representation
+of types.
+There are two kinds of types: fundamental types and compound types.
+Types describe objects (<a href='intro.object'>[intro.object]</a>),
+references (<a href='dcl.ref'>[dcl.ref]</a>),
+or functions (<a href='dcl.fct'>[dcl.fct]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='indexparent'><a class='index' id='object!byte~copying~and'></a></span><span class='indexparent'><a class='index' id='type!trivially~copyable'></a></span>For any object (other than a base-class subobject) of trivially copyable type
+<span class='texttt'>T</span>, whether or not the object holds a valid value of type
+<span class='texttt'>T</span>, the underlying bytes (<a href='intro.memory'>[intro.memory]</a>) making up the
+object can be copied into an array of <span class='texttt'>char</span> or <span class='texttt'>unsigned</span>
+<span class='texttt'>char</span>.<a class='footnotenum' href='#footnote-42'>42</a>
+If the content of the array of <span class='texttt'>char</span> or <span class='texttt'>unsigned</span>
+<span class='texttt'>char</span> is copied back into the object, the object shall
+subsequently hold its original value. [&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+#define N sizeof(T)
+char buf[N];
+T obj;                          <span class='comment'>// <span class='texttt'>obj</span> initialized to its original value
+</span>std::memcpy(buf, &amp;obj, N);      <span class='comment'>// between these two calls to <span class='texttt'>std::memcpy</span>,
+</span>                                <span class='comment'>// <span class='texttt'>obj</span> might be modified
+</span>std::memcpy(&amp;obj, buf, N);      <span class='comment'>// at this point, each subobject of <span class='texttt'>obj</span> of scalar type
+</span>                                <span class='comment'>// holds its original value
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >For any trivially copyable type <span class='texttt'>T</span>, if two pointers to <span class='texttt'>T</span> point to
+distinct <span class='texttt'>T</span> objects <span class='texttt'>obj1</span> and <span class='texttt'>obj2</span>, where neither
+<span class='texttt'>obj1</span> nor <span class='texttt'>obj2</span> is a base-class subobject, if the underlying
+bytes (<a href='intro.memory'>[intro.memory]</a>) making up
+<span class='texttt'>obj1</span> are copied into <span class='texttt'>obj2</span>,<a class='footnotenum' href='#footnote-43'>43</a>
+ <span class='texttt'>obj2</span> shall subsequently hold the same value as
+<span class='texttt'>obj1</span>. [&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
+T* t1p;
+T* t2p;
+    <span class='comment'>// provided that <span class='texttt'>t2p</span> points to an initialized object ...
+</span>std::memcpy(t1p, t2p, sizeof(T));
+    <span class='comment'>// at this point, every subobject of trivially copyable type in <span class='texttt'>*t1p</span> contains
+</span>    <span class='comment'>// the same value as the corresponding subobject in <span class='texttt'>*t2p</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]<span class='indexparent'><a class='index' id='object!byte~copying~and'></a></span></p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >The <a id='object representation'><i>object representation</i></a>
+<span class='indexparent'><a class='index' id='representation!object'></a></span>of an object of type <span class='texttt'>T</span> is the
+sequence of <i>N</i> <span class='texttt'>unsigned</span> <span class='texttt'>char</span> objects taken up
+by the object of type <span class='texttt'>T</span>, where <i>N</i> equals
+<span class='texttt'>sizeof(T)</span>. The
+<span class='indexparent'><a class='index' id='representation!value'></a></span><a id='value representation'><i>value representation</i></a>
+of an object is the set of bits that hold
+the value of type <span class='texttt'>T</span>. For trivially copyable types, the value representation is
+a set of bits in the object representation that determines a
+<a id='value'><i>value</i></a>, which is one discrete element of an
+<span class='indexparent'><a class='index' id='values of a trivially copyable type'></a></span>implementation-defined set of values.<a class='footnotenum' href='#footnote-44'>44</a></p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p ><span class='indexparent'><a class='index' id='type!incomplete'></a></span><span class='indexparent'><a class='index' id='type!incompletely-defined object'></a></span><span class='indexparent'><a class='index' id='object type!incompletely-defined'></a></span>A class that has been declared but not defined, an enumeration type in certain
+contexts (<a href='dcl.enum'>[dcl.enum]</a>), or an array of unknown
+size or of incomplete element type, is an <a id='incompletely-defined object type'><i>incompletely-defined object
+type</i></a>.<a class='footnotenum' href='#footnote-45'>45</a>
+Incompletely-defined object types and <i>cv</i> <span class='texttt'>void</span> are <i>incomplete
+types</i> (<a href='basic.fundamental'>[basic.fundamental]</a>). Objects shall not be defined to have an
+incomplete type.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >A class type (such as “<span class='texttt'>class X</span>”) might be incomplete at one
+point in a translation unit and complete later on; the type
+“<span class='texttt'>class X</span>” is the same type at both points. The declared type
+of an array object might be an array of incomplete class type and
+therefore incomplete; if the class type is completed later on in the
+translation unit, the array type becomes complete; the array type at
+those two points is the same type. The declared type of an array object
+might be an array of unknown bound and therefore be incomplete at one
+point in a translation unit and complete later on; the array types at
+those two points (“array of unknown bound of <span class='texttt'>T</span>” and “array of
+<span class='texttt'>N</span> <span class='texttt'>T</span>”) are different types. The type of a pointer to array of
+unknown size, or of a type defined by a <span class='texttt'>typedef</span> declaration to
+be an array of unknown size, cannot be completed. [&nbsp;<i>Example:</i><span class='space'></span></p><p ><span class='indexparent'><a class='index' id='type!example~of incomplete'></a></span></p><pre class='codeblock'>
+class X;                        <span class='comment'>// <span class='texttt'>X</span> is an incomplete type
+</span>extern X* xp;                   <span class='comment'>// <span class='texttt'>xp</span> is a pointer to an incomplete type
+</span>extern int arr[];               <span class='comment'>// the type of arr is incomplete
+</span>typedef int UNKA[];             <span class='comment'>// <span class='texttt'>UNKA</span> is an incomplete type
+</span>UNKA* arrp;                     <span class='comment'>// <span class='texttt'>arrp</span> is a pointer to an incomplete type
+</span>UNKA** arrpp;
+
+void foo() {
+  xp++;                         <span class='comment'>// ill-formed: <span class='texttt'>X</span> is incomplete
+</span>  arrp++;                       <span class='comment'>// ill-formed: incomplete type
+</span>  arrpp++;                      <span class='comment'>// OK: sizeof <span class='texttt'>UNKA*</span> is known
+</span>}
+
+struct X { int i; };            <span class='comment'>// now <span class='texttt'>X</span> is a complete type
+</span>int  arr[10];                   <span class='comment'>// now the type of <span class='texttt'>arr</span> is complete
+</span>
+X x;
+void bar() {
+  xp = &amp;x;                      <span class='comment'>// OK; type is “pointer to <span class='texttt'>X</span>”
+</span>  arrp = &amp;arr;                  <span class='comment'>// ill-formed: different types
+</span>  xp++;                         <span class='comment'>// OK:  <span class='texttt'>X</span> is complete
+</span>  arrp++;                       <span class='comment'>// ill-formed: <span class='texttt'>UNKA</span> can't be completed
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >[&nbsp;<i>Note:</i><span class='space'></span> The rules for declarations and expressions describe in which
+contexts incomplete types are prohibited. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p ><span class='indexparent'><a class='index' id='object~type'></a></span>An <a id='object type'><i>object type</i></a> is a (possibly cv-qualified) type that is not
+a function type, not a reference type, and not <i>cv</i> <span class='texttt'>void</span>.</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >Arithmetic types (<a href='basic.fundamental'>[basic.fundamental]</a>), enumeration types, pointer
+types, pointer to member types (<a href='basic.compound'>[basic.compound]</a>),
+<span class='texttt'>std::nullptr_t</span>,
+and
+cv-qualified versions of these
+types (<a href='basic.type.qualifier'>[basic.type.qualifier]</a>) are collectively called
+<span class='indexparent'><a class='index' id='scalar~type'></a></span><i>scalar types</i>. Scalar types,
+POD classes (Clause <a href='class'>[class]</a>), arrays of such types and
+cv-qualified versions of these
+types (<a href='basic.type.qualifier'>[basic.type.qualifier]</a>) are collectively called
+<span class='indexparent'><a class='index' id='type!POD'></a></span><i>POD types</i>.
+Cv-unqualified scalar types, trivially copyable class types (Clause <a href='class'>[class]</a>), arrays of
+such types, and non-volatile const-qualified versions of these
+types (<a href='basic.type.qualifier'>[basic.type.qualifier]</a>) are collectively called <a id='trivially copyable types'><i>trivially
+copyable types</i></a>.
+Scalar types, trivial class types (Clause <a href='class'>[class]</a>),
+arrays of such types and cv-qualified versions of these
+types (<a href='basic.type.qualifier'>[basic.type.qualifier]</a>) are collectively called
+<a id='trivial types'><i>trivial types</i></a>. Scalar types, standard-layout class
+types (Clause <a href='class'>[class]</a>), arrays of such types and
+cv-qualified versions of these types (<a href='basic.type.qualifier'>[basic.type.qualifier]</a>)
+are collectively called <a id='standard-layout types'><i>standard-layout types</i></a>.</p></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >A type is a <a id='literal type'><i>literal type</i></a> if it is:</p><ul ><li ><p >possibly cv-qualified <span class='texttt'>void</span>; or
+</p></li><li ><p >a scalar type; or
+</p></li><li ><p >a reference type; or
+</p></li><li ><p >an array of literal type; or
+</p></li><li ><p >a possibly cv-qualified class type (Clause <a href='class'>[class]</a>) that
+has all of the following properties:
+</p><ul ><li ><p >it has a trivial destructor,
+</p></li><li ><p >it is either a closure type (<a href='expr.prim.lambda'>[expr.prim.lambda]</a>),
+an aggregate type (<a href='dcl.init.aggr'>[dcl.init.aggr]</a>), or
+has at least one <span class='texttt'>constexpr</span> constructor or constructor template
+(possibly inherited (<a href='namespace.udecl'>[namespace.udecl]</a>) from a base class)
+that is not a copy or move constructor,
+</p></li><li ><p >if it is a union, at least one of its non-static data members is
+of non-volatile literal type, and
+</p></li><li ><p >if it is not a union, all of its non-static data members and base classes are
+of non-volatile literal types.
+</p></li></ul></li></ul></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><p ><span class='indexparent'><a class='index' id='layout-compatible~type'></a></span>Two types <i>cv1</i> <span class='texttt'>T1</span> and <i>cv2</i> <span class='texttt'>T2</span> are
+<a id='layout-compatible'><i>layout-compatible</i></a> types
+if <span class='texttt'>T1</span> and <span class='texttt'>T2</span> are the same type,
+layout-compatible enumerations (<a href='dcl.enum'>[dcl.enum]</a>), or
+layout-compatible standard-layout class types (<a href='class.mem'>[class.mem]</a>).</p></div><div class='footnote' id='footnote-42'><div class='marginalizedparent'><a class='marginalized' href='#footnote-42'>42)</a></div><p >By using, for example, the library
+functions (<a href='headers'>[headers]</a>) <span class='texttt'>std::memcpy</span> or <span class='texttt'>std::memmove</span>.</p></div><div class='footnote' id='footnote-43'><div class='marginalizedparent'><a class='marginalized' href='#footnote-43'>43)</a></div><p >By using, for example,
+the library functions (<a href='headers'>[headers]</a>) <span class='texttt'>std::memcpy</span> or <span class='texttt'>std::memmove</span>.</p></div><div class='footnote' id='footnote-44'><div class='marginalizedparent'><a class='marginalized' href='#footnote-44'>44)</a></div><p >The
+intent is that the memory model of C++ is compatible
+with that of ISO/IEC 9899 Programming Language C.</p></div><div class='footnote' id='footnote-45'><div class='marginalizedparent'><a class='marginalized' href='#footnote-45'>45)</a></div><p >The size and layout of an instance of an incompletely-defined
+object type is unknown.</p></div><div id='basic.fundamental'><h3 ><a class='secnum' href='#basic.fundamental' style='min-width:103pt'>3.9.1</a> Fundamental types <a class='abbr_ref' href='basic.fundamental'>[basic.fundamental]</a></h3><div class='para' id='basic.fundamental-1'><div class='marginalizedparent'><a class='marginalized' href='#basic.fundamental-1'>1</a></div><p ><span class='indexparent'><a class='index' id='type!fundamental'></a></span><span class='indexparent'><a class='index' id='type!integral'></a></span><span class='indexparent'><a class='index' id='type!floating point'></a></span><span class='indexparent'><a class='index' id='type!implementation-defined '></a></span><span class='indexparent'><a class='index' id='type!Boolean'></a></span><span class='indexparent'><a class='index' id='type!char'></a></span><span class='indexparent'><a class='index' id='type!character'></a></span><span class='indexparent'><a class='index' id='type!narrow character'></a></span>Objects declared as characters (<span class='texttt'>char</span>) shall be large enough to
+store any member of the implementation's basic character set. If a
+character from this set is stored in a character object, the integral
+value of that character object is equal to the value of the single
+character literal form of that character. It is <span class='indexparent'><a class='index' id='signedness of char'></a></span>implementation-defined
+whether a <span class='texttt'>char</span> object can hold negative values.
+<span class='indexparent'><a class='index' id='char!implementation-defined sign~of'></a></span><span class='indexparent'><a class='index' id='type!signed char'></a></span><span class='indexparent'><a class='index' id='type!unsigned char'></a></span>Characters can be explicitly declared <span class='texttt'>unsigned</span> or
+<span class='texttt'>signed</span>.
+<span class='indexparent'><a class='index' id='character!signed'></a></span>Plain <span class='texttt'>char</span>, <span class='texttt'>signed char</span>, and <span class='texttt'>unsigned char</span> are
+three distinct types, collectively called <i>narrow character types</i>.
+A <span class='texttt'>char</span>, a <span class='texttt'>signed char</span>, and an
+<span class='texttt'>unsigned char</span> occupy the same amount of storage and have the
+same alignment requirements (<a href='basic.align'>[basic.align]</a>); that is, they have the
+same object representation. For narrow character types, all bits of the object
+representation participate in the value representation.
+[&nbsp;<i>Note:</i><span class='space'></span>
+A bit-field of narrow character type whose length is larger than
+the number of bits in the object representation of that type has
+padding bits; see <a href='class.bit'>[class.bit]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+For unsigned narrow
+character types, each possible bit pattern of the value representation
+represents a distinct number. These requirements do not hold for other types. In
+any particular implementation, a plain <span class='texttt'>char</span> object can take on
+either the same values as a <span class='texttt'>signed char</span> or an <span class='texttt'>unsigned
+char</span>; which one is <span class='indexparent'><a class='index' id='representation of char'></a></span>implementation-defined.
+For each value <i>i</i> of type <span class='texttt'>unsigned char</span> in the range
+0 to 255 inclusive, there exists a value <i>j</i> of type
+<span class='texttt'>char</span> such that the result of an integral
+conversion (<a href='conv.integral'>[conv.integral]</a>) from <i>i</i> to <span class='texttt'>char</span> is
+<i>j</i>, and the result of an integral conversion from
+<i>j</i> to <span class='texttt'>unsigned char</span> is <i>i</i>.</p></div><div class='para' id='basic.fundamental-2'><div class='marginalizedparent'><a class='marginalized' href='#basic.fundamental-2'>2</a></div><p ><span class='indexparent'><a class='index' id='type!standard~signed~integer'></a></span><span class='indexparent'><a class='index' id='standard~signed~integer~type'></a></span>There are five <i>standard signed integer types</i> :
+<span class='indexparent'><a class='index' id='type!signed char'></a></span><span class='indexparent'><a class='index' id='type!short'></a></span><span class='indexparent'><a class='index' id='type!int'></a></span><span class='indexparent'><a class='index' id='type!long'></a></span><span class='indexparent'><a class='index' id='type!long long'></a></span>“<span class='texttt'>signed char</span>”, “<span class='texttt'>short int</span>”, “<span class='texttt'>int</span>”,
+“<span class='texttt'>long int</span>”, and “<span class='texttt'>long</span> <span class='texttt'>long</span> <span class='texttt'>int</span>”. In
+this list, each type provides at least as much storage as those
+preceding it in the list.
+<span class='indexparent'><a class='index' id='type!extended~signed~integer'></a></span><span class='indexparent'><a class='index' id='extended~signed~integer~type'></a></span><span class='indexparent'><a class='index' id='type!signed~integer'></a></span><span class='indexparent'><a class='index' id='signed~integer~type'></a></span>There may also be <span class='indexparent'><a class='index' id='extended signed integer types'></a></span>implementation-defined <i>extended signed
+integer types</i>. The standard and
+extended signed integer types are collectively called <i>signed integer types</i>.
+<span class='indexparent'><a class='index' id='integral~type!implementation-defined '></a></span>Plain
+<span class='texttt'>int</span>s have the natural size suggested by the architecture of the
+execution environment<a class='footnotenum' href='#footnote-46'>46</a>;
+the other signed integer types are provided to meet special needs.</p></div><div class='para' id='basic.fundamental-3'><div class='marginalizedparent'><a class='marginalized' href='#basic.fundamental-3'>3</a></div><p ><span class='indexparent'><a class='index' id='type!unsigned'></a></span>For each of the standard signed integer types,
+there exists a corresponding (but different)
+<span class='indexparent'><a class='index' id='type!standard~unsigned~integer'></a></span><span class='indexparent'><a class='index' id='standard~unsigned~integer~type'></a></span><i>standard unsigned integer type</i>:
+<span class='indexparent'><a class='index' id='type!unsigned char'></a></span><span class='indexparent'><a class='index' id='type!unsigned short'></a></span><span class='indexparent'><a class='index' id='type!unsigned int'></a></span><span class='indexparent'><a class='index' id='type!unsigned long'></a></span><span class='indexparent'><a class='index' id='type!unsigned long long'></a></span>“<span class='texttt'>unsigned char</span>”, “<span class='texttt'>unsigned short int</span>”,
+“<span class='texttt'>unsigned int</span>”, “<span class='texttt'>unsigned long int</span>”, and
+“<span class='texttt'>unsigned</span> <span class='texttt'>long</span> <span class='texttt'>long</span> <span class='texttt'>int</span>”, each of
+which occupies the same amount of storage and has the same alignment
+requirements (<a href='basic.align'>[basic.align]</a>) as the corresponding signed integer
+type<a class='footnotenum' href='#footnote-47'>47</a>;
+that is, each signed integer type has the same object representation as
+its corresponding unsigned integer type.
+<span class='indexparent'><a class='index' id='type!extended~unsigned~integer'></a></span><span class='indexparent'><a class='index' id='extended~unsigned~integer~type'></a></span><span class='indexparent'><a class='index' id='type!unsigned~integer'></a></span><span class='indexparent'><a class='index' id='unsigned~integer~type'></a></span>Likewise, for each of the extended signed integer types there exists a
+corresponding <i>extended unsigned integer type</i> with the same amount of storage and alignment
+requirements. The standard and extended unsigned integer types are
+collectively called <i>unsigned integer types</i>. The range of non-negative
+values of a <i>signed integer</i> type is a subrange of the corresponding
+<i>unsigned integer</i> type, and the value
+representation of each corresponding signed/unsigned type shall be the
+same.
+<span class='indexparent'><a class='index' id='type!standard~integer'></a></span><span class='indexparent'><a class='index' id='standard~integer~type'></a></span><span class='indexparent'><a class='index' id='type!extended~integer'></a></span><span class='indexparent'><a class='index' id='extended~integer~type'></a></span>The standard signed integer types and standard unsigned integer types
+are collectively called the <i>standard integer types</i>, and the extended
+signed integer types and extended
+unsigned integer types are collectively called the <i>extended
+integer types</i>. The signed and unsigned integer types shall satisfy
+the constraints given in the C standard, section 5.2.4.2.1.</p></div><div class='para' id='basic.fundamental-4'><div class='marginalizedparent'><a class='marginalized' href='#basic.fundamental-4'>4</a></div><p ><span class='indexparent'><a class='index' id='arithmetic!unsigned'></a></span>Unsigned integers shall obey the laws of arithmetic modulo <span class='math'>2<sup ><span class='mathalpha'>n</span></sup></span> where <span class='math'><span class='mathalpha'>n</span></span> is
+the number of bits in the value representation of that particular size of
+integer.<a class='footnotenum' href='#footnote-48'>48</a></p></div><div class='para' id='basic.fundamental-5'><div class='marginalizedparent'><a class='marginalized' href='#basic.fundamental-5'>5</a></div><p ><span class='indexparent'><a class='index' id='type!char16_t'></a></span><span class='indexparent'><a class='index' id='type!char32_t'></a></span><span class='indexparent'><a class='index' id='wchar_t!implementation-defined'></a></span><span class='indexparent'><a class='index' id='type!wchar_t'></a></span><span class='indexparent'><a class='index' id='type!underlying wchar_t'></a></span>Type <span class='texttt'>wchar_t</span> is a distinct type whose values can represent
+distinct codes for all members of the largest extended character set
+specified among the supported locales (<a href='locale'>[locale]</a>). Type
+<span class='texttt'>wchar_t</span> shall have the same size, signedness, and alignment
+requirements (<a href='basic.align'>[basic.align]</a>) as one of the other integral types,
+called its <a id='underlying type'><i>underlying type</i></a>. Types <span class='texttt'>char16_t</span> and
+<span class='texttt'>char32_t</span> denote distinct types with the same size, signedness,
+and alignment as <span class='texttt'>uint_least16_t</span> and <span class='texttt'>uint_least32_t</span>,
+respectively, in <span class='texttt'>&lt;cstdint&gt;</span>, called the underlying types.</p></div><div class='para' id='basic.fundamental-6'><div class='marginalizedparent'><a class='marginalized' href='#basic.fundamental-6'>6</a></div><p ><span class='indexparent'><a class='index' id='Boolean~type'></a></span>Values of type <span class='texttt'>bool</span> are either <span class='texttt'>true</span> or
+<span class='texttt'>false</span>.<a class='footnotenum' href='#footnote-49'>49</a>
+[&nbsp;<i>Note:</i><span class='space'></span> There are no <span class='texttt'>signed</span>, <span class='texttt'>unsigned</span>, <span class='texttt'>short</span>,
+or <span class='texttt'>long bool</span> types or values. <i>&nbsp;—&nbsp;end note</i>&nbsp;] Values of type
+<span class='texttt'>bool</span> participate in integral promotions (<a href='conv.prom'>[conv.prom]</a>).</p></div><div class='para' id='basic.fundamental-7'><div class='marginalizedparent'><a class='marginalized' href='#basic.fundamental-7'>7</a></div><p >Types <span class='texttt'>bool</span>, <span class='texttt'>char</span>, <span class='texttt'>char16_t</span>, <span class='texttt'>char32_t</span>,
+<span class='texttt'>wchar_t</span>, and the signed and unsigned integer types are
+collectively called
+<span class='indexparent'><a class='index' id='integral~type'></a></span><i>integral</i> types.<a class='footnotenum' href='#footnote-50'>50</a>
+A synonym for integral type is
+<span class='indexparent'><a class='index' id='integer~type'></a></span><i>integer type</i>. The representations of integral types shall
+define values by use of  a pure binary numeration system.<a class='footnotenum' href='#footnote-51'>51</a>
+[&nbsp;<i>Example:</i><span class='space'></span> this International Standard permits two's complement,
+ones' complement and signed magnitude representations for integral types.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='basic.fundamental-8'><div class='marginalizedparent'><a class='marginalized' href='#basic.fundamental-8'>8</a></div><p ><span class='indexparent'><a class='index' id='floating~point~type'></a></span>There are three <i>floating point</i> types:
+<span class='indexparent'><a class='index' id='type!float'></a></span><span class='texttt'>float</span>,
+<span class='indexparent'><a class='index' id='type!double'></a></span><span class='texttt'>double</span>,
+and
+<span class='indexparent'><a class='index' id='type!long double'></a></span><span class='texttt'>long double</span>. The type <span class='texttt'>double</span> provides at least as much
+precision as <span class='texttt'>float</span>, and the type <span class='texttt'>long double</span> provides at
+least as much precision as <span class='texttt'>double</span>. The set of values of the type
+<span class='texttt'>float</span> is a subset of the set of values of the type
+<span class='texttt'>double</span>; the set of values of the type <span class='texttt'>double</span> is a subset
+of the set of values of the type <span class='texttt'>long</span> <span class='texttt'>double</span>. The value
+representation of floating-point types is <span class='indexparent'><a class='index' id='value representation of floating-point types'></a></span>implementation-defined.
+<span class='indexparent'><a class='index' id='floating~point~type!implementation-defined'></a></span><span class='indexparent'><a class='index' id='type!arithmetic'></a></span>[&nbsp;<i>Note:</i><span class='space'></span>
+This International Standard imposes no requirements on the accuracy of
+floating-point operations; see also <a href='limits'>[limits]</a>. 
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+<i>Integral</i> and <i>floating</i> types are collectively
+called <i>arithmetic</i> types.
+<span class='indexparent'><a class='index' id='numeric_limits!specializations for arithmetic types'></a></span>Specializations of the standard library template
+<span class='texttt'>std::numeric_limits</span> (<a href='support.limits'>[support.limits]</a>) shall specify the
+maximum and minimum values of each arithmetic type for an
+implementation.</p></div><div class='para' id='basic.fundamental-9'><div class='marginalizedparent'><a class='marginalized' href='#basic.fundamental-9'>9</a></div><p ><span class='indexparent'><a class='index' id='type!void'></a></span>A type <i>cv</i> <span class='texttt'>void</span>
+is an incomplete type that cannot be completed; such a type has
+an empty set of values. It is used as the return
+type for functions that do not return a value. Any expression can be
+explicitly converted to type <i>cv</i> <span class='texttt'>void</span> (<a href='expr.cast'>[expr.cast]</a>).
+An expression of type <i>cv</i> <span class='texttt'>void</span> shall
+be used only as an expression statement (<a href='stmt.expr'>[stmt.expr]</a>), as an operand
+of a comma expression (<a href='expr.comma'>[expr.comma]</a>), as a second or third operand
+of <span class='texttt'>?:</span> (<a href='expr.cond'>[expr.cond]</a>), as the operand of
+<span class='texttt'>typeid</span>, <span class='texttt'>noexcept</span>, or <span class='texttt'>decltype</span>, as
+the expression in a return statement (<a href='stmt.return'>[stmt.return]</a>) for a function
+with the return type <i>cv</i> <span class='texttt'>void</span>, or as the operand of an explicit conversion
+to type <i>cv</i> <span class='texttt'>void</span>.</p></div><div class='para' id='basic.fundamental-10'><div class='marginalizedparent'><a class='marginalized' href='#basic.fundamental-10'>10</a></div><p >A value of type <span class='texttt'>std::nullptr_t</span> is a null pointer
+constant (<a href='conv.ptr'>[conv.ptr]</a>). Such values participate in the pointer and the
+pointer to member conversions (<a href='conv.ptr'>[conv.ptr]</a>, <a href='conv.mem'>[conv.mem]</a>).
+<span class='texttt'>sizeof(std::nullptr_t)</span> shall be equal to <span class='texttt'>sizeof(void*)</span>.</p></div><div class='para' id='basic.fundamental-11'><div class='marginalizedparent'><a class='marginalized' href='#basic.fundamental-11'>11</a></div><p >[&nbsp;<i>Note:</i><span class='space'></span>
+Even if the implementation defines two or more basic types to have the
+same value representation, they are nevertheless different types.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-46'><div class='marginalizedparent'><a class='marginalized' href='#footnote-46'>46)</a></div><p ><span class='texttt'>int</span> must also be large enough
+to contain any value in the range
+<span class='texttt'>[INT_MIN, <span class='discretionary'></span>INT_MAX]</span>,
+as defined in the header <span class='texttt'>&lt;climits&gt;</span>.</p></div><div class='footnote' id='footnote-47'><div class='marginalizedparent'><a class='marginalized' href='#footnote-47'>47)</a></div><p >See <a href='dcl.type.simple'>[dcl.type.simple]</a> regarding the correspondence between types and
+the sequences of <span class='grammarterm'>type-specifiers</span> that designate them.</p></div><div class='footnote' id='footnote-48'><div class='marginalizedparent'><a class='marginalized' href='#footnote-48'>48)</a></div><p >This implies that
+unsigned arithmetic does not overflow because a result
+that cannot be represented by the resulting unsigned integer type is
+reduced modulo the number that is one greater than the largest value
+that can be represented by the resulting unsigned integer type.</p></div><div class='footnote' id='footnote-49'><div class='marginalizedparent'><a class='marginalized' href='#footnote-49'>49)</a></div><p >Using a <span class='texttt'>bool</span> value in ways described by this International
+Standard as “undefined,” such as by examining the value of an
+uninitialized automatic object, might cause it to behave as if it is
+neither <span class='texttt'>true</span> nor <span class='texttt'>false</span>.</p></div><div class='footnote' id='footnote-50'><div class='marginalizedparent'><a class='marginalized' href='#footnote-50'>50)</a></div><p >Therefore, enumerations (<a href='dcl.enum'>[dcl.enum]</a>) are not integral; however,
+enumerations can be promoted to integral types as specified
+in <a href='conv.prom'>[conv.prom]</a>.</p></div><div class='footnote' id='footnote-51'><div class='marginalizedparent'><a class='marginalized' href='#footnote-51'>51)</a></div><p >A positional
+representation for integers that uses the binary digits 0
+and 1, in which the values represented by successive bits are additive,
+begin with 1, and are multiplied by successive integral power of 2,
+except perhaps for the bit with the highest position. (Adapted from the
+<i>American National Dictionary for Information Processing Systems</i>.)</p></div></div><div id='basic.compound'><h3 ><a class='secnum' href='#basic.compound' style='min-width:103pt'>3.9.2</a> Compound types <a class='abbr_ref' href='basic.compound'>[basic.compound]</a></h3><div class='para' id='basic.compound-1'><div class='marginalizedparent'><a class='marginalized' href='#basic.compound-1'>1</a></div><p ><span class='indexparent'><a class='index' id='type!compound'></a></span>Compound types can be constructed in the following ways:</p><ul ><li ><p ><span class='indexparent'><a class='index' id='type!array'></a></span><i>arrays</i> of objects of a given type, <a href='dcl.array'>[dcl.array]</a>;</p></li><li ><p ><span class='indexparent'><a class='index' id='type!function'></a></span><i>functions</i>, which have parameters of given types and return
+<span class='texttt'>void</span> or references or objects of a given type, <a href='dcl.fct'>[dcl.fct]</a>;</p></li><li ><p ><span class='indexparent'><a class='index' id='type!pointer'></a></span><i>pointers</i> to <i>cv</i> <span class='texttt'>void</span> or objects or functions (including
+static members of classes) of a given type, <a href='dcl.ptr'>[dcl.ptr]</a>;</p></li><li ><p ><span class='indexparent'><a class='index' id='reference'></a></span><span class='indexparent'><a class='index' id='reference!lvalue'></a></span><span class='indexparent'><a class='index' id='reference!rvalue'></a></span><span class='indexparent'><a class='index' id='lvalue~reference'></a></span><span class='indexparent'><a class='index' id='rvalue~reference'></a></span><i>references</i> to objects or functions of a given
+type, <a href='dcl.ref'>[dcl.ref]</a>. There are two types of references:
+</p><ul ><li ><p ><i>lvalue reference</i>
+</p></li><li ><p ><i>rvalue reference</i>
+</p></li></ul></li><li ><p ><span class='indexparent'><a class='index' id='class'></a></span><i>classes</i> containing a sequence of objects of various types
+(Clause <a href='class'>[class]</a>), a set of types, enumerations and functions for
+manipulating these objects (<a href='class.mfct'>[class.mfct]</a>), and a set of restrictions
+on the access to these entities (Clause <a href='class.access'>[class.access]</a>);</p></li><li ><p ><span class='indexparent'><a class='index' id='union'></a></span><i>unions</i>, which are classes capable of containing objects of
+different types at different times, <a href='class.union'>[class.union]</a>;</p></li><li ><p ><span class='indexparent'><a class='index' id='enum'></a></span><i>enumerations</i>, which comprise a set of named constant values.
+Each distinct enumeration constitutes a different
+<span class='indexparent'><a class='index' id='type!enumerated'></a></span><i>enumerated type</i>, <a href='dcl.enum'>[dcl.enum]</a>;</p></li><li ><p ><span class='indexparent'><a class='index' id='member~pointer~to'></a></span><span class='indexparent'><a class='index' id='pointer~to~member'></a></span><i>pointers to non-static</i>
+<a class='footnotenum' href='#footnote-52'>52</a>
+<i>class members</i>, which identify members of a given
+type within objects of a given class, <a href='dcl.mptr'>[dcl.mptr]</a>.
+</p></li></ul></div><div class='para' id='basic.compound-2'><div class='marginalizedparent'><a class='marginalized' href='#basic.compound-2'>2</a></div><p >These methods of constructing types can be applied recursively;
+restrictions are mentioned in <a href='dcl.ptr'>[dcl.ptr]</a>, <a href='dcl.array'>[dcl.array]</a>,
+<a href='dcl.fct'>[dcl.fct]</a>, and <a href='dcl.ref'>[dcl.ref]</a>. Constructing a type such that the number of
+bytes in its object representation exceeds the maximum value representable in
+the type <span class='texttt'>std::size_t</span> (<a href='support.types'>[support.types]</a>) is ill-formed.</p></div><div class='para' id='basic.compound-3'><div class='marginalizedparent'><a class='marginalized' href='#basic.compound-3'>3</a></div><p ><span class='indexparent'><a class='index' id='terminology!pointer'></a></span>The type of a pointer to <i>cv</i> <span class='texttt'>void</span> or a pointer to an object type is
+called an <a id='object pointer type'><i>object pointer type</i></a>. [&nbsp;<i>Note:</i><span class='space'></span> A pointer to <span class='texttt'>void</span>
+does not have a pointer-to-object type, however, because <span class='texttt'>void</span> is not
+an object type. <i>&nbsp;—&nbsp;end note</i>&nbsp;] The type of a pointer that can designate a function
+is called a <a id='function pointer type'><i>function pointer type</i></a>.
+A pointer to objects of type <span class='texttt'>T</span> is referred to as a “pointer to
+<span class='texttt'>T</span>”. [&nbsp;<i>Example:</i><span class='space'></span> a pointer to an object of type <span class='texttt'>int</span> is
+referred to as “pointer to <span class='texttt'>int</span> ” and a pointer to an object of
+class <span class='texttt'>X</span> is called a “pointer to <span class='texttt'>X</span>”. <i>&nbsp;—&nbsp;end example</i>&nbsp;]
+Except for pointers to static members, text referring to “pointers”
+does not apply to pointers to members. Pointers to incomplete types are
+allowed although there are restrictions on what can be done with
+them (<a href='basic.align'>[basic.align]</a>).
+<span class='indexparent'><a class='index' id='address'></a></span>Every value of pointer type is one of the following:
+</p><ul ><li ><p >a <a id='pointer to'><i>pointer to</i></a> an object or function (the pointer is said to <a id='point'><i>point</i></a> to the object or function), or
+</p></li><li ><p >a <a id='pointer past the end of'><i>pointer past the end of</i></a> an object (<a href='expr.add'>[expr.add]</a>), or
+</p></li><li ><p >the <a id='null pointer value'><i>null pointer value</i></a> (<a href='conv.ptr'>[conv.ptr]</a>) for that type, or
+</p></li><li ><p >an <a id='invalid pointer value'><i>invalid pointer value</i></a>.
+</p></li></ul><p >A value of a
+pointer type
+that is a pointer to or past the end of an object
+<a id='represents the address'><i>represents the address</i></a> of
+the first byte in memory (<a href='intro.memory'>[intro.memory]</a>) occupied by the object<a class='footnotenum' href='#footnote-53'>53</a>
+or the first byte in memory
+after the end of the storage occupied by the object,
+respectively.
+[&nbsp;<i>Note:</i><span class='space'></span>
+A pointer past the end of an object (<a href='expr.add'>[expr.add]</a>)
+is not considered to point to an unrelated object
+of the object's type
+that might be located at that address.
+A pointer value becomes invalid
+when the storage it denotes
+reaches the end of its storage duration;
+see <a href='basic.stc'>[basic.stc]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+For purposes of pointer arithmetic (<a href='expr.add'>[expr.add]</a>)
+and comparison (<a href='expr.rel'>[expr.rel]</a>, <a href='expr.eq'>[expr.eq]</a>),
+a pointer past the end of the last element of
+an array <span class='texttt'>x</span> of <span class='math'><span class='mathalpha'>n</span></span> elements
+is considered to be equivalent to
+a pointer to a hypothetical element <span class='math'><span class='mathtt'>x[</span><span class='mathalpha'>n</span><span class='mathtt'>]</span></span>.
+The value representation of
+pointer types is <span class='indexparent'><a class='index' id='value representation of pointer types'></a></span>implementation-defined. Pointers to
+layout-compatible types shall
+have the same value representation and alignment
+requirements (<a href='basic.align'>[basic.align]</a>).
+[&nbsp;<i>Note:</i><span class='space'></span> Pointers to over-aligned types (<a href='basic.align'>[basic.align]</a>) have no special
+representation, but their range of valid values is restricted by the extended
+alignment requirement.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='basic.compound-4'><div class='marginalizedparent'><a class='marginalized' href='#basic.compound-4'>4</a></div><p >Two objects <i>a</i> and <i>b</i> are <a id='pointer-interconvertible'><i>pointer-interconvertible</i></a> if:
+</p><ul ><li ><p >they are the same object, or
+</p></li><li ><p >one is a standard-layout union object and
+the other is a non-static data member of that object (<a href='class.union'>[class.union]</a>), or
+</p></li><li ><p >one is a standard-layout class object and
+the other is the first non-static data member of that object, or,
+if the object has no non-static data members,
+the first base class subobject of that object (<a href='class.mem'>[class.mem]</a>), or
+</p></li><li ><p >there exists an object <i>c</i> such that
+<i>a</i> and <i>c</i> are pointer-interconvertible, and
+<i>c</i> and <i>b</i> are pointer-interconvertible.
+</p></li></ul><p >If two objects are pointer-interconvertible,
+then they have the same address,
+and it is possible to obtain a pointer to one
+from a pointer to the other
+via a <span class='texttt'>reinterpret_cast</span> (<a href='expr.reinterpret.cast'>[expr.reinterpret.cast]</a>).
+[&nbsp;<i>Note:</i><span class='space'></span>
+An array object and its first element are not pointer-interconvertible,
+even though they have the same address.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='basic.compound-5'><div class='marginalizedparent'><a class='marginalized' href='#basic.compound-5'>5</a></div><p ><span class='indexparent'><a class='index' id='pointer'></a></span><span class='indexparent'><a class='index' id='void*!type'></a></span>A pointer to <i>cv</i>-qualified (<a href='basic.type.qualifier'>[basic.type.qualifier]</a>) or <i>cv</i>-unqualified
+<span class='texttt'>void</span>
+can be used to point to objects of
+unknown type. Such a pointer shall be able to hold any object pointer.
+An object of type <i>cv</i>
+<span class='texttt'>void*</span> shall have the same representation and alignment
+requirements as <i>cv</i> <span class='texttt'>char*</span>.</p></div><div class='footnote' id='footnote-52'><div class='marginalizedparent'><a class='marginalized' href='#footnote-52'>52)</a></div><p >Static class members are objects or functions, and pointers to them are
+ordinary pointers to objects or functions.</p></div><div class='footnote' id='footnote-53'><div class='marginalizedparent'><a class='marginalized' href='#footnote-53'>53)</a></div><p >For an object that is not within its lifetime,
+this is the first byte in memory that it will occupy or used to occupy.</p></div></div><div id='basic.type.qualifier'><h3 ><a class='secnum' href='#basic.type.qualifier' style='min-width:103pt'>3.9.3</a> CV-qualifiers <a class='abbr_ref' href='basic.type.qualifier'>[basic.type.qualifier]</a></h3><div class='para' id='basic.type.qualifier-1'><div class='marginalizedparent'><a class='marginalized' href='#basic.type.qualifier-1'>1</a></div><p ><span class='indexparent'><a class='index' id='cv-qualifier'></a></span><span class='indexparent'><a class='index' id='const'></a></span><span class='indexparent'><a class='index' id='volatile'></a></span>A type mentioned in <a href='basic.fundamental'>[basic.fundamental]</a> and <a href='basic.compound'>[basic.compound]</a> is
+a <i>cv-unqualified type</i>. Each type which is a
+cv-unqualified complete or incomplete object type or is
+<span class='texttt'>void</span> (<a href='basic.types'>[basic.types]</a>) has three corresponding cv-qualified
+versions of its type: a <span class='grammarterm'>const-qualified</span> version, a
+<i>volatile-qualified</i> version, and a
+<i>const-volatile-qualified</i> version. The term
+<i>object type</i> (<a href='intro.object'>[intro.object]</a>) includes the cv-qualifiers
+specified in the <i ><a href='dcl.spec#decl-specifier-seq'>decl-specifier-seq</a></i> (<a href='dcl.spec'>[dcl.spec]</a>), 
+<i ><a href='dcl.decl#declarator'>declarator</a></i> (Clause <a href='dcl.decl'>[dcl.decl]</a>),
+<i ><a href='dcl.name#type-id'>type-id</a></i> (<a href='dcl.name'>[dcl.name]</a>), or 
+<i ><a href='expr.new#new-type-id'>new-type-id</a></i> (<a href='expr.new'>[expr.new]</a>) when the object is created.</p><ul ><li ><p >A <i>const object</i> is an object of type <span class='texttt'>const T</span> or a
+  non-mutable subobject of such an object.</p></li><li ><p >A <i>volatile object</i> is an object of type
+  <span class='texttt'>volatile T</span>, a subobject of such an object, or a mutable
+  subobject of a const volatile object.</p></li><li ><p >A <i>const volatile object</i> is an object of type
+  <span class='texttt'>const volatile T</span>, a non-mutable subobject of such an object,
+  a const subobject of a volatile object, or a non-mutable volatile
+  subobject of a const object.</p></li></ul><p >The cv-qualified or
+cv-unqualified versions of a type
+are distinct types; however, they shall have the same representation and
+alignment requirements (<a href='basic.align'>[basic.align]</a>).<a class='footnotenum' href='#footnote-54'>54</a></p></div><div class='para' id='basic.type.qualifier-2'><div class='marginalizedparent'><a class='marginalized' href='#basic.type.qualifier-2'>2</a></div><p ><span class='indexparent'><a class='index' id='array!const'></a></span>A compound type (<a href='basic.compound'>[basic.compound]</a>) is not cv-qualified by the
+cv-qualifiers (if any) of the types from which it is compounded. Any
+cv-qualifiers applied to an array type affect the array element type,
+not the array type (<a href='dcl.array'>[dcl.array]</a>).</p></div><div class='para' id='basic.type.qualifier-3'><div class='marginalizedparent'><a class='marginalized' href='#basic.type.qualifier-3'>3</a></div><p >See <a href='dcl.fct'>[dcl.fct]</a> and <a href='class.this'>[class.this]</a> regarding function
+types that have <i ><a href='dcl.decl#cv-qualifier'>cv-qualifiers</a></i>.</p></div><div class='para' id='basic.type.qualifier-4'><div class='marginalizedparent'><a class='marginalized' href='#basic.type.qualifier-4'>4</a></div><p >There is a partial ordering on cv-qualifiers, so that a type can be
+said to be <span class='grammarterm'>more cv-qualified</span> than another.
+Table <a href='#tab:relations.on.const.and.volatile'>[tab:relations.on.const.and.volatile]</a> shows the relations that
+constitute this ordering.</p><div class='numberedTable' id='tab:relations.on.const.and.volatile'>Table <a href='#tab:relations.on.const.and.volatile'>8</a> — Relations on <span class='texttt'>const</span> and <span class='texttt'>volatile</span><br><table ><tr class='rowsep'><td class='center'>
+
+
+
+<i>no cv-qualifier</i>    </td><td class='center'>&lt;</td><td class='center'> <span class='texttt'>const</span>           </td></tr><tr ><td class='center'>
+<i>no cv-qualifier</i>    </td><td class='center'>&lt;</td><td class='center'> <span class='texttt'>volatile</span>        </td></tr><tr ><td class='center'>
+<i>no cv-qualifier</i>    </td><td class='center'>&lt;</td><td class='center'> <span class='texttt'>const volatile</span>  </td></tr><tr ><td class='center'>
+<span class='texttt'>const</span>               </td><td class='center'>&lt;</td><td class='center'> <span class='texttt'>const volatile</span>  </td></tr><tr ><td class='center'>
+<span class='texttt'>volatile</span>            </td><td class='center'>&lt;</td><td class='center'> <span class='texttt'>const volatile</span>  </td></tr></table></div></div><div class='para' id='basic.type.qualifier-5'><div class='marginalizedparent'><a class='marginalized' href='#basic.type.qualifier-5'>5</a></div><p >In this International Standard, the notation <i>cv</i> (or
+<i>cv1</i>, <i>cv2</i>, etc.), used in the description of types,
+represents an arbitrary set of cv-qualifiers, i.e., one of
+{<span class='texttt'>const</span>}, {<span class='texttt'>volatile</span>}, {<span class='texttt'>const</span>,
+<span class='texttt'>volatile</span>}, or the empty set.
+<span class='indexparent'><a class='index' id='cv-qualifier!top-level'></a></span>
+For a type <i>cv</i> <span class='texttt'>T</span>, the <i>top-level cv-qualifiers</i>
+of that type are those denoted by <i>cv</i>.
+[&nbsp;<i>Example:</i><span class='space'></span>
+The type corresponding to the <i ><a href='dcl.name#type-id'>type-id</a></i>
+<span class='texttt'>const int&amp;</span>
+has no top-level cv-qualifiers.
+The type corresponding to the <i ><a href='dcl.name#type-id'>type-id</a></i>
+<span class='texttt'>volatile int * const</span>
+has the top-level cv-qualifier <span class='texttt'>const</span>.
+For a class type <span class='texttt'>C</span>,
+the type corresponding to the <i ><a href='dcl.name#type-id'>type-id</a></i>
+<span class='texttt'>void (C::* volatile)(int) const</span>
+has the top-level cv-qualifier <span class='texttt'>volatile</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='basic.type.qualifier-6'><div class='marginalizedparent'><a class='marginalized' href='#basic.type.qualifier-6'>6</a></div><p >Cv-qualifiers applied to an array
+type attach to the underlying element type, so the notation
+“<i>cv</i> <span class='texttt'>T</span>”, where <span class='texttt'>T</span> is an array type, refers to
+an array whose elements are so-qualified. An array type whose elements
+are cv-qualified is also considered to have the same cv-qualifications
+as its elements.<span class='indexparent'><a class='index' id='type'></a></span>
+[&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+typedef char CA[5];
+typedef const char CC;
+CC arr1[5] = { 0 };
+const CA arr2 = { 0 };
+</pre><p >The type of both <span class='texttt'>arr1</span> and <span class='texttt'>arr2</span> is “array of 5
+<span class='texttt'>const char</span>”, and the array type is considered to be
+<span class='texttt'>const</span>-qualified.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-54'><div class='marginalizedparent'><a class='marginalized' href='#footnote-54'>54)</a></div><p >The same representation
+and alignment requirements are meant to imply
+interchangeability as arguments to functions, return values from
+functions, and non-static data members of unions.</p></div></div></div></div></body></html>

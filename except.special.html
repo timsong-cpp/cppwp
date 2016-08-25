@@ -1,0 +1,115 @@
+<!DOCTYPE html><html lang='en'><head><title>[except.special]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>15</a> Exception handling <a class='abbr_ref' href='./#except'>[except]</a></h1><div id='except.special'><h2 ><a class='secnum' style='min-width:88pt'>15.5</a> Special functions <a class='abbr_ref'>[except.special]</a></h2><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The functions <span class='texttt'>std::terminate()</span> (<a href='except.terminate'>[except.terminate]</a>) and
+<span class='texttt'>std::unexpected()</span> (<a href='except.unexpected'>[except.unexpected]</a>) are used by the exception
+handling mechanism for coping with errors related to the exception handling
+mechanism itself. The function
+<span class='texttt'>std::current_exception()</span> (<a href='propagation'>[propagation]</a>) and the class
+<span class='texttt'>std::nested_exception</span> (<a href='except.nested'>[except.nested]</a>) can be used by a program to
+capture the currently handled exception.</p></div><div id='except.terminate'><h3 ><a class='secnum' href='#except.terminate' style='min-width:103pt'>15.5.1</a> The <span class='texttt'>std::terminate()</span> function <a class='abbr_ref' href='except.terminate'>[except.terminate]</a></h3><div class='para' id='except.terminate-1'><div class='marginalizedparent'><a class='marginalized' href='#except.terminate-1'>1</a></div><p ><span class='indexparent'><a class='index' id='terminate()'></a></span>In some situations exception handling must be abandoned
+for less subtle error handling techniques. [&nbsp;<i>Note:</i><span class='space'></span> These situations are:</p><p ><span class='indexparent'><a class='index' id='terminate()!called'></a></span></p><ul ><li ><p >when the exception handling mechanism, after completing
+the initialization of the exception object
+but before
+activation of a handler for the exception (<a href='except.throw'>[except.throw]</a>),
+calls a function that exits
+via an exception, or</p></li><li ><p >when the exception handling mechanism cannot find a handler for a thrown exception (<a href='except.handle'>[except.handle]</a>), or</p></li><li ><p >when the search for a handler (<a href='except.handle'>[except.handle]</a>) encounters the
+outermost block of a function with a <i ><a href='except.spec#noexcept-specification'>noexcept-specification</a></i>
+that does not allow the exception (<a href='except.spec'>[except.spec]</a>), or</p></li><li ><p >when the destruction of an object during stack unwinding (<a href='except.ctor'>[except.ctor]</a>)
+terminates by throwing an exception, or</p></li><li ><p >when initialization of a non-local
+variable with static or thread storage duration (<a href='basic.start.dynamic'>[basic.start.dynamic]</a>)
+exits via an exception, or</p></li><li ><p >when destruction of an object with static or thread storage duration exits
+via an exception (<a href='basic.start.term'>[basic.start.term]</a>), or</p></li><li ><p >when execution of a function registered with
+<span class='texttt'>std::atexit</span> or <span class='texttt'>std::at_quick_exit</span>
+exits via an exception (<a href='support.start.term'>[support.start.term]</a>), or</p></li><li ><p >when a
+<i ><a href='expr.throw#throw-expression'>throw-expression</a></i> (<a href='expr.throw'>[expr.throw]</a>)
+with no operand attempts to rethrow an exception and no exception is being
+handled (<a href='except.throw'>[except.throw]</a>), or</p></li><li ><p >when
+<span class='texttt'>std::unexpected</span>
+exits via an exception
+of a type
+that is not allowed by the previously violated
+exception specification,
+and
+<span class='texttt'>std::bad_exception</span>
+is not included in that
+exception specification (<a href='except.unexpected'>[except.unexpected]</a>), or</p></li><li ><p >when the implementation's default
+unexpected exception handler
+is called (<a href='unexpected.handler'>[unexpected.handler]</a>), or</p></li><li ><p >when the function <span class='texttt'>std::nested_exception::rethrow_nested</span> is called for an object
+that has captured no exception (<a href='except.nested'>[except.nested]</a>), or</p></li><li ><p >when execution of the initial function of a thread exits via
+an exception (<a href='thread.thread.constr'>[thread.thread.constr]</a>), or</p></li><li ><p >when execution of an element access function (<a href='algorithms.parallel.defns'>[algorithms.parallel.defns]</a>)
+of a parallel algorithm exits via an exception (<a href='algorithms.parallel.exceptions'>[algorithms.parallel.exceptions]</a>), or</p></li><li ><p >when the destructor or the copy assignment operator is invoked on an object
+of type <span class='texttt'>std::thread</span> that refers to a joinable thread
+(<a href='thread.thread.destr'>[thread.thread.destr]</a>, <a href='thread.thread.assign'>[thread.thread.assign]</a>), or</p></li><li ><p >when a call to a <span class='texttt'>wait()</span>, <span class='texttt'>wait_until()</span>, or <span class='texttt'>wait_for()</span>
+function on a condition variable (<a href='thread.condition.condvar'>[thread.condition.condvar]</a>, <a href='thread.condition.condvarany'>[thread.condition.condvarany]</a>)
+fails to meet a postcondition.</p></li></ul><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='except.terminate-2'><div class='marginalizedparent'><a class='marginalized' href='#except.terminate-2'>2</a></div><p ><span class='indexparent'><a class='index' id='terminate()'></a></span>In such cases,
+<span class='texttt'>std::terminate()</span>
+is called (<a href='exception.terminate'>[exception.terminate]</a>).
+In the situation where no matching handler is found, it is
+<span class='indexparent'><a class='index' id='stack unwinding before call to std::terminate()'></a></span>implementation-defined whether or not the
+stack is unwound
+before
+<span class='texttt'>std::terminate()</span>
+is called.
+In the situation where the search for a handler (<a href='except.handle'>[except.handle]</a>) encounters the
+outermost block of a function with a <i ><a href='except.spec#noexcept-specification'>noexcept-specification</a></i>
+that does not allow the exception (<a href='except.spec'>[except.spec]</a>), it is
+<span class='indexparent'><a class='index' id='whether stack is unwound before calling std::terminate() when a noexcept specification is violated'></a></span>implementation-defined
+whether the stack is unwound, unwound partially, or not unwound at all
+before <span class='texttt'>std::terminate()</span> is called.
+In all other situations, the stack shall not be unwound before
+<span class='texttt'>std::terminate()</span>
+is called.
+An implementation is not permitted to finish stack unwinding
+prematurely based on a determination that the unwind process
+will eventually cause a call to
+<span class='texttt'>std::terminate()</span>.</p></div></div><div id='except.unexpected'><h3 ><a class='secnum' href='#except.unexpected' style='min-width:103pt'>15.5.2</a> The <span class='texttt'>std::unexpected()</span> function <a class='abbr_ref' href='except.unexpected'>[except.unexpected]</a></h3><div class='para' id='except.unexpected-1'><div class='marginalizedparent'><a class='marginalized' href='#except.unexpected-1'>1</a></div><p ><span class='indexparent'><a class='index' id='unexpected()'></a></span>If a function with
+a <i ><a href='except.spec#dynamic-exception-specification'>dynamic-exception-specification</a></i>
+exits via an exception
+of a type that is not allowed by its exception specification,
+the function
+<span class='texttt'>std::unexpected()</span>
+is called (<a href='exception.unexpected'>[exception.unexpected]</a>) immediately after completing
+the stack unwinding for the former function.</p></div><div class='para' id='except.unexpected-2'><div class='marginalizedparent'><a class='marginalized' href='#except.unexpected-2'>2</a></div><p >[&nbsp;<i>Note:</i><span class='space'></span> By default, <span class='texttt'>std::unexpected()</span> calls <span class='texttt'>std::terminate()</span>, but a
+program can install its own handler function (<a href='set.unexpected'>[set.unexpected]</a>). In either case, the
+constraints in the following paragraph apply. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='except.unexpected-3'><div class='marginalizedparent'><a class='marginalized' href='#except.unexpected-3'>3</a></div><p >The
+<span class='texttt'>std::unexpected()</span>
+function shall not return, but it can throw (or rethrow) an exception.
+If it throws a new exception which is allowed by the exception specification
+which previously was violated, then the search for another handler
+will continue at the call of the function whose exception specification was violated.
+If it exits via an exception of a type that the
+<i ><a href='except.spec#dynamic-exception-specification'>dynamic-exception-specification</a></i>
+does not allow,
+then the following happens:
+<span class='indexparent'><a class='index' id='bad_exception'></a></span>If the
+<i ><a href='except.spec#dynamic-exception-specification'>dynamic-exception-specification</a></i>
+does not include the class
+<span class='texttt'>std::bad_exception</span> (<a href='bad.exception'>[bad.exception]</a>)
+then the function
+<span class='texttt'>std::terminate()</span>
+is called, otherwise the thrown exception is replaced by an
+implementation-defined object of type
+<span class='texttt'>std::bad_exception</span>
+and the search for another handler will continue at the call of the function
+whose
+<i ><a href='except.spec#dynamic-exception-specification'>dynamic-exception-specification</a></i>
+was violated.</p></div><div class='para' id='except.unexpected-4'><div class='marginalizedparent'><a class='marginalized' href='#except.unexpected-4'>4</a></div><p >[&nbsp;<i>Note:</i><span class='space'></span>
+Thus,
+a <i ><a href='except.spec#dynamic-exception-specification'>dynamic-exception-specification</a></i>
+guarantees that a function exits only via an exception of one of the listed types.
+If the
+<i ><a href='except.spec#dynamic-exception-specification'>dynamic-exception-specification</a></i>
+includes the type
+<span class='texttt'>std::bad_exception</span>
+then any exception type not on the list may be replaced by
+<span class='texttt'>std::bad_exception</span>
+within the function
+<span class='texttt'>std::unexpected()</span>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='except.uncaught'><h3 ><a class='secnum' href='#except.uncaught' style='min-width:103pt'>15.5.3</a> The <span class='texttt'>std::uncaught_exceptions()</span> function <a class='abbr_ref' href='except.uncaught'>[except.uncaught]</a></h3><p ><span class='indexparent'><a class='index' id='uncaught_exceptions'></a></span></p><div class='para' id='except.uncaught-1'><div class='marginalizedparent'><a class='marginalized' href='#except.uncaught-1'>1</a></div><p >An exception is considered uncaught
+after completing the initialization of the exception object (<a href='except.throw'>[except.throw]</a>)
+until completing the activation of a handler for the exception (<a href='except.handle'>[except.handle]</a>).
+This includes stack unwinding.
+If the exception is rethrown (<a href='expr.throw'>[expr.throw]</a>),
+it is considered uncaught from the point of rethrow
+until the rethrown exception is caught again.
+The function <span class='texttt'>std::uncaught_exceptions()</span> (<a href='uncaught.exceptions'>[uncaught.exceptions]</a>)
+returns the number of uncaught exceptions in the current thread.<span class='indexparent'><a class='index' id='exception handling'></a></span>
+</p></div></div></div></div></body></html>

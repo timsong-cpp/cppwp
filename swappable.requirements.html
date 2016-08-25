@@ -1,0 +1,62 @@
+<!DOCTYPE html><html lang='en'><head><title>[swappable.requirements]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>17</a> Library introduction <a class='abbr_ref' href='./#library'>[library]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>17.6</a> Library-wide requirements <a class='abbr_ref' href='requirements#swappable.requirements'>[requirements]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>17.6.3</a> Requirements on types and expressions <a class='abbr_ref' href='utility.requirements#swappable.requirements'>[utility.requirements]</a></h3><div id='swappable.requirements'><h4 ><a class='secnum' style='min-width:118pt'>17.6.3.2</a> <span class='texttt'>Swappable</span> requirements <a class='abbr_ref'>[swappable.requirements]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >This subclause provides definitions for swappable types and expressions. In these
+definitions, let <span class='texttt'>t</span> denote an expression of type <span class='texttt'>T</span>, and let <span class='texttt'>u</span>
+denote an expression of type <span class='texttt'>U</span>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >An object <span class='texttt'>t</span> is <a id='swappable with'><i>swappable with</i></a> an object <span class='texttt'>u</span> if and only if:</p><ul ><li ><p >the expressions <span class='texttt'>swap(t, u)</span> and <span class='texttt'>swap(u, t)</span> are valid when
+evaluated in the context described below, and</p></li><li ><p >these expressions have the following effects:</p><ul ><li ><p >the object referred to by <span class='texttt'>t</span> has the value originally held by <span class='texttt'>u</span> and
+</p></li><li ><p >the object referred to by <span class='texttt'>u</span> has the value originally held by <span class='texttt'>t</span>.
+</p></li></ul></li></ul></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The context in which <span class='texttt'>swap(t, u)</span> and <span class='texttt'>swap(u, t)</span> are evaluated shall
+ensure that a binary non-member function named “swap” is selected via overload
+resolution (<a href='over.match'>[over.match]</a>) on a candidate set that includes:</p><ul ><li ><p >the two <span class='texttt'>swap</span> function templates defined in
+<span class='texttt'>&lt;utility&gt;</span> (<a href='utility'>[utility]</a>) and</p></li><li ><p >the lookup set produced by argument-dependent lookup (<a href='basic.lookup.argdep'>[basic.lookup.argdep]</a>).
+</p></li></ul><p >[&nbsp;<i>Note:</i><span class='space'></span> If <span class='texttt'>T</span> and <span class='texttt'>U</span> are both fundamental types or arrays of
+fundamental types and the declarations from the header <span class='texttt'>&lt;utility&gt;</span> are in
+scope, the overall lookup set described above is equivalent to that of the
+qualified name lookup applied to the expression <span class='texttt'>std::swap(t, u)</span> or
+<span class='texttt'>std::swap(u, t)</span> as appropriate. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p >[&nbsp;<i>Note:</i><span class='space'></span> It is unspecified whether a library component that has a swappable
+requirement includes the header <span class='texttt'>&lt;utility&gt;</span> to ensure an appropriate
+evaluation context. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >An rvalue or lvalue <span class='texttt'>t</span> is <a id='swappable'><i>swappable</i></a> if and only if <span class='texttt'>t</span> is
+swappable with any rvalue or lvalue, respectively, of type <span class='texttt'>T</span>.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >A type <span class='texttt'>X</span> satisfying any of the iterator requirements (<a href='iterator.requirements'>[iterator.requirements]</a>)
+satisfies the requirements of <span class='texttt'>ValueSwappable</span> if,
+for any dereferenceable object
+<span class='texttt'>x</span> of type <span class='texttt'>X</span>,
+<span class='texttt'>*x</span> is swappable.</p><p >[&nbsp;<i>Example:</i><span class='space'></span> User code can ensure that the evaluation of <span class='texttt'>swap</span> calls
+is performed in an appropriate context under the various conditions as follows:
+</p><pre class='codeblock'>
+#include &lt;utility&gt;
+
+<span class='comment'>// Requires: <span class='texttt'>std::forward&lt;T&gt;(t)</span> shall be swappable with <span class='texttt'>std::forward&lt;U&gt;(u)</span>.
+</span>template &lt;class T, class U&gt;
+void value_swap(T&amp;&amp; t, U&amp;&amp; u) {
+  using std::swap;
+  swap(std::forward&lt;T&gt;(t), std::forward&lt;U&gt;(u)); <span class='comment'>// OK: uses “swappable with” conditions
+</span>                                                <span class='comment'>// for rvalues and lvalues
+</span>}
+
+<span class='comment'>// Requires: lvalues of <span class='texttt'>T</span> shall be swappable.
+</span>template &lt;class T&gt;
+void lv_swap(T&amp; t1, T&amp; t2) {
+  using std::swap;
+  swap(t1, t2);                                 <span class='comment'>// OK: uses swappable conditions for
+</span>}                                               <span class='comment'>// lvalues of type <span class='texttt'>T</span>
+</span>
+namespace N {
+  struct A { int m; };
+  struct Proxy { A* a; };
+  Proxy proxy(A&amp; a) { return Proxy{ &amp;a }; }
+
+  void swap(A&amp; x, Proxy p) {
+    std::swap(x.m, p.a-&gt;m);                     <span class='comment'>// OK: uses context equivalent to swappable
+</span>                                                <span class='comment'>// conditions for fundamental types
+</span>  }
+  void swap(Proxy p, A&amp; x) { swap(x, p); }      <span class='comment'>// satisfy symmetry constraint
+</span>}
+
+int main() {
+  int i = 1, j = 2;
+  lv_swap(i, j);
+  assert(i == 2 &amp;&amp; j == 1);
+
+  N::A a1 = { 5 }, a2 = { -5 };
+  value_swap(a1, proxy(a2));
+  assert(a1.m == -5 &amp;&amp; a2.m == 5);
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>

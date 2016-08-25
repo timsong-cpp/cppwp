@@ -1,0 +1,72 @@
+<!DOCTYPE html><html lang='en'><head><title>[iterator.traits]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>24</a> Iterators library <a class='abbr_ref' href='./#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>24.4</a> Iterator primitives <a class='abbr_ref' href='iterator.primitives#iterator.traits'>[iterator.primitives]</a></h2><div id='iterator.traits'><h3 ><a class='secnum' style='min-width:103pt'>24.4.1</a> Iterator traits <a class='abbr_ref'>[iterator.traits]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >To implement algorithms only in terms of iterators, it is often necessary to
+determine the value and
+difference types that correspond to a particular iterator type.
+Accordingly, it is required that if
+<span class='texttt'>Iterator</span>
+is the type of an iterator,
+the types</p><pre class='codeblock'>
+iterator_traits&lt;Iterator&gt;::difference_type
+iterator_traits&lt;Iterator&gt;::value_type
+iterator_traits&lt;Iterator&gt;::iterator_category
+</pre><p >be defined as the iterator's difference type, value type and iterator category, respectively.
+In addition, the types</p><pre class='codeblock'>
+iterator_traits&lt;Iterator&gt;::reference
+iterator_traits&lt;Iterator&gt;::pointer
+</pre><p >shall be defined as the iterator's reference and pointer types, that is, for an
+iterator object <span class='texttt'>a</span>, the same type as the type of <span class='texttt'>*a</span> and <span class='texttt'>a-&gt;</span>,
+respectively. In the case of an output iterator, the types</p><pre class='codeblock'>
+iterator_traits&lt;Iterator&gt;::difference_type
+iterator_traits&lt;Iterator&gt;::value_type
+iterator_traits&lt;Iterator&gt;::reference
+iterator_traits&lt;Iterator&gt;::pointer
+</pre><p >may be defined as <span class='texttt'>void</span>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >If <span class='texttt'>Iterator</span> has valid (<a href='temp.deduct'>[temp.deduct]</a>) member
+types <span class='texttt'>difference_type</span>, <span class='texttt'>value_type</span>, <span class='texttt'>pointer</span>,
+<span class='texttt'>reference</span>, and <span class='texttt'>iterator_category</span>,
+<span class='texttt'>iterator_traits&lt;Iterator&gt;</span>
+shall have the following as publicly accessible members
+and shall have no other members:
+</p><pre class='codeblock'>
+  using difference_type   = typename Iterator::difference_type;
+  using value_type        = typename Iterator::value_type;
+  using pointer           = typename Iterator::pointer;
+  using reference         = typename Iterator::reference;
+  using iterator_category = typename Iterator::iterator_category;
+</pre><p >Otherwise, <span class='texttt'>iterator_traits&lt;Iterator&gt;</span>
+shall have no members.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >It is specialized for pointers as</p><pre class='codeblock'>
+namespace std {
+  template&lt;class T&gt; struct iterator_traits&lt;T*&gt; {
+    using difference_type   = ptrdiff_t;
+    using value_type        = T;
+    using pointer           = T*;
+    using reference         = T&amp;;
+    using iterator_category = random_access_iterator_tag;
+  };
+}
+</pre><p >and for pointers to const as</p><pre class='codeblock'>
+namespace std {
+  template&lt;class T&gt; struct iterator_traits&lt;const T*&gt; {
+    using difference_type   = ptrdiff_t;
+    using value_type        = T;
+    using pointer           = const T*;
+    using reference         = const T&amp;;
+    using iterator_category = random_access_iterator_tag;
+  };
+}
+</pre></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >[&nbsp;<i>Example:</i><span class='space'></span>
+To implement a generic
+<span class='texttt'>reverse</span>
+function, a C++ program can do the following:</p><pre class='codeblock'>
+template &lt;class BidirectionalIterator&gt;
+void reverse(BidirectionalIterator first, BidirectionalIterator last) {
+  typename iterator_traits&lt;BidirectionalIterator&gt;::difference_type n =
+    distance(first, last);
+  --n;
+  while(n &gt; 0) {
+    typename iterator_traits&lt;BidirectionalIterator&gt;::value_type
+     tmp = *first;
+    *first++ = *--last;
+    *last = tmp;
+    n -= 2;
+  }
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>

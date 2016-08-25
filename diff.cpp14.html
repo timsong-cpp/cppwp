@@ -1,0 +1,194 @@
+<!DOCTYPE html><html lang='en'><head><title>[diff.cpp14]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='annexnum' style='min-width:73pt'>Annex C&emsp;(informative)</a> Compatibility <a class='abbr_ref' href='./#diff'>[diff]</a></h1><div id='diff.cpp14'><h2 ><a class='secnum' style='min-width:88pt'>C.4</a> C++ and ISO C++ 2014 <a class='abbr_ref'>[diff.cpp14]</a></h2><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='summary!compatibility~with ISO C++ 2014_'></a></span>This subclause lists the differences between C++ and
+ISO C++ 2014 (ISO/IEC 14882:2014, <i>Programming Languages — C++</i>),
+by the chapters of this document.</p></div><div id='lex'><h3 ><a class='secnum' href='#lex' style='min-width:103pt'>C.4.1</a> Clause <a href='lex'>[lex]</a>: lexical conventions <a class='abbr_ref' href='diff.cpp14.lex'>[diff.cpp14.lex]</a></h3><p ><a href='lex.phases'>[lex.phases]</a>
+<span class='indexparent'><a class='index' id='trigraph sequence'></a></span><span class='hfill'></span><br/><b>Change:</b> Removal of trigraph support as a required feature.
+<span class='hfill'></span><br/><b>Rationale:</b> Prevents accidental uses of trigraphs in non-raw string literals and comments.
+<span class='hfill'></span><br/><b>Effect on original feature:</b>
+Valid C++ 2014 code that uses trigraphs may not be valid or may have different
+semantics in this International Standard. Implementations may choose to
+translate trigraphs as specified in C++ 2014 if they appear outside of a raw
+string literal, as part of the implementation-defined mapping from physical
+source file characters to the basic source character set.</p><p ><a href='lex.ppnumber'>[lex.ppnumber]</a>
+<span class='hfill'></span><br/><b>Change:</b> <i ><a href='lex.ppnumber#pp-number'>pp-number</a></i> can contain <span class='texttt'>p</span> <i ><a href='lex.fcon#sign'>sign</a></i> and
+<span class='texttt'>P</span> <i ><a href='lex.fcon#sign'>sign</a></i>
+<span class='hfill'></span><br/><b>Rationale:</b> Necessary to enable hexadecimal floating literals.
+<span class='hfill'></span><br/><b>Effect on original feature:</b>
+Valid C++ 2014 code may fail to compile or produce different results in
+this International Standard. Specifically, character sequences like <span class='texttt'>0p+0</span>
+and <span class='texttt'>0e1_p+0</span> are three separate tokens each in C++ 2014, but one single token
+in this International Standard.</p><pre class='codeblock'>
+#define F(a) b ## a
+int b0p = F(0p+0);  <span class='comment'>// ill-formed; equivalent to “<span class='texttt'>int b0p = b0p + 0;</span>” in C++ 2014
+</span></pre></div><div id='expr'><h3 ><a class='secnum' href='#expr' style='min-width:103pt'>C.4.2</a> Clause <a href='expr'>[expr]</a>: expressions <a class='abbr_ref' href='diff.cpp14.expr'>[diff.cpp14.expr]</a></h3><p ><a href='expr.post.incr'>[expr.post.incr]</a>, <a href='expr.pre.incr'>[expr.pre.incr]</a>
+<span class='hfill'></span><br/><b>Change:</b>
+Remove increment operator with <span class='texttt'>bool</span> operand.
+<span class='hfill'></span><br/><b>Rationale:</b> Obsolete feature with occasionally surprising semantics.
+<span class='hfill'></span><br/><b>Effect on original feature:</b> A valid C++ 2014 expression utilizing the increment operator on
+a <span class='texttt'>bool</span> lvalue is ill-formed in this International Standard.
+Note that this might occur when the lvalue has a type given by a template
+parameter.</p><p ><a href='expr.new'>[expr.new]</a>, <a href='expr.delete'>[expr.delete]</a>
+<span class='hfill'></span><br/><b>Change:</b> Dynamic allocation mechanism for over-aligned types.
+<span class='hfill'></span><br/><b>Rationale:</b> Simplify use of over-aligned types.
+<span class='hfill'></span><br/><b>Effect on original feature:</b> In C++ 2014 code that uses a <i ><a href='expr.new#new-expression'>new-expression</a></i>
+to allocate an object with an over-aligned class type,
+where that class has no allocation functions of its own,
+<span class='texttt'>::operator new(std::size_t)</span>
+is used to allocate the memory.
+In this International Standard,
+<span class='texttt'>::operator new(std::size_t, std::align_val_t)</span>
+is used instead.</p></div><div id='dcl.dcl'><h3 ><a class='secnum' href='#dcl.dcl' style='min-width:103pt'>C.4.3</a> Clause <a href='dcl.dcl'>[dcl.dcl]</a>: declarations <a class='abbr_ref' href='diff.cpp14.dcl.dcl'>[diff.cpp14.dcl.dcl]</a></h3><p ><a href='dcl.stc'>[dcl.stc]</a>
+<span class='indexparent'><a class='index' id='register'></a></span><span class='hfill'></span><br/><b>Change:</b> Removal of <span class='texttt'>register</span> <i ><a href='dcl.stc#storage-class-specifier'>storage-class-specifier</a></i>.
+<span class='hfill'></span><br/><b>Rationale:</b> Enable repurposing of deprecated keyword in future revisions of this International Standard.
+<span class='hfill'></span><br/><b>Effect on original feature:</b>
+A valid C++ 2014 declaration utilizing the <span class='texttt'>register</span>
+<i ><a href='dcl.stc#storage-class-specifier'>storage-class-specifier</a></i> is ill-formed in this International Standard.
+The specifier can simply be removed to retain the original meaning.</p><p ><a href='dcl.spec.auto'>[dcl.spec.auto]</a>
+<span class='hfill'></span><br/><b>Change:</b> <span class='texttt'>auto</span> deduction from <i ><a href='dcl.init#braced-init-list'>braced-init-list</a></i>.
+<span class='hfill'></span><br/><b>Rationale:</b> More intuitive deduction behavior.
+<span class='hfill'></span><br/><b>Effect on original feature:</b>
+Valid C++ 2014 code may fail to compile or may change meaning
+in this International Standard. For example:
+</p><pre class='codeblock'>
+auto x1{1};    <span class='comment'>// was <span class='texttt'>std::initializer_list&lt;int&gt;</span>, now <span class='texttt'>int</span>
+</span>auto x2{1, 2}; <span class='comment'>// was <span class='texttt'>std::initializer_list&lt;int&gt;</span>, now ill-formed
+</span></pre></div><div id='decl'><h3 ><a class='secnum' href='#decl' style='min-width:103pt'>C.4.4</a> Clause <a href='dcl.decl'>[dcl.decl]</a>: declarators <a class='abbr_ref' href='diff.cpp14.decl'>[diff.cpp14.decl]</a></h3><p ><a href='dcl.fct'>[dcl.fct]</a>
+<span class='hfill'></span><br/><b>Change:</b> Make exception specifications be part of the type system.
+<span class='hfill'></span><br/><b>Rationale:</b> Improve type-safety.
+<span class='hfill'></span><br/><b>Effect on original feature:</b>
+Valid C++ 2014 code may fail to compile or change meaning in this
+International Standard:</p><pre class='codeblock'>
+void g1() noexcept;
+void g2();
+template&lt;class T&gt; int f(T *, T *);
+int x = f(g1, g2);    <span class='comment'>// ill-formed; previously well-formed
+</span></pre><p ><a href='dcl.init.aggr'>[dcl.init.aggr]</a>
+<span class='hfill'></span><br/><b>Change:</b> Definition of an aggregate is extended
+to apply to user-defined types with base classes.
+<span class='hfill'></span><br/><b>Rationale:</b> To increase convenience of aggregate initialization.
+<span class='hfill'></span><br/><b>Effect on original feature:</b>
+Valid C++ 2014 code may fail to compile or produce different results in this
+International Standard; initialization from an empty initializer list will
+perform aggregate initialization instead of invoking a default constructor
+for the affected types:
+</p><pre class='codeblock'>
+struct derived;
+struct base {
+  friend struct derived;
+private: 
+  base();
+};
+struct derived : base {};
+
+derived d1{};       <span class='comment'>// Error. The code was well-formed before.
+</span>derived d2;         <span class='comment'>// still OK
+</span></pre></div><div id='special'><h3 ><a class='secnum' href='#special' style='min-width:103pt'>C.4.5</a> Clause <a href='special'>[special]</a>: special member functions <a class='abbr_ref' href='diff.cpp14.special'>[diff.cpp14.special]</a></h3><p ><a href='class.inhctor.init'>[class.inhctor.init]</a>
+<span class='hfill'></span><br/><b>Change:</b>
+Inheriting a constructor no longer injects a constructor into the derived class.
+<span class='hfill'></span><br/><b>Rationale:</b>
+Better interaction with other language features.
+<span class='hfill'></span><br/><b>Effect on original feature:</b>
+Valid C++ 2014 code that uses inheriting constructors may not be valid
+or may have different semantics. A <i ><a href='namespace.udecl#using-declaration'>using-declaration</a></i>
+that names a constructor now makes the corresponding base class constructors
+visible to initializations of the derived class
+rather than declaring additional derived class constructors.
+</p><pre class='codeblock'>
+struct A {
+  template&lt;typename T&gt; A(T, typename T::type = 0);
+  A(int);
+};
+struct B : A {
+  using A::A;
+  B(int);
+};
+B b(42L); <span class='comment'>// now calls <span class='texttt'>B(int)</span>, used to call <span class='texttt'>B&lt;long&gt;(long)</span>,
+</span>          <span class='comment'>// which called <span class='texttt'>A(int)</span> due to substitution failure
+</span>          <span class='comment'>// in <span class='texttt'>A&lt;long&gt;(long)</span>.
+</span></pre></div><div id='temp'><h3 ><a class='secnum' href='#temp' style='min-width:103pt'>C.4.6</a> Clause <a href='temp'>[temp]</a>: templates <a class='abbr_ref' href='diff.cpp14.temp'>[diff.cpp14.temp]</a></h3><p ><a href='temp.deduct.type'>[temp.deduct.type]</a>
+<span class='hfill'></span><br/><b>Change:</b> Allowance to deduce from the type of a non-type template argument.
+<span class='hfill'></span><br/><b>Rationale:</b> In combination with the ability to declare
+non-type template arguments with placeholder types,
+allows partial specializations to decompose
+from the type deduced for the non-type template argument.
+<span class='hfill'></span><br/><b>Effect on original feature:</b> Valid C++ 2014 code may fail to compile
+or produce different results in this International Standard:
+</p><pre class='codeblock'>
+template &lt;int N&gt; struct A;
+template &lt;typename T, T N&gt; int foo(A&lt;N&gt; *) = delete;
+void foo(void *);
+void bar(A&lt;0&gt; *p) {
+  foo(p); <span class='comment'>// ill-formed; previously well-formed
+</span>}
+</pre></div><div id='library'><h3 ><a class='secnum' href='#library' style='min-width:103pt'>C.4.7</a> Clause <a href='library'>[library]</a>: library introduction <a class='abbr_ref' href='diff.cpp14.library'>[diff.cpp14.library]</a></h3><p ><a href='namespace.future'>[namespace.future]</a>
+<span class='hfill'></span><br/><b>Change:</b> New reserved namespaces.
+<span class='hfill'></span><br/><b>Rationale:</b> Reserve namespaces for future revisions of the standard library
+that might otherwise be incompatible with existing programs.
+<span class='hfill'></span><br/><b>Effect on original feature:</b>
+The global namespaces <span class='texttt'>std</span>
+followed by an arbitrary sequence of digits
+is reserved for future standardization.
+Valid C++ 2014 code that uses such a top-level namespace,
+e.g., <span class='texttt'>std2</span>, may be invalid in this International Standard.</p></div><div id='utilities'><h3 ><a class='secnum' href='#utilities' style='min-width:103pt'>C.4.8</a> Clause <a href='utilities'>[utilities]</a>: General utilities library <a class='abbr_ref' href='diff.cpp14.utilities'>[diff.cpp14.utilities]</a></h3><p ><a href='func.wrap'>[func.wrap]</a>
+<span class='hfill'></span><br/><b>Change:</b> Constructors taking allocators removed.
+<span class='hfill'></span><br/><b>Rationale:</b> No implementation consensus.
+<span class='hfill'></span><br/><b>Effect on original feature:</b>
+Valid C++ 2014 code may fail to compile or may change meaning in this
+International Standard. Specifically, constructing a <span class='texttt'>std::function</span> with
+an allocator is ill-formed and uses-allocator construction will not pass an
+allocator to <span class='texttt'>std::function</span> constructors in this International Standard.</p></div><div id='string'><h3 ><a class='secnum' href='#string' style='min-width:103pt'>C.4.9</a> Clause <a href='strings'>[strings]</a>: strings library <a class='abbr_ref' href='diff.cpp14.string'>[diff.cpp14.string]</a></h3><p ><a href='basic.string'>[basic.string]</a>
+<span class='hfill'></span><br/><b>Change:</b> Non-const <span class='texttt'>.data()</span> member added.
+<span class='hfill'></span><br/><b>Rationale:</b> The lack of a non-const <span class='texttt'>.data()</span>
+differed from the similar member of <span class='texttt'>std::vector</span>.
+This change regularizes behavior for this International Standard.
+<span class='hfill'></span><br/><b>Effect on original feature:</b>
+Overloaded functions which have differing code paths
+for <span class='texttt'>char*</span> and <span class='texttt'>const char*</span> arguments
+will execute differently
+when called with a non-const string's <span class='texttt'>.data()</span> member
+in this International Standard.</p><pre class='codeblock'>
+int f(char *) = delete;
+int f(const char *);
+string s;
+int x = f(s.data()); <span class='comment'>// ill-formed; previously well-formed
+</span></pre></div><div id='containers'><h3 ><a class='secnum' href='#containers' style='min-width:103pt'>C.4.10</a> Clause <a href='containers'>[containers]</a>: containers library <a class='abbr_ref' href='diff.cpp14.containers'>[diff.cpp14.containers]</a></h3><p ><a href='associative.reqmts'>[associative.reqmts]</a>
+<span class='hfill'></span><br/><b>Change:</b> Requirements change:
+<span class='hfill'></span><br/><b>Rationale:</b> Increase portability, clarification of associative container requirements.
+<span class='hfill'></span><br/><b>Effect on original feature:</b>
+Valid C++ 2014 code that attempts to use associative containers
+having a comparison object with non-const function call operator
+may fail to compile in this International Standard:</p><pre class='codeblock'>
+#include &lt;set&gt;
+
+struct compare {
+  bool operator()(int a, int b)
+  {
+    return a &lt; b;
+  }
+};
+
+int main() {
+  const std::set&lt;int, compare&gt; s;
+  s.find(0);
+}
+</pre></div><div id='depr'><h3 ><a class='secnum' href='#depr' style='min-width:103pt'>C.4.11</a> Annex <a href='depr'>[depr]</a>: compatibility features <a class='abbr_ref' href='diff.cpp14.depr'>[diff.cpp14.depr]</a></h3><p ><span class='hfill'></span><br/><b>Change:</b>
+The class templates
+<span class='texttt'>auto_ptr</span>,
+<span class='texttt'>unary_function</span>, and
+<span class='texttt'>binary_function</span>,
+the function templates
+<span class='texttt'>random_shuffle</span>,
+and the function templates (and their return types)
+<span class='texttt'>ptr_fun</span>,
+<span class='texttt'>mem_fun</span>,
+<span class='texttt'>mem_fun_ref</span>,
+<span class='texttt'>bind1st</span>, and
+<span class='texttt'>bind2nd</span>
+are not defined.
+<span class='hfill'></span><br/><b>Rationale:</b> Superseded by new features.
+<span class='hfill'></span><br/><b>Effect on original feature:</b> Valid C++ 2014 code that uses these class templates
+and function templates may fail to compile in this International Standard.</p><p ><span class='hfill'></span><br/><b>Change:</b>
+Remove old iostreams members [depr.ios.members].
+<span class='hfill'></span><br/><b>Rationale:</b> Redundant feature for compatibility with pre-standard code
+has served its time.
+<span class='hfill'></span><br/><b>Effect on original feature:</b> A valid C++ 2014 program using these identifiers
+may be ill-formed in this International Standard.</p></div></div></div></body></html>

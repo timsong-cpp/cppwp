@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang='en'><head><title>[except.nested]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>18</a> Language support library <a class='abbr_ref' href='./#language.support'>[language.support]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>18.8</a> Exception handling <a class='abbr_ref' href='support.exception#except.nested'>[support.exception]</a></h2><div id='except.nested'><h3 ><a class='secnum' style='min-width:103pt'>18.8.7</a> <span class='texttt'>nested_exception</span> <a class='abbr_ref'>[except.nested]</a></h3><p ><span class='indexparent'><a class='index' id='nested_exception'></a></span></p><pre class='codeblock'>
+namespace std {
+  class nested_exception {
+  public:
+    nested_exception() noexcept;
+    nested_exception(const nested_exception&amp;) noexcept = default;
+    nested_exception&amp; operator=(const nested_exception&amp;) noexcept = default;
+    virtual ~nested_exception() = default;
+
+    <span class='comment'>// access functions
+</span>    [[noreturn]] void rethrow_nested() const;
+    exception_ptr nested_ptr() const noexcept;
+  };
+
+  template&lt;class T&gt; [[noreturn]] void throw_with_nested(T&amp;&amp; t);
+  template &lt;class E&gt; void rethrow_if_nested(const E&amp; e);
+}
+</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The class <span class='texttt'>nested_exception</span> is designed for use as a mixin through
+multiple inheritance. It captures the currently handled exception and stores it
+for later use.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >[&nbsp;<i>Note:</i><span class='space'></span> <span class='texttt'>nested_exception</span> has a virtual destructor to make it a
+polymorphic class. Its presence can be tested for with <span class='texttt'>dynamic_cast</span>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='nested_exception!constructor'></a></span><code class='itemdecl'>
+nested_exception() noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> The constructor calls <span class='texttt'>current_exception()</span> and stores the returned value.
+</p></div></div><p ><span class='indexparent'><a class='index' id='rethrow_nested!nested_exception'></a></span><span class='indexparent'><a class='index' id='nested_exception!rethrow_nested'></a></span><code class='itemdecl'>
+[[noreturn]] void rethrow_nested() const;
+</code></p><div class='itemdescr'></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>nested_ptr()</span> returns a null pointer, the function calls <span class='texttt'>std::terminate()</span>.
+Otherwise, it throws the stored exception captured by <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='nested_ptr!nested_exception'></a></span><span class='indexparent'><a class='index' id='nested_exception!nested_ptr'></a></span><code class='itemdecl'>
+exception_ptr nested_ptr() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> The stored exception captured by this <span class='texttt'>nested_exception</span> object.
+</p></div></div><p ><span class='indexparent'><a class='index' id='throw_with_nested!nested_exception'></a></span><span class='indexparent'><a class='index' id='nested_exception!throw_with_nested'></a></span><code class='itemdecl'>
+template &lt;class T&gt; [[noreturn]] void throw_with_nested(T&amp;&amp; t);
+</code></p><div class='itemdescr'></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p >Let <span class='texttt'>U</span> be <span class='texttt'>remove_reference_t&lt;T&gt;</span>.</p></div></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>U</span> shall be <span class='texttt'>CopyConstructible</span>.</p></div></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='itemdescr'><p ><i>Throws:</i>
+if <span class='texttt'>is_class_v&lt;U&gt; &amp;&amp; !is_final_v&lt;U&gt; &amp;&amp; !is_base_of_v&lt;nested_exception, U&gt;</span>
+is <span class='texttt'>true</span>,
+an exception of unspecified type that is publicly derived from both
+<span class='texttt'>U</span> and <span class='texttt'>nested_exception</span>
+and constructed from <span class='texttt'>std::forward&lt;T&gt;(t)</span>, otherwise
+<span class='texttt'>std::forward&lt;T&gt;(t)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='rethrow_if_nested!nested_exception'></a></span><span class='indexparent'><a class='index' id='nested_exception!rethrow_if_nested'></a></span><code class='itemdecl'>
+template &lt;class E&gt; void rethrow_if_nested(const E&amp; e);
+</code></p><div class='itemdescr'></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i>
+If <span class='texttt'>E</span> is not a polymorphic class type, there is no effect.
+Otherwise, if the static type or the dynamic type of <span class='texttt'>e</span>
+is <span class='texttt'>nested_exception</span> or is publicly and unambiguously derived from
+<span class='texttt'>nested_exception</span>, calls:
+</p><pre class='codeblock'>
+dynamic_cast&lt;const nested_exception&amp;&gt;(e).rethrow_nested();
+</pre></div></div></div></div></body></html>
