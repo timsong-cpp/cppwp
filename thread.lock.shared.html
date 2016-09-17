@@ -1,58 +1,56 @@
 <!DOCTYPE html><html lang='en'><head><title>[thread.lock.shared]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>30</a> Thread support library <a class='abbr_ref' href='./#thread'>[thread]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>30.4</a> Mutual exclusion <a class='abbr_ref' href='thread.mutex#thread.lock.shared'>[thread.mutex]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>30.4.2</a> Locks <a class='abbr_ref' href='thread.lock#shared'>[thread.lock]</a></h3><div id='thread.lock.shared'><h4 ><a class='secnum' style='min-width:118pt'>30.4.2.3</a> Class template <span class='texttt'>shared_lock</span> <a class='abbr_ref'>[thread.lock.shared]</a></h4><pre class='codeblock'>
 namespace std {
+  template &lt;class Mutex&gt;
+  class shared_lock {
+  public:
+    using mutex_type = Mutex;
 
-template &lt;class Mutex&gt;
-class shared_lock {
-public:
-  using mutex_type = Mutex;
-
-  <span class='comment'>// Shared locking
-</span>  shared_lock() noexcept;
-  explicit shared_lock(mutex_type&amp; m);  <span class='comment'>// blocking
-</span>  shared_lock(mutex_type&amp; m, defer_lock_t) noexcept;
-  shared_lock(mutex_type&amp; m, try_to_lock_t);
-  shared_lock(mutex_type&amp; m, adopt_lock_t);
-  template &lt;class Clock, class Duration&gt;
-    shared_lock(mutex_type&amp; m,
-                const chrono::time_point&lt;Clock, Duration&gt;&amp; abs_time);
-  template &lt;class Rep, class Period&gt;
-    shared_lock(mutex_type&amp; m,
+    <span class='comment'>// Shared locking
+</span>    shared_lock() noexcept;
+    explicit shared_lock(mutex_type&amp; m);  <span class='comment'>// blocking
+</span>    shared_lock(mutex_type&amp; m, defer_lock_t) noexcept;
+    shared_lock(mutex_type&amp; m, try_to_lock_t);
+    shared_lock(mutex_type&amp; m, adopt_lock_t);
+    template &lt;class Clock, class Duration&gt;
+      shared_lock(mutex_type&amp; m,
+                  const chrono::time_point&lt;Clock, Duration&gt;&amp; abs_time);
+    template &lt;class Rep, class Period&gt;
+      shared_lock(mutex_type&amp; m,
                 const chrono::duration&lt;Rep, Period&gt;&amp; rel_time);
-  ~shared_lock();
+    ~shared_lock();
 
-  shared_lock(shared_lock const&amp;) = delete;
-  shared_lock&amp; operator=(shared_lock const&amp;) = delete;
+    shared_lock(shared_lock const&amp;) = delete;
+    shared_lock&amp; operator=(shared_lock const&amp;) = delete;
 
-  shared_lock(shared_lock&amp;&amp; u) noexcept;
-  shared_lock&amp; operator=(shared_lock&amp;&amp; u) noexcept;
+    shared_lock(shared_lock&amp;&amp; u) noexcept;
+    shared_lock&amp; operator=(shared_lock&amp;&amp; u) noexcept;
 
-  void lock();  <span class='comment'>// blocking
-</span>  bool try_lock();
-  template &lt;class Rep, class Period&gt;
-    bool try_lock_for(const chrono::duration&lt;Rep, Period&gt;&amp; rel_time);
-  template &lt;class Clock, class Duration&gt;
-    bool try_lock_until(const chrono::time_point&lt;Clock, Duration&gt;&amp; abs_time);
-  void unlock();
+    void lock();  <span class='comment'>// blocking
+</span>    bool try_lock();
+    template &lt;class Rep, class Period&gt;
+      bool try_lock_for(const chrono::duration&lt;Rep, Period&gt;&amp; rel_time);
+    template &lt;class Clock, class Duration&gt;
+      bool try_lock_until(const chrono::time_point&lt;Clock, Duration&gt;&amp; abs_time);
+    void unlock();
 
-  <span class='comment'>// Setters
-</span>  void swap(shared_lock&amp; u) noexcept;
-  mutex_type* release() noexcept;
+    <span class='comment'>// Setters
+</span>    void swap(shared_lock&amp; u) noexcept;
+    mutex_type* release() noexcept;
 
-  <span class='comment'>// Getters
-</span>  bool owns_lock() const noexcept;
-  explicit operator bool () const noexcept;
-  mutex_type* mutex() const noexcept;
+    <span class='comment'>// Getters
+</span>    bool owns_lock() const noexcept;
+    explicit operator bool () const noexcept;
+    mutex_type* mutex() const noexcept;
 
-private:
-  mutex_type* pm; <span class='comment'>// <i>exposition only</i>
-</span>  bool owns;      <span class='comment'>// <i>exposition only</i>
-</span>};
+  private:
+    mutex_type* pm; <span class='comment'>// <i>exposition only</i>
+</span>    bool owns;      <span class='comment'>// <i>exposition only</i>
+</span>  };
 
-template &lt;class Mutex&gt;
-  void swap(shared_lock&lt;Mutex&gt;&amp; x, shared_lock&lt;Mutex&gt;&amp; y) noexcept;
-
-}  <span class='comment'>// std
-</span></pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >An object of type <span class='texttt'>shared_lock</span> controls the shared ownership of a
+  template &lt;class Mutex&gt;
+    void swap(shared_lock&lt;Mutex&gt;&amp; x, shared_lock&lt;Mutex&gt;&amp; y) noexcept;
+}
+</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >An object of type <span class='texttt'>shared_lock</span> controls the shared ownership of a
 lockable object within a scope. Shared ownership of the lockable object may be
 acquired at construction or after construction, and may be transferred, after
 acquisition, to another <span class='texttt'>shared_lock</span> object. Objects of type
