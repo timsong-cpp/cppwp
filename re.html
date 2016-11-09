@@ -155,12 +155,13 @@ the header <span class='texttt'>&lt;regex&gt;</span>, and is described in Clause
 #include &lt;initializer_list&gt;
 
 namespace std {
-
   <span class='comment'>// <a href='re.const'>[re.const]</a>, regex constants:
 </span>  namespace regex_constants {
-    enum error_type;
-  } <span class='comment'>// namespace regex_constants
-</span>
+    using syntax_option_type = <i>T1</i>;
+    using match_flag_type = <i>T2</i>;
+    using error_type = <i>T3</i>;
+  }
+
   <span class='comment'>// <a href='re.badexp'>[re.badexp]</a>, class regex_error:
 </span>  class regex_error;
 
@@ -168,7 +169,7 @@ namespace std {
 </span>  template &lt;class charT&gt; struct regex_traits;
 
   <span class='comment'>// <a href='re.regex'>[re.regex]</a>, class template basic_regex:
-</span>  template &lt;class charT, class traits = regex_traits&lt;charT&gt; &gt; class basic_regex;
+</span>  template &lt;class charT, class traits = regex_traits&lt;charT&gt;&gt; class basic_regex;
 
   using regex  = basic_regex&lt;char&gt;;
   using wregex = basic_regex&lt;wchar_t&gt;;
@@ -199,7 +200,6 @@ namespace std {
     bool operator&gt;=(const sub_match&lt;BiIter&gt;&amp; lhs, const sub_match&lt;BiIter&gt;&amp; rhs);
   template &lt;class BiIter&gt;
     bool operator&gt;(const sub_match&lt;BiIter&gt;&amp; lhs, const sub_match&lt;BiIter&gt;&amp; rhs);
-
 
   template &lt;class BiIter, class ST, class SA&gt; 
     bool operator==(
@@ -345,7 +345,7 @@ namespace std {
 
   <span class='comment'>// <a href='re.results'>[re.results]</a>, class template match_results:
 </span>  template &lt;class BidirectionalIterator,
-            class Allocator = allocator&lt;sub_match&lt;BidirectionalIterator&gt; &gt; &gt;
+            class Allocator = allocator&lt;sub_match&lt;BidirectionalIterator&gt;&gt;&gt;
     class match_results;
 
   using cmatch  = match_results&lt;const char*&gt;;
@@ -355,11 +355,11 @@ namespace std {
 
   <span class='comment'>// match_results comparisons
 </span>  template &lt;class BidirectionalIterator, class Allocator&gt;
-    bool operator== (const match_results&lt;BidirectionalIterator, Allocator&gt;&amp; m1,
-                     const match_results&lt;BidirectionalIterator, Allocator&gt;&amp; m2);
+    bool operator==(const match_results&lt;BidirectionalIterator, Allocator&gt;&amp; m1,
+                    const match_results&lt;BidirectionalIterator, Allocator&gt;&amp; m2);
   template &lt;class BidirectionalIterator, class Allocator&gt;
-    bool operator!= (const match_results&lt;BidirectionalIterator, Allocator&gt;&amp; m1,
-                     const match_results&lt;BidirectionalIterator, Allocator&gt;&amp; m2);
+    bool operator!=(const match_results&lt;BidirectionalIterator, Allocator&gt;&amp; m1,
+                    const match_results&lt;BidirectionalIterator, Allocator&gt;&amp; m2);
 
   <span class='comment'>// <a href='re.results.swap'>[re.results.swap]</a>, match_results swap:
 </span>  template &lt;class BidirectionalIterator, class Allocator&gt;
@@ -510,7 +510,7 @@ namespace std {
 </span>  template &lt;class BidirectionalIterator, 
             class charT = typename iterator_traits&lt;
               BidirectionalIterator&gt;::value_type,
-            class traits = regex_traits&lt;charT&gt; &gt;
+            class traits = regex_traits&lt;charT&gt;&gt;
     class regex_iterator;
 
   using cregex_iterator  = regex_iterator&lt;const char*&gt;;
@@ -522,7 +522,7 @@ namespace std {
 </span>  template &lt;class BidirectionalIterator, 
             class charT = typename iterator_traits&lt;
               BidirectionalIterator&gt;::value_type,
-            class traits = regex_traits&lt;charT&gt; &gt;
+            class traits = regex_traits&lt;charT&gt;&gt;
     class regex_token_iterator;
 
   using cregex_token_iterator  = regex_token_iterator&lt;const char*&gt;;
@@ -783,7 +783,7 @@ regex_error(regex_constants::error_type ecode);
 </code></p></div><div class='itemdescr'></div><div class='para' id='badexp-2'><div class='marginalizedparent'><a class='marginalized' href='#badexp-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>  Constructs an object of class <span class='texttt'>regex_error</span>.</p></div></div><div class='para' id='badexp-3'><div class='marginalizedparent'><a class='marginalized' href='#badexp-3'>3</a></div><div class='itemdescr'><p ><i>Postcondition:</i>  <span class='texttt'>ecode == code()</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='error_type'></a></span><span class='indexparent'><a class='index' id='regex_constants,error_type'></a></span><code class='itemdecl'>
 regex_constants::error_type code() const;
-</code></p><div class='itemdescr'></div><div class='para' id='badexp-4'><div class='marginalizedparent'><a class='marginalized' href='#badexp-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>  The error code that was passed to the constructor.
+</code></p><div class='itemdescr'></div><div class='para' id='badexp-4'><div class='marginalizedparent'><a class='marginalized' href='#badexp-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> The error code that was passed to the constructor.
 </p></div></div></div><div id='traits'><h2 ><a class='secnum' href='#traits' style='min-width:88pt'>28.7</a> Class template <span class='texttt'>regex_traits</span> <a class='abbr_ref' href='re.traits'>[re.traits]</a></h2><p ><span class='indexparent'><a class='index' id='regex_traits'></a></span></p><pre class='codeblock'>
 namespace std {
   template &lt;class charT&gt;
@@ -830,7 +830,7 @@ charT translate(charT c) const;
 </code></p><div class='itemdescr'></div><div class='para' id='traits-4'><div class='marginalizedparent'><a class='marginalized' href='#traits-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>c</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='regex_traits,translate_nocase'></a></span><span class='indexparent'><a class='index' id='translate_nocase,regex_traits'></a></span><code class='itemdecl'>
 charT translate_nocase(charT c) const; 
-</code></p><div class='itemdescr'></div><div class='para' id='traits-5'><div class='marginalizedparent'><a class='marginalized' href='#traits-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>use_facet&lt;ctype&lt;charT&gt; &gt;(getloc()).tolower(c)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='traits-5'><div class='marginalizedparent'><a class='marginalized' href='#traits-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>use_facet&lt;ctype&lt;charT&gt;&gt;(getloc()).tolower(c)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='regex_traits,transform'></a></span><span class='indexparent'><a class='index' id='transform,regex_traits'></a></span><code class='itemdecl'>
 template &lt;class ForwardIterator&gt;
   string_type transform(ForwardIterator first, ForwardIterator last) const; 
@@ -838,12 +838,12 @@ template &lt;class ForwardIterator&gt;
 As if by:
 </p><pre class='codeblock'>
 string_type str(first, last);
-return use_facet&lt;collate&lt;charT&gt; &gt;(
+return use_facet&lt;collate&lt;charT&gt;&gt;(
   getloc()).transform(&amp;*str.begin(), &amp;*str.begin() + str.length());
 </pre></div></div><p ><span class='indexparent'><a class='index' id='regex_traits,transform_primary'></a></span><span class='indexparent'><a class='index' id='transform_primary,regex_traits'></a></span><code class='itemdecl'>
 template &lt;class ForwardIterator&gt;
   string_type transform_primary(ForwardIterator first, ForwardIterator last) const; 
-</code></p><div class='itemdescr'></div><div class='para' id='traits-7'><div class='marginalizedparent'><a class='marginalized' href='#traits-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>typeid(use_facet&lt;collate&lt;charT&gt; &gt;) 
+</code></p><div class='itemdescr'></div><div class='para' id='traits-7'><div class='marginalizedparent'><a class='marginalized' href='#traits-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>typeid(use_facet&lt;collate&lt;charT&gt;&gt;) 
 == typeid(collate_byname&lt;charT&gt;)</span>
 and the form of the sort key returned
 by <span class='texttt'>collate_byname&lt;charT&gt; <span class='discretionary'></span>::<span class='discretionary'></span> transform(first, last)</span> is known and
@@ -852,7 +852,7 @@ otherwise returns an empty string.
 </p></div></div><p ><span class='indexparent'><a class='index' id='regex_traits,lookup_collatename'></a></span><span class='indexparent'><a class='index' id='lookup_collatename,regex_traits'></a></span><code class='itemdecl'>
 template &lt;class ForwardIterator&gt;
   string_type lookup_collatename(ForwardIterator first, ForwardIterator last) const; 
-</code></p><div class='itemdescr'></div><div class='para' id='traits-8'><div class='marginalizedparent'><a class='marginalized' href='#traits-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>  a sequence of one or more characters that
+</code></p><div class='itemdescr'></div><div class='para' id='traits-8'><div class='marginalizedparent'><a class='marginalized' href='#traits-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> a sequence of one or more characters that
 represents the collating element consisting of the character
 sequence designated by the iterator range <span class='texttt'>[first, <span class='discretionary'></span>last)</span>.
 Returns an empty string if the character sequence is not a
@@ -861,7 +861,7 @@ valid collating element.
 template &lt;class ForwardIterator&gt;
   char_class_type lookup_classname(
     ForwardIterator first, ForwardIterator last, bool icase = false) const; 
-</code></p><div class='itemdescr'></div><div class='para' id='traits-9'><div class='marginalizedparent'><a class='marginalized' href='#traits-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i>  an unspecified value that represents
+</code></p><div class='itemdescr'></div><div class='para' id='traits-9'><div class='marginalizedparent'><a class='marginalized' href='#traits-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i> an unspecified value that represents
 the character classification named by the character sequence
 designated by the iterator range <span class='texttt'>[first, <span class='discretionary'></span>last)</span>.
 If the parameter <span class='texttt'>icase</span> is true then the returned mask identifies the
@@ -919,7 +919,7 @@ t.isctype('A', f); <span class='comment'>// returns <span class='texttt'>true</s
 </span>t.isctype(' ', f); <span class='comment'>// returns <span class='texttt'>false</span>
 </span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><p ><span class='indexparent'><a class='index' id='value,regex_traits'></a></span><span class='indexparent'><a class='index' id='regex_traits,value'></a></span><code class='itemdecl'>
 int value(charT ch, int radix) const;
-</code></p><div class='itemdescr'></div><div class='para' id='traits-13'><div class='marginalizedparent'><a class='marginalized' href='#traits-13'>13</a></div><div class='itemdescr'><p ><i>Requires:</i>  The value of <span class='texttt'>radix</span> shall be 8, 10, or 16.</p></div></div><div class='para' id='traits-14'><div class='marginalizedparent'><a class='marginalized' href='#traits-14'>14</a></div><div class='itemdescr'><p ><i>Returns:</i>  the value represented by the digit <span class='texttt'>ch</span> in base
+</code></p><div class='itemdescr'></div><div class='para' id='traits-13'><div class='marginalizedparent'><a class='marginalized' href='#traits-13'>13</a></div><div class='itemdescr'><p ><i>Requires:</i>  The value of <span class='texttt'>radix</span> shall be 8, 10, or 16.</p></div></div><div class='para' id='traits-14'><div class='marginalizedparent'><a class='marginalized' href='#traits-14'>14</a></div><div class='itemdescr'><p ><i>Returns:</i> the value represented by the digit <span class='texttt'>ch</span> in base
 <span class='texttt'>radix</span> if the character <span class='texttt'>ch</span> is a valid digit in base
 <span class='texttt'>radix</span>; otherwise returns -1.
 </p></div></div><p ><span class='indexparent'><a class='index' id='locale'></a></span><span class='indexparent'><a class='index' id='imbue'></a></span><code class='itemdecl'>
@@ -927,12 +927,12 @@ locale_type imbue(locale_type loc);
 </code></p><div class='itemdescr'></div><div class='para' id='traits-15'><div class='marginalizedparent'><a class='marginalized' href='#traits-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i>  Imbues <span class='texttt'>this</span> with a copy of the
 locale <span class='texttt'>loc</span>. [&nbsp;<i>Note:</i><span class='space'></span> Calling <span class='texttt'>imbue</span> with a
 different locale than the one currently in use invalidates all cached
-data held by <span class='texttt'>*this</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='traits-16'><div class='marginalizedparent'><a class='marginalized' href='#traits-16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i>  if no locale has been previously imbued then a copy of the
+data held by <span class='texttt'>*this</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='traits-16'><div class='marginalizedparent'><a class='marginalized' href='#traits-16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i> if no locale has been previously imbued then a copy of the
 global locale in effect at the time of construction of <span class='texttt'>*this</span>,
 otherwise a copy of the last argument passed to <span class='texttt'>imbue</span>.</p></div></div><div class='para' id='traits-17'><div class='marginalizedparent'><a class='marginalized' href='#traits-17'>17</a></div><div class='itemdescr'><p ><i>Postcondition:</i>  <span class='texttt'>getloc() == loc</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='locale'></a></span><span class='indexparent'><a class='index' id='getloc'></a></span><code class='itemdecl'>
 locale_type getloc() const;
-</code></p><div class='itemdescr'></div><div class='para' id='traits-18'><div class='marginalizedparent'><a class='marginalized' href='#traits-18'>18</a></div><div class='itemdescr'><p ><i>Returns:</i>  if no locale has been imbued then a copy of the global locale
+</code></p><div class='itemdescr'></div><div class='para' id='traits-18'><div class='marginalizedparent'><a class='marginalized' href='#traits-18'>18</a></div><div class='itemdescr'><p ><i>Returns:</i> if no locale has been imbued then a copy of the global locale
 in effect at the time of construction of <span class='texttt'>*this</span>, otherwise a copy of
 the last argument passed to <span class='texttt'>imbue</span>.
 </p></div></div><div class='numberedTable' id='tab:re.traits.classnames'>Table <a href='#tab:re.traits.classnames'>125</a> — Character class names and corresponding <span class='texttt'>ctype</span> masks<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Narrow character name</b></td><td colspan='1' class='center'><b>Wide character name</b></td><td colspan='1' class='center'><b>Corresponding <span class='texttt'>ctype_base::mask</span> value</b></td></tr><tr class='capsep'><td class='left'>
@@ -967,7 +967,7 @@ this <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='regex-
 exceptions of type <span class='texttt'>regex_error</span>.</p><p ><span class='indexparent'><a class='index' id='basic_regex'></a></span></p><pre class='codeblock'>
 namespace std {
   template &lt;class charT,
-            class traits = regex_traits&lt;charT&gt; &gt;
+            class traits = regex_traits&lt;charT&gt;&gt;
   class basic_regex {
   public:
     <span class='comment'>// types:
@@ -1157,13 +1157,13 @@ template &lt;class ST, class SA&gt;
 </code></p><div class='itemdescr'></div><div class='para' id='regex.assign-8'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i> Returns <span class='texttt'>assign(p)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='basic_regex,assign'></a></span><span class='indexparent'><a class='index' id='assign,basic_regex'></a></span><code class='itemdecl'>
 basic_regex&amp; assign(const basic_regex&amp; that); 
-</code></p><div class='itemdescr'></div><div class='para' id='regex.assign-9'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i>  Equivalent to <span class='texttt'>*this = that</span>.</p></div></div><div class='para' id='regex.assign-10'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>*this</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='regex.assign-9'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i>  Equivalent to <span class='texttt'>*this = that</span>.</p></div></div><div class='para' id='regex.assign-10'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='basic_regex,assign'></a></span><span class='indexparent'><a class='index' id='assign,basic_regex'></a></span><code class='itemdecl'>
 basic_regex&amp; assign(basic_regex&amp;&amp; that) noexcept;
-</code></p><div class='itemdescr'></div><div class='para' id='regex.assign-11'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i>  Equivalent to <span class='texttt'>*this = std::move(that)</span>.</p></div></div><div class='para' id='regex.assign-12'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>*this</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='regex.assign-11'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i>  Equivalent to <span class='texttt'>*this = std::move(that)</span>.</p></div></div><div class='para' id='regex.assign-12'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='basic_regex,assign'></a></span><span class='indexparent'><a class='index' id='assign,basic_regex'></a></span><code class='itemdecl'>
 basic_regex&amp; assign(const charT* ptr, flag_type f = regex_constants::ECMAScript); 
-</code></p><div class='itemdescr'></div><div class='para' id='regex.assign-13'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-13'>13</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>assign(string_type(ptr), f)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='regex.assign-13'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-13'>13</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>assign(string_type(ptr), f)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='basic_regex,assign'></a></span><span class='indexparent'><a class='index' id='assign,basic_regex'></a></span><code class='itemdecl'>
 basic_regex&amp; assign(const charT* ptr, size_t len,
   flag_type f = regex_constants::ECMAScript);
@@ -1172,7 +1172,7 @@ basic_regex&amp; assign(const charT* ptr, size_t len,
 template &lt;class string_traits, class A&gt;
   basic_regex&amp; assign(const basic_string&lt;charT, string_traits, A&gt;&amp; s,
                       flag_type f = regex_constants::ECMAScript); 
-</code></p><div class='itemdescr'></div><div class='para' id='regex.assign-15'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-15'>15</a></div><div class='itemdescr'><p ><i>Throws:</i>  <span class='texttt'>regex_error</span> if <span class='texttt'>s</span> is not a valid regular expression. </p></div></div><div class='para' id='regex.assign-16'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>*this</span>.</p></div></div><div class='para' id='regex.assign-17'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-17'>17</a></div><div class='itemdescr'><p ><i>Effects:</i>  Assigns the regular expression contained in the string
+</code></p><div class='itemdescr'></div><div class='para' id='regex.assign-15'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-15'>15</a></div><div class='itemdescr'><p ><i>Throws:</i>  <span class='texttt'>regex_error</span> if <span class='texttt'>s</span> is not a valid regular expression. </p></div></div><div class='para' id='regex.assign-16'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.</p></div></div><div class='para' id='regex.assign-17'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-17'>17</a></div><div class='itemdescr'><p ><i>Effects:</i>  Assigns the regular expression contained in the string
 <span class='texttt'>s</span>, interpreted according the flags specified in <span class='texttt'>f</span>. 
 If an exception is thrown, <span class='texttt'>*this</span> is unchanged.  </p></div></div><div class='para' id='regex.assign-18'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-18'>18</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
 If no exception is thrown,
@@ -1183,7 +1183,7 @@ template &lt;class InputIterator&gt;
   basic_regex&amp; assign(InputIterator first, InputIterator last,
                       flag_type f = regex_constants::ECMAScript);
 </code></p><div class='itemdescr'></div><div class='para' id='regex.assign-19'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-19'>19</a></div><div class='itemdescr'><p ><i>Requires:</i>  The type <span class='texttt'>InputIterator</span> shall satisfy the requirements for an Input
-Iterator (<a href='input.iterators'>[input.iterators]</a>).</p></div></div><div class='para' id='regex.assign-20'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-20'>20</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>assign(string_type(first, last), f)</span>.
+Iterator (<a href='input.iterators'>[input.iterators]</a>).</p></div></div><div class='para' id='regex.assign-20'><div class='marginalizedparent'><a class='marginalized' href='#regex.assign-20'>20</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>assign(string_type(first, last), f)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='assign,basic_regex'></a></span><span class='indexparent'><a class='index' id='basic_regex,assign'></a></span><code class='itemdecl'>
 basic_regex&amp; assign(initializer_list&lt;charT&gt; il,
                     flag_type f = regex_constants::ECMAScript);
@@ -1251,26 +1251,26 @@ constexpr sub_match();
 <span class='texttt'>matched</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,length'></a></span><span class='indexparent'><a class='index' id='length,sub_match'></a></span><code class='itemdecl'>
 difference_type length() const;
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.members-2'><div class='marginalizedparent'><a class='marginalized' href='#submatch.members-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>(matched ? distance(first, second) : 0)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.members-2'><div class='marginalizedparent'><a class='marginalized' href='#submatch.members-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>(matched ? distance(first, second) : 0)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator_basic_string,sub_match'></a></span><span class='indexparent'><a class='index' id='sub_match,operator_basic_string'></a></span><code class='itemdecl'>
 operator string_type() const;
 </code></p><div class='itemdescr'></div><div class='para' id='submatch.members-3'><div class='marginalizedparent'><a class='marginalized' href='#submatch.members-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>matched ? string_type(first, second) : string_type()</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,str'></a></span><span class='indexparent'><a class='index' id='str,sub_match'></a></span><code class='itemdecl'>
 string_type str() const;
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.members-4'><div class='marginalizedparent'><a class='marginalized' href='#submatch.members-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>matched ? string_type(first, second) : string_type()</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.members-4'><div class='marginalizedparent'><a class='marginalized' href='#submatch.members-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>matched ? string_type(first, second) : string_type()</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,compare'></a></span><span class='indexparent'><a class='index' id='compare,sub_match'></a></span><code class='itemdecl'>
 int compare(const sub_match&amp; s) const;
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.members-5'><div class='marginalizedparent'><a class='marginalized' href='#submatch.members-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>str().compare(s.str())</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.members-5'><div class='marginalizedparent'><a class='marginalized' href='#submatch.members-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>str().compare(s.str())</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,compare'></a></span><span class='indexparent'><a class='index' id='compare,sub_match'></a></span><code class='itemdecl'>
 int compare(const string_type&amp; s) const;
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.members-6'><div class='marginalizedparent'><a class='marginalized' href='#submatch.members-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>str().compare(s)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.members-6'><div class='marginalizedparent'><a class='marginalized' href='#submatch.members-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>str().compare(s)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,compare'></a></span><span class='indexparent'><a class='index' id='compare,sub_match'></a></span><code class='itemdecl'>
 int compare(const value_type* s) const;
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.members-7'><div class='marginalizedparent'><a class='marginalized' href='#submatch.members-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>str().compare(s)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.members-7'><div class='marginalizedparent'><a class='marginalized' href='#submatch.members-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>str().compare(s)</span>.
 </p></div></div></div><div id='submatch.op'><h3 ><a class='secnum' href='#submatch.op' style='min-width:103pt'>28.9.2</a> <span class='texttt'>sub_match</span> non-member operators <a class='abbr_ref' href='re.submatch.op'>[re.submatch.op]</a></h3><p ><span class='indexparent'><a class='index' id='sub_match,operator=='></a></span><span class='indexparent'><a class='index' id='operator==,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt;
   bool operator==(const sub_match&lt;BiIter&gt;&amp; lhs, const sub_match&lt;BiIter&gt;&amp; rhs); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-1'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>lhs.compare(rhs) == 0</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-1'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>lhs.compare(rhs) == 0</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator!='></a></span><span class='indexparent'><a class='index' id='operator!=,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt;
   bool operator!=(const sub_match&lt;BiIter&gt;&amp; lhs, const sub_match&lt;BiIter&gt;&amp; rhs); 
@@ -1278,157 +1278,157 @@ template &lt;class BiIter&gt;
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator<'></a></span><span class='indexparent'><a class='index' id='operator<,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt;
   bool operator&lt;(const sub_match&lt;BiIter&gt;&amp; lhs, const sub_match&lt;BiIter&gt;&amp; rhs); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-3'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>lhs.compare(rhs) &lt; 0</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-3'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>lhs.compare(rhs) &lt; 0</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator<='></a></span><span class='indexparent'><a class='index' id='operator<=,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt;
   bool operator&lt;=(const sub_match&lt;BiIter&gt;&amp; lhs, const sub_match&lt;BiIter&gt;&amp; rhs); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-4'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>lhs.compare(rhs) &lt;= 0</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-4'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>lhs.compare(rhs) &lt;= 0</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator>='></a></span><span class='indexparent'><a class='index' id='operator>=,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt;
   bool operator&gt;=(const sub_match&lt;BiIter&gt;&amp; lhs, const sub_match&lt;BiIter&gt;&amp; rhs); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-5'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>lhs.compare(rhs) &gt;= 0</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-5'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>lhs.compare(rhs) &gt;= 0</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator>'></a></span><span class='indexparent'><a class='index' id='operator>,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt;
   bool operator&gt;(const sub_match&lt;BiIter&gt;&amp; lhs, const sub_match&lt;BiIter&gt;&amp; rhs); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-6'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>lhs.compare(rhs) &gt; 0</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-6'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>lhs.compare(rhs) &gt; 0</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator=='></a></span><span class='indexparent'><a class='index' id='operator==,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter, class ST, class SA&gt;
   bool operator==(
     const basic_string&lt;
       typename iterator_traits&lt;BiIter&gt;::value_type, ST, SA&gt;&amp; lhs,
     const sub_match&lt;BiIter&gt;&amp; rhs);
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-7'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>rhs.compare(typename sub_match&lt;BiIter&gt;::string_type(lhs.data(), lhs.size())) == 0</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-7'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>rhs.compare(typename sub_match&lt;BiIter&gt;::string_type(lhs.data(), lhs.size())) == 0</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator!='></a></span><span class='indexparent'><a class='index' id='operator!=,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter, class ST, class SA&gt;
   bool operator!=(
     const basic_string&lt;
       typename iterator_traits&lt;BiIter&gt;::value_type, ST, SA&gt;&amp; lhs,
     const sub_match&lt;BiIter&gt;&amp; rhs);
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-8'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>!(lhs == rhs)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-8'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(lhs == rhs)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator<'></a></span><span class='indexparent'><a class='index' id='operator<,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter, class ST, class SA&gt;
   bool operator&lt;(
     const basic_string&lt;
       typename iterator_traits&lt;BiIter&gt;::value_type, ST, SA&gt;&amp; lhs,
     const sub_match&lt;BiIter&gt;&amp; rhs);
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-9'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>rhs.compare(typename sub_match&lt;BiIter&gt;::string_type(lhs.data(), lhs.size())) &gt; 0</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-9'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>rhs.compare(typename sub_match&lt;BiIter&gt;::string_type(lhs.data(), lhs.size())) &gt; 0</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator>'></a></span><span class='indexparent'><a class='index' id='operator>,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter, class ST, class SA&gt;
   bool operator&gt;(
     const basic_string&lt;
       typename iterator_traits&lt;BiIter&gt;::value_type, ST, SA&gt;&amp; lhs,
     const sub_match&lt;BiIter&gt;&amp; rhs);
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-10'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>rhs &lt; lhs</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-10'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>rhs &lt; lhs</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator>='></a></span><span class='indexparent'><a class='index' id='operator>=,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter, class ST, class SA&gt;
   bool operator&gt;=(
     const basic_string&lt;
       typename iterator_traits&lt;BiIter&gt;::value_type, ST, SA&gt;&amp; lhs,
     const sub_match&lt;BiIter&gt;&amp; rhs);
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-11'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-11'>11</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>!(lhs &lt; rhs)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-11'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-11'>11</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(lhs &lt; rhs)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator<='></a></span><span class='indexparent'><a class='index' id='operator<=,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter, class ST, class SA&gt;
   bool operator&lt;=(
     const basic_string&lt;
       typename iterator_traits&lt;BiIter&gt;::value_type, ST, SA&gt;&amp; lhs,
     const sub_match&lt;BiIter&gt;&amp; rhs);
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-12'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>!(rhs &lt; lhs)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-12'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(rhs &lt; lhs)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator==,sub_match'></a></span><span class='indexparent'><a class='index' id='sub_match,operator=='></a></span><code class='itemdecl'>
 template &lt;class BiIter, class ST, class SA&gt;
   bool operator==(const sub_match&lt;BiIter&gt;&amp; lhs,
                   const basic_string&lt;
                     typename iterator_traits&lt;BiIter&gt;::value_type, ST, SA&gt;&amp; rhs);
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-13'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-13'>13</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>lhs.compare(typename sub_match&lt;BiIter&gt;::string_type(rhs.data(), rhs.size())) == 0</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-13'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-13'>13</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>lhs.compare(typename sub_match&lt;BiIter&gt;::string_type(rhs.data(), rhs.size())) == 0</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator!=,sub_match'></a></span><span class='indexparent'><a class='index' id='sub_match,operator!='></a></span><code class='itemdecl'>
 template &lt;class BiIter, class ST, class SA&gt;
   bool operator!=(const sub_match&lt;BiIter&gt;&amp; lhs,
                   const basic_string&lt;
                     typename iterator_traits&lt;BiIter&gt;::value_type, ST, SA&gt;&amp; rhs);
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-14'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-14'>14</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>!(lhs == rhs)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-14'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-14'>14</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(lhs == rhs)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator>,sub_match'></a></span><span class='indexparent'><a class='index' id='sub_match,operator<'></a></span><code class='itemdecl'>
 template &lt;class BiIter, class ST, class SA&gt;
   bool operator&lt;(const sub_match&lt;BiIter&gt;&amp; lhs,
                  const basic_string&lt;
                    typename iterator_traits&lt;BiIter&gt;::value_type, ST, SA&gt;&amp; rhs);
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-15'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-15'>15</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>lhs.compare(typename sub_match&lt;BiIter&gt;::string_type(rhs.data(), rhs.size())) &lt; 0</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-15'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-15'>15</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>lhs.compare(typename sub_match&lt;BiIter&gt;::string_type(rhs.data(), rhs.size())) &lt; 0</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator>,sub_match'></a></span><span class='indexparent'><a class='index' id='sub_match,operator>'></a></span><code class='itemdecl'>
 template &lt;class BiIter, class ST, class SA&gt;
   bool operator&gt;(const sub_match&lt;BiIter&gt;&amp; lhs,
                  const basic_string&lt;
                    typename iterator_traits&lt;BiIter&gt;::value_type, ST, SA&gt;&amp; rhs);
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-16'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>rhs &lt; lhs</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-16'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>rhs &lt; lhs</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator>=,sub_match'></a></span><span class='indexparent'><a class='index' id='sub_match,operator>='></a></span><code class='itemdecl'>
 template &lt;class BiIter, class ST, class SA&gt;
   bool operator&gt;=(const sub_match&lt;BiIter&gt;&amp; lhs,
                   const basic_string&lt;
                     typename iterator_traits&lt;BiIter&gt;::value_type, ST, SA&gt;&amp; rhs);
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-17'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-17'>17</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>!(lhs &lt; rhs)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-17'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-17'>17</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(lhs &lt; rhs)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator<=,sub_match'></a></span><span class='indexparent'><a class='index' id='sub_match,operator<='></a></span><code class='itemdecl'>
 template &lt;class BiIter, class ST, class SA&gt;
   bool operator&lt;=(const sub_match&lt;BiIter&gt;&amp; lhs,
                   const basic_string&lt;
                     typename iterator_traits&lt;BiIter&gt;::value_type, ST, SA&gt;&amp; rhs);
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-18'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-18'>18</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>!(rhs &lt; lhs)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-18'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-18'>18</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(rhs &lt; lhs)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator=='></a></span><span class='indexparent'><a class='index' id='operator==,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt; 
   bool operator==(typename iterator_traits&lt;BiIter&gt;::value_type const* lhs, 
                   const sub_match&lt;BiIter&gt;&amp; rhs); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-19'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-19'>19</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>rhs.compare(lhs) == 0</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-19'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-19'>19</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>rhs.compare(lhs) == 0</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator!='></a></span><span class='indexparent'><a class='index' id='operator!=,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt; 
   bool operator!=(typename iterator_traits&lt;BiIter&gt;::value_type const* lhs, 
                   const sub_match&lt;BiIter&gt;&amp; rhs); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-20'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-20'>20</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>!(lhs == rhs)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-20'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-20'>20</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(lhs == rhs)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator<'></a></span><span class='indexparent'><a class='index' id='operator<,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt; 
   bool operator&lt;(typename iterator_traits&lt;BiIter&gt;::value_type const* lhs, 
                  const sub_match&lt;BiIter&gt;&amp; rhs); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-21'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-21'>21</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>rhs.compare(lhs) &gt; 0</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-21'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-21'>21</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>rhs.compare(lhs) &gt; 0</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator>'></a></span><span class='indexparent'><a class='index' id='operator>,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt; 
   bool operator&gt;(typename iterator_traits&lt;BiIter&gt;::value_type const* lhs, 
                  const sub_match&lt;BiIter&gt;&amp; rhs); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-22'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-22'>22</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>rhs &lt; lhs</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-22'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-22'>22</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>rhs &lt; lhs</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator>='></a></span><span class='indexparent'><a class='index' id='operator>=,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt; 
   bool operator&gt;=(typename iterator_traits&lt;BiIter&gt;::value_type const* lhs, 
                   const sub_match&lt;BiIter&gt;&amp; rhs); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-23'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-23'>23</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>!(lhs &lt; rhs)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-23'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-23'>23</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(lhs &lt; rhs)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator<='></a></span><span class='indexparent'><a class='index' id='operator<=,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt; 
   bool operator&lt;=(typename iterator_traits&lt;BiIter&gt;::value_type const* lhs, 
                   const sub_match&lt;BiIter&gt;&amp; rhs); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-24'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-24'>24</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>!(rhs &lt; lhs)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-24'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-24'>24</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(rhs &lt; lhs)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator=='></a></span><span class='indexparent'><a class='index' id='operator==,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt; 
   bool operator==(const sub_match&lt;BiIter&gt;&amp; lhs, 
                   typename iterator_traits&lt;BiIter&gt;::value_type const* rhs);
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-25'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-25'>25</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>lhs.compare(rhs) == 0</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-25'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-25'>25</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>lhs.compare(rhs) == 0</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator!='></a></span><span class='indexparent'><a class='index' id='operator!=,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt; 
   bool operator!=(const sub_match&lt;BiIter&gt;&amp; lhs, 
                   typename iterator_traits&lt;BiIter&gt;::value_type const* rhs); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-26'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-26'>26</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>!(lhs == rhs)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-26'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-26'>26</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(lhs == rhs)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator<'></a></span><span class='indexparent'><a class='index' id='operator<,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt; 
   bool operator&lt;(const sub_match&lt;BiIter&gt;&amp; lhs, 
                  typename iterator_traits&lt;BiIter&gt;::value_type const* rhs); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-27'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-27'>27</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>lhs.compare(rhs) &lt; 0</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-27'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-27'>27</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>lhs.compare(rhs) &lt; 0</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator>'></a></span><span class='indexparent'><a class='index' id='operator>,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt; 
   bool operator&gt;(const sub_match&lt;BiIter&gt;&amp; lhs, 
                  typename iterator_traits&lt;BiIter&gt;::value_type const* rhs); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-28'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-28'>28</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>rhs &lt; lhs</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-28'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-28'>28</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>rhs &lt; lhs</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator>='></a></span><span class='indexparent'><a class='index' id='operator>=,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt; 
   bool operator&gt;=(const sub_match&lt;BiIter&gt;&amp; lhs, 
                   typename iterator_traits&lt;BiIter&gt;::value_type const* rhs); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-29'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-29'>29</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>!(lhs &lt; rhs)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-29'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-29'>29</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(lhs &lt; rhs)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator<='></a></span><span class='indexparent'><a class='index' id='operator<=,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt; 
   bool operator&lt;=(const sub_match&lt;BiIter&gt;&amp; lhs, 
                   typename iterator_traits&lt;BiIter&gt;::value_type const* rhs); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-30'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-30'>30</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>!(rhs &lt; lhs)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-30'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-30'>30</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(rhs &lt; lhs)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='sub_match,operator=='></a></span><span class='indexparent'><a class='index' id='operator==,sub_match'></a></span><code class='itemdecl'>
 template &lt;class BiIter&gt; 
   bool operator==(typename iterator_traits&lt;BiIter&gt;::value_type const&amp; lhs, 
@@ -1493,7 +1493,7 @@ template &lt;class BiIter&gt;
 template &lt;class charT, class ST, class BiIter&gt;
   basic_ostream&lt;charT, ST&gt;&amp;
   operator&lt;&lt;(basic_ostream&lt;charT, ST&gt;&amp; os, const sub_match&lt;BiIter&gt;&amp; m); 
-</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-43'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-43'>43</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>(os &lt;&lt; m.str())</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='submatch.op-43'><div class='marginalizedparent'><a class='marginalized' href='#submatch.op-43'>43</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>(os &lt;&lt; m.str())</span>.
 </p></div></div></div></div><div id='results'><h2 ><a class='secnum' href='#results' style='min-width:88pt'>28.10</a> Class template <span class='texttt'>match_results</span> <a class='abbr_ref' href='re.results'>[re.results]</a></h2><div class='para' id='results-1'><div class='marginalizedparent'><a class='marginalized' href='#results-1'>1</a></div><p ><span class='indexparent'><a class='index' id='match_results'></a></span>Class template <span class='texttt'>match_results</span> denotes a collection of character
 sequences representing the result of a regular expression
 match. Storage for the collection is allocated and freed as necessary
@@ -1636,7 +1636,7 @@ bool ready() const;
 <span class='texttt'>false</span>.
 </p></div></div></div><div id='results.size'><h3 ><a class='secnum' href='#results.size' style='min-width:103pt'>28.10.3</a> <span class='texttt'>match_results</span> size <a class='abbr_ref' href='re.results.size'>[re.results.size]</a></h3><p ><span class='indexparent'><a class='index' id='match_results,size'></a></span><span class='indexparent'><a class='index' id='size,match_results'></a></span><code class='itemdecl'>
 size_type size() const; 
-</code></p><div class='itemdescr'></div><div class='para' id='results.size-1'><div class='marginalizedparent'><a class='marginalized' href='#results.size-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>  One plus the number of marked sub-expressions in the
+</code></p><div class='itemdescr'></div><div class='para' id='results.size-1'><div class='marginalizedparent'><a class='marginalized' href='#results.size-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> One plus the number of marked sub-expressions in the
 regular expression that was matched if <span class='texttt'>*this</span> represents the
 result of a successful match.  Otherwise returns <span class='texttt'>0</span>.
 [&nbsp;<i>Note:</i><span class='space'></span> The state of a <span class='texttt'>match_results</span> object can be modified
@@ -1646,24 +1646,24 @@ effects of those algorithms on their <span class='texttt'>match_results</span> a
 <i>&nbsp;—&nbsp;end note</i>&nbsp;]
 </p></div></div><p ><span class='indexparent'><a class='index' id='match_results,max_size'></a></span><span class='indexparent'><a class='index' id='max_size,match_results'></a></span><code class='itemdecl'>
 size_type max_size() const;
-</code></p><div class='itemdescr'></div><div class='para' id='results.size-2'><div class='marginalizedparent'><a class='marginalized' href='#results.size-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>  The maximum number of <span class='texttt'>sub_match</span> elements that can be
+</code></p><div class='itemdescr'></div><div class='para' id='results.size-2'><div class='marginalizedparent'><a class='marginalized' href='#results.size-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> The maximum number of <span class='texttt'>sub_match</span> elements that can be
 stored in <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='match_results,empty'></a></span><span class='indexparent'><a class='index' id='empty,match_results'></a></span><code class='itemdecl'>
 bool empty() const;
-</code></p><div class='itemdescr'></div><div class='para' id='results.size-3'><div class='marginalizedparent'><a class='marginalized' href='#results.size-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>size() == 0</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='results.size-3'><div class='marginalizedparent'><a class='marginalized' href='#results.size-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>size() == 0</span>.
 </p></div></div></div><div id='results.acc'><h3 ><a class='secnum' href='#results.acc' style='min-width:103pt'>28.10.4</a> <span class='texttt'>match_results</span> element access <a class='abbr_ref' href='re.results.acc'>[re.results.acc]</a></h3><p ><span class='indexparent'><a class='index' id='length,match_results'></a></span><span class='indexparent'><a class='index' id='match_results,length'></a></span><code class='itemdecl'>
 difference_type length(size_type sub = 0) const;
-</code></p><div class='itemdescr'></div><div class='para' id='results.acc-1'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-1'>1</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>ready() == true</span>.</p></div></div><div class='para' id='results.acc-2'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>(*this)[sub].length()</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='results.acc-1'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-1'>1</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>ready() == true</span>.</p></div></div><div class='para' id='results.acc-2'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>(*this)[sub].length()</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='position,match_results'></a></span><span class='indexparent'><a class='index' id='match_results,position'></a></span><code class='itemdecl'>
 difference_type position(size_type sub = 0) const;
-</code></p><div class='itemdescr'></div><div class='para' id='results.acc-3'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-3'>3</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>ready() == true</span>.</p></div></div><div class='para' id='results.acc-4'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>  The distance from the start of the target sequence
+</code></p><div class='itemdescr'></div><div class='para' id='results.acc-3'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-3'>3</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>ready() == true</span>.</p></div></div><div class='para' id='results.acc-4'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> The distance from the start of the target sequence
 to <span class='texttt'>(*this)[sub].first</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='match_results,str'></a></span><span class='indexparent'><a class='index' id='str,match_results'></a></span><code class='itemdecl'>
 string_type str(size_type sub = 0) const;
-</code></p><div class='itemdescr'></div><div class='para' id='results.acc-5'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-5'>5</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>ready() == true</span>.</p></div></div><div class='para' id='results.acc-6'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>string_type((*this)[sub])</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='results.acc-5'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-5'>5</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>ready() == true</span>.</p></div></div><div class='para' id='results.acc-6'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>string_type((*this)[sub])</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='match_results,operator[]'></a></span><span class='indexparent'><a class='index' id='operator[],match_results'></a></span><code class='itemdecl'>
 const_reference operator[](size_type n) const;
-</code></p><div class='itemdescr'></div><div class='para' id='results.acc-7'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-7'>7</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>ready() == true</span>.</p></div></div><div class='para' id='results.acc-8'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>  A reference to the <span class='texttt'>sub_match</span> object representing the
+</code></p><div class='itemdescr'></div><div class='para' id='results.acc-7'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-7'>7</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>ready() == true</span>.</p></div></div><div class='para' id='results.acc-8'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> A reference to the <span class='texttt'>sub_match</span> object representing the
 character sequence that matched marked sub-expression <span class='texttt'>n</span>. If <span class='texttt'>n == 0</span>
 then returns a reference to a <span class='texttt'>sub_match</span> object representing the
 character sequence that matched the whole regular expression. If
@@ -1671,23 +1671,23 @@ character sequence that matched the whole regular expression. If
 unmatched sub-expression.
 </p></div></div><p ><span class='indexparent'><a class='index' id='match_results,prefix'></a></span><span class='indexparent'><a class='index' id='prefix,match_results'></a></span><code class='itemdecl'>
 const_reference prefix() const;
-</code></p><div class='itemdescr'></div><div class='para' id='results.acc-9'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-9'>9</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>ready() == true</span>.</p></div></div><div class='para' id='results.acc-10'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i>  A reference to the <span class='texttt'>sub_match</span> object representing the
+</code></p><div class='itemdescr'></div><div class='para' id='results.acc-9'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-9'>9</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>ready() == true</span>.</p></div></div><div class='para' id='results.acc-10'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> A reference to the <span class='texttt'>sub_match</span> object representing the
 character sequence from the start of the string being
 matched/searched to the start of the match found.  
 </p></div></div><p ><span class='indexparent'><a class='index' id='match_results,suffix'></a></span><span class='indexparent'><a class='index' id='suffix,match_results'></a></span><code class='itemdecl'>
 const_reference suffix() const;
-</code></p><div class='itemdescr'></div><div class='para' id='results.acc-11'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-11'>11</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>ready() == true</span>.</p></div></div><div class='para' id='results.acc-12'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i>  A reference to the <span class='texttt'>sub_match</span> object representing the
+</code></p><div class='itemdescr'></div><div class='para' id='results.acc-11'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-11'>11</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>ready() == true</span>.</p></div></div><div class='para' id='results.acc-12'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> A reference to the <span class='texttt'>sub_match</span> object representing the
 character sequence from the end of the match found to the end of the
 string being matched/searched.  
 </p></div></div><p ><span class='indexparent'><a class='index' id='match_results,begin'></a></span><span class='indexparent'><a class='index' id='begin,match_results'></a></span><code class='itemdecl'>
 const_iterator begin() const;
 const_iterator cbegin() const;
-</code></p><div class='itemdescr'></div><div class='para' id='results.acc-13'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-13'>13</a></div><div class='itemdescr'><p ><i>Returns:</i>  A starting iterator that enumerates over all the
+</code></p><div class='itemdescr'></div><div class='para' id='results.acc-13'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-13'>13</a></div><div class='itemdescr'><p ><i>Returns:</i> A starting iterator that enumerates over all the
 sub-expressions stored in <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='match_results,end'></a></span><span class='indexparent'><a class='index' id='end,match_results'></a></span><code class='itemdecl'>
 const_iterator end() const;
 const_iterator cend() const;
-</code></p><div class='itemdescr'></div><div class='para' id='results.acc-14'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-14'>14</a></div><div class='itemdescr'><p ><i>Returns:</i>  A terminating iterator that enumerates over all the
+</code></p><div class='itemdescr'></div><div class='para' id='results.acc-14'><div class='marginalizedparent'><a class='marginalized' href='#results.acc-14'>14</a></div><div class='itemdescr'><p ><i>Returns:</i> A terminating iterator that enumerates over all the
 sub-expressions stored in <span class='texttt'>*this</span>.  
 </p></div></div></div><div id='results.form'><h3 ><a class='secnum' href='#results.form' style='min-width:103pt'>28.10.5</a> <span class='texttt'>match_results</span> formatting <a class='abbr_ref' href='re.results.form'>[re.results.form]</a></h3><p ><span class='indexparent'><a class='index' id='match_results,format'></a></span><span class='indexparent'><a class='index' id='format,match_results'></a></span><code class='itemdecl'>
 template &lt;class OutputIter&gt;
@@ -1876,7 +1876,7 @@ template &lt;class charT, class Allocator, class traits&gt;
                    const basic_regex&lt;charT, traits&gt;&amp; e,
                    regex_constants::match_flag_type flags =
                      regex_constants::match_default); 
-</code></p><div class='itemdescr'></div><div class='para' id='alg.match-5'><div class='marginalizedparent'><a class='marginalized' href='#alg.match-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>regex_match(str, str + char_traits&lt;charT&gt;::length(str), m, e, flags)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='alg.match-5'><div class='marginalizedparent'><a class='marginalized' href='#alg.match-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>regex_match(str, str + char_traits&lt;charT&gt;::length(str), m, e, flags)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='regex_match'></a></span><code class='itemdecl'>
 template &lt;class ST, class SA, class Allocator, class charT, class traits&gt;
   bool regex_match(const basic_string&lt;charT, ST, SA&gt;&amp; s,
@@ -1886,21 +1886,21 @@ template &lt;class ST, class SA, class Allocator, class charT, class traits&gt;
                    const basic_regex&lt;charT, traits&gt;&amp; e, 
                    regex_constants::match_flag_type flags =
                      regex_constants::match_default); 
-</code></p><div class='itemdescr'></div><div class='para' id='alg.match-6'><div class='marginalizedparent'><a class='marginalized' href='#alg.match-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>regex_match(s.begin(), s.end(), m, e, flags)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='alg.match-6'><div class='marginalizedparent'><a class='marginalized' href='#alg.match-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>regex_match(s.begin(), s.end(), m, e, flags)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='regex_match'></a></span><code class='itemdecl'>
 template &lt;class charT, class traits&gt;
   bool regex_match(const charT* str,
                    const basic_regex&lt;charT, traits&gt;&amp; e,
                    regex_constants::match_flag_type flags =
                      regex_constants::match_default); 
-</code></p><div class='itemdescr'></div><div class='para' id='alg.match-7'><div class='marginalizedparent'><a class='marginalized' href='#alg.match-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>regex_match(str, str + char_traits&lt;charT&gt;::length(str), e, flags)</span>
+</code></p><div class='itemdescr'></div><div class='para' id='alg.match-7'><div class='marginalizedparent'><a class='marginalized' href='#alg.match-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>regex_match(str, str + char_traits&lt;charT&gt;::length(str), e, flags)</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='regex_match'></a></span><code class='itemdecl'>
 template &lt;class ST, class SA, class charT, class traits&gt;
   bool regex_match(const basic_string&lt;charT, ST, SA&gt;&amp; s,
                    const basic_regex&lt;charT, traits&gt;&amp; e,
                    regex_constants::match_flag_type flags =
                      regex_constants::match_default); 
-</code></p><div class='itemdescr'></div><div class='para' id='alg.match-8'><div class='marginalizedparent'><a class='marginalized' href='#alg.match-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>regex_match(s.begin(), s.end(), e, flags)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='alg.match-8'><div class='marginalizedparent'><a class='marginalized' href='#alg.match-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>regex_match(s.begin(), s.end(), e, flags)</span>.
 </p></div></div></div><div id='alg.search'><h3 ><a class='secnum' href='#alg.search' style='min-width:103pt'>28.11.3</a> <span class='texttt'>regex_search</span> <a class='abbr_ref' href='re.alg.search'>[re.alg.search]</a></h3><p ><span class='indexparent'><a class='index' id='regex_search'></a></span><code class='itemdecl'>
 template &lt;class BidirectionalIterator, class Allocator, class charT, class traits&gt;
   bool regex_search(BidirectionalIterator first, BidirectionalIterator last,
@@ -1989,7 +1989,7 @@ bool regex_search(const charT* str, match_results&lt;const charT*, Allocator&gt;
                   const basic_regex&lt;charT, traits&gt;&amp; e,
                   regex_constants::match_flag_type flags =
                     regex_constants::match_default); 
-</code></p><div class='itemdescr'></div><div class='para' id='alg.search-4'><div class='marginalizedparent'><a class='marginalized' href='#alg.search-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>  The result of <span class='texttt'>regex_search(str, 
+</code></p><div class='itemdescr'></div><div class='para' id='alg.search-4'><div class='marginalizedparent'><a class='marginalized' href='#alg.search-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> The result of <span class='texttt'>regex_search(str, 
 str + char_traits&lt;charT&gt;::length(str), m, e, flags)</span>. 
 </p></div></div><p ><span class='indexparent'><a class='index' id='regex_search'></a></span><code class='itemdecl'>
 template &lt;class ST, class SA, class Allocator, class charT, class traits&gt;
@@ -2000,7 +2000,7 @@ template &lt;class ST, class SA, class Allocator, class charT, class traits&gt;
                     const basic_regex&lt;charT, traits&gt;&amp; e,
                     regex_constants::match_flag_type flags =
                       regex_constants::match_default); 
-</code></p><div class='itemdescr'></div><div class='para' id='alg.search-5'><div class='marginalizedparent'><a class='marginalized' href='#alg.search-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>  The result of <span class='texttt'>regex_search(s.begin(), s.end(), m,
+</code></p><div class='itemdescr'></div><div class='para' id='alg.search-5'><div class='marginalizedparent'><a class='marginalized' href='#alg.search-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> The result of <span class='texttt'>regex_search(s.begin(), s.end(), m,
 e, flags)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='regex_search'></a></span><code class='itemdecl'>
 template &lt;class BidirectionalIterator, class charT, class traits&gt;
@@ -2024,7 +2024,7 @@ template &lt;class ST, class SA, class charT, class traits&gt;
                     const basic_regex&lt;charT, traits&gt;&amp; e,
                     regex_constants::match_flag_type flags =
                       regex_constants::match_default); 
-</code></p><div class='itemdescr'></div><div class='para' id='alg.search-8'><div class='marginalizedparent'><a class='marginalized' href='#alg.search-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>regex_search(s.begin(), s.end(), e, flags)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='alg.search-8'><div class='marginalizedparent'><a class='marginalized' href='#alg.search-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>regex_search(s.begin(), s.end(), e, flags)</span>.
 </p></div></div></div><div id='alg.replace'><h3 ><a class='secnum' href='#alg.replace' style='min-width:103pt'>28.11.4</a> <span class='texttt'>regex_replace</span> <a class='abbr_ref' href='re.alg.replace'>[re.alg.replace]</a></h3><p ><span class='indexparent'><a class='index' id='regex_replace'></a></span><code class='itemdecl'>
 template &lt;class OutputIterator, class BidirectionalIterator,
     class traits, class charT, class ST, class SA&gt;
@@ -2075,7 +2075,7 @@ calls
 out = std::copy(last_m.suffix().first, last_m.suffix().second, out)
 </pre><p >where <span class='texttt'>last_m</span> is a copy of the last match
 found. If <span class='texttt'>flags &amp; regex_constants::format_first_only</span> 
-is non-zero, then only the first match found is replaced.</p></div></div><div class='para' id='alg.replace-2'><div class='marginalizedparent'><a class='marginalized' href='#alg.replace-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>out</span>.
+is non-zero, then only the first match found is replaced.</p></div></div><div class='para' id='alg.replace-2'><div class='marginalizedparent'><a class='marginalized' href='#alg.replace-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>out</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='regex_replace'></a></span><code class='itemdecl'>
 template &lt;class traits, class charT, class ST, class SA, class FST, class FSA&gt;
   basic_string&lt;charT, ST, SA&gt;
@@ -2143,7 +2143,7 @@ namespace std {
   template &lt;class BidirectionalIterator, 
             class charT = typename iterator_traits&lt;
               BidirectionalIterator&gt;::value_type,
-              class traits = regex_traits&lt;charT&gt; &gt;
+            class traits = regex_traits&lt;charT&gt;&gt;
   class regex_iterator {
   public:
      using regex_type        = basic_regex&lt;charT, traits&gt;;
@@ -2170,6 +2170,7 @@ namespace std {
      const value_type* operator-&gt;() const;
      regex_iterator&amp; operator++();
      regex_iterator operator++(int);
+
   private:
      BidirectionalIterator                begin;  <span class='comment'>// <i>exposition only</i>
 </span>     BidirectionalIterator                end;    <span class='comment'>// <i>exposition only</i>
@@ -2198,7 +2199,7 @@ call returns <span class='texttt'>false</span> the constructor sets <span class=
 iterator.
 </p></div></div></div><div id='regiter.comp'><h4 ><a class='secnum' href='#regiter.comp' style='min-width:118pt'>28.12.1.2</a> <span class='texttt'>regex_iterator</span> comparisons <a class='abbr_ref' href='re.regiter.comp'>[re.regiter.comp]</a></h4><p ><span class='indexparent'><a class='index' id='regex_iterator,operator=='></a></span><span class='indexparent'><a class='index' id='operator==,regex_iterator'></a></span><code class='itemdecl'>
 bool operator==(const regex_iterator&amp; right) const;
-</code></p><div class='itemdescr'></div><div class='para' id='regiter.comp-1'><div class='marginalizedparent'><a class='marginalized' href='#regiter.comp-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>true</span> if <span class='texttt'>*this</span> and <span class='texttt'>right</span> are both end-of-sequence
+</code></p><div class='itemdescr'></div><div class='para' id='regiter.comp-1'><div class='marginalizedparent'><a class='marginalized' href='#regiter.comp-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>true</span> if <span class='texttt'>*this</span> and <span class='texttt'>right</span> are both end-of-sequence
 iterators or if the following conditions all hold:
 </p><ul ><li ><p ><span class='texttt'>begin == right.begin</span>,
 </p></li><li ><p ><span class='texttt'>end == right.end</span>,
@@ -2211,10 +2212,10 @@ bool operator!=(const regex_iterator&amp; right) const;
 </code></p><div class='itemdescr'></div><div class='para' id='regiter.comp-2'><div class='marginalizedparent'><a class='marginalized' href='#regiter.comp-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(*this == right)</span>.
 </p></div></div></div><div id='regiter.deref'><h4 ><a class='secnum' href='#regiter.deref' style='min-width:118pt'>28.12.1.3</a> <span class='texttt'>regex_iterator</span> indirection <a class='abbr_ref' href='re.regiter.deref'>[re.regiter.deref]</a></h4><p ><span class='indexparent'><a class='index' id='regex_iterator,operator*'></a></span><span class='indexparent'><a class='index' id='operator*,regex_iterator'></a></span><code class='itemdecl'>
 const value_type&amp; operator*() const;
-</code></p><div class='itemdescr'></div><div class='para' id='regiter.deref-1'><div class='marginalizedparent'><a class='marginalized' href='#regiter.deref-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>match</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='regiter.deref-1'><div class='marginalizedparent'><a class='marginalized' href='#regiter.deref-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>match</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator->,regex_iterator'></a></span><span class='indexparent'><a class='index' id='regex_iterator,operator->'></a></span><code class='itemdecl'>
 const value_type* operator-&gt;() const;
-</code></p><div class='itemdescr'></div><div class='para' id='regiter.deref-2'><div class='marginalizedparent'><a class='marginalized' href='#regiter.deref-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>&amp;match</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='regiter.deref-2'><div class='marginalizedparent'><a class='marginalized' href='#regiter.deref-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>&amp;match</span>.
 </p></div></div></div><div id='regiter.incr'><h4 ><a class='secnum' href='#regiter.incr' style='min-width:118pt'>28.12.1.4</a> <span class='texttt'>regex_iterator</span> increment <a class='abbr_ref' href='re.regiter.incr'>[re.regiter.incr]</a></h4><p ><span class='indexparent'><a class='index' id='regex_iterator,operator++'></a></span><span class='indexparent'><a class='index' id='operator++,regex_iterator'></a></span><span class='indexparent'><a class='index' id='regex_iterator,increment'></a></span><code class='itemdecl'>
 regex_iterator&amp; operator++(); 
 </code></p><div class='itemdescr'></div><div class='para' id='regiter.incr-1'><div class='marginalizedparent'><a class='marginalized' href='#regiter.incr-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>  Constructs a local variable <span class='texttt'>start</span> of type <span class='texttt'>BidirectionalIterator</span> and
@@ -2286,8 +2287,8 @@ namespace std {
   template &lt;class BidirectionalIterator, 
             class charT = typename iterator_traits&lt;
               BidirectionalIterator&gt;::value_type,
-              class traits = regex_traits&lt;charT&gt; &gt;
-  class regex_token_iterator  {
+            class traits = regex_traits&lt;charT&gt;&gt;
+  class regex_token_iterator {
   public:
     using regex_type        = basic_regex&lt;charT, traits&gt;;
     using iterator_category = std::forward_iterator_tag;
@@ -2347,6 +2348,7 @@ namespace std {
     const value_type* operator-&gt;() const;
     regex_token_iterator&amp; operator++();
     regex_token_iterator operator++(int);
+
   private:
     using position_iterator =
           regex_iterator&lt;BidirectionalIterator, charT, traits&gt;; <span class='comment'>// <i>exposition only</i>
@@ -2411,20 +2413,20 @@ iterator that points to the range <span class='texttt'>[a, <span class='discreti
 sets <span class='texttt'>*this</span> to an end-of-sequence iterator.
 </p></div></div></div><div id='tokiter.comp'><h4 ><a class='secnum' href='#tokiter.comp' style='min-width:118pt'>28.12.2.2</a> <span class='texttt'>regex_token_iterator</span> comparisons <a class='abbr_ref' href='re.tokiter.comp'>[re.tokiter.comp]</a></h4><p ><span class='indexparent'><a class='index' id='regex_token_iterator,operator=='></a></span><span class='indexparent'><a class='index' id='operator==,regex_token_iterator'></a></span><code class='itemdecl'>
 bool operator==(const regex_token_iterator&amp; right) const;
-</code></p><div class='itemdescr'></div><div class='para' id='tokiter.comp-1'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.comp-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>true</span> if <span class='texttt'>*this</span> and <span class='texttt'>right</span> are both end-of-sequence iterators,
+</code></p><div class='itemdescr'></div><div class='para' id='tokiter.comp-1'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.comp-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>true</span> if <span class='texttt'>*this</span> and <span class='texttt'>right</span> are both end-of-sequence iterators,
 or if <span class='texttt'>*this</span> and <span class='texttt'>right</span> are both suffix iterators and <span class='texttt'>suffix == right.suffix</span>;
 otherwise returns <span class='texttt'>false</span> if <span class='texttt'>*this</span> or <span class='texttt'>right</span> is an end-of-sequence
 iterator or a suffix iterator. Otherwise returns <span class='texttt'>true</span> if <span class='texttt'>position == right.position</span>,
 <span class='texttt'>N == right.N</span>, and <span class='texttt'>subs == right.subs</span>. Otherwise returns <span class='texttt'>false</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='regex_token_iterator,operator!='></a></span><span class='indexparent'><a class='index' id='operator!=,regex_token_iterator'></a></span><code class='itemdecl'>
 bool operator!=(const regex_token_iterator&amp; right) const;
-</code></p><div class='itemdescr'></div><div class='para' id='tokiter.comp-2'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.comp-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>!(*this == right)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='tokiter.comp-2'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.comp-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(*this == right)</span>.
 </p></div></div></div><div id='tokiter.deref'><h4 ><a class='secnum' href='#tokiter.deref' style='min-width:118pt'>28.12.2.3</a> <span class='texttt'>regex_token_iterator</span> indirection <a class='abbr_ref' href='re.tokiter.deref'>[re.tokiter.deref]</a></h4><p ><span class='indexparent'><a class='index' id='regex_token_iterator,operator*'></a></span><span class='indexparent'><a class='index' id='operator*,regex_token_iterator'></a></span><code class='itemdecl'>
 const value_type&amp; operator*() const;
-</code></p><div class='itemdescr'></div><div class='para' id='tokiter.deref-1'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.deref-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>*result</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='tokiter.deref-1'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.deref-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*result</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator->,regex_token_iterator'></a></span><span class='indexparent'><a class='index' id='regex_token_iterator,operator->'></a></span><code class='itemdecl'>
 const value_type* operator-&gt;() const;
-</code></p><div class='itemdescr'></div><div class='para' id='tokiter.deref-2'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.deref-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>result</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='tokiter.deref-2'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.deref-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>result</span>.
 </p></div></div></div><div id='tokiter.incr'><h4 ><a class='secnum' href='#tokiter.incr' style='min-width:118pt'>28.12.2.4</a> <span class='texttt'>regex_token_iterator</span> increment <a class='abbr_ref' href='re.tokiter.incr'>[re.tokiter.incr]</a></h4><p ><span class='indexparent'><a class='index' id='regex_token_iterator,operator++'></a></span><span class='indexparent'><a class='index' id='operator++,regex_token_iterator'></a></span><code class='itemdecl'>
 regex_token_iterator&amp; operator++(); 
 </code></p><div class='itemdescr'></div><div class='para' id='tokiter.incr-1'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.incr-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>  Constructs a local variable <span class='texttt'>prev</span> of
@@ -2436,10 +2438,10 @@ increments <span class='texttt'>position</span>. If <span class='texttt'>positio
 end-of-sequence iterator the operator sets <span class='texttt'>result</span> to the
 address of the current match. </p></div></div><div class='para' id='tokiter.incr-5'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.incr-5'>5</a></div><div class='itemdescr'><p >Otherwise, if any of the values stored in <span class='texttt'>subs</span> is equal to -1 and
 <span class='texttt'>prev-&gt;suffix().length()</span> is not 0 the operator sets <span class='texttt'>*this</span> to a
-suffix iterator that points to the range <span class='texttt'>[prev-&gt;suffix().first, <span class='discretionary'></span>prev-&gt;suffix().second)</span>.</p></div></div><div class='para' id='tokiter.incr-6'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.incr-6'>6</a></div><div class='itemdescr'><p >Otherwise, sets <span class='texttt'>*this</span> to an end-of-sequence iterator.</p></div></div><div class='para' id='tokiter.incr-7'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.incr-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>*this</span>
+suffix iterator that points to the range <span class='texttt'>[prev-&gt;suffix().first, <span class='discretionary'></span>prev-&gt;suffix().second)</span>.</p></div></div><div class='para' id='tokiter.incr-6'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.incr-6'>6</a></div><div class='itemdescr'><p >Otherwise, sets <span class='texttt'>*this</span> to an end-of-sequence iterator.</p></div></div><div class='para' id='tokiter.incr-7'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.incr-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='regex_token_iterator,operator++'></a></span><span class='indexparent'><a class='index' id='operator++,regex_token_iterator'></a></span><code class='itemdecl'>
 regex_token_iterator&amp; operator++(int); 
-</code></p><div class='itemdescr'></div><div class='para' id='tokiter.incr-8'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.incr-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i>  Constructs a copy <span class='texttt'>tmp</span> of <span class='texttt'>*this</span>, then calls <span class='texttt'>++(*this)</span>.</p></div></div><div class='para' id='tokiter.incr-9'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.incr-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>tmp</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='tokiter.incr-8'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.incr-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i>  Constructs a copy <span class='texttt'>tmp</span> of <span class='texttt'>*this</span>, then calls <span class='texttt'>++(*this)</span>.</p></div></div><div class='para' id='tokiter.incr-9'><div class='marginalizedparent'><a class='marginalized' href='#tokiter.incr-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>tmp</span>.
 </p></div></div></div></div></div><div id='grammar'><h2 ><a class='secnum' href='#grammar' style='min-width:88pt'>28.13</a> Modified ECMAScript regular expression grammar <a class='abbr_ref' href='re.grammar'>[re.grammar]</a></h2><p ><span class='indexparent'><a class='index' id='regular_expression,grammar'></a></span><span class='indexparent'><a class='index' id='grammar,regular_expression'></a></span>
 </p><div class='para' id='grammar-1'><div class='marginalizedparent'><a class='marginalized' href='#grammar-1'>1</a></div><p ><span class='indexparent'><a class='index' id='basic_regex'></a></span><span class='indexparent'><a class='index' id='ECMAScript'></a></span>The regular expression grammar recognized by 
 <span class='texttt'>basic_regex</span> objects constructed with the ECMAScript 
