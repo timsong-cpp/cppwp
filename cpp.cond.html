@@ -11,7 +11,7 @@
 shall be an integral constant expression except that
 identifiers
 (including those lexically identical to keywords)
-are interpreted as described below<a class='footnotenum' href='#footnote-145'>145</a>
+are interpreted as described below<a class='footnotenum' href='#footnote-146'>146</a>
 and it may contain zero or more <i ><a href='cpp.cond#nt:defined-macro-expression'>defined-macro-expressions</a></i> and/or
 <i ><a href='cpp.cond#nt:has-include-expression'>has-include-expressions</a></i> as unary operator expressions.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >A <i ><a href='cpp.cond#nt:defined-macro-expression'>defined-macro-expression</a></i> evaluates to <span class='texttt'>1</span>
 if the identifier is currently defined
@@ -57,12 +57,11 @@ or use of the
 <span class='texttt'>defined</span>
 unary operator does not match one of the two specified forms
 prior to macro replacement,
-the behavior is undefined.
-After all replacements due to macro expansion and
+the behavior is undefined.</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >After all replacements due to macro expansion and
 evaluations of <i ><a href='cpp.cond#nt:defined-macro-expression'>defined-macro-expressions</a></i> and
 <i ><a href='cpp.cond#nt:has-include-expression'>has-include-expressions</a></i>
 have been performed,
-all remaining identifiers and keywords<a class='footnotenum' href='#footnote-146'>146</a>,
+all remaining identifiers and keywords,
 except for
 <span class='texttt'>true</span>
 and
@@ -70,13 +69,26 @@ and
 are replaced with the pp-number
 <span class='texttt'>0</span>,
 and then each preprocessing token is converted into a token.
-The resulting tokens comprise the controlling constant expression
+[&nbsp;<i>Note:</i><span class='space'></span>
+An alternative
+token (<a href='lex.digraph'>[lex.digraph]</a>) is not an identifier,
+even when its spelling consists entirely of letters and underscores.
+Therefore it is not subject to this replacement.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >The resulting tokens comprise the controlling constant expression
 which is evaluated according to the rules of <a href='expr.const'>[expr.const]</a>
 using arithmetic that has at least the ranges specified
 in <a href='support.limits'>[support.limits]</a>. For the purposes of this token conversion and evaluation
 all signed and unsigned integer types
 act as if they have the same representation as, respectively,
-<span class='texttt'>intmax_t</span> or <span class='texttt'>uintmax_t</span> (<a href='cstdint'>[cstdint]</a>).<a class='footnotenum' href='#footnote-147'>147</a>
+<span class='texttt'>intmax_t</span> or <span class='texttt'>uintmax_t</span> (<a href='cstdint'>[cstdint]</a>).
+[&nbsp;<i>Note:</i><span class='space'></span>
+Thus on an
+implementation where <span class='texttt'>std::numeric_limits&lt;int&gt;::max()</span> is <span class='texttt'>0x7FFF</span>
+and <span class='texttt'>std::numeric_limits&lt;unsigned int&gt;::max()</span> is <span class='texttt'>0xFFFF</span>,
+the integer literal <span class='texttt'>0x8000</span> is signed and positive within a <span class='texttt'>#if</span>
+expression even though it is unsigned in translation phase
+7 (<a href='lex.phases'>[lex.phases]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
 This includes interpreting character literals, which may involve
 converting escape sequences into execution character set members.
 Whether the numeric value for these character literals
@@ -87,23 +99,34 @@ occurs in an expression
 or
 <span class='texttt'>#elif</span>
 directive)
-is <span class='indexparent'><a class='index' id='numeric_values_of_character_literals_in_#if_directives'></a></span>implementation-defined.<a class='footnotenum' href='#footnote-148'>148</a>
+is <span class='indexparent'><a class='index' id='numeric_values_of_character_literals_in_#if_directives'></a></span>implementation-defined.
+[&nbsp;<i>Note:</i><span class='space'></span>
+Thus, the constant expression in the following
+<span class='texttt'>#if</span>
+directive and
+<span class='texttt'>if</span>
+statement is not guaranteed to evaluate to the same value in these two
+contexts:
+</p><pre class='codeblock'>
+#if 'z' - 'a' == 25
+if ('z' - 'a' == 25)
+</pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]
 Also, whether a single-character character literal may have a negative
 value is <span class='indexparent'><a class='index' id='negative_value_of_character_literal_in_preprocessor'></a></span>implementation-defined.
 Each subexpression with type
 <span class='texttt'>bool</span>
-is subjected to integral promotion before processing continues.</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >Preprocessing directives of the forms</p><pre class='bnf'><span class='terminal'># ifdef</span>&#9;&#9;<i ><a href='lex.name#nt:identifier'>identifier</a></i> <i ><a href='cpp#nt:new-line'>new-line</a></i> <i ><a href='cpp#nt:group'>group</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span>
+is subjected to integral promotion before processing continues.</p></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><p >Preprocessing directives of the forms</p><pre class='bnf'><span class='terminal'># ifdef</span>&#9;&#9;<i ><a href='lex.name#nt:identifier'>identifier</a></i> <i ><a href='cpp#nt:new-line'>new-line</a></i> <i ><a href='cpp#nt:group'>group</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span>
 <span class='indexparent'><a class='index' id='#ifdef'></a></span><span class='terminal'># ifndef</span>&#9;&#9;<i ><a href='lex.name#nt:identifier'>identifier</a></i> <i ><a href='cpp#nt:new-line'>new-line</a></i> <i ><a href='cpp#nt:group'>group</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span>
 <span class='indexparent'><a class='index' id='#ifndef'></a></span></pre><p >check whether the identifier is or is not currently defined as a macro name.
 Their conditions are equivalent to
 <span class='texttt'>#if</span>
 <span class='texttt'>defined</span>
-<i>identifier</i>
+<a class='hidden_link' href='#def:identifier' id='def:identifier'><i>identifier</i></a>
 and
 <span class='texttt'>#if</span>
 <span class='texttt'>!defined</span>
-<i>identifier</i>
-respectively.</p></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >Each directive's condition is checked in order.
+<a class='hidden_link' href='#def:identifier' id='def:identifier'><i>identifier</i></a>
+respectively.</p></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><p >Each directive's condition is checked in order.
 If it evaluates to false (zero),
 the group that it controls is skipped:
 directives are processed only through the name that determines
@@ -125,7 +148,7 @@ is processed; lacking a
 <span class='texttt'>#else</span>
 directive, all the groups until the
 <span class='texttt'>#endif</span>
-<span class='indexparent'><a class='index' id='#endif'></a></span>are skipped.<a class='footnotenum' href='#footnote-149'>149</a></p><p >[&nbsp;<i>Example:</i><span class='space'></span>
+<span class='indexparent'><a class='index' id='#endif'></a></span>are skipped.<a class='footnotenum' href='#footnote-147'>147</a></p><p >[&nbsp;<i>Example:</i><span class='space'></span>
 This demonstrates a way to include a library <span class='texttt'>optional</span> facility
 only if it is available:</p><pre class='codeblock'>
 #if __has_include(&lt;optional&gt;)
@@ -138,27 +161,10 @@ only if it is available:</p><pre class='codeblock'>
 #else
 #  define have_optional 0
 #endif
-</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-145'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-145'>145)</a></div><p >Because the controlling constant expression is evaluated
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-146'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-146'>146)</a></div><p >Because the controlling constant expression is evaluated
 during translation phase 4,
 all identifiers either are or are not macro names —
-there simply are no keywords, enumeration constants, etc.</p></div><div class='footnote' id='footnote-146'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-146'>146)</a></div><p >An alternative
-token (<a href='lex.digraph'>[lex.digraph]</a>) is not an identifier,
-even when its spelling consists entirely of letters and underscores.
-Therefore it is not subject to this replacement.</p></div><div class='footnote' id='footnote-147'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-147'>147)</a></div><p >Thus on an
-implementation where <span class='texttt'>std::numeric_limits&lt;int&gt;::max()</span> is <span class='texttt'>0x7FFF</span>
-and <span class='texttt'>std::numeric_limits&lt;unsigned int&gt;::max()</span> is <span class='texttt'>0xFFFF</span>,
-the integer literal <span class='texttt'>0x8000</span> is signed and positive within a <span class='texttt'>#if</span>
-expression even though it is unsigned in translation phase
-7 (<a href='lex.phases'>[lex.phases]</a>).</p></div><div class='footnote' id='footnote-148'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-148'>148)</a></div><p >Thus, the constant expression in the following
-<span class='texttt'>#if</span>
-directive and
-<span class='texttt'>if</span>
-statement is not guaranteed to evaluate to the same value in these two
-contexts.
-</p><pre >
-<span class='='></span><span class='kill'></span>&#9;<span class='texttt'>#if 'z' - 'a' == 25</span>
-&#9;<span class='texttt'>if ('z' - 'a' == 25)</span>
-</pre></div><div class='footnote' id='footnote-149'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-149'>149)</a></div><p >As indicated by the syntax,
+there simply are no keywords, enumeration constants, etc.</p></div><div class='footnote' id='footnote-147'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-147'>147)</a></div><p >As indicated by the syntax,
 a preprocessing token shall not follow a
 <span class='texttt'>#else</span>
 or

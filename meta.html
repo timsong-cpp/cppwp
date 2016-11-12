@@ -7,32 +7,32 @@ transformations. The type classification traits describe a complete taxonomy
 of all possible C++ types, and state where in that taxonomy a given
 type belongs. The type property inspection traits allow important
 characteristics of types or of combinations of types to be inspected. The
-type transformations allow certain properties of types to be manipulated.</p></div><div id='rqmts'><h3 ><a class='secnum' href='#rqmts' style='min-width:103pt'>20.15.1</a> Requirements <a class='abbr_ref' href='meta.rqmts'>[meta.rqmts]</a></h3><div class='para' id='rqmts-1'><div class='marginalizedparent'><a class='marginalized' href='#rqmts-1'>1</a></div><p >A <a id='UnaryTypeTrait'><i>UnaryTypeTrait</i></a> describes a property
+type transformations allow certain properties of types to be manipulated.</p></div><div id='rqmts'><h3 ><a class='secnum' href='#rqmts' style='min-width:103pt'>20.15.1</a> Requirements <a class='abbr_ref' href='meta.rqmts'>[meta.rqmts]</a></h3><div class='para' id='rqmts-1'><div class='marginalizedparent'><a class='marginalized' href='#rqmts-1'>1</a></div><p >A <a class='hidden_link' href='#def:UnaryTypeTrait' id='def:UnaryTypeTrait'><i>UnaryTypeTrait</i></a> describes a property
 of a type. It shall be a class template that takes one template type
 argument and, optionally, additional arguments that help define the
 property being described. It shall be <span class='texttt'>DefaultConstructible</span>,
 <span class='texttt'>CopyConstructible</span>,
 and publicly and unambiguously derived, directly or indirectly, from
-its <a id='BaseCharacteristic'><i>BaseCharacteristic</i></a>, which is
+its <a class='hidden_link' href='#def:BaseCharacteristic' id='def:BaseCharacteristic'><i>BaseCharacteristic</i></a>, which is
 a specialization of the template
 <span class='texttt'>integral_constant</span> (<a href='meta.help'>[meta.help]</a>), with
 the arguments to the template <span class='texttt'>integral_constant</span> determined by the
 requirements for the particular property being described.
 The member names of the BaseCharacteristic shall not be hidden and shall be
-unambiguously available in the UnaryTypeTrait.</p></div><div class='para' id='rqmts-2'><div class='marginalizedparent'><a class='marginalized' href='#rqmts-2'>2</a></div><p >A <a id='BinaryTypeTrait'><i>BinaryTypeTrait</i></a> describes a
+unambiguously available in the UnaryTypeTrait.</p></div><div class='para' id='rqmts-2'><div class='marginalizedparent'><a class='marginalized' href='#rqmts-2'>2</a></div><p >A <a class='hidden_link' href='#def:BinaryTypeTrait' id='def:BinaryTypeTrait'><i>BinaryTypeTrait</i></a> describes a
 relationship between two types. It shall be a class template that
 takes two template type arguments and, optionally, additional
 arguments that help define the relationship being described. It shall
 be <span class='texttt'>DefaultConstructible</span>, <span class='texttt'>CopyConstructible</span>,
 and publicly and unambiguously derived, directly or
 indirectly, from
-its <i>BaseCharacteristic</i>, which is a specialization
+its <a class='hidden_link' href='#def:BaseCharacteristic' id='def:BaseCharacteristic'><i>BaseCharacteristic</i></a>, which is a specialization
 of the template
 <span class='texttt'>integral_constant</span> (<a href='meta.help'>[meta.help]</a>), with
 the arguments to the template <span class='texttt'>integral_constant</span> determined by the
 requirements for the particular relationship being described.
 The member names of the BaseCharacteristic shall not be hidden and shall be
-unambiguously available in the BinaryTypeTrait.</p></div><div class='para' id='rqmts-3'><div class='marginalizedparent'><a class='marginalized' href='#rqmts-3'>3</a></div><p >A <a id='TransformationTrait'><i>TransformationTrait</i></a>
+unambiguously available in the BinaryTypeTrait.</p></div><div class='para' id='rqmts-3'><div class='marginalizedparent'><a class='marginalized' href='#rqmts-3'>3</a></div><p >A <a class='hidden_link' href='#def:TransformationTrait' id='def:TransformationTrait'><i>TransformationTrait</i></a>
 modifies a property
 of a type. It shall be a class template that takes one
 template type argument and, optionally, additional arguments that help
@@ -374,6 +374,8 @@ namespace std {
     = is_nothrow_destructible&lt;T&gt;::value;
   template &lt;class T&gt; constexpr bool has_virtual_destructor_v
     = has_virtual_destructor&lt;T&gt;::value;
+  template &lt;class T&gt; constexpr bool has_unique_object_representations_v
+    = has_unique_object_representations&lt;T&gt;::value;
 
   <span class='comment'>// See <a href='meta.unary.prop.query'>[meta.unary.prop.query]</a>, type property queries
 </span>  template &lt;class T&gt; constexpr size_t alignment_of_v
@@ -553,11 +555,11 @@ notwithstanding the restrictions of <a href='declval'>[declval]</a>.</p><div cla
  If <span class='texttt'>T</span> is a class type, <span class='texttt'>T</span> shall be a complete type.                          </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_signed,class'></a></span><span class='texttt'>template &lt;class T&gt;</span><span class='hfill'></span><br/>
   <span class='texttt'>struct is_signed;</span>              </td><td class='left'>
   If <span class='texttt'>is_arithmetic_v&lt;T&gt;</span> is <span class='texttt'>true</span>, the same result as
-  <span class='texttt'>bool_constant&lt;T(-1) &lt; T(0)&gt;::value</span>;
+  <span class='texttt'>T(-1) &lt; T(0)</span>;
   otherwise, <span class='texttt'>false</span>   </td><td class='left'>   </td></tr><tr class='rowsep'><td class='left'>  <span class='indexparent'><a class='index' id='is_unsigned'></a></span><span class='texttt'>template &lt;class T&gt;</span><span class='hfill'></span><br/>
   <span class='texttt'>struct is_unsigned;</span>            </td><td class='left'>
   If <span class='texttt'>is_arithmetic_v&lt;T&gt;</span> is <span class='texttt'>true</span>, the same result as
-  <span class='texttt'>bool_constant&lt;T(0) &lt; T(-1)&gt;::value</span>;
+  <span class='texttt'>T(0) &lt; T(-1)</span>;
   otherwise, <span class='texttt'>false</span>   </td><td class='left'>   </td></tr><tr class='rowsep'><td class='left'>  <span class='indexparent'><a class='index' id='is_constructible'></a></span><span class='texttt'>template &lt;class T, class... Args&gt;</span><span class='hfill'></span><br/>
  <span class='texttt'>struct is_constructible;</span>   </td><td class='left'>
  For a function type <span class='texttt'>T</span>,
@@ -631,14 +633,14 @@ notwithstanding the restrictions of <a href='declval'>[declval]</a>.</p><div cla
   (possibly cv-qualified) <span class='texttt'>void</span>, or
   an array of unknown bound. </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_destructible'></a></span><span class='texttt'>template &lt;class T&gt;</span><span class='hfill'></span><br/>
   <span class='texttt'>struct is_destructible;</span> </td><td class='left'>
-  For reference types, <span class='texttt'>is_destructible&lt;T&gt;::value</span> is <span class='texttt'>true</span>. <span class='hfill'></span><br/>
-  For incomplete types and function types, <span class='texttt'>is_destructible&lt;T&gt;::value</span> is
-  <span class='texttt'>false</span>. <span class='hfill'></span><br/>
-  For object types and given <span class='texttt'>U</span> equal to <span class='texttt'>remove_all_extents_t&lt;T&gt;</span>,
-  if the expression <span class='texttt'>declval&lt;U&amp;&gt;().~U()</span> is well-formed
-  when treated as an unevaluated operand (Clause <a href='expr'>[expr]</a>), <span class='hfill'></span><br/> then
-  <span class='texttt'>is_destructible&lt;T&gt;::value</span> is <span class='texttt'>true</span>,
-  otherwise it is <span class='texttt'>false</span>. </td><td class='left'>
+  Either <span class='texttt'>T</span> is a reference type,
+  or <span class='texttt'>T</span> is a complete object type
+  for which the expression
+  <span class='texttt'>declval&lt;U&amp;&gt;().~U()</span>
+  is well-formed
+  when treated as an unevaluated operand (Clause <a href='expr'>[expr]</a>),
+  where <span class='texttt'>U</span> is
+  <span class='texttt'>remove_all_extents&lt;T&gt;</span>. </td><td class='left'>
   <span class='texttt'>T</span> shall be a complete type, (possibly cv-qualified) <span class='texttt'>void</span>,
   or an array of unknown bound. </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_trivially_constructible'></a></span><span class='texttt'>template &lt;class T, class... Args&gt;</span><span class='hfill'></span><br/>
   <span class='texttt'>struct</span><span class='hfill'></span><br/>
@@ -757,7 +759,7 @@ notwithstanding the restrictions of <a href='declval'>[declval]</a>.</p><div cla
  If <span class='texttt'>T</span> is a non-union class type, <span class='texttt'>T</span> shall be a complete type.                </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='has_unique_object_representations'></a></span><span class='texttt'>template &lt;class T&gt;</span><span class='hfill'></span><br/>
   <span class='texttt'>struct has_unique_object_representations;</span> </td><td class='left'>
   For an array type <span class='texttt'>T</span>, the same result as
-  <span class='texttt'>has_unique_object_representations&lt;remove_all_extents_t&lt;T&gt;&gt;::value</span>,
+  <span class='texttt'>has_unique_object_representations_v&lt;remove_all_extents_t&lt;T&gt;&gt;</span>,
   otherwise <i><span class='texttt'>see below</span></i>. </td><td class='left'>
   <span class='texttt'>T</span> shall be a complete type, (possibly cv-qualified) <span class='texttt'>void</span>, or
   an array of unknown bound. </td></tr></table></div></div><div class='para' id='unary.prop-5'><div class='marginalizedparent'><a class='marginalized' href='#unary.prop-5'>5</a></div><p >[&nbsp;<i>Example:</i><span class='space'></span>
@@ -797,7 +799,7 @@ initialization can result in side effects such as the instantiation of class
 template specializations and function template specializations, the generation
 of implicitly-defined functions, and so on. Such side effects are not in the
 “immediate context” and can result in the program being ill-formed. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='has_unique_object_representations'></a></span></p></div><div class='para' id='unary.prop-9'><div class='marginalizedparent'><a class='marginalized' href='#unary.prop-9'>9</a></div><p >The predicate condition for a template specialization
-<span class='texttt'>has_unique_object_representations&lt;T&gt;::value</span>
+<span class='texttt'>has_unique_object_representations&lt;T&gt;</span>
 shall be satisfied if and only if:
 </p><ul ><li ><p ><span class='texttt'>T</span> is trivially copyable, and
 </p></li><li ><p >any two objects of type <span class='texttt'>T</span> with the same value
@@ -860,8 +862,8 @@ with a BaseCharacteristic of
  name the same class type
  without regard to cv-qualifiers            </td><td class='left'>
  If <span class='texttt'>Base</span> and
- <span class='texttt'>Derived</span> are non-union class types and are different types (ignoring
- possible cv-qualifiers) then
+ <span class='texttt'>Derived</span> are non-union class types and are
+not possibly cv-qualified versions of the same type,
  <span class='texttt'>Derived</span> shall be a complete
  type.
  [&nbsp;<i>Note:</i><span class='space'></span> Base classes that are private, protected, or ambiguous
@@ -922,7 +924,7 @@ specializations, the generation of implicitly-defined functions, and so on. Such
 side effects are not in the “immediate context” and can result in the program
 being ill-formed. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='trans'><h3 ><a class='secnum' href='#trans' style='min-width:103pt'>20.15.7</a> Transformations between types <a class='abbr_ref' href='meta.trans'>[meta.trans]</a></h3><div class='para' id='trans-1'><div class='marginalizedparent'><a class='marginalized' href='#trans-1'>1</a></div><p >This sub-clause contains templates that may be used to transform one
 type to another following some predefined rule.</p></div><div class='para' id='trans-2'><div class='marginalizedparent'><a class='marginalized' href='#trans-2'>2</a></div><p >Each of the templates in this subclause shall be a
-<i>TransformationTrait</i> (<a href='meta.rqmts'>[meta.rqmts]</a>).</p></div><div id='trans.cv'><h4 ><a class='secnum' href='#trans.cv' style='min-width:118pt'>20.15.7.1</a> Const-volatile modifications <a class='abbr_ref' href='meta.trans.cv'>[meta.trans.cv]</a></h4><div class='numberedTable' id='tab:type-traits.const-volatile'>Table <a href='#tab:type-traits.const-volatile'>38</a> — Const-volatile modifications<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Template</b></td><td colspan='1' class='center'><b>Comments</b></td></tr><tr class='capsep'><td class='left'> 
+<a class='hidden_link' href='#def:TransformationTrait' id='def:TransformationTrait'><i>TransformationTrait</i></a> (<a href='meta.rqmts'>[meta.rqmts]</a>).</p></div><div id='trans.cv'><h4 ><a class='secnum' href='#trans.cv' style='min-width:118pt'>20.15.7.1</a> Const-volatile modifications <a class='abbr_ref' href='meta.trans.cv'>[meta.trans.cv]</a></h4><div class='numberedTable' id='tab:type-traits.const-volatile'>Table <a href='#tab:type-traits.const-volatile'>38</a> — Const-volatile modifications<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Template</b></td><td colspan='1' class='center'><b>Comments</b></td></tr><tr class='capsep'><td class='left'> 
 <span class='endhead'></span><span class='indexparent'><a class='index' id='remove_const'></a></span><span class='texttt'>template &lt;class T&gt;<span class='hfill'></span><br/>
  struct remove_const;</span>                  </td><td class='left'>
  The member typedef <span class='texttt'>type</span> shall name

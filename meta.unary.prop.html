@@ -51,11 +51,11 @@ notwithstanding the restrictions of <a href='declval'>[declval]</a>.</p><div cla
  If <span class='texttt'>T</span> is a class type, <span class='texttt'>T</span> shall be a complete type.                          </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_signed,class'></a></span><span class='texttt'>template &lt;class T&gt;</span><span class='hfill'></span><br/>
   <span class='texttt'>struct is_signed;</span>              </td><td class='left'>
   If <span class='texttt'>is_arithmetic_v&lt;T&gt;</span> is <span class='texttt'>true</span>, the same result as
-  <span class='texttt'>bool_constant&lt;T(-1) &lt; T(0)&gt;::value</span>;
+  <span class='texttt'>T(-1) &lt; T(0)</span>;
   otherwise, <span class='texttt'>false</span>   </td><td class='left'>   </td></tr><tr class='rowsep'><td class='left'>  <span class='indexparent'><a class='index' id='is_unsigned'></a></span><span class='texttt'>template &lt;class T&gt;</span><span class='hfill'></span><br/>
   <span class='texttt'>struct is_unsigned;</span>            </td><td class='left'>
   If <span class='texttt'>is_arithmetic_v&lt;T&gt;</span> is <span class='texttt'>true</span>, the same result as
-  <span class='texttt'>bool_constant&lt;T(0) &lt; T(-1)&gt;::value</span>;
+  <span class='texttt'>T(0) &lt; T(-1)</span>;
   otherwise, <span class='texttt'>false</span>   </td><td class='left'>   </td></tr><tr class='rowsep'><td class='left'>  <span class='indexparent'><a class='index' id='is_constructible'></a></span><span class='texttt'>template &lt;class T, class... Args&gt;</span><span class='hfill'></span><br/>
  <span class='texttt'>struct is_constructible;</span>   </td><td class='left'>
  For a function type <span class='texttt'>T</span>,
@@ -129,14 +129,14 @@ notwithstanding the restrictions of <a href='declval'>[declval]</a>.</p><div cla
   (possibly cv-qualified) <span class='texttt'>void</span>, or
   an array of unknown bound. </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_destructible'></a></span><span class='texttt'>template &lt;class T&gt;</span><span class='hfill'></span><br/>
   <span class='texttt'>struct is_destructible;</span> </td><td class='left'>
-  For reference types, <span class='texttt'>is_destructible&lt;T&gt;::value</span> is <span class='texttt'>true</span>. <span class='hfill'></span><br/>
-  For incomplete types and function types, <span class='texttt'>is_destructible&lt;T&gt;::value</span> is
-  <span class='texttt'>false</span>. <span class='hfill'></span><br/>
-  For object types and given <span class='texttt'>U</span> equal to <span class='texttt'>remove_all_extents_t&lt;T&gt;</span>,
-  if the expression <span class='texttt'>declval&lt;U&amp;&gt;().~U()</span> is well-formed
-  when treated as an unevaluated operand (Clause <a href='expr'>[expr]</a>), <span class='hfill'></span><br/> then
-  <span class='texttt'>is_destructible&lt;T&gt;::value</span> is <span class='texttt'>true</span>,
-  otherwise it is <span class='texttt'>false</span>. </td><td class='left'>
+  Either <span class='texttt'>T</span> is a reference type,
+  or <span class='texttt'>T</span> is a complete object type
+  for which the expression
+  <span class='texttt'>declval&lt;U&amp;&gt;().~U()</span>
+  is well-formed
+  when treated as an unevaluated operand (Clause <a href='expr'>[expr]</a>),
+  where <span class='texttt'>U</span> is
+  <span class='texttt'>remove_all_extents&lt;T&gt;</span>. </td><td class='left'>
   <span class='texttt'>T</span> shall be a complete type, (possibly cv-qualified) <span class='texttt'>void</span>,
   or an array of unknown bound. </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_trivially_constructible'></a></span><span class='texttt'>template &lt;class T, class... Args&gt;</span><span class='hfill'></span><br/>
   <span class='texttt'>struct</span><span class='hfill'></span><br/>
@@ -255,7 +255,7 @@ notwithstanding the restrictions of <a href='declval'>[declval]</a>.</p><div cla
  If <span class='texttt'>T</span> is a non-union class type, <span class='texttt'>T</span> shall be a complete type.                </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='has_unique_object_representations'></a></span><span class='texttt'>template &lt;class T&gt;</span><span class='hfill'></span><br/>
   <span class='texttt'>struct has_unique_object_representations;</span> </td><td class='left'>
   For an array type <span class='texttt'>T</span>, the same result as
-  <span class='texttt'>has_unique_object_representations&lt;remove_all_extents_t&lt;T&gt;&gt;::value</span>,
+  <span class='texttt'>has_unique_object_representations_v&lt;remove_all_extents_t&lt;T&gt;&gt;</span>,
   otherwise <i><span class='texttt'>see below</span></i>. </td><td class='left'>
   <span class='texttt'>T</span> shall be a complete type, (possibly cv-qualified) <span class='texttt'>void</span>, or
   an array of unknown bound. </td></tr></table></div></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >[&nbsp;<i>Example:</i><span class='space'></span>
@@ -295,7 +295,7 @@ initialization can result in side effects such as the instantiation of class
 template specializations and function template specializations, the generation
 of implicitly-defined functions, and so on. Such side effects are not in the
 “immediate context” and can result in the program being ill-formed. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='has_unique_object_representations'></a></span></p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >The predicate condition for a template specialization
-<span class='texttt'>has_unique_object_representations&lt;T&gt;::value</span>
+<span class='texttt'>has_unique_object_representations&lt;T&gt;</span>
 shall be satisfied if and only if:
 </p><ul ><li ><p ><span class='texttt'>T</span> is trivially copyable, and
 </p></li><li ><p >any two objects of type <span class='texttt'>T</span> with the same value
