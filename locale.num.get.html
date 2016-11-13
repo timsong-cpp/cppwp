@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang='en'><head><title>[locale.num.get]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>22</a> Localization library <a class='abbr_ref' href='./#localization'>[localization]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>22.4</a> Standard <span class='texttt'>locale</span> categories <a class='abbr_ref' href='locale.categories#locale.num.get'>[locale.categories]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>22.4.2</a> The numeric category <a class='abbr_ref' href='category.numeric#locale.num.get'>[category.numeric]</a></h3><div id='locale.num.get'><h4 ><a class='secnum' style='min-width:118pt'>22.4.2.1</a> Class template <span class='texttt'>num_get</span> <a class='abbr_ref'>[locale.num.get]</a></h4><p ><span class='indexparent'><a class='index' id='num_get'></a></span></p><pre class='codeblock'>
 namespace std {
-  template &lt;class charT, class InputIterator = istreambuf_iterator&lt;charT&gt; &gt;
+  template &lt;class charT, class InputIterator = istreambuf_iterator&lt;charT&gt;&gt;
   class num_get : public locale::facet {
   public:
     using char_type = charT;
@@ -111,9 +111,9 @@ iter_type do_get(iter_type in, iter_type end, ios_base&amp; str,
 Reads characters from <span class='texttt'>in</span>,
 interpreting them according to
 <span class='texttt'>str.flags()</span>,
-<span class='texttt'>use_facet&lt;ctype&lt;<span class='discretionary'></span>charT&gt; &gt;(loc)</span>,
+<span class='texttt'>use_facet&lt;ctype&lt;<span class='discretionary'></span>charT&gt;&gt;(loc)</span>,
 and
-<span class='texttt'>use_facet&lt; numpunct&lt;charT&gt; &gt;(loc)</span>,
+<span class='texttt'>use_facet&lt;numpunct&lt;charT&gt;&gt;(loc)</span>,
 where
 <span class='texttt'>loc</span>
 is
@@ -160,11 +160,11 @@ Otherwise a
 is taken from <span class='texttt'>in</span> and local variables are initialized as if by</p><pre class='codeblock'>
 char_type ct = *in;
 char c = src[find(atoms, atoms + sizeof(src) - 1, ct) - atoms];
-if (ct == use_facet&lt;numpunct&lt;charT&gt; &gt;(loc).decimal_point())
+if (ct == use_facet&lt;numpunct&lt;charT&gt;&gt;(loc).decimal_point())
 c = '.';
 bool discard =
-  ct == use_facet&lt;numpunct&lt;charT&gt; &gt;(loc).thousands_sep()
-  &amp;&amp; use_facet&lt;numpunct&lt;charT&gt; &gt;(loc).grouping().length() != 0;
+  ct == use_facet&lt;numpunct&lt;charT&gt;&gt;(loc).thousands_sep()
+  &amp;&amp; use_facet&lt;numpunct&lt;charT&gt;&gt;(loc).grouping().length() != 0;
 </pre><p >where the values
 <span class='texttt'>src</span>
 and
@@ -172,7 +172,7 @@ and
 are defined as if by:</p><pre class='codeblock'>
 static const char src[] = "0123456789abcdefxABCDEFX+-";
 char_type atoms[sizeof(src)];
-use_facet&lt;ctype&lt;charT&gt; &gt;(loc).widen(src, src + sizeof(src), atoms);
+use_facet&lt;ctype&lt;charT&gt;&gt;(loc).widen(src, src + sizeof(src), atoms);
 </pre><p >for this value of
 <span class='texttt'>loc</span>.</p><p >If <span class='texttt'>discard</span> is true, then if
 <span class='texttt'>'.'</span>
@@ -188,18 +188,18 @@ returned by Stage 1. If so, it is accumulated.</p><p >If the character is either
 is advanced by
 <span class='texttt'>++in</span>
 and processing returns to the beginning of stage 2.</p></li><li ><p >The sequence of <span class='texttt'>char</span>s accumulated in stage 2 (the field) is converted to a numeric value by the rules of one of the functions declared in the header <span class='texttt'>&lt;cstdlib&gt;</span>:</p><ul ><li ><p >For a signed integer value, the function <span class='texttt'>strtoll</span>.</p></li><li ><p >For an unsigned integer value, the function <span class='texttt'>strtoull</span>.</p></li><li ><p >For a <span class='texttt'>float</span> value, the function <span class='texttt'>strtof</span>.</p></li><li ><p >For a <span class='texttt'>double</span> value, the function <span class='texttt'>strtod</span>.</p></li><li ><p >For a <span class='texttt'>long double</span> value, the function <span class='texttt'>strtold</span>.
-</p></li></ul><p >The numeric value to be stored can be one of:</p><ul ><li ><p >zero, if the conversion function fails to convert the entire field.</p></li><li ><p >the most positive (or negative) representable value,
+</p></li></ul><p >The numeric value to be stored can be one of:</p><ul ><li ><p >zero, if the conversion function does not convert the entire field.</p></li><li ><p >the most positive (or negative) representable value,
 if the field to be converted to a signed integer type represents a value
 too large positive (or negative) to be represented in <span class='texttt'>val</span>.</p></li><li ><p >the most positive representable value,
 if the field to be converted to an unsigned integer type represents a value
 that cannot be represented in <span class='texttt'>val</span>.</p></li><li ><p >the converted value, otherwise.
 </p></li></ul><p >The resultant numeric value is stored in <span class='texttt'>val</span>.
-If the conversion function fails to convert the entire field, or
+If the conversion function does not convert the entire field, or
 if the field represents a value outside the range of representable values,
 <span class='texttt'>ios_base::failbit</span> is assigned to <span class='texttt'>err</span>.</p></li></ul></div></div><div class='para' id='facet.num.get.virtuals-4'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.get.virtuals-4'>4</a></div><div class='itemdescr'><p >Digit grouping is checked.
 That is, the positions of discarded
 separators is examined for consistency with
-<span class='texttt'>use_facet&lt;numpunct&lt;charT&gt; &gt;(loc).grouping()</span>.
+<span class='texttt'>use_facet&lt;numpunct&lt;charT&gt;&gt;(loc).grouping()</span>.
 If they are not consistent then
 <span class='texttt'>ios_base::failbit</span>
 is assigned to <span class='texttt'>err</span>.</p></div></div><div class='para' id='facet.num.get.virtuals-5'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.get.virtuals-5'>5</a></div><div class='itemdescr'><p >In any case, if stage 2 processing was terminated by the test for
@@ -230,7 +230,7 @@ members
 and
 <span class='texttt'>truename()</span>
 of the facet obtained by
-<span class='texttt'>use_facet&lt;numpunct&lt;charT&gt; &gt;(str.getloc())</span>.
+<span class='texttt'>use_facet&lt;numpunct&lt;charT&gt;&gt;(str.getloc())</span>.
 Successive characters in the range
 <span class='texttt'>[in, <span class='discretionary'></span>end)</span>
 (see <a href='sequence.reqmts'>[sequence.reqmts]</a>) are obtained and
