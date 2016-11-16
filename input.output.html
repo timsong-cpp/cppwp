@@ -7239,22 +7239,18 @@ path lexically_relative(const path&amp; base) const;
 </code></p><div class='itemdescr'></div><div class='para' id='path.gen-2'><div class='marginalizedparent'><a class='marginalized' href='#path.gen-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span> made relative to <span class='texttt'>base</span>.
 Does not resolve (<a href='fs.def.pathres'>[fs.def.pathres]</a>) symlinks.
 Does not first normalize (<a href='fs.def.normal.form'>[fs.def.normal.form]</a>) <span class='texttt'>*this</span> or <span class='texttt'>base</span>.</p></div></div><div class='para' id='path.gen-3'><div class='marginalizedparent'><a class='marginalized' href='#path.gen-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
-Using <span class='texttt'>operator==</span> to determine if elements match,
-determines the first mismatched element of <span class='texttt'>*this</span> and <span class='texttt'>base</span>
-using <span class='texttt'>mismatch(begin(),</span> <span class='texttt'>end(),</span> <span class='texttt'>base.begin(),</span> <span class='texttt'>base.end())</span>.</p><p >Then:
-</p><ul ><li ><p >returns <span class='texttt'>path()</span> if
-  the first mismatched element of <span class='texttt'>*this</span> is equal to <span class='texttt'>begin()</span> or
-  the first mismatched element of <span class='texttt'>base</span> is equal to <span class='texttt'>base.begin()</span>, or
-</p></li><li ><p >returns <span class='texttt'>path(".")</span> if
-  the first mismatched element of <span class='texttt'>*this</span> is equal to <span class='texttt'>end()</span> and
-  the first mismatched element of <span class='texttt'>base</span> is equal to <span class='texttt'>base.end()</span>, or
-</p></li><li ><p >returns an object of class <span class='texttt'>path</span> composed via
-</p><ul ><li ><p >application of <span class='texttt'>operator/=</span> (<span class='texttt'>path("..")</span>)
-  for each element in the half-open range
-  [first mismatched element of <span class='texttt'>base</span>, <span class='texttt'>base.end()</span>), and then
+Determines the first mismatched element of <span class='texttt'>*this</span> and <span class='texttt'>base</span>
+as if by:
+</p><pre class='codeblock'>
+auto [a, b] = mismatch(begin(), end(), base.begin(), base.end());
+</pre><p >Then,
+</p><ul ><li ><p >if <span class='texttt'>a == begin()</span> and <span class='texttt'>b == base.begin()</span>, returns <span class='texttt'>path()</span>; otherwise
+</p></li><li ><p >if <span class='texttt'>a == end()</span> and <span class='texttt'>b == base.end()</span>, returns <span class='texttt'>path(".")</span>; otherwise
+</p></li><li ><p >returns an object of class <span class='texttt'>path</span> that is default-constructed, followed by
+</p><ul ><li ><p >application of <span class='texttt'>operator/=(path(".."))</span>
+  for each element in <span class='texttt'>[b, <span class='discretionary'></span>base.end())</span>, and then
 </p></li><li ><p >application of <span class='texttt'>operator/=</span>
-  for each element in the half-open range
-  [first mismatched element of <span class='texttt'>*this</span>, <span class='texttt'>end()</span>).
+  for each element in <span class='texttt'>[a, <span class='discretionary'></span>end())</span>.
 </p></li></ul></li></ul><p >[&nbsp;<i>Example:</i><span class='space'></span>
 </p><pre class='codeblock'>
 assert(path("/a/d").lexically_relative("/a/b/c") == "../../d");
