@@ -10,7 +10,8 @@ cd ../../cxxdraft-htmlgen
 rm -rf 14882
 runhaskell genhtml.hs ../draft Bare
 
-rm -r ../gh-pages/*
+rm -r ../gh-pages/math
+rm ../gh-pages/*.html ../gh-pages/draft.pdf
 cp -r 14882/math ../gh-pages/
 find 14882/ -maxdepth 1 -type f -execdir cp '{}' ../../gh-pages/'{}'.html \;
 rm -r 14882
