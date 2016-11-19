@@ -1,0 +1,130 @@
+<!DOCTYPE html><html lang='en'><head><title>[class.free]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>12</a> Special member functions <a class='abbr_ref' href='./#special'>[special]</a></h1><div id='class.free'><h2 ><a class='secnum' style='min-width:88pt'>12.5</a> Free store <a class='abbr_ref'>[class.free]</a></h2><p ><span class='indexparent'><a class='index' id='free_store'></a></span>
+</p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='new,type_of'></a></span>
+Any allocation function for a class
+<span class='texttt'>T</span>
+is a static member (even if not explicitly declared
+<span class='texttt'>static</span>).</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+class Arena;
+struct B {
+  void* operator new(std::size_t, Arena*);
+};
+struct D1 : B {
+};
+
+Arena*  ap;
+void foo(int i) {
+  new (ap) D1;      <span class='comment'>// calls <span class='texttt'>B::operator new(std::size_t, Arena*)</span>
+</span>  new D1[i];        <span class='comment'>// calls <span class='texttt'>::operator new[](std::size_t)</span>
+</span>  new D1;           <span class='comment'>// ill-formed: <span class='texttt'>::operator new(std::size_t)</span> hidden
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p ><span class='indexparent'><a class='index' id='delete'></a></span>When an object is deleted with a
+<i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i> (<a href='expr.delete'>[expr.delete]</a>),
+a <a class='hidden_link' href='#def:deallocation_function' id='def:deallocation_function'><i>deallocation function</i></a>
+<span class='indexparent'><a class='index' id='function,deallocation'></a></span>(<span class='texttt'>operator delete()</span>
+<span class='indexparent'><a class='index' id='operator_delete'></a></span>for non-array objects or
+<span class='texttt'>operator delete[]()</span>
+<span class='indexparent'><a class='index' id='operator_delete'></a></span>for arrays) is (implicitly) called to reclaim the storage occupied by
+the object (<a href='basic.stc.dynamic.deallocation'>[basic.stc.dynamic.deallocation]</a>).</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Class-specific deallocation function lookup is a part of general deallocation
+function lookup (<a href='expr.delete'>[expr.delete]</a>) and occurs as follows.
+If the <i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i>
+is used to deallocate a class object whose static type has a virtual
+destructor, the deallocation function is the one selected at the point
+of definition of the dynamic type's virtual
+destructor (<a href='class.dtor'>[class.dtor]</a>).<a class='footnotenum' href='#footnote-119'>119</a>
+Otherwise, if the
+<i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i>
+is used to deallocate an object of class
+<span class='texttt'>T</span>
+or array thereof, the static and dynamic types of the object shall be
+identical and the deallocation function's name is looked up in the scope of
+<span class='texttt'>T</span>.
+If this lookup fails to find the name, general deallocation function
+lookup (<a href='expr.delete'>[expr.delete]</a>) continues.
+If the result of the lookup is ambiguous or inaccessible, or if the lookup
+selects a placement deallocation function, the program is ill-formed.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p ><span class='indexparent'><a class='index' id='delete,type_of'></a></span>Any deallocation function for a class
+<span class='texttt'>X</span>
+is a static member (even if not explicitly declared
+<span class='texttt'>static</span>).
+<span class='indexparent'><a class='index' id='example,delete'></a></span>[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+class X {
+  void operator delete(void*);
+  void operator delete[](void*, std::size_t);
+};
+
+class Y {
+  void operator delete(void*, std::size_t);
+  void operator delete[](void*);
+};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >Since member allocation and deallocation functions are
+<span class='texttt'>static</span>
+they cannot be virtual.
+[&nbsp;<i>Note:</i>
+<span class='indexparent'><a class='index' id='example,destructor_and_delete'></a></span><span class='indexparent'><a class='index' id='example,scope_of_delete'></a></span>however, when the
+<i ><a href='expr.cast#nt:cast-expression'>cast-expression</a></i>
+of a
+<i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i>
+refers to an object of class type,
+because the deallocation function actually called is looked up in the scope of
+the class that is the dynamic type of the object,
+if the destructor is virtual, the effect is the same.
+For example,</p><pre class='codeblock'>
+struct B {
+  virtual ~B();
+  void operator delete(void*, std::size_t);
+};
+
+struct D : B {
+  void operator delete(void*);
+};
+
+void f() {
+  B* bp = new D;
+  delete bp;        <span class='comment'>//1: uses <span class='texttt'>D::operator delete(void*)</span>
+</span>}
+</pre><p >Here, storage for the non-array object of class
+<span class='texttt'>D</span>
+is deallocated by
+<span class='texttt'>D::operator delete()</span>,
+due to the virtual destructor.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+Virtual destructors have no effect on the deallocation function actually
+called when the
+<i ><a href='expr.cast#nt:cast-expression'>cast-expression</a></i>
+of a
+<i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i>
+refers to an array of objects of class type.
+For example,</p><pre class='codeblock'>
+struct B {
+  virtual ~B();
+  void operator delete[](void*, std::size_t);
+};
+
+struct D : B {
+  void operator delete[](void*, std::size_t);
+};
+
+void f(int i) {
+  D* dp = new D[i];
+  delete [] dp;     <span class='comment'>// uses <span class='texttt'>D::operator delete[](void*, std::size_t)</span>
+</span>  B* bp = new D[i];
+  delete[] bp;      <span class='comment'>// undefined behavior
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >Access to the deallocation function is checked statically.
+Hence, even though a different one might actually be executed,
+the statically visible deallocation function is required to be accessible.
+[&nbsp;<i>Example:</i>
+for the call on line //1 above,
+if
+<span class='texttt'>B::operator delete()</span>
+had been
+<span class='texttt'>private</span>,
+the delete expression would have been ill-formed.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >[&nbsp;<i>Note:</i>
+If a deallocation function has no explicit <i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i>, it is
+treated as if it were specified with <span class='texttt'>noexcept(true)</span> (<a href='except.spec'>[except.spec]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-119'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-119'>119)</a></div><p >A similar provision is not needed for
+the array version of <span class='texttt'>operator</span> <span class='texttt'>delete</span> because <a href='expr.delete'>[expr.delete]</a>
+requires that in this situation, the static type of the object to be deleted be
+the same as its dynamic type.
+</p></div></div></div></body></html>

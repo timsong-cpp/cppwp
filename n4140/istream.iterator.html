@@ -1,0 +1,121 @@
+<!DOCTYPE html><html lang='en'><head><title>[istream.iterator]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>24</a> Iterators library <a class='abbr_ref' href='./#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>24.6</a> Stream iterators <a class='abbr_ref' href='stream.iterators#istream.iterator'>[stream.iterators]</a></h2><div id='istream.iterator'><h3 ><a class='secnum' style='min-width:103pt'>24.6.1</a> Class template <span class='texttt'>istream_iterator</span> <a class='abbr_ref'>[istream.iterator]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='istream_iterator'></a></span>The class template
+<span class='texttt'>istream_iterator</span>
+is an input iterator (<a href='input.iterators'>[input.iterators]</a>) that
+reads (using
+<span class='texttt'>operator&gt;&gt;</span>)
+successive elements from the input stream for which it was constructed.
+After it is constructed, and every time
+<span class='texttt'>++</span>
+is used, the iterator reads and stores a value of
+<span class='texttt'>T</span>.
+If the iterator fails to read and store a value of <span class='texttt'>T</span>
+(<span class='texttt'>fail()</span>
+on the stream returns
+<span class='texttt'>true</span>),
+the iterator becomes equal to the
+<a class='hidden_link' href='#def:end-of-stream' id='def:end-of-stream'><i>end-of-stream</i></a>
+iterator value.
+The constructor with no arguments
+<span class='texttt'>istream_iterator()</span>
+always constructs
+an end-of-stream input iterator object, which is the only legitimate iterator to be used
+for the end condition.
+The result of
+<span class='texttt'>operator*</span>
+on an end-of-stream iterator is not defined.
+For any other iterator value a
+<span class='texttt'>const T&amp;</span>
+is returned.
+The result of
+<span class='texttt'>operator-&gt;</span>
+on an end-of-stream iterator is not defined.
+For any other iterator value a
+<span class='texttt'>const T*</span>
+is returned.
+The behavior of a program that applies <span class='texttt'>operator++()</span> to an end-of-stream
+iterator is undefined.
+It is impossible to store things into istream iterators.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Two end-of-stream iterators are always equal.
+An end-of-stream iterator is not
+equal to a non-end-of-stream iterator.
+Two non-end-of-stream iterators are equal when they are constructed from the same stream.</p><pre class='codeblock'>
+namespace std {
+  template &lt;class T, class charT = char, class traits = char_traits&lt;charT&gt;,
+      class Distance = ptrdiff_t&gt;
+  class istream_iterator:
+    public iterator&lt;input_iterator_tag, T, Distance, const T*, const T&amp;&gt; {
+  public:
+    typedef charT char_type;
+    typedef traits traits_type;
+    typedef basic_istream&lt;charT,traits&gt; istream_type;
+    <i><span class='texttt'>see below</span></i> istream_iterator();
+    istream_iterator(istream_type&amp; s);
+    istream_iterator(const istream_iterator&amp; x) = default;
+   ~istream_iterator() = default;
+
+    const T&amp; operator*() const;
+    const T* operator-&gt;() const;
+    istream_iterator&lt;T,charT,traits,Distance&gt;&amp; operator++();
+    istream_iterator&lt;T,charT,traits,Distance&gt;  operator++(int);
+  private:
+    basic_istream&lt;charT,traits&gt;* in_stream; <span class='comment'>// <i>exposition only</i>
+</span>    T value;                                <span class='comment'>// <i>exposition only</i>
+</span>  };
+
+  template &lt;class T, class charT, class traits, class Distance&gt;
+    bool operator==(const istream_iterator&lt;T,charT,traits,Distance&gt;&amp; x,
+            const istream_iterator&lt;T,charT,traits,Distance&gt;&amp; y);
+  template &lt;class T, class charT, class traits, class Distance&gt;
+    bool operator!=(const istream_iterator&lt;T,charT,traits,Distance&gt;&amp; x,
+            const istream_iterator&lt;T,charT,traits,Distance&gt;&amp; y);
+}
+</pre></div><div id='cons'><h4 ><a class='secnum' href='#cons' style='min-width:118pt'>24.6.1.1</a> <span class='texttt'>istream_iterator</span> constructors and destructor <a class='abbr_ref' href='istream.iterator.cons'>[istream.iterator.cons]</a></h4><p ><span class='indexparent'><a class='index' id='istream_iterator,constructor'></a></span><code class='itemdecl'>
+<i><span class='texttt'>see below</span></i> istream_iterator();
+</code></p><div class='itemdescr'></div><div class='para' id='cons-1'><div class='marginalizedparent'><a class='marginalized' href='#cons-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs the end-of-stream iterator. If <span class='texttt'>T</span> is a literal type, then this
+constructor shall be a <span class='texttt'>constexpr</span> constructor.</p></div></div><div class='para' id='cons-2'><div class='marginalizedparent'><a class='marginalized' href='#cons-2'>2</a></div><div class='itemdescr'><p ><i>Postcondition:</i> <span class='texttt'>in_stream == 0</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='istream_iterator,constructor'></a></span><code class='itemdecl'>
+istream_iterator(istream_type&amp; s);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-3'><div class='marginalizedparent'><a class='marginalized' href='#cons-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Initializes <i>in_stream</i> with <span class='texttt'>&amp;s</span>. <i>value</i> may be initialized during
+construction or the first time it is referenced.</p></div></div><div class='para' id='cons-4'><div class='marginalizedparent'><a class='marginalized' href='#cons-4'>4</a></div><div class='itemdescr'><p ><i>Postcondition:</i> <span class='texttt'>in_stream == &amp;s</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='istream_iterator,constructor'></a></span><code class='itemdecl'>
+istream_iterator(const istream_iterator&amp; x) = default;
+</code></p><div class='itemdescr'></div><div class='para' id='cons-5'><div class='marginalizedparent'><a class='marginalized' href='#cons-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs a copy of <span class='texttt'>x</span>. If <span class='texttt'>T</span> is a literal type, then this constructor shall be a trivial copy constructor.</p></div></div><div class='para' id='cons-6'><div class='marginalizedparent'><a class='marginalized' href='#cons-6'>6</a></div><div class='itemdescr'><p ><i>Postcondition:</i> <span class='texttt'>in_stream == x.in_stream</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='istream_iterator,destructor'></a></span><code class='itemdecl'>
+~istream_iterator() = default;
+</code></p><div class='itemdescr'></div><div class='para' id='cons-7'><div class='marginalizedparent'><a class='marginalized' href='#cons-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
+The iterator is destroyed. If <span class='texttt'>T</span> is a literal type, then this destructor shall be a trivial destructor.
+</p></div></div></div><div id='ops'><h4 ><a class='secnum' href='#ops' style='min-width:118pt'>24.6.1.2</a> <span class='texttt'>istream_iterator</span> operations <a class='abbr_ref' href='istream.iterator.ops'>[istream.iterator.ops]</a></h4><p ><span class='indexparent'><a class='index' id='operator*,istream_iterator'></a></span><span class='indexparent'><a class='index' id='istream_iterator,operator*'></a></span><code class='itemdecl'>
+const T&amp; operator*() const;
+</code></p><div class='itemdescr'></div><div class='para' id='ops-1'><div class='marginalizedparent'><a class='marginalized' href='#ops-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<i>value</i>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator->,istream_iterator'></a></span><span class='indexparent'><a class='index' id='istream_iterator,operator->'></a></span><code class='itemdecl'>
+const T* operator-&gt;() const;
+</code></p><div class='itemdescr'></div><div class='para' id='ops-2'><div class='marginalizedparent'><a class='marginalized' href='#ops-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>&amp;(operator*())</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator++,istream_iterator'></a></span><span class='indexparent'><a class='index' id='istream_iterator,operator++'></a></span><code class='itemdecl'>
+istream_iterator&lt;T,charT,traits,Distance&gt;&amp; operator++();
+</code></p><div class='itemdescr'></div><div class='para' id='ops-3'><div class='marginalizedparent'><a class='marginalized' href='#ops-3'>3</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>in_stream != 0</span>.</p></div></div><div class='para' id='ops-4'><div class='marginalizedparent'><a class='marginalized' href='#ops-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+<span class='texttt'>*in_stream &gt;&gt; value</span>.</p></div></div><div class='para' id='ops-5'><div class='marginalizedparent'><a class='marginalized' href='#ops-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator++,istream_iterator'></a></span><span class='indexparent'><a class='index' id='istream_iterator,operator++'></a></span><code class='itemdecl'>
+istream_iterator&lt;T,charT,traits,Distance&gt; operator++(int);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-6'><div class='marginalizedparent'><a class='marginalized' href='#ops-6'>6</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>in_stream != 0</span>.</p></div></div><div class='para' id='ops-7'><div class='marginalizedparent'><a class='marginalized' href='#ops-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><pre class='codeblock'>
+istream_iterator&lt;T,charT,traits,Distance&gt; tmp = *this;
+*in_stream &gt;&gt; value;
+return (tmp);
+</pre></div></div><p ><span class='indexparent'><a class='index' id='operator==,istream_iterator'></a></span><span class='indexparent'><a class='index' id='istream_iterator,operator=='></a></span><code class='itemdecl'>
+template &lt;class T, class charT, class traits, class Distance&gt;
+  bool operator==(const istream_iterator&lt;T,charT,traits,Distance&gt; &amp;x,
+                  const istream_iterator&lt;T,charT,traits,Distance&gt; &amp;y);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-8'><div class='marginalizedparent'><a class='marginalized' href='#ops-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>x.in_stream == y.in_stream</span>.<span class='indexparent'><a class='index' id='istream_iterator,operator=='></a></span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator!=,istream_iterator'></a></span><span class='indexparent'><a class='index' id='istream_iterator,operator!='></a></span><code class='itemdecl'>
+template &lt;class T, class charT, class traits, class Distance&gt;
+  bool operator!=(const istream_iterator&lt;T,charT,traits,Distance&gt; &amp;x,
+                  const istream_iterator&lt;T,charT,traits,Distance&gt; &amp;y);
+</code></p><p ><span class='indexparent'><a class='index' id='istream_iterator,operator!='></a></span></p><div class='itemdescr'></div><div class='para' id='ops-9'><div class='marginalizedparent'><a class='marginalized' href='#ops-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>!(x == y)</span>
+</p></div></div></div></div></div></body></html>

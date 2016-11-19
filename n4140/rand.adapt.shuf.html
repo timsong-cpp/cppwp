@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang='en'><head><title>[rand.adapt.shuf]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>26</a> Numerics library <a class='abbr_ref' href='./#numerics'>[numerics]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>26.5</a> Random number generation <a class='abbr_ref' href='rand#adapt.shuf'>[rand]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>26.5.4</a> Random number engine adaptor class templates <a class='abbr_ref' href='rand.adapt#shuf'>[rand.adapt]</a></h3><div id='rand.adapt.shuf'><h4 ><a class='secnum' style='min-width:118pt'>26.5.4.4</a> Class template <span class='texttt'>shuffle_order_engine</span> <a class='abbr_ref'>[rand.adapt.shuf]</a></h4><p ><span class='indexparent'><a class='index' id='shuffle_order_engine'></a></span><span class='indexparent'><a class='index' id='random_number_engine_adaptor,shuffle_order_engine'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A <span class='texttt'>shuffle_order_engine</span> random number engine adaptor
+produces the same random numbers
+that are produced by some base engine <span class='math'><span class='mathalpha'>e</span></span>,
+but delivers them in a different sequence.
+The state<span class='indexparent'><a class='index' id='shuffle_order_engine,state'></a></span><span class='indexparent'><a class='index' id='state,shuffle_order_engine'></a></span>
+<span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>
+of a <span class='texttt'>shuffle_order_engine</span> engine adaptor object <span class='texttt'>x</span>
+consists of
+ the state <span class='texttt'>e</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span> of its base engine <span class='texttt'>e</span>,
+ an additional value <span class='math'><span class='mathalpha'>Y</span></span> of the type delivered by <span class='texttt'>e</span>,
+and
+ an additional sequence <span class='math'><span class='mathalpha'>V</span></span> of <span class='math'><span class='mathalpha'>k</span></span> values
+ also of the type delivered by <span class='texttt'>e</span>.
+The size of the state is
+ the size of <span class='math'><span class='mathalpha'>e</span></span>'s state plus <span class='math'><span class='mathalpha'>k</span>+1</span>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >The transition algorithm<span class='indexparent'><a class='index' id='shuffle_order_engine,transition_algorithm'></a></span><span class='indexparent'><a class='index' id='transition_algorithm,shuffle_order_engine'></a></span>
+permutes the values produced by <span class='math'><span class='mathalpha'>e</span></span>.
+The state transition is performed as follows:
+
+ 
+ </p><ol ><li ><p >Calculate an integer
+   <img src='math/8482866468370349167.png' class='mathinlineimg' alt='$j = \left\lfloor \frac{k \cdot (Y - e_{\min})}
+                          {e_{\max} - e_{\min} +1}
+        \right\rfloor
+   $'/>   .
+ </p></li><li ><p >Set <span class='math'><span class='mathalpha'>Y</span></span> to <span class='math'><span class='mathalpha'>V</span><sub ><span class='mathalpha'>j</span></sub></span> and then set <span class='math'><span class='mathalpha'>V</span><sub ><span class='mathalpha'>j</span></sub></span> to <span class='math'><span class='texttt'>e()</span></span>.
+
+ </p></li></ol></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The generation algorithm<span class='indexparent'><a class='index' id='shuffle_order_engine,generation_algorithm'></a></span><span class='indexparent'><a class='index' id='generation_algorithm,shuffle_order_engine'></a></span>
+yields the last value of <span class='texttt'>Y</span>
+ produced while advancing <span class='texttt'>e</span>'s state as described above.</p><pre class='codeblock'>
+template&lt;class Engine, size_t k&gt;
+ class shuffle_order_engine{
+public:
+ <span class='comment'>// types
+</span> typedef typename Engine::result_type result_type;
+
+ <span class='comment'>// engine characteristics
+</span> static constexpr size_t table_size = k;
+ static constexpr result_type min() { return Engine::min(); }
+ static constexpr result_type max() { return Engine::max(); }
+
+ <span class='comment'>// constructors and seeding functions
+</span> shuffle_order_engine();
+ explicit shuffle_order_engine(const Engine&amp; e);
+ explicit shuffle_order_engine(Engine&amp;&amp; e);
+ explicit shuffle_order_engine(result_type s);
+ template&lt;class Sseq&gt; explicit shuffle_order_engine(Sseq&amp; q);
+ void seed();
+ void seed(result_type s);
+ template&lt;class Sseq&gt; void seed(Sseq&amp; q);
+
+ <span class='comment'>// generating functions
+</span> result_type operator()();
+ void discard(unsigned long long z);
+
+ <span class='comment'>// property functions
+</span> const Engine&amp; base() const noexcept { return e; };
+
+private:
+ Engine e;           <span class='comment'>// <i>exposition only</i>
+</span> result_type Y;      <span class='comment'>// <i>exposition only</i>
+</span> result_type V[k];   <span class='comment'>// <i>exposition only</i>
+</span>};
+</pre></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >The following relation shall hold:
+  <span class='texttt'>0 &lt; k</span>.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >The textual representation<span class='indexparent'><a class='index' id='shuffle_order_engine,textual_representation'></a></span><span class='indexparent'><a class='index' id='textual_representation,shuffle_order_engine'></a></span>
+consists of
+ the textual representation of <span class='texttt'>e</span>,
+followed by
+ the <span class='texttt'>k</span> values of <span class='math'><span class='mathalpha'>V</span></span>,
+followed by
+ the value of <span class='math'><span class='mathalpha'>Y</span></span>.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >In addition to its behavior
+pursuant to section <a href='rand.req.adapt'>[rand.req.adapt]</a>,
+each constructor<span class='indexparent'><a class='index' id='shuffle_order_engine,constructor'></a></span>
+that is not a copy constructor
+initializes <span class='math'><span class='texttt'>V[0]</span>, &hellip;, <span class='texttt'>V[k-1]</span></span> and <span class='math'><span class='mathalpha'>Y</span></span>,
+in that order,
+with values returned by successive invocations of <span class='texttt'>e()</span>.<span class='indexparent'><a class='index' id='random_number_generation,engines'></a></span></p></div></div></div></body></html>

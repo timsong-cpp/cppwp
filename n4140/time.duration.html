@@ -1,0 +1,286 @@
+<!DOCTYPE html><html lang='en'><head><title>[time.duration]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.12</a> Time utilities <a class='abbr_ref' href='time#duration'>[time]</a></h2><div id='time.duration'><h3 ><a class='secnum' style='min-width:103pt'>20.12.5</a> Class template <span class='texttt'>duration</span> <a class='abbr_ref'>[time.duration]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A <span class='texttt'>duration</span> type measures time between two points in time (<span class='texttt'>time_point</span>s).
+A <span class='texttt'>duration</span> has a representation which holds a count of ticks and a tick period.
+The tick period is the amount of time which occurs from one tick to the next, in units
+of seconds. It is expressed as a rational constant using the template <span class='texttt'>ratio</span>.</p><pre class='codeblock'>
+template &lt;class Rep, class Period = ratio&lt;1&gt;&gt;
+class duration {
+public:
+  typedef Rep    rep;
+  typedef Period period;
+private:
+  rep rep_;  <span class='comment'>// <i>exposition only</i>
+</span>public:
+  <span class='comment'>// <a href='time.duration.cons'>[time.duration.cons]</a>, construct/copy/destroy:
+</span>  constexpr duration() = default;
+  template &lt;class Rep2&gt;
+      constexpr explicit duration(const Rep2&amp; r);
+  template &lt;class Rep2, class Period2&gt;
+     constexpr duration(const duration&lt;Rep2, Period2&gt;&amp; d);
+  ~duration() = default;
+  duration(const duration&amp;) = default;
+  duration&amp; operator=(const duration&amp;) = default;
+
+  <span class='comment'>// <a href='time.duration.observer'>[time.duration.observer]</a>, observer:
+</span>  constexpr rep count() const;
+
+  <span class='comment'>// <a href='time.duration.arithmetic'>[time.duration.arithmetic]</a>, arithmetic:
+</span>  constexpr duration  operator+() const;
+  constexpr duration  operator-() const;
+  duration&amp; operator++();
+  duration  operator++(int);
+  duration&amp; operator--();
+  duration  operator--(int);
+
+  duration&amp; operator+=(const duration&amp; d);
+  duration&amp; operator-=(const duration&amp; d);
+
+  duration&amp; operator*=(const rep&amp; rhs);
+  duration&amp; operator/=(const rep&amp; rhs);
+  duration&amp; operator%=(const rep&amp; rhs);
+  duration&amp; operator%=(const duration&amp; rhs);
+
+  <span class='comment'>// <a href='time.duration.special'>[time.duration.special]</a>, special values:
+</span>  static constexpr duration zero();
+  static constexpr duration min();
+  static constexpr duration max();
+};
+</pre></div><div class='itemdescr'></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>Rep</span> shall be an arithmetic type or a class emulating an arithmetic type.</p></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p ><i>Remarks:</i> If <span class='texttt'>duration</span> is instantiated with a <span class='texttt'>duration</span> type for the template
+argument <span class='texttt'>Rep</span>, the program is ill-formed.</p></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><i>Remarks:</i> If <span class='texttt'>Period</span> is not a specialization of <span class='texttt'>ratio</span>, the program is ill-formed.</p></div></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Remarks:</i> If <span class='texttt'>Period::num</span> is not positive, the program is ill-formed.</p></div></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><i>Requires:</i> Members of <span class='texttt'>duration</span> shall not throw exceptions other than
+those thrown by the indicated operations on their representations.</p></div></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><p ><i>Remarks:</i> The defaulted copy constructor of duration shall be a
+<span class='texttt'>constexpr</span> function if and only if the required initialization
+of the member <span class='texttt'>rep_</span> for copy and move, respectively, would
+satisfy the requirements for a <span class='texttt'>constexpr</span> function.
+</p></div></div><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+duration&lt;long, ratio&lt;60&gt;&gt; d0;       <span class='comment'>// holds a count of minutes using a <span class='texttt'>long</span>
+</span>duration&lt;long long, milli&gt; d1;      <span class='comment'>// holds a count of milliseconds using a <span class='texttt'>long long</span>
+</span>duration&lt;double, ratio&lt;1, 30&gt;&gt;  d2; <span class='comment'>// holds a count with a tick period of <img src='math/1063258799813875788.png' class='mathinlineimg' alt='$\frac{1}{30}$'/> of a second
+</span>                                    <span class='comment'>// (30 Hz) using a <span class='texttt'>double</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><div id='cons'><h4 ><a class='secnum' href='#cons' style='min-width:118pt'>20.12.5.1</a> <span class='texttt'>duration</span> constructors <a class='abbr_ref' href='time.duration.cons'>[time.duration.cons]</a></h4><p ><span class='indexparent'><a class='index' id='duration,constructor'></a></span><code class='itemdecl'>
+template &lt;class Rep2&gt;
+  constexpr explicit duration(const Rep2&amp; r);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-1'><div class='marginalizedparent'><a class='marginalized' href='#cons-1'>1</a></div><div class='itemdescr'><p ><i>Remarks:</i> This constructor shall not participate in overload
+resolution unless
+<span class='texttt'>Rep2</span> is implicitly convertible to <span class='texttt'>rep</span> and
+</p><ul ><li ><p ><span class='texttt'>treat_as_floating_point&lt;rep&gt;::value</span> is <span class='texttt'>true</span> or
+</p></li><li ><p ><span class='texttt'>treat_as_floating_point&lt;Rep2&gt;::value</span> is <span class='texttt'>false</span>.
+</p></li></ul><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+duration&lt;int, milli&gt; d(3);          <span class='comment'>// OK
+</span>duration&lt;int, milli&gt; d(3.5);        <span class='comment'>// error
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div class='para' id='cons-2'><div class='marginalizedparent'><a class='marginalized' href='#cons-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs an object of type <span class='texttt'>duration</span>.</p></div></div><div class='para' id='cons-3'><div class='marginalizedparent'><a class='marginalized' href='#cons-3'>3</a></div><div class='itemdescr'><p ><i>Postcondition:</i> <span class='texttt'>count() == static_cast&lt;rep&gt;(r)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='duration,constructor'></a></span><code class='itemdecl'>
+template &lt;class Rep2, class Period2&gt;
+  constexpr duration(const duration&lt;Rep2, Period2&gt;&amp; d);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-4'><div class='marginalizedparent'><a class='marginalized' href='#cons-4'>4</a></div><div class='itemdescr'><p ><i>Remarks:</i> This constructor shall not participate in overload resolution unless
+no overflow is induced in the conversion and
+<span class='texttt'>treat_as_floating_point&lt;rep&gt;::value</span> is <span class='texttt'>true</span> or both
+<span class='texttt'>ratio_divide&lt;Period2, period&gt;::den</span> is <span class='texttt'>1</span> and
+<span class='texttt'>treat_as_floating_point&lt;Rep2&gt;::value</span> is <span class='texttt'>false</span>. [&nbsp;<i>Note:</i> This
+requirement prevents implicit truncation error when converting between
+integral-based <span class='texttt'>duration</span> types. Such a construction could easily lead to
+confusion about the value of the <span class='texttt'>duration</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+duration&lt;int, milli&gt; ms(3);
+duration&lt;int, micro&gt; us = ms;       <span class='comment'>// OK
+</span>duration&lt;int, milli&gt; ms2 = us;      <span class='comment'>// error
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div class='para' id='cons-5'><div class='marginalizedparent'><a class='marginalized' href='#cons-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs an object of type <span class='texttt'>duration</span>, constructing <span class='texttt'>rep_</span> from<br/>
+<span class='texttt'>duration_cast&lt;duration&gt;(d).count()</span>.
+</p></div></div></div><div id='observer'><h4 ><a class='secnum' href='#observer' style='min-width:118pt'>20.12.5.2</a> <span class='texttt'>duration</span> observer <a class='abbr_ref' href='time.duration.observer'>[time.duration.observer]</a></h4><p ><span class='indexparent'><a class='index' id='count,duration'></a></span><span class='indexparent'><a class='index' id='duration,count'></a></span><code class='itemdecl'>
+constexpr rep count() const;
+</code></p><div class='itemdescr'></div><div class='para' id='observer-1'><div class='marginalizedparent'><a class='marginalized' href='#observer-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>rep_</span>.
+</p></div></div></div><div id='arithmetic'><h4 ><a class='secnum' href='#arithmetic' style='min-width:118pt'>20.12.5.3</a> <span class='texttt'>duration</span> arithmetic <a class='abbr_ref' href='time.duration.arithmetic'>[time.duration.arithmetic]</a></h4><p ><span class='indexparent'><a class='index' id='operator+,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator+'></a></span><code class='itemdecl'>
+constexpr duration operator+() const;
+</code></p><div class='itemdescr'></div><div class='para' id='arithmetic-1'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator-,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator-'></a></span><code class='itemdecl'>
+constexpr duration operator-() const;
+</code></p><div class='itemdescr'></div><div class='para' id='arithmetic-2'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>duration(-rep_);</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator++,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator++'></a></span><code class='itemdecl'>
+duration&amp; operator++();
+</code></p><div class='itemdescr'></div><div class='para' id='arithmetic-3'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>++rep_</span>.</p></div></div><div class='para' id='arithmetic-4'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator++,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator++'></a></span><code class='itemdecl'>
+duration operator++(int);
+</code></p><div class='itemdescr'></div><div class='para' id='arithmetic-5'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>duration(rep_++);</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator--,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator--'></a></span><code class='itemdecl'>
+duration&amp; operator--();
+</code></p><div class='itemdescr'></div><div class='para' id='arithmetic-6'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>--rep_</span>.</p></div></div><div class='para' id='arithmetic-7'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator--,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator--'></a></span><code class='itemdecl'>
+duration operator--(int);
+</code></p><div class='itemdescr'></div><div class='para' id='arithmetic-8'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>duration(rep_--);</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator+=,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator+='></a></span><code class='itemdecl'>
+duration&amp; operator+=(const duration&amp; d);
+</code></p><div class='itemdescr'></div><div class='para' id='arithmetic-9'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>rep_ += d.count()</span>.</p></div></div><div class='para' id='arithmetic-10'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator-=,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator-='></a></span><code class='itemdecl'>
+duration&amp; operator-=(const duration&amp; d);
+</code></p><div class='itemdescr'></div><div class='para' id='arithmetic-11'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>rep_ -= d.count()</span>.</p></div></div><div class='para' id='arithmetic-12'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator*=,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator*='></a></span><code class='itemdecl'>
+duration&amp; operator*=(const rep&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='arithmetic-13'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>rep_ *= rhs</span>.</p></div></div><div class='para' id='arithmetic-14'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-14'>14</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator/=,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator/='></a></span><code class='itemdecl'>
+duration&amp; operator/=(const rep&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='arithmetic-15'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>rep_ /= rhs</span>.</p></div></div><div class='para' id='arithmetic-16'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator%=,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator%='></a></span><code class='itemdecl'>
+duration&amp; operator%=(const rep&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='arithmetic-17'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-17'>17</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>rep_ %= rhs</span>.</p></div></div><div class='para' id='arithmetic-18'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-18'>18</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator%=,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator%='></a></span><code class='itemdecl'>
+duration&amp; operator%=(const duration&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='arithmetic-19'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-19'>19</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>rep_ %= rhs.count()</span>.</p></div></div><div class='para' id='arithmetic-20'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-20'>20</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div></div><div id='special'><h4 ><a class='secnum' href='#special' style='min-width:118pt'>20.12.5.4</a> <span class='texttt'>duration</span> special values <a class='abbr_ref' href='time.duration.special'>[time.duration.special]</a></h4><p ><span class='indexparent'><a class='index' id='zero,duration'></a></span><span class='indexparent'><a class='index' id='duration,zero'></a></span><code class='itemdecl'>
+static constexpr duration zero();
+</code></p><div class='itemdescr'></div><div class='para' id='special-1'><div class='marginalizedparent'><a class='marginalized' href='#special-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>duration(duration_values&lt;rep&gt;::zero())</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='min,duration'></a></span><span class='indexparent'><a class='index' id='duration,min'></a></span><code class='itemdecl'>
+static constexpr duration min();
+</code></p><div class='itemdescr'></div><div class='para' id='special-2'><div class='marginalizedparent'><a class='marginalized' href='#special-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>duration(duration_values&lt;rep&gt;::min())</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='max,duration'></a></span><span class='indexparent'><a class='index' id='duration,max'></a></span><code class='itemdecl'>
+static constexpr duration max();
+</code></p><div class='itemdescr'></div><div class='para' id='special-3'><div class='marginalizedparent'><a class='marginalized' href='#special-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>duration(duration_values&lt;rep&gt;::max())</span>.
+</p></div></div></div><div id='nonmember'><h4 ><a class='secnum' href='#nonmember' style='min-width:118pt'>20.12.5.5</a> <span class='texttt'>duration</span> non-member arithmetic <a class='abbr_ref' href='time.duration.nonmember'>[time.duration.nonmember]</a></h4><div class='para' id='nonmember-1'><div class='marginalizedparent'><a class='marginalized' href='#nonmember-1'>1</a></div><p >In the function descriptions that follow, <span class='texttt'>CD</span> represents the return type
+of the function. <span class='texttt'>CR(A,B)</span> represents <span class='texttt'>common_type_t&lt;A, B&gt;</span>.</p><p ><span class='indexparent'><a class='index' id='common_type'></a></span><code class='itemdecl'>
+template &lt;class Rep1, class Period1, class Rep2, class Period2&gt;
+  constexpr common_type_t&lt;duration&lt;Rep1, Period1&gt;, duration&lt;Rep2, Period2&gt;&gt;
+  operator+(const duration&lt;Rep1, Period1&gt;&amp; lhs, const duration&lt;Rep2, Period2&gt;&amp; rhs);
+</code></p></div><div class='itemdescr'></div><div class='para' id='nonmember-2'><div class='marginalizedparent'><a class='marginalized' href='#nonmember-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> CD(CD(lhs).count() + CD(rhs).count()).
+</p></div></div><p ><span class='indexparent'><a class='index' id='common_type'></a></span><code class='itemdecl'>
+template &lt;class Rep1, class Period1, class Rep2, class Period2&gt;
+  constexpr common_type_t&lt;duration&lt;Rep1, Period1&gt;, duration&lt;Rep2, Period2&gt;&gt;
+  operator-(const duration&lt;Rep1, Period1&gt;&amp; lhs, const duration&lt;Rep2, Period2&gt;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='nonmember-3'><div class='marginalizedparent'><a class='marginalized' href='#nonmember-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> CD(CD(lhs).count() - CD(rhs).count()).
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator*,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator*'></a></span><code class='itemdecl'>
+template &lt;class Rep1, class Period, class Rep2&gt;
+  constexpr duration&lt;common_type_t&lt;Rep1, Rep2&gt;, Period&gt;
+  operator*(const duration&lt;Rep1, Period&gt;&amp; d, const Rep2&amp; s);
+</code></p><div class='itemdescr'></div><div class='para' id='nonmember-4'><div class='marginalizedparent'><a class='marginalized' href='#nonmember-4'>4</a></div><div class='itemdescr'><p ><i>Remarks:</i> This operator shall not participate in overload
+resolution unless <span class='texttt'>Rep2</span> is implicitly convertible to <span class='texttt'>CR(Rep1, Rep2)</span>.</p></div></div><div class='para' id='nonmember-5'><div class='marginalizedparent'><a class='marginalized' href='#nonmember-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> CD(CD(d).count() * s).
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator*,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator*'></a></span><code class='itemdecl'>
+template &lt;class Rep1, class Rep2, class Period&gt;
+  constexpr duration&lt;common_type_t&lt;Rep1, Rep2&gt;, Period&gt;
+  operator*(const Rep1&amp; s, const duration&lt;Rep2, Period&gt;&amp; d);
+</code></p><div class='itemdescr'></div><div class='para' id='nonmember-6'><div class='marginalizedparent'><a class='marginalized' href='#nonmember-6'>6</a></div><div class='itemdescr'><p ><i>Remarks:</i> This operator shall not participate in overload
+resolution unless <span class='texttt'>Rep1</span> is implicitly convertible to <span class='texttt'>CR(Rep1, Rep2)</span>.</p></div></div><div class='para' id='nonmember-7'><div class='marginalizedparent'><a class='marginalized' href='#nonmember-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>d * s</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator/,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator/'></a></span><code class='itemdecl'>
+template &lt;class Rep1, class Period, class Rep2&gt;
+  constexpr duration&lt;common_type_t&lt;Rep1, Rep2&gt;, Period&gt;
+  operator/(const duration&lt;Rep1, Period&gt;&amp; d, const Rep2&amp; s);
+</code></p><div class='itemdescr'></div><div class='para' id='nonmember-8'><div class='marginalizedparent'><a class='marginalized' href='#nonmember-8'>8</a></div><div class='itemdescr'><p ><i>Remarks:</i> This operator shall not participate in overload
+resolution unless <span class='texttt'>Rep2</span> is implicitly convertible to <span class='texttt'>CR(Rep1, Rep2)</span>
+and <span class='texttt'>Rep2</span> is not an instantiation of <span class='texttt'>duration</span>.</p></div></div><div class='para' id='nonmember-9'><div class='marginalizedparent'><a class='marginalized' href='#nonmember-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i> CD(CD(d).count() / s).
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator/,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator/'></a></span><code class='itemdecl'>
+template &lt;class Rep1, class Period1, class Rep2, class Period2&gt;
+  constexpr common_type_t&lt;Rep1, Rep2&gt;
+  operator/(const duration&lt;Rep1, Period1&gt;&amp; lhs, const duration&lt;Rep2, Period2&gt;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='nonmember-10'><div class='marginalizedparent'><a class='marginalized' href='#nonmember-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>CD(lhs).count() / CD(rhs).count()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator%,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator%'></a></span><code class='itemdecl'>
+template &lt;class Rep1, class Period, class Rep2&gt;
+  constexpr duration&lt;common_type_t&lt;Rep1, Rep2&gt;, Period&gt;
+  operator%(const duration&lt;Rep1, Period&gt;&amp; d, const Rep2&amp; s);
+</code></p><div class='itemdescr'></div><div class='para' id='nonmember-11'><div class='marginalizedparent'><a class='marginalized' href='#nonmember-11'>11</a></div><div class='itemdescr'><p ><i>Remarks:</i> This operator shall not participate in overload
+resolution unless <span class='texttt'>Rep2</span> is implicitly convertible to <span class='texttt'>CR(Rep1, Rep2)</span> and
+<span class='texttt'>Rep2</span> is not an instantiation of <span class='texttt'>duration</span>.</p></div></div><div class='para' id='nonmember-12'><div class='marginalizedparent'><a class='marginalized' href='#nonmember-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> CD(CD(d).count() % s).
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator%,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator%'></a></span><code class='itemdecl'>
+template &lt;class Rep1, class Period1, class Rep2, class Period2&gt;
+  constexpr common_type_t&lt;duration&lt;Rep1, Period1&gt;, duration&lt;Rep2, Period2&gt;&gt;
+  operator%(const duration&lt;Rep1, Period1&gt;&amp; lhs, const duration&lt;Rep2, Period2&gt;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='nonmember-13'><div class='marginalizedparent'><a class='marginalized' href='#nonmember-13'>13</a></div><div class='itemdescr'><p ><i>Returns:</i> CD(CD(lhs).count() % CD(rhs).count()).
+</p></div></div></div><div id='comparisons'><h4 ><a class='secnum' href='#comparisons' style='min-width:118pt'>20.12.5.6</a> <span class='texttt'>duration</span> comparisons <a class='abbr_ref' href='time.duration.comparisons'>[time.duration.comparisons]</a></h4><div class='para' id='comparisons-1'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-1'>1</a></div><p >In the function descriptions that follow, <span class='texttt'>CT</span> represents
+<span class='texttt'>common_type_t&lt;A, B&gt;</span>, where <span class='texttt'>A</span> and <span class='texttt'>B</span> are the types of
+the two arguments to the function.</p><p ><span class='indexparent'><a class='index' id='operator==,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator=='></a></span><code class='itemdecl'>
+template &lt;class Rep1, class Period1, class Rep2, class Period2&gt;
+  constexpr bool operator==(const duration&lt;Rep1, Period1&gt;&amp; lhs, const duration&lt;Rep2, Period2&gt;&amp; rhs);
+</code></p></div><div class='itemdescr'></div><div class='para' id='comparisons-2'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>CT(lhs).count() == CT(rhs).count()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator!=,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator!='></a></span><code class='itemdecl'>
+template &lt;class Rep1, class Period1, class Rep2, class Period2&gt;
+  constexpr bool operator!=(const duration&lt;Rep1, Period1&gt;&amp; lhs, const duration&lt;Rep2, Period2&gt;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-3'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(lhs == rhs)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator<'></a></span><code class='itemdecl'>
+template &lt;class Rep1, class Period1, class Rep2, class Period2&gt;
+  constexpr bool operator&lt;(const duration&lt;Rep1, Period1&gt;&amp; lhs, const duration&lt;Rep2, Period2&gt;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-4'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>CT(lhs).count() &lt; CT(rhs).count()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<=,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator<='></a></span><code class='itemdecl'>
+template &lt;class Rep1, class Period1, class Rep2, class Period2&gt;
+  constexpr bool operator&lt;=(const duration&lt;Rep1, Period1&gt;&amp; lhs, const duration&lt;Rep2, Period2&gt;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-5'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(rhs &lt; lhs)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>,idxl'></a></span><span class='indexparent'><a class='index' id='idxl,operator>'></a></span><code class='itemdecl'>
+template &lt;class Rep1, class Period1, class Rep2, class Period2&gt;
+  constexpr bool operator&gt;(const duration&lt;Rep1, Period1&gt;&amp; lhs, const duration&lt;Rep2, Period2&gt;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-6'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>rhs &lt; lhs</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>=,duration'></a></span><span class='indexparent'><a class='index' id='duration,operator>='></a></span><code class='itemdecl'>
+template &lt;class Rep1, class Period1, class Rep2, class Period2&gt;
+  constexpr bool operator&gt;=(const duration&lt;Rep1, Period1&gt;&amp; lhs, const duration&lt;Rep2, Period2&gt;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-7'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(lhs &lt; rhs)</span>.
+</p></div></div></div><div id='cast'><h4 ><a class='secnum' href='#cast' style='min-width:118pt'>20.12.5.7</a> <span class='texttt'>duration_cast</span> <a class='abbr_ref' href='time.duration.cast'>[time.duration.cast]</a></h4><p ><span class='indexparent'><a class='index' id='duration_cast'></a></span><code class='itemdecl'>
+template &lt;class ToDuration, class Rep, class Period&gt;
+  constexpr ToDuration duration_cast(const duration&lt;Rep, Period&gt;&amp; d);
+</code></p><div class='itemdescr'></div><div class='para' id='cast-1'><div class='marginalizedparent'><a class='marginalized' href='#cast-1'>1</a></div><div class='itemdescr'><p ><i>Remarks:</i> This function shall not participate in overload
+resolution unless <span class='texttt'>ToDuration</span> is an instantiation of <span class='texttt'>duration</span>.</p></div></div><div class='para' id='cast-2'><div class='marginalizedparent'><a class='marginalized' href='#cast-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> Let <span class='texttt'>CF</span> be <span class='texttt'>ratio_divide&lt;Period, typename
+ToDuration::period&gt;</span>, and <span class='texttt'>CR</span> be <span class='texttt'>common_type&lt;</span> <span class='texttt'>typename
+ToDuration::rep, Rep, intmax_t&gt;::type.</span>
+</p><ul ><li ><p >If <span class='texttt'>CF::num == 1</span> and <span class='texttt'>CF::den == 1</span>, returns
+</p><pre class='codeblock'>
+ToDuration(static_cast&lt;typename ToDuration::rep&gt;(d.count()))
+</pre></li><li ><p >otherwise, if <span class='texttt'>CF::num != 1</span> and <span class='texttt'>CF::den == 1</span>, returns
+</p><pre class='codeblock'>
+ToDuration(static_cast&lt;typename ToDuration::rep&gt;(
+  static_cast&lt;CR&gt;(d.count()) * static_cast&lt;CR&gt;(CF::num)))
+</pre></li><li ><p >otherwise, if <span class='texttt'>CF::num == 1</span> and <span class='texttt'>CF::den != 1</span>, returns
+</p><pre class='codeblock'>
+ToDuration(static_cast&lt;typename ToDuration::rep&gt;(
+  static_cast&lt;CR&gt;(d.count()) / static_cast&lt;CR&gt;(CF::den)))
+</pre></li><li ><p >otherwise, returns
+</p><pre class='codeblock'>
+ToDuration(static_cast&lt;typename ToDuration::rep&gt;(
+  static_cast&lt;CR&gt;(d.count()) * static_cast&lt;CR&gt;(CF::num) / static_cast&lt;CR&gt;(CF::den)))
+</pre></li></ul><p ><i>Notes:</i> This function does not use any implicit conversions; all conversions
+are done with <span class='texttt'>static_cast</span>. It avoids multiplications and divisions when
+it is known at compile time that one or more arguments is 1. Intermediate
+computations are carried out in the widest representation and only converted to
+the destination representation at the final step.
+</p></div></div></div><div id='literals'><h4 ><a class='secnum' href='#literals' style='min-width:118pt'>20.12.5.8</a> Suffixes for duration literals <a class='abbr_ref' href='time.duration.literals'>[time.duration.literals]</a></h4><div class='para' id='literals-1'><div class='marginalizedparent'><a class='marginalized' href='#literals-1'>1</a></div><p >This section describes literal suffixes for constructing duration literals. The
+suffixes <span class='texttt'>h</span>, <span class='texttt'>min</span>, <span class='texttt'>s</span>, <span class='texttt'>ms</span>, <span class='texttt'>us</span>, <span class='texttt'>ns</span>
+denote duration values of the corresponding types <span class='texttt'>hours</span>, <span class='texttt'>minutes</span>,
+<span class='texttt'>seconds</span>, <span class='texttt'>milliseconds</span>, <span class='texttt'>microseconds</span>, and <span class='texttt'>nanoseconds</span>
+respectively if they are applied to integral literals.</p></div><div class='para' id='literals-2'><div class='marginalizedparent'><a class='marginalized' href='#literals-2'>2</a></div><p >If any of these suffixes are applied to a floating point literal the result is a
+<span class='texttt'>chrono::duration</span> literal with an unspecified floating point representation.</p></div><div class='para' id='literals-3'><div class='marginalizedparent'><a class='marginalized' href='#literals-3'>3</a></div><p >If any of these suffixes are applied to an integer literal and the resulting
+<span class='texttt'>chrono::duration</span> value cannot be represented in the result type because
+of overflow, the program is ill-formed.</p></div><div class='para' id='literals-4'><div class='marginalizedparent'><a class='marginalized' href='#literals-4'>4</a></div><p >[&nbsp;<i>Example:</i>
+The following code shows some duration literals.
+</p><pre class='codeblock'>
+using namespace std::chrono_literals;
+auto constexpr aday=24h;
+auto constexpr lesson=45min;
+auto constexpr halfanhour=0.5h;
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p ><code class='itemdecl'>
+constexpr chrono::hours                                 operator "" h(unsigned long long hours);
+constexpr chrono::duration&lt;<i><span class='texttt'>unspecified</span></i>, ratio&lt;3600,1&gt;&gt; operator "" h(long double hours);
+</code></p></div><div class='itemdescr'></div><div class='para' id='literals-5'><div class='marginalizedparent'><a class='marginalized' href='#literals-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A <span class='texttt'>duration</span> literal representing <span class='texttt'>hours</span> hours.
+</p></div></div><p ><code class='itemdecl'>
+constexpr chrono::minutes                             operator "" min(unsigned long long minutes);
+constexpr chrono::duration&lt;<i><span class='texttt'>unspecified</span></i>, ratio&lt;60,1&gt;&gt; operator "" min(long double minutes);
+</code></p><div class='itemdescr'></div><div class='para' id='literals-6'><div class='marginalizedparent'><a class='marginalized' href='#literals-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A <span class='texttt'>duration</span> literal representing <span class='texttt'>minutes</span> minutes.
+</p></div></div><p ><code class='itemdecl'>
+constexpr chrono::seconds                operator "" s(unsigned long long sec);
+constexpr chrono::duration&lt;<i><span class='texttt'>unspecified</span></i>&gt; operator "" s(long double sec);
+</code></p><div class='itemdescr'></div><div class='para' id='literals-7'><div class='marginalizedparent'><a class='marginalized' href='#literals-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A <span class='texttt'>duration</span> literal representing <span class='texttt'>sec</span> seconds.</p></div></div><div class='para' id='literals-8'><div class='marginalizedparent'><a class='marginalized' href='#literals-8'>8</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i>
+The same suffix <span class='texttt'>s</span> is used for <span class='texttt'>basic_string</span> but there is no
+conflict, since duration suffixes apply to numbers and string literal suffixes
+apply to character array literals.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><code class='itemdecl'>
+constexpr chrono::milliseconds                  operator "" ms(unsigned long long msec);
+constexpr chrono::duration&lt;<i><span class='texttt'>unspecified</span></i>, milli&gt; operator "" ms(long double msec);
+</code></p><div class='itemdescr'></div><div class='para' id='literals-9'><div class='marginalizedparent'><a class='marginalized' href='#literals-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A <span class='texttt'>duration</span> literal representing <span class='texttt'>msec</span> milliseconds.
+</p></div></div><p ><code class='itemdecl'>
+constexpr chrono::microseconds                  operator "" us(unsigned long long usec);
+constexpr chrono::duration&lt;<i><span class='texttt'>unspecified</span></i>, micro&gt; operator "" us(long double usec);
+</code></p><div class='itemdescr'></div><div class='para' id='literals-10'><div class='marginalizedparent'><a class='marginalized' href='#literals-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A <span class='texttt'>duration</span> literal representing <span class='texttt'>usec</span> microseconds.
+</p></div></div><p ><code class='itemdecl'>
+constexpr chrono::nanoseconds                  operator "" ns(unsigned long long nsec);
+constexpr chrono::duration&lt;<i><span class='texttt'>unspecified</span></i>, nano&gt; operator "" ns(long double nsec);
+</code></p><div class='itemdescr'></div><div class='para' id='literals-11'><div class='marginalizedparent'><a class='marginalized' href='#literals-11'>11</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A <span class='texttt'>duration</span> literal representing <span class='texttt'>nsec</span> nanoseconds.
+</p></div></div></div></div></div></body></html>

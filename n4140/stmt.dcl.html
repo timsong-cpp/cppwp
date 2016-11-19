@@ -1,0 +1,55 @@
+<!DOCTYPE html><html lang='en'><head><title>[stmt.dcl]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>6</a> Statements <a class='abbr_ref' href='./#stmt.stmt'>[stmt.stmt]</a></h1><div id='stmt.dcl'><h2 ><a class='secnum' style='min-width:88pt'>6.7</a> Declaration statement <a class='abbr_ref'>[stmt.dcl]</a></h2><p ><span class='indexparent'><a class='index' id='statement,declaration'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A declaration statement introduces one or more new identifiers into a
+block; it has the form</p><pre class='bnf'><a id='nt:declaration-statement'>declaration-statement:</a>
+    <i ><a href='dcl.dcl#nt:block-declaration'>block-declaration</a></i></pre><p >If an identifier introduced by a declaration was previously declared in
+an outer block,
+<span class='indexparent'><a class='index' id='declaration_hiding'></a></span><span class='indexparent'><a class='index' id='name_hiding'></a></span><span class='indexparent'><a class='index' id='block_structure'></a></span>the outer declaration is hidden for the remainder of the block, after
+which it resumes its force.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='indexparent'><a class='index' id='block,initialization_in'></a></span><span class='indexparent'><a class='index' id='initialization,automatic'></a></span>Variables with automatic storage duration (<a href='basic.stc.auto'>[basic.stc.auto]</a>) are
+initialized each time their <i ><a href='stmt.dcl#nt:declaration-statement'>declaration-statement</a></i> is executed.
+<span class='indexparent'><a class='index' id='local_variable,destruction_of'></a></span>Variables with automatic storage duration declared in the block are
+destroyed on exit from the block (<a href='stmt.jump'>[stmt.jump]</a>).</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p ><span class='indexparent'><a class='index' id='initialization,jump_past'></a></span><span class='indexparent'><a class='index' id='goto,initialization_and'></a></span>It is possible to transfer into a block, but not in a way that bypasses
+declarations with initialization. A program that jumps<a class='footnotenum' href='#footnote-90'>90</a>
+from a point where a variable with automatic storage duration is
+not in scope to a point where it is in scope is ill-formed unless the
+variable has scalar type, class type with a trivial default constructor and a trivial destructor, a cv-qualified version of one of these types, or an array of one of the preceding types and is declared without an
+<i ><a href='dcl.init#nt:initializer'>initializer</a></i> (<a href='dcl.init'>[dcl.init]</a>).
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+void f() {
+  <span class='comment'>// ... 
+</span>  goto lx;          <span class='comment'>// ill-formed: jump into scope of <span class='texttt'>a</span>
+</span>  <span class='comment'>// ...
+</span>ly:
+  X a = 1;
+  <span class='comment'>// ...
+</span>lx:
+  goto ly;          <span class='comment'>// OK, jump implies destructor
+</span>                    <span class='comment'>// call for <span class='texttt'>a</span> followed by construction
+</span>                    <span class='comment'>// again immediately following label <span class='texttt'>ly</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p ><span class='indexparent'><a class='index' id='initialization,automatic'></a></span><span class='indexparent'><a class='index' id='initialization,local_static'></a></span>The zero-initialization (<a href='dcl.init'>[dcl.init]</a>) of all block-scope
+variables with
+static storage duration (<a href='basic.stc.static'>[basic.stc.static]</a>) or thread storage duration (<a href='basic.stc.thread'>[basic.stc.thread]</a>) is performed before any
+other initialization takes place. Constant initialization (<a href='basic.start.init'>[basic.start.init]</a>) of a
+block-scope entity with static storage duration, if applicable, is performed before its block is first
+entered. An implementation is permitted to perform early initialization
+of other block-scope variables with static or thread storage duration under the same
+conditions that an implementation is permitted to statically initialize
+a variable with static or thread storage duration in namespace
+scope (<a href='basic.start.init'>[basic.start.init]</a>). Otherwise such a variable is initialized
+the first time control passes through its declaration; such a variable is
+considered initialized upon the completion of its initialization. If the
+initialization exits by throwing an exception, the initialization is not
+complete, so it will be tried again the next time control enters the
+declaration. If control enters the declaration concurrently while the variable is being initialized, the concurrent execution shall wait for completion of the initialization.<a class='footnotenum' href='#footnote-91'>91</a> If control re-enters the declaration recursively while
+the variable is being initialized, the behavior is undefined.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+int foo(int i) {
+  static int s = foo(2*i);      <span class='comment'>// recursive call - undefined
+</span>  return i+1;
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p ><span class='indexparent'><a class='index' id='static,destruction_of_local'></a></span>The destructor for a block-scope object with static or thread storage duration will be
+executed if and only if it was constructed.
+[&nbsp;<i>Note:</i>
+<a href='basic.start.term'>[basic.start.term]</a> describes the order in which block-scope objects with
+static and thread storage duration are destroyed.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-90'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-90'>90)</a></div><p >The transfer from the condition of a <span class='texttt'>switch</span> statement to a
+<span class='texttt'>case</span> label is considered a jump in this respect.</p></div><div class='footnote' id='footnote-91'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-91'>91)</a></div><p >The implementation must not introduce any deadlock around execution of the initializer.</p></div></div></div></body></html>

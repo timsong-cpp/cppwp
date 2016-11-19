@@ -1,0 +1,116 @@
+<!DOCTYPE html><html lang='en'><head><title>[thread.req]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>30</a> Thread support library <a class='abbr_ref' href='./#thread'>[thread]</a></h1><div id='thread.req'><h2 ><a class='secnum' style='min-width:88pt'>30.2</a> Requirements <a class='abbr_ref'>[thread.req]</a></h2><div id='paramname'><h3 ><a class='secnum' href='#paramname' style='min-width:103pt'>30.2.1</a> Template parameter names <a class='abbr_ref' href='thread.req.paramname'>[thread.req.paramname]</a></h3><div class='para' id='paramname-1'><div class='marginalizedparent'><a class='marginalized' href='#paramname-1'>1</a></div><p >Throughout this Clause, the names of template parameters are used to express type
+requirements.
+If a template parameter is named <span class='texttt'>Predicate</span>, <span class='texttt'>operator()</span> applied to
+the template argument shall return a value that is convertible to <span class='texttt'>bool</span>.</p></div></div><div id='exception'><h3 ><a class='secnum' href='#exception' style='min-width:103pt'>30.2.2</a> Exceptions <a class='abbr_ref' href='thread.req.exception'>[thread.req.exception]</a></h3><div class='para' id='exception-1'><div class='marginalizedparent'><a class='marginalized' href='#exception-1'>1</a></div><p >Some functions described in this Clause are specified to throw exceptions of type
+<span class='texttt'>system_error</span> (<a href='syserr.syserr'>[syserr.syserr]</a>). Such exceptions shall be thrown if
+any of the function's error conditions is detected or
+a call to
+an operating system or other underlying API results in an error that prevents the
+library function from
+meeting its specifications. Failure to allocate storage shall be reported as described
+in <a href='res.on.exception.handling'>[res.on.exception.handling]</a>.</p><p >[&nbsp;<i>Example:</i>
+Consider a function in this clause that is specified to throw exceptions of type
+<span class='texttt'>system_error</span> and specifies error conditions that include
+<span class='texttt'>operation_not_permitted</span> for a thread that does not have the privilege to
+perform the operation. Assume that, during the execution of this function, an <span class='texttt'>errno</span>
+of <span class='texttt'>EPERM</span> is reported by a POSIX API call used by the implementation. Since POSIX
+specifies an <span class='texttt'>errno</span> of <span class='texttt'>EPERM</span> when “the caller does not have the privilege
+to perform the operation”, the implementation maps <span class='texttt'>EPERM</span> to an
+<span class='texttt'>error_condition</span> of <span class='texttt'>operation_not_permitted</span> (<a href='syserr'>[syserr]</a>) and an exception
+of type <span class='texttt'>system_error</span> is thrown.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='exception-2'><div class='marginalizedparent'><a class='marginalized' href='#exception-2'>2</a></div><p >The <span class='texttt'>error_code</span> reported by such an exception's <span class='texttt'>code()</span> member function
+shall compare equal to one of the conditions specified in the function's error condition
+element.</p></div></div><div id='native'><h3 ><a class='secnum' href='#native' style='min-width:103pt'>30.2.3</a> Native handles <a class='abbr_ref' href='thread.req.native'>[thread.req.native]</a></h3><div class='para' id='native-1'><div class='marginalizedparent'><a class='marginalized' href='#native-1'>1</a></div><p >Several classes described in this Clause have members <span class='texttt'>native_handle_type</span> and
+<span class='texttt'>native_handle</span>. The presence of these members and their semantics is
+<span class='indexparent'><a class='index' id='presence_and_meaning_of_native_handle_type_and_native_handle'></a></span>implementation-defined.
+[&nbsp;<i>Note:</i> These members allow implementations to provide access
+to implementation details. Their names are specified to facilitate portable compile-time
+detection. Actual use of these members is inherently non-portable. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='timing'><h3 ><a class='secnum' href='#timing' style='min-width:103pt'>30.2.4</a> Timing specifications <a class='abbr_ref' href='thread.req.timing'>[thread.req.timing]</a></h3><div class='para' id='timing-1'><div class='marginalizedparent'><a class='marginalized' href='#timing-1'>1</a></div><p >Several functions described in this Clause take an argument to specify a timeout. These
+timeouts are specified as either a <span class='texttt'>duration</span> or a <span class='texttt'>time_point</span> type as
+specified in <a href='time'>[time]</a>.</p></div><div class='para' id='timing-2'><div class='marginalizedparent'><a class='marginalized' href='#timing-2'>2</a></div><p >Implementations necessarily have some delay in returning from a timeout. Any overhead in
+interrupt response, function return, and scheduling induces a “quality of implementation”
+delay, expressed as duration <span class='math'><span class='mathalpha'>D</span><sub ><span class='mathalpha'>i</span></sub></span>. Ideally, this delay would be zero. Further, any contention for
+processor and memory resources induces a “quality of management” delay, expressed as duration
+<span class='math'><span class='mathalpha'>D</span><sub ><span class='mathalpha'>m</span></sub></span>. The delay durations may vary from timeout to timeout, but in all cases shorter is better.</p></div><div class='para' id='timing-3'><div class='marginalizedparent'><a class='marginalized' href='#timing-3'>3</a></div><p >The member functions whose names end in <span class='texttt'>_for</span> take an argument that
+specifies a duration. These functions produce relative timeouts. Implementations
+should use a steady clock to measure time for these functions.<a class='footnotenum' href='#footnote-337'>337</a> Given a duration
+argument <span class='math'><span class='mathalpha'>D</span><sub ><span class='mathalpha'>t</span></sub></span>, the real-time duration of the timeout is <span class='math'><span class='mathalpha'>D</span><sub ><span class='mathalpha'>t</span></sub> + <span class='mathalpha'>D</span><sub ><span class='mathalpha'>i</span></sub> + <span class='mathalpha'>D</span><sub ><span class='mathalpha'>m</span></sub></span>.</p></div><div class='para' id='timing-4'><div class='marginalizedparent'><a class='marginalized' href='#timing-4'>4</a></div><p >The member functions whose names end in <span class='texttt'>_until</span> take an argument that specifies a time
+point. These functions produce absolute timeouts. Implementations should use the clock
+specified in the time point to measure time for these functions. Given a clock time point
+argument <span class='math'><span class='mathalpha'>C</span><sub ><span class='mathalpha'>t</span></sub></span>, the clock time point of the return from timeout should be <span class='math'><span class='mathalpha'>C</span><sub ><span class='mathalpha'>t</span></sub> + <span class='mathalpha'>D</span><sub ><span class='mathalpha'>i</span></sub> + <span class='mathalpha'>D</span><sub ><span class='mathalpha'>m</span></sub></span>
+when the clock is not adjusted during the timeout. If the clock is adjusted to the time <span class='math'><span class='mathalpha'>C</span><sub ><span class='mathalpha'>a</span></sub></span>
+during the timeout, the behavior should be as follows:</p><ul ><li ><p >if <span class='math'><span class='mathalpha'>C</span><sub ><span class='mathalpha'>a</span></sub> &gt; <span class='mathalpha'>C</span><sub ><span class='mathalpha'>t</span></sub></span>, the waiting function should wake as soon as possible, i.e. <span class='math'><span class='mathalpha'>C</span><sub ><span class='mathalpha'>a</span></sub> + <span class='mathalpha'>D</span><sub ><span class='mathalpha'>i</span></sub> + <span class='mathalpha'>D</span><sub ><span class='mathalpha'>m</span></sub></span>,
+since the timeout is already satisfied. [&nbsp;<i>Note:</i> This specification may result in the total
+duration of the wait decreasing when measured against a steady clock. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></li><li ><p >if <span class='math'><span class='mathalpha'>C</span><sub ><span class='mathalpha'>a</span></sub> &lt;= <span class='mathalpha'>C</span><sub ><span class='mathalpha'>t</span></sub></span>, the waiting function should not time out until <span class='texttt'>Clock::now()</span> returns a
+time <span class='math'><span class='mathalpha'>C</span><sub ><span class='mathalpha'>n</span></sub> &gt;= <span class='mathalpha'>C</span><sub ><span class='mathalpha'>t</span></sub></span>, i.e. waking at <span class='math'><span class='mathalpha'>C</span><sub ><span class='mathalpha'>t</span></sub> + <span class='mathalpha'>D</span><sub ><span class='mathalpha'>i</span></sub> + <span class='mathalpha'>D</span><sub ><span class='mathalpha'>m</span></sub></span>. [&nbsp;<i>Note:</i> When the clock is adjusted
+backwards, this specification may result in the total duration of the wait increasing when
+measured against a steady clock. When the clock is adjusted forwards, this specification may
+result in the total duration of the wait decreasing when measured against a steady clock.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></li></ul><p >An implementation shall return from such a timeout at any point from the time specified above to
+the time it would return from a steady-clock relative timeout on the difference between <span class='math'><span class='mathalpha'>C</span><sub ><span class='mathalpha'>t</span></sub></span>
+and the time point of the call to the <span class='texttt'>_until</span> function. [&nbsp;<i>Note:</i> Implementations
+should decrease the duration of the wait when the clock is adjusted forwards.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='timing-5'><div class='marginalizedparent'><a class='marginalized' href='#timing-5'>5</a></div><p >[&nbsp;<i>Note:</i> If the clock is not synchronized with a steady clock, e.g., a CPU time clock, these
+timeouts might not provide useful functionality. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='timing-6'><div class='marginalizedparent'><a class='marginalized' href='#timing-6'>6</a></div><p >The resolution of timing provided by an implementation depends on both operating system
+and hardware. The finest resolution provided by an implementation is called the
+<a class='hidden_link' href='#def:native_resolution' id='def:native_resolution'><i>native resolution</i></a>.</p></div><div class='para' id='timing-7'><div class='marginalizedparent'><a class='marginalized' href='#timing-7'>7</a></div><p >Implementation-provided clocks that are used for these functions shall meet the
+<span class='texttt'>TrivialClock</span> requirements (<a href='time.clock.req'>[time.clock.req]</a>).</p></div><div class='para' id='timing-8'><div class='marginalizedparent'><a class='marginalized' href='#timing-8'>8</a></div><p >A function that takes an argument which specifies a timeout will throw if,
+during its execution, a clock, time point, or time duration throws an exception.
+Such exceptions are referred to as <a class='hidden_link' href='#def:timeout-related_exceptions' id='def:timeout-related_exceptions'><i>timeout-related exceptions</i></a>.
+[&nbsp;<i>Note:</i> instantiations of clock, time point and duration types supplied by
+the implementation as specified in <a href='time.clock'>[time.clock]</a> do not throw exceptions.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-336'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-336'>336)</a></div><p >All
+implementations for which standard time units are meaningful must necessarily
+have a steady clock within their hardware implementation.</p></div></div><div id='lockable'><h3 ><a class='secnum' href='#lockable' style='min-width:103pt'>30.2.5</a> Requirements for Lockable types <a class='abbr_ref' href='thread.req.lockable'>[thread.req.lockable]</a></h3><div id='lockable.general'><h4 ><a class='secnum' href='#lockable.general' style='min-width:118pt'>30.2.5.1</a> In general <a class='abbr_ref' href='thread.req.lockable.general'>[thread.req.lockable.general]</a></h4><div class='para' id='lockable.general-1'><div class='marginalizedparent'><a class='marginalized' href='#lockable.general-1'>1</a></div><p >An <a class='hidden_link' href='#def:execution_agent' id='def:execution_agent'><i>execution agent</i></a> is an entity such as a thread that may perform work in parallel with
+other execution agents. [&nbsp;<i>Note:</i> Implementations or users may introduce other kinds of
+agents such as processes or thread-pool tasks. <i>&nbsp;—&nbsp;end note</i>&nbsp;] The calling agent is determined by
+context, e.g. the calling thread that contains the call, and so on.</p></div><div class='para' id='lockable.general-2'><div class='marginalizedparent'><a class='marginalized' href='#lockable.general-2'>2</a></div><p >[&nbsp;<i>Note:</i> Some lockable objects are “agent oblivious” in that they work for any
+execution agent model because they do not determine or store the agent's ID (e.g., an
+ordinary spin lock). <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='lockable.general-3'><div class='marginalizedparent'><a class='marginalized' href='#lockable.general-3'>3</a></div><p >The standard library templates <span class='texttt'>unique_lock</span> (<a href='thread.lock.unique'>[thread.lock.unique]</a>),
+<span class='texttt'>lock_guard</span> (<a href='thread.lock.guard'>[thread.lock.guard]</a>), <span class='texttt'>lock</span>,
+<span class='texttt'>try_lock</span> (<a href='thread.lock.algorithm'>[thread.lock.algorithm]</a>), and
+<span class='texttt'>condition_variable_any</span> (<a href='thread.condition.condvarany'>[thread.condition.condvarany]</a>) all operate on user-supplied
+lockable objects. The <span class='texttt'>BasicLockable</span> requirements, the <span class='texttt'>Lockable</span> requirements,
+and the <span class='texttt'>TimedLockable</span> requirements list the requirements imposed by these library types
+in order to acquire or release ownership of a <span class='texttt'>lock</span> by a given execution agent.
+[&nbsp;<i>Note:</i> The nature of any lock ownership and any synchronization it may entail are not part
+of these requirements. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='lockable.basic'><h4 ><a class='secnum' href='#lockable.basic' style='min-width:118pt'>30.2.5.2</a> <span class='texttt'>BasicLockable</span> requirements <a class='abbr_ref' href='thread.req.lockable.basic'>[thread.req.lockable.basic]</a></h4><div class='para' id='lockable.basic-1'><div class='marginalizedparent'><a class='marginalized' href='#lockable.basic-1'>1</a></div><p >A type <span class='texttt'>L</span> meets the <span class='texttt'>BasicLockable</span> requirements if the following expressions are
+well-formed and have the specified semantics (<span class='texttt'>m</span> denotes a value of type <span class='texttt'>L</span>).</p><p ><code class='itemdecl'>
+m.lock()
+</code></p></div><div class='itemdescr'></div><div class='para' id='lockable.basic-2'><div class='marginalizedparent'><a class='marginalized' href='#lockable.basic-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Blocks until a lock can be acquired for the current execution agent. If an exception
+is thrown then a lock shall not have been acquired for the current execution agent.
+</p></div></div><p ><code class='itemdecl'>
+m.unlock()
+</code></p><div class='itemdescr'></div><div class='para' id='lockable.basic-3'><div class='marginalizedparent'><a class='marginalized' href='#lockable.basic-3'>3</a></div><div class='itemdescr'><p ><i>Requires:</i> The current execution agent shall hold a lock on <span class='texttt'>m</span>.</p></div></div><div class='para' id='lockable.basic-4'><div class='marginalizedparent'><a class='marginalized' href='#lockable.basic-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i> Releases a lock on <span class='texttt'>m</span> held by the current execution agent.</p></div></div><div class='para' id='lockable.basic-5'><div class='marginalizedparent'><a class='marginalized' href='#lockable.basic-5'>5</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing.
+</p></div></div></div><div id='lockable.req'><h4 ><a class='secnum' href='#lockable.req' style='min-width:118pt'>30.2.5.3</a> <span class='texttt'>Lockable</span> requirements <a class='abbr_ref' href='thread.req.lockable.req'>[thread.req.lockable.req]</a></h4><div class='para' id='lockable.req-1'><div class='marginalizedparent'><a class='marginalized' href='#lockable.req-1'>1</a></div><p >A type <span class='texttt'>L</span> meets the <span class='texttt'>Lockable</span> requirements if it meets the <span class='texttt'>BasicLockable</span>
+requirements and the following expressions are well-formed and have the specified semantics
+(<span class='texttt'>m</span> denotes a value of type <span class='texttt'>L</span>).</p><p ><code class='itemdecl'>
+m.try_lock()
+</code></p></div><div class='itemdescr'></div><div class='para' id='lockable.req-2'><div class='marginalizedparent'><a class='marginalized' href='#lockable.req-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> attempts to acquire a lock for the current execution agent without blocking. If an
+exception is thrown then a lock shall not have been acquired for the current execution agent.</p></div></div><div class='para' id='lockable.req-3'><div class='marginalizedparent'><a class='marginalized' href='#lockable.req-3'>3</a></div><div class='itemdescr'><p ><i>Return type:</i> <span class='texttt'>bool</span>.</p></div></div><div class='para' id='lockable.req-4'><div class='marginalizedparent'><a class='marginalized' href='#lockable.req-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>true</span> if the lock was acquired, <span class='texttt'>false</span> otherwise.
+</p></div></div></div><div id='lockable.timed'><h4 ><a class='secnum' href='#lockable.timed' style='min-width:118pt'>30.2.5.4</a> <span class='texttt'>TimedLockable</span> requirements <a class='abbr_ref' href='thread.req.lockable.timed'>[thread.req.lockable.timed]</a></h4><div class='para' id='lockable.timed-1'><div class='marginalizedparent'><a class='marginalized' href='#lockable.timed-1'>1</a></div><p >A type <span class='texttt'>L</span> meets the <span class='texttt'>TimedLockable</span> requirements if it meets the <span class='texttt'>Lockable</span>
+requirements and the following expressions are well-formed and have the specified semantics
+(<span class='texttt'>m</span> denotes a value of type <span class='texttt'>L</span>, <span class='texttt'>rel_time</span> denotes a value of an
+instantiation of <span class='texttt'>duration</span> (<a href='time.duration'>[time.duration]</a>), and <span class='texttt'>abs_time</span> denotes a value
+of an instantiation of <span class='texttt'>time_point</span> (<a href='time.point'>[time.point]</a>)).</p><p ><code class='itemdecl'>
+m.try_lock_for(rel_time)
+</code></p></div><div class='itemdescr'></div><div class='para' id='lockable.timed-2'><div class='marginalizedparent'><a class='marginalized' href='#lockable.timed-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> attempts to acquire a lock for the current execution agent within the relative
+timeout (<a href='thread.req.timing'>[thread.req.timing]</a>) specified by <span class='texttt'>rel_time</span>. The function shall not return
+within the timeout specified by <span class='texttt'>rel_time</span> unless it has obtained a lock on <span class='texttt'>m</span>
+for the current execution agent. If an exception is thrown then a lock shall not have been
+acquired for the current execution agent.</p></div></div><div class='para' id='lockable.timed-3'><div class='marginalizedparent'><a class='marginalized' href='#lockable.timed-3'>3</a></div><div class='itemdescr'><p ><i>Return type:</i> <span class='texttt'>bool</span>.</p></div></div><div class='para' id='lockable.timed-4'><div class='marginalizedparent'><a class='marginalized' href='#lockable.timed-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>true</span> if the lock was acquired, <span class='texttt'>false</span> otherwise.
+</p></div></div><p ><code class='itemdecl'>
+m.try_lock_until(abs_time)
+</code></p><div class='itemdescr'></div><div class='para' id='lockable.timed-5'><div class='marginalizedparent'><a class='marginalized' href='#lockable.timed-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> attempts to acquire a lock for the current execution agent before the absolute
+timeout (<a href='thread.req.timing'>[thread.req.timing]</a>) specified by <span class='texttt'>abs_time</span>. The function shall not return
+before the timeout specified by <span class='texttt'>abs_time</span> unless it has obtained a lock on <span class='texttt'>m</span> for
+the current execution agent. If an exception is thrown then a lock shall not have been acquired
+for the current execution agent.</p></div></div><div class='para' id='lockable.timed-6'><div class='marginalizedparent'><a class='marginalized' href='#lockable.timed-6'>6</a></div><div class='itemdescr'><p ><i>Return type:</i> <span class='texttt'>bool</span>.</p></div></div><div class='para' id='lockable.timed-7'><div class='marginalizedparent'><a class='marginalized' href='#lockable.timed-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>true</span> if the lock was acquired, <span class='texttt'>false</span> otherwise.
+</p></div></div></div></div><div id='thread.decaycopy'><h3 ><a class='secnum' href='#thread.decaycopy' style='min-width:103pt'>30.2.6</a> <span class='texttt'>decay_copy</span> <a class='abbr_ref' href='thread.decaycopy'>[thread.decaycopy]</a></h3><div class='para' id='thread.decaycopy-1'><div class='marginalizedparent'><a class='marginalized' href='#thread.decaycopy-1'>1</a></div><p >In several places in this Clause the operation
+<a class='hidden_link' href='#def:DECAY_COPY' id='def:DECAY_COPY'><i>DECAY_COPY(x)</i></a> is used. All
+such uses mean call the function <span class='texttt'>decay_copy(x)</span> and use the
+result, where <span class='texttt'>decay_copy</span> is defined as follows:</p><pre class='codeblock'>
+template &lt;class T&gt; decay_t&lt;T&gt; decay_copy(T&amp;&amp; v)
+  { return std::forward&lt;T&gt;(v); }
+</pre></div></div></div></div></body></html>

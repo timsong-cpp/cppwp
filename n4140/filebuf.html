@@ -1,0 +1,78 @@
+<!DOCTYPE html><html lang='en'><head><title>[filebuf]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>27</a> Input/output library <a class='abbr_ref' href='./#input.output'>[input.output]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>27.9</a> File-based streams <a class='abbr_ref' href='file.streams#filebuf'>[file.streams]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>27.9.1</a> File streams <a class='abbr_ref' href='fstreams#filebuf'>[fstreams]</a></h3><div id='filebuf'><h4 ><a class='secnum' style='min-width:118pt'>27.9.1.1</a> Class template <span class='texttt'>basic_filebuf</span> <a class='abbr_ref'>[filebuf]</a></h4><p ><span class='indexparent'><a class='index' id='basic_filebuf'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class charT, class traits = char_traits&lt;charT&gt; &gt;
+  class basic_filebuf : public basic_streambuf&lt;charT,traits&gt; {
+  public:
+    typedef charT                     char_type;
+    typedef typename traits::int_type int_type;
+    typedef typename traits::pos_type pos_type;
+    typedef typename traits::off_type off_type;
+    typedef traits                    traits_type;
+
+    <span class='comment'>// <a href='filebuf.cons'>[filebuf.cons]</a> Constructors/destructor:
+</span>    basic_filebuf();
+    basic_filebuf(const basic_filebuf&amp; rhs) = delete;
+    basic_filebuf(basic_filebuf&amp;&amp; rhs);
+    virtual ~basic_filebuf();
+
+    <span class='comment'>// <a href='filebuf.assign'>[filebuf.assign]</a> Assign/swap:
+</span>    basic_filebuf&amp; operator=(const basic_filebuf&amp; rhs) = delete;
+    basic_filebuf&amp; operator=(basic_filebuf&amp;&amp; rhs);
+    void swap(basic_filebuf&amp; rhs);
+
+     <span class='comment'>// <a href='filebuf.members'>[filebuf.members]</a> Members:
+</span>    bool is_open() const;
+    basic_filebuf&lt;charT,traits&gt;* open(const char* s,
+        ios_base::openmode mode);
+    basic_filebuf&lt;charT,traits&gt;* open(const string&amp; s,
+        ios_base::openmode mode);
+    basic_filebuf&lt;charT,traits&gt;* close();
+
+  protected:
+    <span class='comment'>// <a href='filebuf.virtuals'>[filebuf.virtuals]</a> Overridden virtual functions:
+</span>    virtual streamsize showmanyc();
+    virtual int_type underflow();
+    virtual int_type uflow();
+    virtual int_type pbackfail(int_type c = traits::eof());
+    virtual int_type overflow (int_type c = traits::eof());
+
+    virtual basic_streambuf&lt;charT,traits&gt;*
+        setbuf(char_type* s, streamsize n);
+    virtual pos_type seekoff(off_type off, ios_base::seekdir way,
+        ios_base::openmode which = ios_base::in | ios_base::out);
+    virtual pos_type seekpos(pos_type sp,
+        ios_base::openmode which = ios_base::in | ios_base::out);
+    virtual int      sync();
+    virtual void     imbue(const locale&amp; loc);
+  };
+
+  template &lt;class charT, class traits&gt;
+  void swap(basic_filebuf&lt;charT, traits&gt;&amp; x,
+            basic_filebuf&lt;charT, traits&gt;&amp; y);
+}
+</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The class
+<span class='texttt'>basic_filebuf&lt;charT,traits&gt;</span>
+associates both the input sequence and the output
+sequence with a file.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >The restrictions on reading and writing a sequence controlled by an
+object of class
+<span class='texttt'>basic_filebuf&lt;charT, traits&gt;</span>
+are the same as for reading and writing with the Standard C library
+<span class='texttt'>FILE</span>s.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >In particular:
+</p><ul ><li ><p >If the file is not open for reading the input sequence
+cannot be read.
+</p></li><li ><p >If the file is not open for writing the output
+sequence cannot be written.
+</p></li><li ><p >A joint file position is maintained for both the input sequence and
+the output sequence.
+</p></li></ul></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >An instance of
+<span class='texttt'>basic_filebuf</span>
+behaves as described in <a href='filebuf'>[filebuf]</a> provided
+<span class='texttt'>traits::pos_type</span>
+is
+<span class='texttt'>fpos&lt;traits<span class='discretionary'></span>::<span class='discretionary'></span>state_type&gt;</span>.
+Otherwise the behavior is undefined.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >In order to support file I/O and multibyte/wide character conversion,
+conversions are performed using members of a facet, referred to as
+<span class='texttt'>a_codecvt</span> in following sections, obtained as if by</p><pre class='codeblock'>
+const codecvt&lt;charT,char,typename traits::state_type&gt;&amp; a_codecvt =
+  use_facet&lt;codecvt&lt;charT,char,typename traits::state_type&gt; &gt;(getloc());
+</pre></div></div></div></body></html>

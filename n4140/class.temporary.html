@@ -1,0 +1,208 @@
+<!DOCTYPE html><html lang='en'><head><title>[class.temporary]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>12</a> Special member functions <a class='abbr_ref' href='./#special'>[special]</a></h1><div id='class.temporary'><h2 ><a class='secnum' style='min-width:88pt'>12.2</a> Temporary objects <a class='abbr_ref'>[class.temporary]</a></h2><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='object_temporary'></a></span><span class='indexparent'><a class='index' id='temporary'></a></span><span class='indexparent'><a class='index' id='optimization_of_temporary'></a></span><span class='indexparent'><a class='index' id='temporary,elimination_of'></a></span><span class='indexparent'><a class='index' id='temporary,implementation-defined_generation_of'></a></span>Temporaries of class type are created in various contexts:
+binding a reference to a prvalue (<a href='dcl.init.ref'>[dcl.init.ref]</a>),
+returning a prvalue (<a href='stmt.return'>[stmt.return]</a>),
+a conversion that creates a prvalue (<a href='conv.lval'>[conv.lval]</a>, <a href='expr.static.cast'>[expr.static.cast]</a>,
+<a href='expr.const.cast'>[expr.const.cast]</a>, <a href='expr.cast'>[expr.cast]</a>),
+throwing an exception (<a href='except.throw'>[except.throw]</a>), and in some initializations (<a href='dcl.init'>[dcl.init]</a>).
+[&nbsp;<i>Note:</i>
+The lifetime of exception objects is described in <a href='except.throw'>[except.throw]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+Even when the creation of the temporary object is
+unevaluated (Clause <a href='expr'>[expr]</a>) or otherwise
+avoided (<a href='class.copy'>[class.copy]</a>),
+all the semantic restrictions shall be respected as if the temporary object
+had been created and later destroyed.
+[&nbsp;<i>Note:</i>
+This includes accessibility (<a href='class.access'>[class.access]</a>) and whether it is deleted,
+for the constructor selected and for the destructor. However, in the special
+case of a function call used as the operand of a
+<i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i> (<a href='expr.call'>[expr.call]</a>), no temporary is introduced,
+so the foregoing does not apply to the prvalue of any such function call.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >[&nbsp;<i>Example:</i> Consider the following code:
+</p><pre class='codeblock'>
+class X {
+public:
+  X(int);
+  X(const X&amp;);
+  X&amp; operator=(const X&amp;);
+  ~X();
+};
+
+class Y {
+public:
+  Y(int);
+  Y(Y&amp;&amp;);
+  ~Y();
+};
+
+X f(X);
+Y g(Y);
+
+void h() {
+  X a(1);
+  X b = f(X(2));
+  Y c = g(Y(3));
+  a = f(a);
+}
+</pre><p ><span class='indexparent'><a class='index' id='class_object_copy'></a></span><span class='indexparent'><a class='index' id='constructor,copy'></a></span>An implementation might use a temporary in which to construct
+<span class='texttt'>X(2)</span>
+before passing it to
+<span class='texttt'>f()</span>
+using
+<span class='texttt'>X</span>'s
+copy constructor; alternatively,
+<span class='texttt'>X(2)</span>
+might be constructed in the space used to hold the argument.
+Likewise, an implementation might use a temporary in which to construct
+<span class='texttt'>Y(3)</span> before passing it to <span class='texttt'>g()</span> using <span class='texttt'>Y</span>'s move constructor;
+alternatively, <span class='texttt'>Y(3)</span> might be constructed in the space used to hold the argument.
+Also, a temporary might be used to hold the result of
+<span class='texttt'>f(X(2))</span>
+before copying it to
+<span class='texttt'>b</span>
+using
+<span class='texttt'>X</span>'s
+copy constructor; alternatively,
+<span class='texttt'>f()</span>'s
+result might be constructed in
+<span class='texttt'>b</span>.
+Likewise, a temporary might be used to hold the result of <span class='texttt'>g(Y(3))</span> before
+moving it to <span class='texttt'>c</span> using <span class='texttt'>Y</span>'s move constructor; alternatively, <span class='texttt'>g()</span>'s
+result might be constructed in <span class='texttt'>c</span>.
+On the other hand, the expression
+<span class='texttt'>a=f(a)</span>
+requires a temporary for
+the result of <span class='texttt'>f(a)</span>, which is then assigned to <span class='texttt'>a</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p ><span class='indexparent'><a class='index' id='temporary,constructor_for'></a></span><span class='indexparent'><a class='index' id='temporary,destructor_for'></a></span><span class='indexparent'><a class='index' id='temporary,destruction_of'></a></span>When an implementation introduces a temporary object of a class that has a
+non-trivial constructor (<a href='class.ctor'>[class.ctor]</a>, <a href='class.copy'>[class.copy]</a>), it shall ensure that
+a constructor is called for the temporary object.
+Similarly, the destructor shall be called for a temporary with a non-trivial
+destructor (<a href='class.dtor'>[class.dtor]</a>).
+Temporary objects are destroyed as the last step
+in evaluating
+the full-expression (<a href='intro.execution'>[intro.execution]</a>)
+that (lexically) contains the point where
+they were created.
+This is true even if that evaluation ends in throwing an exception.
+The
+<span class='indexparent'><a class='index' id='value_computation'></a></span>value computations and
+<span class='indexparent'><a class='index' id='side_effects'></a></span>side effects of destroying a temporary object
+are associated only with the full-expression, not with any specific
+subexpression.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p ><span class='indexparent'><a class='index' id='initializer,temporary_and_declarator'></a></span><span class='indexparent'><a class='index' id='temporary,order_of_destruction_of'></a></span>There are two contexts in which temporaries are destroyed at a different
+point than the end of the full-expression.
+The first context is when a default constructor is called to initialize an
+element of an array. If the constructor has one or more default arguments,
+the destruction of every temporary created in
+a default argument is sequenced before the construction of the next array element, if any.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >The second context is when a reference is bound to a
+temporary.<a class='footnotenum' href='#footnote-117'>117</a>
+The temporary to which the reference is bound or the temporary
+that is the complete object of a subobject to which the reference is bound
+persists for the lifetime of the reference except:</p><ul ><li ><p >A temporary bound to a reference member in a constructor's <i ><a href='class.base.init#nt:ctor-initializer'>ctor-initializer</a></i> (<a href='class.base.init'>[class.base.init]</a>) persists until the constructor exits.</p></li><li ><p >A temporary bound to a reference parameter in a function call (<a href='expr.call'>[expr.call]</a>)
+persists until the completion of the full-expression containing the call.</p></li><li ><p >The lifetime of a temporary bound to the returned value in a function return statement (<a href='stmt.return'>[stmt.return]</a>) is not extended; the temporary is destroyed at the end of the full-expression in the return statement.</p></li><li ><p >A temporary bound to a reference in a <i ><a href='expr.new#nt:new-initializer'>new-initializer</a></i> (<a href='expr.new'>[expr.new]</a>) persists until the completion of the full-expression containing the <i ><a href='expr.new#nt:new-initializer'>new-initializer</a></i>. [&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct S { int mi; const std::pair&lt;int,int&gt;&amp; mp; };
+S a { 1, {2,3} };
+S* p = new S{ 1, {2,3} };   <span class='comment'>// Creates dangling reference
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;] [&nbsp;<i>Note:</i> This may introduce a dangling reference, and implementations are encouraged to issue a warning in such a case. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></li></ul><p >The destruction of a temporary whose lifetime is not extended by being
+bound to a reference is sequenced before the destruction of every
+temporary which is constructed earlier in the same full-expression.
+If the lifetime of two or more temporaries to which references are bound ends
+at the same point,
+these temporaries are destroyed at that point in the reverse order of the
+completion of their construction.
+In addition, the destruction of temporaries bound to references shall
+take into account the ordering of destruction of objects with static, thread, or
+automatic storage duration (<a href='basic.stc.static'>[basic.stc.static]</a>, <a href='basic.stc.thread'>[basic.stc.thread]</a>, <a href='basic.stc.auto'>[basic.stc.auto]</a>);
+that is, if
+<span class='texttt'>obj1</span>
+is an object with the same storage duration as the temporary and
+created before the temporary is created 
+the temporary shall be destroyed before
+<span class='texttt'>obj1</span>
+is destroyed;
+if
+<span class='texttt'>obj2</span>
+is an object with the same storage duration as the temporary and
+created after the temporary is created
+the temporary shall be destroyed after
+<span class='texttt'>obj2</span>
+is destroyed.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct S {
+  S();
+  S(int);
+  friend S operator+(const S&amp;, const S&amp;);
+  ~S();
+};
+S obj1;
+const S&amp; cr = S(16)+S(23);
+S obj2;
+</pre><p >the expression
+<span class='texttt'>S(16) + S(23)</span>
+creates three temporaries:
+a first temporary
+<span class='texttt'>T1</span>
+to hold the result of the expression
+<span class='texttt'>S(16)</span>,
+a second temporary
+<span class='texttt'>T2</span>
+to hold the result of the expression
+<span class='texttt'>S(23)</span>,
+and a third temporary
+<span class='texttt'>T3</span>
+to hold the result of the addition of these two expressions.
+The temporary
+<span class='texttt'>T3</span>
+is then bound to the reference
+<span class='texttt'>cr</span>.
+It is unspecified whether
+<span class='texttt'>T1</span>
+or
+<span class='texttt'>T2</span>
+is created first.
+On an implementation where
+<span class='texttt'>T1</span>
+is created before
+<span class='texttt'>T2</span>,
+<span class='texttt'>T2</span>
+shall be destroyed before
+<span class='texttt'>T1</span>.
+The temporaries
+<span class='texttt'>T1</span>
+and
+<span class='texttt'>T2</span>
+are bound to the reference parameters of
+<span class='texttt'>operator+</span>;
+these temporaries are destroyed at the end of the full-expression
+containing the call to
+<span class='texttt'>operator+</span>.
+The temporary
+<span class='texttt'>T3</span>
+bound to the reference
+<span class='texttt'>cr</span>
+is destroyed at the end of
+<span class='texttt'>cr</span>'s
+lifetime, that is, at the end of the program.
+In addition, the order in which
+<span class='texttt'>T3</span>
+is destroyed takes into account the destruction order of other objects with
+static storage duration.
+That is, because
+<span class='texttt'>obj1</span>
+is constructed before
+<span class='texttt'>T3</span>,
+and
+<span class='texttt'>T3</span>
+is constructed before
+<span class='texttt'>obj2</span>,
+<span class='texttt'>obj2</span>
+shall be destroyed before
+<span class='texttt'>T3</span>,
+and
+<span class='texttt'>T3</span>
+shall be destroyed before
+<span class='texttt'>obj1</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-117'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-117'>117)</a></div><p >The same rules apply to initialization of an
+  <span class='texttt'>initializer_list</span> object (<a href='dcl.init.list'>[dcl.init.list]</a>) with its
+  underlying temporary array</p></div></div></div></body></html>

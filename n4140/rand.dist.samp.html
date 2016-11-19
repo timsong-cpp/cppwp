@@ -1,0 +1,400 @@
+<!DOCTYPE html><html lang='en'><head><title>[rand.dist.samp]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>26</a> Numerics library <a class='abbr_ref' href='./#numerics'>[numerics]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>26.5</a> Random number generation <a class='abbr_ref' href='rand#dist.samp'>[rand]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>26.5.8</a> Random number distribution class templates <a class='abbr_ref' href='rand.dist#samp'>[rand.dist]</a></h3><div id='rand.dist.samp'><h4 ><a class='secnum' style='min-width:118pt'>26.5.8.6</a> Sampling distributions <a class='abbr_ref'>[rand.dist.samp]</a></h4><p ><span class='indexparent'><a class='index' id='sampling_distributions'></a></span><span class='indexparent'><a class='index' id='random_number_distributions,sampling'></a></span></p><div id='discrete'><h4 ><a class='secnum' href='#discrete' style='min-width:133pt'>26.5.8.6.1</a> Class template <span class='texttt'>discrete_distribution</span> <a class='abbr_ref' href='rand.dist.samp.discrete'>[rand.dist.samp.discrete]</a></h4><p ><span class='indexparent'><a class='index' id='discrete_distribution'></a></span><span class='indexparent'><a class='index' id='random_number_distribution,discrete_distribution'></a></span></p><div class='para' id='discrete-1'><div class='marginalizedparent'><a class='marginalized' href='#discrete-1'>1</a></div><p >A <span class='texttt'>discrete_distribution</span> random number distribution
+produces random integers <span class='math'><span class='mathalpha'>i</span></span>, <span class='math'>0 ≤ <span class='mathalpha'>i</span> &lt; <span class='mathalpha'>n</span></span>,
+distributed according to
+the discrete probability function<span class='indexparent'><a class='index' id='discrete_probability_function,discrete_distribution'></a></span><span class='indexparent'><a class='index' id='discrete_distribution,discrete_probability_function'></a></span>
+<span class='mathblock'> <span class='mathalpha'>P</span>(<span class='mathalpha'>i</span>&nbsp;|&nbsp;<span class='mathalpha'>p</span><sub >0</sub>,&hellip;,<span class='mathalpha'>p</span><sub ><span class='mathalpha'>n</span>-1</sub>)
+      = <span class='mathalpha'>p</span><sub ><span class='mathalpha'>i</span></sub>
+  <span class='mbox'>.</span>
+</span></p></div><div class='para' id='discrete-2'><div class='marginalizedparent'><a class='marginalized' href='#discrete-2'>2</a></div><p >Unless specified otherwise,
+the distribution parameters are calculated as:
+ <span class='math'><span class='mathalpha'>p</span><sub ><span class='mathalpha'>k</span></sub> = <span class='mathalpha'>w</span><sub ><span class='mathalpha'>k</span></sub> / <span class='mathalpha'>S</span>   <span class='mbox'>  for </span> <span class='mathalpha'>k</span> = 0, &hellip;, <span class='mathalpha'>n</span>-1</span> ,
+in which
+the values <span class='math'><span class='mathalpha'>w</span><sub ><span class='mathalpha'>k</span></sub></span>,
+commonly known as the <i>weights</i><span class='indexparent'><a class='index' id='discrete_distribution,weights'></a></span><span class='indexparent'><a class='index' id='weights,discrete_distribution'></a></span>, shall be non-negative, non-NaN, and non-infinity.
+Moreover, the following relation shall hold:
+ <span class='math'> 0 &lt; <span class='mathalpha'>S</span> = <span class='mathalpha'>w</span><sub >0</sub> + ⋯ + <span class='mathalpha'>w</span><sub ><span class='mathalpha'>n</span>-1</sub> </span>.</p><pre class='codeblock'>
+template&lt;class IntType = int&gt;
+ class discrete_distribution{
+public:
+ <span class='comment'>// types
+</span> typedef IntType result_type;
+ typedef <i>unspecified</i> param_type;
+
+ <span class='comment'>// constructor and reset functions
+</span> discrete_distribution();
+ template&lt;class InputIterator&gt;
+   discrete_distribution(InputIterator firstW, InputIterator lastW);
+ discrete_distribution(initializer_list&lt;double&gt; wl);
+ template&lt;class UnaryOperation&gt;
+   discrete_distribution(size_t nw, double xmin, double xmax, UnaryOperation fw);
+ explicit discrete_distribution(const param_type&amp; parm);
+ void reset();
+
+ <span class='comment'>// generating functions
+</span> template&lt;class URNG&gt;
+   result_type operator()(URNG&amp; g);
+ template&lt;class URNG&gt;
+   result_type operator()(URNG&amp; g, const param_type&amp; parm);
+
+ <span class='comment'>// property functions
+</span> vector&lt;double&gt; probabilities() const;
+ param_type param() const;
+ void param(const param_type&amp; parm);
+ result_type min() const;
+ result_type max() const;
+};
+</pre><p ><span class='indexparent'><a class='index' id='discrete_distribution,constructor'></a></span>
+<code class='itemdecl'>
+discrete_distribution();
+</code></p></div><div class='itemdescr'></div><div class='para' id='discrete-3'><div class='marginalizedparent'><a class='marginalized' href='#discrete-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>discrete_distribution</span> object
+ with <span class='math'> <span class='mathalpha'>n</span> = 1 </span>
+ and <span class='math'> <span class='mathalpha'>p</span><sub >0</sub> = 1 </span>.
+ [&nbsp;<i>Note:</i>
+   Such an object will always deliver the value <span class='math'>0</span>.
+ <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='discrete_distribution,constructor'></a></span><code class='itemdecl'>
+template&lt;class InputIterator&gt;
+  discrete_distribution(InputIterator firstW, InputIterator lastW);
+</code></p><div class='itemdescr'></div><div class='para' id='discrete-4'><div class='marginalizedparent'><a class='marginalized' href='#discrete-4'>4</a></div><div class='itemdescr'><p ><i>Requires:</i>
+  <span class='texttt'>InputIterator</span> shall satisfy the requirements
+  of an input iterator (Table <a href='input.iterators#tab:iterator.input.requirements'>[tab:iterator.input.requirements]</a>) type.
+  Moreover,
+  <span class='texttt'>iterator_traits&lt;InputIterator&gt;::value_type</span>
+  shall denote a type that is convertible to <span class='texttt'>double</span>.
+ If <span class='texttt'>firstW == lastW</span>,
+ let <span class='math'> <span class='mathalpha'>n</span> = 1 </span>
+ and <span class='math'> <span class='mathalpha'>w</span><sub >0</sub> = 1 </span>.
+ Otherwise,
+ <span class='math'><span class='bigl'></span> [<span class='texttt'>firstW</span>, <span class='texttt'>lastW</span><span class='bigr'></span>)</span>
+ shall form a sequence <span class='math'><span class='mathalpha'>w</span></span> of length <span class='math'><span class='mathalpha'>n</span> &gt; 0</span>.</p></div></div><div class='para' id='discrete-5'><div class='marginalizedparent'><a class='marginalized' href='#discrete-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>discrete_distribution</span> object
+ with probabilities given by the formula above.
+</p></div></div><p ><span class='indexparent'><a class='index' id='discrete_distribution,constructor'></a></span><code class='itemdecl'>
+discrete_distribution(initializer_list&lt;double&gt; wl);
+</code></p><div class='itemdescr'></div><div class='para' id='discrete-6'><div class='marginalizedparent'><a class='marginalized' href='#discrete-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>
+ Same as <span class='texttt'>discrete_distribution(wl.begin(), wl.end())</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='discrete_distribution,constructor'></a></span>
+<code class='itemdecl'>
+template&lt;class UnaryOperation&gt;
+  discrete_distribution(size_t nw, double xmin, double xmax, UnaryOperation fw);
+</code></p><div class='itemdescr'></div><div class='para' id='discrete-7'><div class='marginalizedparent'><a class='marginalized' href='#discrete-7'>7</a></div><div class='itemdescr'><p ><i>Requires:</i>
+ Each instance of type <span class='texttt'>UnaryOperation</span>
+ shall be a function object (<a href='function.objects'>[function.objects]</a>)
+ whose return type shall be convertible to <span class='texttt'>double</span>.
+ Moreover,
+ <span class='texttt'>double</span> shall be convertible
+ to the type of <span class='texttt'>UnaryOperation</span>'s sole parameter.
+ If <span class='math'> <span class='texttt'>nw</span> = 0 </span>, let <span class='math'> <span class='mathalpha'>n</span> = 1 </span>, otherwise let <span class='math'><span class='mathalpha'>n</span> = <span class='texttt'>nw</span></span>.
+ The relation
+   <span class='math'> 0 &lt; δ = (<span class='texttt'>xmax</span> - <span class='texttt'>xmin</span>) / <span class='mathalpha'>n</span> </span>
+ shall hold.</p></div></div><div class='para' id='discrete-8'><div class='marginalizedparent'><a class='marginalized' href='#discrete-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>discrete_distribution</span> object
+ with probabilities given by the formula above,
+ using the following values:
+ If <span class='math'><span class='texttt'>nw</span> = 0</span>,
+ let <span class='math'> <span class='mathalpha'>w</span><sub >0</sub> = 1 </span>.
+ Otherwise,
+ let <span class='math'> <span class='mathalpha'>w</span><sub ><span class='mathalpha'>k</span></sub> = <span class='texttt'>fw</span>(<span class='texttt'>xmin</span> + <span class='mathalpha'>k</span> · δ + δ / 2) </span>
+ for <span class='math'> <span class='mathalpha'>k</span> = 0, &hellip;, <span class='mathalpha'>n</span>-1 </span>.</p></div></div><div class='para' id='discrete-9'><div class='marginalizedparent'><a class='marginalized' href='#discrete-9'>9</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+ The number of invocations of <span class='texttt'>fw</span> shall not exceed <span class='math'><span class='mathalpha'>n</span></span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='discrete_distribution,probabilities'></a></span><span class='indexparent'><a class='index' id='probabilities,discrete_distribution'></a></span><code class='itemdecl'>
+vector&lt;double&gt; probabilities() const;
+</code></p><div class='itemdescr'></div><div class='para' id='discrete-10'><div class='marginalizedparent'><a class='marginalized' href='#discrete-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> A <span class='texttt'>vector&lt;double&gt;</span>
+ whose <span class='texttt'>size</span> member returns <span class='math'><span class='mathalpha'>n</span></span>
+ and whose <span class='math'> <span class='texttt'>operator[]</span> </span> member returns <span class='math'><span class='mathalpha'>p</span><sub ><span class='mathalpha'>k</span></sub></span>
+ when invoked with argument <span class='math'><span class='mathalpha'>k</span></span> for <span class='math'><span class='mathalpha'>k</span> = 0, &hellip;, <span class='mathalpha'>n</span>-1 </span>.
+</p></div></div></div><div id='pconst'><h4 ><a class='secnum' href='#pconst' style='min-width:133pt'>26.5.8.6.2</a> Class template <span class='texttt'>piecewise_constant_distribution</span> <a class='abbr_ref' href='rand.dist.samp.pconst'>[rand.dist.samp.pconst]</a></h4><p ><span class='indexparent'><a class='index' id='piecewise_constant_distribution'></a></span><span class='indexparent'><a class='index' id='random_number_distribution,piecewise_constant_distribution'></a></span></p><div class='para' id='pconst-1'><div class='marginalizedparent'><a class='marginalized' href='#pconst-1'>1</a></div><p >A <span class='texttt'>piecewise_constant_distribution</span> random number distribution
+produces random numbers <span class='math'><span class='mathalpha'>x</span></span>,
+<span class='math'> <span class='mathalpha'>b</span><sub >0</sub> ≤ <span class='mathalpha'>x</span> &lt; <span class='mathalpha'>b</span><sub ><span class='mathalpha'>n</span></sub> </span>,
+uniformly distributed over each subinterval
+<span class='math'> [ <span class='mathalpha'>b</span><sub ><span class='mathalpha'>i</span></sub>, <span class='mathalpha'>b</span><sub ><span class='mathalpha'>i</span>+1</sub> ) </span>
+according to the probability density function
+<span class='indexparent'><a class='index' id='probability_density_function,piecewise_constant_distribution'></a></span><span class='indexparent'><a class='index' id='piecewise_constant_distribution,probability_density_function'></a></span>
+<span class='mathblock'> <span class='mathalpha'>p</span>(<span class='mathalpha'>x</span>&nbsp;|&nbsp;<span class='mathalpha'>b</span><sub >0</sub>,&hellip;,<span class='mathalpha'>b</span><sub ><span class='mathalpha'>n</span></sub>, ρ<sub >0</sub>,&hellip;,ρ<sub ><span class='mathalpha'>n</span>-1</sub>)
+      = ρ<sub ><span class='mathalpha'>i</span></sub>
+  <span class='mbox'>,</span>
+<span class='mbox'> for </span> <span class='mathalpha'>b</span><sub ><span class='mathalpha'>i</span></sub> ≤ <span class='mathalpha'>x</span> &lt; <span class='mathalpha'>b</span><sub ><span class='mathalpha'>i</span>+1</sub>
+  <span class='mbox'>.</span>
+</span></p></div><div class='para' id='pconst-2'><div class='marginalizedparent'><a class='marginalized' href='#pconst-2'>2</a></div><p >The <span class='math'><span class='mathalpha'>n</span>+1</span> distribution parameters <span class='math'><span class='mathalpha'>b</span><sub ><span class='mathalpha'>i</span></sub></span>,
+also known as this distribution's <i>interval boundaries</i><span class='indexparent'><a class='index' id='piecewise_constant_distribution,interval_boundaries'></a></span><span class='indexparent'><a class='index' id='interval_boundaries,piecewise_constant_distribution'></a></span>, shall satisfy the relation
+ <span class='math'> <span class='mathalpha'>b</span><sub ><span class='mathalpha'>i</span></sub> &lt; <span class='mathalpha'>b</span><sub ><span class='mathalpha'>i</span>+1</sub> </span>
+for <span class='math'><span class='mathalpha'>i</span> = 0, &hellip;, <span class='mathalpha'>n</span>-1 </span>.
+Unless specified otherwise,
+the remaining <span class='math'><span class='mathalpha'>n</span></span> distribution parameters are calculated as:
+<img src='math/3048641883406251400.png' class='mathblockimg' alt='\[%
+ \rho_k = \;
+   \frac{w_k}{S \cdot (b_{k+1}-b_k)}
+   \; \mbox{ for } k = 0, \ldots, n\!-\!1,
+\]'/>
+in which the values <span class='math'><span class='mathalpha'>w</span><sub ><span class='mathalpha'>k</span></sub></span>,
+commonly known as the <i>weights</i><span class='indexparent'><a class='index' id='piecewise_constant_distribution,weights'></a></span><span class='indexparent'><a class='index' id='weights,piecewise_constant_distribution'></a></span>, shall be non-negative, non-NaN, and non-infinity.
+Moreover, the following relation shall hold:
+ <span class='math'> 0 &lt; <span class='mathalpha'>S</span> = <span class='mathalpha'>w</span><sub >0</sub> + ⋯ + <span class='mathalpha'>w</span><sub ><span class='mathalpha'>n</span>-1</sub> </span>.</p><pre class='codeblock'>
+template&lt;class RealType = double&gt;
+ class piecewise_constant_distribution{
+public:
+ <span class='comment'>// types
+</span> typedef RealType result_type;
+ typedef <i>unspecified</i> param_type;
+
+ <span class='comment'>// constructor and reset functions
+</span> piecewise_constant_distribution();
+ template&lt;class InputIteratorB, class InputIteratorW&gt;
+   piecewise_constant_distribution(InputIteratorB firstB, InputIteratorB lastB,
+                                   InputIteratorW firstW);
+ template&lt;class UnaryOperation&gt;
+   piecewise_constant_distribution(initializer_list&lt;RealType&gt; bl, UnaryOperation fw);
+ template&lt;class UnaryOperation&gt;
+   piecewise_constant_distribution(size_t nw, RealType xmin, RealType xmax, UnaryOperation fw);
+ explicit piecewise_constant_distribution(const param_type&amp; parm);
+ void reset();
+
+ <span class='comment'>// generating functions
+</span> template&lt;class URNG&gt;
+   result_type operator()(URNG&amp; g);
+ template&lt;class URNG&gt;
+   result_type operator()(URNG&amp; g, const param_type&amp; parm);
+
+ <span class='comment'>// property functions
+</span> vector&lt;result_type&gt; intervals() const;
+ vector&lt;result_type&gt; densities() const;
+ param_type param() const;
+ void param(const param_type&amp; parm);
+ result_type min() const;
+ result_type max() const;
+};
+</pre><p ><span class='indexparent'><a class='index' id='piecewise_constant_distribution,constructor'></a></span><code class='itemdecl'>
+piecewise_constant_distribution();
+</code></p></div><div class='itemdescr'></div><div class='para' id='pconst-3'><div class='marginalizedparent'><a class='marginalized' href='#pconst-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>piecewise_constant_distribution</span> object
+ with <span class='math'> <span class='mathalpha'>n</span> = 1 </span>,
+ <span class='math'>ρ<sub >0</sub> = 1 </span>,
+ <span class='math'> <span class='mathalpha'>b</span><sub >0</sub> = 0 </span>,
+ and <span class='math'> <span class='mathalpha'>b</span><sub >1</sub> = 1 </span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='piecewise_constant_distribution,constructor'></a></span><code class='itemdecl'>
+template&lt;class InputIteratorB, class InputIteratorW&gt;
+ piecewise_constant_distribution(InputIteratorB firstB, InputIteratorB lastB,
+                                 InputIteratorW firstW);
+</code></p><div class='itemdescr'></div><div class='para' id='pconst-4'><div class='marginalizedparent'><a class='marginalized' href='#pconst-4'>4</a></div><div class='itemdescr'><p ><i>Requires:</i>
+  <span class='texttt'>InputIteratorB</span> and <span class='texttt'>InputIteratorW</span>
+  shall each satisfy the requirements
+  of an input iterator (Table <a href='input.iterators#tab:iterator.input.requirements'>[tab:iterator.input.requirements]</a>) type.
+  Moreover,
+  <span class='texttt'>iterator_traits&lt;InputIteratorB&gt;::value_type</span> and
+  <span class='texttt'>iterator_traits&lt;InputIteratorW&gt;::value_type</span>
+  shall each denote a type that is convertible to <span class='texttt'>double</span>.
+ If <span class='texttt'>firstB == lastB</span>
+ or <span class='texttt'>++firstB == lastB</span>,
+ let <span class='math'> <span class='mathalpha'>n</span> = 1 </span>,
+     <span class='math'> <span class='mathalpha'>w</span><sub >0</sub> = 1 </span>,
+     <span class='math'> <span class='mathalpha'>b</span><sub >0</sub> = 0 </span>,
+ and <span class='math'> <span class='mathalpha'>b</span><sub >1</sub> = 1 </span>.
+ Otherwise,
+ <span class='math'><span class='bigl'></span> [<span class='texttt'>firstB</span>, <span class='texttt'>lastB</span><span class='bigr'></span>)</span>
+ shall form a sequence <span class='math'><span class='mathalpha'>b</span></span> of length <span class='math'><span class='mathalpha'>n</span>+1</span>,
+ the length of the sequence <span class='math'><span class='mathalpha'>w</span></span> starting from <span class='texttt'>firstW</span>
+ shall be at least <span class='math'><span class='mathalpha'>n</span></span>,
+ and any <span class='math'><span class='mathalpha'>w</span><sub ><span class='mathalpha'>k</span></sub></span> for  <span class='math'><span class='mathalpha'>k</span> ≥ <span class='mathalpha'>n</span></span> shall be ignored by the distribution.</p></div></div><div class='para' id='pconst-5'><div class='marginalizedparent'><a class='marginalized' href='#pconst-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>piecewise_constant_distribution</span> object
+ with parameters as specified above.
+</p></div></div><p ><span class='indexparent'><a class='index' id='piecewise_constant_distribution,constructor'></a></span><code class='itemdecl'>
+template&lt;class UnaryOperation&gt;
+ piecewise_constant_distribution(initializer_list&lt;RealType&gt; bl, UnaryOperation fw);
+</code></p><div class='itemdescr'></div><div class='para' id='pconst-6'><div class='marginalizedparent'><a class='marginalized' href='#pconst-6'>6</a></div><div class='itemdescr'><p ><i>Requires:</i>
+ Each instance of type <span class='texttt'>UnaryOperation</span>
+ shall be a function object (<a href='function.objects'>[function.objects]</a>)
+ whose return type shall be convertible to <span class='texttt'>double</span>.
+ Moreover,
+ <span class='texttt'>double</span> shall be convertible
+ to the type of <span class='texttt'>UnaryOperation</span>'s sole parameter.</p></div></div><div class='para' id='pconst-7'><div class='marginalizedparent'><a class='marginalized' href='#pconst-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>piecewise_constant_distribution</span> object
+ with parameters taken or calculated
+ from the following values:
+ If <span class='math'><span class='texttt'>bl.size()</span> &lt; 2</span>,
+ let <span class='math'><span class='mathalpha'>n</span> = 1</span>,
+     <span class='math'> <span class='mathalpha'>w</span><sub >0</sub> = 1 </span>,
+     <span class='math'> <span class='mathalpha'>b</span><sub >0</sub> = 0 </span>,
+ and <span class='math'> <span class='mathalpha'>b</span><sub >1</sub> = 1 </span>.
+ Otherwise,
+ let <span class='math'><span class='bigl'></span> [<span class='texttt'>bl.begin()</span>, <span class='texttt'>bl.end()</span><span class='bigr'></span>)</span>
+ form a sequence <span class='math'> <span class='mathalpha'>b</span><sub >0</sub>, &hellip;, <span class='mathalpha'>b</span><sub ><span class='mathalpha'>n</span></sub> </span>,
+ and
+ let <span class='math'> <span class='mathalpha'>w</span><sub ><span class='mathalpha'>k</span></sub> = <span class='texttt'>fw</span><span class='bigl'></span>(<span class='bigl'></span>(<span class='mathalpha'>b</span><sub ><span class='mathalpha'>k</span>+1</sub> + <span class='mathalpha'>b</span><sub ><span class='mathalpha'>k</span></sub><span class='bigr'></span>) / 2<span class='bigr'></span>) </span>
+ for <span class='math'> <span class='mathalpha'>k</span> = 0, &hellip;, <span class='mathalpha'>n</span>-1 </span>.</p></div></div><div class='para' id='pconst-8'><div class='marginalizedparent'><a class='marginalized' href='#pconst-8'>8</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+ The number of invocations of <span class='texttt'>fw</span> shall not exceed <span class='math'><span class='mathalpha'>n</span></span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='piecewise_constant_distribution,constructor'></a></span><code class='itemdecl'>
+template&lt;class UnaryOperation&gt;
+ piecewise_constant_distribution(size_t nw, RealType xmin, RealType xmax, UnaryOperation fw);
+</code></p><div class='itemdescr'></div><div class='para' id='pconst-9'><div class='marginalizedparent'><a class='marginalized' href='#pconst-9'>9</a></div><div class='itemdescr'><p ><i>Requires:</i>
+ Each instance of type <span class='texttt'>UnaryOperation</span>
+ shall be a function object (<a href='function.objects'>[function.objects]</a>)
+ whose return type shall be convertible to <span class='texttt'>double</span>.
+ Moreover,
+ <span class='texttt'>double</span> shall be convertible
+ to the type of <span class='texttt'>UnaryOperation</span>'s sole parameter.
+ If <span class='math'> <span class='texttt'>nw</span> = 0 </span>, let <span class='math'> <span class='mathalpha'>n</span> = 1 </span>, otherwise let <span class='math'><span class='mathalpha'>n</span> = <span class='texttt'>nw</span></span>.
+ The relation <span class='math'> 0 &lt; δ = (<span class='texttt'>xmax</span> - <span class='texttt'>xmin</span>) / <span class='mathalpha'>n</span> </span>
+ shall hold.</p></div></div><div class='para' id='pconst-10'><div class='marginalizedparent'><a class='marginalized' href='#pconst-10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>piecewise_constant_distribution</span> object
+ with parameters taken or calculated
+ from the following values:
+ Let <span class='math'> <span class='mathalpha'>b</span><sub ><span class='mathalpha'>k</span></sub> = <span class='texttt'>xmin</span> + <span class='mathalpha'>k</span> · δ </span> for <span class='math'> <span class='mathalpha'>k</span> = 0, &hellip;, <span class='mathalpha'>n</span> </span>,
+ and <span class='math'> <span class='mathalpha'>w</span><sub ><span class='mathalpha'>k</span></sub> = <span class='texttt'>fw</span>(<span class='mathalpha'>b</span><sub ><span class='mathalpha'>k</span></sub> + δ / 2) </span> for <span class='math'> <span class='mathalpha'>k</span> = 0, &hellip;, <span class='mathalpha'>n</span>-1 </span>.</p></div></div><div class='para' id='pconst-11'><div class='marginalizedparent'><a class='marginalized' href='#pconst-11'>11</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+ The number of invocations of <span class='texttt'>fw</span> shall not exceed <span class='math'><span class='mathalpha'>n</span></span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='piecewise_constant_distribution,intervals'></a></span><span class='indexparent'><a class='index' id='intervals,piecewise_constant_distribution'></a></span><code class='itemdecl'>
+vector&lt;result_type&gt; intervals() const;
+</code></p><div class='itemdescr'></div><div class='para' id='pconst-12'><div class='marginalizedparent'><a class='marginalized' href='#pconst-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> A <span class='texttt'>vector&lt;result_type&gt;</span>
+ whose <span class='texttt'>size</span> member returns <span class='math'><span class='mathalpha'>n</span> + 1</span>
+ and whose <span class='math'> <span class='texttt'>operator[]</span> </span> member returns <span class='math'><span class='mathalpha'>b</span><sub ><span class='mathalpha'>k</span></sub></span>
+ when invoked with argument <span class='math'><span class='mathalpha'>k</span></span> for <span class='math'><span class='mathalpha'>k</span> = 0, &hellip;, <span class='mathalpha'>n</span> </span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='piecewise_constant_distribution,densities'></a></span><span class='indexparent'><a class='index' id='densities,piecewise_constant_distribution'></a></span><code class='itemdecl'>
+vector&lt;result_type&gt; densities() const;
+</code></p><div class='itemdescr'></div><div class='para' id='pconst-13'><div class='marginalizedparent'><a class='marginalized' href='#pconst-13'>13</a></div><div class='itemdescr'><p ><i>Returns:</i> A <span class='texttt'>vector&lt;result_type&gt;</span>
+ whose <span class='texttt'>size</span> member returns <span class='math'><span class='mathalpha'>n</span></span>
+ and whose <span class='math'> <span class='texttt'>operator[]</span> </span> member returns <span class='math'>ρ<sub ><span class='mathalpha'>k</span></sub></span>
+ when invoked with argument <span class='math'><span class='mathalpha'>k</span></span> for <span class='math'><span class='mathalpha'>k</span> = 0, &hellip;, <span class='mathalpha'>n</span>-1 </span>.
+</p></div></div></div><div id='plinear'><h4 ><a class='secnum' href='#plinear' style='min-width:133pt'>26.5.8.6.3</a> Class template <span class='texttt'>piecewise_linear_distribution</span> <a class='abbr_ref' href='rand.dist.samp.plinear'>[rand.dist.samp.plinear]</a></h4><p ><span class='indexparent'><a class='index' id='piecewise_linear_distribution'></a></span><span class='indexparent'><a class='index' id='random_number_distribution,piecewise_linear_distribution'></a></span></p><div class='para' id='plinear-1'><div class='marginalizedparent'><a class='marginalized' href='#plinear-1'>1</a></div><p >A <span class='texttt'>piecewise_linear_distribution</span> random number distribution
+produces random numbers <span class='math'><span class='mathalpha'>x</span></span>,
+<span class='math'> <span class='mathalpha'>b</span><sub >0</sub> ≤ <span class='mathalpha'>x</span> &lt; <span class='mathalpha'>b</span><sub ><span class='mathalpha'>n</span></sub> </span>,
+distributed over each subinterval
+<span class='math'> [ <span class='mathalpha'>b</span><sub ><span class='mathalpha'>i</span></sub>, <span class='mathalpha'>b</span><sub ><span class='mathalpha'>i</span>+1</sub> ) </span>
+according to the probability density function
+<span class='indexparent'><a class='index' id='probability_density_function,piecewise_linear_distribution'></a></span><span class='indexparent'><a class='index' id='piecewise_linear_distribution,probability_density_function'></a></span>
+<img src='math/3323433200775997513.png' class='mathblockimg' alt='\[%
+ p(x\,|\,b_0,\ldots,b_n,\;\rho_0,\ldots,\rho_n)
+      = \rho_i     \cdot {\frac{b_{i+1} - x}{b_{i+1} - b_i}}
+      + \rho_{i+1} \cdot {\frac{x - b_i}{b_{i+1} - b_i}}
+\; \mbox{,}
+\mbox{ for } b_i \le x < b_{i+1}
+\; \mbox{.}
+\]'/></p></div><div class='para' id='plinear-2'><div class='marginalizedparent'><a class='marginalized' href='#plinear-2'>2</a></div><p >The <span class='math'><span class='mathalpha'>n</span>+1</span> distribution parameters <span class='math'><span class='mathalpha'>b</span><sub ><span class='mathalpha'>i</span></sub></span>,
+also known as this distribution's <i>interval boundaries</i><span class='indexparent'><a class='index' id='piecewise_linear_distribution,interval_boundaries'></a></span><span class='indexparent'><a class='index' id='interval_boundaries,piecewise_linear_distribution'></a></span>, shall satisfy the relation
+ <span class='math'> <span class='mathalpha'>b</span><sub ><span class='mathalpha'>i</span></sub> &lt; <span class='mathalpha'>b</span><sub ><span class='mathalpha'>i</span>+1</sub> </span>
+for <span class='math'><span class='mathalpha'>i</span> = 0, &hellip;, <span class='mathalpha'>n</span>-1 </span>.
+Unless specified otherwise,
+the remaining <span class='math'><span class='mathalpha'>n</span>+1</span> distribution parameters are calculated as
+<span class='math'> ρ<sub ><span class='mathalpha'>k</span></sub> = <span class='mathalpha'>w</span><sub ><span class='mathalpha'>k</span></sub> / <span class='mathalpha'>S</span>   <span class='mbox'> for </span> <span class='mathalpha'>k</span> = 0, &hellip;, <span class='mathalpha'>n</span> </span>,
+in which the values <span class='math'><span class='mathalpha'>w</span><sub ><span class='mathalpha'>k</span></sub></span>,
+commonly known as the <i>weights at boundaries</i><span class='indexparent'><a class='index' id='piecewise_linear_distribution,weights_at_boundaries'></a></span><span class='indexparent'><a class='index' id='weights_at_boundaries,piecewise_linear_distribution'></a></span>, shall be non-negative, non-NaN, and non-infinity.
+Moreover, the following relation shall hold:
+<img src='math/1746234017340765737.png' class='mathblockimg' alt='\[%
+ 0 < S = \frac{1}{2}
+       \cdot \sum_{k=0}^{n-1} (w_k + w_{k+1}) \cdot (b_{k+1} - b_k)
+\; \mbox{.}
+\]'/></p><pre class='codeblock'>
+template&lt;class RealType = double&gt;
+ class piecewise_linear_distribution{
+public:
+ <span class='comment'>// types
+</span> typedef RealType result_type;
+ typedef <i>unspecified</i> param_type;
+
+ <span class='comment'>// constructor and reset functions
+</span> piecewise_linear_distribution();
+ template&lt;class InputIteratorB, class InputIteratorW&gt;
+   piecewise_linear_distribution(InputIteratorB firstB, InputIteratorB lastB,
+                                 InputIteratorW firstW);
+ template&lt;class UnaryOperation&gt;
+   piecewise_linear_distribution(initializer_list&lt;RealType&gt; bl, UnaryOperation fw);
+ template&lt;class UnaryOperation&gt;
+   piecewise_linear_distribution(size_t nw, RealType xmin, RealType xmax, UnaryOperation fw);
+ explicit piecewise_linear_distribution(const param_type&amp; parm);
+ void reset();
+
+ <span class='comment'>// generating functions
+</span> template&lt;class URNG&gt;
+   result_type operator()(URNG&amp; g);
+ template&lt;class URNG&gt;
+   result_type operator()(URNG&amp; g, const param_type&amp; parm);
+
+ <span class='comment'>// property functions
+</span> vector&lt;result_type&gt; intervals() const;
+ vector&lt;result_type&gt; densities() const;
+ param_type param() const;
+ void param(const param_type&amp; parm);
+ result_type min() const;
+ result_type max() const;
+};
+</pre><p ><span class='indexparent'><a class='index' id='piecewise_linear_distribution,constructor'></a></span>
+<code class='itemdecl'>
+piecewise_linear_distribution();
+</code></p></div><div class='itemdescr'></div><div class='para' id='plinear-3'><div class='marginalizedparent'><a class='marginalized' href='#plinear-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>piecewise_linear_distribution</span> object
+ with <span class='math'> <span class='mathalpha'>n</span> = 1 </span>,
+ <span class='math'>ρ<sub >0</sub> = ρ<sub >1</sub> = 1 </span>,
+ <span class='math'> <span class='mathalpha'>b</span><sub >0</sub> = 0 </span>,
+ and <span class='math'> <span class='mathalpha'>b</span><sub >1</sub> = 1 </span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='piecewise_linear_distribution,constructor'></a></span>
+<code class='itemdecl'>
+template&lt;class InputIteratorB, class InputIteratorW&gt;
+ piecewise_linear_distribution(InputIteratorB firstB, InputIteratorB lastB,
+                               InputIteratorW firstW);
+</code></p><div class='itemdescr'></div><div class='para' id='plinear-4'><div class='marginalizedparent'><a class='marginalized' href='#plinear-4'>4</a></div><div class='itemdescr'><p ><i>Requires:</i>
+  <span class='texttt'>InputIteratorB</span> and <span class='texttt'>InputIteratorW</span>
+  shall each satisfy the requirements
+  of an input iterator (Table <a href='input.iterators#tab:iterator.input.requirements'>[tab:iterator.input.requirements]</a>) type.
+  Moreover,
+  <span class='texttt'>iterator_traits&lt;InputIteratorB&gt;::value_type</span> and
+  <span class='texttt'>iterator_traits&lt;InputIteratorW&gt;::value_type</span>
+  shall each denote a type that is convertible to <span class='texttt'>double</span>.
+ If <span class='texttt'>firstB == lastB</span>
+ or <span class='texttt'>++firstB == lastB</span>,
+ let <span class='math'> <span class='mathalpha'>n</span> = 1 </span>,
+     <span class='math'> ρ<sub >0</sub> = ρ<sub >1</sub> = 1 </span>,
+     <span class='math'> <span class='mathalpha'>b</span><sub >0</sub> = 0 </span>,
+ and <span class='math'> <span class='mathalpha'>b</span><sub >1</sub> = 1 </span>.
+ Otherwise,
+ <span class='math'><span class='bigl'></span> [<span class='texttt'>firstB</span>, <span class='texttt'>lastB</span><span class='bigr'></span>)</span>
+ shall form a sequence <span class='math'><span class='mathalpha'>b</span></span> of length <span class='math'><span class='mathalpha'>n</span>+1</span>,
+ the length of the sequence <span class='math'><span class='mathalpha'>w</span></span> starting from <span class='texttt'>firstW</span>
+ shall be at least <span class='math'><span class='mathalpha'>n</span>+1</span>,
+ and any <span class='math'><span class='mathalpha'>w</span><sub ><span class='mathalpha'>k</span></sub></span> for  <span class='math'><span class='mathalpha'>k</span> ≥ <span class='mathalpha'>n</span>+1</span> shall be ignored by the distribution.</p></div></div><div class='para' id='plinear-5'><div class='marginalizedparent'><a class='marginalized' href='#plinear-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>piecewise_linear_distribution</span> object
+ with parameters as specified above.
+</p></div></div><p ><span class='indexparent'><a class='index' id='piecewise_linear_distribution,constructor'></a></span><code class='itemdecl'>
+template&lt;class UnaryOperation&gt;
+ piecewise_linear_distribution(initializer_list&lt;RealType&gt; bl, UnaryOperation fw);
+</code></p><div class='itemdescr'></div><div class='para' id='plinear-6'><div class='marginalizedparent'><a class='marginalized' href='#plinear-6'>6</a></div><div class='itemdescr'><p ><i>Requires:</i>
+ Each instance of type <span class='texttt'>UnaryOperation</span>
+ shall be a function object (<a href='function.objects'>[function.objects]</a>)
+ whose return type shall be convertible to <span class='texttt'>double</span>.
+ Moreover,
+ <span class='texttt'>double</span> shall be convertible
+ to the type of <span class='texttt'>UnaryOperation</span>'s sole parameter.</p></div></div><div class='para' id='plinear-7'><div class='marginalizedparent'><a class='marginalized' href='#plinear-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>piecewise_linear_distribution</span> object
+ with parameters taken or calculated
+ from the following values:
+ If <span class='math'><span class='texttt'>bl.size()</span> &lt; 2</span>,
+ let <span class='math'><span class='mathalpha'>n</span> = 1</span>,
+     <span class='math'> ρ<sub >0</sub> = ρ<sub >1</sub> = 1 </span>,
+     <span class='math'> <span class='mathalpha'>b</span><sub >0</sub> = 0 </span>,
+ and <span class='math'> <span class='mathalpha'>b</span><sub >1</sub> = 1 </span>.
+ Otherwise,
+ let <span class='math'><span class='bigl'></span> [<span class='texttt'>bl.begin(),</span> <span class='texttt'>bl.end()</span><span class='bigr'></span>)</span>
+ form a sequence <span class='math'> <span class='mathalpha'>b</span><sub >0</sub>, &hellip;, <span class='mathalpha'>b</span><sub ><span class='mathalpha'>n</span></sub> </span>,
+ and
+ let <span class='math'> <span class='mathalpha'>w</span><sub ><span class='mathalpha'>k</span></sub> = <span class='texttt'>fw</span>(<span class='mathalpha'>b</span><sub ><span class='mathalpha'>k</span></sub>) </span>
+ for <span class='math'> <span class='mathalpha'>k</span> = 0, &hellip;, <span class='mathalpha'>n</span> </span>.</p></div></div><div class='para' id='plinear-8'><div class='marginalizedparent'><a class='marginalized' href='#plinear-8'>8</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+ The number of invocations of <span class='texttt'>fw</span> shall not exceed <span class='math'><span class='mathalpha'>n</span>+1</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='piecewise_linear_distribution,constructor'></a></span><code class='itemdecl'>
+template&lt;class UnaryOperation&gt;
+ piecewise_linear_distribution(size_t nw, RealType xmin, RealType xmax, UnaryOperation fw);
+</code></p><div class='itemdescr'></div><div class='para' id='plinear-9'><div class='marginalizedparent'><a class='marginalized' href='#plinear-9'>9</a></div><div class='itemdescr'><p ><i>Requires:</i>
+ Each instance of type <span class='texttt'>UnaryOperation</span>
+ shall be a function object (<a href='function.objects'>[function.objects]</a>)
+ whose return type shall be convertible to <span class='texttt'>double</span>.
+ Moreover,
+ <span class='texttt'>double</span> shall be convertible
+ to the type of <span class='texttt'>UnaryOperation</span>'s sole parameter.
+ If <span class='math'> <span class='texttt'>nw</span> = 0 </span>, let <span class='math'> <span class='mathalpha'>n</span> = 1 </span>, otherwise let <span class='math'><span class='mathalpha'>n</span> = <span class='texttt'>nw</span></span>.
+ The relation <span class='math'> 0 &lt; δ = (<span class='texttt'>xmax</span> - <span class='texttt'>xmin</span>) / <span class='mathalpha'>n</span> </span>
+ shall hold.</p></div></div><div class='para' id='plinear-10'><div class='marginalizedparent'><a class='marginalized' href='#plinear-10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>piecewise_linear_distribution</span> object
+ with parameters taken or calculated
+ from the following values:
+ Let <span class='math'> <span class='mathalpha'>b</span><sub ><span class='mathalpha'>k</span></sub> = <span class='texttt'>xmin</span> + <span class='mathalpha'>k</span> · δ </span> for <span class='math'> <span class='mathalpha'>k</span> = 0, &hellip;, <span class='mathalpha'>n</span> </span>,
+ and <span class='math'> <span class='mathalpha'>w</span><sub ><span class='mathalpha'>k</span></sub> = <span class='texttt'>fw</span>(<span class='mathalpha'>b</span><sub ><span class='mathalpha'>k</span></sub>) </span> for <span class='math'> <span class='mathalpha'>k</span> = 0, &hellip;, <span class='mathalpha'>n</span> </span>.</p></div></div><div class='para' id='plinear-11'><div class='marginalizedparent'><a class='marginalized' href='#plinear-11'>11</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+ The number of invocations of <span class='texttt'>fw</span> shall not exceed <span class='math'><span class='mathalpha'>n</span>+1</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='piecewise_linear_distribution,intervals'></a></span><span class='indexparent'><a class='index' id='intervals,piecewise_linear_distribution'></a></span><code class='itemdecl'>
+vector&lt;result_type&gt; intervals() const;
+</code></p><div class='itemdescr'></div><div class='para' id='plinear-12'><div class='marginalizedparent'><a class='marginalized' href='#plinear-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> A <span class='texttt'>vector&lt;result_type&gt;</span>
+ whose <span class='texttt'>size</span> member returns <span class='math'><span class='mathalpha'>n</span> + 1</span>
+ and whose <span class='math'> <span class='texttt'>operator[]</span> </span> member returns <span class='math'><span class='mathalpha'>b</span><sub ><span class='mathalpha'>k</span></sub></span>
+ when invoked with argument <span class='math'><span class='mathalpha'>k</span></span> for <span class='math'><span class='mathalpha'>k</span> = 0, &hellip;, <span class='mathalpha'>n</span> </span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='piecewise_linear_distribution,densities'></a></span><span class='indexparent'><a class='index' id='densities,piecewise_linear_distribution'></a></span><code class='itemdecl'>
+vector&lt;result_type&gt; densities() const;
+</code></p><div class='itemdescr'></div><div class='para' id='plinear-13'><div class='marginalizedparent'><a class='marginalized' href='#plinear-13'>13</a></div><div class='itemdescr'><p ><i>Returns:</i> A <span class='texttt'>vector&lt;result_type&gt;</span>
+ whose <span class='texttt'>size</span> member returns <span class='math'><span class='mathalpha'>n</span></span>
+ and whose <span class='math'> <span class='texttt'>operator[]</span> </span> member returns <span class='math'>ρ<sub ><span class='mathalpha'>k</span></sub></span>
+ when invoked with argument <span class='math'><span class='mathalpha'>k</span></span> for <span class='math'> <span class='mathalpha'>k</span> = 0, &hellip;, <span class='mathalpha'>n</span> </span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='random_number_distributions,sampling'></a></span><span class='indexparent'><a class='index' id='sampling_distributions'></a></span><span class='indexparent'><a class='index' id='random_number_generation,distributions'></a></span><span class='indexparent'><a class='index' id='random_number_generation'></a></span></p></div></div></div></body></html>

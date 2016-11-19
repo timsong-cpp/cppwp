@@ -1,0 +1,215 @@
+<!DOCTYPE html><html lang='en'><head><title>[insert.iterators]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>24</a> Iterators library <a class='abbr_ref' href='./#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>24.5</a> Iterator adaptors <a class='abbr_ref' href='predef.iterators#insert.iterators'>[predef.iterators]</a></h2><div id='insert.iterators'><h3 ><a class='secnum' style='min-width:103pt'>24.5.2</a> Insert iterators <a class='abbr_ref'>[insert.iterators]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >To make it possible to deal with insertion in the same way as writing into an array, a special kind of iterator
+adaptors, called
+<i>insert iterators</i>,
+are provided in the library.
+With regular iterator classes,</p><pre class='codeblock'>
+while (first != last) *result++ = *first++;
+</pre><p >causes a range <span class='texttt'>[<span class='discretionary'></span>first,<span class='discretionary'></span>last<span class='discretionary'></span>)</span>
+to be copied into a range starting with result.
+The same code with
+<span class='texttt'>result</span>
+being an insert iterator will insert corresponding elements into the container.
+This device allows all of the
+copying algorithms in the library to work in the
+<i>insert mode</i>
+instead of the <i>regular overwrite</i> mode.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >An insert iterator is constructed from a container and possibly one of its iterators pointing to where
+insertion takes place if it is neither at the beginning nor at the end of the container.
+Insert iterators satisfy the requirements of output iterators.
+<span class='texttt'>operator*</span>
+returns the insert iterator itself.
+The assignment
+<span class='texttt'>operator=(const T&amp; x)</span>
+is defined on insert iterators to allow writing into them, it inserts
+<span class='texttt'>x</span>
+right before where the insert iterator is pointing.
+In other words, an insert iterator is like a cursor pointing into the
+container where the insertion takes place.
+<span class='texttt'>back_insert_iterator</span>
+inserts elements at the end of a container,
+<span class='texttt'>front_insert_iterator</span>
+inserts elements at the beginning of a container, and
+<span class='texttt'>insert_iterator</span>
+inserts elements where the iterator points to in a container.
+<span class='texttt'>back_inserter</span>,
+<span class='texttt'>front_inserter</span>,
+and
+<span class='texttt'>inserter</span>
+are three
+functions making the insert iterators out of a container.</p></div><div id='back.insert.iterator'><h4 ><a class='secnum' href='#back.insert.iterator' style='min-width:118pt'>24.5.2.1</a> Class template <span class='texttt'>back_insert_iterator</span> <a class='abbr_ref' href='back.insert.iterator'>[back.insert.iterator]</a></h4><p ><span class='indexparent'><a class='index' id='back_insert_iterator'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class Container&gt;
+  class back_insert_iterator :
+    public iterator&lt;output_iterator_tag,void,void,void,void&gt; {
+  protected:
+    Container* container;
+
+  public:
+    typedef Container container_type;
+    explicit back_insert_iterator(Container&amp; x);
+    back_insert_iterator&lt;Container&gt;&amp;
+      operator=(const typename Container::value_type&amp; value);
+    back_insert_iterator&lt;Container&gt;&amp;
+      operator=(typename Container::value_type&amp;&amp; value);
+
+    back_insert_iterator&lt;Container&gt;&amp; operator*();
+    back_insert_iterator&lt;Container&gt;&amp; operator++();
+    back_insert_iterator&lt;Container&gt;  operator++(int);
+  };
+
+  template &lt;class Container&gt;
+    back_insert_iterator&lt;Container&gt; back_inserter(Container&amp; x);
+}
+</pre></div><div id='back.insert.iter.ops'><h4 ><a class='secnum' href='#back.insert.iter.ops' style='min-width:118pt'>24.5.2.2</a> <span class='texttt'>back_insert_iterator</span> operations <a class='abbr_ref' href='back.insert.iter.ops'>[back.insert.iter.ops]</a></h4><div id='back.insert.iter.cons'><h4 ><a class='secnum' href='#back.insert.iter.cons' style='min-width:133pt'>24.5.2.2.1</a> <span class='texttt'>back_insert_iterator</span> constructor <a class='abbr_ref' href='back.insert.iter.cons'>[back.insert.iter.cons]</a></h4><p ><span class='indexparent'><a class='index' id='back_insert_iterator,back_insert_iterator'></a></span><code class='itemdecl'>
+explicit back_insert_iterator(Container&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='back.insert.iter.cons-1'><div class='marginalizedparent'><a class='marginalized' href='#back.insert.iter.cons-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Initializes
+<span class='texttt'>container</span>
+with <span class='texttt'>std::addressof(x)</span>.
+</p></div></div></div><div id='back.insert.iter.op='><h4 ><a class='secnum' href='#back.insert.iter.op=' style='min-width:133pt'>24.5.2.2.2</a> <span class='texttt'>back_insert_iterator::operator=</span> <a class='abbr_ref' href='back.insert.iter.op='>[back.insert.iter.op=]</a></h4><p ><span class='indexparent'><a class='index' id='operator=,back_insert_iterator'></a></span><code class='itemdecl'>
+back_insert_iterator&lt;Container&gt;&amp;
+  operator=(const typename Container::value_type&amp; value);
+</code></p><div class='itemdescr'></div><div class='para' id='back.insert.iter.op=-1'><div class='marginalizedparent'><a class='marginalized' href='#back.insert.iter.op=-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+<span class='texttt'>container-&gt;push_back(value);</span></p></div></div><div class='para' id='back.insert.iter.op=-2'><div class='marginalizedparent'><a class='marginalized' href='#back.insert.iter.op=-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=,back_insert_iterator'></a></span><code class='itemdecl'>
+back_insert_iterator&lt;Container&gt;&amp;
+  operator=(typename Container::value_type&amp;&amp; value);
+</code></p><div class='itemdescr'></div><div class='para' id='back.insert.iter.op=-3'><div class='marginalizedparent'><a class='marginalized' href='#back.insert.iter.op=-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+<span class='texttt'>container-&gt;push_back(std::move(value));</span></p></div></div><div class='para' id='back.insert.iter.op=-4'><div class='marginalizedparent'><a class='marginalized' href='#back.insert.iter.op=-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div></div><div id='back.insert.iter.op*'><h4 ><a class='secnum' href='#back.insert.iter.op*' style='min-width:133pt'>24.5.2.2.3</a> <span class='texttt'>back_insert_iterator::operator*</span> <a class='abbr_ref' href='back.insert.iter.op*'>[back.insert.iter.op*]</a></h4><p ><span class='indexparent'><a class='index' id='operator*,back_insert_iterator'></a></span><code class='itemdecl'>
+back_insert_iterator&lt;Container&gt;&amp; operator*();
+</code></p><div class='itemdescr'></div><div class='para' id='back.insert.iter.op*-1'><div class='marginalizedparent'><a class='marginalized' href='#back.insert.iter.op*-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div></div><div id='back.insert.iter.op++'><h4 ><a class='secnum' href='#back.insert.iter.op++' style='min-width:133pt'>24.5.2.2.4</a> <span class='texttt'>back_insert_iterator::operator++</span> <a class='abbr_ref' href='back.insert.iter.op++'>[back.insert.iter.op++]</a></h4><p ><span class='indexparent'><a class='index' id='operator++,back_insert_iterator'></a></span><code class='itemdecl'>
+back_insert_iterator&lt;Container&gt;&amp; operator++();
+back_insert_iterator&lt;Container&gt;  operator++(int);
+</code></p><div class='itemdescr'></div><div class='para' id='back.insert.iter.op++-1'><div class='marginalizedparent'><a class='marginalized' href='#back.insert.iter.op++-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div></div><div id='back.inserter'><h4 ><a class='secnum' href='#back.inserter' style='min-width:133pt'>24.5.2.2.5</a>  <span class='texttt'>back_inserter</span> <a class='abbr_ref' href='back.inserter'>[back.inserter]</a></h4><p ><span class='indexparent'><a class='index' id='back_inserter'></a></span><code class='itemdecl'>
+template &lt;class Container&gt;
+  back_insert_iterator&lt;Container&gt; back_inserter(Container&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='back.inserter-1'><div class='marginalizedparent'><a class='marginalized' href='#back.inserter-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>back_insert_iterator&lt;Container&gt;(x)</span>.
+</p></div></div></div></div><div id='front.insert.iterator'><h4 ><a class='secnum' href='#front.insert.iterator' style='min-width:118pt'>24.5.2.3</a> Class template <span class='texttt'>front_insert_iterator</span> <a class='abbr_ref' href='front.insert.iterator'>[front.insert.iterator]</a></h4><p ><span class='indexparent'><a class='index' id='front_insert_iterator'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class Container&gt;
+  class front_insert_iterator :
+    public iterator&lt;output_iterator_tag,void,void,void,void&gt; {
+  protected:
+    Container* container;
+
+  public:
+    typedef Container container_type;
+    explicit front_insert_iterator(Container&amp; x);
+    front_insert_iterator&lt;Container&gt;&amp;
+      operator=(const typename Container::value_type&amp; value);
+    front_insert_iterator&lt;Container&gt;&amp;
+      operator=(typename Container::value_type&amp;&amp; value);
+
+    front_insert_iterator&lt;Container&gt;&amp; operator*();
+    front_insert_iterator&lt;Container&gt;&amp; operator++();
+    front_insert_iterator&lt;Container&gt;  operator++(int);
+  };
+
+  template &lt;class Container&gt;
+    front_insert_iterator&lt;Container&gt; front_inserter(Container&amp; x);
+}
+</pre></div><div id='front.insert.iter.ops'><h4 ><a class='secnum' href='#front.insert.iter.ops' style='min-width:118pt'>24.5.2.4</a> <span class='texttt'>front_insert_iterator</span> operations <a class='abbr_ref' href='front.insert.iter.ops'>[front.insert.iter.ops]</a></h4><div id='front.insert.iter.cons'><h4 ><a class='secnum' href='#front.insert.iter.cons' style='min-width:133pt'>24.5.2.4.1</a> <span class='texttt'>front_insert_iterator</span> constructor <a class='abbr_ref' href='front.insert.iter.cons'>[front.insert.iter.cons]</a></h4><p ><span class='indexparent'><a class='index' id='front_insert_iterator,front_insert_iterator'></a></span><code class='itemdecl'>
+explicit front_insert_iterator(Container&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='front.insert.iter.cons-1'><div class='marginalizedparent'><a class='marginalized' href='#front.insert.iter.cons-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Initializes
+<span class='texttt'>container</span>
+with <span class='texttt'>std::addressof(x)</span>.
+</p></div></div></div><div id='front.insert.iter.op='><h4 ><a class='secnum' href='#front.insert.iter.op=' style='min-width:133pt'>24.5.2.4.2</a> <span class='texttt'>front_insert_iterator::operator=</span> <a class='abbr_ref' href='front.insert.iter.op='>[front.insert.iter.op=]</a></h4><p ><span class='indexparent'><a class='index' id='operator=,front_insert_iterator'></a></span><code class='itemdecl'>
+front_insert_iterator&lt;Container&gt;&amp;
+  operator=(const typename Container::value_type&amp; value);
+</code></p><div class='itemdescr'></div><div class='para' id='front.insert.iter.op=-1'><div class='marginalizedparent'><a class='marginalized' href='#front.insert.iter.op=-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+<span class='texttt'>container-&gt;push_front(value);</span></p></div></div><div class='para' id='front.insert.iter.op=-2'><div class='marginalizedparent'><a class='marginalized' href='#front.insert.iter.op=-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=,front_insert_iterator'></a></span><code class='itemdecl'>
+front_insert_iterator&lt;Container&gt;&amp;
+  operator=(typename Container::value_type&amp;&amp; value);
+</code></p><div class='itemdescr'></div><div class='para' id='front.insert.iter.op=-3'><div class='marginalizedparent'><a class='marginalized' href='#front.insert.iter.op=-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+<span class='texttt'>container-&gt;push_front(std::move(value));</span></p></div></div><div class='para' id='front.insert.iter.op=-4'><div class='marginalizedparent'><a class='marginalized' href='#front.insert.iter.op=-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div></div><div id='front.insert.iter.op*'><h4 ><a class='secnum' href='#front.insert.iter.op*' style='min-width:133pt'>24.5.2.4.3</a> <span class='texttt'>front_insert_iterator::operator*</span> <a class='abbr_ref' href='front.insert.iter.op*'>[front.insert.iter.op*]</a></h4><p ><span class='indexparent'><a class='index' id='operator*,front_insert_iterator'></a></span><code class='itemdecl'>
+front_insert_iterator&lt;Container&gt;&amp; operator*();
+</code></p><div class='itemdescr'></div><div class='para' id='front.insert.iter.op*-1'><div class='marginalizedparent'><a class='marginalized' href='#front.insert.iter.op*-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div></div><div id='front.insert.iter.op++'><h4 ><a class='secnum' href='#front.insert.iter.op++' style='min-width:133pt'>24.5.2.4.4</a> <span class='texttt'>front_insert_iterator::operator++</span> <a class='abbr_ref' href='front.insert.iter.op++'>[front.insert.iter.op++]</a></h4><p ><span class='indexparent'><a class='index' id='operator++,front_insert_iterator'></a></span><code class='itemdecl'>
+front_insert_iterator&lt;Container&gt;&amp; operator++();
+front_insert_iterator&lt;Container&gt;  operator++(int);
+</code></p><div class='itemdescr'></div><div class='para' id='front.insert.iter.op++-1'><div class='marginalizedparent'><a class='marginalized' href='#front.insert.iter.op++-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div></div><div id='front.inserter'><h4 ><a class='secnum' href='#front.inserter' style='min-width:133pt'>24.5.2.4.5</a> <span class='texttt'>front_inserter</span> <a class='abbr_ref' href='front.inserter'>[front.inserter]</a></h4><p ><span class='indexparent'><a class='index' id='front_inserter'></a></span><code class='itemdecl'>
+template &lt;class Container&gt;
+  front_insert_iterator&lt;Container&gt; front_inserter(Container&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='front.inserter-1'><div class='marginalizedparent'><a class='marginalized' href='#front.inserter-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>front_insert_iterator&lt;Container&gt;(x)</span>.
+</p></div></div></div></div><div id='insert.iterator'><h4 ><a class='secnum' href='#insert.iterator' style='min-width:118pt'>24.5.2.5</a> Class template <span class='texttt'>insert_iterator</span> <a class='abbr_ref' href='insert.iterator'>[insert.iterator]</a></h4><p ><span class='indexparent'><a class='index' id='insert_iterator'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class Container&gt;
+  class insert_iterator :
+    public iterator&lt;output_iterator_tag,void,void,void,void&gt; {
+  protected:
+    Container* container;
+    typename Container::iterator iter;
+
+  public:
+    typedef Container container_type;
+    insert_iterator(Container&amp; x, typename Container::iterator i);
+    insert_iterator&lt;Container&gt;&amp;
+      operator=(const typename Container::value_type&amp; value);
+    insert_iterator&lt;Container&gt;&amp;
+      operator=(typename Container::value_type&amp;&amp; value);
+
+    insert_iterator&lt;Container&gt;&amp; operator*();
+    insert_iterator&lt;Container&gt;&amp; operator++();
+    insert_iterator&lt;Container&gt;&amp; operator++(int);
+  };
+
+  template &lt;class Container&gt;
+    insert_iterator&lt;Container&gt; inserter(Container&amp; x, typename Container::iterator i);
+}
+</pre></div><div id='insert.iter.ops'><h4 ><a class='secnum' href='#insert.iter.ops' style='min-width:118pt'>24.5.2.6</a> <span class='texttt'>insert_iterator</span> operations <a class='abbr_ref' href='insert.iter.ops'>[insert.iter.ops]</a></h4><div id='insert.iter.cons'><h4 ><a class='secnum' href='#insert.iter.cons' style='min-width:133pt'>24.5.2.6.1</a> <span class='texttt'>insert_iterator</span> constructor <a class='abbr_ref' href='insert.iter.cons'>[insert.iter.cons]</a></h4><p ><span class='indexparent'><a class='index' id='insert_iterator,insert_iterator'></a></span><code class='itemdecl'>
+insert_iterator(Container&amp; x, typename Container::iterator i);
+</code></p><div class='itemdescr'></div><div class='para' id='insert.iter.cons-1'><div class='marginalizedparent'><a class='marginalized' href='#insert.iter.cons-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Initializes
+<span class='texttt'>container</span>
+with <span class='texttt'>std::addressof(x)</span> and
+<span class='texttt'>iter</span>
+with <span class='texttt'>i</span>.
+</p></div></div></div><div id='insert.iter.op='><h4 ><a class='secnum' href='#insert.iter.op=' style='min-width:133pt'>24.5.2.6.2</a> <span class='texttt'>insert_iterator::operator=</span> <a class='abbr_ref' href='insert.iter.op='>[insert.iter.op=]</a></h4><p ><span class='indexparent'><a class='index' id='operator=,insert_iterator'></a></span><code class='itemdecl'>
+insert_iterator&lt;Container&gt;&amp;
+  operator=(const typename Container::value_type&amp; value);
+</code></p><div class='itemdescr'></div><div class='para' id='insert.iter.op=-1'><div class='marginalizedparent'><a class='marginalized' href='#insert.iter.op=-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><pre class='codeblock'>
+iter = container-&gt;insert(iter, value);
+++iter;
+</pre></div></div><div class='para' id='insert.iter.op=-2'><div class='marginalizedparent'><a class='marginalized' href='#insert.iter.op=-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=,insert_iterator'></a></span><code class='itemdecl'>
+insert_iterator&lt;Container&gt;&amp;
+  operator=(typename Container::value_type&amp;&amp; value);
+</code></p><div class='itemdescr'></div><div class='para' id='insert.iter.op=-3'><div class='marginalizedparent'><a class='marginalized' href='#insert.iter.op=-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><pre class='codeblock'>
+iter = container-&gt;insert(iter, std::move(value));
+++iter;
+</pre></div></div><div class='para' id='insert.iter.op=-4'><div class='marginalizedparent'><a class='marginalized' href='#insert.iter.op=-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div></div><div id='insert.iter.op*'><h4 ><a class='secnum' href='#insert.iter.op*' style='min-width:133pt'>24.5.2.6.3</a> <span class='texttt'>insert_iterator::operator*</span> <a class='abbr_ref' href='insert.iter.op*'>[insert.iter.op*]</a></h4><p ><span class='indexparent'><a class='index' id='operator*,insert_iterator'></a></span><code class='itemdecl'>
+insert_iterator&lt;Container&gt;&amp; operator*();
+</code></p><div class='itemdescr'></div><div class='para' id='insert.iter.op*-1'><div class='marginalizedparent'><a class='marginalized' href='#insert.iter.op*-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div></div><div id='insert.iter.op++'><h4 ><a class='secnum' href='#insert.iter.op++' style='min-width:133pt'>24.5.2.6.4</a> <span class='texttt'>insert_iterator::operator++</span> <a class='abbr_ref' href='insert.iter.op++'>[insert.iter.op++]</a></h4><p ><span class='indexparent'><a class='index' id='operator++,insert_iterator'></a></span><code class='itemdecl'>
+insert_iterator&lt;Container&gt;&amp; operator++();
+insert_iterator&lt;Container&gt;&amp; operator++(int);
+</code></p><div class='itemdescr'></div><div class='para' id='insert.iter.op++-1'><div class='marginalizedparent'><a class='marginalized' href='#insert.iter.op++-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div></div><div id='inserter'><h4 ><a class='secnum' href='#inserter' style='min-width:133pt'>24.5.2.6.5</a> <span class='texttt'>inserter</span> <a class='abbr_ref' href='inserter'>[inserter]</a></h4><p ><span class='indexparent'><a class='index' id='inserter'></a></span><code class='itemdecl'>
+template &lt;class Container&gt;
+  insert_iterator&lt;Container&gt; inserter(Container&amp; x, typename Container::iterator i);
+</code></p><div class='itemdescr'></div><div class='para' id='inserter-1'><div class='marginalizedparent'><a class='marginalized' href='#inserter-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>insert_iterator&lt;Container&gt;(x, i)</span>.
+</p></div></div></div></div></div></div></body></html>

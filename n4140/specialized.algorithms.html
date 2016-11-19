@@ -1,0 +1,55 @@
+<!DOCTYPE html><html lang='en'><head><title>[specialized.algorithms]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.7</a> Memory <a class='abbr_ref' href='memory#specialized.algorithms'>[memory]</a></h2><div id='specialized.algorithms'><h3 ><a class='secnum' style='min-width:103pt'>20.7.12</a> Specialized algorithms <a class='abbr_ref'>[specialized.algorithms]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >All the iterators that are used as template parameters in the following
+algorithms are required to  have their <span class='texttt'>operator*</span> return an object
+for which <span class='texttt'>operator&amp;</span> is defined and returns a pointer to <span class='texttt'>T</span>.
+In the algorithm <span class='texttt'>uninitialized_copy</span>, the template parameter
+<span class='texttt'>InputIterator</span> is required to satisfy the requirements of an input
+iterator (<a href='input.iterators'>[input.iterators]</a>). In all of the following algorithms,
+the template parameter <span class='texttt'>ForwardIterator</span> is required to satisfy the
+requirements of a forward iterator (<a href='forward.iterators'>[forward.iterators]</a>),
+and is required to have the property that no exceptions are thrown
+from increment, assignment, comparison, or indirection through valid iterators.
+In the following algorithms, if an exception is thrown there are no effects.</p></div><div id='specialized.addressof'><h4 ><a class='secnum' href='#specialized.addressof' style='min-width:118pt'>20.7.12.1</a> <span class='texttt'>addressof</span> <a class='abbr_ref' href='specialized.addressof'>[specialized.addressof]</a></h4><p ><span class='indexparent'><a class='index' id='addressof'></a></span><code class='itemdecl'>
+template &lt;class T&gt; T* addressof(T&amp; r) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='specialized.addressof-1'><div class='marginalizedparent'><a class='marginalized' href='#specialized.addressof-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> The actual address of the object or function referenced by <span class='texttt'>r</span>, even in the
+presence of an overloaded <span class='texttt'>operator&amp;</span>.
+</p></div></div></div><div id='uninitialized.copy'><h4 ><a class='secnum' href='#uninitialized.copy' style='min-width:118pt'>20.7.12.2</a> <span class='texttt'>uninitialized_copy</span> <a class='abbr_ref' href='uninitialized.copy'>[uninitialized.copy]</a></h4><p ><span class='indexparent'><a class='index' id='uninitialized_copy'></a></span><code class='itemdecl'>
+template &lt;class InputIterator, class ForwardIterator&gt;
+  ForwardIterator uninitialized_copy(InputIterator first, InputIterator last,
+                                     ForwardIterator result);
+</code></p><div class='itemdescr'></div><div class='para' id='uninitialized.copy-1'><div class='marginalizedparent'><a class='marginalized' href='#uninitialized.copy-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><pre class='codeblock'>
+for (; first != last; ++result, ++first)
+  ::new (static_cast&lt;void*&gt;(&amp;*result))
+    typename iterator_traits&lt;ForwardIterator&gt;::value_type(*first);
+</pre></div></div><div class='para' id='uninitialized.copy-2'><div class='marginalizedparent'><a class='marginalized' href='#uninitialized.copy-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>result</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='uninitialized_copy_n'></a></span><code class='itemdecl'>
+template &lt;class InputIterator, class Size, class ForwardIterator&gt;
+  ForwardIterator uninitialized_copy_n(InputIterator first, Size n,
+                                       ForwardIterator result);
+</code></p><div class='itemdescr'></div><div class='para' id='uninitialized.copy-3'><div class='marginalizedparent'><a class='marginalized' href='#uninitialized.copy-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><pre class='codeblock'>
+for ( ; n &gt; 0; ++result, ++first, --n) {
+  ::new (static_cast&lt;void*&gt;(&amp;*result))
+    typename iterator_traits&lt;ForwardIterator&gt;::value_type(*first);
+}
+</pre></div></div><div class='para' id='uninitialized.copy-4'><div class='marginalizedparent'><a class='marginalized' href='#uninitialized.copy-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>result</span>
+</p></div></div></div><div id='uninitialized.fill'><h4 ><a class='secnum' href='#uninitialized.fill' style='min-width:118pt'>20.7.12.3</a> <span class='texttt'>uninitialized_fill</span> <a class='abbr_ref' href='uninitialized.fill'>[uninitialized.fill]</a></h4><p ><span class='indexparent'><a class='index' id='uninitialized_fill'></a></span><code class='itemdecl'>
+template &lt;class ForwardIterator, class T&gt;
+  void uninitialized_fill(ForwardIterator first, ForwardIterator last,
+                          const T&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='uninitialized.fill-1'><div class='marginalizedparent'><a class='marginalized' href='#uninitialized.fill-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><pre class='codeblock'>
+for (; first != last; ++first)
+  ::new (static_cast&lt;void*&gt;(&amp;*first))
+    typename iterator_traits&lt;ForwardIterator&gt;::value_type(x);
+</pre></div></div></div><div id='uninitialized.fill.n'><h4 ><a class='secnum' href='#uninitialized.fill.n' style='min-width:118pt'>20.7.12.4</a> <span class='texttt'>uninitialized_fill_n</span> <a class='abbr_ref' href='uninitialized.fill.n'>[uninitialized.fill.n]</a></h4><p ><span class='indexparent'><a class='index' id='uninitialized_fill_n'></a></span><code class='itemdecl'>
+template &lt;class ForwardIterator, class Size, class T&gt;
+  ForwardIterator uninitialized_fill_n(ForwardIterator first, Size n, const T&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='uninitialized.fill.n-1'><div class='marginalizedparent'><a class='marginalized' href='#uninitialized.fill.n-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><pre class='codeblock'>
+for (; n--; ++first)
+  ::new (static_cast&lt;void*&gt;(&amp;*first))
+    typename iterator_traits&lt;ForwardIterator&gt;::value_type(x);
+return first;
+</pre></div></div></div></div></div></body></html>

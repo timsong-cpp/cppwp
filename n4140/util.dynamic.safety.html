@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang='en'><head><title>[util.dynamic.safety]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.7</a> Memory <a class='abbr_ref' href='memory#util.dynamic.safety'>[memory]</a></h2><div id='util.dynamic.safety'><h3 ><a class='secnum' style='min-width:103pt'>20.7.4</a> Pointer safety <a class='abbr_ref'>[util.dynamic.safety]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A complete object is <i>declared reachable</i> while the number of calls to
+<span class='texttt'>declare_reachable</span> with an argument referencing the object exceeds the
+number of calls to <span class='texttt'>undeclare_reachable</span> with an argument referencing the
+object.</p><p ><span class='indexparent'><a class='index' id='declare_reachable'></a></span><code class='itemdecl'>
+void declare_reachable(void* p);
+</code></p></div><div class='itemdescr'></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>p</span> shall be a safely-derived
+pointer (<a href='basic.stc.dynamic.safety'>[basic.stc.dynamic.safety]</a>) or a null pointer value.</p></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>p</span> is not null, the complete object referenced by <span class='texttt'>p</span>
+is subsequently declared reachable (<a href='basic.stc.dynamic.safety'>[basic.stc.dynamic.safety]</a>).</p></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><i>Throws:</i> May throw <span class='texttt'>std::bad_alloc</span> if the system cannot allocate
+additional memory that may be required to track objects declared reachable.
+</p></div></div><p ><span class='indexparent'><a class='index' id='undeclare_reachable'></a></span><code class='itemdecl'>
+template &lt;class T&gt; T* undeclare_reachable(T* p);
+</code></p><div class='itemdescr'></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Requires:</i> If <span class='texttt'>p</span> is not null, the complete object referenced by <span class='texttt'>p</span>
+shall have been previously declared reachable, and shall be
+live (<a href='basic.life'>[basic.life]</a>) from the time of the call until the last
+<span class='texttt'>undeclare_reachable(p)</span> call on the object.</p></div></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> A safely derived copy of <span class='texttt'>p</span> which shall compare equal to <span class='texttt'>p</span>.</p></div></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing.</p></div></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> It is expected that calls to <span class='texttt'>declare_reachable(p)</span> will consume
+a small amount of memory in addition to that occupied by the referenced object until the
+matching call to <span class='texttt'>undeclare_reachable(p)</span> is encountered. Long running programs
+should arrange that calls are matched. <i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div></div><p ><span class='indexparent'><a class='index' id='declare_no_pointers'></a></span><code class='itemdecl'>
+void declare_no_pointers(char* p, size_t n);
+</code></p><div class='itemdescr'></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='itemdescr'><p ><i>Requires:</i> No bytes in the specified range
+are currently registered with
+<span class='texttt'>declare_no_pointers()</span>. If the specified range is in an allocated object,
+then it must be entirely within a single allocated object. The object must be
+live until the corresponding <span class='texttt'>undeclare_no_pointers()</span> call. [&nbsp;<i>Note:</i> In
+a garbage-collecting implementation, the fact that a region in an object is
+registered with <span class='texttt'>declare_no_pointers()</span> should not prevent the object from
+being collected. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i> The <span class='texttt'>n</span> bytes starting at <span class='texttt'>p</span> no longer contain
+traceable pointer locations, independent of their type. Hence
+indirection through a pointer located there is undefined if the object
+it points to was created by global <span class='texttt'>operator new</span> and not
+previously declared reachable. [&nbsp;<i>Note:</i> This may be used to inform a
+garbage collector or leak detector that this region of memory need not
+be traced. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing.</p></div></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> Under some conditions implementations may need to allocate memory.
+However, the request can be ignored if memory allocation fails. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='undeclare_no_pointers'></a></span><code class='itemdecl'>
+void undeclare_no_pointers(char* p, size_t n);
+</code></p><div class='itemdescr'></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><div class='itemdescr'><p ><i>Requires:</i> The same range must previously have been passed to
+<span class='texttt'>declare_no_pointers()</span>.</p></div></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><div class='itemdescr'><p ><i>Effects:</i> Unregisters a range registered with <span class='texttt'>declare_no_pointers()</span> for
+destruction. It must be called before the lifetime of the object ends.</p></div></div><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing.
+</p></div></div><p ><span class='indexparent'><a class='index' id='get_pointer_safety'></a></span><code class='itemdecl'>
+pointer_safety get_pointer_safety() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='16'><div class='marginalizedparent'><a class='marginalized' href='#16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>pointer_safety::strict</span> if the implementation has strict pointer
+safety (<a href='basic.stc.dynamic.safety'>[basic.stc.dynamic.safety]</a>). It is implementation defined<span class='indexparent'><a class='index' id='whether_get_pointer_safety_returns_pointer_safety::relaxed_or_pointer_safety::preferred_if_the_implementation_has_relaxed_pointer_safety'></a></span>
+whether
+<span class='texttt'>get_pointer_safety</span> returns <span class='texttt'>pointer_safety::relaxed</span> or
+<span class='texttt'>pointer_safety::preferred</span> if the implementation has relaxed pointer
+safety.<a class='footnotenum' href='#footnote-230'>230</a>
+</p></div></div><div class='footnote' id='footnote-229'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-229'>229)</a></div><p ><span class='texttt'>pointer_safety::preferred</span> might be returned to indicate
+that a leak detector is running so that the program can avoid spurious leak
+reports.</p></div></div></div></body></html>

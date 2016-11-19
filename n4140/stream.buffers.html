@@ -1,0 +1,786 @@
+<!DOCTYPE html><html lang='en'><head><title>[stream.buffers]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>27</a> Input/output library <a class='abbr_ref' href='./#input.output'>[input.output]</a></h1><div id='stream.buffers'><h2 ><a class='secnum' style='min-width:88pt'>27.6</a> Stream buffers <a class='abbr_ref'>[stream.buffers]</a></h2><div id='overview'><h3 ><a class='secnum' href='#overview' style='min-width:103pt'>27.6.1</a> Overview <a class='abbr_ref' href='stream.buffers.overview'>[stream.buffers.overview]</a></h3><p ><b>Header <span class='texttt'>&lt;streambuf&gt;</span> synopsis</b>
+<span class='indexparent'><a class='index' id='streambuf'></a></span>
+<span class='indexparent'><a class='index' id='streambuf'></a></span><span class='indexparent'><a class='index' id='basic_streambuf<char>'></a></span><span class='indexparent'><a class='index' id='wstreambuf'></a></span><span class='indexparent'><a class='index' id='basic_streambuf<wchar_t>'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class charT, class traits = char_traits&lt;charT&gt; &gt;
+    class basic_streambuf;
+  typedef basic_streambuf&lt;char&gt;     streambuf;
+  typedef basic_streambuf&lt;wchar_t&gt; wstreambuf;
+}
+</pre><div class='para' id='overview-1'><div class='marginalizedparent'><a class='marginalized' href='#overview-1'>1</a></div><p >The header
+<span class='texttt'>&lt;streambuf&gt;</span>
+defines types that control input from and output to
+<i>character</i>
+sequences.</p></div></div><div id='streambuf.reqts'><h3 ><a class='secnum' href='#streambuf.reqts' style='min-width:103pt'>27.6.2</a> Stream buffer requirements <a class='abbr_ref' href='streambuf.reqts'>[streambuf.reqts]</a></h3><div class='para' id='streambuf.reqts-1'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.reqts-1'>1</a></div><p >Stream buffers can impose various constraints on the sequences they control.
+Some constraints are:
+</p><ul ><li ><p >The controlled input sequence can be not readable.
+</p></li><li ><p >The controlled output sequence can be not writable.
+</p></li><li ><p >The controlled sequences can be associated with the contents of other
+representations for character sequences, such as external files.
+</p></li><li ><p >The controlled sequences can support operations
+<i>directly</i>
+to or from associated sequences.
+</p></li><li ><p >The controlled sequences can impose limitations on how the program can
+read characters from a sequence,
+write characters to a sequence,
+put characters back into an input sequence, or
+alter the stream position.
+</p></li></ul></div><div class='para' id='streambuf.reqts-2'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.reqts-2'>2</a></div><p >Each sequence is characterized by three pointers which, if non-null,
+all point into the same
+<span class='texttt'>charT</span>
+array object.
+The array object represents, at any moment,
+a (sub)sequence of characters from the sequence.
+Operations performed on a sequence alter the values stored in these pointers,
+perform reads and writes directly to or from associated sequences, and
+alter “the stream position” and conversion state as needed to
+maintain this subsequence relationship.
+The three pointers are:
+</p><ul ><li ><p >the
+<a class='hidden_link' href='#def:beginning_pointer' id='def:beginning_pointer'><i>beginning pointer</i></a>,
+or lowest element address in the array
+(called <span class='texttt'>xbeg</span> here);
+</p></li><li ><p >the
+<a class='hidden_link' href='#def:next_pointer' id='def:next_pointer'><i>next pointer</i></a>,
+or next element address that is a current
+candidate for reading or writing (called <span class='texttt'>xnext</span> here);
+</p></li><li ><p >the
+<a class='hidden_link' href='#def:end_pointer' id='def:end_pointer'><i>end pointer</i></a>,
+or first element address beyond the end of
+the array (called <span class='texttt'>xend</span> here).
+</p></li></ul></div><div class='para' id='streambuf.reqts-3'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.reqts-3'>3</a></div><p >The following semantic constraints shall always apply for any set of
+three pointers for a sequence, using the pointer names given immediately above:
+</p><ul ><li ><p >If <span class='texttt'>xnext</span> is not a null pointer, then
+<span class='texttt'>xbeg</span> and <span class='texttt'>xend</span> shall also be non-null pointers
+into the same
+<span class='texttt'>charT</span>
+array, as described above; otherwise, <span class='texttt'>xbeg</span> and
+<span class='texttt'>xend</span> shall also be null.
+</p></li><li ><p >If <span class='texttt'>xnext</span> is not a null pointer and
+<span class='texttt'>xnext &lt; xend</span>
+for an output sequence, then a
+<a class='hidden_link' href='#def:write_position' id='def:write_position'><i>write position</i></a>
+is available.
+In this case,
+<span class='texttt'>*xnext</span>
+shall be assignable as the
+next element to write
+(to put, or to store a character value, into the sequence).
+</p></li><li ><p >If <span class='texttt'>xnext</span> is not a null pointer and
+<span class='texttt'>xbeg &lt; xnext</span> for an input sequence,
+then a
+<a class='hidden_link' href='#def:putback_position' id='def:putback_position'><i>putback position</i></a>
+is available.
+In this case,
+<span class='texttt'>xnext[-1]</span>
+shall have a defined value and is the next (preceding) element
+to store a character that is put back into the input sequence.
+</p></li><li ><p >If <span class='texttt'>xnext</span> is not a null pointer and
+<span class='texttt'>xnext &lt; xend</span> for an input sequence,
+then a
+<a class='hidden_link' href='#def:read_position' id='def:read_position'><i>read position</i></a>
+is available.
+In this case,
+<span class='texttt'>*xnext</span>
+shall have a defined value
+and is the next element to read
+(to get, or to obtain a character value, from the sequence).
+</p></li></ul></div></div><div id='streambuf'><h3 ><a class='secnum' href='#streambuf' style='min-width:103pt'>27.6.3</a> Class template <span class='texttt'>basic_streambuf&lt;charT,traits&gt;</span> <a class='abbr_ref' href='streambuf'>[streambuf]</a></h3><p ><span class='indexparent'><a class='index' id='basic_streambuf'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class charT, class traits = char_traits&lt;charT&gt; &gt;
+  class basic_streambuf {
+  public:
+
+    <span class='comment'>// types:
+</span>    typedef charT                     char_type;
+    typedef typename traits::int_type int_type;
+    typedef typename traits::pos_type pos_type;
+    typedef typename traits::off_type off_type;
+    typedef traits                    traits_type;
+
+    virtual ~basic_streambuf();
+
+    <span class='comment'>// <a href='streambuf.locales'>[streambuf.locales]</a> locales:
+</span>    locale   pubimbue(const locale&amp; loc);
+    locale   getloc() const;
+
+    <span class='comment'>// <a href='streambuf.buffer'>[streambuf.buffer]</a> buffer and positioning:
+</span>    basic_streambuf&lt;char_type,traits&gt;*
+       pubsetbuf(char_type* s, streamsize n);
+    pos_type pubseekoff(off_type off, ios_base::seekdir way,
+      ios_base::openmode which =
+          ios_base::in | ios_base::out);
+    pos_type pubseekpos(pos_type sp,
+      ios_base::openmode which =
+          ios_base::in | ios_base::out);
+    int      pubsync();
+
+    <span class='comment'>// Get and put areas:
+</span>    <span class='comment'>// <a href='streambuf.pub.get'>[streambuf.pub.get]</a> Get area:
+</span>    streamsize in_avail();
+    int_type snextc();
+    int_type sbumpc();
+    int_type sgetc();
+    streamsize sgetn(char_type* s, streamsize n);
+
+    <span class='comment'>// <a href='streambuf.pub.pback'>[streambuf.pub.pback]</a> Putback:
+</span>    int_type sputbackc(char_type c);
+    int_type sungetc();
+
+    <span class='comment'>// <a href='streambuf.pub.put'>[streambuf.pub.put]</a> Put area:
+</span>    int_type   sputc(char_type c);
+    streamsize sputn(const char_type* s, streamsize n);
+
+  protected:
+    basic_streambuf();
+    basic_streambuf(const basic_streambuf&amp; rhs);
+    basic_streambuf&amp; operator=(const basic_streambuf&amp; rhs);
+
+    void swap(basic_streambuf&amp; rhs);
+
+    <span class='comment'>// <a href='streambuf.get.area'>[streambuf.get.area]</a> Get area:
+</span>    char_type* eback() const;
+    char_type* gptr()  const;
+    char_type* egptr() const;
+    void       gbump(int n);
+    void       setg(char_type* gbeg, char_type* gnext, char_type* gend);
+
+    <span class='comment'>// <a href='streambuf.put.area'>[streambuf.put.area]</a> Put area:
+</span>    char_type* pbase() const;
+    char_type* pptr() const;
+    char_type* epptr() const;
+    void       pbump(int n);
+    void       setp(char_type* pbeg, char_type* pend);
+
+    <span class='comment'>// <a href='streambuf.virtuals'>[streambuf.virtuals]</a> virtual functions:
+</span>    <span class='comment'>// <a href='streambuf.virt.locales'>[streambuf.virt.locales]</a> Locales:
+</span>    virtual void imbue(const locale&amp; loc);
+
+    <span class='comment'>// <a href='streambuf.virt.buffer'>[streambuf.virt.buffer]</a> Buffer management and positioning:
+</span>    virtual basic_streambuf&lt;char_type,traits&gt;*
+         setbuf(char_type* s, streamsize n);
+    virtual pos_type seekoff(off_type off, ios_base::seekdir way,
+        ios_base::openmode which = ios_base::in | ios_base::out);
+    virtual pos_type seekpos(pos_type sp,
+        ios_base::openmode which = ios_base::in | ios_base::out);
+    virtual int      sync();
+
+    <span class='comment'>// <a href='streambuf.virt.get'>[streambuf.virt.get]</a> Get area:
+</span>    virtual streamsize showmanyc();
+    virtual streamsize xsgetn(char_type* s, streamsize n);
+    virtual int_type   underflow();
+    virtual int_type   uflow();
+
+    <span class='comment'>// <a href='streambuf.virt.pback'>[streambuf.virt.pback]</a> Putback:
+</span>    virtual int_type   pbackfail(int_type c = traits::eof());
+
+    <span class='comment'>// <a href='streambuf.virt.put'>[streambuf.virt.put]</a> Put area:
+</span>    virtual streamsize xsputn(const char_type* s, streamsize n);
+    virtual int_type   overflow (int_type c = traits::eof());
+  };
+}
+</pre><div class='para' id='streambuf-1'><div class='marginalizedparent'><a class='marginalized' href='#streambuf-1'>1</a></div><p >The class template
+<span class='texttt'>basic_streambuf&lt;charT,traits&gt;</span>
+serves as an abstract base class for deriving various
+<a class='hidden_link' href='#def:stream_buffers' id='def:stream_buffers'><i>stream buffers</i></a>
+whose objects each control two
+<a class='hidden_link' href='#def:character_sequences' id='def:character_sequences'><i>character sequences</i></a>:
+</p><ul ><li ><p >a character
+<a class='hidden_link' href='#def:input_sequence' id='def:input_sequence'><i>input sequence</i></a>;
+</p></li><li ><p >a character
+<a class='hidden_link' href='#def:output_sequence' id='def:output_sequence'><i>output sequence</i></a>.
+</p></li></ul></div><div id='streambuf.cons'><h4 ><a class='secnum' href='#streambuf.cons' style='min-width:118pt'>27.6.3.1</a> <span class='texttt'>basic_streambuf</span> constructors <a class='abbr_ref' href='streambuf.cons'>[streambuf.cons]</a></h4><p ><span class='indexparent'><a class='index' id='basic_streambuf,basic_streambuf'></a></span><code class='itemdecl'>
+basic_streambuf();
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.cons-1'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.cons-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs an object of class
+<span class='texttt'>basic_streambuf&lt;charT,traits&gt;</span>
+and initializes:<a class='footnotenum' href='#footnote-306'>306</a>
+</p><ul ><li ><p >all its pointer member objects to null pointers,
+</p></li><li ><p >the
+<span class='texttt'>getloc()</span>
+member to a copy the global locale,
+<span class='texttt'>locale()</span>,
+at the time of construction.
+</p></li></ul></div></div><div class='para' id='streambuf.cons-2'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.cons-2'>2</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Once the
+<span class='texttt'>getloc()</span>
+member is initialized, results of calling locale member functions,
+and of members of facets so obtained, can safely be cached until the
+next time the member
+<span class='texttt'>imbue</span>
+is called.
+</p></div></div><p ><span class='indexparent'><a class='index' id='basic_streambuf,constructor'></a></span><code class='itemdecl'>
+basic_streambuf(const basic_streambuf&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.cons-3'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.cons-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a copy of <span class='texttt'>rhs</span>.</p></div></div><div class='para' id='streambuf.cons-4'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.cons-4'>4</a></div><div class='itemdescr'><p ><i>Postconditions:</i></p><ul ><li ><p ><span class='texttt'>eback() == rhs.eback()</span>
+</p></li><li ><p ><span class='texttt'>gptr() == rhs.gptr()</span>
+</p></li><li ><p ><span class='texttt'>egptr() == rhs.egptr()</span>
+</p></li><li ><p ><span class='texttt'>pbase() == rhs.pbase()</span>
+</p></li><li ><p ><span class='texttt'>pptr() == rhs.pptr()</span>
+</p></li><li ><p ><span class='texttt'>epptr() == rhs.epptr()</span>
+</p></li><li ><p ><span class='texttt'>getloc() == rhs.getloc()</span>
+</p></li></ul></div></div><p ><span class='indexparent'><a class='index' id='basic_streambuf,destructor'></a></span><code class='itemdecl'>
+~basic_streambuf();
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.cons-5'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.cons-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+None.
+</p></div></div><div class='footnote' id='footnote-305'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-305'>305)</a></div><p >The default constructor is protected for class
+<span class='texttt'>basic_streambuf</span>
+to assure that only objects for classes
+derived from this class may be constructed.</p></div></div><div id='streambuf.members'><h4 ><a class='secnum' href='#streambuf.members' style='min-width:118pt'>27.6.3.2</a> <span class='texttt'>basic_streambuf</span> public member functions <a class='abbr_ref' href='streambuf.members'>[streambuf.members]</a></h4><div id='streambuf.locales'><h4 ><a class='secnum' href='#streambuf.locales' style='min-width:133pt'>27.6.3.2.1</a> Locales <a class='abbr_ref' href='streambuf.locales'>[streambuf.locales]</a></h4><p ><span class='indexparent'><a class='index' id='pubimbue,basic_streambuf'></a></span><code class='itemdecl'>
+locale pubimbue(const locale&amp; loc);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.locales-1'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.locales-1'>1</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+<span class='texttt'>loc == getloc()</span>.</p></div></div><div class='para' id='streambuf.locales-2'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.locales-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls
+<span class='texttt'>imbue(loc)</span>.</p></div></div><div class='para' id='streambuf.locales-3'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.locales-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+Previous value of
+<span class='texttt'>getloc()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='getloc,basic_streambuf'></a></span><code class='itemdecl'>
+locale getloc() const;
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.locales-4'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.locales-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If
+<span class='texttt'>pubimbue()</span>
+has ever been called, then the last value of <span class='texttt'>loc</span> supplied,
+otherwise the current global locale,
+<span class='texttt'>locale()</span>,
+in effect at the time of construction.
+If called after
+<span class='texttt'>pubimbue()</span>
+has been called but before
+<span class='texttt'>pubimbue</span>
+has returned (i.e., from within the call of
+<span class='texttt'>imbue()</span>)
+then it returns the previous value.
+</p></div></div></div><div id='streambuf.buffer'><h4 ><a class='secnum' href='#streambuf.buffer' style='min-width:133pt'>27.6.3.2.2</a> Buffer management and positioning <a class='abbr_ref' href='streambuf.buffer'>[streambuf.buffer]</a></h4><p ><span class='indexparent'><a class='index' id='pubsetbuf,basic_streambuf'></a></span><code class='itemdecl'>
+basic_streambuf&lt;char_type,traits&gt;* pubsetbuf(char_type* s, streamsize n);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.buffer-1'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.buffer-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>setbuf(s, n)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='pubseekoff,basic_streambuf'></a></span><code class='itemdecl'>
+pos_type pubseekoff(off_type off, ios_base::seekdir way,
+               ios_base::openmode which = ios_base::in | ios_base::out);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.buffer-2'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.buffer-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>seekoff(off, way, which)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='pubseekpos,basic_streambuf'></a></span><code class='itemdecl'>
+pos_type pubseekpos(pos_type sp,
+               ios_base::openmode which = ios_base::in | ios_base::out);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.buffer-3'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.buffer-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>seekpos(sp, which)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='pubsync,basic_streambuf'></a></span><code class='itemdecl'>
+int pubsync();
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.buffer-4'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.buffer-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>sync()</span>.
+</p></div></div></div><div id='streambuf.pub.get'><h4 ><a class='secnum' href='#streambuf.pub.get' style='min-width:133pt'>27.6.3.2.3</a> Get area <a class='abbr_ref' href='streambuf.pub.get'>[streambuf.pub.get]</a></h4><p ><span class='indexparent'><a class='index' id='in_avail,basic_streambuf'></a></span><code class='itemdecl'>
+streamsize in_avail();
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.pub.get-1'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.pub.get-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If a read position is available, returns
+<span class='texttt'>egptr() - gptr()</span>.
+Otherwise returns
+<span class='texttt'>showmanyc()</span> (<a href='streambuf.virt.get'>[streambuf.virt.get]</a>).
+</p></div></div><p ><span class='indexparent'><a class='index' id='snextc,basic_streambuf'></a></span><code class='itemdecl'>
+int_type snextc();
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.pub.get-2'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.pub.get-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls
+<span class='texttt'>sbumpc()</span>.</p></div></div><div class='para' id='streambuf.pub.get-3'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.pub.get-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If that function returns
+<span class='texttt'>traits::eof()</span>,
+returns
+<span class='texttt'>traits::eof()</span>.
+Otherwise, returns
+<span class='texttt'>sgetc()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='sbumpc,basic_streambuf'></a></span><code class='itemdecl'>
+int_type sbumpc();
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.pub.get-4'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.pub.get-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If the input sequence read position is not available,
+returns
+<span class='texttt'>uflow()</span>.
+Otherwise, returns
+<span class='texttt'>traits::to_int_type(*gptr())</span>
+and increments the next pointer for the input sequence.
+</p></div></div><p ><span class='indexparent'><a class='index' id='sgetc,basic_streambuf'></a></span><code class='itemdecl'>
+int_type sgetc();
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.pub.get-5'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.pub.get-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If the input sequence read position is not available,
+returns
+<span class='texttt'>underflow()</span>.
+Otherwise, returns
+<span class='texttt'>traits<span class='discretionary'></span>::<span class='discretionary'></span>to_int_type(*gptr())</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='sgetn,basic_streambuf'></a></span><code class='itemdecl'>
+streamsize sgetn(char_type* s, streamsize n);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.pub.get-6'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.pub.get-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>xsgetn(s, n)</span>.
+</p></div></div></div><div id='streambuf.pub.pback'><h4 ><a class='secnum' href='#streambuf.pub.pback' style='min-width:133pt'>27.6.3.2.4</a> Putback <a class='abbr_ref' href='streambuf.pub.pback'>[streambuf.pub.pback]</a></h4><p ><span class='indexparent'><a class='index' id='sputbackc,basic_streambuf'></a></span><code class='itemdecl'>
+int_type sputbackc(char_type c);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.pub.pback-1'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.pub.pback-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If the input sequence putback position is not available, or
+if
+<span class='texttt'>traits::eq(c,gptr()[-1])</span>
+is false, returns
+<span class='texttt'>pbackfail(traits::to_int_type(c))</span>.
+Otherwise, decrements the next pointer for the input sequence and
+returns
+<span class='texttt'>traits::to_int_type(*gptr())</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='sungetc,basic_streambuf'></a></span><code class='itemdecl'>
+int_type sungetc();
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.pub.pback-2'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.pub.pback-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If the input sequence putback position is not available,
+returns
+<span class='texttt'>pbackfail()</span>.
+Otherwise, decrements the next pointer for the input sequence and
+returns
+<span class='texttt'>traits::to_int_type(*gptr())</span>.
+</p></div></div></div><div id='streambuf.pub.put'><h4 ><a class='secnum' href='#streambuf.pub.put' style='min-width:133pt'>27.6.3.2.5</a> Put area <a class='abbr_ref' href='streambuf.pub.put'>[streambuf.pub.put]</a></h4><p ><span class='indexparent'><a class='index' id='sputc,basic_streambuf'></a></span><code class='itemdecl'>
+int_type sputc(char_type c);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.pub.put-1'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.pub.put-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If the output sequence write position is not available,
+returns
+<span class='texttt'>overflow(traits::to_int_type(c))</span>.
+Otherwise, stores <span class='texttt'>c</span> at the next pointer for the output sequence,
+increments the pointer, and
+returns
+<span class='texttt'>traits::to_int_type(c)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='sputn,basic_streambuf'></a></span><code class='itemdecl'>
+streamsize sputn(const char_type* s, streamsize n);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.pub.put-2'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.pub.put-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>xsputn(s,n)</span>.
+</p></div></div></div></div><div id='streambuf.protected'><h4 ><a class='secnum' href='#streambuf.protected' style='min-width:118pt'>27.6.3.3</a> <span class='texttt'>basic_streambuf</span> protected member functions <a class='abbr_ref' href='streambuf.protected'>[streambuf.protected]</a></h4><div id='streambuf.assign'><h4 ><a class='secnum' href='#streambuf.assign' style='min-width:133pt'>27.6.3.3.1</a> Assignment <a class='abbr_ref' href='streambuf.assign'>[streambuf.assign]</a></h4><p ><span class='indexparent'><a class='index' id='operator=,basic_streambuf'></a></span><span class='indexparent'><a class='index' id='basic_streambuf,operator='></a></span><code class='itemdecl'>
+basic_streambuf&amp; operator=(const basic_streambuf&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.assign-1'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.assign-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Assigns the data members of <span class='texttt'>rhs</span>
+to <span class='texttt'>*this</span>.</p></div></div><div class='para' id='streambuf.assign-2'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.assign-2'>2</a></div><div class='itemdescr'><p ><i>Postconditions:</i></p><ul ><li ><p ><span class='texttt'>eback() == rhs.eback()</span>
+</p></li><li ><p ><span class='texttt'>gptr() == rhs.gptr()</span>
+</p></li><li ><p ><span class='texttt'>egptr() == rhs.egptr()</span>
+</p></li><li ><p ><span class='texttt'>pbase() == rhs.pbase()</span>
+</p></li><li ><p ><span class='texttt'>pptr() == rhs.pptr()</span>
+</p></li><li ><p ><span class='texttt'>epptr() == rhs.epptr()</span>
+</p></li><li ><p ><span class='texttt'>getloc() == rhs.getloc()</span>
+</p></li></ul></div></div><div class='para' id='streambuf.assign-3'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.assign-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='swap,basic_streambuf'></a></span><span class='indexparent'><a class='index' id='basic_streambuf,swap'></a></span><code class='itemdecl'>
+void swap(basic_streambuf&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.assign-4'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.assign-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i> Swaps the data members of <span class='texttt'>rhs</span>
+and <span class='texttt'>*this</span>.
+</p></div></div></div><div id='streambuf.get.area'><h4 ><a class='secnum' href='#streambuf.get.area' style='min-width:133pt'>27.6.3.3.2</a> Get area access <a class='abbr_ref' href='streambuf.get.area'>[streambuf.get.area]</a></h4><p ><span class='indexparent'><a class='index' id='eback,basic_streambuf'></a></span><code class='itemdecl'>
+char_type* eback() const;
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.get.area-1'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.get.area-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The beginning pointer for the input sequence.
+</p></div></div><p ><span class='indexparent'><a class='index' id='gptr,basic_streambuf'></a></span><code class='itemdecl'>
+char_type* gptr() const;
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.get.area-2'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.get.area-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The next pointer for the input sequence.
+</p></div></div><p ><span class='indexparent'><a class='index' id='egptr,basic_streambuf'></a></span><code class='itemdecl'>
+char_type* egptr() const;
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.get.area-3'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.get.area-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The end pointer for the input sequence.
+</p></div></div><p ><span class='indexparent'><a class='index' id='gbump,basic_streambuf'></a></span><code class='itemdecl'>
+void gbump(int n);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.get.area-4'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.get.area-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Adds <span class='texttt'>n</span> to the next pointer for the input sequence.
+</p></div></div><p ><span class='indexparent'><a class='index' id='setg,basic_streambuf'></a></span><code class='itemdecl'>
+void setg(char_type* gbeg, char_type* gnext, char_type* gend);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.get.area-5'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.get.area-5'>5</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
+<span class='texttt'>gbeg == eback()</span>,
+<span class='texttt'>gnext == gptr()</span>,
+and
+<span class='texttt'>gend == egptr()</span>.
+</p></div></div></div><div id='streambuf.put.area'><h4 ><a class='secnum' href='#streambuf.put.area' style='min-width:133pt'>27.6.3.3.3</a> Put area access <a class='abbr_ref' href='streambuf.put.area'>[streambuf.put.area]</a></h4><p ><span class='indexparent'><a class='index' id='pbase,basic_streambuf'></a></span><code class='itemdecl'>
+char_type* pbase() const;
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.put.area-1'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.put.area-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The beginning pointer for the output sequence.
+</p></div></div><p ><span class='indexparent'><a class='index' id='pptr,basic_streambuf'></a></span><code class='itemdecl'>
+char_type* pptr() const;
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.put.area-2'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.put.area-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The next pointer for the output sequence.
+</p></div></div><p ><span class='indexparent'><a class='index' id='epptr,basic_streambuf'></a></span><code class='itemdecl'>
+char_type* epptr() const;
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.put.area-3'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.put.area-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The end pointer for the output sequence.
+</p></div></div><p ><span class='indexparent'><a class='index' id='pbump,basic_streambuf'></a></span><code class='itemdecl'>
+void pbump(int n);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.put.area-4'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.put.area-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Adds <span class='texttt'>n</span> to the next pointer for the output sequence.
+</p></div></div><p ><span class='indexparent'><a class='index' id='setp,basic_streambuf'></a></span><code class='itemdecl'>
+void setp(char_type* pbeg, char_type* pend);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.put.area-5'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.put.area-5'>5</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
+<span class='texttt'>pbeg == pbase()</span>,
+<span class='texttt'>pbeg == pptr()</span>,
+and
+<span class='texttt'>pend == epptr()</span>.
+</p></div></div></div></div><div id='streambuf.virtuals'><h4 ><a class='secnum' href='#streambuf.virtuals' style='min-width:118pt'>27.6.3.4</a> <span class='texttt'>basic_streambuf</span> virtual functions <a class='abbr_ref' href='streambuf.virtuals'>[streambuf.virtuals]</a></h4><div id='streambuf.virt.locales'><h4 ><a class='secnum' href='#streambuf.virt.locales' style='min-width:133pt'>27.6.3.4.1</a> Locales <a class='abbr_ref' href='streambuf.virt.locales'>[streambuf.virt.locales]</a></h4><p ><span class='indexparent'><a class='index' id='imbue,basic_streambuf'></a></span><code class='itemdecl'>
+void imbue(const locale&amp;);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.virt.locales-1'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.locales-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Change any translations based on locale.</p></div></div><div class='para' id='streambuf.virt.locales-2'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.locales-2'>2</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Allows the derived class to be informed of changes in locale at the
+time they occur.
+Between invocations of this function a class derived
+from streambuf can safely cache results of calls to locale functions
+and to members of facets so obtained.</p></div></div><div class='para' id='streambuf.virt.locales-3'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.locales-3'>3</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+Does nothing.
+</p></div></div></div><div id='streambuf.virt.buffer'><h4 ><a class='secnum' href='#streambuf.virt.buffer' style='min-width:133pt'>27.6.3.4.2</a> Buffer management and positioning <a class='abbr_ref' href='streambuf.virt.buffer'>[streambuf.virt.buffer]</a></h4><p ><span class='indexparent'><a class='index' id='setbuf,basic_streambuf'></a></span><code class='itemdecl'>
+basic_streambuf* setbuf(char_type* s, streamsize n);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.virt.buffer-1'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.buffer-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Influences stream buffering in a way that is defined separately for each class
+derived from
+<span class='texttt'>basic_streambuf</span>
+in this Clause (<a href='stringbuf.virtuals'>[stringbuf.virtuals]</a>,
+<a href='filebuf.virtuals'>[filebuf.virtuals]</a>).</p></div></div><div class='para' id='streambuf.virt.buffer-2'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.buffer-2'>2</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+Does nothing.
+Returns
+<span class='texttt'>this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='seekoff,basic_streambuf'></a></span><code class='itemdecl'>
+pos_type seekoff(off_type off, ios_base::seekdir way,
+                 ios_base::openmode which
+                  = ios_base::in | ios_base::out);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.virt.buffer-3'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.buffer-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Alters the stream positions within one or more of
+the controlled sequences in a way that is defined separately for each class
+derived from
+<span class='texttt'>basic_streambuf</span>
+in this Clause (<a href='stringbuf.virtuals'>[stringbuf.virtuals]</a>,
+<a href='filebuf.virtuals'>[filebuf.virtuals]</a>).</p></div></div><div class='para' id='streambuf.virt.buffer-4'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.buffer-4'>4</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+Returns
+<span class='texttt'>pos_type(off_type(-1))</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='seekpos,basic_streambuf'></a></span><code class='itemdecl'>
+pos_type seekpos(pos_type sp,
+                 ios_base::openmode which
+                  = ios_base::in | ios_base::out);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.virt.buffer-5'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.buffer-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Alters the stream positions within one or more of
+the controlled sequences in a way that is defined separately for each class
+derived from
+<span class='texttt'>basic_streambuf</span>
+in this Clause (<a href='stringbuf'>[stringbuf]</a>,
+<a href='filebuf'>[filebuf]</a>).</p></div></div><div class='para' id='streambuf.virt.buffer-6'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.buffer-6'>6</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+Returns
+<span class='texttt'>pos_type(off_type(-1))</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='sync,basic_streambuf'></a></span><code class='itemdecl'>
+int sync();
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.virt.buffer-7'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.buffer-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Synchronizes the controlled sequences with the arrays.
+That is, if
+<span class='texttt'>pbase()</span>
+is non-null the characters between
+<span class='texttt'>pbase()</span>
+and
+<span class='texttt'>pptr()</span>
+are written to the controlled sequence.
+The pointers may then be reset as appropriate.</p></div></div><div class='para' id='streambuf.virt.buffer-8'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.buffer-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>
+-1 on failure.
+What constitutes failure is determined by each derived class (<a href='filebuf.virtuals'>[filebuf.virtuals]</a>).</p></div></div><div class='para' id='streambuf.virt.buffer-9'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.buffer-9'>9</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+Returns zero.
+</p></div></div></div><div id='streambuf.virt.get'><h4 ><a class='secnum' href='#streambuf.virt.get' style='min-width:133pt'>27.6.3.4.3</a> Get area <a class='abbr_ref' href='streambuf.virt.get'>[streambuf.virt.get]</a></h4><p ><span class='indexparent'><a class='index' id='showmanyc,basic_streambuf'></a></span><code class='itemdecl'>
+streamsize showmanyc();<a class='footnotenum' href='#footnote-307'>307</a>
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.virt.get-1'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+An estimate of the number of
+characters available in the sequence, or -1.
+If it returns
+a positive value, then successive calls to
+<span class='texttt'>underflow()</span>
+will not return
+<span class='texttt'>traits::eof()</span>
+until at least that number of characters have been
+extracted from the stream.
+If
+<span class='texttt'>showmanyc()</span>
+returns -1, then calls to
+<span class='texttt'>underflow()</span>
+or
+<span class='texttt'>uflow()</span>
+will fail.<a class='footnotenum' href='#footnote-308'>308</a></p></div></div><div class='para' id='streambuf.virt.get-2'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-2'>2</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+Returns zero.</p></div></div><div class='para' id='streambuf.virt.get-3'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-3'>3</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Uses
+<span class='texttt'>traits::eof()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='xsgetn,basic_streambuf'></a></span><code class='itemdecl'>
+streamsize xsgetn(char_type* s, streamsize n);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.virt.get-4'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Assigns up to <span class='texttt'>n</span> characters to successive elements of
+the array whose first element is designated by <span class='texttt'>s</span>.
+The characters assigned are read from the input sequence as if
+by repeated calls to
+<span class='texttt'>sbumpc()</span>.
+Assigning stops when either <span class='texttt'>n</span> characters
+have been assigned or a call to
+<span class='texttt'>sbumpc()</span>
+would return
+<span class='texttt'>traits::eof()</span>.</p></div></div><div class='para' id='streambuf.virt.get-5'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The number of characters assigned.<a class='footnotenum' href='#footnote-309'>309</a></p></div></div><div class='para' id='streambuf.virt.get-6'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-6'>6</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Uses
+<span class='texttt'>traits::eof()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='underflow,basic_streambuf'></a></span><code class='itemdecl'>
+int_type underflow();
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.virt.get-7'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-7'>7</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The public members of
+<span class='texttt'>basic_streambuf</span>
+call this virtual function only if
+<span class='texttt'>gptr()</span>
+is null or
+<span class='texttt'>gptr() &gt;= egptr()</span></p></div></div><div class='para' id='streambuf.virt.get-8'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>traits::to_int_type(c)</span>,
+where <span class='texttt'>c</span> is the first
+<i>character</i>
+of the
+<a class='hidden_link' href='#def:pending_sequence' id='def:pending_sequence'><i>pending sequence</i></a>,
+without moving the input sequence position past it.
+If the pending sequence is null then the function returns
+<span class='texttt'>traits::eof()</span>
+to indicate failure.</p></div></div><div class='para' id='streambuf.virt.get-9'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-9'>9</a></div><div class='itemdescr'><p >The
+<a class='hidden_link' href='#def:pending_sequence' id='def:pending_sequence'><i>pending sequence</i></a>
+of characters is defined as the concatenation of:
+
+ 
+ </p><ol ><li ><p >If
+<span class='texttt'>gptr()</span>
+is non-null, then the
+<span class='texttt'>egptr() - gptr()</span>
+characters starting at
+<span class='texttt'>gptr()</span>,
+otherwise the empty sequence.
+</p></li><li ><p >Some sequence (possibly empty) of characters read from the input sequence.
+
+ </p></li></ol></div></div><div class='para' id='streambuf.virt.get-10'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-10'>10</a></div><div class='itemdescr'><p >The
+<a class='hidden_link' href='#def:result_character' id='def:result_character'><i>result character</i></a>
+is
+
+ 
+ </p><ol ><li ><p >If the pending sequence is non-empty, the first character of the sequence.
+</p></li><li ><p >If the pending sequence
+is
+empty then the next character that would be read from the input sequence.
+
+ </p></li></ol></div></div><div class='para' id='streambuf.virt.get-11'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-11'>11</a></div><div class='itemdescr'><p >The
+<a class='hidden_link' href='#def:backup_sequence' id='def:backup_sequence'><i>backup sequence</i></a>
+is defined as the concatenation of:
+
+ 
+ </p><ol ><li ><p >If
+<span class='texttt'>eback()</span>
+is null then empty,
+</p></li><li ><p >Otherwise the
+<span class='texttt'>gptr() - eback()</span>
+characters beginning at
+<span class='texttt'>eback()</span>.
+
+ </p></li></ol></div></div><div class='para' id='streambuf.virt.get-12'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-12'>12</a></div><div class='itemdescr'><p ><i>Effects:</i>
+The function sets up the
+<span class='texttt'>gptr()</span>
+and
+<span class='texttt'>egptr()</span>
+satisfying one of:
+
+ 
+ </p><ol ><li ><p >If the pending sequence is non-empty,
+<span class='texttt'>egptr()</span>
+is non-null and
+<span class='texttt'>egptr() - gptr()</span>
+characters starting at
+<span class='texttt'>gptr()</span>
+are the characters in the pending sequence
+</p></li><li ><p >If the pending sequence is empty, either
+<span class='texttt'>gptr()</span>
+is null or
+<span class='texttt'>gptr()</span>
+and
+<span class='texttt'>egptr()</span>
+are set to the same non-null pointer value.
+
+ </p></li></ol></div></div><div class='para' id='streambuf.virt.get-13'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-13'>13</a></div><div class='itemdescr'><p >If
+<span class='texttt'>eback()</span>
+and
+<span class='texttt'>gptr()</span>
+are non-null then the function is not constrained as to their contents, but the “usual backup condition” is that either:
+
+ 
+ </p><ol ><li ><p >If the backup sequence contains at least
+<span class='texttt'>gptr() - eback()</span>
+characters, then the
+<span class='texttt'>gptr() - eback()</span>
+characters starting at
+<span class='texttt'>eback()</span>
+agree with the last
+<span class='texttt'>gptr() - eback()</span>
+characters of the backup sequence.
+</p></li><li ><p >Or the <span class='texttt'>n</span> characters starting at
+<span class='texttt'>gptr() - n</span>
+agree with the backup sequence (where <span class='texttt'>n</span> is the length of the backup sequence)
+
+ </p></li></ol></div></div><div class='para' id='streambuf.virt.get-14'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-14'>14</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+Returns
+<span class='texttt'>traits::eof()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='uflow,basic_streambuf'></a></span><code class='itemdecl'>
+int_type uflow();
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.virt.get-15'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-15'>15</a></div><div class='itemdescr'><p ><i>Requires:</i>
+The constraints are the same as for
+<span class='texttt'>underflow()</span>,
+except that the result character shall be transferred from the pending
+sequence to the backup sequence, and the pending sequence shall not
+be empty before the transfer.</p></div></div><div class='para' id='streambuf.virt.get-16'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-16'>16</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+Calls
+<span class='texttt'>underflow()</span>.
+If
+<span class='texttt'>underflow()</span>
+returns
+<span class='texttt'>traits::eof()</span>,
+returns
+<span class='texttt'>traits::eof()</span>.
+Otherwise, returns the value of
+<span class='texttt'>traits::to_int_type(*gptr())</span>
+and increment the value of the next pointer for the input sequence.</p></div></div><div class='para' id='streambuf.virt.get-17'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.get-17'>17</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>traits::eof()</span>
+to indicate failure.
+</p></div></div><div class='footnote' id='footnote-306'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-306'>306)</a></div><p ><span class='textrm'>The morphemes of <span class='texttt'>showmanyc</span>
+are “es-how-many-see”, not “show-manic”.</span></p></div><div class='footnote' id='footnote-307'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-307'>307)</a></div><p ><span class='texttt'>underflow</span>
+or
+<span class='texttt'>uflow</span>
+might fail by throwing an exception prematurely.
+The intention is not only that the calls will not return
+<span class='texttt'>eof()</span>
+but that they will return “immediately.”</p></div><div class='footnote' id='footnote-308'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-308'>308)</a></div><p >Classes derived from
+<span class='texttt'>basic_streambuf</span>
+can provide more efficient ways to implement
+<span class='texttt'>xsgetn()</span>
+and
+<span class='texttt'>xsputn()</span>
+by overriding these definitions from the base class.</p></div></div><div id='streambuf.virt.pback'><h4 ><a class='secnum' href='#streambuf.virt.pback' style='min-width:133pt'>27.6.3.4.4</a> Putback <a class='abbr_ref' href='streambuf.virt.pback'>[streambuf.virt.pback]</a></h4><p ><span class='indexparent'><a class='index' id='pbackfail,basic_streambuf'></a></span><code class='itemdecl'>
+int_type pbackfail(int_type c = traits::eof());
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.virt.pback-1'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.pback-1'>1</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The public functions of
+<span class='texttt'>basic_streambuf</span>
+call this virtual function only when
+<span class='texttt'>gptr()</span>
+is null,
+<span class='texttt'>gptr() == eback()</span>,
+or
+<span class='texttt'>traits::eq(traits::to_char_type(c),gptr()[-1])</span>
+returns
+<span class='texttt'>false</span>.
+Other calls shall also satisfy that constraint.</p><p >The
+<a class='hidden_link' href='#def:pending_sequence' id='def:pending_sequence'><i>pending sequence</i></a>
+is defined as for
+<span class='texttt'>underflow()</span>,
+with the modifications that
+</p><ul ><li ><p >If
+<span class='texttt'>traits::eq_int_type(c,traits::eof())</span>
+returns
+<span class='texttt'>true</span>,
+then the input sequence is backed up one character before the pending sequence is determined.
+</p></li><li ><p >If
+<span class='texttt'>traits::eq_int_type(c,traits::eof())</span>
+returns <span class='texttt'>false</span>, then <span class='texttt'>c</span> is prepended.
+Whether the input sequence is backed up or modified in any other way is unspecified.
+</p></li></ul></div></div><div class='para' id='streambuf.virt.pback-2'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.pback-2'>2</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+On return, the constraints of
+<span class='texttt'>gptr()</span>,
+<span class='texttt'>eback()</span>,
+and
+<span class='texttt'>pptr()</span>
+are the same as for
+<span class='texttt'>underflow()</span>.</p></div></div><div class='para' id='streambuf.virt.pback-3'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.pback-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>traits::eof()</span>
+to indicate failure.
+Failure may occur because the input sequence could not be backed up, or if for some
+other reason the pointers could not be set consistent with the constraints.
+<span class='texttt'>pbackfail()</span>
+is called only when put back has really failed.</p></div></div><div class='para' id='streambuf.virt.pback-4'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.pback-4'>4</a></div><div class='itemdescr'><p >Returns some value other than
+<span class='texttt'>traits::eof()</span>
+to indicate success.</p></div></div><div class='para' id='streambuf.virt.pback-5'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.pback-5'>5</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+Returns
+<span class='texttt'>traits::eof()</span>.
+</p></div></div></div><div id='streambuf.virt.put'><h4 ><a class='secnum' href='#streambuf.virt.put' style='min-width:133pt'>27.6.3.4.5</a> Put area <a class='abbr_ref' href='streambuf.virt.put'>[streambuf.virt.put]</a></h4><p ><span class='indexparent'><a class='index' id='xsputn,basic_streambuf'></a></span><code class='itemdecl'>
+streamsize xsputn(const char_type* s, streamsize n);
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.virt.put-1'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.put-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Writes up to <span class='texttt'>n</span> characters to the output sequence as if
+by repeated calls to
+<span class='texttt'>sputc(c)</span>.
+The characters written are obtained from successive elements of
+the array whose first element is designated by <span class='texttt'>s</span>.
+Writing stops when either <span class='texttt'>n</span> characters have been written or
+a call to
+<span class='texttt'>sputc(c)</span>
+would return
+<span class='texttt'>traits::eof()</span>.
+Is is unspecified whether the function calls <span class='texttt'>overflow()</span> when <span class='texttt'>pptr() == epptr()</span> becomes true or whether it achieves the same effects by other means.</p></div></div><div class='para' id='streambuf.virt.put-2'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.put-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The number of characters written.
+</p></div></div><p ><span class='indexparent'><a class='index' id='overflow,basic_streambuf'></a></span><code class='itemdecl'>
+int_type overflow(int_type c = traits::eof());
+</code></p><div class='itemdescr'></div><div class='para' id='streambuf.virt.put-3'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.put-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Consumes some initial subsequence of the characters of the
+<a class='hidden_link' href='#def:pending_sequence' id='def:pending_sequence'><i>pending sequence</i></a>.
+The pending sequence is defined as the concatenation of
+
+ 
+ </p><ol ><li ><p >if
+<span class='texttt'>pbase()</span>
+is null then the empty sequence otherwise,
+<span class='texttt'>pptr() - pbase()</span>
+characters beginning at
+<span class='texttt'>pbase()</span>.
+</p></li><li ><p >if
+<span class='texttt'>traits::eq_int_type(c,traits::eof())</span>
+returns
+<span class='texttt'>true</span>,
+then the empty sequence
+otherwise, the sequence consisting of <span class='texttt'>c</span>.
+
+ </p></li></ol></div></div><div class='para' id='streambuf.virt.put-4'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.put-4'>4</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The member functions
+<span class='texttt'>sputc()</span>
+and
+<span class='texttt'>sputn()</span>
+call this function in case that
+no room can be found in the put buffer enough to accommodate the
+argument character sequence.</p></div></div><div class='para' id='streambuf.virt.put-5'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.put-5'>5</a></div><div class='itemdescr'><p ><i>Requires:</i>
+Every overriding definition of this virtual function
+shall obey the following constraints:
+
+ 
+ </p><ol ><li ><p >The effect of consuming a character on the associated output sequence is
+specified<a class='footnotenum' href='#footnote-310'>310</a>
+</p></li><li ><p >Let
+<span class='texttt'>r</span>
+be the number of characters in the pending sequence not consumed.
+If
+<span class='texttt'>r</span>
+is non-zero then
+<span class='texttt'>pbase()</span>
+and
+<span class='texttt'>pptr()</span>
+shall be set so that:
+<span class='texttt'>pptr() - pbase() == r</span>
+and the <span class='texttt'>r</span> characters starting at
+<span class='texttt'>pbase()</span>
+are the associated output stream.
+In case <span class='texttt'>r</span>  is zero (all characters of the pending sequence have been consumed)
+then either
+<span class='texttt'>pbase()</span>
+is set to
+<span class='texttt'>nullptr</span>,
+or
+<span class='texttt'>pbase()</span>
+and
+<span class='texttt'>pptr()</span>
+are both set to the same non-null value.
+</p></li><li ><p >The function may fail if either
+appending some character to the associated output stream fails or
+if it is unable to establish
+<span class='texttt'>pbase()</span>
+and
+<span class='texttt'>pptr()</span>
+according to the above rules.
+
+ </p></li></ol></div></div><div class='para' id='streambuf.virt.put-6'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.put-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>traits::eof()</span>
+or throws an exception
+if the function fails.</p><p >Otherwise,
+returns some value other than
+<span class='texttt'>traits::eof()</span>
+to indicate success.<a class='footnotenum' href='#footnote-311'>311</a></p></div></div><div class='para' id='streambuf.virt.put-7'><div class='marginalizedparent'><a class='marginalized' href='#streambuf.virt.put-7'>7</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+Returns
+<span class='texttt'>traits::eof()</span>.
+</p></div></div><div class='footnote' id='footnote-309'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-309'>309)</a></div><p >That is, for each class derived from an instance of
+<span class='texttt'>basic_streambuf</span>
+in this Clause (<a href='stringbuf'>[stringbuf]</a>,
+<a href='filebuf'>[filebuf]</a>),
+a specification of how consuming a character effects the associated output sequence is given.
+There is no requirement on a program-defined class.</p></div><div class='footnote' id='footnote-310'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-310'>310)</a></div><p >Typically,
+<span class='texttt'>overflow</span>
+returns <span class='texttt'>c</span> to indicate success, except when
+<span class='texttt'>traits::eq_int_type(c,traits::eof())</span>
+returns
+<span class='texttt'>true</span>,
+in which case it returns
+<span class='texttt'>traits::not_eof(c)</span>.</p></div></div></div></div></div></div></body></html>

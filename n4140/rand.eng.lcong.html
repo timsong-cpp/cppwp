@@ -1,0 +1,82 @@
+<!DOCTYPE html><html lang='en'><head><title>[rand.eng.lcong]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>26</a> Numerics library <a class='abbr_ref' href='./#numerics'>[numerics]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>26.5</a> Random number generation <a class='abbr_ref' href='rand#eng.lcong'>[rand]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>26.5.3</a> Random number engine class templates <a class='abbr_ref' href='rand.eng#lcong'>[rand.eng]</a></h3><div id='rand.eng.lcong'><h4 ><a class='secnum' style='min-width:118pt'>26.5.3.1</a> Class template <span class='texttt'>linear_congruential_engine</span> <a class='abbr_ref'>[rand.eng.lcong]</a></h4><p ><span class='indexparent'><a class='index' id='linear_congruential_engine'></a></span><span class='indexparent'><a class='index' id='random_number_engine,linear_congruential_engine'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A <span class='texttt'>linear_congruential_engine</span> random number engine
+produces unsigned integer random numbers.
+The state<span class='indexparent'><a class='index' id='linear_congruential_engine,state'></a></span>
+<span class='indexparent'><a class='index' id='state,linear_congruential_engine'></a></span>
+<span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>
+of a <span class='texttt'>linear_congruential_engine</span> object <span class='texttt'>x</span>
+is of size <span class='math'>1</span>
+and consists of a single integer.
+The transition algorithm<span class='indexparent'><a class='index' id='linear_congruential_engine,transition_algorithm'></a></span><span class='indexparent'><a class='index' id='transition_algorithm,linear_congruential_engine'></a></span>
+is a modular linear function of the form
+<span class='math'><span class='mathsf'>TA</span>(<span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>) = (<span class='mathalpha'>a</span> · <span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span> + <span class='mathalpha'>c</span>) <span class="mathrm">mod</span> <span class='mathalpha'>m</span></span>;
+the generation algorithm<span class='indexparent'><a class='index' id='linear_congruential_engine,generation_algorithm'></a></span><span class='indexparent'><a class='index' id='generation_algorithm,linear_congruential_engine'></a></span>
+is <span class='math'> <span class='mathsf'>GA</span>(<span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>) = <span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span>+1</sub></span> </span>.</p><pre class='codeblock'>
+template&lt;class UIntType, UIntType a, UIntType c, UIntType m&gt;
+ class linear_congruential_engine{
+public:
+ <span class='comment'>// types
+</span> typedef UIntType result_type;
+
+ <span class='comment'>// engine characteristics
+</span> static constexpr result_type multiplier = a;
+ static constexpr result_type increment = c;
+ static constexpr result_type modulus = m;
+ static constexpr result_type min() { return c == 0u ? 1u: 0u; }
+ static constexpr result_type max() { return m - 1u; }
+ static constexpr result_type default_seed = 1u;
+
+ <span class='comment'>// constructors and seeding functions
+</span> explicit linear_congruential_engine(result_type s = default_seed);
+ template&lt;class Sseq&gt; explicit linear_congruential_engine(Sseq&amp; q);
+ void seed(result_type s = default_seed);
+ template&lt;class Sseq&gt; void seed(Sseq&amp; q);
+
+ <span class='comment'>// generating functions
+</span> result_type operator()();
+ void discard(unsigned long long z);
+};
+</pre></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >If the template parameter
+<span class='texttt'>m</span> is <span class='math'>0</span>,
+the modulus <span class='math'><span class='mathalpha'>m</span></span>
+used throughout this section <a href='rand.eng.lcong'>[rand.eng.lcong]</a>
+<span class='indexparent'><a class='index' id='linear_congruential_engine,modulus'></a></span>
+is <span class='texttt'>numeric_limits&lt;result_type&gt;<span class='discretionary'></span>::<span class='discretionary'></span>max()</span> plus <span class='math'>1</span>.
+[&nbsp;<i>Note:</i>
+ <span class='math'><span class='mathalpha'>m</span></span> need not be representable
+ as a value of type <span class='texttt'>result_type</span>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >If the template parameter
+<span class='texttt'>m</span> is not <span class='math'>0</span>,
+the following relations shall hold:
+  <span class='texttt'>a &lt; m</span>
+and
+  <span class='texttt'>c &lt; m</span>.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >The textual representation<span class='indexparent'><a class='index' id='linear_congruential_engine,textual_representation'></a></span>
+consists of
+the value of <span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>.</p><p ><span class='indexparent'><a class='index' id='linear_congruential_engine,constructor'></a></span>
+<code class='itemdecl'>
+explicit linear_congruential_engine(result_type s = default_seed);
+</code></p></div><div class='itemdescr'></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>linear_congruential_engine</span> object.
+ If <span class='math'> <span class='mathalpha'>c</span> <span class="mathrm">mod</span> <span class='mathalpha'>m</span> </span> is <span class='math'>0</span> and <span class='math'> <span class='texttt'>s</span> <span class="mathrm">mod</span> <span class='mathalpha'>m</span> </span> is <span class='math'>0</span>,
+ sets the engine's state to <span class='math'>1</span>,
+ otherwise sets the engine's state to <span class='math'><span class='texttt'>s</span> <span class="mathrm">mod</span> <span class='mathalpha'>m</span></span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='linear_congruential_engine,constructor'></a></span>
+<code class='itemdecl'>
+template&lt;class Sseq&gt; explicit linear_congruential_engine(Sseq&amp; q);
+</code></p><div class='itemdescr'></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>linear_congruential_engine</span> object.
+ With
+ <img src='math/683121880504741354.png' class='mathinlineimg' alt='$ k = \left\lceil \frac{\log_2 m}
+                        {32}
+            \right\rceil
+ $'/>
+ and <span class='math'><span class='mathalpha'>a</span></span> an array (or equivalent)
+ of length <span class='math'><span class='mathalpha'>k</span> + 3</span>,
+ invokes <span class='texttt'>q.generate(<span class='math'><span class='mathalpha'>a</span>+0</span>, <span class='math'><span class='mathalpha'>a</span>+<span class='mathalpha'>k</span>+3</span>)</span>
+ and then computes
+ <img src='math/8705381519143027816.png' class='mathinlineimg' alt='$ S = \left(\sum_{j=0}^{k-1}a_{j+3} \cdot 2^{32j} \right) \bmod m $'/>.
+ If
+   <span class='math'> <span class='mathalpha'>c</span> <span class="mathrm">mod</span> <span class='mathalpha'>m</span> </span> is <span class='math'>0</span>
+ and
+   <span class='math'><span class='mathalpha'>S</span></span> is <span class='math'>0</span>,
+ sets the engine's state to <span class='math'>1</span>,
+ else sets the engine's state
+ to <span class='math'><span class='mathalpha'>S</span></span>.
+</p></div></div></div></div></body></html>

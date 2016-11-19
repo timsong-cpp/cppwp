@@ -1,0 +1,83 @@
+<!DOCTYPE html><html lang='en'><head><title>[class.mfct.non-static]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>9</a> Classes <a class='abbr_ref' href='./#class'>[class]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>9.3</a> Member functions <a class='abbr_ref' href='class.mfct#non-static'>[class.mfct]</a></h2><div id='class.mfct.non-static'><h3 ><a class='secnum' style='min-width:103pt'>9.3.1</a> Nonstatic member functions <a class='abbr_ref'>[class.mfct.non-static]</a></h3><p ><span class='indexparent'><a class='index' id='member_function,nonstatic'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A <span class='grammarterm'>non-static</span> member function may be called for an object of
+its class type, or for an object of a class derived
+(Clause <a href='class.derived'>[class.derived]</a>) from its class type, using the class member
+access syntax (<a href='expr.ref'>[expr.ref]</a>, <a href='over.match.call'>[over.match.call]</a>). A non-static
+member function may also be called directly using the function call
+syntax (<a href='expr.call'>[expr.call]</a>, <a href='over.match.call'>[over.match.call]</a>) from within
+the body of a member function of its class or of a class derived from
+its class.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='indexparent'><a class='index' id='member_function,call_undefined'></a></span>If a non-static member function of a class <span class='texttt'>X</span> is called for an
+object that is not of type <span class='texttt'>X</span>, or of a type derived from
+<span class='texttt'>X</span>, the behavior is undefined.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >When an <i ><a href='expr.prim.general#nt:id-expression'>id-expression</a></i> (<a href='expr.prim'>[expr.prim]</a>) that is not part of a
+class member access syntax (<a href='expr.ref'>[expr.ref]</a>) and not used to form a
+pointer to member (<a href='expr.unary.op'>[expr.unary.op]</a>) is used in
+a member of class <span class='texttt'>X</span> in a context where <span class='texttt'>this</span> can be
+used (<a href='expr.prim.general'>[expr.prim.general]</a>),
+if name
+lookup (<a href='basic.lookup'>[basic.lookup]</a>) resolves the name in the
+<i ><a href='expr.prim.general#nt:id-expression'>id-expression</a></i> to a non-static non-type member of some class
+<span class='texttt'>C</span>,
+and if either the <i ><a href='expr.prim.general#nt:id-expression'>id-expression</a></i> is potentially evaluated or
+<span class='texttt'>C</span> is <span class='texttt'>X</span> or a base class of <span class='texttt'>X</span>,
+the <i ><a href='expr.prim.general#nt:id-expression'>id-expression</a></i> is transformed into a class
+member access expression (<a href='expr.ref'>[expr.ref]</a>) using
+<span class='texttt'>(*this)</span> (<a href='class.this'>[class.this]</a>) as the <i ><a href='expr.post#nt:postfix-expression'>postfix-expression</a></i>
+to the left of the <span class='texttt'>.</span> operator.
+[&nbsp;<i>Note:</i>
+If <span class='texttt'>C</span> is not <span class='texttt'>X</span> or a base class of <span class='texttt'>X</span>, the class
+member access expression is ill-formed.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+Similarly during name lookup, when an
+<i ><a href='expr.prim.general#nt:unqualified-id'>unqualified-id</a></i> (<a href='expr.prim'>[expr.prim]</a>) used in the definition of a
+member function for class <span class='texttt'>X</span> resolves to a <span class='texttt'>static</span> member,
+an enumerator or a nested type of class <span class='texttt'>X</span> or of a base class of
+<span class='texttt'>X</span>, the <i ><a href='expr.prim.general#nt:unqualified-id'>unqualified-id</a></i> is transformed into a
+<i ><a href='expr.prim.general#nt:qualified-id'>qualified-id</a></i> (<a href='expr.prim'>[expr.prim]</a>) in which the
+<i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i> names the class of the member function.
+<span class='indexparent'><a class='index' id='example,member_function'></a></span>[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct tnode {
+  char tword[20];
+  int count;
+  tnode* left;
+  tnode* right;
+  void set(const char*, tnode* l, tnode* r);
+};
+
+void tnode::set(const char* w, tnode* l, tnode* r) {
+  count = strlen(w)+1;
+  if (sizeof(tword)&lt;=count)
+      perror("tnode string too long");
+  strcpy(tword,w);
+  left = l;
+  right = r;
+}
+
+void f(tnode n1, tnode n2) {
+  n1.set("abc",&amp;n2,0);
+  n2.set("def",0,0);
+}
+</pre><p >In the body of the member function <span class='texttt'>tnode::set</span>, the member names
+<span class='texttt'>tword</span>, <span class='texttt'>count</span>, <span class='texttt'>left</span>, and <span class='texttt'>right</span> refer to
+members of the object for which the function is called. Thus, in the
+call <span class='texttt'>n1.set("abc",&amp;n2,0)</span>, <span class='texttt'>tword</span> refers to
+<span class='texttt'>n1.tword</span>, and in the call <span class='texttt'>n2.set("def",0,0)</span>, it refers
+to <span class='texttt'>n2.tword</span>. The functions <span class='texttt'>strlen</span>, <span class='texttt'>perror</span>, and
+<span class='texttt'>strcpy</span> are not members of the class <span class='texttt'>tnode</span> and should be
+declared elsewhere.<a class='footnotenum' href='#footnote-111'>111</a>
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >A non-static member function may be declared <span class='texttt'>const</span>,
+<span class='texttt'>volatile</span>, or <span class='texttt'>const</span> <span class='texttt'>volatile</span>. These
+<span class='grammarterm'>cv-qualifiers</span> affect the type of the <span class='texttt'>this</span>
+pointer (<a href='class.this'>[class.this]</a>). They also affect the function
+type (<a href='dcl.fct'>[dcl.fct]</a>) of the member function; a member function declared
+<span class='texttt'>const</span> is a <a class='hidden_link' href='#def:const' id='def:const'><i>const</i></a> member function, a member function
+declared <span class='texttt'>volatile</span> is a <a class='hidden_link' href='#def:volatile' id='def:volatile'><i>volatile</i></a> member function and a
+member function declared <span class='texttt'>const</span> <span class='texttt'>volatile</span> is a
+<a class='hidden_link' href='#def:const_volatile' id='def:const_volatile'><i>const volatile</i></a> member function.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct X {
+  void g() const;
+  void h() const volatile;
+};
+</pre><p ><span class='texttt'>X::g</span> is a <span class='texttt'>const</span> member function and <span class='texttt'>X::h</span> is a
+<span class='texttt'>const</span> <span class='texttt'>volatile</span> member function.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >A non-static member function may be declared with a <i ><a href='dcl.decl#nt:ref-qualifier'>ref-qualifier</a></i> (<a href='dcl.fct'>[dcl.fct]</a>); see <a href='over.match.funcs'>[over.match.funcs]</a>.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >A non-static member function may be declared
+<a class='hidden_link' href='#def:virtual' id='def:virtual'><i>virtual</i></a> (<a href='class.virtual'>[class.virtual]</a>) or <a class='hidden_link' href='#def:pure_virtual' id='def:pure_virtual'><i>pure virtual</i></a> (<a href='class.abstract'>[class.abstract]</a>).</p></div><div class='footnote' id='footnote-111'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-111'>111)</a></div><p >See, for example, <span class='texttt'>&lt;cstring&gt;</span> (<a href='c.strings'>[c.strings]</a>).</p></div></div></div></body></html>

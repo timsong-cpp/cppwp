@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang='en'><head><title>[namespace.memdef]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>7</a> Declarations <a class='abbr_ref' href='./#dcl.dcl'>[dcl.dcl]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>7.3</a> Namespaces <a class='abbr_ref' href='basic.namespace#namespace.memdef'>[basic.namespace]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>7.3.1</a> Namespace definition <a class='abbr_ref' href='namespace.def#namespace.memdef'>[namespace.def]</a></h3><div id='namespace.memdef'><h4 ><a class='secnum' style='min-width:118pt'>7.3.1.2</a> Namespace member definitions <a class='abbr_ref'>[namespace.memdef]</a></h4><p ><span class='indexparent'><a class='index' id='namespace,member_definition'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Members (including explicit specializations of
+templates (<a href='temp.expl.spec'>[temp.expl.spec]</a>)) of a namespace can be defined within
+that namespace.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+namespace X {
+  void f() { <span class='comment'>/* ... */</span> }
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Members of a named namespace can also be
+defined outside that namespace by explicit
+qualification (<a href='namespace.qual'>[namespace.qual]</a>) of the name being defined, provided
+that the entity being defined was already declared in the namespace and
+the definition appears after the point of declaration in a namespace
+that encloses the declaration's namespace.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+namespace Q {
+  namespace V {
+    void f();
+  }
+  void V::f() { <span class='comment'>/* ... */</span> }     <span class='comment'>// OK
+</span>  void V::g() { <span class='comment'>/* ... */</span> }     <span class='comment'>// error: <span class='texttt'>g()</span> is not yet a member of <span class='texttt'>V</span>
+</span>  namespace V {
+    void g();
+  }
+}
+
+namespace R {
+  void Q::V::g() { <span class='comment'>/* ... */</span> }  <span class='comment'>// error: <span class='texttt'>R</span> doesn't enclose <span class='texttt'>Q</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >Every name first declared in a namespace is a member of that namespace.
+If a <span class='texttt'>friend</span> declaration in a non-local class first declares a
+class, function, class template or function template<a class='footnotenum' href='#footnote-97'>97</a>
+the friend is a member of the innermost enclosing
+namespace. The <span class='texttt'>friend</span> declaration does not by itself make the name
+visible to unqualified lookup (<a href='basic.lookup.unqual'>[basic.lookup.unqual]</a>) or qualified
+lookup (<a href='basic.lookup.qual'>[basic.lookup.qual]</a>). [&nbsp;<i>Note:</i> The name of the friend will be
+visible in its namespace if a matching declaration is provided at namespace
+scope (either before or after the class definition granting friendship).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] If a friend
+function or function template is called, its name may be found by the
+name lookup that considers functions from namespaces and classes
+associated with the types of the function
+arguments (<a href='basic.lookup.argdep'>[basic.lookup.argdep]</a>). If the
+name in a <span class='texttt'>friend</span> declaration is neither qualified nor a
+<i ><a href='temp.names#nt:template-id'>template-id</a></i> and the declaration is a function or an
+<i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i>, the lookup to determine whether
+the entity has been previously declared shall not consider any scopes
+outside the innermost enclosing namespace. [&nbsp;<i>Note:</i> The other forms of
+<span class='texttt'>friend</span> declarations cannot declare a new member of the innermost
+enclosing namespace and thus follow the usual lookup rules.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+<span class='comment'>// Assume <span class='texttt'>f</span> and <span class='texttt'>g</span> have not yet been declared.
+</span>void h(int);
+template &lt;class T&gt; void f2(T);
+namespace A {
+  class X {
+    friend void f(X);           <span class='comment'>// <span class='texttt'>A::f(X)</span> is a friend
+</span>    class Y {
+      friend void g();          <span class='comment'>// <span class='texttt'>A::g</span> is a friend
+</span>      friend void h(int);       <span class='comment'>// <span class='texttt'>A::h</span> is a friend
+</span>                                <span class='comment'>// <span class='texttt'>::h</span> not considered
+</span>      friend void f2&lt;&gt;(int);    <span class='comment'>// <span class='texttt'>::f2&lt;&gt;(int)</span> is a friend
+</span>    };
+  };
+
+  <span class='comment'>// <span class='texttt'>A::f</span>, <span class='texttt'>A::g</span> and <span class='texttt'>A::h</span> are not visible here
+</span>  X x;
+  void g() { f(x); }            <span class='comment'>// definition of <span class='texttt'>A::g</span>
+</span>  void f(X) <span class='texttt'>{ /* ... */}</span>       <span class='comment'>// definition of <span class='texttt'>A::f</span>
+</span>  void h(int) <span class='texttt'>{ /* ... */ }</span>    <span class='comment'>// definition of <span class='texttt'>A::h</span>
+</span>  <span class='comment'>// <span class='texttt'>A::f</span>, <span class='texttt'>A::g</span> and <span class='texttt'>A::h</span> are visible here and known to be friends
+</span>}
+
+using A::x;
+
+void h() {
+  A::f(x);
+  A::X::f(x);                   <span class='comment'>// error: <span class='texttt'>f</span> is not a member of <span class='texttt'>A::X</span>
+</span>  A::X::Y::g();                 <span class='comment'>// error: <span class='texttt'>g</span> is not a member of <span class='texttt'>A::X::Y</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-97'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-97'>97)</a></div><p >this implies that the name of the class or function is unqualified.</p></div></div></div></body></html>

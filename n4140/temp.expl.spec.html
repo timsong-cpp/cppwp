@@ -1,0 +1,343 @@
+<!DOCTYPE html><html lang='en'><head><title>[temp.expl.spec]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>14</a> Templates <a class='abbr_ref' href='./#temp'>[temp]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>14.7</a> Template instantiation and specialization <a class='abbr_ref' href='temp.spec#temp.expl.spec'>[temp.spec]</a></h2><div id='temp.expl.spec'><h3 ><a class='secnum' style='min-width:103pt'>14.7.3</a> Explicit specialization <a class='abbr_ref'>[temp.expl.spec]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='specialization,template_explicit'></a></span>An explicit specialization of any of the following:</p><ul ><li ><p >function template
+</p></li><li ><p >class template
+</p></li><li ><p >variable template
+</p></li><li ><p >member function of a class template
+</p></li><li ><p >static data member of a class template
+</p></li><li ><p >member class of a class template
+</p></li><li ><p >member enumeration of a class template
+</p></li><li ><p >member class template of a class or class template
+</p></li><li ><p >member function template of a class or class template
+</p></li></ul><p >can be declared by a declaration introduced by
+<span class='texttt'>template&lt;&gt;</span>;
+that is:
+<span class='indexparent'><a class='index' id='explicit-specialization'></a></span>
+</p><pre class='bnf'><a id='nt:explicit-specialization'>explicit-specialization:</a>
+  <span class='terminal'>template &lt; &gt;</span> <i ><a href='dcl.dcl#nt:declaration'>declaration</a></i></pre><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;class T&gt; class stream;
+
+template&lt;&gt; class stream&lt;char&gt; { <span class='comment'>/* ... */</span> };
+
+template&lt;class T&gt; class Array { <span class='comment'>/* ... */</span> };
+template&lt;class T&gt; void sort(Array&lt;T&gt;&amp; v) { <span class='comment'>/* ... */</span> }
+
+template&lt;&gt; void sort&lt;char*&gt;(Array&lt;char*&gt;&amp;) ;
+</pre><p >Given these declarations,
+<span class='texttt'>stream&lt;char&gt;</span>
+will be used as the definition of streams of
+<span class='texttt'>char</span>s;
+other streams will be handled by class template specializations instantiated
+from the class template.
+Similarly,
+<span class='texttt'>sort&lt;char*&gt;</span>
+will be used as the sort function for arguments
+of type
+<span class='texttt'>Array&lt;char*&gt;</span>;
+other
+<span class='texttt'>Array</span>
+types will be sorted by functions generated from the template.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >An explicit specialization shall be declared in a namespace enclosing the specialized template.
+An explicit specialization
+whose <i ><a href='dcl.decl#nt:declarator-id'>declarator-id</a></i> is not qualified
+shall be declared in the nearest enclosing namespace of the template,
+or, if the namespace is inline (<a href='namespace.def'>[namespace.def]</a>), any namespace from its enclosing namespace set.
+Such a declaration may also be a definition.
+If the declaration is not a definition, the specialization may be
+defined later (<a href='namespace.memdef'>[namespace.memdef]</a>).</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >A declaration of a function template, class template, or variable template being explicitly
+specialized shall precede the declaration of
+the explicit
+specialization.
+[&nbsp;<i>Note:</i>
+A declaration, but not a definition of the template is required.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+The definition of a class or class template shall precede the
+declaration of an explicit specialization for a member template of the class
+or class template.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;&gt; class X&lt;int&gt; { <span class='comment'>/* ... */</span> };          <span class='comment'>// error: <span class='texttt'>X</span> not a template
+</span>
+template&lt;class T&gt; class X;
+
+template&lt;&gt; class X&lt;char*&gt; { <span class='comment'>/* ... */</span> };        <span class='comment'>// OK: <span class='texttt'>X</span> is a template
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >A member function, a member function template, a member class,
+a member enumeration, a
+member class template,
+a static data member, or a static data member template of a class template
+may be explicitly specialized for a class specialization that is implicitly
+instantiated;
+in this case, the definition of the class template shall
+precede the explicit specialization for the member of the class
+template.
+If such an explicit specialization for the member of a class template names an
+implicitly-declared special member function (Clause <a href='special'>[special]</a>),
+the program is ill-formed.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >A member of an explicitly specialized class is not implicitly
+instantiated from the member declaration of the class template;
+instead, the member of the class template specialization shall itself be
+explicitly defined if its definition is required.
+In this case, the definition of the class template explicit specialization
+shall be in scope at the point at which the member is defined.
+The definition of an explicitly specialized class is unrelated to the
+definition of a generated specialization.
+That is, its members need
+not have the same names, types, etc. as the members of a generated
+specialization.
+Members of an explicitly specialized
+class template are defined in the same manner as members of normal classes, and
+not using the <span class='texttt'>template&lt;&gt;</span> syntax.
+The same is true when defining a member of an explicitly specialized member
+class. However, <span class='texttt'>template&lt;&gt;</span> is used in defining a member of an explicitly
+specialized member class template that is specialized as a class template.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T&gt; struct A {
+  struct B { };
+  template&lt;class U&gt; struct C { };
+};
+
+template&lt;&gt; struct A&lt;int&gt; {
+  void f(int);
+};
+
+void h() {
+  A&lt;int&gt; a;
+  a.f(16);          <span class='comment'>// <span class='texttt'>A&lt;int&gt;::f</span> must be defined somewhere
+</span>}
+
+<span class='comment'>// <span class='texttt'>template&lt;&gt;</span> not used for a member of an
+</span><span class='comment'>// explicitly specialized class template
+</span>void A&lt;int&gt;::f(int) { <span class='comment'>/* ... */</span> }
+
+template&lt;&gt; struct A&lt;char&gt;::B {
+  void f();
+};
+<span class='comment'>// <span class='texttt'>template&lt;&gt;</span> also not used when defining a member of
+</span><span class='comment'>// an explicitly specialized member class
+</span>void A&lt;char&gt;::B::f() { <span class='comment'>/* ... */</span> }
+
+template&lt;&gt; template&lt;class U&gt; struct A&lt;char&gt;::C {
+  void f();
+};
+<span class='comment'>// <span class='texttt'>template&lt;&gt;</span> is used when defining a member of an explicitly
+</span><span class='comment'>// specialized member class template specialized as a class template
+</span>template&lt;&gt;
+template&lt;class U&gt; void A&lt;char&gt;::C&lt;U&gt;::f() { <span class='comment'>/* ... */</span> }
+
+template&lt;&gt; struct A&lt;short&gt;::B {
+  void f();
+};
+template&lt;&gt; void A&lt;short&gt;::B::f() { <span class='comment'>/* ... */</span> }  <span class='comment'>// error: <span class='texttt'>template&lt;&gt;</span> not permitted
+</span>
+template&lt;&gt; template&lt;class U&gt; struct A&lt;short&gt;::C {
+  void f();
+};
+template&lt;class U&gt; void A&lt;short&gt;::C&lt;U&gt;::f() { <span class='comment'>/* ... */</span> }  <span class='comment'>// error: <span class='texttt'>template&lt;&gt;</span> required
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >If a template, a member template or a member of a class template is explicitly
+specialized then that specialization shall be declared before the first use of
+that specialization that would cause an implicit instantiation to take place,
+in every translation unit in which such a use occurs;
+no diagnostic is required.
+If the program does not provide a definition for an explicit specialization and
+either the specialization is used in a way that would cause an implicit
+instantiation to take place or the member is a virtual member function,
+the program is ill-formed, no diagnostic required.
+An implicit instantiation is never generated for an explicit specialization
+that is declared but not defined.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+class String { };
+template&lt;class T&gt; class Array { <span class='comment'>/* ... */</span> };
+template&lt;class T&gt; void sort(Array&lt;T&gt;&amp; v) { <span class='comment'>/* ... */</span> }
+
+void f(Array&lt;String&gt;&amp; v) {
+  sort(v);          <span class='comment'>// use primary template
+</span>                    <span class='comment'>// <span class='texttt'>sort(Array&lt;T&gt;&amp;)</span>, <span class='texttt'>T</span> is <span class='texttt'>String</span>
+</span>}
+
+template&lt;&gt; void sort&lt;String&gt;(Array&lt;String&gt;&amp; v); <span class='comment'>// error: specialization
+</span>                                                <span class='comment'>// after use of primary template
+</span>template&lt;&gt; void sort&lt;&gt;(Array&lt;char*&gt;&amp; v);        <span class='comment'>// OK: <span class='texttt'>sort&lt;char*&gt;</span> not yet used
+</span>template&lt;class T&gt; struct A {
+  enum E : T;
+  enum class S : T;
+};
+template&lt;&gt; enum A&lt;int&gt;::E : int { eint };         <span class='comment'>// OK
+</span>template&lt;&gt; enum class A&lt;int&gt;::S : int { sint };   <span class='comment'>// OK
+</span>template&lt;class T&gt; enum A&lt;T&gt;::E : T { eT };
+template&lt;class T&gt; enum class A&lt;T&gt;::S : T { sT };
+template&lt;&gt; enum A&lt;char&gt;::E : char { echar };       <span class='comment'>// ill-formed, <span class='texttt'>A&lt;char&gt;::E</span> was instantiated
+</span>                                                   <span class='comment'>// when <span class='texttt'>A&lt;char&gt;</span> was instantiated
+</span>template&lt;&gt; enum class A&lt;char&gt;::S : char { schar }; <span class='comment'>// OK
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >The placement of explicit specialization declarations for function templates, class
+templates, variable templates,
+member functions of class templates, static data members of class
+templates, member classes of class templates, member enumerations of class
+templates, member class templates of class
+templates, member function templates of class templates,
+static data member templates of class templates,
+member functions of
+member templates of class templates, member functions of member templates of
+non-template classes,
+static data member templates of non-template classes,
+member function templates of member classes of class
+templates, etc., and the placement of partial specialization declarations
+of class templates, variable templates,
+member class templates of non-template classes,
+static data member templates of non-template classes, member
+class templates of class templates, etc., can affect whether a program is
+well-formed according to the relative positioning of the explicit specialization
+declarations and their points of instantiation in the translation unit as
+specified above and below.
+<span class='indexparent'><a class='index' id='immolation,self'></a></span>When writing a specialization, be careful about its location;
+or to make it compile will be such a trial as to kindle its self-immolation.</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >A template explicit specialization is in the scope of the namespace in which
+the template was defined.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+namespace N {
+  template&lt;class T&gt; class X { <span class='comment'>/* ... */</span> };
+  template&lt;class T&gt; class Y { <span class='comment'>/* ... */</span> };
+
+  template&lt;&gt; class X&lt;int&gt; { <span class='comment'>/* ... */</span> };          <span class='comment'>// OK: specialization
+</span>                                                <span class='comment'>// in same namespace
+</span>  template&lt;&gt; class Y&lt;double&gt;;                   <span class='comment'>// forward declare intent to
+</span>                                                <span class='comment'>// specialize for <span class='texttt'>double</span>
+</span>}
+
+template&lt;&gt; class N::Y&lt;double&gt; { <span class='comment'>/* ... */</span> };      <span class='comment'>// OK: specialization
+</span>                                                <span class='comment'>// in enclosing namespace
+</span>template&lt;&gt; class N::Y&lt;short&gt; { <span class='comment'>/* ... */</span> };       <span class='comment'>// OK: specialization
+</span>                                                <span class='comment'>// in enclosing namespace
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >A
+<i ><a href='temp.names#nt:simple-template-id'>simple-template-id</a></i>
+that names a class template explicit specialization that has been declared but
+not defined can be used exactly like the names of other incompletely-defined
+classes (<a href='basic.types'>[basic.types]</a>).
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T&gt; class X;      <span class='comment'>// <span class='texttt'>X</span> is a class template
+</span>template&lt;&gt; class X&lt;int&gt;;
+
+X&lt;int&gt;* p;                      <span class='comment'>// OK: pointer to declared class <span class='texttt'>X&lt;int&gt;</span>
+</span>X&lt;int&gt; x;                       <span class='comment'>// error: object of incomplete class <span class='texttt'>X&lt;int&gt;</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >A trailing
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+can be left unspecified in the
+<i ><a href='temp.names#nt:template-id'>template-id</a></i>
+naming an explicit function template specialization
+provided it can be deduced from the function argument type.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T&gt; class Array { <span class='comment'>/* ... */</span> };
+template&lt;class T&gt; void sort(Array&lt;T&gt;&amp; v);
+
+<span class='comment'>// explicit specialization for <span class='texttt'>sort(Array&lt;int&gt;&amp;)</span>
+</span><span class='comment'>// with deduced template-argument of type <span class='texttt'>int</span>
+</span>template&lt;&gt; void sort(Array&lt;int&gt;&amp;);
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><p >A function with the same name as a template and a type that exactly matches that
+of a template specialization is not an explicit specialization (<a href='temp.fct'>[temp.fct]</a>).</p></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><p >An explicit specialization of a function template is inline
+only if it is declared with the <span class='texttt'>inline</span>
+specifier or defined as deleted, and independently of whether its
+function template is inline.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T&gt; void f(T) { <span class='comment'>/* ... */</span> }
+template&lt;class T&gt; inline T g(T) { <span class='comment'>/* ... */</span> }
+
+template&lt;&gt; inline void f&lt;&gt;(int) { <span class='comment'>/* ... */</span> }   <span class='comment'>// OK: inline
+</span>template&lt;&gt; int g&lt;&gt;(int) { <span class='comment'>/* ... */</span> }           <span class='comment'>// OK: not inline
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><p >An explicit specialization of a static data member of a template
+or an explicit specialization of a static data member template is a
+definition if the declaration includes an initializer;
+otherwise, it is a declaration.
+[&nbsp;<i>Note:</i>
+The definition of a static data member of a template
+that requires default initialization must use a <i ><a href='dcl.init#nt:braced-init-list'>braced-init-list</a></i>:</p><pre class='codeblock'>
+template&lt;&gt; X Q&lt;int&gt;::x;         <span class='comment'>// declaration
+</span>template&lt;&gt; X Q&lt;int&gt;::x ();      <span class='comment'>// error: declares a function
+</span>template&lt;&gt; X Q&lt;int&gt;::x { };     <span class='comment'>// definition
+</span></pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><p >A member or a member template of a class template may be explicitly specialized
+for a given implicit instantiation of the class template, even if the member
+or member template is defined in the class template definition.
+An explicit specialization of a member or member template is specified using the
+syntax for explicit specialization.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T&gt; struct A {
+  void f(T);
+  template&lt;class X1&gt; void g1(T, X1);
+  template&lt;class X2&gt; void g2(T, X2);
+  void h(T) { }
+};
+
+<span class='comment'>// specialization
+</span>template&lt;&gt; void A&lt;int&gt;::f(int);
+
+<span class='comment'>// out of class member template definition
+</span>template&lt;class T&gt; template&lt;class X1&gt; void A&lt;T&gt;::g1(T, X1) { }
+
+<span class='comment'>// member template specialization
+</span>template&lt;&gt; template&lt;class X1&gt; void A&lt;int&gt;::g1(int, X1);
+
+<span class='comment'>//member template specialization
+</span>template&lt;&gt; template&lt;&gt;
+  void A&lt;int&gt;::g1(int, char);           <span class='comment'>// <span class='texttt'>X1</span> deduced as <span class='texttt'>char</span>
+</span>template&lt;&gt; template&lt;&gt;
+  void A&lt;int&gt;::g2&lt;char&gt;(int, char);     <span class='comment'>// <span class='texttt'>X2</span> specified as <span class='texttt'>char</span>
+</span>
+<span class='comment'>// member specialization even if defined in class definition
+</span>template&lt;&gt; void A&lt;int&gt;::h(int) { }
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><p >A member or a member template may be nested within many enclosing class
+templates.
+In an explicit specialization for such a member,
+the member declaration shall be preceded by a
+<span class='texttt'>template&lt;&gt;</span>
+for each enclosing class template that is explicitly specialized.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T1&gt; class A {
+  template&lt;class T2&gt; class B {
+    void mf();
+  };
+};
+template&lt;&gt; template&lt;&gt; class A&lt;int&gt;::B&lt;double&gt;;
+template&lt;&gt; template&lt;&gt; void A&lt;char&gt;::B&lt;char&gt;::mf();
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='16'><div class='marginalizedparent'><a class='marginalized' href='#16'>16</a></div><p >In an explicit specialization declaration for a member of a class template or
+a member template that appears in namespace scope,
+the member template and some of its enclosing class templates may remain
+unspecialized,
+except that the declaration shall not explicitly specialize a class member
+template if its enclosing class templates are not explicitly specialized
+as well.
+In such explicit specialization declaration, the keyword
+<span class='texttt'>template</span>
+followed by a
+<i ><a href='temp#nt:template-parameter-list'>template-parameter-list</a></i>
+shall be provided instead of the
+<span class='texttt'>template&lt;&gt;</span>
+preceding the explicit specialization declaration of the member.
+The types of the
+<span class='grammarterm'>template-parameters</span>
+in the
+<i ><a href='temp#nt:template-parameter-list'>template-parameter-list</a></i>
+shall be the same as those specified in the primary template definition.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template &lt;class T1&gt; class A {
+  template&lt;class T2&gt; class B {
+    template&lt;class T3&gt; void mf1(T3);
+    void mf2();
+  };
+};
+template &lt;&gt; template &lt;class X&gt;
+  class A&lt;int&gt;::B {
+      template &lt;class T&gt; void mf1(T);
+  };
+template &lt;&gt; template &lt;&gt; template&lt;class T&gt;
+  void A&lt;int&gt;::B&lt;double&gt;::mf1(T t) { }
+template &lt;class Y&gt; template &lt;&gt;
+  void A&lt;Y&gt;::B&lt;double&gt;::mf2() { }       <span class='comment'>// ill-formed; <span class='texttt'>B&lt;double&gt;</span> is specialized but
+</span>                                        <span class='comment'>// its enclosing class template <span class='texttt'>A</span> is not
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='17'><div class='marginalizedparent'><a class='marginalized' href='#17'>17</a></div><p >A specialization of a member function template, member class template,
+or static data member template of
+a non-specialized class template is itself a template.</p></div><div class='para' id='18'><div class='marginalizedparent'><a class='marginalized' href='#18'>18</a></div><p >An explicit specialization declaration shall not be a friend declaration.</p></div><div class='para' id='19'><div class='marginalizedparent'><a class='marginalized' href='#19'>19</a></div><p >Default function arguments shall not be specified in a declaration or
+a definition for one of the following explicit specializations:</p><ul ><li ><p >the explicit specialization of a function template;
+</p></li><li ><p >the explicit specialization of a member function template;
+</p></li><li ><p >the explicit specialization of a member function of a class template where
+the class template specialization to which the member function specialization
+belongs is implicitly instantiated.
+[&nbsp;<i>Note:</i>
+Default function arguments may be specified in the declaration or
+definition of a member function of a class template specialization that is
+explicitly specialized.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></li></ul></div></div></div></body></html>

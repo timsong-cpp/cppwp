@@ -1,0 +1,321 @@
+<!DOCTYPE html><html lang='en'><head><title>[namespace.udecl]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>7</a> Declarations <a class='abbr_ref' href='./#dcl.dcl'>[dcl.dcl]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>7.3</a> Namespaces <a class='abbr_ref' href='basic.namespace#namespace.udecl'>[basic.namespace]</a></h2><div id='namespace.udecl'><h3 ><a class='secnum' style='min-width:103pt'>7.3.3</a> The <span class='texttt'>using</span> declaration <a class='abbr_ref'>[namespace.udecl]</a></h3><p ><span class='indexparent'><a class='index' id='using-declaration'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> introduces a name into the declarative
+region in which the <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> appears.</p><pre class='bnf'><a id='nt:using-declaration'>using-declaration:</a>
+    <span class='terminal'>using typename<span class='math'><sub ><span class='mathit'>opt</span></sub></span></span> <i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i> <i ><a href='expr.prim.general#nt:unqualified-id'>unqualified-id</a></i> <span class='terminal'>;</span>
+    <span class='terminal'>using ::</span> <i ><a href='expr.prim.general#nt:unqualified-id'>unqualified-id</a></i> <span class='terminal'>;</span></pre><p >The member name specified in a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> is declared
+in the declarative region in which the <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i>
+appears. [&nbsp;<i>Note:</i> Only the specified name is so declared; specifying
+an enumeration name in a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> does not declare
+its enumerators in the <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i>'s declarative
+region.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+If a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> names a constructor (<a href='class.qual'>[class.qual]</a>), it
+implicitly declares a set of constructors in the class in which the
+<i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> appears (<a href='class.inhctor'>[class.inhctor]</a>); otherwise the
+name specified in a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> is a synonym for a set of
+declarations in another namespace or class.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Every <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> is a <i ><a href='dcl.dcl#nt:declaration'>declaration</a></i> and a
+<i ><a href='class.mem#nt:member-declaration'>member-declaration</a></i> and so can be used in a class definition.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct B {
+  void f(char);
+  void g(char);
+  enum E { e };
+  union { int x; };
+};
+
+struct D : B {
+  using B::f;
+  void f(int) { f('c'); }       <span class='comment'>// calls <span class='texttt'>B::f(char)</span>
+</span>  void g(int) { g('c'); }       <span class='comment'>// recursively calls <span class='texttt'>D::g(int)</span>
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >In a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> used as a
+<i ><a href='class.mem#nt:member-declaration'>member-declaration</a></i>, the <i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i>
+shall name a base class of the class being defined. If such a
+<i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> names a constructor, the
+<i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i> shall name a direct base class of the class
+being defined; otherwise it introduces the set of declarations found by
+member name lookup (<a href='class.member.lookup'>[class.member.lookup]</a>, <a href='class.qual'>[class.qual]</a>).
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+class C {
+  int g();
+};
+
+class D2 : public B {
+  using B::f;                   <span class='comment'>// OK: <span class='texttt'>B</span> is a base of <span class='texttt'>D2</span>
+</span>  using B::e;                   <span class='comment'>// OK: <span class='texttt'>e</span> is an enumerator of base <span class='texttt'>B</span>
+</span>  using B::x;                   <span class='comment'>// OK: <span class='texttt'>x</span> is a union member of base <span class='texttt'>B</span>
+</span>  using C::g;                   <span class='comment'>// error: <span class='texttt'>C</span> isn't a base of <span class='texttt'>D2</span>
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >[&nbsp;<i>Note:</i>
+Since destructors do not have names, a
+<i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> cannot refer to a
+destructor for a base class. Since specializations of member templates
+for conversion functions are not found by name lookup, they are not
+considered when a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> specifies a conversion
+function (<a href='temp.mem'>[temp.mem]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+If an assignment operator brought from a base class into a derived class
+scope has the signature of a copy/move assignment
+operator for the derived
+class (<a href='class.copy'>[class.copy]</a>), the <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> does not by
+itself suppress the implicit declaration of the derived class
+assignment operator; the copy/move assignment
+operator from the base
+class is hidden or overridden by the implicitly-declared
+copy/move assignment
+operator of the derived class, as described below.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >A <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> shall not name a <i ><a href='temp.names#nt:template-id'>template-id</a></i>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct A {
+  template &lt;class T&gt; void f(T);
+  template &lt;class T&gt; struct X { };
+};
+struct B : A {
+  using A::f&lt;double&gt;;           <span class='comment'>// ill-formed
+</span>  using A::X&lt;int&gt;;              <span class='comment'>// ill-formed
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >A <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> shall not name a namespace.</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >A <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> shall not name a scoped enumerator.</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >A <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> for a class member shall be a
+<i ><a href='class.mem#nt:member-declaration'>member-declaration</a></i>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct X {
+  int i;
+  static int s;
+};
+
+void f() {
+  using X::i;       <span class='comment'>// error: <span class='texttt'>X::i</span> is a class member
+</span>                    <span class='comment'>// and this is not a member declaration.
+</span>  using X::s;       <span class='comment'>// error: <span class='texttt'>X::s</span> is a class member
+</span>                    <span class='comment'>// and this is not a member declaration.
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >Members declared by a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> can be referred to by
+explicit qualification just like other member
+names (<a href='namespace.qual'>[namespace.qual]</a>). In a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i>, a
+prefix <span class='texttt'>::</span> refers to the global namespace.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+void f();
+
+namespace A {
+  void g();
+}
+
+namespace X {
+  using ::f;        <span class='comment'>// global <span class='texttt'>f</span>
+</span>  using A::g;       <span class='comment'>// <span class='texttt'>A</span>'s <span class='texttt'>g</span>
+</span>}
+
+void h(){
+  X::f();           <span class='comment'>// calls <span class='texttt'>::f</span>
+</span>  X::g();           <span class='comment'>// calls <span class='texttt'>A::g</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >A <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> is a <i ><a href='dcl.dcl#nt:declaration'>declaration</a></i> and can
+therefore be used repeatedly where (and only where) multiple
+declarations are allowed.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+namespace A {
+  int i;
+}
+
+namespace A1 {
+  using A::i;
+  using A::i;       <span class='comment'>// OK: double declaration
+</span>}
+
+void f() {
+  using A::i;
+  using A::i;       <span class='comment'>// error: double declaration
+</span>}
+
+struct B {
+  int i;
+};
+
+struct X : B {
+  using B::i;
+  using B::i;       <span class='comment'>// error: double member declaration
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><p >Members added to the namespace after the <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i>
+are not considered when a use of the name is made. [&nbsp;<i>Note:</i> Thus, additional
+overloads added after the <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> are ignored, but
+default function arguments (<a href='dcl.fct.default'>[dcl.fct.default]</a>), default template
+arguments (<a href='temp.param'>[temp.param]</a>), and template specializations (<a href='temp.class.spec'>[temp.class.spec]</a>,
+<a href='temp.expl.spec'>[temp.expl.spec]</a>) are considered. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+namespace A {
+  void f(int);
+}
+
+using A::f;         <span class='comment'>// <span class='texttt'>f</span> is a synonym for <span class='texttt'>A::f</span>;
+</span>                    <span class='comment'>// that is, for <span class='texttt'>A::f(int)</span>.
+</span>namespace A {
+  void f(char);
+}
+
+void foo() {
+  f('a');           <span class='comment'>// calls <span class='texttt'>f(int)</span>,
+</span>}                   <span class='comment'>// even though <span class='texttt'>f(char)</span> exists.
+</span>
+void bar() {
+  using A::f;       <span class='comment'>// <span class='texttt'>f</span> is a synonym for <span class='texttt'>A::f</span>;
+</span>                    <span class='comment'>// that is, for <span class='texttt'>A::f(int)</span> and <span class='texttt'>A::f(char)</span>.
+</span>  f('a');           <span class='comment'>// calls <span class='texttt'>f(char)</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><p >[&nbsp;<i>Note:</i>
+Partial specializations of class templates are found by looking up the
+primary class template and then considering all partial specializations
+of that template. If a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> names a class
+template, partial specializations introduced after the
+<i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> are effectively visible because the primary
+template is visible (<a href='temp.class.spec'>[temp.class.spec]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><p >Since a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> is a declaration, the restrictions
+on declarations of the same name in the same declarative
+region (<a href='basic.scope'>[basic.scope]</a>) also apply to <i ><a href='namespace.udecl#nt:using-declaration'>using-declarations</a></i>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+namespace A {
+  int x;
+}
+
+namespace B {
+  int i;
+  struct g { };
+  struct x { };
+  void f(int);
+  void f(double);
+  void g(char);     <span class='comment'>// OK: hides <span class='texttt'>struct g</span>
+</span>}
+
+void func() {
+  int i;
+  using B::i;       <span class='comment'>// error: <span class='texttt'>i</span> declared twice
+</span>  void f(char);
+  using B::f;       <span class='comment'>// OK: each <span class='texttt'>f</span> is a function
+</span>  f(3.5);           <span class='comment'>// calls <span class='texttt'>B::f(double)</span>
+</span>  using B::g;
+  g('a');           <span class='comment'>// calls <span class='texttt'>B::g(char)</span>
+</span>  struct g g1;      <span class='comment'>// <span class='texttt'>g1</span> has class type <span class='texttt'>B::g</span>
+</span>  using B::x;
+  using A::x;       <span class='comment'>// OK: hides <span class='texttt'>struct B::x</span>
+</span>  x = 99;           <span class='comment'>// assigns to <span class='texttt'>A::x</span>
+</span>  struct x x1;      <span class='comment'>// <span class='texttt'>x1</span> has class type <span class='texttt'>B::x</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><p >If a function declaration in namespace scope or block scope has the same
+name and the same parameter-type-list (<a href='dcl.fct'>[dcl.fct]</a>) as
+a function introduced by a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i>, and the
+declarations do not declare the same function, the program is
+ill-formed. If a function template declaration in namespace scope has
+the same name, parameter-type-list, return type, and template
+parameter list as a function template introduced by a
+<i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i>, the program is ill-formed.
+[&nbsp;<i>Note:</i>
+Two <i ><a href='namespace.udecl#nt:using-declaration'>using-declarations</a></i> may introduce functions with the same
+name and the same parameter-type-list. If, for a call to an unqualified
+function name, function overload resolution selects the functions
+introduced by such <i ><a href='namespace.udecl#nt:using-declaration'>using-declarations</a></i>, the function call is
+ill-formed.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+namespace B {
+  void f(int);
+  void f(double);
+}
+namespace C {
+  void f(int);
+  void f(double);
+  void f(char);
+}
+
+void h() {
+  using B::f;       <span class='comment'>// <span class='texttt'>B::f(int)</span> and <span class='texttt'>B::f(double)</span>
+</span>  using C::f;       <span class='comment'>// <span class='texttt'>C::f(int)</span>, <span class='texttt'>C::f(double)</span>, and <span class='texttt'>C::f(char)</span>
+</span>  f('h');           <span class='comment'>// calls <span class='texttt'>C::f(char)</span>
+</span>  f(1);             <span class='comment'>// error: ambiguous: <span class='texttt'>B::f(int)</span> or <span class='texttt'>C::f(int)</span>?
+</span>  void f(int);      <span class='comment'>// error: <span class='texttt'>f(int)</span> conflicts with <span class='texttt'>C::f(int)</span> and <span class='texttt'>B::f(int)</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><p ><span class='indexparent'><a class='index' id='name_hiding,using-declaration_and'></a></span>When a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> brings names from a base class into
+a derived class scope, member functions and member function templates in
+the derived class override and/or hide member functions and member
+function templates with the same name,
+parameter-type-list (<a href='dcl.fct'>[dcl.fct]</a>), cv-qualification, and <i ><a href='dcl.decl#nt:ref-qualifier'>ref-qualifier</a></i> (if any) in a base
+class (rather than conflicting).
+[&nbsp;<i>Note:</i> For <i ><a href='namespace.udecl#nt:using-declaration'>using-declarations</a></i> that name a constructor, see <a href='class.inhctor'>[class.inhctor]</a>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct B {
+  virtual void f(int);
+  virtual void f(char);
+  void g(int);
+  void h(int);
+};
+
+struct D : B {
+  using B::f;
+  void f(int);      <span class='comment'>// OK: <span class='texttt'>D::f(int)</span> overrides <span class='texttt'>B::f(int)</span>;
+</span>
+  using B::g;
+  void g(char);     <span class='comment'>// OK
+</span>
+  using B::h;
+  void h(int);      <span class='comment'>// OK: <span class='texttt'>D::h(int)</span> hides <span class='texttt'>B::h(int)</span>
+</span>};
+
+void k(D* p){
+  p-&gt;f(1);          <span class='comment'>// calls <span class='texttt'>D::f(int)</span>
+</span>  p-&gt;f('a');        <span class='comment'>// calls <span class='texttt'>B::f(char)</span>
+</span>  p-&gt;g(1);          <span class='comment'>// calls <span class='texttt'>B::g(int)</span>
+</span>  p-&gt;g('a');        <span class='comment'>// calls <span class='texttt'>D::g(char)</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='16'><div class='marginalizedparent'><a class='marginalized' href='#16'>16</a></div><p ><span class='indexparent'><a class='index' id='overloading,using-declaration_and'></a></span>For the purpose of overload resolution, the functions which are
+introduced by a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> into a derived class will
+be treated as though they were members of the derived class. In
+particular, the implicit <span class='texttt'>this</span> parameter shall be treated as if
+it were a pointer to the derived class rather than to the base class.
+This has no effect on the type of the function, and in all other
+respects the function remains a member of the base class.</p></div><div class='para' id='17'><div class='marginalizedparent'><a class='marginalized' href='#17'>17</a></div><p ><span class='indexparent'><a class='index' id='access_control,using-declaration_and'></a></span>The access rules for inheriting constructors are specified
+in <a href='class.inhctor'>[class.inhctor]</a>; otherwise all instances of the name mentioned in a
+<i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i>
+shall be accessible. In particular, if a derived class uses a
+<i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> to access a member of a base class, the
+member name shall be accessible. If the name is that of an overloaded
+member function, then all functions named shall be accessible. The base
+class members mentioned by a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> shall be
+visible in the scope of at least one of the direct base classes of the
+class where the <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> is specified. [&nbsp;<i>Note:</i>
+Because a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> designates a base class member
+(and not a member subobject or a member function of a base class
+subobject), a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> cannot be used to resolve
+inherited member ambiguities. For example,</p><pre class='codeblock'>
+struct A { int x(); };
+struct B : A { };
+struct C : A {
+  using A::x;
+  int x(int);
+};
+
+struct D : B, C {
+  using C::x;
+  int x(double);
+};
+int f(D* d) {
+  return d-&gt;x();    <span class='comment'>// ambiguous: <span class='texttt'>B::x</span> or <span class='texttt'>C::x</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='18'><div class='marginalizedparent'><a class='marginalized' href='#18'>18</a></div><p >The alias created by the <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> has the usual
+accessibility for a <i ><a href='class.mem#nt:member-declaration'>member-declaration</a></i>.
+[&nbsp;<i>Note:</i> A <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> that names a constructor does not
+create aliases; see <a href='class.inhctor'>[class.inhctor]</a> for the pertinent accessibility rules.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+class A {
+private:
+    void f(char);
+public:
+    void f(int);
+protected:
+    void g();
+};
+
+class B : public A {
+  using A::f;       <span class='comment'>// error: <span class='texttt'>A::f(char)</span> is inaccessible
+</span>public:
+  using A::g;       <span class='comment'>// <span class='texttt'>B::g</span> is a public synonym for <span class='texttt'>A::g</span>
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='19'><div class='marginalizedparent'><a class='marginalized' href='#19'>19</a></div><p >If a <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> uses the keyword <span class='texttt'>typename</span> and
+specifies a dependent name (<a href='temp.dep'>[temp.dep]</a>), the name introduced by the
+<i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> is treated as a
+<i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i> (<a href='dcl.typedef'>[dcl.typedef]</a>).<span class='indexparent'><a class='index' id='using-declaration'></a></span></p></div></div></div></body></html>

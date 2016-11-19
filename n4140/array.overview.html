@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang='en'><head><title>[array.overview]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>23</a> Containers library <a class='abbr_ref' href='./#containers'>[containers]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>23.3</a> Sequence containers <a class='abbr_ref' href='sequences#array.overview'>[sequences]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>23.3.2</a> Class template <span class='texttt'>array</span> <a class='abbr_ref' href='array#overview'>[array]</a></h3><div id='array.overview'><h4 ><a class='secnum' style='min-width:118pt'>23.3.2.1</a> Class template <span class='texttt'>array</span> overview <a class='abbr_ref'>[array.overview]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='array,contiguous_storage'></a></span>The header <span class='texttt'>&lt;array&gt;</span> defines a class template for storing fixed-size
+sequences of objects. An <span class='texttt'>array</span> supports random access iterators. An
+instance of <span class='texttt'>array&lt;T, N&gt;</span> stores <span class='texttt'>N</span> elements of type <span class='texttt'>T</span>, so that
+<span class='texttt'>size() == N</span> is an invariant. The elements of an <span class='texttt'>array</span> are stored contiguously,
+meaning that if <span class='texttt'>a</span> is an <span class='texttt'>array&lt;T, N&gt;</span> then it obeys the identity
+<code >&amp;a[n] == &amp;a[0] + n</code> for all <span class='texttt'>0 &lt;= n &lt; N</span>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='indexparent'><a class='index' id='array,initialization'></a></span><span class='indexparent'><a class='index' id='array,as_aggregate'></a></span>An <span class='texttt'>array</span> is an aggregate (<a href='dcl.init.aggr'>[dcl.init.aggr]</a>) that can be
+initialized with the syntax
+</p><pre class='codeblock'>
+array&lt;T, N&gt; a = { <i>initializer-list</i> };
+</pre><p >where <i>initializer-list</i> is a comma-separated list of up
+to <span class='texttt'>N</span> elements whose types are convertible to <span class='texttt'>T</span>.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p ><span class='indexparent'><a class='index' id='requirements,container'></a></span>An <span class='texttt'>array</span> satisfies all of the requirements of a container and
+of a reversible container (<a href='container.requirements'>[container.requirements]</a>), except that a default
+constructed <span class='texttt'>array</span> object is not empty and that <span class='texttt'>swap</span> does not have constant
+complexity. An <span class='texttt'>array</span> satisfies some of the requirements of a sequence
+container (<a href='sequence.reqmts'>[sequence.reqmts]</a>).
+Descriptions are provided here
+only for operations on <span class='texttt'>array</span> that are not described in
+one of these tables and
+for operations where there is additional semantic information.</p><p ><span class='indexparent'><a class='index' id='array'></a></span><span class='indexparent'><a class='index' id='array,begin'></a></span><span class='indexparent'><a class='index' id='begin,array'></a></span><span class='indexparent'><a class='index' id='array,end'></a></span><span class='indexparent'><a class='index' id='end,array'></a></span><span class='indexparent'><a class='index' id='array,size'></a></span><span class='indexparent'><a class='index' id='size,array'></a></span><span class='indexparent'><a class='index' id='array,max_size'></a></span><span class='indexparent'><a class='index' id='max_size,array'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class T, size_t N&gt;
+  struct array {
+    <span class='comment'>//  types:
+</span>    typedef T&amp;                                    reference;
+    typedef const T&amp;                              const_reference;
+    typedef <span class='indexparent'><a class='index' id='type_of_array::iterator'></a></span><i>implementation-defined</i>                iterator;
+    typedef <span class='indexparent'><a class='index' id='type_of_array::const_iterator'></a></span><i>implementation-defined</i>                const_iterator;
+    typedef size_t                                size_type;
+    typedef ptrdiff_t                             difference_type;
+    typedef T                                     value_type;
+    typedef T*                                    pointer;
+    typedef const T*                              const_pointer;
+    typedef std::reverse_iterator&lt;iterator&gt;       reverse_iterator;
+    typedef std::reverse_iterator&lt;const_iterator&gt; const_reverse_iterator;
+
+    T       elems[N];           <span class='comment'>// <i>exposition only</i>
+</span>
+    <span class='comment'>// no explicit construct/copy/destroy for aggregate type
+</span>
+    void fill(const T&amp; u);
+    void swap(array&amp;) noexcept(noexcept(swap(declval&lt;T&amp;&gt;(), declval&lt;T&amp;&gt;())));
+
+    <span class='comment'>// iterators:
+</span>    iterator               begin() noexcept;
+    const_iterator         begin() const noexcept;
+    iterator               end() noexcept;
+    const_iterator         end() const noexcept;
+
+    reverse_iterator       rbegin() noexcept;
+    const_reverse_iterator rbegin() const noexcept;
+    reverse_iterator       rend() noexcept;
+    const_reverse_iterator rend() const noexcept;
+
+    const_iterator         cbegin() const noexcept;
+    const_iterator         cend() const noexcept;
+    const_reverse_iterator crbegin() const noexcept;
+    const_reverse_iterator crend() const noexcept;
+
+    <span class='comment'>// capacity:
+</span>    constexpr size_type size() const noexcept;
+    constexpr size_type max_size() const noexcept;
+    constexpr bool      empty() const noexcept;
+
+    <span class='comment'>// element access:
+</span>    reference                 operator[](size_type n);
+    constexpr const_reference operator[](size_type n) const;
+    reference                 at(size_type n);
+    constexpr const_reference at(size_type n) const;
+    reference                 front();
+    constexpr const_reference front() const;
+    reference                 back();
+    constexpr const_reference back() const;
+
+    T *       data() noexcept;
+    const T * data() const noexcept;
+  };
+}
+</pre></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >[&nbsp;<i>Note:</i> The member variable <span class='texttt'>elems</span> is shown for exposition only,
+to emphasize that <span class='texttt'>array</span> is a class aggregate.  The name <span class='texttt'>elems</span>
+is not part of <span class='texttt'>array</span>'s interface. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div></div></body></html>

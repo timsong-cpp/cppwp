@@ -1,0 +1,141 @@
+<!DOCTYPE html><html lang='en'><head><title>[except.throw]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>15</a> Exception handling <a class='abbr_ref' href='./#except'>[except]</a></h1><div id='except.throw'><h2 ><a class='secnum' style='min-width:88pt'>15.1</a> Throwing an exception <a class='abbr_ref'>[except.throw]</a></h2><p ><span class='indexparent'><a class='index' id='exception_handling,throwing'></a></span><span class='indexparent'><a class='index' id='throwing'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Throwing an exception transfers control to a handler.
+[&nbsp;<i>Note:</i>
+An exception can be thrown from one of the following contexts:
+<i ><a href='except#nt:throw-expression'>throw-expression</a></i> (see below), allocation
+functions (<a href='basic.stc.dynamic.allocation'>[basic.stc.dynamic.allocation]</a>),
+<span class='texttt'>dynamic_cast</span> (<a href='expr.dynamic.cast'>[expr.dynamic.cast]</a>),
+<span class='texttt'>typeid</span> (<a href='expr.typeid'>[expr.typeid]</a>),
+<i ><a href='expr.new#nt:new-expression'>new-expression</a></i> (<a href='expr.new'>[expr.new]</a>), and standard library
+functions (<a href='structure.specifications'>[structure.specifications]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+An object is passed and the type of that object determines which handlers
+can catch it.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+throw "Help!";
+</pre><p >can be caught by a
+<a class='hidden_link' href='#def:handler' id='def:handler'><i>handler</i></a>
+of
+<span class='texttt'>const</span>
+<span class='texttt'>char*</span>
+type:
+</p><pre class='codeblock'>
+try {
+    <span class='comment'>// ...
+</span>}
+catch(const char* p) {
+    <span class='comment'>// handle character string exceptions here
+</span>}
+</pre><p >and
+</p><pre class='codeblock'>
+class Overflow {
+public:
+    Overflow(char,double,double);
+};
+
+void f(double x) {
+    throw Overflow('+',x,3.45e107);
+}
+</pre><p >can be caught by a handler for exceptions of type
+<span class='texttt'>Overflow</span>
+</p><pre class='codeblock'>
+try {
+    f(1.2);
+} catch(Overflow&amp; oo) {
+    <span class='comment'>// handle exceptions of type <span class='texttt'>Overflow</span> here
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='indexparent'><a class='index' id='exception_handling,throwing'></a></span><span class='indexparent'><a class='index' id='exception_handling,handler'></a></span><span class='indexparent'><a class='index' id='exception_handling,nearest_handler'></a></span>When an exception is thrown, control is transferred to the nearest handler with
+a matching type (<a href='except.handle'>[except.handle]</a>); “nearest” means the handler
+for which the
+<i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i> or
+<i ><a href='class.base.init#nt:ctor-initializer'>ctor-initializer</a></i>
+following the
+<span class='texttt'>try</span>
+keyword was most recently entered by the thread of control and not yet exited.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >Throwing an exception
+copy-initializes (<a href='dcl.init'>[dcl.init]</a>, <a href='class.copy'>[class.copy]</a>) a temporary object,
+called the
+<span class='indexparent'><a class='index' id='exception_handling,exception_object'></a></span><a class='hidden_link' href='#def:exception_object' id='def:exception_object'><i>exception object</i></a>.
+The temporary is an lvalue and is used to initialize the
+variable declared in the matching
+<a class='hidden_link' href='#def:handler' id='def:handler'><i>handler</i></a> (<a href='except.handle'>[except.handle]</a>).
+If the type of the exception object would
+be an incomplete type or a pointer to an incomplete
+type other than (possibly cv-qualified)
+<span class='texttt'>void</span> the program is ill-formed.
+Evaluating a <i ><a href='except#nt:throw-expression'>throw-expression</a></i> with an operand throws an
+exception; the type of the exception object is determined by removing
+any top-level <span class='grammarterm'>cv-qualifiers</span> from the static type of the
+operand and adjusting the type from “array of <span class='texttt'>T</span>” or “function
+returning <span class='texttt'>T</span>” to “pointer to <span class='texttt'>T</span>” or “pointer to function returning
+<span class='texttt'>T</span>,” respectively.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p ><span class='indexparent'><a class='index' id='exception_handling,memory'></a></span><span class='indexparent'><a class='index' id='exception_handling,rethrowing'></a></span><span class='indexparent'><a class='index' id='exception_handling,exception_object'></a></span>The memory for the exception object is
+allocated in an unspecified way, except as noted in <a href='basic.stc.dynamic.allocation'>[basic.stc.dynamic.allocation]</a>.
+If a handler exits by rethrowing, control is passed to another handler for
+the same exception.
+The exception object is destroyed after either
+the last remaining active handler for the exception exits by
+any means other than
+rethrowing, or the last object of type <span class='texttt'>std::exception_ptr</span> (<a href='propagation'>[propagation]</a>)
+that refers to the exception object is destroyed, whichever is later. In the former
+case, the destruction occurs when the handler exits, immediately after the destruction
+of the object declared in the <i ><a href='except#nt:exception-declaration'>exception-declaration</a></i> in the handler, if any.
+In the latter case, the destruction occurs before the destructor of <span class='texttt'>std::exception_ptr</span>
+returns.
+The implementation may then
+deallocate the memory for the exception object; any such deallocation
+is done in an unspecified way.
+[&nbsp;<i>Note:</i> a thrown exception does not
+propagate to other threads unless caught, stored, and rethrown using
+appropriate library functions; see <a href='propagation'>[propagation]</a> and <a href='futures'>[futures]</a>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p ><span class='indexparent'><a class='index' id='exception_handling,exception_object,constructor'></a></span><span class='indexparent'><a class='index' id='exception_handling,exception_object,destructor'></a></span>When the thrown object is a class object, the constructor selected for
+the copy-initialization and the
+destructor shall be accessible, even if the copy/move operation is
+elided (<a href='class.copy'>[class.copy]</a>).</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p ><span class='indexparent'><a class='index' id='exception_handling,rethrow'></a></span><span class='indexparent'><a class='index' id='rethrow'></a></span><span class='indexparent'><a class='index' id='reraise'></a></span>An exception is considered caught when a handler for that exception
+becomes active (<a href='except.handle'>[except.handle]</a>).
+[&nbsp;<i>Note:</i>
+An exception can have active handlers and still be considered uncaught if
+it is rethrown.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p ><span class='indexparent'><a class='index' id='exception_handling,terminate_called'></a></span><span class='indexparent'><a class='index' id='terminate(),called'></a></span>If the exception handling mechanism, after completing the initialization of the
+exception object but before the activation of a handler for the exception,
+calls a function that exits via an
+exception, <span class='texttt'>std::terminate</span> is called (<a href='except.terminate'>[except.terminate]</a>). [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct C {
+  C() { }
+  C(const C&amp;) {
+    if (std::uncaught_exception()) {
+      throw 0;      <span class='comment'>// throw during copy to handler's <span class='grammarterm'>exception-declaration</span> object (<a href='except.handle'>[except.handle]</a>)
+</span>    }
+  }
+};
+
+int main() {
+  try {
+    throw C();      <span class='comment'>// calls <span class='texttt'>std::terminate()</span> if construction of the handler's
+</span>                    <span class='comment'>// <span class='grammarterm'>exception-declaration</span> object is not elided (<a href='class.copy'>[class.copy]</a>)
+</span>  } catch(C) { }
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p ><span class='indexparent'><a class='index' id='exception_handling,rethrow'></a></span>A
+<i ><a href='except#nt:throw-expression'>throw-expression</a></i>
+with no operand rethrows the currently handled exception (<a href='except.handle'>[except.handle]</a>).
+The exception is reactivated with the existing exception object;
+no new exception object is created.
+The exception
+is no longer considered to be caught; therefore, the value
+of
+<span class='texttt'>std::uncaught_exception()</span>
+will again be
+<span class='texttt'>true</span>.
+[&nbsp;<i>Example:</i>
+code that must be executed because of an exception yet cannot
+completely handle the exception can be written like this:
+</p><pre class='codeblock'>
+try {
+    <span class='comment'>// ...
+</span>} catch (...) {     <span class='comment'>// catch all exceptions
+</span>  <span class='comment'>// respond (partially) to exception
+</span>  throw;            <span class='comment'>// pass the exception to some
+</span>                    <span class='comment'>// other handler
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p ><span class='indexparent'><a class='index' id='exception_handling,rethrow'></a></span><span class='indexparent'><a class='index' id='exception_handling,terminate_called'></a></span><span class='indexparent'><a class='index' id='terminate(),called'></a></span>If no exception is presently being handled,
+executing a
+<i ><a href='except#nt:throw-expression'>throw-expression</a></i>
+with no operand calls
+<span class='texttt'>std<span class='discretionary'></span>::<span class='discretionary'></span>terminate()</span> (<a href='except.terminate'>[except.terminate]</a>).</p></div></div></div></body></html>

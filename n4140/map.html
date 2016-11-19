@@ -1,0 +1,273 @@
+<!DOCTYPE html><html lang='en'><head><title>[map]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>23</a> Containers library <a class='abbr_ref' href='./#containers'>[containers]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>23.4</a> Associative containers <a class='abbr_ref' href='associative#map'>[associative]</a></h2><div id='map'><h3 ><a class='secnum' style='min-width:103pt'>23.4.4</a> Class template <span class='texttt'>map</span> <a class='abbr_ref'>[map]</a></h3><div id='overview'><h4 ><a class='secnum' href='#overview' style='min-width:118pt'>23.4.4.1</a> Class template <span class='texttt'>map</span> overview <a class='abbr_ref' href='map.overview'>[map.overview]</a></h4><p ><span class='indexparent'><a class='index' id='map'></a></span></p><div class='para' id='overview-1'><div class='marginalizedparent'><a class='marginalized' href='#overview-1'>1</a></div><p >A <span class='texttt'>map</span> is an associative container that
+supports unique keys (contains at most one of each key value) and
+provides for fast retrieval of values of another type <span class='texttt'>T</span> based
+on the keys. The <span class='texttt'>map</span> class supports bidirectional iterators.</p></div><div class='para' id='overview-2'><div class='marginalizedparent'><a class='marginalized' href='#overview-2'>2</a></div><p >A
+<span class='texttt'>map</span>
+satisfies all of the requirements of a container, of a reversible container (<a href='container.requirements'>[container.requirements]</a>), of
+an associative container (<a href='associative.reqmts'>[associative.reqmts]</a>), and of an allocator-aware container (Table <a href='container.requirements.general#tab:containers.allocatoraware'>[tab:containers.allocatoraware]</a>).
+A
+<span class='texttt'>map</span>
+also provides most operations described in (<a href='associative.reqmts'>[associative.reqmts]</a>)
+for unique keys.
+This means that a
+<span class='texttt'>map</span>
+supports the
+<span class='texttt'>a_uniq</span>
+operations in (<a href='associative.reqmts'>[associative.reqmts]</a>)
+but not the
+<span class='texttt'>a_eq</span>
+operations.
+For a
+<span class='texttt'>map&lt;Key,T&gt;</span>
+the
+<span class='texttt'>key_type</span>
+is
+<span class='texttt'>Key</span>
+and the
+<span class='texttt'>value_type</span>
+is
+<span class='texttt'>pair&lt;const Key,T&gt;</span>.
+Descriptions are provided here only for operations on
+<span class='texttt'>map</span>
+that are not described in one of those tables
+or for operations where there is additional semantic information.</p><pre class='codeblock'>
+namespace std {
+  template &lt;class Key, class T, class Compare = less&lt;Key&gt;,
+            class Allocator = allocator&lt;pair&lt;const Key, T&gt; &gt; &gt;
+  class map {
+  public:
+    <span class='comment'>// types:
+</span>    typedef Key                                   key_type;
+    typedef T                                     mapped_type;
+    typedef pair&lt;const Key, T&gt;                    value_type;
+    typedef Compare                               key_compare;
+    typedef Allocator                             allocator_type;
+    typedef value_type&amp;                           reference;
+    typedef const value_type&amp;                     const_reference;
+    typedef <i>implementation-defined</i>                iterator;       <span class='comment'>// see <a href='container.requirements'>[container.requirements]</a>
+</span>    typedef <i>implementation-defined</i>                const_iterator; <span class='comment'>// see <a href='container.requirements'>[container.requirements]</a>
+</span>    typedef <i>implementation-defined</i>                size_type;      <span class='comment'>// see <a href='container.requirements'>[container.requirements]</a>
+</span>    typedef <i>implementation-defined</i>                difference_type;<span class='comment'>// see <a href='container.requirements'>[container.requirements]</a>
+</span>    typedef typename allocator_traits&lt;Allocator&gt;::pointer           pointer;
+    typedef typename allocator_traits&lt;Allocator&gt;::const_pointer     const_pointer;
+    typedef std::reverse_iterator&lt;iterator&gt;       reverse_iterator;
+    typedef std::reverse_iterator&lt;const_iterator&gt; const_reverse_iterator;
+
+    class value_compare {
+    friend class map;
+    protected:
+      Compare comp;
+      value_compare(Compare c) : comp(c) {}
+    public:
+      typedef bool result_type;
+      typedef value_type first_argument_type;
+      typedef value_type second_argument_type;
+      bool operator()(const value_type&amp; x, const value_type&amp; y) const {
+        return comp(x.first, y.first);
+      }
+    };
+
+    <span class='comment'>// <a href='map.cons'>[map.cons]</a>, construct/copy/destroy:
+</span>    map() : map(Compare()) { }
+    explicit map(const Compare&amp; comp,
+                 const Allocator&amp; = Allocator());
+    template &lt;class InputIterator&gt;
+      map(InputIterator first, InputIterator last,
+          const Compare&amp; comp = Compare(), const Allocator&amp; = Allocator());
+    map(const map&amp; x);
+    map(map&amp;&amp; x);
+    explicit map(const Allocator&amp;);
+    map(const map&amp;, const Allocator&amp;);
+    map(map&amp;&amp;, const Allocator&amp;);
+    map(initializer_list&lt;value_type&gt;,
+      const Compare&amp; = Compare(),
+      const Allocator&amp; = Allocator());
+    template &lt;class InputIterator&gt;
+    map(InputIterator first, InputIterator last, const Allocator&amp; a)
+      : map(first, last, Compare(), a) { }
+    map(initializer_list&lt;value_type&gt; il, const Allocator&amp; a)
+      : map(il, Compare(), a) { }
+   ~map();
+    map&amp; operator=(const map&amp; x);
+    map&amp; operator=(map&amp;&amp; x);
+    map&amp; operator=(initializer_list&lt;value_type&gt;);
+    allocator_type get_allocator() const noexcept;
+
+    <span class='comment'>// iterators:
+</span>    iterator               begin() noexcept;
+    const_iterator         begin() const noexcept;
+    iterator               end() noexcept;
+    const_iterator         end() const noexcept;
+
+    reverse_iterator       rbegin() noexcept;
+    const_reverse_iterator rbegin() const noexcept;
+    reverse_iterator       rend() noexcept;
+    const_reverse_iterator rend() const noexcept;
+
+    const_iterator         cbegin() const noexcept;
+    const_iterator         cend() const noexcept;
+    const_reverse_iterator crbegin() const noexcept;
+    const_reverse_iterator crend() const noexcept;
+
+    <span class='comment'>// capacity:
+</span>    bool      empty() const noexcept;
+    size_type size() const noexcept;
+    size_type max_size() const noexcept;
+
+    <span class='comment'>// <a href='map.access'>[map.access]</a>, element access:
+</span>    T&amp; operator[](const key_type&amp; x);
+    T&amp; operator[](key_type&amp;&amp; x);
+    T&amp;       at(const key_type&amp; x);
+    const T&amp; at(const key_type&amp; x) const;
+
+    <span class='comment'>// <a href='map.modifiers'>[map.modifiers]</a>, modifiers:
+</span>    template &lt;class... Args&gt; pair&lt;iterator, bool&gt; emplace(Args&amp;&amp;... args);
+    template &lt;class... Args&gt; iterator emplace_hint(const_iterator position, Args&amp;&amp;... args);
+    pair&lt;iterator, bool&gt; insert(const value_type&amp; x);
+    template &lt;class P&gt; pair&lt;iterator, bool&gt; insert(P&amp;&amp; x);
+    iterator insert(const_iterator position, const value_type&amp; x);
+    template &lt;class P&gt;
+      iterator insert(const_iterator position, P&amp;&amp;);
+    template &lt;class InputIterator&gt;
+      void insert(InputIterator first, InputIterator last);
+    void insert(initializer_list&lt;value_type&gt;);
+
+    iterator  erase(const_iterator position);
+    size_type erase(const key_type&amp; x);
+    iterator  erase(const_iterator first, const_iterator last);
+    void swap(map&amp;);
+    void clear() noexcept;
+
+    <span class='comment'>// observers:
+</span>    key_compare   key_comp() const;
+    value_compare value_comp() const;
+
+    <span class='comment'>// map operations:
+</span>    iterator       find(const key_type&amp; x);
+    const_iterator find(const key_type&amp; x) const;
+    template &lt;class K&gt; iterator       find(const K&amp; x);
+    template &lt;class K&gt; const_iterator find(const K&amp; x) const;
+
+    size_type      count(const key_type&amp; x) const;
+    template &lt;class K&gt; size_type count(const K&amp; x) const;
+
+    iterator       lower_bound(const key_type&amp; x);
+    const_iterator lower_bound(const key_type&amp; x) const;
+    template &lt;class K&gt; iterator       lower_bound(const K&amp; x);
+    template &lt;class K&gt; const_iterator lower_bound(const K&amp; x) const;
+
+    iterator       upper_bound(const key_type&amp; x);
+    const_iterator upper_bound(const key_type&amp; x) const;
+    template &lt;class K&gt; iterator       upper_bound(const K&amp; x);
+    template &lt;class K&gt; const_iterator upper_bound(const K&amp; x) const;
+
+    pair&lt;iterator,iterator&gt;
+      equal_range(const key_type&amp; x);
+    pair&lt;const_iterator,const_iterator&gt;
+      equal_range(const key_type&amp; x) const;
+    template &lt;class K&gt;
+      pair&lt;iterator, iterator&gt;             equal_range(const K&amp; x);
+    template &lt;class K&gt;
+      pair&lt;const_iterator, const_iterator&gt; equal_range(const K&amp; x) const;
+  };
+
+  template &lt;class Key, class T, class Compare, class Allocator&gt;
+    bool operator==(const map&lt;Key,T,Compare,Allocator&gt;&amp; x,
+                    const map&lt;Key,T,Compare,Allocator&gt;&amp; y);
+  template &lt;class Key, class T, class Compare, class Allocator&gt;
+    bool operator&lt; (const map&lt;Key,T,Compare,Allocator&gt;&amp; x,
+                    const map&lt;Key,T,Compare,Allocator&gt;&amp; y);
+  template &lt;class Key, class T, class Compare, class Allocator&gt;
+    bool operator!=(const map&lt;Key,T,Compare,Allocator&gt;&amp; x,
+                    const map&lt;Key,T,Compare,Allocator&gt;&amp; y);
+  template &lt;class Key, class T, class Compare, class Allocator&gt;
+    bool operator&gt; (const map&lt;Key,T,Compare,Allocator&gt;&amp; x,
+                    const map&lt;Key,T,Compare,Allocator&gt;&amp; y);
+  template &lt;class Key, class T, class Compare, class Allocator&gt;
+    bool operator&gt;=(const map&lt;Key,T,Compare,Allocator&gt;&amp; x,
+                    const map&lt;Key,T,Compare,Allocator&gt;&amp; y);
+  template &lt;class Key, class T, class Compare, class Allocator&gt;
+    bool operator&lt;=(const map&lt;Key,T,Compare,Allocator&gt;&amp; x,
+                    const map&lt;Key,T,Compare,Allocator&gt;&amp; y);
+
+  <span class='comment'>// specialized algorithms:
+</span>  template &lt;class Key, class T, class Compare, class Allocator&gt;
+    void swap(map&lt;Key,T,Compare,Allocator&gt;&amp; x,
+              map&lt;Key,T,Compare,Allocator&gt;&amp; y);
+}
+</pre></div></div><div id='cons'><h4 ><a class='secnum' href='#cons' style='min-width:118pt'>23.4.4.2</a> <span class='texttt'>map</span> constructors, copy, and assignment <a class='abbr_ref' href='map.cons'>[map.cons]</a></h4><p ><span class='indexparent'><a class='index' id='map,operator=='></a></span><span class='indexparent'><a class='index' id='map,operator<'></a></span></p><p ><span class='indexparent'><a class='index' id='map,map'></a></span><span class='indexparent'><a class='index' id='map,map'></a></span><code class='itemdecl'>
+explicit map(const Compare&amp; comp,
+             const Allocator&amp; = Allocator());
+</code></p><div class='itemdescr'></div><div class='para' id='cons-1'><div class='marginalizedparent'><a class='marginalized' href='#cons-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs an empty
+<span class='texttt'>map</span>
+using the specified comparison object and allocator.</p></div></div><div class='para' id='cons-2'><div class='marginalizedparent'><a class='marginalized' href='#cons-2'>2</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+Constant.
+</p></div></div><p ><span class='indexparent'><a class='index' id='map,constructor'></a></span><code class='itemdecl'>
+template &lt;class InputIterator&gt;
+  map(InputIterator first, InputIterator last,
+      const Compare&amp; comp = Compare(), const Allocator&amp; = Allocator());
+</code></p><div class='itemdescr'></div><div class='para' id='cons-3'><div class='marginalizedparent'><a class='marginalized' href='#cons-3'>3</a></div><div class='itemdescr'><p ><i>Requires:</i> If the iterator's indirection operator returns an lvalue or a
+const rvalue <span class='texttt'>pair&lt;key_type, mapped_type&gt;</span>, then both
+<span class='texttt'>key_type</span> and <span class='texttt'>mapped_type</span> shall be
+<span class='texttt'>CopyInsertable</span> into <span class='texttt'>*this</span>.</p></div></div><div class='para' id='cons-4'><div class='marginalizedparent'><a class='marginalized' href='#cons-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs an empty
+<span class='texttt'>map</span>
+using the specified comparison object and allocator,
+and inserts elements from the range
+<span class='texttt'>[<span class='discretionary'></span>first,<span class='discretionary'></span>last<span class='discretionary'></span>)</span>.</p></div></div><div class='para' id='cons-5'><div class='marginalizedparent'><a class='marginalized' href='#cons-5'>5</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+Linear in <span class='math'><span class='mathalpha'>N</span></span> if the range
+<span class='texttt'>[<span class='discretionary'></span>first,<span class='discretionary'></span>last<span class='discretionary'></span>)</span>
+is already sorted using <span class='texttt'>comp</span>
+and otherwise <span class='math'><span class='mathalpha'>N</span> <span class="mathrm">log</span>N</span>, where <span class='math'><span class='mathalpha'>N</span></span>
+is <span class='texttt'>last</span> - <span class='texttt'>first</span>.
+</p></div></div></div><div id='access'><h4 ><a class='secnum' href='#access' style='min-width:118pt'>23.4.4.3</a> <span class='texttt'>map</span> element access <a class='abbr_ref' href='map.access'>[map.access]</a></h4><p ><span class='indexparent'><a class='index' id='operator[],map'></a></span><code class='itemdecl'>
+T&amp; operator[](const key_type&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='access-1'><div class='marginalizedparent'><a class='marginalized' href='#access-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+If there is no key equivalent to <span class='texttt'>x</span> in the map, inserts
+<span class='texttt'>value_type(x, T())</span>
+into the map.</p></div></div><div class='para' id='access-2'><div class='marginalizedparent'><a class='marginalized' href='#access-2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>key_type</span> shall be
+<span class='texttt'>CopyInsertable</span> and <span class='texttt'>mapped_type</span> shall be
+<span class='texttt'>DefaultInsertable</span> into <span class='texttt'>*this</span>.</p></div></div><div class='para' id='access-3'><div class='marginalizedparent'><a class='marginalized' href='#access-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A reference to the
+<span class='texttt'>mapped_type</span>
+corresponding to <span class='texttt'>x</span> in
+<span class='texttt'>*this</span>.</p></div></div><div class='para' id='access-4'><div class='marginalizedparent'><a class='marginalized' href='#access-4'>4</a></div><div class='itemdescr'><p ><i>Complexity:</i> Logarithmic.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator[],map'></a></span><code class='itemdecl'>
+T&amp; operator[](key_type&amp;&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='access-5'><div class='marginalizedparent'><a class='marginalized' href='#access-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+If there is no key equivalent to <span class='texttt'>x</span> in the map, inserts
+<span class='texttt'>value_type(std::move(x), T())</span>
+into the map.</p></div></div><div class='para' id='access-6'><div class='marginalizedparent'><a class='marginalized' href='#access-6'>6</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>mapped_type</span> shall be
+<span class='texttt'>DefaultInsertable</span> into <span class='texttt'>*this</span>.</p></div></div><div class='para' id='access-7'><div class='marginalizedparent'><a class='marginalized' href='#access-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A reference to the
+<span class='texttt'>mapped_type</span>
+corresponding to <span class='texttt'>x</span> in
+<span class='texttt'>*this</span>.</p></div></div><div class='para' id='access-8'><div class='marginalizedparent'><a class='marginalized' href='#access-8'>8</a></div><div class='itemdescr'><p ><i>Complexity:</i> Logarithmic.
+</p></div></div><p ><span class='indexparent'><a class='index' id='at,map'></a></span><code class='itemdecl'>
+T&amp;       at(const key_type&amp; x);
+const T&amp; at(const key_type&amp; x) const;
+</code></p><div class='itemdescr'></div><div class='para' id='access-9'><div class='marginalizedparent'><a class='marginalized' href='#access-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A reference to the <span class='texttt'>mapped_type</span> corresponding to <span class='texttt'>x</span> in <span class='texttt'>*this</span>.</p></div></div><div class='para' id='access-10'><div class='marginalizedparent'><a class='marginalized' href='#access-10'>10</a></div><div class='itemdescr'><p ><i>Throws:</i>
+An exception object of type <span class='texttt'>out_of_range</span> if
+no such element is present.</p></div></div><div class='para' id='access-11'><div class='marginalizedparent'><a class='marginalized' href='#access-11'>11</a></div><div class='itemdescr'><p ><i>Complexity:</i> Logarithmic.
+</p></div></div></div><div id='modifiers'><h4 ><a class='secnum' href='#modifiers' style='min-width:118pt'>23.4.4.4</a> <span class='texttt'>map</span> modifiers <a class='abbr_ref' href='map.modifiers'>[map.modifiers]</a></h4><p ><span class='indexparent'><a class='index' id='insert,map'></a></span><span class='indexparent'><a class='index' id='map,insert'></a></span><code class='itemdecl'>
+template &lt;class P&gt; pair&lt;iterator, bool&gt; insert(P&amp;&amp; x);
+template &lt;class P&gt; iterator insert(const_iterator position, P&amp;&amp; x);
+template &lt;class InputIterator&gt;
+  void insert(InputIterator first, InputIterator last);
+</code></p><div class='itemdescr'></div><div class='para' id='modifiers-1'><div class='marginalizedparent'><a class='marginalized' href='#modifiers-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+The first form is equivalent to 
+<span class='texttt'>return emplace(std::forward&lt;P&gt;(x))</span>. The second form is
+equivalent to <span class='texttt'>return emplace_hint(position, std::forward&lt;P&gt;(x))</span>.</p></div></div><div class='para' id='modifiers-2'><div class='marginalizedparent'><a class='marginalized' href='#modifiers-2'>2</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+These signatures shall not participate in overload resolution
+unless <span class='texttt'>std::is_constructible&lt;value_type, P&amp;&amp;&gt;::value</span> is
+<span class='texttt'>true</span>.
+</p></div></div></div><div id='special'><h4 ><a class='secnum' href='#special' style='min-width:118pt'>23.4.4.5</a> <span class='texttt'>map</span> specialized algorithms <a class='abbr_ref' href='map.special'>[map.special]</a></h4><p ><span class='indexparent'><a class='index' id='swap,map'></a></span><span class='indexparent'><a class='index' id='map,swap'></a></span><code class='itemdecl'>
+template &lt;class Key, class T, class Compare, class Allocator&gt;
+  void swap(map&lt;Key,T,Compare,Allocator&gt;&amp; x,
+            map&lt;Key,T,Compare,Allocator&gt;&amp; y);
+</code></p><div class='itemdescr'></div><div class='para' id='special-1'><div class='marginalizedparent'><a class='marginalized' href='#special-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><pre class='codeblock'>
+x.swap(y);
+</pre></div></div></div></div></div></body></html>

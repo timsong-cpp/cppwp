@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang='en'><head><title>[func.bind.bind]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.9</a> Function objects <a class='abbr_ref' href='function.objects#func.bind.bind'>[function.objects]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>20.9.9</a> Function object binders <a class='abbr_ref' href='func.bind#bind'>[func.bind]</a></h3><div id='func.bind.bind'><h4 ><a class='secnum' style='min-width:118pt'>20.9.9.3</a> Function template <span class='texttt'>bind</span> <a class='abbr_ref'>[func.bind.bind]</a></h4><p ><span class='indexparent'><a class='index' id='bind'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >In the text that follows, the following names have the following meanings:</p><ul ><li ><p ><span class='texttt'>FD</span> is the type <span class='texttt'>decay_t&lt;F&gt;</span>,
+</p></li><li ><p ><span class='texttt'>fd</span> is an lvalue of type <span class='texttt'>FD</span> constructed from <span class='texttt'>std::forward&lt;F&gt;(f)</span>,
+</p></li><li ><p ><span class='texttt'>Ti</span> is the <span class='math'><span class='mathalpha'>i</span><sup ><span class='mathalpha'>th</span></sup></span> type in the template parameter pack <span class='texttt'>BoundArgs</span>,
+</p></li><li ><p ><span class='texttt'>TiD</span> is the type <span class='texttt'>decay_t&lt;Ti&gt;</span>,
+</p></li><li ><p ><span class='texttt'>ti</span> is the <span class='math'><span class='mathalpha'>i</span><sup ><span class='mathalpha'>th</span></sup></span> argument in the function parameter pack <span class='texttt'>bound_args</span>,
+</p></li><li ><p ><span class='texttt'>tid</span> is an lvalue of type <span class='texttt'>TiD</span> constructed from <span class='texttt'>std::forward&lt;Ti&gt;(ti)</span>,
+</p></li><li ><p ><span class='texttt'>Uj</span> is the <span class='math'><span class='mathalpha'>j</span><sup ><span class='mathalpha'>th</span></sup></span> deduced type of the <span class='texttt'>UnBoundArgs&amp;&amp;...</span> parameter
+  of the forwarding call wrapper, and
+</p></li><li ><p ><span class='texttt'>uj</span> is the <span class='math'><span class='mathalpha'>j</span><sup ><span class='mathalpha'>th</span></sup></span> argument associated with <span class='texttt'>Uj</span>.
+</p></li></ul><p ><span class='indexparent'><a class='index' id='bind'></a></span>
+<code class='itemdecl'>
+template&lt;class F, class... BoundArgs&gt;
+  <i><span class='texttt'>unspecified</span></i> bind(F&amp;&amp; f, BoundArgs&amp;&amp;... bound_args);
+</code></p></div><div class='itemdescr'></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>is_constructible&lt;FD, F&gt;::value</span> shall be <span class='texttt'>true</span>. For each <span class='texttt'>Ti</span>
+in <span class='texttt'>BoundArgs</span>, <span class='texttt'>is_constructible&lt;TiD, Ti&gt;::value</span> shall be <span class='texttt'>true</span>.
+<span class='texttt'><i>INVOKE</i> (fd, w1, w2, ...,
+wN)</span> (<a href='func.require'>[func.require]</a>) shall be a valid expression for some
+values <i>w1, w2, ..., wN</i>, where
+<span class='texttt'>N == sizeof...(bound_args)</span>.</p></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> A forwarding call wrapper <span class='texttt'>g</span> with a weak result
+type (<a href='func.require'>[func.require]</a>). The effect of <span class='texttt'>g(u1, u2, ..., uM)</span> shall
+be <span class='texttt'><i>INVOKE</i>(fd, std::forward&lt;V1&gt;(v1), std::forward&lt;V2&gt;(v2), ..., std::forward&lt;VN&gt;(vN), result_of_t&lt;FD <i>cv</i> &amp;
+(V1, V2, ..., VN)&gt;)</span>, where <span class='texttt'><i>cv</i></span> represents the
+<i>cv</i>-qualifiers of <span class='texttt'>g</span> and the values and types of the bound
+arguments <span class='texttt'>v1, v2, ..., vN</span> are determined as specified below.
+The copy constructor and move constructor of the forwarding call wrapper shall throw an
+exception if and only if the corresponding constructor of <span class='texttt'>FD</span> or of any of the types
+<span class='texttt'>TiD</span> throws an exception.</p></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing unless the construction of
+<span class='texttt'>fd</span> or of one of the values <span class='texttt'>tid</span> throws an exception.</p></div></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Remarks:</i> The return type shall satisfy the requirements of <span class='texttt'>MoveConstructible</span>. If all
+of <span class='texttt'>FD</span> and <span class='texttt'>TiD</span> satisfy the requirements of <span class='texttt'>CopyConstructible</span>, then the
+return type shall satisfy the requirements of <span class='texttt'>CopyConstructible</span>. [&nbsp;<i>Note:</i> This implies
+that all of <span class='texttt'>FD</span> and <span class='texttt'>TiD</span> are <span class='texttt'>MoveConstructible</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='bind'></a></span>
+<code class='itemdecl'>
+template&lt;class R, class F, class... BoundArgs&gt;
+  <i><span class='texttt'>unspecified</span></i> bind(F&amp;&amp; f, BoundArgs&amp;&amp;... bound_args);
+</code></p><div class='itemdescr'></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>is_constructible&lt;FD, F&gt;::value</span> shall be <span class='texttt'>true</span>. For each <span class='texttt'>Ti</span>
+in <span class='texttt'>BoundArgs</span>, <span class='texttt'>is_constructible&lt;TiD, Ti&gt;::value</span> shall be <span class='texttt'>true</span>.
+<span class='texttt'><i>INVOKE</i>(fd, w1, w2, ..., wN)</span> shall be  a valid
+expression for some
+values <i>w1, w2, ..., wN</i>, where
+<span class='texttt'>N == sizeof...(bound_args)</span>.</p></div></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> A forwarding call wrapper <span class='texttt'>g</span> with a nested  type
+<span class='texttt'>result_type</span> defined as a synonym for <span class='texttt'>R</span>.  The effect of
+<span class='texttt'>g(u1, u2, ..., uM)</span> shall be <span class='texttt'><i>INVOKE</i>(fd,
+std::forward&lt;V1&gt;(v1), std::forward&lt;V2&gt;(v2), ...,
+std::forward&lt;VN&gt;(vN), R)</span>, where the values and types of the bound
+arguments <span class='texttt'>v1, v2, ..., vN</span> are determined as specified below.
+The copy constructor and move constructor of the forwarding call wrapper shall throw an
+exception if and only if the corresponding constructor of <span class='texttt'>FD</span> or of any of the types
+<span class='texttt'>TiD</span> throws an exception.</p></div></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing unless the construction of
+<span class='texttt'>fd</span> or of one of the values <span class='texttt'>tid</span> throws an exception.</p></div></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='itemdescr'><p ><i>Remarks:</i> The return type shall satisfy the requirements of <span class='texttt'>MoveConstructible</span>. If all
+of <span class='texttt'>FD</span> and <span class='texttt'>TiD</span> satisfy the requirements of <span class='texttt'>CopyConstructible</span>, then the
+return type shall satisfy the requirements of <span class='texttt'>CopyConstructible</span>. [&nbsp;<i>Note:</i> This implies
+that all of <span class='texttt'>FD</span> and <span class='texttt'>TiD</span> are <span class='texttt'>MoveConstructible</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p ><span class='indexparent'><a class='index' id='bound_arguments'></a></span>The values of the <i>bound arguments</i> <span class='texttt'>v1, v2, ..., vN</span> and their
+corresponding types <span class='texttt'>V1, V2, ..., VN</span> depend on the
+types <span class='texttt'>TiD</span> derived from
+the call to <span class='texttt'>bind</span> and the
+<i>cv</i>-qualifiers <i>cv</i> of the call wrapper <span class='texttt'>g</span> as follows:</p><ul ><li ><p >if <span class='texttt'>TiD</span> is <span class='texttt'>reference_wrapper&lt;T&gt;</span>, the
+argument is <span class='texttt'>tid.get()</span> and its type <span class='texttt'>Vi</span> is <span class='texttt'>T&amp;</span>;</p></li><li ><p >if the value of <span class='texttt'>is_bind_expression&lt;TiD&gt;::value</span>
+is <span class='texttt'>true</span>, the argument is <span class='texttt'>tid(std::forward&lt;Uj&gt;(<span class='discretionary'></span>uj)...)</span>  and its
+type <span class='texttt'>Vi</span> is
+<span class='texttt'>result_of_t&lt;TiD <i>cv</i> &amp; (Uj&amp;&amp;...)&gt;&amp;&amp;</span>;</p></li><li ><p >if the value <span class='texttt'>j</span> of <span class='texttt'>is_placeholder&lt;TiD&gt;::value</span>
+is not zero, the  argument is <span class='texttt'>std::forward&lt;Uj&gt;(uj)</span>
+and its type <span class='texttt'>Vi</span>
+is <span class='texttt'>Uj&amp;&amp;</span>;</p></li><li ><p >otherwise, the value is <span class='texttt'>tid</span> and its type <span class='texttt'>Vi</span>
+is <span class='texttt'>TiD <i>cv</i> &amp;</span>.
+</p></li></ul></div></div></div></body></html>

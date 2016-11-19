@@ -1,0 +1,134 @@
+<!DOCTYPE html><html lang='en'><head><title>[deque.overview]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>23</a> Containers library <a class='abbr_ref' href='./#containers'>[containers]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>23.3</a> Sequence containers <a class='abbr_ref' href='sequences#deque.overview'>[sequences]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>23.3.3</a> Class template <span class='texttt'>deque</span> <a class='abbr_ref' href='deque#overview'>[deque]</a></h3><div id='deque.overview'><h4 ><a class='secnum' style='min-width:118pt'>23.3.3.1</a> Class template <span class='texttt'>deque</span> overview <a class='abbr_ref'>[deque.overview]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A
+<span class='indexparent'><a class='index' id='deque'></a></span><span class='texttt'>deque</span>
+is a sequence container that, like a
+<span class='texttt'>vector</span> (<a href='vector'>[vector]</a>), supports random access iterators.
+In addition, it supports constant time insert and erase operations at the beginning or the end;
+insert and erase in the middle take linear time.
+That is, a deque is especially optimized for pushing and popping elements at the beginning and end.
+As with vectors, storage management is handled automatically.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >A
+<span class='texttt'>deque</span>
+satisfies all of the requirements of a container, of a reversible container
+(given in tables in <a href='container.requirements'>[container.requirements]</a>), of a sequence container,
+including the optional sequence container requirements (<a href='sequence.reqmts'>[sequence.reqmts]</a>), and of an allocator-aware container (Table <a href='container.requirements.general#tab:containers.allocatoraware'>[tab:containers.allocatoraware]</a>).
+Descriptions are provided here only for operations on
+<span class='texttt'>deque</span>
+that are not described in one of these tables
+or for operations where there is additional semantic information.</p><pre class='codeblock'>
+namespace std {
+  template &lt;class T, class Allocator = allocator&lt;T&gt; &gt;
+  class deque {
+  public:
+    <span class='comment'>// types:
+</span>    typedef value_type&amp;                           reference;
+    typedef const value_type&amp;                     const_reference;
+    typedef <i>implementation-defined</i>                iterator;       <span class='comment'>// See <a href='container.requirements'>[container.requirements]</a>
+</span>    typedef <i>implementation-defined</i>                const_iterator; <span class='comment'>// See <a href='container.requirements'>[container.requirements]</a>
+</span>    typedef <i>implementation-defined</i>                size_type;      <span class='comment'>// See <a href='container.requirements'>[container.requirements]</a>
+</span>    typedef <i>implementation-defined</i>                difference_type;<span class='comment'>// See <a href='container.requirements'>[container.requirements]</a>
+</span>    typedef T                                     value_type;
+    typedef Allocator                             allocator_type;
+    typedef typename allocator_traits&lt;Allocator&gt;::pointer           pointer;
+    typedef typename allocator_traits&lt;Allocator&gt;::const_pointer     const_pointer;
+    typedef std::reverse_iterator&lt;iterator&gt;       reverse_iterator;
+    typedef std::reverse_iterator&lt;const_iterator&gt; const_reverse_iterator;
+
+    <span class='comment'>// <a href='deque.cons'>[deque.cons]</a>, construct/copy/destroy:
+</span>    deque() : deque(Allocator()) { }
+    explicit deque(const Allocator&amp;);
+    explicit deque(size_type n, const Allocator&amp; = Allocator());
+    deque(size_type n, const T&amp; value, const Allocator&amp; = Allocator());
+    template &lt;class InputIterator&gt;
+      deque(InputIterator first, InputIterator last, const Allocator&amp; = Allocator());
+    deque(const deque&amp; x);
+    deque(deque&amp;&amp;);
+    deque(const deque&amp;, const Allocator&amp;);
+    deque(deque&amp;&amp;, const Allocator&amp;);
+    deque(initializer_list&lt;T&gt;, const Allocator&amp; = Allocator());
+
+    ~deque();
+    deque&amp; operator=(const deque&amp; x);
+    deque&amp; operator=(deque&amp;&amp; x);
+    deque&amp; operator=(initializer_list&lt;T&gt;);
+    template &lt;class InputIterator&gt;
+      void assign(InputIterator first, InputIterator last);
+    void assign(size_type n, const T&amp; t);
+    void assign(initializer_list&lt;T&gt;);
+    allocator_type get_allocator() const noexcept;
+
+    <span class='comment'>// iterators:
+</span>    iterator               begin() noexcept;
+    const_iterator         begin() const noexcept;
+    iterator               end() noexcept;
+    const_iterator         end() const noexcept;
+    reverse_iterator       rbegin() noexcept;
+    const_reverse_iterator rbegin() const noexcept;
+    reverse_iterator       rend() noexcept;
+    const_reverse_iterator rend() const noexcept;
+
+    const_iterator         cbegin() const noexcept;
+    const_iterator         cend() const noexcept;
+    const_reverse_iterator crbegin() const noexcept;
+    const_reverse_iterator crend() const noexcept;
+
+    <span class='comment'>// <a href='deque.capacity'>[deque.capacity]</a>, capacity:
+</span>    size_type size() const noexcept;
+    size_type max_size() const noexcept;
+    void      resize(size_type sz);
+    void      resize(size_type sz, const T&amp; c);
+    void      shrink_to_fit();
+    bool      empty() const noexcept;
+
+    <span class='comment'>// element access:
+</span>    reference       operator[](size_type n);
+    const_reference operator[](size_type n) const;
+    reference       at(size_type n);
+    const_reference at(size_type n) const;
+    reference       front();
+    const_reference front() const;
+    reference       back();
+    const_reference back() const;
+
+    <span class='comment'>// <a href='deque.modifiers'>[deque.modifiers]</a>, modifiers:
+</span>    template &lt;class... Args&gt; void emplace_front(Args&amp;&amp;... args);
+    template &lt;class... Args&gt; void emplace_back(Args&amp;&amp;... args);
+    template &lt;class... Args&gt; iterator emplace(const_iterator position, Args&amp;&amp;... args);
+
+    void push_front(const T&amp; x);
+    void push_front(T&amp;&amp; x);
+    void push_back(const T&amp; x);
+    void push_back(T&amp;&amp; x);
+
+    iterator insert(const_iterator position, const T&amp; x);
+    iterator insert(const_iterator position, T&amp;&amp; x);
+    iterator insert(const_iterator position, size_type n, const T&amp; x);
+    template &lt;class InputIterator&gt;
+      iterator insert (const_iterator position, InputIterator first, InputIterator last);
+    iterator insert(const_iterator position, initializer_list&lt;T&gt;);
+
+    void pop_front();
+    void pop_back();
+
+    iterator erase(const_iterator position);
+    iterator erase(const_iterator first, const_iterator last);
+    void     swap(deque&amp;);
+    void     clear() noexcept;
+  };
+
+  template &lt;class T, class Allocator&gt;
+    bool operator==(const deque&lt;T,Allocator&gt;&amp; x, const deque&lt;T,Allocator&gt;&amp; y);
+  template &lt;class T, class Allocator&gt;
+    bool operator&lt; (const deque&lt;T,Allocator&gt;&amp; x, const deque&lt;T,Allocator&gt;&amp; y);
+  template &lt;class T, class Allocator&gt;
+    bool operator!=(const deque&lt;T,Allocator&gt;&amp; x, const deque&lt;T,Allocator&gt;&amp; y);
+  template &lt;class T, class Allocator&gt;
+    bool operator&gt; (const deque&lt;T,Allocator&gt;&amp; x, const deque&lt;T,Allocator&gt;&amp; y);
+  template &lt;class T, class Allocator&gt;
+    bool operator&gt;=(const deque&lt;T,Allocator&gt;&amp; x, const deque&lt;T,Allocator&gt;&amp; y);
+  template &lt;class T, class Allocator&gt;
+    bool operator&lt;=(const deque&lt;T,Allocator&gt;&amp; x, const deque&lt;T,Allocator&gt;&amp; y);
+
+  <span class='comment'>// specialized algorithms:
+</span>  template &lt;class T, class Allocator&gt;
+    void swap(deque&lt;T,Allocator&gt;&amp; x, deque&lt;T,Allocator&gt;&amp; y);
+}
+</pre></div></div></div></body></html>

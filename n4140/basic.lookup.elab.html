@@ -1,0 +1,54 @@
+<!DOCTYPE html><html lang='en'><head><title>[basic.lookup.elab]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>3</a> Basic concepts <a class='abbr_ref' href='./#basic'>[basic]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>3.4</a> Name lookup <a class='abbr_ref' href='basic.lookup#elab'>[basic.lookup]</a></h2><div id='basic.lookup.elab'><h3 ><a class='secnum' style='min-width:103pt'>3.4.4</a> Elaborated type specifiers <a class='abbr_ref'>[basic.lookup.elab]</a></h3><p ><span class='indexparent'><a class='index' id='lookup,elaborated_type_specifier'></a></span><span class='indexparent'><a class='index' id='type_specifier,elaborated'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >An <i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i> (<a href='dcl.type.elab'>[dcl.type.elab]</a>) may be
+used to refer to a previously declared <i ><a href='class#nt:class-name'>class-name</a></i> or
+<i ><a href='dcl.enum#nt:enum-name'>enum-name</a></i> even though the name has been hidden by a non-type
+declaration (<a href='basic.scope.hiding'>[basic.scope.hiding]</a>).</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >If the <i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i> has no
+<i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i>, and unless the
+<i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i> appears in a declaration with the
+following form:</p><pre class='bnf'><i ><a href='class#nt:class-key'>class-key</a></i> <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='lex.name#nt:identifier'>identifier</a></i> <span class='terminal'>;</span></pre><p >the <i ><a href='lex.name#nt:identifier'>identifier</a></i> is looked up according
+to <a href='basic.lookup.unqual'>[basic.lookup.unqual]</a> but ignoring any non-type names that have
+been declared. If the <i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i> is introduced
+by the <span class='texttt'>enum</span> keyword and this lookup does not find a previously
+declared <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i>, the <i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i>
+is ill-formed. If the <i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i> is introduced
+by the <i ><a href='class#nt:class-key'>class-key</a></i> and this lookup does not find a previously
+declared <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i>, or if the
+<i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i> appears in a declaration with the
+form:</p><pre class='bnf'><i ><a href='class#nt:class-key'>class-key</a></i> <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='lex.name#nt:identifier'>identifier</a></i> <span class='terminal'>;</span></pre><p >the <i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i> is a declaration that
+introduces the <i ><a href='class#nt:class-name'>class-name</a></i> as described
+in <a href='basic.scope.pdecl'>[basic.scope.pdecl]</a>.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >If the <i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i> has a
+<i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i>, qualified name lookup is performed, as
+described in <a href='basic.lookup.qual'>[basic.lookup.qual]</a>, but ignoring any non-type names
+that have been declared. If the name lookup does not find a previously
+declared <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i>, the <i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i>
+is ill-formed. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct Node {
+  struct Node* Next;            <span class='comment'>// OK: Refers to <span class='texttt'>Node</span> at global scope
+</span>  struct Data* Data;            <span class='comment'>// OK: Declares type <span class='texttt'>Data</span>
+</span>                                <span class='comment'>// at global scope and member <span class='texttt'>Data</span>
+</span>};
+
+struct Data {
+  struct Node* Node;            <span class='comment'>// OK: Refers to <span class='texttt'>Node</span> at global scope
+</span>  friend struct ::Glob;         <span class='comment'>// error: <span class='texttt'>Glob</span> is not declared
+</span>                                <span class='comment'>// cannot introduce a qualified type (<a href='dcl.type.elab'>[dcl.type.elab]</a>)
+</span>  friend struct Glob;           <span class='comment'>// OK: Refers to (as yet) undeclared <span class='texttt'>Glob</span>
+</span>                                <span class='comment'>// at global scope.
+</span>  <span class='comment'>/* ... */</span>
+};
+
+struct Base {
+  struct Data;                  <span class='comment'>// OK: Declares nested <span class='texttt'>Data</span>
+</span>  struct ::Data*     thatData;  <span class='comment'>// OK: Refers to <span class='texttt'>::Data</span>
+</span>  struct Base::Data* thisData;  <span class='comment'>// OK: Refers to nested <span class='texttt'>Data</span>
+</span>  friend class ::Data;          <span class='comment'>// OK: global <span class='texttt'>Data</span> is a friend
+</span>  friend class Data;            <span class='comment'>// OK: nested <span class='texttt'>Data</span> is a friend
+</span>  struct Data <span class='texttt'>{ /* ... */ };</span>   <span class='comment'>// Defines nested <span class='texttt'>Data</span>
+</span>};
+
+struct Data;                    <span class='comment'>// OK: Redeclares <span class='texttt'>Data</span> at global scope
+</span>struct ::Data;                  <span class='comment'>// error: cannot introduce a qualified type (<a href='dcl.type.elab'>[dcl.type.elab]</a>)
+</span>struct Base::Data;              <span class='comment'>// error: cannot introduce a qualified type (<a href='dcl.type.elab'>[dcl.type.elab]</a>)
+</span>struct Base::Datum;             <span class='comment'>// error: <span class='texttt'>Datum</span> undefined
+</span>struct Base::Data* pBase;       <span class='comment'>// OK: refers to nested <span class='texttt'>Data</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;] <span class='indexparent'><a class='index' id='lookup,elaborated_type_specifier'></a></span>
+</p></div></div></div></body></html>

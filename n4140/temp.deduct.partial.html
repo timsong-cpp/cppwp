@@ -1,0 +1,124 @@
+<!DOCTYPE html><html lang='en'><head><title>[temp.deduct.partial]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>14</a> Templates <a class='abbr_ref' href='./#temp'>[temp]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>14.8</a> Function template specializations <a class='abbr_ref' href='temp.fct.spec#temp.deduct.partial'>[temp.fct.spec]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>14.8.2</a> Template argument deduction <a class='abbr_ref' href='temp.deduct#partial'>[temp.deduct]</a></h3><div id='temp.deduct.partial'><h4 ><a class='secnum' style='min-width:118pt'>14.8.2.4</a> Deducing template arguments during partial ordering <a class='abbr_ref'>[temp.deduct.partial]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Template argument deduction is done by comparing certain types associated with
+the two function templates being compared.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Two sets of types are used to determine the partial ordering.  For each of
+the templates involved there is the original function type and the
+transformed function type.
+[&nbsp;<i>Note:</i>
+The creation of the transformed type is described in <a href='temp.func.order'>[temp.func.order]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+The deduction process uses the
+transformed type as the argument template and the original type of the
+other template as the parameter template.  This process is done twice
+for each type involved in the partial ordering comparison: once using
+the transformed template-1 as the argument template and template-2 as
+the parameter template and again using the transformed template-2 as
+the argument template and template-1 as the parameter template.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The types used to determine the ordering depend on the context in which
+the partial ordering is done:</p><ul ><li ><p >In the context of a function call, the types used are those function parameter types
+for which the function call has arguments.<a class='footnotenum' href='#footnote-143'>143</a>
+</p></li><li ><p >In the context of a call to a conversion function, the return types of
+the conversion function templates are used.
+</p></li><li ><p >In other contexts (<a href='temp.func.order'>[temp.func.order]</a>) the function template's function
+type is used.
+</p></li></ul></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Each type nominated above from the parameter template and the corresponding type from the
+argument template are used as the types of
+<span class='texttt'>P</span>
+and
+<span class='texttt'>A</span>.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >Before the partial ordering is done, certain transformations are performed
+on the types used for partial ordering:</p><ul ><li ><p >If
+<span class='texttt'>P</span>
+is a reference type,
+<span class='texttt'>P</span>
+is replaced by the type referred to.
+</p></li><li ><p >If
+<span class='texttt'>A</span>
+is a reference type,
+<span class='texttt'>A</span>
+is replaced by the type referred to.
+</p></li></ul></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >If both
+<span class='texttt'>P</span>
+and
+<span class='texttt'>A</span>
+were reference types (before being replaced with the type referred to
+above), determine which of the two types (if any) is more cv-qualified
+than the other; otherwise the types are considered to be equally
+cv-qualified for partial ordering purposes. The result of this
+determination will be used below.</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >Remove any top-level cv-qualifiers:
+</p><ul ><li ><p >If
+<span class='texttt'>P</span>
+is a cv-qualified type,
+<span class='texttt'>P</span>
+is replaced by the cv-unqualified version of
+<span class='texttt'>P</span>.
+</p></li><li ><p >If
+<span class='texttt'>A</span>
+is a cv-qualified type,
+<span class='texttt'>A</span>
+is replaced by the cv-unqualified version of
+<span class='texttt'>A</span>.
+</p></li></ul></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >If <span class='texttt'>A</span> was transformed from a function parameter pack and <span class='texttt'>P</span> is not
+a parameter pack, type deduction fails. Otherwise, using
+the resulting types
+<span class='texttt'>P</span>
+and
+<span class='texttt'>A</span>,
+the deduction is then done as described in <a href='temp.deduct.type'>[temp.deduct.type]</a>.
+If <span class='texttt'>P</span> is a function parameter pack, the type <span class='texttt'>A</span> of each remaining
+parameter type of the argument template is compared with the type <span class='texttt'>P</span> of
+the <i ><a href='dcl.decl#nt:declarator-id'>declarator-id</a></i> of the function parameter pack. Each comparison
+deduces template arguments for subsequent positions in the template parameter
+packs expanded by the function parameter pack.
+If deduction succeeds for a given type,
+the type from the argument template is considered to be at least as specialized
+as the type from the parameter template.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;class... Args&gt;           void f(Args... args);           <span class='comment'>// #1
+</span>template&lt;class T1, class... Args&gt; void f(T1 a1, Args... args);    <span class='comment'>// #2
+</span>template&lt;class T1, class T2&gt;      void f(T1 a1, T2 a2);           <span class='comment'>// #3
+</span>
+f();                  <span class='comment'>// calls #1
+</span>f(1, 2, 3);           <span class='comment'>// calls #2
+</span>f(1, 2);              <span class='comment'>// calls #3; non-variadic template #3 is more
+</span>                      <span class='comment'>// specialized than the variadic templates #1 and #2
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >If, for a given type, deduction succeeds in both directions (i.e., the
+types are identical after the transformations above)
+and both <span class='texttt'>P</span> and <span class='texttt'>A</span> were reference types (before being replaced with the
+type referred to above):</p><ul ><li ><p >if the type from the argument template was an lvalue reference and the type
+from the parameter template was not, the argument type is considered to be
+more specialized than the other; otherwise,</p></li><li ><p >if the type from
+the argument template is more cv-qualified than the type from the
+parameter template (as described above), the argument type is considered to be
+more specialized than the other; otherwise,</p></li><li ><p >neither type is more specialized than the other.
+</p></li></ul></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >If for each type being considered a given template is at least as specialized
+for all types and more specialized for some set of types and the
+other template is not more specialized for any types or is not
+at least as specialized for any types, then
+the given template is more specialized than the other template.
+Otherwise, neither template is more specialized than the other.</p></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><p >In most cases, all template parameters must have values in order for
+deduction to succeed, but for partial ordering purposes a template
+parameter may remain without a value provided it is not used in the
+types being used for partial ordering.
+[&nbsp;<i>Note:</i>
+A template parameter used in a non-deduced context is considered used.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template &lt;class T&gt; T f(int);        <span class='comment'>// #1
+</span>template &lt;class T, class U&gt; T f(U); <span class='comment'>// #2
+</span>void g() {
+  f&lt;int&gt;(1);        <span class='comment'>// calls #1
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><p >[&nbsp;<i>Note:</i> Partial ordering of function templates containing
+template parameter packs is independent of the number of deduced arguments
+for those template parameter packs. <i>&nbsp;—&nbsp;end note</i>&nbsp;] [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class ...&gt; struct Tuple { };
+template&lt;class ... Types&gt; void g(Tuple&lt;Types ...&gt;);                 <span class='comment'>// #1
+</span>template&lt;class T1, class ... Types&gt; void g(Tuple&lt;T1, Types ...&gt;);   <span class='comment'>// #2
+</span>template&lt;class T1, class ... Types&gt; void g(Tuple&lt;T1, Types&amp; ...&gt;);  <span class='comment'>// #3
+</span>
+g(Tuple&lt;&gt;());                   <span class='comment'>// calls #1
+</span>g(Tuple&lt;int, float&gt;());         <span class='comment'>// calls #2
+</span>g(Tuple&lt;int, float&amp;&gt;());        <span class='comment'>// calls #3
+</span>g(Tuple&lt;int&gt;());                <span class='comment'>// calls #3
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-143'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-143'>143)</a></div><p >Default arguments
+are not considered to be arguments in this context; they only become arguments
+after a function has been selected.</p></div></div></div></body></html>

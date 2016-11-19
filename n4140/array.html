@@ -1,0 +1,133 @@
+<!DOCTYPE html><html lang='en'><head><title>[array]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>23</a> Containers library <a class='abbr_ref' href='./#containers'>[containers]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>23.3</a> Sequence containers <a class='abbr_ref' href='sequences#array'>[sequences]</a></h2><div id='array'><h3 ><a class='secnum' style='min-width:103pt'>23.3.2</a> Class template <span class='texttt'>array</span> <a class='abbr_ref'>[array]</a></h3><p ><span class='indexparent'><a class='index' id='array'></a></span>
+</p><div id='overview'><h4 ><a class='secnum' href='#overview' style='min-width:118pt'>23.3.2.1</a> Class template <span class='texttt'>array</span> overview <a class='abbr_ref' href='array.overview'>[array.overview]</a></h4><div class='para' id='overview-1'><div class='marginalizedparent'><a class='marginalized' href='#overview-1'>1</a></div><p ><span class='indexparent'><a class='index' id='array,contiguous_storage'></a></span>The header <span class='texttt'>&lt;array&gt;</span> defines a class template for storing fixed-size
+sequences of objects. An <span class='texttt'>array</span> supports random access iterators. An
+instance of <span class='texttt'>array&lt;T, N&gt;</span> stores <span class='texttt'>N</span> elements of type <span class='texttt'>T</span>, so that
+<span class='texttt'>size() == N</span> is an invariant. The elements of an <span class='texttt'>array</span> are stored contiguously,
+meaning that if <span class='texttt'>a</span> is an <span class='texttt'>array&lt;T, N&gt;</span> then it obeys the identity
+<code >&amp;a[n] == &amp;a[0] + n</code> for all <span class='texttt'>0 &lt;= n &lt; N</span>.</p></div><div class='para' id='overview-2'><div class='marginalizedparent'><a class='marginalized' href='#overview-2'>2</a></div><p ><span class='indexparent'><a class='index' id='array,initialization'></a></span><span class='indexparent'><a class='index' id='array,as_aggregate'></a></span>An <span class='texttt'>array</span> is an aggregate (<a href='dcl.init.aggr'>[dcl.init.aggr]</a>) that can be
+initialized with the syntax
+</p><pre class='codeblock'>
+array&lt;T, N&gt; a = { <i>initializer-list</i> };
+</pre><p >where <i>initializer-list</i> is a comma-separated list of up
+to <span class='texttt'>N</span> elements whose types are convertible to <span class='texttt'>T</span>.</p></div><div class='para' id='overview-3'><div class='marginalizedparent'><a class='marginalized' href='#overview-3'>3</a></div><p ><span class='indexparent'><a class='index' id='requirements,container'></a></span>An <span class='texttt'>array</span> satisfies all of the requirements of a container and
+of a reversible container (<a href='container.requirements'>[container.requirements]</a>), except that a default
+constructed <span class='texttt'>array</span> object is not empty and that <span class='texttt'>swap</span> does not have constant
+complexity. An <span class='texttt'>array</span> satisfies some of the requirements of a sequence
+container (<a href='sequence.reqmts'>[sequence.reqmts]</a>).
+Descriptions are provided here
+only for operations on <span class='texttt'>array</span> that are not described in
+one of these tables and
+for operations where there is additional semantic information.</p><p ><span class='indexparent'><a class='index' id='array'></a></span><span class='indexparent'><a class='index' id='array,begin'></a></span><span class='indexparent'><a class='index' id='begin,array'></a></span><span class='indexparent'><a class='index' id='array,end'></a></span><span class='indexparent'><a class='index' id='end,array'></a></span><span class='indexparent'><a class='index' id='array,size'></a></span><span class='indexparent'><a class='index' id='size,array'></a></span><span class='indexparent'><a class='index' id='array,max_size'></a></span><span class='indexparent'><a class='index' id='max_size,array'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class T, size_t N&gt;
+  struct array {
+    <span class='comment'>//  types:
+</span>    typedef T&amp;                                    reference;
+    typedef const T&amp;                              const_reference;
+    typedef <span class='indexparent'><a class='index' id='type_of_array::iterator'></a></span><i>implementation-defined</i>                iterator;
+    typedef <span class='indexparent'><a class='index' id='type_of_array::const_iterator'></a></span><i>implementation-defined</i>                const_iterator;
+    typedef size_t                                size_type;
+    typedef ptrdiff_t                             difference_type;
+    typedef T                                     value_type;
+    typedef T*                                    pointer;
+    typedef const T*                              const_pointer;
+    typedef std::reverse_iterator&lt;iterator&gt;       reverse_iterator;
+    typedef std::reverse_iterator&lt;const_iterator&gt; const_reverse_iterator;
+
+    T       elems[N];           <span class='comment'>// <i>exposition only</i>
+</span>
+    <span class='comment'>// no explicit construct/copy/destroy for aggregate type
+</span>
+    void fill(const T&amp; u);
+    void swap(array&amp;) noexcept(noexcept(swap(declval&lt;T&amp;&gt;(), declval&lt;T&amp;&gt;())));
+
+    <span class='comment'>// iterators:
+</span>    iterator               begin() noexcept;
+    const_iterator         begin() const noexcept;
+    iterator               end() noexcept;
+    const_iterator         end() const noexcept;
+
+    reverse_iterator       rbegin() noexcept;
+    const_reverse_iterator rbegin() const noexcept;
+    reverse_iterator       rend() noexcept;
+    const_reverse_iterator rend() const noexcept;
+
+    const_iterator         cbegin() const noexcept;
+    const_iterator         cend() const noexcept;
+    const_reverse_iterator crbegin() const noexcept;
+    const_reverse_iterator crend() const noexcept;
+
+    <span class='comment'>// capacity:
+</span>    constexpr size_type size() const noexcept;
+    constexpr size_type max_size() const noexcept;
+    constexpr bool      empty() const noexcept;
+
+    <span class='comment'>// element access:
+</span>    reference                 operator[](size_type n);
+    constexpr const_reference operator[](size_type n) const;
+    reference                 at(size_type n);
+    constexpr const_reference at(size_type n) const;
+    reference                 front();
+    constexpr const_reference front() const;
+    reference                 back();
+    constexpr const_reference back() const;
+
+    T *       data() noexcept;
+    const T * data() const noexcept;
+  };
+}
+</pre></div><div class='para' id='overview-4'><div class='marginalizedparent'><a class='marginalized' href='#overview-4'>4</a></div><p >[&nbsp;<i>Note:</i> The member variable <span class='texttt'>elems</span> is shown for exposition only,
+to emphasize that <span class='texttt'>array</span> is a class aggregate.  The name <span class='texttt'>elems</span>
+is not part of <span class='texttt'>array</span>'s interface. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='cons'><h4 ><a class='secnum' href='#cons' style='min-width:118pt'>23.3.2.2</a> <span class='texttt'>array</span> constructors, copy, and assignment <a class='abbr_ref' href='array.cons'>[array.cons]</a></h4><div class='para' id='cons-1'><div class='marginalizedparent'><a class='marginalized' href='#cons-1'>1</a></div><p ><span class='indexparent'><a class='index' id='array,initialization'></a></span><span class='indexparent'><a class='index' id='requirements,container'></a></span>The conditions for an aggregate (<a href='dcl.init.aggr'>[dcl.init.aggr]</a>) shall be
+met. Class <span class='texttt'>array</span> relies on the implicitly-declared special
+member functions (<a href='class.ctor'>[class.ctor]</a>, <a href='class.dtor'>[class.dtor]</a>, and <a href='class.copy'>[class.copy]</a>) to
+conform to the container requirements table in <a href='container.requirements'>[container.requirements]</a>.
+In addition to the requirements specified in the container requirements table,
+the implicit move constructor and move assignment operator for <span class='texttt'>array</span>
+require that <span class='texttt'>T</span> be <span class='texttt'>MoveConstructible</span> or <span class='texttt'>MoveAssignable</span>,
+respectively.</p></div></div><div id='special'><h4 ><a class='secnum' href='#special' style='min-width:118pt'>23.3.2.3</a> <span class='texttt'>array</span> specialized algorithms <a class='abbr_ref' href='array.special'>[array.special]</a></h4><p ><span class='indexparent'><a class='index' id='array,swap'></a></span><span class='indexparent'><a class='index' id='swap,array'></a></span><code class='itemdecl'>
+template &lt;class T, size_t N&gt; void swap(array&lt;T,N&gt;&amp; x, array&lt;T,N&gt;&amp; y) noexcept(noexcept(x.swap(y)));
+</code></p><div class='itemdescr'></div><div class='para' id='special-1'><div class='marginalizedparent'><a class='marginalized' href='#special-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><pre class='codeblock'>
+x.swap(y);
+</pre></div></div><div class='para' id='special-2'><div class='marginalizedparent'><a class='marginalized' href='#special-2'>2</a></div><div class='itemdescr'><p ><i>Complexity:</i> Linear in <span class='texttt'>N</span>.
+</p></div></div></div><div id='size'><h4 ><a class='secnum' href='#size' style='min-width:118pt'>23.3.2.4</a> <span class='texttt'>array::size</span> <a class='abbr_ref' href='array.size'>[array.size]</a></h4><p ><span class='indexparent'><a class='index' id='array,size'></a></span><span class='indexparent'><a class='index' id='size,array'></a></span><code class='itemdecl'>
+template &lt;class T, size_t N&gt; constexpr size_type array&lt;T,N&gt;::size() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='size-1'><div class='marginalizedparent'><a class='marginalized' href='#size-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>N</span>
+</p></div></div></div><div id='data'><h4 ><a class='secnum' href='#data' style='min-width:118pt'>23.3.2.5</a> <span class='texttt'>array::data</span> <a class='abbr_ref' href='array.data'>[array.data]</a></h4><p ><span class='indexparent'><a class='index' id='array,data'></a></span><span class='indexparent'><a class='index' id='data,array'></a></span><code class='itemdecl'>
+T* data() noexcept;
+const T* data() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='data-1'><div class='marginalizedparent'><a class='marginalized' href='#data-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>elems</span>.
+</p></div></div></div><div id='fill'><h4 ><a class='secnum' href='#fill' style='min-width:118pt'>23.3.2.6</a> <span class='texttt'>array::fill</span> <a class='abbr_ref' href='array.fill'>[array.fill]</a></h4><p ><span class='indexparent'><a class='index' id='array,fill'></a></span><span class='indexparent'><a class='index' id='fill,array'></a></span><code class='itemdecl'>
+void fill(const T&amp; u);
+</code></p><div class='itemdescr'></div><div class='para' id='fill-1'><div class='marginalizedparent'><a class='marginalized' href='#fill-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>fill_n(begin(), N, u)</span>
+</p></div></div></div><div id='swap'><h4 ><a class='secnum' href='#swap' style='min-width:118pt'>23.3.2.7</a> <span class='texttt'>array::swap</span> <a class='abbr_ref' href='array.swap'>[array.swap]</a></h4><p ><span class='indexparent'><a class='index' id='array,swap'></a></span><span class='indexparent'><a class='index' id='swap,array'></a></span><code class='itemdecl'>
+void swap(array&amp; y) noexcept(noexcept(swap(declval&lt;T&amp;&gt;(), declval&lt;T&amp;&gt;())));
+</code></p><div class='itemdescr'></div><div class='para' id='swap-1'><div class='marginalizedparent'><a class='marginalized' href='#swap-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>swap_ranges(begin(), end(), y.begin())</span></p></div></div><div class='para' id='swap-2'><div class='marginalizedparent'><a class='marginalized' href='#swap-2'>2</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing unless one of the element-wise swap calls throws an exception.</p></div></div><div class='para' id='swap-3'><div class='marginalizedparent'><a class='marginalized' href='#swap-3'>3</a></div><div class='itemdescr'><p ><i>Note:</i> Unlike the <span class='texttt'>swap</span> function for other containers, <span class='texttt'>array::swap</span>
+takes linear time, may exit via an exception, and does not cause iterators to
+become associated with the other container.
+</p></div></div></div><div id='zero'><h4 ><a class='secnum' href='#zero' style='min-width:118pt'>23.3.2.8</a> Zero sized arrays <a class='abbr_ref' href='array.zero'>[array.zero]</a></h4><p ><span class='indexparent'><a class='index' id='array,zero_sized'></a></span></p><div class='para' id='zero-1'><div class='marginalizedparent'><a class='marginalized' href='#zero-1'>1</a></div><p ><span class='texttt'>array</span> shall provide support for the special case <span class='texttt'>N == 0</span>.</p></div><div class='para' id='zero-2'><div class='marginalizedparent'><a class='marginalized' href='#zero-2'>2</a></div><p >In the case that <span class='texttt'>N == 0</span>, <span class='texttt'>begin() == end() ==</span> unique value.
+The return value of <span class='texttt'>data()</span> is unspecified.</p></div><div class='para' id='zero-3'><div class='marginalizedparent'><a class='marginalized' href='#zero-3'>3</a></div><p >The effect of calling <span class='texttt'>front()</span> or <span class='texttt'>back()</span> for a zero-sized array is
+undefined.</p></div><div class='para' id='zero-4'><div class='marginalizedparent'><a class='marginalized' href='#zero-4'>4</a></div><p >Member function <span class='texttt'>swap()</span> shall have a <i ><a href='except.spec#nt:noexcept-specification'>noexcept-specification</a></i>
+which is equivalent to <span class='texttt'>noexcept(true)</span>.</p></div></div><div id='tuple'><h4 ><a class='secnum' href='#tuple' style='min-width:118pt'>23.3.2.9</a> Tuple interface to class template <span class='texttt'>array</span> <a class='abbr_ref' href='array.tuple'>[array.tuple]</a></h4><p ><span class='indexparent'><a class='index' id='array'></a></span><span class='indexparent'><a class='index' id='tuple'></a></span><span class='indexparent'><a class='index' id='array,tuple_interface_to'></a></span><span class='indexparent'><a class='index' id='tuple_size'></a></span><code class='itemdecl'>
+template &lt;class T, size_t N&gt;
+struct tuple_size&lt;array&lt;T, N&gt;&gt;
+  : integral_constant&lt;size_t, N&gt; { };
+</code></p><p ><span class='indexparent'><a class='index' id='tuple_element'></a></span><code class='itemdecl'>
+tuple_element&lt;I, array&lt;T, N&gt; &gt;::type
+</code></p><div class='itemdescr'></div><div class='para' id='tuple-1'><div class='marginalizedparent'><a class='marginalized' href='#tuple-1'>1</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>I &lt; N</span>. The program is ill-formed if <span class='texttt'>I</span> is out of bounds.</p></div></div><div class='para' id='tuple-2'><div class='marginalizedparent'><a class='marginalized' href='#tuple-2'>2</a></div><div class='itemdescr'><p ><i>Value:</i>  The type T.
+</p></div></div><p ><span class='indexparent'><a class='index' id='array,get'></a></span><span class='indexparent'><a class='index' id='get,array'></a></span><code class='itemdecl'>
+template &lt;size_t I, class T, size_t N&gt;
+constexpr T&amp; get(array&lt;T, N&gt;&amp; a) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='tuple-3'><div class='marginalizedparent'><a class='marginalized' href='#tuple-3'>3</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>I &lt; N</span>. The program is ill-formed if <span class='texttt'>I</span> is out of bounds.</p></div></div><div class='para' id='tuple-4'><div class='marginalizedparent'><a class='marginalized' href='#tuple-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>  A reference to the <span class='texttt'>I</span>th element of <span class='texttt'>a</span>,
+where indexing is zero-based.
+</p></div></div><p ><span class='indexparent'><a class='index' id='array,get'></a></span><span class='indexparent'><a class='index' id='get,array'></a></span><code class='itemdecl'>
+template &lt;size_t I, class T, size_t N&gt;
+constexpr T&amp;&amp; get(array&lt;T, N&gt;&amp;&amp; a) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='tuple-5'><div class='marginalizedparent'><a class='marginalized' href='#tuple-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>return std::move(get&lt;I&gt;(a));</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='array,get'></a></span><span class='indexparent'><a class='index' id='get,array'></a></span><code class='itemdecl'>
+template &lt;size_t I, class T, size_t N&gt;
+constexpr const T&amp; get(const array&lt;T, N&gt;&amp; a) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='tuple-6'><div class='marginalizedparent'><a class='marginalized' href='#tuple-6'>6</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>I &lt; N</span>. The program is ill-formed if <span class='texttt'>I</span> is out of bounds.</p></div></div><div class='para' id='tuple-7'><div class='marginalizedparent'><a class='marginalized' href='#tuple-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> A const reference to the <span class='texttt'>I</span>th element of <span class='texttt'>a</span>,
+where indexing is zero-based.
+</p></div></div></div></div></div></body></html>

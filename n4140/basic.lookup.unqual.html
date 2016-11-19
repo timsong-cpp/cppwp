@@ -1,0 +1,236 @@
+<!DOCTYPE html><html lang='en'><head><title>[basic.lookup.unqual]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>3</a> Basic concepts <a class='abbr_ref' href='./#basic'>[basic]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>3.4</a> Name lookup <a class='abbr_ref' href='basic.lookup#unqual'>[basic.lookup]</a></h2><div id='basic.lookup.unqual'><h3 ><a class='secnum' style='min-width:103pt'>3.4.1</a> Unqualified name lookup <a class='abbr_ref'>[basic.lookup.unqual]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='lookup,unqualified_name'></a></span><span class='indexparent'><a class='index' id='name,unqualified'></a></span>In all the cases listed in <a href='basic.lookup.unqual'>[basic.lookup.unqual]</a>, the scopes are
+searched for a declaration in the order listed in each of the respective
+categories; name lookup ends as soon as a declaration is found for the
+name. If no declaration is found, the program is ill-formed.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >The declarations from the namespace nominated by a
+<i ><a href='namespace.udir#nt:using-directive'>using-directive</a></i> become visible in a namespace enclosing the
+<i ><a href='namespace.udir#nt:using-directive'>using-directive</a></i>; see <a href='namespace.udir'>[namespace.udir]</a>. For the purpose of
+the unqualified name lookup rules described
+in <a href='basic.lookup.unqual'>[basic.lookup.unqual]</a>, the declarations from the namespace
+nominated by the <i ><a href='namespace.udir#nt:using-directive'>using-directive</a></i> are considered members of
+that enclosing namespace.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The lookup for an unqualified name used as the
+<i ><a href='expr.post#nt:postfix-expression'>postfix-expression</a></i> of a function call is described
+in <a href='basic.lookup.argdep'>[basic.lookup.argdep]</a>. [&nbsp;<i>Note:</i> For purposes of determining
+(during parsing) whether an expression is a
+<i ><a href='expr.post#nt:postfix-expression'>postfix-expression</a></i> for a function call, the usual name lookup
+rules apply. The rules in <a href='basic.lookup.argdep'>[basic.lookup.argdep]</a> have no effect on
+the syntactic interpretation of an expression. For example,</p><pre class='codeblock'>
+typedef int f;
+namespace N {
+  struct A {
+    friend void f(A &amp;);
+    operator int();
+    void g(A a) {
+      int i = f(a);         <span class='comment'>// <span class='texttt'>f</span> is the typedef, not the friend
+</span>                            <span class='comment'>// function: equivalent to <span class='texttt'>int(a)</span>
+</span>    }
+  };
+}
+</pre><p >Because the expression is not a function call, the argument-dependent
+name lookup (<a href='basic.lookup.argdep'>[basic.lookup.argdep]</a>) does not apply and the friend
+function <span class='texttt'>f</span> is not found. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >A name used in global scope, outside of any function, class or
+user-declared namespace, shall be declared before its use in global
+scope.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >A name used in a user-declared namespace outside of the definition of
+any function or class shall be declared before its use in that namespace
+or before its use in a namespace enclosing its namespace.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >A name used in the definition of a function following the function's
+<i ><a href='dcl.decl#nt:declarator-id'>declarator-id</a></i><a class='footnotenum' href='#footnote-28'>28</a>
+that is a member of namespace <span class='texttt'>N</span> (where, only for the purpose of
+exposition, <span class='texttt'>N</span> could represent the global scope) shall be
+declared before its use in the block in which it is used or in one of
+its enclosing blocks (<a href='stmt.block'>[stmt.block]</a>) or, shall be declared before its
+use in namespace <span class='texttt'>N</span> or, if <span class='texttt'>N</span> is a nested namespace, shall
+be declared before its use in one of <span class='texttt'>N</span>'s enclosing namespaces.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+namespace A {
+  namespace N {
+    void f();
+  }
+}
+void A::N::f() {
+  i = 5;
+  <span class='comment'>// The following scopes are searched for a declaration of <span class='texttt'>i</span>:
+</span>  <span class='comment'>// 1) outermost block scope of <span class='texttt'>A::N::f</span>, before the use of <span class='texttt'>i</span>
+</span>  <span class='comment'>// 2) scope of namespace <span class='texttt'>N</span>
+</span>  <span class='comment'>// 3) scope of namespace <span class='texttt'>A</span>
+</span>  <span class='comment'>// 4) global scope, before the definition of <span class='texttt'>A::N::f</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;] </p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >A name used in the definition of a class <span class='texttt'>X</span> outside of a member
+function body, default argument, <i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i>,
+<i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializer</a></i> of a non-static data member,
+or nested class definition<a class='footnotenum' href='#footnote-29'>29</a>
+shall be declared in one of the following ways:</p><ul ><li ><p >before its use in class <span class='texttt'>X</span> or be a member of a base class
+of <span class='texttt'>X</span> (<a href='class.member.lookup'>[class.member.lookup]</a>), or
+</p></li><li ><p >if <span class='texttt'>X</span> is a nested class of class
+<span class='texttt'>Y</span> (<a href='class.nest'>[class.nest]</a>), before the definition of <span class='texttt'>X</span> in
+<span class='texttt'>Y</span>, or shall be a member of a base class of <span class='texttt'>Y</span> (this
+lookup applies in turn to <span class='texttt'>Y</span> 's enclosing classes, starting with
+the innermost enclosing class),<a class='footnotenum' href='#footnote-30'>30</a>
+or
+</p></li><li ><p >if <span class='texttt'>X</span> is a local class (<a href='class.local'>[class.local]</a>) or is a nested
+class of a local class, before the definition of class <span class='texttt'>X</span> in a
+block enclosing the definition of class <span class='texttt'>X</span>, or
+</p></li><li ><p >if <span class='texttt'>X</span> is a member of namespace <span class='texttt'>N</span>, or is a nested
+class of a class that is a member of <span class='texttt'>N</span>, or is a local class or a
+nested class within a local class of a function that is a member of
+<span class='texttt'>N</span>, before the definition of class <span class='texttt'>X</span> in namespace
+<span class='texttt'>N</span> or in one of <span class='texttt'>N</span> 's enclosing namespaces.
+</p></li></ul><p >[&nbsp;<i>Example:</i> </p><pre class='codeblock'>
+namespace M {
+  class B { };
+}
+
+</pre><pre class='codeblock'>
+namespace N {
+  class Y : public M::B {
+    class X {
+      int a[i];
+    };
+  };
+}
+
+<span class='comment'>// The following scopes are searched for a declaration of <span class='texttt'>i</span>:
+</span><span class='comment'>// 1) scope of class <span class='texttt'>N::Y::X</span>, before the use of <span class='texttt'>i</span>
+</span><span class='comment'>// 2) scope of class <span class='texttt'>N::Y</span>, before the definition of <span class='texttt'>N::Y::X</span>
+</span><span class='comment'>// 3) scope of <span class='texttt'>N::Y</span>'s base class <span class='texttt'>M::B</span>
+</span><span class='comment'>// 4) scope of namespace <span class='texttt'>N</span>, before the definition of <span class='texttt'>N::Y</span>
+</span><span class='comment'>// 5) global scope, before the definition of <span class='texttt'>N</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;] [&nbsp;<i>Note:</i> When looking for a prior declaration of a class
+or function introduced by a <span class='texttt'>friend</span> declaration, scopes outside
+of the innermost enclosing namespace scope are not considered;
+see <a href='namespace.memdef'>[namespace.memdef]</a>. <i>&nbsp;—&nbsp;end note</i>&nbsp;] [&nbsp;<i>Note:</i> <a href='basic.scope.class'>[basic.scope.class]</a>
+further describes the restrictions on the use of names in a class
+definition. <a href='class.nest'>[class.nest]</a> further describes the restrictions on the
+use of names in nested class definitions. <a href='class.local'>[class.local]</a> further
+describes the restrictions on the use of names in local class
+definitions. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >For the members of a class <span class='texttt'>X</span>, a name used in a member function
+body, in a default argument, in an <i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i>, in the
+<i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializer</a></i> of a non-static data
+member (<a href='class.mem'>[class.mem]</a>), or in the definition of a class member
+outside of the definition of <span class='texttt'>X</span>, following the
+member's
+<i ><a href='dcl.decl#nt:declarator-id'>declarator-id</a></i><a class='footnotenum' href='#footnote-31'>31</a>, shall be declared in one of the
+following ways:</p><ul ><li ><p >before its use in the block in which it is used or in an enclosing
+block (<a href='stmt.block'>[stmt.block]</a>), or</p></li><li ><p >shall be a member of class <span class='texttt'>X</span> or be a member of a base
+class of <span class='texttt'>X</span> (<a href='class.member.lookup'>[class.member.lookup]</a>), or</p></li><li ><p >if <span class='texttt'>X</span>
+is a nested class of class <span class='texttt'>Y</span> (<a href='class.nest'>[class.nest]</a>), shall be a
+member of <span class='texttt'>Y</span>, or shall be a member of a base class of <span class='texttt'>Y</span>
+(this lookup applies in turn to <span class='texttt'>Y</span>'s enclosing classes, starting
+with the innermost enclosing class),<a class='footnotenum' href='#footnote-32'>32</a>
+or</p></li><li ><p >if <span class='texttt'>X</span> is a local class (<a href='class.local'>[class.local]</a>) or is a nested
+class of a local class, before the definition of class <span class='texttt'>X</span> in a
+block enclosing the definition of class <span class='texttt'>X</span>, or</p></li><li ><p >if <span class='texttt'>X</span> is a member of namespace <span class='texttt'>N</span>, or is a nested
+class of a class that is a member of <span class='texttt'>N</span>, or is a local class or a
+nested class within a local class of a function that is a member of
+<span class='texttt'>N</span>, before the use of the name, in namespace <span class='texttt'>N</span>
+or in one of <span class='texttt'>N</span> 's enclosing namespaces.
+</p></li></ul><p >[&nbsp;<i>Example:</i> 
+</p><pre class='codeblock'>
+class B { };
+namespace M {
+  namespace N {
+    class X : public B {
+      void f();
+    };
+  }
+}
+void M::N::X::f() {
+  i = 16;
+}
+
+<span class='comment'>// The following scopes are searched for a declaration of <span class='texttt'>i</span>:
+</span><span class='comment'>// 1) outermost block scope of <span class='texttt'>M::N::X::f</span>, before the use of <span class='texttt'>i</span>
+</span><span class='comment'>// 2) scope of class <span class='texttt'>M::N::X</span>
+</span><span class='comment'>// 3) scope of <span class='texttt'>M::N::X</span>'s base class <span class='texttt'>B</span>
+</span><span class='comment'>// 4) scope of namespace <span class='texttt'>M::N</span>
+</span><span class='comment'>// 5) scope of namespace <span class='texttt'>M</span>
+</span><span class='comment'>// 6) global scope, before the definition of <span class='texttt'>M::N::X::f</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;] [&nbsp;<i>Note:</i> <a href='class.mfct'>[class.mfct]</a> and <a href='class.static'>[class.static]</a> further
+describe the restrictions on the use of names in member function
+definitions. <a href='class.nest'>[class.nest]</a> further describes the restrictions on the
+use of names in the scope of nested classes. <a href='class.local'>[class.local]</a> further
+describes the restrictions on the use of names in local class
+definitions. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >Name lookup for a name used in the definition of a <span class='texttt'>friend</span>
+function (<a href='class.friend'>[class.friend]</a>) defined inline in the class granting
+friendship shall proceed as described for lookup in member function
+definitions. If the <span class='texttt'>friend</span> function is not defined in the class
+granting friendship, name lookup in the <span class='texttt'>friend</span> function
+definition shall proceed as described for lookup in namespace member
+function definitions.</p></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >In a <span class='texttt'>friend</span> declaration naming a member function, a name used in
+the function declarator and not part of a <i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+in the <i ><a href='dcl.decl#nt:declarator-id'>declarator-id</a></i> is first looked up in the scope of the
+member function's class (<a href='class.member.lookup'>[class.member.lookup]</a>). If it is not found,
+or if the name is part of a
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i> in
+the <i ><a href='dcl.decl#nt:declarator-id'>declarator-id</a></i>, the look up is
+as described for unqualified names in the definition of the class
+granting friendship. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct A {
+  typedef int AT;
+  void f1(AT);
+  void f2(float);
+  template &lt;class T&gt; void f3();
+};
+struct B {
+  typedef char AT;
+  typedef float BT;
+  friend void A::f1(AT);      <span class='comment'>// parameter type is <span class='texttt'>A::AT</span>
+</span>  friend void A::f2(BT);      <span class='comment'>// parameter type is <span class='texttt'>B::BT</span>
+</span>  friend void A::f3&lt;AT&gt;();    <span class='comment'>// template argument is <span class='texttt'>B::AT</span>
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;] </p></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><p >During the lookup for a name used as a default
+argument (<a href='dcl.fct.default'>[dcl.fct.default]</a>) in a function
+<i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i> or used in the
+<i ><a href='expr.comma#nt:expression'>expression</a></i> of a <i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i> for a
+constructor (<a href='class.base.init'>[class.base.init]</a>), the function parameter names are
+visible and hide the names of entities declared in the block, class or
+namespace scopes containing the function declaration. [&nbsp;<i>Note:</i>
+<a href='dcl.fct.default'>[dcl.fct.default]</a> further describes the restrictions on the use of
+names in default arguments. <a href='class.base.init'>[class.base.init]</a> further describes the
+restrictions on the use of names in a <i ><a href='class.base.init#nt:ctor-initializer'>ctor-initializer</a></i>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><p >During the lookup of a name used in the
+<i ><a href='expr.const#nt:constant-expression'>constant-expression</a></i> of an <i ><a href='dcl.enum#nt:enumerator-definition'>enumerator-definition</a></i>,
+previously declared <i ><a href='dcl.enum#nt:enumerator'>enumerators</a></i> of the enumeration are visible
+and hide the names of entities declared in the block, class, or namespace
+scopes containing the <i ><a href='dcl.enum#nt:enum-specifier'>enum-specifier</a></i>.</p></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><p >A name used in the definition of a <span class='texttt'>static</span> data member of class
+<span class='texttt'>X</span> (<a href='class.static.data'>[class.static.data]</a>) (after the <i ><a href='expr.prim.general#nt:qualified-id'>qualified-id</a></i>
+of the static member) is looked up as if the name was used in a member
+function of <span class='texttt'>X</span>. [&nbsp;<i>Note:</i> <a href='class.static.data'>[class.static.data]</a> further
+describes the restrictions on the use of names in the definition of a
+<span class='texttt'>static</span> data member. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><p >If a variable member of a namespace is defined outside of the scope of
+its namespace then any name that appears in the definition of the
+member (after the <i ><a href='dcl.decl#nt:declarator-id'>declarator-id</a></i>) is looked up as if the
+definition of the member occurred in its namespace.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+namespace N {
+  int i = 4;
+  extern int j;
+}
+
+int i = 2;
+
+int N::j = i;                   <span class='comment'>// <span class='texttt'>N::j == 4</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><p >A name used in the handler for a <i ><a href='except#nt:function-try-block'>function-try-block</a></i>
+(Clause <a href='except'>[except]</a>) is looked up as if the name was used in the
+outermost block of the function definition. In particular, the function
+parameter names shall not be redeclared in the
+<i ><a href='except#nt:exception-declaration'>exception-declaration</a></i> nor in the outermost block of a handler
+for the <i ><a href='except#nt:function-try-block'>function-try-block</a></i>. Names declared in the outermost
+block of the function definition are not found when looked up in the
+scope of a handler for the <i ><a href='except#nt:function-try-block'>function-try-block</a></i>. [&nbsp;<i>Note:</i> But
+function parameter names are found. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='16'><div class='marginalizedparent'><a class='marginalized' href='#16'>16</a></div><p >[&nbsp;<i>Note:</i> The rules for name lookup in template definitions are
+described in <a href='temp.res'>[temp.res]</a>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-28'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-28'>28)</a></div><p >This refers to unqualified names
+that occur, for instance, in
+a type or default argument in the
+<i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i> or used in the function body.</p></div><div class='footnote' id='footnote-29'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-29'>29)</a></div><p >This refers to unqualified names
+following the class name; such a name may be used in the
+<i ><a href='class.derived#nt:base-clause'>base-clause</a></i> or may be used in the class definition.</p></div><div class='footnote' id='footnote-30'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-30'>30)</a></div><p >This lookup applies whether the
+definition of <span class='texttt'>X</span> is
+nested within <span class='texttt'>Y</span>'s definition or whether <span class='texttt'>X</span>'s definition
+appears in a namespace scope enclosing <span class='texttt'>Y</span> 's
+definition (<a href='class.nest'>[class.nest]</a>).</p></div><div class='footnote' id='footnote-31'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-31'>31)</a></div><p >That is, an unqualified name that occurs,
+for instance, in a
+type in the
+<i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i> or in the
+<i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i>.</p></div><div class='footnote' id='footnote-32'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-32'>32)</a></div><p >This lookup applies whether
+the member function is defined
+within the definition of class <span class='texttt'>X</span> or whether the member function
+is defined in a namespace scope enclosing <span class='texttt'>X</span>'s definition.</p></div></div></div></body></html>
