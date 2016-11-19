@@ -1,0 +1,205 @@
+<!DOCTYPE html><html lang='en'><head><title>[temp.inst]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>14</a> Templates <a class='abbr_ref' href='./#temp'>[temp]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>14.7</a> Template instantiation and specialization <a class='abbr_ref' href='temp.spec#temp.inst'>[temp.spec]</a></h2><div id='temp.inst'><h3 ><a class='secnum' style='min-width:103pt'>14.7.1</a> Implicit instantiation <a class='abbr_ref'>[temp.inst]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='instantiation,template_implicit'></a></span>Unless a class template specialization has been explicitly
+instantiated (<a href='temp.explicit'>[temp.explicit]</a>) or explicitly
+specialized (<a href='temp.expl.spec'>[temp.expl.spec]</a>),
+the class template specialization is implicitly instantiated when the
+specialization is referenced in a context that requires a completely-defined
+object type or when the completeness of the class type affects the semantics
+of the program.
+The implicit instantiation of a class template specialization causes
+the implicit instantiation of the declarations, but not of the definitions or
+default arguments, of the class member functions,
+member classes, scoped member enumerations, static data members and member templates; and it causes the
+implicit instantiation of the definitions of unscoped member enumerations and member anonymous unions.
+However, for the purpose of determining whether an instantiated redeclaration
+of a member is valid according to <a href='class.mem'>[class.mem]</a>, a declaration that
+corresponds to a definition in the template is considered to be a
+definition.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;class T, class U&gt;
+struct Outer {
+  template&lt;class X, class Y&gt; struct Inner;
+  template&lt;class Y&gt; struct Inner&lt;T, Y&gt;;         <span class='comment'>// #1a
+</span>  template&lt;class Y&gt; struct Inner&lt;T, Y&gt; { };     <span class='comment'>// #1b; OK: valid redeclaration of #1a
+</span>  template&lt;class Y&gt; struct Inner&lt;U, Y&gt; { };     <span class='comment'>// #2
+</span>};
+
+Outer&lt;int, int&gt; outer;                          <span class='comment'>// error at #2
+</span></pre><p ><span class='texttt'>Outer&lt;int, int&gt;::Inner&lt;int, Y&gt;</span> is redeclared at #1b. (It is not defined
+but noted as being associated with a definition in <span class='texttt'>Outer&lt;T, U&gt;</span>.) #2
+is also a redeclaration of #1a. It is noted as associated with a definition,
+so it is an invalid redeclaration of the same partial specialization.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Unless a member of a class template or a member template has been explicitly
+instantiated or explicitly specialized,
+the specialization of the member is implicitly instantiated when the
+specialization is referenced in a context that requires the member definition
+to exist;
+in particular, the initialization (and any associated side-effects) of a
+static data member does not occur unless the static data member is itself used
+in a way that requires the definition of the static data member to exist.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >Unless a function template specialization has been explicitly instantiated or
+explicitly specialized,
+the function template specialization is implicitly instantiated when the
+specialization is referenced in a context that requires a function definition
+to exist.
+Unless a call is to a function template explicit specialization or
+to a member function of an explicitly specialized class template,
+a default argument for a function template or a member function of a
+class template is implicitly instantiated when the function is
+called in a context that requires the value of the default argument.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;class T&gt; struct Z {
+  void f();
+  void g();
+};
+
+void h() {
+  Z&lt;int&gt; a;         <span class='comment'>// instantiation of class <span class='texttt'>Z&lt;int&gt;</span> required
+</span>  Z&lt;char&gt;* p;       <span class='comment'>// instantiation of class <span class='texttt'>Z&lt;char&gt;</span> not required
+</span>  Z&lt;double&gt;* q;     <span class='comment'>// instantiation of class <span class='texttt'>Z&lt;double&gt;</span> not required
+</span>
+  a.f();            <span class='comment'>// instantiation of <span class='texttt'>Z&lt;int&gt;::f()</span> required
+</span>  p-&gt;g();           <span class='comment'>// instantiation of class <span class='texttt'>Z&lt;char&gt;</span> required, and
+</span>                    <span class='comment'>// instantiation of <span class='texttt'>Z&lt;char&gt;::g()</span> required
+</span>}
+</pre><p >Nothing in this example requires
+<span class='texttt'>class</span>
+<span class='texttt'>Z&lt;double&gt;</span>,
+<span class='texttt'>Z&lt;int&gt;::g()</span>,
+or
+<span class='texttt'>Z&lt;char&gt;::f()</span>
+to be implicitly instantiated.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >A class template specialization is implicitly instantiated if the
+class type is used in a context that requires a completely-defined
+object type or if the completeness of the class type might affect the
+semantics of the program.
+[&nbsp;<i>Note:</i>
+In particular, if the semantics of an expression depend on the member
+or base class lists of a class template specialization, the class
+template specialization is implicitly generated. For instance,
+deleting a pointer to class type depends on whether or not the class
+declares a destructor, and conversion between pointer to class types
+depends on the inheritance relationship between the two classes
+involved.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T&gt; class B { <span class='comment'>/* ... */</span> };
+template&lt;class T&gt; class D : public B&lt;T&gt; { <span class='comment'>/* ... */</span> };
+
+void f(void*);
+void f(B&lt;int&gt;*);
+
+void g(D&lt;int&gt;* p, D&lt;char&gt;* pp, D&lt;double&gt;* ppp) {
+  f(p);             <span class='comment'>// instantiation of <span class='texttt'>D&lt;int&gt;</span> required: call <span class='texttt'>f(B&lt;int&gt;*)</span>
+</span>  B&lt;char&gt;* q = pp;  <span class='comment'>// instantiation of <span class='texttt'>D&lt;char&gt;</span> required:
+</span>                    <span class='comment'>// convert <span class='texttt'>D&lt;char&gt;*</span> to <span class='texttt'>B&lt;char&gt;*</span>
+</span>  delete ppp;       <span class='comment'>// instantiation of <span class='texttt'>D&lt;double&gt;</span> required
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >If the overload resolution process can determine the correct function to
+call without instantiating a class template definition, it is unspecified
+whether that instantiation actually takes place.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template &lt;class T&gt; struct S {
+  operator int();
+};
+
+void f(int);
+void f(S&lt;int&gt;&amp;);
+void f(S&lt;float&gt;);
+
+void g(S&lt;int&gt;&amp; sr) {
+  f(sr);            <span class='comment'>// instantiation of <span class='texttt'>S&lt;int&gt;</span> allowed but not required
+</span>                    <span class='comment'>// instantiation of <span class='texttt'>S&lt;float&gt;</span> allowed but not required
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >If an implicit instantiation of a class template specialization is required and
+the template is declared but not defined, the program is ill-formed.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T&gt; class X;
+
+X&lt;char&gt; ch;         <span class='comment'>// error: definition of <span class='texttt'>X</span> required
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >The implicit instantiation of a class template does not cause any static data
+members of that class to be implicitly instantiated.</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >If a function template or a member function template specialization is used in
+a way that involves overload resolution,
+a declaration of the specialization is implicitly instantiated (<a href='temp.over'>[temp.over]</a>).</p></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >An implementation shall not implicitly instantiate a function template,
+a member template, a non-virtual member function, a member class, or a
+static data member of a class template that does not require instantiation.
+It is unspecified whether or not an implementation implicitly instantiates a
+virtual member function of a class template if the virtual member function would
+not otherwise be instantiated.
+The use of a template specialization in a default argument
+shall not cause the template to be implicitly instantiated except that a
+class template may be instantiated where its complete type is needed to determine
+the correctness of the default argument.
+The use of a default argument in a
+function call causes specializations in the default argument to be implicitly
+instantiated.</p></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><p >Implicitly instantiated class and function template specializations are placed
+in the namespace where the template is defined.
+Implicitly instantiated specializations for members of a class template are
+placed in the namespace where the enclosing class template is defined.
+Implicitly instantiated member templates are placed in the namespace where the
+enclosing class or class template is defined.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+namespace N {
+  template&lt;class T&gt; class List {
+  public:
+    T* get();
+  };
+}
+
+template&lt;class K, class V&gt; class Map {
+public:
+  N::List&lt;V&gt; lt;
+  V get(K);
+};
+
+void g(Map&lt;const char*,int&gt;&amp; m) {
+  int i = m.get("Nicholas");
+}
+</pre><p >a call of
+<span class='texttt'>lt.get()</span>
+from
+<span class='texttt'>Map&lt;const char*,int&gt;::get()</span>
+would place
+<span class='texttt'>List&lt;int&gt;::get()</span>
+in the namespace
+<span class='texttt'>N</span>
+rather than in the global namespace.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><p >If a function template
+<span class='texttt'>f</span>
+is called in a way that requires a default argument to be used,
+the dependent names are looked up, the semantics constraints are checked,
+and the instantiation of any template used in the default argument
+is done as if the default argument had been
+an initializer used in a function template specialization with the same scope,
+the same template parameters and the same access as that of the function template
+<span class='texttt'>f</span>
+used at that point.
+This analysis is called
+<a class='hidden_link' href='#def:default_argument_instantiation' id='def:default_argument_instantiation'><i>default argument instantiation</i></a>.
+The instantiated default argument is then used as the argument of
+<span class='texttt'>f</span>.</p></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><p >Each default argument is instantiated independently.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T&gt; void f(T x, T y = ydef(T()), T z = zdef(T()));
+
+class  A { };
+
+A zdef(A);
+
+void g(A a, A b, A c) {
+  f(a, b, c);       <span class='comment'>// no default argument instantiation
+</span>  f(a, b);          <span class='comment'>// default argument <span class='texttt'>z = zdef(T())</span> instantiated
+</span>  f(a);             <span class='comment'>// ill-formed; <span class='texttt'>ydef</span> is not declared
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><p >[&nbsp;<i>Note:</i>
+<a href='temp.point'>[temp.point]</a> defines the point of instantiation of a template specialization.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><p >There is an implementation-defined quantity that specifies the limit on
+the total depth of recursive instantiations, which could involve more than one
+template.
+The result of an infinite recursion in instantiation is undefined.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T&gt; class X {
+  X&lt;T&gt;* p;          <span class='comment'>// OK
+</span>  X&lt;T*&gt; a;          <span class='comment'>// implicit generation of <span class='texttt'>X&lt;T&gt;</span> requires
+</span>                    <span class='comment'>// the implicit instantiation of <span class='texttt'>X&lt;T*&gt;</span> which requires
+</span>                    <span class='comment'>// the implicit instantiation of <span class='texttt'>X&lt;T**&gt;</span> which ...
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>

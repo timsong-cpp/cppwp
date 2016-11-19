@@ -1,0 +1,273 @@
+<!DOCTYPE html><html lang='en'><head><title>[support.exception]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>18</a> Language support library <a class='abbr_ref' href='./#language.support'>[language.support]</a></h1><div id='support.exception'><h2 ><a class='secnum' style='min-width:88pt'>18.8</a> Exception handling <a class='abbr_ref'>[support.exception]</a></h2><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The header
+<span class='texttt'>&lt;exception&gt;</span>
+defines several types and functions related to the handling of exceptions in a C++ program.</p><p ><b>Header <span class='texttt'>&lt;exception&gt;</span> synopsis</b></p><p ><span class='indexparent'><a class='index' id='exception'></a></span><span class='indexparent'><a class='index' id='exception'></a></span></p><pre class='codeblock'>
+namespace std {
+  class exception;
+  class bad_exception;
+  class nested_exception;
+
+  typedef void (*unexpected_handler)();
+  unexpected_handler get_unexpected() noexcept;
+  unexpected_handler set_unexpected(unexpected_handler f) noexcept;
+  [[noreturn]] void unexpected();
+
+  typedef void (*terminate_handler)();
+  terminate_handler get_terminate() noexcept;
+  terminate_handler set_terminate(terminate_handler f) noexcept;
+  [[noreturn]] void terminate() noexcept;
+
+  bool uncaught_exception() noexcept;
+
+  typedef <i><span class='texttt'>unspecified</span></i> exception_ptr;
+
+  exception_ptr current_exception() noexcept;
+  [[noreturn]] void rethrow_exception(exception_ptr p);
+  template&lt;class E&gt; exception_ptr make_exception_ptr(E e) noexcept;
+
+  [[noreturn]] template &lt;class T&gt; void throw_with_nested(T&amp;&amp; t);
+  template &lt;class E&gt; void rethrow_if_nested(const E&amp; e);
+}
+</pre><p ><span class='textsc'>See also:</span> <a href='except.special'>[except.special]</a>.</p></div><div id='exception'><h3 ><a class='secnum' href='#exception' style='min-width:103pt'>18.8.1</a> Class <span class='texttt'>exception</span> <a class='abbr_ref' href='exception'>[exception]</a></h3><p ><span class='indexparent'><a class='index' id='exception'></a></span></p><pre class='codeblock'>
+namespace std {
+  class exception {
+  public:
+    exception() noexcept;
+    exception(const exception&amp;) noexcept;
+    exception&amp; operator=(const exception&amp;) noexcept;
+    virtual ~exception();
+    virtual const char* what() const noexcept;
+  };
+}
+</pre><div class='para' id='exception-1'><div class='marginalizedparent'><a class='marginalized' href='#exception-1'>1</a></div><p >The class
+<span class='texttt'>exception</span>
+defines the base
+class for the types of objects thrown as exceptions by
+C++ standard library components, and certain
+expressions, to report errors detected during program execution.</p></div><div class='para' id='exception-2'><div class='marginalizedparent'><a class='marginalized' href='#exception-2'>2</a></div><p >Each standard library class <span class='texttt'>T</span> that derives from class <span class='texttt'>exception</span> shall have a
+publicly accessible copy constructor and a publicly accessible copy assignment
+operator that do not exit with an exception. These member functions shall meet
+the following postcondition: If two objects <span class='texttt'>lhs</span> and <span class='texttt'>rhs</span> both have
+dynamic type <span class='texttt'>T</span> and <span class='texttt'>lhs</span> is a copy of <span class='texttt'>rhs</span>, then
+<span class='texttt'>strcmp(lhs.what(), rhs.what())</span> shall equal 0.</p><p ><span class='indexparent'><a class='index' id='exception,constructor'></a></span><code class='itemdecl'>
+exception() noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='exception-3'><div class='marginalizedparent'><a class='marginalized' href='#exception-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs an object of class
+<span class='texttt'>exception</span>.</p></div></div><div class='para' id='exception-4'><div class='marginalizedparent'><a class='marginalized' href='#exception-4'>4</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Does not throw any exceptions.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=,exception'></a></span><code class='itemdecl'>
+exception(const exception&amp; rhs) noexcept;
+exception&amp; operator=(const exception&amp; rhs) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='exception-5'><div class='marginalizedparent'><a class='marginalized' href='#exception-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Copies an
+<span class='texttt'>exception</span>
+object.</p></div></div><div class='para' id='exception-6'><div class='marginalizedparent'><a class='marginalized' href='#exception-6'>6</a></div><div class='itemdescr'><p ><i>Postcondition:</i> If <span class='texttt'>*this</span> and <span class='texttt'>rhs</span> both have dynamic type <span class='texttt'>exception</span>
+then <span class='texttt'>strcmp(what(), rhs.what())</span> shall equal 0.
+</p></div></div><p ><span class='indexparent'><a class='index' id='implementation-defined'></a></span><span class='indexparent'><a class='index' id='exception,destructor'></a></span><code class='itemdecl'>
+virtual ~exception();
+</code></p><div class='itemdescr'></div><div class='para' id='exception-7'><div class='marginalizedparent'><a class='marginalized' href='#exception-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Destroys an object of class
+<span class='texttt'>exception</span>.</p></div></div><div class='para' id='exception-8'><div class='marginalizedparent'><a class='marginalized' href='#exception-8'>8</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Does not throw any exceptions.
+</p></div></div><p ><span class='indexparent'><a class='index' id='what,exception'></a></span><code class='itemdecl'>
+virtual const char* what() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='exception-9'><div class='marginalizedparent'><a class='marginalized' href='#exception-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='indexparent'><a class='index' id='exception::what_message,implementation-defined'></a></span>An <span class='indexparent'><a class='index' id='result_of_exception::what'></a></span>implementation-defined <span class='textsc'>ntbs</span>.</p></div></div><div class='para' id='exception-10'><div class='marginalizedparent'><a class='marginalized' href='#exception-10'>10</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The message may be a null-terminated multibyte string (<a href='multibyte.strings'>[multibyte.strings]</a>),
+suitable for conversion and display as a
+<span class='texttt'>wstring</span> (<a href='string.classes'>[string.classes]</a>, <a href='locale.codecvt'>[locale.codecvt]</a>).
+The return value remains valid until the exception object from which
+it is obtained is destroyed or a non-<span class='texttt'>const</span>
+member function of the exception object is called.
+</p></div></div></div><div id='bad.exception'><h3 ><a class='secnum' href='#bad.exception' style='min-width:103pt'>18.8.2</a> Class <span class='texttt'>bad_exception</span> <a class='abbr_ref' href='bad.exception'>[bad.exception]</a></h3><p ><span class='indexparent'><a class='index' id='bad_exception'></a></span></p><pre class='codeblock'>
+namespace std {
+  class bad_exception : public exception {
+  public:
+    bad_exception() noexcept;
+    bad_exception(const bad_exception&amp;) noexcept;
+    bad_exception&amp; operator=(const bad_exception&amp;) noexcept;
+    virtual const char* what() const noexcept;
+  };
+}
+</pre><div class='para' id='bad.exception-1'><div class='marginalizedparent'><a class='marginalized' href='#bad.exception-1'>1</a></div><p >The class
+<span class='texttt'>bad_exception</span>
+defines the type of objects thrown as
+described in (<a href='except.unexpected'>[except.unexpected]</a>).</p><p ><span class='indexparent'><a class='index' id='bad_exception,bad_exception'></a></span><code class='itemdecl'>
+bad_exception() noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='bad.exception-2'><div class='marginalizedparent'><a class='marginalized' href='#bad.exception-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs an object of class
+<span class='texttt'>bad_exception</span>.</p></div></div><div class='para' id='bad.exception-3'><div class='marginalizedparent'><a class='marginalized' href='#bad.exception-3'>3</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The result of calling
+<span class='texttt'>what()</span>
+on the newly constructed object is implementation-defined.<span class='indexparent'><a class='index' id='implementation-defined'></a></span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='bad_exception,bad_exception'></a></span><span class='indexparent'><a class='index' id='operator=,bad_exception'></a></span><code class='itemdecl'>
+    bad_exception(const bad_exception&amp;) noexcept;
+    bad_exception&amp; operator=(const bad_exception&amp;) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='bad.exception-4'><div class='marginalizedparent'><a class='marginalized' href='#bad.exception-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Copies an object of class
+<span class='texttt'>bad_exception</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='what,bad_exception'></a></span><code class='itemdecl'>
+virtual const char* what() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='bad.exception-5'><div class='marginalizedparent'><a class='marginalized' href='#bad.exception-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+An <span class='indexparent'><a class='index' id='return_value_of_bad_exception::what'></a></span>implementation-defined <span class='textsc'>ntbs</span>.<span class='indexparent'><a class='index' id='bad_exception::what,implementation-defined'></a></span></p></div></div><div class='para' id='bad.exception-6'><div class='marginalizedparent'><a class='marginalized' href='#bad.exception-6'>6</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The message may be a null-terminated multibyte string (<a href='multibyte.strings'>[multibyte.strings]</a>),
+suitable for conversion and display as a
+<span class='texttt'>wstring</span> (<a href='string.classes'>[string.classes]</a>, <a href='locale.codecvt'>[locale.codecvt]</a>).
+</p></div></div></div><div id='exception.terminate'><h3 ><a class='secnum' href='#exception.terminate' style='min-width:103pt'>18.8.3</a> Abnormal termination <a class='abbr_ref' href='exception.terminate'>[exception.terminate]</a></h3><div id='terminate.handler'><h4 ><a class='secnum' href='#terminate.handler' style='min-width:118pt'>18.8.3.1</a> Type <span class='texttt'>terminate_handler</span> <a class='abbr_ref' href='terminate.handler'>[terminate.handler]</a></h4><p ><span class='indexparent'><a class='index' id='terminate_handler'></a></span><code class='itemdecl'>
+typedef void (*terminate_handler)();
+</code></p><div class='itemdescr'></div><div class='para' id='terminate.handler-1'><div class='marginalizedparent'><a class='marginalized' href='#terminate.handler-1'>1</a></div><div class='itemdescr'><p >The type of a
+<a class='hidden_link' href='#def:handler_function' id='def:handler_function'><i>handler function</i></a>
+to be called by
+<span class='texttt'>std::terminate()</span>
+<span class='indexparent'><a class='index' id='terminate'></a></span>when terminating exception processing.</p></div></div><div class='para' id='terminate.handler-2'><div class='marginalizedparent'><a class='marginalized' href='#terminate.handler-2'>2</a></div><div class='itemdescr'><p ><i>Required behavior:</i>
+A <span class='texttt'>terminate_handler</span> shall
+terminate execution of the program without returning to the caller.</p></div></div><div class='para' id='terminate.handler-3'><div class='marginalizedparent'><a class='marginalized' href='#terminate.handler-3'>3</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+The implementation's default <span class='texttt'>terminate_handler</span> calls
+<span class='texttt'>abort()</span>.<span class='indexparent'><a class='index' id='abort'></a></span>
+</p></div></div></div><div id='set.terminate'><h4 ><a class='secnum' href='#set.terminate' style='min-width:118pt'>18.8.3.2</a> <span class='texttt'>set_terminate</span> <a class='abbr_ref' href='set.terminate'>[set.terminate]</a></h4><p ><span class='indexparent'><a class='index' id='set_terminate'></a></span><code class='itemdecl'>
+terminate_handler set_terminate(terminate_handler f) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='set.terminate-1'><div class='marginalizedparent'><a class='marginalized' href='#set.terminate-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Establishes the function designated by <span class='texttt'>f</span> as the current
+handler function for terminating exception processing.</p></div></div><div class='para' id='set.terminate-2'><div class='marginalizedparent'><a class='marginalized' href='#set.terminate-2'>2</a></div><div class='itemdescr'><p ><i>Remarks:</i> It is unspecified whether a null pointer value designates the default
+<span class='texttt'>terminate_handler</span>.</p></div></div><div class='para' id='set.terminate-3'><div class='marginalizedparent'><a class='marginalized' href='#set.terminate-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The previous <span class='texttt'>terminate_handler</span>.
+</p></div></div></div><div id='get.terminate'><h4 ><a class='secnum' href='#get.terminate' style='min-width:118pt'>18.8.3.3</a> <span class='texttt'>get_terminate</span> <a class='abbr_ref' href='get.terminate'>[get.terminate]</a></h4><p ><code class='itemdecl'>
+terminate_handler get_terminate() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='get.terminate-1'><div class='marginalizedparent'><a class='marginalized' href='#get.terminate-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> The current <span class='texttt'>terminate_handler</span>.
+[&nbsp;<i>Note:</i> This may be a null pointer value. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div><div id='terminate'><h4 ><a class='secnum' href='#terminate' style='min-width:118pt'>18.8.3.4</a> <span class='texttt'>terminate</span> <a class='abbr_ref' href='terminate'>[terminate]</a></h4><p ><span class='indexparent'><a class='index' id='terminate'></a></span><code class='itemdecl'>
+[[noreturn]] void terminate() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='terminate-1'><div class='marginalizedparent'><a class='marginalized' href='#terminate-1'>1</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Called by the implementation when exception
+handling must be abandoned for any of several reasons (<a href='except.terminate'>[except.terminate]</a>),
+in effect immediately after evaluating the <i ><a href='except#nt:throw-expression'>throw-expression</a></i> (<a href='terminate.handler'>[terminate.handler]</a>).
+May also be called directly by the program.</p></div></div><div class='para' id='terminate-2'><div class='marginalizedparent'><a class='marginalized' href='#terminate-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls the current <span class='texttt'>terminate_handler</span> function. [&nbsp;<i>Note:</i> A
+default <span class='texttt'>terminate_handler</span> is always considered a callable handler in
+this context. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div></div><div id='uncaught'><h3 ><a class='secnum' href='#uncaught' style='min-width:103pt'>18.8.4</a> <span class='texttt'>uncaught_exception</span> <a class='abbr_ref' href='uncaught'>[uncaught]</a></h3><p ><span class='indexparent'><a class='index' id='uncaught_exception'></a></span><code class='itemdecl'>
+bool uncaught_exception() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='uncaught-1'><div class='marginalizedparent'><a class='marginalized' href='#uncaught-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>true</span>
+after
+the current thread has initialized
+an exception object (<a href='except.throw'>[except.throw]</a>)
+until a handler for the exception (including <span class='texttt'>std::unexpected()</span>
+or <span class='texttt'>std::terminate()</span>) is activated (<a href='except.handle'>[except.handle]</a>).
+[&nbsp;<i>Note:</i>
+This includes stack unwinding (<a href='except.ctor'>[except.ctor]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='uncaught-2'><div class='marginalizedparent'><a class='marginalized' href='#uncaught-2'>2</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+When
+<span class='texttt'>uncaught_exception()</span>
+returns
+<span class='texttt'>true</span>,
+throwing an exception can result in a call of
+<span class='texttt'>std::terminate()</span> (<a href='except.terminate'>[except.terminate]</a>).
+</p></div></div></div><div id='propagation'><h3 ><a class='secnum' href='#propagation' style='min-width:103pt'>18.8.5</a> Exception propagation <a class='abbr_ref' href='propagation'>[propagation]</a></h3><p ><span class='indexparent'><a class='index' id='exception_ptr'></a></span>
+<code class='itemdecl'>
+typedef <i><span class='texttt'>unspecified</span></i> exception_ptr;
+</code></p><div class='itemdescr'></div><div class='para' id='propagation-1'><div class='marginalizedparent'><a class='marginalized' href='#propagation-1'>1</a></div><div class='itemdescr'><p >The type exception_ptr can be used to refer to an exception object.</p></div></div><div class='para' id='propagation-2'><div class='marginalizedparent'><a class='marginalized' href='#propagation-2'>2</a></div><div class='itemdescr'><p ><span class='texttt'>exception_ptr</span> shall satisfy the requirements of
+<span class='texttt'>NullablePointer</span> (<a href='nullablepointer.requirements'>[nullablepointer.requirements]</a>).</p></div></div><div class='para' id='propagation-3'><div class='marginalizedparent'><a class='marginalized' href='#propagation-3'>3</a></div><div class='itemdescr'><p >Two non-null values of type <span class='texttt'>exception_ptr</span> are equivalent and compare equal if and
+only if they refer to the same exception.</p></div></div><div class='para' id='propagation-4'><div class='marginalizedparent'><a class='marginalized' href='#propagation-4'>4</a></div><div class='itemdescr'><p >The default constructor of <span class='texttt'>exception_ptr</span> produces the null value of the
+type.</p></div></div><div class='para' id='propagation-5'><div class='marginalizedparent'><a class='marginalized' href='#propagation-5'>5</a></div><div class='itemdescr'><p ><span class='texttt'>exception_ptr</span> shall not be implicitly convertible to any arithmetic,
+enumeration, or pointer type.</p></div></div><div class='para' id='propagation-6'><div class='marginalizedparent'><a class='marginalized' href='#propagation-6'>6</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> An implementation might use a reference-counted smart
+pointer as <span class='texttt'>exception_ptr</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='propagation-7'><div class='marginalizedparent'><a class='marginalized' href='#propagation-7'>7</a></div><div class='itemdescr'><p >For purposes of determining the presence of a data race, operations on
+<span class='texttt'>exception_ptr</span> objects shall access and modify only the
+<span class='texttt'>exception_ptr</span> objects themselves and not the exceptions they refer to.
+Use of <span class='texttt'>rethrow_exception</span> on <span class='texttt'>exception_ptr</span> objects that refer to
+the same exception object shall not introduce a data race. [&nbsp;<i>Note:</i> if
+<span class='texttt'>rethrow_exception</span> rethrows the same exception object (rather than a copy),
+concurrent access to that rethrown exception object may introduce a data race.
+Changes in the number of <span class='texttt'>exception_ptr</span> objects that refer to a
+particular exception do not introduce a data race. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='current_exception'></a></span>
+<code class='itemdecl'>
+exception_ptr current_exception() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='propagation-8'><div class='marginalizedparent'><a class='marginalized' href='#propagation-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> An <span class='texttt'>exception_ptr</span> object that refers to
+the currently handled exception (<a href='except.handle'>[except.handle]</a>) or a copy of the currently
+handled exception, or a null <span class='texttt'>exception_ptr</span> object if no exception is being
+handled. The referenced object shall remain valid at least as long as there is an
+<span class='texttt'>exception_ptr</span> object that refers to it.
+If the function needs to allocate memory and the attempt fails, it returns an
+<span class='texttt'>exception_ptr</span> object that refers to an instance of <span class='texttt'>bad_alloc</span>.
+It is unspecified whether the return values of two successive calls to
+<span class='texttt'>current_exception</span> refer to the same exception object.
+[&nbsp;<i>Note:</i> That is, it is unspecified whether <span class='texttt'>current_exception</span>
+creates a new copy each time it is called. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+If the attempt to copy the current exception object throws an exception, the function
+returns an <span class='texttt'>exception_ptr</span> object that refers to the thrown exception or,
+if this is not possible, to an instance of <span class='texttt'>bad_exception</span>. [&nbsp;<i>Note:</i> The
+copy constructor of the thrown exception may also fail, so the implementation is allowed
+to substitute a <span class='texttt'>bad_exception</span> object to avoid infinite
+recursion.<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='rethrow_exception'></a></span>
+<code class='itemdecl'>
+[[noreturn]] void rethrow_exception(exception_ptr p);
+</code></p><div class='itemdescr'></div><div class='para' id='propagation-9'><div class='marginalizedparent'><a class='marginalized' href='#propagation-9'>9</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>p</span> shall not be a null pointer.</p></div></div><div class='para' id='propagation-10'><div class='marginalizedparent'><a class='marginalized' href='#propagation-10'>10</a></div><div class='itemdescr'><p ><i>Throws:</i> the exception object to which <span class='texttt'>p</span> refers.
+</p></div></div><p ><span class='indexparent'><a class='index' id='make_exception_ptr'></a></span>
+<code class='itemdecl'>
+template&lt;class E&gt; exception_ptr make_exception_ptr(E e) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='propagation-11'><div class='marginalizedparent'><a class='marginalized' href='#propagation-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> Creates an <span class='texttt'>exception_ptr</span> object that refers to a copy of <span class='texttt'>e</span>, as if
+</p><pre class='codeblock'>
+try {
+  throw e;
+} catch(...) {
+  return current_exception();
+}
+</pre></div></div><div class='para' id='propagation-12'><div class='marginalizedparent'><a class='marginalized' href='#propagation-12'>12</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> This function is provided for convenience and
+efficiency reasons. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div><div id='except.nested'><h3 ><a class='secnum' href='#except.nested' style='min-width:103pt'>18.8.6</a> <span class='texttt'>nested_exception</span> <a class='abbr_ref' href='except.nested'>[except.nested]</a></h3><p ><span class='indexparent'><a class='index' id='nested_exception'></a></span></p><pre class='codeblock'>
+namespace std {
+  class nested_exception {
+  public:
+    nested_exception() noexcept;
+    nested_exception(const nested_exception&amp;) noexcept = default;
+    nested_exception&amp; operator=(const nested_exception&amp;) noexcept = default;
+    virtual ~nested_exception() = default;
+
+    <span class='comment'>// access functions
+</span>    [[noreturn]] void rethrow_nested() const;
+    exception_ptr nested_ptr() const noexcept;
+  };
+
+  [[noreturn]] template&lt;class T&gt; void throw_with_nested(T&amp;&amp; t);
+  template &lt;class E&gt; void rethrow_if_nested(const E&amp; e);
+}
+</pre><div class='para' id='except.nested-1'><div class='marginalizedparent'><a class='marginalized' href='#except.nested-1'>1</a></div><p >The class <span class='texttt'>nested_exception</span> is designed for use as a mixin through
+multiple inheritance. It captures the currently handled exception and stores it
+for later use.</p></div><div class='para' id='except.nested-2'><div class='marginalizedparent'><a class='marginalized' href='#except.nested-2'>2</a></div><p >[&nbsp;<i>Note:</i> <span class='texttt'>nested_exception</span> has a virtual destructor to make it a
+polymorphic class. Its presence can be tested for with <span class='texttt'>dynamic_cast</span>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='nested_exception,nested_exception'></a></span>
+<span class='indexparent'><a class='index' id='nested_exception,nested_exception'></a></span>
+<code class='itemdecl'>
+nested_exception() noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='except.nested-3'><div class='marginalizedparent'><a class='marginalized' href='#except.nested-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> The constructor calls <span class='texttt'>current_exception()</span> and stores the returned value.
+</p></div></div><p ><span class='indexparent'><a class='index' id='rethrow_nested,nested_exception'></a></span>
+<span class='indexparent'><a class='index' id='nested_exception,rethrow_nested'></a></span>
+<code class='itemdecl'>
+[[noreturn]] void rethrow_nested() const;
+</code></p><div class='itemdescr'></div><div class='para' id='except.nested-4'><div class='marginalizedparent'><a class='marginalized' href='#except.nested-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>nested_ptr()</span> returns a null pointer, the function calls <span class='texttt'>std::terminate()</span>.
+Otherwise, it throws the stored exception captured by <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='nested_ptr,nested_exception'></a></span>
+<span class='indexparent'><a class='index' id='nested_exception,nested_ptr'></a></span>
+<code class='itemdecl'>
+exception_ptr nested_ptr() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='except.nested-5'><div class='marginalizedparent'><a class='marginalized' href='#except.nested-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> The stored exception captured by this <span class='texttt'>nested_exception</span> object.
+</p></div></div><p ><span class='indexparent'><a class='index' id='throw_with_nested,nested_exception'></a></span>
+<span class='indexparent'><a class='index' id='nested_exception,throw_with_nested'></a></span>
+<code class='itemdecl'>
+[[noreturn]] template &lt;class T&gt; void throw_with_nested(T&amp;&amp; t);
+</code></p><div class='itemdescr'><p >Let <span class='texttt'>U</span> be <span class='texttt'>remove_reference&lt;T&gt;::type</span>.</p></div><div class='para' id='except.nested-6'><div class='marginalizedparent'><a class='marginalized' href='#except.nested-6'>6</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>U</span> shall be <span class='texttt'>CopyConstructible</span>.</p></div></div><div class='para' id='except.nested-7'><div class='marginalizedparent'><a class='marginalized' href='#except.nested-7'>7</a></div><div class='itemdescr'><p ><i>Throws:</i>
+if <span class='texttt'>U</span> is a non-union class type not derived from
+<span class='texttt'>nested_exception</span>, an exception of unspecified type that is publicly derived from both
+<span class='texttt'>U</span> and <span class='texttt'>nested_exception</span>
+and constructed from <span class='texttt'>std::forward&lt;T&gt;(t)</span>, otherwise
+<span class='texttt'>std::forward&lt;T&gt;(t)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='rethrow_if_nested,nested_exception'></a></span>
+<span class='indexparent'><a class='index' id='nested_exception,rethrow_if_nested'></a></span>
+<code class='itemdecl'>
+template &lt;class E&gt; void rethrow_if_nested(const E&amp; e);
+</code></p><div class='itemdescr'></div><div class='para' id='except.nested-8'><div class='marginalizedparent'><a class='marginalized' href='#except.nested-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i>
+If the dynamic type of <span class='texttt'>e</span> is publicly and unambiguously derived from
+<span class='texttt'>nested_exception</span>, calls
+<span class='texttt'>dynamic_cast&lt;const</span> <span class='texttt'>nested_exception&amp;&gt;(e).rethrow_nested()</span>.
+</p></div></div></div></div></div></body></html>

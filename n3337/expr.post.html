@@ -1,0 +1,816 @@
+<!DOCTYPE html><html lang='en'><head><title>[expr.post]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>5</a> Expressions <a class='abbr_ref' href='./#expr'>[expr]</a></h1><div id='expr.post'><h2 ><a class='secnum' style='min-width:88pt'>5.2</a> Postfix expressions <a class='abbr_ref'>[expr.post]</a></h2><p ><span class='indexparent'><a class='index' id='expression,postfix'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Postfix expressions group left-to-right.</p><pre class='bnf'><a id='nt:postfix-expression'>postfix-expression:</a>
+    <i ><a href='expr.prim.general#nt:primary-expression'>primary-expression</a></i>
+    <i ><a href='expr.post#nt:postfix-expression'>postfix-expression</a></i> <span class='terminal'>[</span> <i ><a href='expr.comma#nt:expression'>expression</a></i> <span class='terminal'>]</span>
+    <i ><a href='expr.post#nt:postfix-expression'>postfix-expression</a></i> <span class='terminal'>[</span> <i ><a href='dcl.init#nt:braced-init-list'>braced-init-list</a></i> <span class='terminal'>]</span>
+    <i ><a href='expr.post#nt:postfix-expression'>postfix-expression</a></i> <span class='terminal'>(</span> <i ><a href='expr.post#nt:expression-list'>expression-list</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <span class='terminal'>)</span>
+    <i ><a href='dcl.type.simple#nt:simple-type-specifier'>simple-type-specifier</a></i> <span class='terminal'>(</span> <i ><a href='expr.post#nt:expression-list'>expression-list</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <span class='terminal'>)</span>
+    <i ><a href='temp.res#nt:typename-specifier'>typename-specifier</a></i> <span class='terminal'>(</span> <i ><a href='expr.post#nt:expression-list'>expression-list</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <span class='terminal'>)</span>
+    <i ><a href='dcl.type.simple#nt:simple-type-specifier'>simple-type-specifier</a></i> <i ><a href='dcl.init#nt:braced-init-list'>braced-init-list</a></i>
+    <i ><a href='temp.res#nt:typename-specifier'>typename-specifier</a></i> <i ><a href='dcl.init#nt:braced-init-list'>braced-init-list</a></i>
+    <i ><a href='expr.post#nt:postfix-expression'>postfix-expression</a></i> <span class='terminal'>. template</span><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='expr.prim.general#nt:id-expression'>id-expression</a></i>
+    <i ><a href='expr.post#nt:postfix-expression'>postfix-expression</a></i> <span class='terminal'>-&gt; template</span><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='expr.prim.general#nt:id-expression'>id-expression</a></i>
+    <i ><a href='expr.post#nt:postfix-expression'>postfix-expression</a></i> <span class='terminal'>.</span> <i ><a href='expr.post#nt:pseudo-destructor-name'>pseudo-destructor-name</a></i>
+    <i ><a href='expr.post#nt:postfix-expression'>postfix-expression</a></i> <span class='terminal'>-&gt;</span> <i ><a href='expr.post#nt:pseudo-destructor-name'>pseudo-destructor-name</a></i>
+    <i ><a href='expr.post#nt:postfix-expression'>postfix-expression</a></i> <span class='terminal'>++</span>
+    <i ><a href='expr.post#nt:postfix-expression'>postfix-expression</a></i> <span class='terminal'>--</span>
+    <span class='terminal'>dynamic_cast &lt;</span> <i ><a href='dcl.name#nt:type-id'>type-id</a></i> <span class='terminal'>&gt; (</span> <i ><a href='expr.comma#nt:expression'>expression</a></i> <span class='terminal'>)</span>
+    <span class='terminal'>static_cast &lt;</span> <i ><a href='dcl.name#nt:type-id'>type-id</a></i> <span class='terminal'>&gt; (</span> <i ><a href='expr.comma#nt:expression'>expression</a></i> <span class='terminal'>)</span>
+    <span class='terminal'>reinterpret_cast &lt;</span> <i ><a href='dcl.name#nt:type-id'>type-id</a></i> <span class='terminal'>&gt; (</span> <i ><a href='expr.comma#nt:expression'>expression</a></i> <span class='terminal'>)</span>
+    <span class='terminal'>const_cast &lt;</span> <i ><a href='dcl.name#nt:type-id'>type-id</a></i> <span class='terminal'>&gt; (</span> <i ><a href='expr.comma#nt:expression'>expression</a></i> <span class='terminal'>)</span>
+    <span class='terminal'>typeid (</span> <i ><a href='expr.comma#nt:expression'>expression</a></i> <span class='terminal'>)</span>
+    <span class='terminal'>typeid (</span> <i ><a href='dcl.name#nt:type-id'>type-id</a></i> <span class='terminal'>)</span></pre><pre class='bnf'><a id='nt:expression-list'>expression-list:</a>
+    <i ><a href='dcl.init#nt:initializer-list'>initializer-list</a></i></pre><pre class='bnf'><a id='nt:pseudo-destructor-name'>pseudo-destructor-name:</a>
+    <i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i> <span class='terminal'>::&nbsp;~</span> <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i>
+    <i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i> <span class='terminal'>template</span> <i ><a href='temp.names#nt:simple-template-id'>simple-template-id</a></i> <span class='terminal'>::&nbsp;~</span> <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i>
+    <i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <span class='terminal'>~</span> <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i>
+    <span class='terminal'>~</span> <i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i></pre></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >[&nbsp;<i>Note:</i> The <span class='texttt'>&gt;</span> token following the
+<span class='small'></span><span class='rmfamily'></span><i> type-id</i> in a <span class='texttt'>dynamic_cast</span>,
+<span class='texttt'>static_cast</span>, <span class='texttt'>reinterpret_cast</span>, or
+<span class='texttt'>const_cast</span> may be the product of replacing a
+<span class='texttt'>&gt;&gt;</span> token by two consecutive <span class='texttt'>&gt;</span>
+tokens (<a href='temp.names'>[temp.names]</a>).<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div id='expr.sub'><h3 ><a class='secnum' href='#expr.sub' style='min-width:103pt'>5.2.1</a> Subscripting <a class='abbr_ref' href='expr.sub'>[expr.sub]</a></h3><div class='para' id='expr.sub-1'><div class='marginalizedparent'><a class='marginalized' href='#expr.sub-1'>1</a></div><p ><span class='indexparent'><a class='index' id='operator,subscripting'></a></span><span class='indexparent'><a class='index' id='[]'></a></span>A postfix expression followed by an expression in square brackets is a
+postfix expression. One of the expressions shall have the type “pointer
+to <span class='texttt'>T</span>” and the other shall have unscoped enumeration or integral type.
+The result is an lvalue of type “<span class='texttt'>T</span>.”
+<span class='indexparent'><a class='index' id='type,incomplete'></a></span>The type “<span class='texttt'>T</span>” shall be a completely-defined object type.<a class='footnotenum' href='#footnote-62'>62</a>
+The expression <span class='texttt'>E1[E2]</span> is identical (by definition) to
+<span class='texttt'>*((E1)+(E2))</span>
+[&nbsp;<i>Note:</i> 
+see <a href='expr.unary'>[expr.unary]</a> and <a href='expr.add'>[expr.add]</a> for details of <span class='texttt'>*</span> and
+<span class='texttt'>+</span> and <a href='dcl.array'>[dcl.array]</a> for details of arrays.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div><div class='para' id='expr.sub-2'><div class='marginalizedparent'><a class='marginalized' href='#expr.sub-2'>2</a></div><p >A <i ><a href='dcl.init#nt:braced-init-list'>braced-init-list</a></i> shall not be used with the built-in subscript operator.</p></div><div class='footnote' id='footnote-62'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-62'>62)</a></div><p >This
+is true even if the subscript operator is used in the following common idiom:
+<span class='texttt'>&amp;x[0]</span>.</p></div></div><div id='expr.call'><h3 ><a class='secnum' href='#expr.call' style='min-width:103pt'>5.2.2</a> Function call <a class='abbr_ref' href='expr.call'>[expr.call]</a></h3><div class='para' id='expr.call-1'><div class='marginalizedparent'><a class='marginalized' href='#expr.call-1'>1</a></div><p ><span class='indexparent'><a class='index' id='expression,function_call'></a></span><span class='indexparent'><a class='index' id='operator,function_call'></a></span><span class='indexparent'><a class='index' id='()'></a></span>There are two kinds of function call: ordinary function call and member
+function<a class='footnotenum' href='#footnote-63'>63</a> (<a href='class.mfct'>[class.mfct]</a>) call.
+A function call is a postfix expression followed by parentheses
+containing a possibly empty, comma-separated list of expressions which
+constitute the arguments to the function. For an ordinary function call,
+the postfix expression shall be either an lvalue that refers to a
+function (in which case the function-to-pointer standard
+conversion (<a href='conv.func'>[conv.func]</a>) is suppressed on the postfix expression),
+or it shall have pointer to function type. Calling a function through an
+expression whose function type has a language linkage that is different
+from the language linkage of the function type of the called function's
+definition is undefined (<a href='dcl.link'>[dcl.link]</a>). For a member function call,
+the postfix expression shall be an
+implicit (<a href='class.mfct.non-static'>[class.mfct.non-static]</a>, <a href='class.static'>[class.static]</a>) or explicit
+class member access (<a href='expr.ref'>[expr.ref]</a>) whose <i ><a href='expr.prim.general#nt:id-expression'>id-expression</a></i> is a
+function member name, or a pointer-to-member
+expression (<a href='expr.mptr.oper'>[expr.mptr.oper]</a>) selecting a function member; the call is as a member of
+the class object referred to by the
+object expression. In the case of an implicit class
+member access, the implied object is the one pointed to by <span class='texttt'>this</span>.
+[&nbsp;<i>Note:</i> 
+a member function call of the form <span class='texttt'>f()</span> is interpreted as
+<span class='texttt'>(*this).f()</span> (see <a href='class.mfct.non-static'>[class.mfct.non-static]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] 
+If a function or member function name is used, the name can be
+overloaded (Clause <a href='over'>[over]</a>), in which case the appropriate function
+shall be selected according to the rules in <a href='over.match'>[over.match]</a>. If the selected
+function is non-virtual, or if the <i ><a href='expr.prim.general#nt:id-expression'>id-expression</a></i> in the class
+member access expression is a <i ><a href='expr.prim.general#nt:qualified-id'>qualified-id</a></i>, that function is
+called. Otherwise, its final overrider (<a href='class.virtual'>[class.virtual]</a>) in the dynamic type
+of the object expression is called.
+[&nbsp;<i>Note:</i> 
+the dynamic type is the type of the object referred to by the
+current value of the object expression. <a href='class.cdtor'>[class.cdtor]</a> describes the
+behavior of virtual function calls when the object expression
+refers to
+an object under construction or destruction.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div><div class='para' id='expr.call-2'><div class='marginalizedparent'><a class='marginalized' href='#expr.call-2'>2</a></div><p >[&nbsp;<i>Note:</i>
+If a function or member function name is used, and name
+lookup (<a href='basic.lookup'>[basic.lookup]</a>) does not find a declaration of that name,
+the program is ill-formed. No function is implicitly declared by such a
+call.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='expr.call-3'><div class='marginalizedparent'><a class='marginalized' href='#expr.call-3'>3</a></div><p >If the <i ><a href='expr.post#nt:postfix-expression'>postfix-expression</a></i> designates a destructor (<a href='class.dtor'>[class.dtor]</a>),
+the type of the function call expression is <span class='texttt'>void</span>; otherwise, the
+type of the function call expression is the return type of the
+statically chosen function (i.e., ignoring the <span class='texttt'>virtual</span> keyword),
+even if the type of the function actually called is different.
+<span class='indexparent'><a class='index' id='type,incomplete'></a></span>This type shall be an object type, a reference type or the type
+<span class='texttt'>void</span>.</p></div><div class='para' id='expr.call-4'><div class='marginalizedparent'><a class='marginalized' href='#expr.call-4'>4</a></div><p ><span class='indexparent'><a class='index' id='function_argument'></a></span><span class='indexparent'><a class='index' id='function_parameter'></a></span><span class='indexparent'><a class='index' id='formal_argument'></a></span><span class='indexparent'><a class='index' id='initialization,parameter'></a></span>When a function is called, each parameter (<a href='dcl.fct'>[dcl.fct]</a>) shall be
+initialized (<a href='dcl.init'>[dcl.init]</a>, <a href='class.copy'>[class.copy]</a>, <a href='class.ctor'>[class.ctor]</a>) with
+its corresponding argument.
+[&nbsp;<i>Note:</i> Such initializations are indeterminately sequenced
+with respect to each other (<a href='intro.execution'>[intro.execution]</a>) <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+If the function is a non-static member
+function, the <span class='texttt'>this</span> parameter of the function (<a href='class.this'>[class.this]</a>)
+shall be initialized with a pointer to the object of the call, converted
+as if by an explicit type conversion (<a href='expr.cast'>[expr.cast]</a>).
+[&nbsp;<i>Note:</i> 
+There is no access or ambiguity checking on this conversion; the access
+checking and disambiguation are done as part of the (possibly implicit)
+class member access operator.
+See <a href='class.member.lookup'>[class.member.lookup]</a>, <a href='class.access.base'>[class.access.base]</a>,
+and <a href='expr.ref'>[expr.ref]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] 
+When a function is called, the parameters that have object type shall
+have completely-defined object type.
+[&nbsp;<i>Note:</i> 
+this still allows a parameter to be a pointer or reference to an
+incomplete class type. However, it prevents a passed-by-value parameter
+to have an incomplete class type.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] 
+During the initialization of a parameter, an implementation may avoid
+the construction of extra temporaries by combining the conversions on
+the associated argument and/or the construction of temporaries with the
+initialization of the parameter (see <a href='class.temporary'>[class.temporary]</a>). The
+lifetime of a parameter ends when the function in which it is defined
+returns. The initialization and destruction of each parameter occurs
+within the context of the calling function.
+[&nbsp;<i>Example:</i> 
+the access of the constructor, conversion functions or destructor is
+checked at the point of call in the calling function. If a constructor
+or destructor for a function parameter throws an exception, the search
+for a handler starts in the scope of the calling function; in
+particular, if the function called has a <i ><a href='except#nt:function-try-block'>function-try-block</a></i>
+(Clause <a href='except'>[except]</a>) with a handler that could handle the exception,
+this handler is not considered.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;] 
+The value of a function call is the value returned by the called
+function except in a virtual function call if the return type of the
+final overrider is different from the return type of the statically
+chosen function, the value returned from the final overrider is
+converted to the return type of the statically chosen function.</p></div><div class='para' id='expr.call-5'><div class='marginalizedparent'><a class='marginalized' href='#expr.call-5'>5</a></div><p >[&nbsp;<i>Note:</i> 
+<span class='indexparent'><a class='index' id='type_checking,argument'></a></span><span class='indexparent'><a class='index' id='function_call'></a></span><span class='indexparent'><a class='index' id='argument_passing'></a></span><span class='indexparent'><a class='index' id='value,call_by'></a></span><span class='indexparent'><a class='index' id='reference,call_by'></a></span><span class='indexparent'><a class='index' id='argument,reference'></a></span>a function can change the values of its non-const parameters, but these
+changes cannot affect the values of the arguments except where a
+parameter is of a reference type (<a href='dcl.ref'>[dcl.ref]</a>); if the reference is to
+a const-qualified type, <span class='texttt'>const_cast</span> is required to be used to
+cast away the constness in order to modify the argument's value. Where a
+parameter is of <span class='texttt'>const</span> reference type a temporary object is
+introduced if
+needed (<a href='dcl.type'>[dcl.type]</a>, <a href='lex.literal'>[lex.literal]</a>, <a href='lex.string'>[lex.string]</a>, <a href='dcl.array'>[dcl.array]</a>, <a href='class.temporary'>[class.temporary]</a>).
+In addition, it is possible to modify the values of nonconstant objects through
+pointer parameters.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div><div class='para' id='expr.call-6'><div class='marginalizedparent'><a class='marginalized' href='#expr.call-6'>6</a></div><p ><span class='indexparent'><a class='index' id='declaration,ellipsis_in_function'></a></span><span class='indexparent'><a class='index' id='parameter_list,variable'></a></span>A function can be declared to accept fewer arguments (by declaring default
+arguments (<a href='dcl.fct.default'>[dcl.fct.default]</a>)) or more arguments (by using the ellipsis,
+<span class='texttt'>...</span>, or a function parameter pack (<a href='dcl.fct'>[dcl.fct]</a>)) than the number of
+parameters in the function definition (<a href='dcl.fct.def'>[dcl.fct.def]</a>).
+[&nbsp;<i>Note:</i> 
+this implies that, except where the ellipsis (<span class='texttt'>...</span>) or a function
+parameter pack is used, a parameter is available for each argument.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div><div class='para' id='expr.call-7'><div class='marginalizedparent'><a class='marginalized' href='#expr.call-7'>7</a></div><p ><span class='indexparent'><a class='index' id='ellipsis,conversion_sequence'></a></span>When there is no parameter for a given argument, the argument is passed
+in such a way that the receiving function can obtain the value of the
+argument by invoking <span class='texttt'>va_arg</span> (<a href='support.runtime'>[support.runtime]</a>).
+[&nbsp;<i>Note:</i> This paragraph does not apply to arguments passed to a function parameter pack.
+Function parameter packs are expanded during template instantiation (<a href='temp.variadic'>[temp.variadic]</a>),
+thus each such argument has a corresponding parameter when a function template
+specialization is actually called. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+The
+lvalue-to-rvalue (<a href='conv.lval'>[conv.lval]</a>), array-to-pointer (<a href='conv.array'>[conv.array]</a>),
+and function-to-pointer (<a href='conv.func'>[conv.func]</a>) standard conversions are
+performed on the argument expression.
+An argument that has (possibly cv-qualified) type <span class='texttt'>std::nullptr_t</span> is converted
+to type <span class='texttt'>void*</span> (<a href='conv.ptr'>[conv.ptr]</a>).
+After these conversions, if the
+argument does not have arithmetic, enumeration, pointer, pointer to
+member, or class type, the program is ill-formed. Passing a potentially-evaluated
+argument of class type (Clause <a href='class'>[class]</a>) having a non-trivial
+copy constructor, a non-trivial move constructor,
+or a
+non-trivial destructor, with no corresponding parameter, is conditionally-supported with
+<span class='indexparent'><a class='index' id='passing_argument_of_class_type_through_ellipsis'></a></span>implementation-defined semantics. If the argument has
+integral or enumeration type that is subject to the integral
+promotions (<a href='conv.prom'>[conv.prom]</a>), or a floating point type that is subject to the floating
+point promotion (<a href='conv.fpprom'>[conv.fpprom]</a>), the value of the argument is converted to the
+promoted type before the call. These promotions are referred to as the <a class='hidden_link' href='#def:default
+argument_promotions' id='def:default
+argument_promotions'><i>default
+argument promotions</i></a>.</p></div><div class='para' id='expr.call-8'><div class='marginalizedparent'><a class='marginalized' href='#expr.call-8'>8</a></div><p ><span class='indexparent'><a class='index' id='evaluation,order_of_argument'></a></span><span class='indexparent'><a class='index' id='evaluation,unspecified_order_of_function_call'></a></span>[&nbsp;<i>Note:</i>
+The evaluations of the postfix expression and of the argument
+expressions are all unsequenced relative to one another.
+<span class='indexparent'><a class='index' id='evaluation,unspecified_order_of_argument'></a></span>All side effects of
+argument expression evaluations are sequenced before the function is
+entered (see <a href='intro.execution'>[intro.execution]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='expr.call-9'><div class='marginalizedparent'><a class='marginalized' href='#expr.call-9'>9</a></div><p ><span class='indexparent'><a class='index' id='function_call,recursive'></a></span>Recursive calls are permitted, except to the function named
+<span class='texttt'>main</span> (<a href='basic.start.main'>[basic.start.main]</a>).</p></div><div class='para' id='expr.call-10'><div class='marginalizedparent'><a class='marginalized' href='#expr.call-10'>10</a></div><p >A function call is an lvalue
+if the result type is an lvalue reference type or an rvalue reference to function type,
+an xvalue if the result type is an rvalue reference to object type, and a prvalue
+otherwise.</p></div><div class='para' id='expr.call-11'><div class='marginalizedparent'><a class='marginalized' href='#expr.call-11'>11</a></div><p >If a function call is a prvalue of object type:</p><ul ><li ><p >if the function call is either
+</p><ul ><li ><p >the operand of a <i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i> or
+</p></li><li ><p >the right operand of a comma operator that is the operand of a
+<i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i>,
+</p></li></ul><p >a temporary object is not introduced for the prvalue. The type of the prvalue
+may be incomplete. [&nbsp;<i>Note:</i> as a result, storage is not allocated for the
+prvalue and it is not destroyed; thus, a class type is not instantiated as a
+result of being the type of a function call in this context. This is true
+regardless of whether the expression uses function call notation or operator
+notation (<a href='over.match.oper'>[over.match.oper]</a>). <i>&nbsp;—&nbsp;end note</i>&nbsp;] [&nbsp;<i>Note:</i> unlike the rule for
+a <i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i> that considers whether an <i ><a href='expr.prim.general#nt:id-expression'>id-expression</a></i>
+is parenthesized (<a href='dcl.type.simple'>[dcl.type.simple]</a>), parentheses have no special meaning
+in this context. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></li><li ><p >otherwise, the type of the prvalue shall be complete.
+</p></li></ul></div><div class='footnote' id='footnote-63'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-63'>63)</a></div><p >A static member function (<a href='class.static'>[class.static]</a>) is an ordinary
+function.</p></div></div><div id='expr.type.conv'><h3 ><a class='secnum' href='#expr.type.conv' style='min-width:103pt'>5.2.3</a> Explicit type conversion (functional notation) <a class='abbr_ref' href='expr.type.conv'>[expr.type.conv]</a></h3><div class='para' id='expr.type.conv-1'><div class='marginalizedparent'><a class='marginalized' href='#expr.type.conv-1'>1</a></div><p ><span class='indexparent'><a class='index' id='expression,cast'></a></span>
+<span class='indexparent'><a class='index' id='explicit_type_conversion'></a></span><span class='indexparent'><a class='index' id='type_conversion,_explicit'></a></span><span class='indexparent'><a class='index' id='conversion_explicit_type'></a></span><span class='indexparent'><a class='index' id='casting'></a></span>A <i ><a href='dcl.type.simple#nt:simple-type-specifier'>simple-type-specifier</a></i> (<a href='dcl.type.simple'>[dcl.type.simple]</a>) or
+<i ><a href='temp.res#nt:typename-specifier'>typename-specifier</a></i> (<a href='temp.res'>[temp.res]</a>) followed by a
+parenthesized <i ><a href='expr.post#nt:expression-list'>expression-list</a></i> constructs a value of the
+specified type given the expression list. If the expression list is a
+single expression, the type conversion expression is equivalent (in
+definedness, and if defined in meaning) to the corresponding cast
+expression (<a href='expr.cast'>[expr.cast]</a>).
+<span class='indexparent'><a class='index' id='type,incomplete'></a></span>If the type specified is a class type, the
+class type shall be complete. If the expression list specifies more than
+a single value, the type shall be a class with a suitably declared
+constructor (<a href='dcl.init'>[dcl.init]</a>, <a href='class.ctor'>[class.ctor]</a>), and the expression
+<span class='texttt'>T(x1, x2, ...)</span> is equivalent in effect to the declaration
+<span class='texttt'>T t(x1, x2, ...);</span> for some invented temporary variable
+<span class='texttt'>t</span>, with the result being the value of <span class='texttt'>t</span> as a prvalue.</p></div><div class='para' id='expr.type.conv-2'><div class='marginalizedparent'><a class='marginalized' href='#expr.type.conv-2'>2</a></div><p >The expression <span class='texttt'>T()</span>, where <span class='texttt'>T</span> is a
+<i ><a href='dcl.type.simple#nt:simple-type-specifier'>simple-type-specifier</a></i> or <i ><a href='temp.res#nt:typename-specifier'>typename-specifier</a></i> for a non-array complete object
+type or the (possibly cv-qualified) <span class='texttt'>void</span> type, creates a prvalue of the
+specified type,which is value-initialized (<a href='dcl.init'>[dcl.init]</a>; no
+initialization is done for the <span class='texttt'>void()</span> case).
+[&nbsp;<i>Note:</i> 
+if <span class='texttt'>T</span> is a non-class type that is cv-qualified, the
+<i ><a href='dcl.decl#nt:cv-qualifier'>cv-qualifiers</a></i> are ignored when determining the type of the
+resulting prvalue (<a href='basic.lval'>[basic.lval]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div><div class='para' id='expr.type.conv-3'><div class='marginalizedparent'><a class='marginalized' href='#expr.type.conv-3'>3</a></div><p >Similarly, a <i ><a href='dcl.type.simple#nt:simple-type-specifier'>simple-type-specifier</a></i> or
+<i ><a href='temp.res#nt:typename-specifier'>typename-specifier</a></i> followed by a <i ><a href='dcl.init#nt:braced-init-list'>braced-init-list</a></i>
+creates a temporary object of the specified type
+direct-list-initialized (<a href='dcl.init.list'>[dcl.init.list]</a>) with the specified
+<i ><a href='dcl.init#nt:braced-init-list'>braced-init-list</a></i>, and its value is that temporary object as a
+prvalue.</p></div></div><div id='expr.pseudo'><h3 ><a class='secnum' href='#expr.pseudo' style='min-width:103pt'>5.2.4</a> Pseudo destructor call <a class='abbr_ref' href='expr.pseudo'>[expr.pseudo]</a></h3><div class='para' id='expr.pseudo-1'><div class='marginalizedparent'><a class='marginalized' href='#expr.pseudo-1'>1</a></div><p ><span class='indexparent'><a class='index' id='expression,pseudo-destructor_call'></a></span>
+<span class='indexparent'><a class='index' id='call,pseudo_destructor'></a></span><span class='indexparent'><a class='index' id='pseudo-destructor-name'></a></span>The use of a <i ><a href='expr.post#nt:pseudo-destructor-name'>pseudo-destructor-name</a></i> after a dot <span class='texttt'>.</span> or
+arrow <span class='texttt'>-&gt;</span> operator represents the destructor for the non-class
+type denoted by <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i> or <i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i>.
+The result shall only be used as the
+operand for the function call operator <span class='texttt'>()</span>, and the result of
+such a call has type <span class='texttt'>void</span>. The only effect is the evaluation of
+the <i ><a href='expr.post#nt:postfix-expression'>postfix-expression</a></i> before the dot or arrow.</p></div><div class='para' id='expr.pseudo-2'><div class='marginalizedparent'><a class='marginalized' href='#expr.pseudo-2'>2</a></div><p >The left-hand side of the dot operator shall be of scalar type. The
+left-hand side of the arrow operator shall be of pointer to scalar type.
+This scalar type is the object type. The <i>cv</i>-unqualified
+versions of the object type and of the type designated by the
+<i ><a href='expr.post#nt:pseudo-destructor-name'>pseudo-destructor-name</a></i> shall be the same type. Furthermore,
+the two <i ><a href='dcl.type.simple#nt:type-name'>type-names</a></i> in a <i ><a href='expr.post#nt:pseudo-destructor-name'>pseudo-destructor-name</a></i> of
+the form</p><pre class='bnf'><i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i> <span class='terminal'>::&nbsp;~</span> <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i></pre><p >shall designate the same scalar type.</p></div></div><div id='expr.ref'><h3 ><a class='secnum' href='#expr.ref' style='min-width:103pt'>5.2.5</a> Class member access <a class='abbr_ref' href='expr.ref'>[expr.ref]</a></h3><div class='para' id='expr.ref-1'><div class='marginalizedparent'><a class='marginalized' href='#expr.ref-1'>1</a></div><p ><span class='indexparent'><a class='index' id='expression,class_member_access'></a></span><span class='indexparent'><a class='index' id='access_control,class_member'></a></span><span class='indexparent'><a class='index' id='syntax,class_member'></a></span><span class='indexparent'><a class='index' id='semantics,class_member'></a></span><span class='indexparent'><a class='index' id='operator,class_member_access'></a></span><span class='indexparent'><a class='index' id='.'></a></span><span class='indexparent'><a class='index' id='dot_operator'></a></span><span class='indexparent'><a class='index' id='operator,class_member_access'></a></span><span class='indexparent'><a class='index' id='->'></a></span><span class='indexparent'><a class='index' id='arrow_operator'></a></span>A postfix expression followed by a dot <span class='texttt'>.</span> or an arrow <span class='texttt'>-&gt;</span>,
+optionally followed by the keyword
+<span class='texttt'>template</span> (<a href='temp.names'>[temp.names]</a>), and then followed by an
+<i ><a href='expr.prim.general#nt:id-expression'>id-expression</a></i>, is a postfix expression. The postfix
+expression before the dot or arrow is evaluated;<a class='footnotenum' href='#footnote-64'>64</a>
+the result of that evaluation, together with the
+<i ><a href='expr.prim.general#nt:id-expression'>id-expression</a></i>, determines the result of the entire postfix
+expression.</p></div><div class='para' id='expr.ref-2'><div class='marginalizedparent'><a class='marginalized' href='#expr.ref-2'>2</a></div><p ><span class='indexparent'><a class='index' id='type,incomplete'></a></span>For the first option (dot) the first expression
+shall have complete class type.
+For the second option (arrow) the first expression
+shall have pointer to complete class type. The expression <span class='texttt'>E1-&gt;E2</span> is
+converted to the equivalent form <span class='texttt'>(*(E1)).E2</span>; the remainder of
+<a href='expr.ref'>[expr.ref]</a> will address only the first option (dot).<a class='footnotenum' href='#footnote-65'>65</a>
+In either case, the
+<i ><a href='expr.prim.general#nt:id-expression'>id-expression</a></i> shall name a member of the class or of one of
+its base classes.
+[&nbsp;<i>Note:</i> 
+because the name of a class is inserted in its class scope
+(Clause <a href='class'>[class]</a>), the name of a class is also considered a nested
+member of that class.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] 
+[&nbsp;<i>Note:</i>
+<a href='basic.lookup.classref'>[basic.lookup.classref]</a> describes how names are looked up after the
+<span class='texttt'>.</span> and <span class='texttt'>-&gt;</span> operators.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div><div class='para' id='expr.ref-3'><div class='marginalizedparent'><a class='marginalized' href='#expr.ref-3'>3</a></div><p >Abbreviating <a class='hidden_link' href='#def:postfix-expression.id-expression' id='def:postfix-expression.id-expression'><i>postfix-expression.id-expression</i></a>
+as <span class='texttt'>E1.E2</span>,
+<span class='texttt'>E1</span> is called the <a class='hidden_link' href='#def:object_expression' id='def:object_expression'><i>object expression</i></a>. The
+type and value category of <span class='texttt'>E1.E2</span> are determined as follows.
+In the remainder of <a href='expr.ref'>[expr.ref]</a>, <i>cq</i> represents either
+<span class='texttt'>const</span> or the absence of <span class='texttt'>const</span> and <i>vq</i> represents
+either <span class='texttt'>volatile</span> or the absence of <span class='texttt'>volatile</span>. <i>cv</i>
+represents an arbitrary set of cv-qualifiers, as defined
+in <a href='basic.type.qualifier'>[basic.type.qualifier]</a>.</p></div><div class='para' id='expr.ref-4'><div class='marginalizedparent'><a class='marginalized' href='#expr.ref-4'>4</a></div><p >If <span class='texttt'>E2</span> is declared to have type “reference to <span class='texttt'>T</span>,” then
+<span class='texttt'>E1.E2</span> is an lvalue; the type of <span class='texttt'>E1.E2</span> is <span class='texttt'>T</span>.
+Otherwise, one of the following rules applies.</p><ul ><li ><p >If <span class='texttt'>E2</span> is a static data member and the type of <span class='texttt'>E2</span>
+is <span class='texttt'>T</span>, then <span class='texttt'>E1.E2</span> is an lvalue; the expression designates
+the named member of the class. The type of <span class='texttt'>E1.E2</span> is <span class='texttt'>T</span>.</p></li><li ><p >If <span class='texttt'>E2</span> is a non-static data member and the type of
+<span class='texttt'>E1</span> is “<i>cq1 vq1</i> <span class='texttt'>X</span>”, and the type of <span class='texttt'>E2</span>
+is “<i>cq2 vq2</i> <span class='texttt'>T</span>”, the expression designates the named
+member of the object designated by the first expression. If <span class='texttt'>E1</span>
+is an lvalue, then <span class='texttt'>E1.E2</span> is an lvalue;
+if <span class='texttt'>E1</span> is an xvalue, then <span class='texttt'>E1.E2</span> is an xvalue;
+otherwise, it is a prvalue. Let the notation <i>vq12</i> stand for the “union” of
+<i>vq1</i> and <i>vq2</i>; that is, if <i>vq1</i> or <i>vq2</i>
+is <span class='texttt'>volatile</span>, then <i>vq12</i> is <span class='texttt'>volatile</span>. Similarly,
+let the notation <i>cq12</i> stand for the “union” of <i>cq1</i>
+and <i>cq2</i>; that is, if <i>cq1</i> or <i>cq2</i> is
+<span class='texttt'>const</span>, then <i>cq12</i> is <span class='texttt'>const</span>. If <span class='texttt'>E2</span> is
+declared to be a <span class='texttt'>mutable</span> member, then the type of <span class='texttt'>E1.E2</span>
+is “<i>vq12</i> <span class='texttt'>T</span>”. If <span class='texttt'>E2</span> is not declared to be a
+<span class='texttt'>mutable</span> member, then the type of <span class='texttt'>E1.E2</span> is
+“<i>cq12</i> <i>vq12</i> <span class='texttt'>T</span>”.</p></li><li ><p >If <span class='texttt'>E2</span> is a (possibly overloaded) member function, function
+overload resolution (<a href='over.match'>[over.match]</a>) is used to determine whether
+<span class='texttt'>E1.E2</span> refers to a static or a non-static member function.</p><ul ><li ><p >If it refers to a static member function and the type of
+<span class='texttt'>E2</span> is “function of parameter-type-list returning <span class='texttt'>T</span>”,
+then <span class='texttt'>E1.E2</span> is an lvalue; the expression designates the static
+member function. The type of <span class='texttt'>E1.E2</span> is the same type as that of
+<span class='texttt'>E2</span>, namely “function of parameter-type-list returning
+<span class='texttt'>T</span>”.</p></li><li ><p >Otherwise, if <span class='texttt'>E1.E2</span> refers to a non-static member
+function and the type of <span class='texttt'>E2</span> is “function of
+parameter-type-list <i>cv</i> <span class='grammarterm'>ref-qualifier<span class='math'><sub ><span class='mathit'>opt</span></sub></span></span> returning <span class='texttt'>T</span>”, then
+<span class='texttt'>E1.E2</span> is a prvalue. The expression designates a
+non-static member function. The expression can be used only as the
+left-hand operand of a member function call (<a href='class.mfct'>[class.mfct]</a>).
+[&nbsp;<i>Note:</i> Any redundant set of parentheses surrounding the expression
+is ignored (<a href='expr.prim'>[expr.prim]</a>). <i>&nbsp;—&nbsp;end note</i>&nbsp;] The type of <span class='texttt'>E1.E2</span> is
+“function of parameter-type-list <i>cv</i> returning <span class='texttt'>T</span>”.
+</p></li></ul></li><li ><p >If <span class='texttt'>E2</span> is a nested type, the expression <span class='texttt'>E1.E2</span> is
+ill-formed.</p></li><li ><p >If <span class='texttt'>E2</span> is a member enumerator and the type of <span class='texttt'>E2</span>
+is <span class='texttt'>T</span>, the expression <span class='texttt'>E1.E2</span> is a prvalue. The type of
+<span class='texttt'>E1.E2</span> is <span class='texttt'>T</span>.
+</p></li></ul></div><div class='para' id='expr.ref-5'><div class='marginalizedparent'><a class='marginalized' href='#expr.ref-5'>5</a></div><p >If <span class='texttt'>E2</span> is a non-static data member or a non-static member
+function, the program is ill-formed if the class of which <span class='texttt'>E2</span> is
+directly a member is an ambiguous base (<a href='class.member.lookup'>[class.member.lookup]</a>) of
+the naming class (<a href='class.access.base'>[class.access.base]</a>) of <span class='texttt'>E2</span>.
+[&nbsp;<i>Note:</i>
+The program is also ill-formed if the naming class is an ambiguous base of the class type
+of the object expression; see <a href='class.access.base'>[class.access.base]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-64'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-64'>64)</a></div><p >If the class member
+access expression is evaluated, the subexpression evaluation happens even if the
+result is unnecessary to determine
+the value of the entire postfix expression, for example if the
+<i ><a href='expr.prim.general#nt:id-expression'>id-expression</a></i> denotes a static member.</p></div><div class='footnote' id='footnote-65'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-65'>65)</a></div><p >Note that
+<span class='texttt'>(*(E1))</span> is an lvalue.</p></div></div><div id='incr'><h3 ><a class='secnum' href='#incr' style='min-width:103pt'>5.2.6</a> Increment and decrement <a class='abbr_ref' href='expr.post.incr'>[expr.post.incr]</a></h3><div class='para' id='incr-1'><div class='marginalizedparent'><a class='marginalized' href='#incr-1'>1</a></div><p ><span class='indexparent'><a class='index' id='expression,increment'></a></span><span class='indexparent'><a class='index' id='operator,increment'></a></span><span class='indexparent'><a class='index' id='++'></a></span><span class='indexparent'><a class='index' id='postfix_++'></a></span>The value of a postfix <span class='texttt'>++</span> expression is the value of its
+operand.
+[&nbsp;<i>Note:</i> 
+the value obtained is a copy of the original value
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] 
+The operand shall be a modifiable lvalue. The type of the operand shall
+be an arithmetic type or a pointer to a complete object type. The value
+of the operand object is modified by adding <span class='texttt'>1</span> to it,
+<span class='indexparent'><a class='index' id='increment,bool'></a></span><span class='indexparent'><a class='index' id='deprecated_features'></a></span>unless the object is of type <span class='texttt'>bool</span>, in which case it is set to
+<span class='texttt'>true</span>.
+[&nbsp;<i>Note:</i> 
+this use is deprecated, see Annex <a href='depr'>[depr]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] 
+The
+<span class='indexparent'><a class='index' id='value_computation'></a></span>value computation of the <span class='texttt'>++</span> expression is sequenced before the
+modification of the operand object. With respect to an
+indeterminately-sequenced function call, the operation of postfix
+<span class='texttt'>++</span> is
+a single evaluation.
+[&nbsp;<i>Note:</i>
+Therefore, a function call shall not intervene between the
+lvalue-to-rvalue conversion and the side effect associated with any
+single postfix ++ operator.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+The result is a prvalue. The type of the result is the cv-unqualified
+version of the type of the operand. See also <a href='expr.add'>[expr.add]</a>
+and <a href='expr.ass'>[expr.ass]</a>.</p></div><div class='para' id='incr-2'><div class='marginalizedparent'><a class='marginalized' href='#incr-2'>2</a></div><p ><span class='indexparent'><a class='index' id='expression,decrement'></a></span><span class='indexparent'><a class='index' id='operator,decrement'></a></span><span class='indexparent'><a class='index' id='--'></a></span><span class='indexparent'><a class='index' id='postfix_--'></a></span>The operand of postfix <span class='texttt'>--</span> is decremented analogously to the
+postfix <span class='texttt'>++</span> operator, except that the operand shall not be of
+type <span class='texttt'>bool</span>.
+[&nbsp;<i>Note:</i> 
+For prefix increment and decrement, see <a href='expr.pre.incr'>[expr.pre.incr]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div></div><div id='expr.dynamic.cast'><h3 ><a class='secnum' href='#expr.dynamic.cast' style='min-width:103pt'>5.2.7</a> Dynamic cast <a class='abbr_ref' href='expr.dynamic.cast'>[expr.dynamic.cast]</a></h3><div class='para' id='expr.dynamic.cast-1'><div class='marginalizedparent'><a class='marginalized' href='#expr.dynamic.cast-1'>1</a></div><p ><span class='indexparent'><a class='index' id='expression,dynamic_cast'></a></span><span class='indexparent'><a class='index' id='cast,dynamic'></a></span>The result of the expression <span class='texttt'>dynamic_cast&lt;T&gt;(v)</span> is the result of
+converting the expression <span class='texttt'>v</span> to type <span class='texttt'>T</span>.
+<span class='indexparent'><a class='index' id='type,incomplete'></a></span><span class='texttt'>T</span> shall be a pointer or reference to a complete class type, or
+“pointer to <i>cv</i> <span class='texttt'>void</span>.” The <span class='texttt'>dynamic_cast</span> operator shall not cast
+away constness (<a href='expr.const.cast'>[expr.const.cast]</a>).</p></div><div class='para' id='expr.dynamic.cast-2'><div class='marginalizedparent'><a class='marginalized' href='#expr.dynamic.cast-2'>2</a></div><p >If <span class='texttt'>T</span> is a pointer type, <span class='texttt'>v</span> shall be a prvalue of a
+pointer to complete class type, and the result is a prvalue of type
+<span class='texttt'>T</span>. If <span class='texttt'>T</span> is an lvalue reference type, <span class='texttt'>v</span> shall be
+an lvalue of a complete class type, and the result is an lvalue of the
+type referred to by <span class='texttt'>T</span>. If <span class='texttt'>T</span> is an rvalue reference type,
+<span class='texttt'>v</span> shall be an expression having a complete class type, and the
+result is an xvalue of the type referred to by <span class='texttt'>T</span>.</p></div><div class='para' id='expr.dynamic.cast-3'><div class='marginalizedparent'><a class='marginalized' href='#expr.dynamic.cast-3'>3</a></div><p >If the type of <span class='texttt'>v</span> is the same as <span class='texttt'>T</span>, or it is
+the same as <span class='texttt'>T</span> except that the class object type in <span class='texttt'>T</span> is
+more cv-qualified than the class object type in <span class='texttt'>v</span>, the result is
+<span class='texttt'>v</span> (converted if necessary).</p></div><div class='para' id='expr.dynamic.cast-4'><div class='marginalizedparent'><a class='marginalized' href='#expr.dynamic.cast-4'>4</a></div><p >If the value of <span class='texttt'>v</span> is a null pointer value in the pointer case,
+the result is the null pointer value of type <span class='texttt'>T</span>.</p></div><div class='para' id='expr.dynamic.cast-5'><div class='marginalizedparent'><a class='marginalized' href='#expr.dynamic.cast-5'>5</a></div><p >If <span class='texttt'>T</span> is “pointer to <i>cv1</i> <span class='texttt'>B</span>” and <span class='texttt'>v</span> has
+type “pointer to <i>cv2</i> <span class='texttt'>D</span>” such that <span class='texttt'>B</span> is a base
+class of <span class='texttt'>D</span>, the result is a pointer to the unique <span class='texttt'>B</span>
+subobject of the <span class='texttt'>D</span> object pointed to by <span class='texttt'>v</span>. Similarly, if
+<span class='texttt'>T</span> is “reference to <i>cv1</i> <span class='texttt'>B</span>” and <span class='texttt'>v</span> has
+type <i>cv2</i> <span class='texttt'>D</span> such that <span class='texttt'>B</span> is a base class of
+<span class='texttt'>D</span>, the result is the unique <span class='texttt'>B</span> subobject of the <span class='texttt'>D</span>
+object referred to by <span class='texttt'>v</span>.
+<a class='footnotenum' href='#footnote-66'>66</a>
+The result is an lvalue if <span class='texttt'>T</span> is an lvalue reference, or an
+xvalue if <span class='texttt'>T</span> is an rvalue reference. In both the pointer and
+reference cases, the program is ill-formed if <i>cv2</i> has greater
+cv-qualification than <i>cv1</i> or if <span class='texttt'>B</span> is an inaccessible or
+ambiguous base class of <span class='texttt'>D</span>.
+[&nbsp;<i>Example:</i> </p><pre class='codeblock'>
+struct B { };
+struct D : B { };
+void foo(D* dp) {
+  B*  bp = dynamic_cast&lt;B*&gt;(dp);    <span class='comment'>// equivalent to <span class='texttt'>B* bp = dp;</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;] </p></div><div class='para' id='expr.dynamic.cast-6'><div class='marginalizedparent'><a class='marginalized' href='#expr.dynamic.cast-6'>6</a></div><p >Otherwise, <span class='texttt'>v</span> shall be a pointer to or an lvalue of a polymorphic
+type (<a href='class.virtual'>[class.virtual]</a>).</p></div><div class='para' id='expr.dynamic.cast-7'><div class='marginalizedparent'><a class='marginalized' href='#expr.dynamic.cast-7'>7</a></div><p >If <span class='texttt'>T</span> is “pointer to <i>cv</i> <span class='texttt'>void</span>,” then the result
+is a pointer to the most derived object pointed to by <span class='texttt'>v</span>.
+Otherwise, a run-time check is applied to see if the object pointed or
+referred to by <span class='texttt'>v</span> can be converted to the type pointed or
+referred to by <span class='texttt'>T</span>.</p></div><div class='para' id='expr.dynamic.cast-8'><div class='marginalizedparent'><a class='marginalized' href='#expr.dynamic.cast-8'>8</a></div><p >If <span class='texttt'>C</span> is the class type to which <span class='texttt'>T</span> points or refers, the run-time
+check logically executes as follows:</p><ul ><li ><p >If, in the most derived object pointed (referred) to by <span class='texttt'>v</span>,
+<span class='texttt'>v</span> points (refers) to a <span class='texttt'>public</span> base class subobject of a
+<span class='texttt'>C</span> object, and if only one object of type <span class='texttt'>C</span> is derived
+from the subobject pointed (referred) to by <span class='texttt'>v</span> the result points (refers) to that <span class='texttt'>C</span> object.</p></li><li ><p >Otherwise, if <span class='texttt'>v</span> points (refers) to a <span class='texttt'>public</span> base
+class subobject of the most derived object, and the type of the most
+derived object has a base class, of type <span class='texttt'>C</span>, that is unambiguous
+and <span class='texttt'>public</span>, the result points (refers) to the
+<span class='texttt'>C</span> subobject of the most derived object.</p></li><li ><p >Otherwise, the
+run-time check <a class='hidden_link' href='#def:fails' id='def:fails'><i>fails</i></a>.
+</p></li></ul></div><div class='para' id='expr.dynamic.cast-9'><div class='marginalizedparent'><a class='marginalized' href='#expr.dynamic.cast-9'>9</a></div><p >The value of a failed cast to pointer type is the null pointer value of
+the required result type. A failed cast to reference type throws
+<span class='texttt'>std::bad_cast</span> (<a href='bad.cast'>[bad.cast]</a>).</p><p ><span class='indexparent'><a class='index' id='bad_cast'></a></span><span class='indexparent'><a class='index' id='bad_cast'></a></span>[&nbsp;<i>Example:</i> </p><pre class='codeblock'>
+class A { virtual void f(); };
+class B { virtual void g(); };
+class D : public virtual A, private B { };
+void g() {
+  D   d;
+  B*  bp = (B*)&amp;d;                  <span class='comment'>// cast needed to break protection
+</span>  A*  ap = &amp;d;                      <span class='comment'>// public derivation, no cast needed
+</span>  D&amp;  dr = dynamic_cast&lt;D&amp;&gt;(*bp);   <span class='comment'>// fails
+</span>  ap = dynamic_cast&lt;A*&gt;(bp);        <span class='comment'>// fails
+</span>  bp = dynamic_cast&lt;B*&gt;(ap);        <span class='comment'>// fails
+</span>  ap = dynamic_cast&lt;A*&gt;(&amp;d);        <span class='comment'>// succeeds
+</span>  bp = dynamic_cast&lt;B*&gt;(&amp;d);        <span class='comment'>// ill-formed (not a run-time check)
+</span>}
+
+class E : public D, public B { };
+class F : public E, public D { };
+void h() {
+  F   f;
+  A*  ap  = &amp;f;                     <span class='comment'>// succeeds: finds unique <span class='texttt'>A</span>
+</span>  D*  dp  = dynamic_cast&lt;D*&gt;(ap);   <span class='comment'>// fails: yields <span class='texttt'>0</span>
+</span>                                    <span class='comment'>// <span class='texttt'>f</span> has two <span class='texttt'>D</span> subobjects
+</span>  E*  ep  = (E*)ap;                 <span class='comment'>// ill-formed: cast from virtual base
+</span>  E*  ep1 = dynamic_cast&lt;E*&gt;(ap);   <span class='comment'>// succeeds
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;] 
+[&nbsp;<i>Note:</i>
+<a href='class.cdtor'>[class.cdtor]</a> describes the behavior of a <span class='texttt'>dynamic_cast</span>
+applied to an object under construction or destruction.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div><div class='footnote' id='footnote-66'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-66'>66)</a></div><p >The most derived object (<a href='intro.object'>[intro.object]</a>) pointed or referred to by
+<span class='texttt'>v</span> can contain other <span class='texttt'>B</span> objects as base classes, but these
+are ignored.</p></div></div><div id='expr.typeid'><h3 ><a class='secnum' href='#expr.typeid' style='min-width:103pt'>5.2.8</a> Type identification <a class='abbr_ref' href='expr.typeid'>[expr.typeid]</a></h3><div class='para' id='expr.typeid-1'><div class='marginalizedparent'><a class='marginalized' href='#expr.typeid-1'>1</a></div><p ><span class='indexparent'><a class='index' id='expression,type_identification'></a></span><span class='indexparent'><a class='index' id='typeid'></a></span>The result of a <span class='texttt'>typeid</span> expression is an lvalue of static type
+<span class='indexparent'><a class='index' id='type_info'></a></span><span class='indexparent'><a class='index' id='type_info'></a></span><span class='texttt'>const</span> <span class='texttt'>std::type_info</span> (<a href='type.info'>[type.info]</a>) and dynamic type <span class='texttt'>const</span>
+<span class='texttt'>std::type_info</span> or <span class='texttt'>const</span> <a class='hidden_link' href='#def:name' id='def:name'><i>name</i></a> where <a class='hidden_link' href='#def:name' id='def:name'><i>name</i></a> is an
+<span class='indexparent'><a class='index' id='derived_type_for_typeid'></a></span>implementation-defined class publicly derived from
+<span class='texttt'>std&nbsp;::&nbsp;type_info</span> which preserves the behavior described
+in <a href='type.info'>[type.info]</a>.<a class='footnotenum' href='#footnote-67'>67</a>
+The lifetime of the object referred to by the lvalue extends to the end
+of the program. Whether or not the destructor is called for the
+<span class='texttt'>std::type_info</span> object at the end of the program is unspecified.</p></div><div class='para' id='expr.typeid-2'><div class='marginalizedparent'><a class='marginalized' href='#expr.typeid-2'>2</a></div><p >When <span class='texttt'>typeid</span> is applied to a glvalue expression whose type is a
+polymorphic class type (<a href='class.virtual'>[class.virtual]</a>), the result refers to a
+<span class='texttt'>std::type_info</span> object representing the type of the most derived
+object (<a href='intro.object'>[intro.object]</a>) (that is, the dynamic type) to which the
+glvalue refers. If the glvalue expression is obtained by applying the
+unary <span class='texttt'>*</span> operator to a pointer<a class='footnotenum' href='#footnote-68'>68</a>
+and the pointer is a null pointer value (<a href='conv.ptr'>[conv.ptr]</a>), the
+<span class='texttt'>typeid</span> expression throws the
+<span class='indexparent'><a class='index' id='bad_typeid'></a></span><span class='indexparent'><a class='index' id='bad_typeid'></a></span><span class='texttt'>std::bad_typeid</span>
+exception (<a href='bad.typeid'>[bad.typeid]</a>).</p></div><div class='para' id='expr.typeid-3'><div class='marginalizedparent'><a class='marginalized' href='#expr.typeid-3'>3</a></div><p >When <span class='texttt'>typeid</span> is applied to an expression other than a glvalue of
+a polymorphic class type, the result refers to a <span class='texttt'>std::type_info</span>
+object representing the static type of the expression.
+Lvalue-to-rvalue (<a href='conv.lval'>[conv.lval]</a>), array-to-pointer (<a href='conv.array'>[conv.array]</a>),
+and function-to-pointer (<a href='conv.func'>[conv.func]</a>) conversions are not applied to
+the expression.
+<span class='indexparent'><a class='index' id='type,incomplete'></a></span>If the type of the expression is a class type, the class shall be
+completely-defined. The expression is an unevaluated operand
+(Clause <a href='expr'>[expr]</a>).</p></div><div class='para' id='expr.typeid-4'><div class='marginalizedparent'><a class='marginalized' href='#expr.typeid-4'>4</a></div><p >When <span class='texttt'>typeid</span> is applied to a <i ><a href='dcl.name#nt:type-id'>type-id</a></i>, the result
+refers to a <span class='texttt'>std::type_info</span> object representing the type of the
+<i ><a href='dcl.name#nt:type-id'>type-id</a></i>. If the type of the <i ><a href='dcl.name#nt:type-id'>type-id</a></i> is a reference
+to a possibly <i>cv</i>-qualified type, the result of the
+<span class='texttt'>typeid</span> expression refers to a <span class='texttt'>std::type_info</span> object
+representing the <i>cv</i>-unqualified referenced type. If the type of
+the <i ><a href='dcl.name#nt:type-id'>type-id</a></i> is a class type or a reference to a class type,
+the class shall be completely-defined.</p></div><div class='para' id='expr.typeid-5'><div class='marginalizedparent'><a class='marginalized' href='#expr.typeid-5'>5</a></div><p >The top-level cv-qualifiers of the glvalue expression or the
+<i ><a href='dcl.name#nt:type-id'>type-id</a></i> that is the operand of <span class='texttt'>typeid</span> are always
+ignored.
+[&nbsp;<i>Example:</i> </p><pre class='codeblock'>
+class D <span class='texttt'>{ /* ... */ }</span>;
+D d1;
+const D d2;
+
+typeid(d1) == typeid(d2);       <span class='comment'>// yields <span class='texttt'>true</span>
+</span>typeid(D)  == typeid(const D);  <span class='comment'>// yields <span class='texttt'>true</span>
+</span>typeid(D)  == typeid(d2);       <span class='comment'>// yields <span class='texttt'>true</span>
+</span>typeid(D)  == typeid(const D&amp;); <span class='comment'>// yields <span class='texttt'>true</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;] </p></div><div class='para' id='expr.typeid-6'><div class='marginalizedparent'><a class='marginalized' href='#expr.typeid-6'>6</a></div><p >If the header <span class='texttt'>&lt;typeinfo&gt;</span> (<a href='type.info'>[type.info]</a>) is not included prior
+to a use of <span class='texttt'>typeid</span>, the program is ill-formed.</p></div><div class='para' id='expr.typeid-7'><div class='marginalizedparent'><a class='marginalized' href='#expr.typeid-7'>7</a></div><p >[&nbsp;<i>Note:</i>
+<a href='class.cdtor'>[class.cdtor]</a> describes the behavior of <span class='texttt'>typeid</span> applied to an
+object under construction or destruction.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div><div class='footnote' id='footnote-67'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-67'>67)</a></div><p >The recommended name for such a class is
+<span class='texttt'>extended_type_info</span>.</p></div><div class='footnote' id='footnote-68'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-68'>68)</a></div><p >If <span class='texttt'>p</span> is an expression of
+pointer type, then <span class='texttt'>*p</span>,
+<span class='texttt'>(*p)</span>, <span class='texttt'>*(p)</span>, <span class='texttt'>((*p))</span>, <span class='texttt'>*((p))</span>, and so on
+all meet this requirement.</p></div></div><div id='expr.static.cast'><h3 ><a class='secnum' href='#expr.static.cast' style='min-width:103pt'>5.2.9</a> Static cast <a class='abbr_ref' href='expr.static.cast'>[expr.static.cast]</a></h3><div class='para' id='expr.static.cast-1'><div class='marginalizedparent'><a class='marginalized' href='#expr.static.cast-1'>1</a></div><p ><span class='indexparent'><a class='index' id='expression,static_cast'></a></span><span class='indexparent'><a class='index' id='cast,static'></a></span>The result of the expression <span class='texttt'>static_cast&lt;T&gt;(v)</span> is the result of
+converting the expression <span class='texttt'>v</span> to type <span class='texttt'>T</span>.
+<span class='indexparent'><a class='index' id='cast,static,lvalue'></a></span><span class='indexparent'><a class='index' id='cast,lvalue'></a></span>If <span class='texttt'>T</span> is an lvalue reference type
+or an rvalue reference to function type, the result is an lvalue;
+if <span class='texttt'>T</span> is an rvalue reference to object type, the result is an xvalue;
+otherwise, the result is a prvalue. The <span class='texttt'>static_cast</span> operator shall not cast
+away constness (<a href='expr.const.cast'>[expr.const.cast]</a>).</p></div><div class='para' id='expr.static.cast-2'><div class='marginalizedparent'><a class='marginalized' href='#expr.static.cast-2'>2</a></div><p ><span class='indexparent'><a class='index' id='cast,static,reference'></a></span><span class='indexparent'><a class='index' id='cast,reference'></a></span>An lvalue of type “<i>cv1</i> <span class='texttt'>B</span>,” where <span class='texttt'>B</span> is a class
+type, can be cast to type “reference to <i>cv2</i> <span class='texttt'>D</span>,” where
+<span class='texttt'>D</span> is a class derived (Clause <a href='class.derived'>[class.derived]</a>) from
+<span class='texttt'>B</span>, if a valid standard conversion from “pointer to <span class='texttt'>D</span>”
+to “pointer to <span class='texttt'>B</span>” exists (<a href='conv.ptr'>[conv.ptr]</a>), <i>cv2</i> is the
+same cv-qualification as, or greater cv-qualification than,
+<i>cv1</i>, and <span class='texttt'>B</span> is neither a virtual base class of <span class='texttt'>D</span>
+nor a base class of a virtual base class of <span class='texttt'>D</span>. The result has
+type “<i>cv2</i> <span class='texttt'>D</span>.” An xvalue of type
+“<i>cv1</i> <span class='texttt'>B</span>” may be cast to type “rvalue reference to
+<i>cv2</i> <span class='texttt'>D</span>” with the same constraints as for an lvalue of
+type “<i>cv1</i> <span class='texttt'>B</span>.” If the object
+of type “<i>cv1</i> <span class='texttt'>B</span>” is actually a subobject of an object
+of type <span class='texttt'>D</span>, the result refers to the enclosing object of type
+<span class='texttt'>D</span>. Otherwise, the result of the cast is undefined.
+[&nbsp;<i>Example:</i> </p><pre class='codeblock'>
+struct B { };
+struct D : public B { };
+D d;
+B &amp;br = d;
+
+static_cast&lt;D&amp;&gt;(br);            <span class='comment'>// produces lvalue to the original <span class='texttt'>d</span> object
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;] </p></div><div class='para' id='expr.static.cast-3'><div class='marginalizedparent'><a class='marginalized' href='#expr.static.cast-3'>3</a></div><p >A glvalue of type “<i>cv1</i> <span class='texttt'>T1</span>” can be cast to type “rvalue
+reference to <i>cv2</i> <span class='texttt'>T2</span>” if “<i>cv2</i> <span class='texttt'>T2</span>” is
+reference-compatible with “<i>cv1</i> <span class='texttt'>T1</span>” (<a href='dcl.init.ref'>[dcl.init.ref]</a>). The
+result refers to the object or the specified base class subobject thereof. If
+<span class='texttt'>T2</span> is an inaccessible (Clause <a href='class.access'>[class.access]</a>) or
+ambiguous (<a href='class.member.lookup'>[class.member.lookup]</a>) base class of <span class='texttt'>T1</span>,
+a program that necessitates such a cast is ill-formed.</p></div><div class='para' id='expr.static.cast-4'><div class='marginalizedparent'><a class='marginalized' href='#expr.static.cast-4'>4</a></div><p >Otherwise, an expression <span class='texttt'>e</span> can be explicitly converted to a type
+<span class='texttt'>T</span> using a <span class='texttt'>static_cast</span> of the form
+<span class='texttt'>static_cast&lt;T&gt;(e)</span> if the declaration <span class='texttt'>T t(e);</span> is
+well-formed, for some invented temporary variable
+<span class='texttt'>t</span> (<a href='dcl.init'>[dcl.init]</a>). The effect of such an explicit conversion is
+the same as performing the declaration and initialization and then using
+the temporary variable as the result of the conversion. The expression
+<span class='texttt'>e</span> is used as a glvalue if and
+only if the initialization uses it as a glvalue.</p></div><div class='para' id='expr.static.cast-5'><div class='marginalizedparent'><a class='marginalized' href='#expr.static.cast-5'>5</a></div><p >Otherwise, the <span class='texttt'>static_cast</span> shall perform one of the conversions
+listed below. No other conversion shall be performed explicitly using a
+<span class='texttt'>static_cast</span>.</p></div><div class='para' id='expr.static.cast-6'><div class='marginalizedparent'><a class='marginalized' href='#expr.static.cast-6'>6</a></div><p >Any expression can be explicitly converted to type <i>cv</i>
+<span class='texttt'>void</span>, in which case it becomes a discarded-value
+expression (Clause <a href='expr'>[expr]</a>).
+[&nbsp;<i>Note:</i> 
+however, if the value is in a temporary
+object (<a href='class.temporary'>[class.temporary]</a>), the destructor for that
+object is
+not executed until the usual time, and the value of the object is
+preserved for the purpose of executing the destructor.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div><div class='para' id='expr.static.cast-7'><div class='marginalizedparent'><a class='marginalized' href='#expr.static.cast-7'>7</a></div><p >The inverse of any standard conversion sequence (Clause <a href='conv'>[conv]</a>) not containing an
+lvalue-to-rvalue (<a href='conv.lval'>[conv.lval]</a>),
+array-to-pointer (<a href='conv.array'>[conv.array]</a>),
+function-to-pointer (<a href='conv.func'>[conv.func]</a>),
+null pointer (<a href='conv.ptr'>[conv.ptr]</a>), null member pointer (<a href='conv.mem'>[conv.mem]</a>), or
+boolean (<a href='conv.bool'>[conv.bool]</a>)
+conversion, can be performed explicitly using <span class='texttt'>static_cast</span>. A
+program is ill-formed if it uses <span class='texttt'>static_cast</span> to perform the
+inverse of an ill-formed standard conversion sequence.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct B { };
+struct D : private B { };
+void f() {
+  static_cast&lt;D*&gt;((B*)0);               <span class='comment'>// Error: B is a private base of D.
+</span>  static_cast&lt;int B::*&gt;((int D::*)0);   <span class='comment'>// Error: B is a private base of D.
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='expr.static.cast-8'><div class='marginalizedparent'><a class='marginalized' href='#expr.static.cast-8'>8</a></div><p >The lvalue-to-rvalue (<a href='conv.lval'>[conv.lval]</a>),
+array-to-pointer (<a href='conv.array'>[conv.array]</a>), and
+function-to-pointer (<a href='conv.func'>[conv.func]</a>) conversions are applied to the
+operand. Such a <span class='texttt'>static_cast</span> is subject to the restriction that
+the explicit conversion does not cast away
+constness (<a href='expr.const.cast'>[expr.const.cast]</a>), and the following additional rules
+for specific cases:</p></div><div class='para' id='expr.static.cast-9'><div class='marginalizedparent'><a class='marginalized' href='#expr.static.cast-9'>9</a></div><p >A value of a scoped enumeration type (<a href='dcl.enum'>[dcl.enum]</a>) can be explicitly converted to an
+integral type. The value is unchanged if the original value can be represented by the
+specified type. Otherwise, the resulting value is unspecified.
+A value of a scoped enumeration type can also be explicitly converted to a
+floating-point type; the result is the same as that of converting from the original
+value to the floating-point type.</p></div><div class='para' id='expr.static.cast-10'><div class='marginalizedparent'><a class='marginalized' href='#expr.static.cast-10'>10</a></div><p ><span class='indexparent'><a class='index' id='enumeration_type,conversion_to'></a></span><span class='indexparent'><a class='index' id='enumeration_type,static_cast,conversion_to'></a></span>A value of integral or enumeration type can be explicitly converted to
+an enumeration type. The value is unchanged if the original value is
+within the range of the enumeration values (<a href='dcl.enum'>[dcl.enum]</a>). Otherwise,
+the resulting value is unspecified (and might not be
+in that range).
+A value of floating-point type can also be converted to an enumeration type.
+The resulting value is the same as converting the original value to the
+underlying type of the enumeration (<a href='conv.fpint'>[conv.fpint]</a>), and subsequently to
+the enumeration type.</p></div><div class='para' id='expr.static.cast-11'><div class='marginalizedparent'><a class='marginalized' href='#expr.static.cast-11'>11</a></div><p ><span class='indexparent'><a class='index' id='cast,base_class'></a></span><span class='indexparent'><a class='index' id='cast,derived_class'></a></span>A prvalue of type “pointer to <i>cv1</i> <span class='texttt'>B</span>,” where <span class='texttt'>B</span>
+is a class type, can be converted to a prvalue of type “pointer to
+<i>cv2</i> <span class='texttt'>D</span>,” where <span class='texttt'>D</span> is a class derived
+(Clause <a href='class.derived'>[class.derived]</a>) from <span class='texttt'>B</span>, if a valid standard
+conversion from “pointer to <span class='texttt'>D</span>” to “pointer to <span class='texttt'>B</span>”
+exists (<a href='conv.ptr'>[conv.ptr]</a>), <i>cv2</i> is the same cv-qualification as,
+or greater cv-qualification than, <i>cv1</i>, and <span class='texttt'>B</span> is neither
+a virtual base class of <span class='texttt'>D</span> nor a base class of a virtual base
+class of <span class='texttt'>D</span>. The null pointer value (<a href='conv.ptr'>[conv.ptr]</a>) is converted
+to the null pointer value of the destination type. If the prvalue of type
+“pointer to <i>cv1</i> <span class='texttt'>B</span>” points to a <span class='texttt'>B</span> that is
+actually a subobject of an object of type <span class='texttt'>D</span>, the resulting
+pointer points to the enclosing object of type <span class='texttt'>D</span>. Otherwise, the
+result of the cast is undefined.</p></div><div class='para' id='expr.static.cast-12'><div class='marginalizedparent'><a class='marginalized' href='#expr.static.cast-12'>12</a></div><p ><span class='indexparent'><a class='index' id='cast,pointer-to-member'></a></span>A prvalue of type “pointer to member of <span class='texttt'>D</span> of type <i>cv1</i>
+<span class='texttt'>T</span>” can be converted to a prvalue of type “pointer to member of
+<span class='texttt'>B</span>” of type <i>cv2</i> <span class='texttt'>T</span>, where <span class='texttt'>B</span> is a base
+class (Clause <a href='class.derived'>[class.derived]</a>) of <span class='texttt'>D</span>, if a valid standard
+conversion from “pointer to member of <span class='texttt'>B</span> of type <span class='texttt'>T</span>” to
+“pointer to member of <span class='texttt'>D</span> of type <span class='texttt'>T</span>”
+exists (<a href='conv.mem'>[conv.mem]</a>), and <i>cv2</i> is the same cv-qualification
+as, or greater cv-qualification than, <i>cv1</i>.<a class='footnotenum' href='#footnote-69'>69</a>
+The null member pointer value (<a href='conv.mem'>[conv.mem]</a>) is converted to the null
+member pointer value of the destination type. If class <span class='texttt'>B</span>
+contains the original member, or is a base or derived class of the class
+containing the original member, the resulting pointer to member points
+to the original member. Otherwise, the result of the cast is undefined.
+[&nbsp;<i>Note:</i> 
+although class <span class='texttt'>B</span> need not contain the original member, the
+dynamic type of the object on which the pointer to member is
+dereferenced must contain the original member; see <a href='expr.mptr.oper'>[expr.mptr.oper]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div><div class='para' id='expr.static.cast-13'><div class='marginalizedparent'><a class='marginalized' href='#expr.static.cast-13'>13</a></div><p >A prvalue of type “pointer to <i>cv1</i> <span class='texttt'>void</span>” can be
+converted to a prvalue of type “pointer to <i>cv2</i> <span class='texttt'>T</span>,”
+where <span class='texttt'>T</span> is an object type and <i>cv2</i> is the same
+cv-qualification as, or greater cv-qualification than, <i>cv1</i>. The
+null pointer value is converted to the null pointer value of the
+destination type. A value of type pointer to object converted to
+“pointer to <i>cv</i> <span class='texttt'>void</span>” and back, possibly with
+different cv-qualification, shall have its original value.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+T* p1 = new T;
+const T* p2 = static_cast&lt;const T*&gt;(static_cast&lt;void*&gt;(p1));
+bool b = p1 == p2;  <span class='comment'>// <span class='texttt'>b</span> will have the value <span class='texttt'>true</span>.
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-69'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-69'>69)</a></div><p >Function types
+(including those used in pointer to member function
+types) are never cv-qualified; see <a href='dcl.fct'>[dcl.fct]</a>.</p></div></div><div id='expr.reinterpret.cast'><h3 ><a class='secnum' href='#expr.reinterpret.cast' style='min-width:103pt'>5.2.10</a> Reinterpret cast <a class='abbr_ref' href='expr.reinterpret.cast'>[expr.reinterpret.cast]</a></h3><div class='para' id='expr.reinterpret.cast-1'><div class='marginalizedparent'><a class='marginalized' href='#expr.reinterpret.cast-1'>1</a></div><p ><span class='indexparent'><a class='index' id='expression,reinterpret_cast'></a></span>
+<span class='indexparent'><a class='index' id='cast,reinterpret'></a></span>The result of the expression <span class='texttt'>reinterpret_cast&lt;T&gt;(v)</span> is the
+result of converting the expression <span class='texttt'>v</span> to type <span class='texttt'>T</span>.
+<span class='indexparent'><a class='index' id='cast,reinterpret,lvalue'></a></span><span class='indexparent'><a class='index' id='cast,lvalue'></a></span>If <span class='texttt'>T</span> is an lvalue reference type or an rvalue reference to function type, the result is an lvalue;
+if <span class='texttt'>T</span> is an rvalue reference to object type, the result is an xvalue;
+otherwise, the result is a prvalue and the
+lvalue-to-rvalue (<a href='conv.lval'>[conv.lval]</a>), array-to-pointer (<a href='conv.array'>[conv.array]</a>),
+and function-to-pointer (<a href='conv.func'>[conv.func]</a>) standard conversions are
+performed on the expression <span class='texttt'>v</span>. Conversions that can be performed explicitly
+using <span class='texttt'>reinterpret_cast</span> are listed below. No other conversion can
+be performed explicitly using <span class='texttt'>reinterpret_cast</span>.</p></div><div class='para' id='expr.reinterpret.cast-2'><div class='marginalizedparent'><a class='marginalized' href='#expr.reinterpret.cast-2'>2</a></div><p >The <span class='texttt'>reinterpret_cast</span> operator shall not cast away constness (<a href='expr.const.cast'>[expr.const.cast]</a>).
+An expression of integral, enumeration, pointer, or pointer-to-member type
+can be explicitly converted to its own type; such a cast yields the value of
+its operand.</p></div><div class='para' id='expr.reinterpret.cast-3'><div class='marginalizedparent'><a class='marginalized' href='#expr.reinterpret.cast-3'>3</a></div><p >[&nbsp;<i>Note:</i> 
+The mapping performed by <span class='texttt'>reinterpret_cast</span> might, or might not, produce a
+representation different from the original value.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div><div class='para' id='expr.reinterpret.cast-4'><div class='marginalizedparent'><a class='marginalized' href='#expr.reinterpret.cast-4'>4</a></div><p ><span class='indexparent'><a class='index' id='cast,reinterpret,pointer_to_integer'></a></span><span class='indexparent'><a class='index' id='cast,pointer_to_integer'></a></span>A pointer can be explicitly converted to any integral type large enough
+to hold it.
+<span class='indexparent'><a class='index' id='conversion,implementation_defined_pointer_integer'></a></span>The mapping function is implementation-defined.
+[&nbsp;<i>Note:</i>
+It is intended to be unsurprising to those who know the addressing
+structure of the underlying machine.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] A value of type <span class='texttt'>std::nullptr_t</span> can be converted to an integral
+type; the conversion has the same meaning and validity as a conversion of
+<span class='texttt'>(void*)0</span> to the integral type. [&nbsp;<i>Note:</i> A <span class='texttt'>reinterpret_cast</span>
+cannot be used to convert a value of any type to the type
+<span class='texttt'>std::nullptr_t</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='expr.reinterpret.cast-5'><div class='marginalizedparent'><a class='marginalized' href='#expr.reinterpret.cast-5'>5</a></div><p ><span class='indexparent'><a class='index' id='cast,reinterpret,integer_to_pointer'></a></span><span class='indexparent'><a class='index' id='cast,integer_to_pointer'></a></span>A value of integral type or enumeration type can be explicitly converted
+to a pointer. A pointer converted to an integer of sufficient size (if
+any such exists on the implementation) and back to the same pointer type
+will have its original value;
+<span class='indexparent'><a class='index' id='conversion,implementation_defined_pointer_integer'></a></span>mappings between pointers and integers are otherwise
+<span class='indexparent'><a class='index' id='conversions_between_pointers_and_integers'></a></span>implementation-defined.
+[&nbsp;<i>Note:</i> Except as described in <a href='basic.stc.dynamic.safety'>[basic.stc.dynamic.safety]</a>, the result of
+such a conversion will not be a safely-derived pointer value. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='expr.reinterpret.cast-6'><div class='marginalizedparent'><a class='marginalized' href='#expr.reinterpret.cast-6'>6</a></div><p ><span class='indexparent'><a class='index' id='cast,reinterpret,pointer-to-function'></a></span><span class='indexparent'><a class='index' id='cast,pointer-to-function'></a></span><span class='indexparent'><a class='index' id='cast,undefined_pointer-to-function'></a></span>A function pointer can be explicitly converted
+to a function pointer of a different type.
+<span class='indexparent'><a class='index' id='function_call,undefined'></a></span>The effect of calling a function through a pointer to a function
+type (<a href='dcl.fct'>[dcl.fct]</a>) that is not the same as the type used in the
+definition of the function is undefined. Except that converting
+a prvalue of type “pointer to <span class='texttt'>T1</span>” to the type “pointer to
+<span class='texttt'>T2</span>” (where <span class='texttt'>T1</span> and <span class='texttt'>T2</span> are function types) and
+back to its original type yields the original pointer value, the result
+of such a pointer conversion is unspecified.
+[&nbsp;<i>Note:</i> 
+see also <a href='conv.ptr'>[conv.ptr]</a> for more details of pointer conversions.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div><div class='para' id='expr.reinterpret.cast-7'><div class='marginalizedparent'><a class='marginalized' href='#expr.reinterpret.cast-7'>7</a></div><p >An object pointer
+can be explicitly converted to an object pointer of a different type.<a class='footnotenum' href='#footnote-70'>70</a>
+When a prvalue <span class='texttt'>v</span> of type “pointer to <span class='texttt'>T1</span>” is converted to
+the type “pointer to <i>cv</i> <span class='texttt'>T2</span>”, the result is <span class='texttt'>static_cast&lt;<i>cv</i> T2*&gt;(static_cast&lt;<i>cv</i>
+void*&gt;(v))</span> if both <span class='texttt'>T1</span> and <span class='texttt'>T2</span> are standard-layout types (<a href='basic.types'>[basic.types]</a>) and the
+alignment requirements of <span class='texttt'>T2</span> are no stricter than those of
+<span class='texttt'>T1</span>, or if either type is <span class='texttt'>void</span>.
+Converting a prvalue of type “pointer to <span class='texttt'>T1</span>” to
+the type “pointer to <span class='texttt'>T2</span>” (where <span class='texttt'>T1</span> and <span class='texttt'>T2</span> are
+object types and where the alignment requirements of <span class='texttt'>T2</span> are no
+stricter than those of <span class='texttt'>T1</span>) and back to its original type yields
+the original pointer value. The result of any other such pointer conversion is
+unspecified.</p></div><div class='para' id='expr.reinterpret.cast-8'><div class='marginalizedparent'><a class='marginalized' href='#expr.reinterpret.cast-8'>8</a></div><p >Converting a function pointer to an object pointer
+type or vice versa is
+conditionally-supported. The meaning of such a conversion is
+<span class='indexparent'><a class='index' id='converting_function_pointer_to_object_pointer_and_vice_versa'></a></span>implementation-defined,
+except that if an implementation
+supports conversions in both directions, converting a prvalue of one type to the other
+type and back, possibly with different cv-qualification, shall yield the original
+pointer value.</p></div><div class='para' id='expr.reinterpret.cast-9'><div class='marginalizedparent'><a class='marginalized' href='#expr.reinterpret.cast-9'>9</a></div><p >The null pointer value (<a href='conv.ptr'>[conv.ptr]</a>) is converted to the null pointer value
+of the destination type.
+[&nbsp;<i>Note:</i>
+A null pointer constant of type <span class='texttt'>std::nullptr_t</span> cannot be converted to a
+pointer type, and a null pointer constant of integral type is not necessarily
+converted to a null pointer value.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='expr.reinterpret.cast-10'><div class='marginalizedparent'><a class='marginalized' href='#expr.reinterpret.cast-10'>10</a></div><p ><span class='indexparent'><a class='index' id='cast,reinterpret,pointer-to-member'></a></span><span class='indexparent'><a class='index' id='cast,pointer-to-member'></a></span>A prvalue of type “pointer to member of <span class='texttt'>X</span> of type <span class='texttt'>T1</span>”
+can be explicitly converted to a prvalue of a different type “pointer to member of
+<span class='texttt'>Y</span> of type <span class='texttt'>T2</span>” if <span class='texttt'>T1</span> and <span class='texttt'>T2</span> are both
+function types or both object types.<a class='footnotenum' href='#footnote-71'>71</a> The null member pointer value (<a href='conv.mem'>[conv.mem]</a>) is converted to the
+null member pointer value of the destination type. The result of this
+conversion is unspecified, except in the following cases:</p><ul ><li ><p >converting a prvalue of type “pointer to member function” to a
+different pointer to member function type and back to its original type
+yields the original pointer to member value.</p></li><li ><p >converting a prvalue of type “pointer to data member of <span class='texttt'>X</span>
+of type <span class='texttt'>T1</span>” to the type “pointer to data member of <span class='texttt'>Y</span>
+of type <span class='texttt'>T2</span>” (where the alignment requirements of <span class='texttt'>T2</span> are
+no stricter than those of <span class='texttt'>T1</span>) and back to its original type
+yields the original pointer to member value.
+</p></li></ul></div><div class='para' id='expr.reinterpret.cast-11'><div class='marginalizedparent'><a class='marginalized' href='#expr.reinterpret.cast-11'>11</a></div><p ><span class='indexparent'><a class='index' id='cast,reinterpret,reference'></a></span><span class='indexparent'><a class='index' id='cast,reference'></a></span>An lvalue expression of type <span class='texttt'>T1</span> can be cast to the type
+“reference to <span class='texttt'>T2</span>” if an expression of type “pointer to
+<span class='texttt'>T1</span>” can be explicitly converted to the type “pointer to
+<span class='texttt'>T2</span>” using a <span class='texttt'>reinterpret_cast</span>. That is, a reference cast
+<span class='texttt'>reinterpret_cast&lt;T&amp;&gt;(x)</span> has the same effect as the conversion
+<span class='texttt'>*reinterpret_cast&lt;T*&gt;(&amp;x)</span> with the built-in <span class='texttt'>&amp;</span> and
+<span class='texttt'>*</span> operators (and similarly for
+<span class='texttt'>reinterpret_cast&lt;T&amp;&amp;&gt;(x)</span>). The result refers to the same
+object as the source lvalue, but with a different type. The result is an
+lvalue for an lvalue reference
+type or an rvalue reference to function type
+and an xvalue for an rvalue reference
+to object type. No
+temporary is created, no copy is made, and
+constructors (<a href='class.ctor'>[class.ctor]</a>) or conversion
+functions (<a href='class.conv'>[class.conv]</a>) are not called.<a class='footnotenum' href='#footnote-72'>72</a></p></div><div class='footnote' id='footnote-70'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-70'>70)</a></div><p >The
+types may have different <i>cv</i>-qualifiers, subject to
+the overall
+restriction that a <span class='texttt'>reinterpret_cast</span> cannot cast away constness.</p></div><div class='footnote' id='footnote-71'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-71'>71)</a></div><p ><span class='texttt'>T1</span> and <span class='texttt'>T2</span> may have
+different <i>cv</i>-qualifiers, subject to
+the overall restriction that a <span class='texttt'>reinterpret_cast</span> cannot cast away
+constness.</p></div><div class='footnote' id='footnote-72'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-72'>72)</a></div><p ><span class='indexparent'><a class='index' id='type_pun'></a></span>This
+is sometimes referred to as a <a class='hidden_link' href='#def:type_pun' id='def:type_pun'><i>type pun</i></a>.</p></div></div><div id='expr.const.cast'><h3 ><a class='secnum' href='#expr.const.cast' style='min-width:103pt'>5.2.11</a> Const cast <a class='abbr_ref' href='expr.const.cast'>[expr.const.cast]</a></h3><div class='para' id='expr.const.cast-1'><div class='marginalizedparent'><a class='marginalized' href='#expr.const.cast-1'>1</a></div><p ><span class='indexparent'><a class='index' id='expression,const_cast'></a></span><span class='indexparent'><a class='index' id='cast,const'></a></span>The result of the expression <span class='texttt'>const_cast&lt;T&gt;(v)</span> is of type
+<span class='texttt'>T</span>. If <span class='texttt'>T</span> is an lvalue reference to object type, the result is an
+lvalue;
+if <span class='texttt'>T</span> is an rvalue reference to object type, the result is an xvalue;
+otherwise, the result is a prvalue and the
+lvalue-to-rvalue (<a href='conv.lval'>[conv.lval]</a>), array-to-pointer (<a href='conv.array'>[conv.array]</a>),
+and function-to-pointer (<a href='conv.func'>[conv.func]</a>) standard conversions are
+performed on the expression <span class='texttt'>v</span>. Conversions that can be performed explicitly using
+<span class='texttt'>const_cast</span> are listed below. No other conversion shall be
+performed explicitly using <span class='texttt'>const_cast</span>.</p></div><div class='para' id='expr.const.cast-2'><div class='marginalizedparent'><a class='marginalized' href='#expr.const.cast-2'>2</a></div><p >[&nbsp;<i>Note:</i> 
+Subject to the restrictions in this section, an expression may be cast
+to its own type using a <span class='texttt'>const_cast</span> operator.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div><div class='para' id='expr.const.cast-3'><div class='marginalizedparent'><a class='marginalized' href='#expr.const.cast-3'>3</a></div><p >For two pointer types <span class='texttt'>T1</span> and <span class='texttt'>T2</span> where</p><p ><span class='list'></span><span class='item'></span><span class='relax'></span>
+<a class='hidden_link' href='#def:T1' id='def:T1'><i>T1</i></a> is <span class='math'><span class='mathit'>cv</span><sub >1,0</sub></span> pointer to <span class='math'><span class='mathit'>cv</span><sub >1,1</sub></span> pointer
+to <span class='math'>⋯ <span class='mathit'>cv</span><sub >1,<span class='mathalpha'>n</span>-1</sub></span> pointer to <span class='math'><span class='mathit'>cv</span><sub >1,<span class='mathalpha'>n</span></sub></span> <a class='hidden_link' href='#def:T' id='def:T'><i>T</i></a>
+</p><p >and</p><p ><span class='list'></span><span class='item'></span><span class='relax'></span>
+<a class='hidden_link' href='#def:T2' id='def:T2'><i>T2</i></a> is <span class='math'><span class='mathit'>cv</span><sub >2,0</sub></span> pointer to <span class='math'><span class='mathit'>cv</span><sub >2,1</sub></span> pointer
+to <span class='math'>⋯ <span class='mathit'>cv</span><sub >2,<span class='mathalpha'>n</span>-1</sub></span> pointer to <span class='math'><span class='mathit'>cv</span><sub >2,<span class='mathalpha'>n</span></sub></span> <a class='hidden_link' href='#def:T' id='def:T'><i>T</i></a>
+</p><p >where
+<span class='texttt'>T</span> is any object type or the <span class='texttt'>void</span> type and where
+<span class='math'><span class='mathit'>cv</span><sub >1,<span class='mathalpha'>k</span></sub></span> and <span class='math'><span class='mathit'>cv</span><sub >2,<span class='mathalpha'>k</span></sub></span> may be different
+cv-qualifications, a prvalue of type <span class='texttt'>T1</span> may be explicitly
+converted to the type <span class='texttt'>T2</span> using a <span class='texttt'>const_cast</span>. The result
+of a pointer <span class='texttt'>const_cast</span> refers to the original object.</p></div><div class='para' id='expr.const.cast-4'><div class='marginalizedparent'><a class='marginalized' href='#expr.const.cast-4'>4</a></div><p >For two object types <span class='texttt'>T1</span> and <span class='texttt'>T2</span>, if a pointer to <span class='texttt'>T1</span> can
+be explicitly converted to the type “pointer to <span class='texttt'>T2</span>” using a
+<span class='texttt'>const_cast</span>, then the following conversions can also be made:</p><ul ><li ><p >an lvalue of type <span class='texttt'>T1</span> can be explicitly converted to an lvalue
+of type <span class='texttt'>T2</span> using the cast <span class='texttt'>const_cast&lt;T2&amp;&gt;</span>;</p></li><li ><p >a glvalue of type <span class='texttt'>T1</span> can be explicitly converted to an xvalue
+of type <span class='texttt'>T2</span> using the cast <span class='texttt'>const_cast&lt;T2&amp;&amp;&gt;</span>; and</p></li><li ><p >if <span class='texttt'>T1</span> is a class type, a prvalue of type <span class='texttt'>T1</span> can be
+explicitly converted to an xvalue of type <span class='texttt'>T2</span> using the cast
+<span class='texttt'>const_cast&lt;T2&amp;&amp;&gt;</span>.
+</p></li></ul><p >The result of a reference <span class='texttt'>const_cast</span> refers
+to the original object.</p></div><div class='para' id='expr.const.cast-5'><div class='marginalizedparent'><a class='marginalized' href='#expr.const.cast-5'>5</a></div><p >For a <span class='texttt'>const_cast</span> involving pointers to data members, multi-level
+pointers to data members and multi-level mixed pointers and pointers to
+data members (<a href='conv.qual'>[conv.qual]</a>), the rules for <span class='texttt'>const_cast</span> are the
+same as those used for pointers; the “member” aspect of a pointer to
+member is ignored when determining where the cv-qualifiers are added or
+removed by the <span class='texttt'>const_cast</span>. The result of a pointer to data
+member <span class='texttt'>const_cast</span> refers to the same member as the original
+(uncast) pointer to data member.</p></div><div class='para' id='expr.const.cast-6'><div class='marginalizedparent'><a class='marginalized' href='#expr.const.cast-6'>6</a></div><p >A null pointer value (<a href='conv.ptr'>[conv.ptr]</a>) is converted to the null pointer
+value of the destination type. The null member pointer
+value (<a href='conv.mem'>[conv.mem]</a>) is converted to the null member pointer value of
+the destination type.</p></div><div class='para' id='expr.const.cast-7'><div class='marginalizedparent'><a class='marginalized' href='#expr.const.cast-7'>7</a></div><p >[&nbsp;<i>Note:</i> 
+Depending on the type of the object, a write operation through the
+pointer, lvalue or pointer to data member resulting from a
+<span class='texttt'>const_cast</span> that casts away a const-qualifier<a class='footnotenum' href='#footnote-73'>73</a>
+may produce undefined behavior (<a href='dcl.type.cv'>[dcl.type.cv]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div><div class='para' id='expr.const.cast-8'><div class='marginalizedparent'><a class='marginalized' href='#expr.const.cast-8'>8</a></div><p >The following rules define the process known as <a class='hidden_link' href='#def:casting_away
+constness' id='def:casting_away
+constness'><i>casting away
+constness</i></a>. In these rules <span class='texttt'>T<a class='hidden_link' href='#def:n' id='def:n'><i>n</i></a> </span> and <span class='texttt'>X<a class='hidden_link' href='#def:n' id='def:n'><i>n</i></a> </span>
+represent types. For two pointer types:</p><p ><span class='list'></span><span class='item'></span><span class='relax'></span>
+<span class='texttt'>X1</span> is <span class='texttt'>T1</span><span class='math'><span class='mathit'>cv</span><sub >1,1</sub></span> <span class='texttt'>*</span> <span class='math'>⋯</span>
+<span class='math'><span class='mathit'>cv</span><sub >1,<span class='mathalpha'>N</span></sub></span> <span class='texttt'>*</span> where <span class='texttt'>T1</span> is not a pointer type
+</p><p ><span class='list'></span><span class='item'></span><span class='relax'></span>
+<span class='texttt'>X2</span> is <span class='texttt'>T2</span><span class='math'><span class='mathit'>cv</span><sub >2,1</sub></span> <span class='texttt'>*</span> <span class='math'>⋯</span>
+<span class='math'><span class='mathit'>cv</span><sub >2,<span class='mathalpha'>M</span></sub></span> <span class='texttt'>*</span> where <span class='texttt'>T2</span> is not a pointer type
+</p><p ><span class='list'></span><span class='item'></span><span class='relax'></span>
+<span class='math'><span class='mathalpha'>K</span></span> is <span class='math'><span class="mathrm">min</span> (<span class='mathalpha'>N</span>,<span class='mathalpha'>M</span>)</span>
+</p><p >casting from <span class='texttt'>X1</span> to <span class='texttt'>X2</span> casts away constness if, for a
+non-pointer type <span class='texttt'>T</span> there does not exist an implicit conversion
+(Clause <a href='conv'>[conv]</a>) from:</p><p ><span class='list'></span><span class='item'></span><span class='relax'></span>
+<span class='texttt'>T</span><span class='math'><span class='mathit'>cv</span><sub >1,(<span class='mathalpha'>N</span>-<span class='mathalpha'>K</span>+1)</sub></span> <span class='texttt'>*</span> <span class='math'><span class='mathit'>cv</span><sub >1,(<span class='mathalpha'>N</span>-<span class='mathalpha'>K</span>+2)</sub></span>
+<span class='texttt'>*</span> <span class='math'>⋯</span> <span class='math'><span class='mathit'>cv</span><sub >1,<span class='mathalpha'>N</span></sub></span> <span class='texttt'>*</span>
+</p><p >to</p><p ><span class='list'></span><span class='item'></span><span class='relax'></span>
+<span class='texttt'>T</span><span class='math'><span class='mathit'>cv</span><sub >2,(<span class='mathalpha'>M</span>-<span class='mathalpha'>K</span>+1)</sub></span> <span class='texttt'>*</span> <span class='math'><span class='mathit'>cv</span><sub >2,(<span class='mathalpha'>M</span>-<span class='mathalpha'>K</span>+2)</sub></span>
+<span class='texttt'>*</span> <span class='math'>⋯</span> <span class='math'><span class='mathit'>cv</span><sub >2,<span class='mathalpha'>M</span></sub></span> <span class='texttt'>*</span>
+</p></div><div class='para' id='expr.const.cast-9'><div class='marginalizedparent'><a class='marginalized' href='#expr.const.cast-9'>9</a></div><p >Casting from an lvalue of type <span class='texttt'>T1</span> to an lvalue of type
+<span class='texttt'>T2</span> using an lvalue reference cast
+or casting from an expression of type <span class='texttt'>T1</span> to an xvalue of type <span class='texttt'>T2</span> using
+an rvalue reference cast
+casts away constness if a cast from a prvalue of type “pointer to <span class='texttt'>T1</span>” to the type “pointer to
+<span class='texttt'>T2</span>” casts away constness.</p></div><div class='para' id='expr.const.cast-10'><div class='marginalizedparent'><a class='marginalized' href='#expr.const.cast-10'>10</a></div><p >Casting from a prvalue of type “pointer to data member of <span class='texttt'>X</span> of
+type <span class='texttt'>T1</span>” to the type “pointer to data member of <span class='texttt'>Y</span> of
+type <span class='texttt'>T2</span>” casts away constness if a cast from a prvalue of type
+“pointer to <span class='texttt'>T1</span>” to the type “pointer to <span class='texttt'>T2</span>” casts
+away constness.</p></div><div class='para' id='expr.const.cast-11'><div class='marginalizedparent'><a class='marginalized' href='#expr.const.cast-11'>11</a></div><p >For multi-level pointer to members and multi-level mixed pointers and
+pointer to members (<a href='conv.qual'>[conv.qual]</a>), the “member” aspect of a pointer
+to member level is ignored when determining if a <span class='texttt'>const</span>
+cv-qualifier has been cast away.</p></div><div class='para' id='expr.const.cast-12'><div class='marginalizedparent'><a class='marginalized' href='#expr.const.cast-12'>12</a></div><p >[&nbsp;<i>Note:</i> 
+some conversions which involve only changes in cv-qualification cannot
+be done using <span class='texttt'>const_cast.</span> For instance, conversions between
+pointers to functions are not covered because such conversions lead to
+values whose use causes undefined behavior. For the same reasons,
+conversions between pointers to member functions, and in particular, the
+conversion from a pointer to a const member function to a pointer to a
+non-const member function, are not covered.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]<span class='indexparent'><a class='index' id='expression,postfix'></a></span></p></div><div class='footnote' id='footnote-73'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-73'>73)</a></div><p ><span class='texttt'>const_cast</span>
+is not limited to conversions that cast away a
+const-qualifier.</p></div></div></div></div></body></html>

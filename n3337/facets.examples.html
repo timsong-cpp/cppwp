@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang='en'><head><title>[facets.examples]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>22</a> Localization library <a class='abbr_ref' href='./#localization'>[localization]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>22.4</a> Standard <span class='texttt'>locale</span> categories <a class='abbr_ref' href='locale.categories#facets.examples'>[locale.categories]</a></h2><div id='facets.examples'><h3 ><a class='secnum' style='min-width:103pt'>22.4.8</a> Program-defined facets <a class='abbr_ref'>[facets.examples]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A C++ program may define facets to be added to a locale and used identically as
+the built-in facets.
+To create a new facet interface, C++ programs simply derive from
+<span class='texttt'>locale::facet</span>
+a class containing a static member:
+<span class='texttt'>static locale::id id</span>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >[&nbsp;<i>Note:</i>
+The locale member function templates verify its type and storage class.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >[&nbsp;<i>Example:</i>
+Traditional global localization is still easy:</p><pre class='codeblock'>
+#include &lt;iostream&gt;
+#include &lt;locale&gt;
+int main(int argc, char** argv) {
+  using namespace std;
+  locale::global(locale(""));           <span class='comment'>// set the global locale
+</span>                                        <span class='comment'>// imbue it on all the std streams
+</span>  cin.imbue(locale());
+  cout.imbue(locale());
+  cerr.imbue(locale());
+  wcin.imbue(locale());
+  wcout.imbue(locale());
+  wcerr.imbue(locale());
+
+  return MyObject(argc, argv).doit();
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >[&nbsp;<i>Example:</i>
+Greater flexibility is possible:</p><pre class='codeblock'>
+#include &lt;iostream&gt;
+#include &lt;locale&gt;
+int main() {
+  using namespace std;
+  cin.imbue(locale(""));        <span class='comment'>// the user's preferred locale
+</span>  cout.imbue(locale::classic());
+  double f;
+  while (cin &gt;&gt; f) cout &lt;&lt; f &lt;&lt; endl;
+  return (cin.fail() != 0);
+}
+</pre><p >In a European locale, with input
+<span class='texttt'>3.456,78</span>,
+output is
+<span class='texttt'>3456.78</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >This can be important even for simple programs, which may need to
+write a data file in a fixed format, regardless of a user's preference.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >[&nbsp;<i>Example:</i>
+Here is an example of the use of locales in a library interface.</p><pre class='codeblock'>
+<span class='comment'>// file: <span class='texttt'>Date.h</span>
+</span>#include &lt;iosfwd&gt;
+#include &lt;string&gt;
+#include &lt;locale&gt;
+
+class Date {
+public:
+  Date(unsigned day, unsigned month, unsigned year);
+  std::string asString(const std::locale&amp; = std::locale());
+};
+
+std::istream&amp; operator&gt;&gt;(std::istream&amp; s, Date&amp; d);
+std::ostream&amp; operator&lt;&lt;(std::ostream&amp; s, Date d);
+</pre></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >This example illustrates two architectural uses of class
+<span class='texttt'>locale</span>.</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >The first is as a default argument in
+<span class='texttt'>Date::asString()</span>,
+where the
+default is the global (presumably user-preferred) locale.</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >The second is in the operators
+<span class='texttt'>&lt;&lt;</span>
+and
+<span class='texttt'>&gt;&gt;</span>,
+where a locale “hitchhikes”
+on another object, in this case a stream, to the point where it
+is needed.</p><pre class='codeblock'>
+<span class='comment'>// file: <span class='texttt'>Date.C</span>
+</span>#include "Date"                 <span class='comment'>// includes <span class='texttt'>&lt;ctime&gt;</span>
+</span>#include &lt;sstream&gt;
+std::string Date::asString(const std::locale&amp; l) {
+  using namespace std;
+  ostringstream s; s.imbue(l);
+  s &lt;&lt; *this; return s.str();
+}
+
+std::istream&amp; operator&gt;&gt;(std::istream&amp; s, Date&amp; d) {
+  using namespace std;
+  istream::sentry cerberos(s);
+  if (cerberos) {
+    ios_base::iostate err = goodbit;
+    struct tm t;
+    use_facet&lt; time_get&lt;char&gt; &gt;(s.getloc()).get_date(s, 0, s, err, &amp;t);
+    if (!err) d = Date(t.tm_day, t.tm_mon + 1, t.tm_year + 1900);
+    s.setstate(err);
+  }
+  return s;
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >A locale object may be extended with a new facet simply by constructing
+it with an instance of a class derived from
+<span class='texttt'>locale::facet</span>.
+The only member a C++ program must define is the static member
+<span class='texttt'>id</span>,
+which identifies your class interface as a new facet.</p></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><p >[&nbsp;<i>Example:</i>
+Classifying Japanese characters:</p><pre class='codeblock'>
+<span class='comment'>// file: <span class='texttt'>&lt;jctype&gt;</span>
+</span>#include &lt;locale&gt;
+namespace My {
+  using namespace std;
+  class JCtype : public locale::facet {
+  public:
+    static locale::id id;       <span class='comment'>// required for use as a new locale facet
+</span>    bool is_kanji (wchar_t c) const;
+    JCtype() { }
+  protected:
+    ~JCtype() { }
+  };
+}
+
+<span class='comment'>// file: <span class='texttt'>filt.C</span>
+</span>#include &lt;iostream&gt;
+#include &lt;locale&gt;
+#include "jctype"               <span class='comment'>// above
+</span>std::locale::id My::JCtype::id; <span class='comment'>// the static <span class='texttt'>JCtype</span> member declared above.
+</span>
+int main() {
+  using namespace std;
+  typedef ctype&lt;wchar_t&gt; wctype;
+  locale loc(locale(""),        <span class='comment'>// the user's preferred locale ...
+</span>         new My::JCtype);       <span class='comment'>// and a new feature ...
+</span>  wchar_t c = use_facet&lt;wctype&gt;(loc).widen('!');
+  if (!use_facet&lt;My::JCtype&gt;(loc).is_kanji(c))
+    cout &lt;&lt; "no it isn't!" &lt;&lt; endl;
+  return 0;
+}
+</pre></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><p >The new facet is used exactly like the built-in facets.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><p >[&nbsp;<i>Example:</i>
+Replacing an existing facet is even easier.
+The code does not define a member
+<span class='texttt'>id</span>
+because it is reusing the
+<span class='texttt'>numpunct&lt;charT&gt;</span>
+facet interface:</p><pre class='codeblock'>
+<span class='comment'>// file: <span class='texttt'>my_bool.C</span>
+</span>#include &lt;iostream&gt;
+#include &lt;locale&gt;
+#include &lt;string&gt;
+namespace My {
+  using namespace std;
+  typedef numpunct_byname&lt;char&gt; cnumpunct;
+  class BoolNames : public cnumpunct {
+  protected:
+    string do_truename()  const { return "Oui Oui!"; }
+    string do_falsename() const { return "Mais Non!"; }
+    ~BoolNames() { }
+  public:
+    BoolNames(const char* name) : cnumpunct(name) { }
+  };
+}
+
+int main(int argc, char** argv) {
+  using namespace std;
+  <span class='comment'>// make the user's preferred locale, except for...
+</span>  locale loc(locale(""), new My::BoolNames(""));
+  cout.imbue(loc);
+  cout &lt;&lt; boolalpha &lt;&lt; "Any arguments today? " &lt;&lt; (argc &gt; 1) &lt;&lt; endl;
+  return 0;
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>

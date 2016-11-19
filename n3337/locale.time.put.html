@@ -1,0 +1,96 @@
+<!DOCTYPE html><html lang='en'><head><title>[locale.time.put]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>22</a> Localization library <a class='abbr_ref' href='./#localization'>[localization]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>22.4</a> Standard <span class='texttt'>locale</span> categories <a class='abbr_ref' href='locale.categories#locale.time.put'>[locale.categories]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>22.4.5</a> The time category <a class='abbr_ref' href='category.time#locale.time.put'>[category.time]</a></h3><div id='locale.time.put'><h4 ><a class='secnum' style='min-width:118pt'>22.4.5.3</a> Class template <span class='texttt'>time_put</span> <a class='abbr_ref'>[locale.time.put]</a></h4><p ><span class='indexparent'><a class='index' id='time_put'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class charT, class OutputIterator = ostreambuf_iterator&lt;charT&gt; &gt;
+  class time_put : public locale::facet {
+  public:
+    typedef charT            char_type;
+    typedef OutputIterator   iter_type;
+
+    explicit time_put(size_t refs = 0);
+
+    <span class='comment'>// the following is implemented in terms of other member functions.
+</span>    iter_type put(iter_type s, ios_base&amp; f, char_type fill, const tm* tmb,
+                  const charT* pattern, const charT* pat_end) const;
+    iter_type put(iter_type s, ios_base&amp; f, char_type fill,
+                  const tm* tmb, char format, char modifier = 0) const;
+
+    static locale::id id;
+
+  protected:
+    ~time_put();
+    virtual iter_type do_put(iter_type s, ios_base&amp;, char_type, const tm* t,
+                             char format, char modifier) const;
+  };
+}
+</pre><div id='members'><h4 ><a class='secnum' href='#members' style='min-width:133pt'>22.4.5.3.1</a> <span class='texttt'>time_put</span> members <a class='abbr_ref' href='locale.time.put.members'>[locale.time.put.members]</a></h4><p ><span class='indexparent'><a class='index' id='time_put,put'></a></span><span class='indexparent'><a class='index' id='put,time_put'></a></span><code class='itemdecl'>
+iter_type put(iter_type s, ios_base&amp; str, char_type fill, const tm* t,
+              const charT* pattern, const charT* pat_end) const;
+iter_type put(iter_type s, ios_base&amp; str, char_type fill, const tm* t,
+              char format, char modifier = 0) const;
+</code></p><div class='itemdescr'></div><div class='para' id='members-1'><div class='marginalizedparent'><a class='marginalized' href='#members-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+The first form steps through the sequence from
+<span class='texttt'>pattern</span>
+to
+<span class='texttt'>pat_end</span>,
+identifying characters that are part of a format sequence.
+Each character that is not part of a format sequence is written to
+<span class='texttt'>s</span>
+immediately, and each format sequence, as it is identified, results in
+a call to
+<span class='texttt'>do_put</span>;
+thus, format elements and other characters are interleaved in the output
+in the order in which they appear in the pattern.
+Format sequences are identified by converting each character
+<span class='texttt'>c</span>
+to a
+<span class='texttt'>char</span>
+value as if by
+<span class='texttt'>ct.narrow(c,0)</span>,
+where
+<span class='texttt'>ct</span>
+is a reference to
+<span class='texttt'>ctype&lt;charT&gt;</span>
+obtained from
+<span class='texttt'>str.getloc()</span>.
+The first character of each sequence is equal to
+<span class='texttt'>'%'</span>,
+followed by an optional modifier character
+<span class='texttt'>mod</span><a class='footnotenum' href='#footnote-252'>252</a> and a format specifier character
+<span class='texttt'>spec</span>
+as defined for the function
+<span class='texttt'>strftime</span>.
+If no modifier character is present,
+<span class='texttt'>mod</span>
+is zero.
+For each valid format sequence identified, calls
+<span class='texttt'>do_put(s, str, fill, t, spec, mod)</span>.</p></div></div><div class='para' id='members-2'><div class='marginalizedparent'><a class='marginalized' href='#members-2'>2</a></div><div class='itemdescr'><p >The second form calls
+<span class='texttt'>do_put(s, str, fill, t, format, modifier)</span>.</p></div></div><div class='para' id='members-3'><div class='marginalizedparent'><a class='marginalized' href='#members-3'>3</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i>
+The <span class='texttt'>fill</span> argument may be used in the implementation-defined
+formats or by derivations. A space character is a reasonable
+default for this argument.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='members-4'><div class='marginalizedparent'><a class='marginalized' href='#members-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+An iterator pointing immediately after the last character produced.
+</p></div></div><div class='footnote' id='footnote-251'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-251'>251)</a></div><p >Although the C programming language defines no modifiers,
+most vendors do.</p></div></div><div id='virtuals'><h4 ><a class='secnum' href='#virtuals' style='min-width:133pt'>22.4.5.3.2</a> <span class='texttt'>time_put</span> virtual functions <a class='abbr_ref' href='locale.time.put.virtuals'>[locale.time.put.virtuals]</a></h4><p ><span class='indexparent'><a class='index' id='time_put,do_put'></a></span><span class='indexparent'><a class='index' id='do_put,time_put'></a></span><code class='itemdecl'>
+iter_type do_put(iter_type s, ios_base&amp;, char_type fill, const tm* t,
+                 char format, char modifier) const;
+</code></p><div class='itemdescr'></div><div class='para' id='virtuals-1'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Formats the contents of the parameter <span class='texttt'>t</span>
+into characters placed on the output sequence <span class='texttt'>s</span>.
+Formatting is controlled by the parameters <span class='texttt'>format</span> and <span class='texttt'>modifier</span>,
+interpreted identically as the format specifiers in the string
+argument to the standard library function
+<span class='indexparent'><a class='index' id='strftime'></a></span><span class='texttt'>strftime()</span><a class='footnotenum' href='#footnote-253'>253</a>,
+except that the sequence of characters produced for those specifiers
+that are described as depending on the C locale are instead <span class='indexparent'><a class='index' id='formatted_character_sequence_generated_by_time_put::do_put_in_C_locale'></a></span>implementation-defined.<a class='footnotenum' href='#footnote-254'>254</a></p></div></div><div class='para' id='virtuals-2'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+An iterator pointing immediately after the last character produced.
+[&nbsp;<i>Note:</i>
+The <span class='texttt'>fill</span> argument may be used in the implementation-defined
+formats or by derivations. A space character is a reasonable
+default for this argument.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><div class='footnote' id='footnote-252'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-252'>252)</a></div><p >Interpretation of the <span class='texttt'>modifier</span>
+argument is implementation-defined, but should follow POSIX
+conventions.</p></div><div class='footnote' id='footnote-253'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-253'>253)</a></div><p >Implementations are encouraged to refer to other standards
+such as POSIX
+for these definitions.</p></div></div></div></div></body></html>

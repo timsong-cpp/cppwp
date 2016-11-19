@@ -1,0 +1,547 @@
+<!DOCTYPE html><html lang='en'><head><title>[category.numeric]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>22</a> Localization library <a class='abbr_ref' href='./#localization'>[localization]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>22.4</a> Standard <span class='texttt'>locale</span> categories <a class='abbr_ref' href='locale.categories#category.numeric'>[locale.categories]</a></h2><div id='category.numeric'><h3 ><a class='secnum' style='min-width:103pt'>22.4.2</a> The numeric category <a class='abbr_ref'>[category.numeric]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The classes
+<span class='texttt'>num_get&lt;&gt;</span>
+and
+<span class='texttt'>num_put&lt;&gt;</span>
+handle numeric formatting and parsing.
+Virtual functions are provided for several numeric types.
+Implementations may (but are not required to) delegate extraction
+of smaller types to extractors for larger types.<a class='footnotenum' href='#footnote-246'>246</a></p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >All specifications of member functions for
+<span class='texttt'>num_put</span>
+and
+<span class='texttt'>num_get</span>
+in the subclauses of <a href='category.numeric'>[category.numeric]</a> only apply to the
+specializations required in Tables <a href='locale.category#tab:localization.category.facets'>[tab:localization.category.facets]</a>
+and <a href='locale.category#tab:localization.required.specializations'>[tab:localization.required.specializations]</a> (<a href='locale.category'>[locale.category]</a>), namely
+<span class='texttt'>num_get&lt;char&gt;</span>,
+<span class='texttt'>num_get&lt;wchar_t&gt;</span>,
+<span class='texttt'>num_get&lt;C, InputIterator&gt;</span>,
+<span class='texttt'>num_put&lt;char&gt;</span>,
+<span class='texttt'>num_put&lt;wchar_t&gt;</span>,
+and
+<span class='texttt'>num_put&lt;C,OutputIterator&gt;</span>.
+These specializations refer to the
+<span class='texttt'>ios_base&amp;</span>
+argument for formatting specifications (<a href='locale.categories'>[locale.categories]</a>),
+and to its imbued locale for the
+<span class='texttt'>numpunct&lt;&gt;</span>
+facet to identify all numeric punctuation preferences,
+and also for the
+<span class='texttt'>ctype&lt;&gt;</span>
+facet to perform character classification.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >Extractor and inserter members of the standard iostreams use
+<span class='texttt'>num_get&lt;&gt;</span>
+and
+<span class='texttt'>num_put&lt;&gt;</span>
+member functions for formatting and parsing numeric values (<a href='istream.formatted.reqmts'>[istream.formatted.reqmts]</a>, <a href='ostream.formatted.reqmts'>[ostream.formatted.reqmts]</a>).</p></div><div class='footnote' id='footnote-245'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-245'>245)</a></div><p >Parsing
+<span class='texttt'>"-1"</span> correctly into, e.g., an
+<span class='texttt'>unsigned short</span>
+requires that the corresponding member
+<span class='texttt'>get()</span>
+at least extract the sign before delegating.</p></div><div id='locale.num.get'><h4 ><a class='secnum' href='#locale.num.get' style='min-width:118pt'>22.4.2.1</a> Class template <span class='texttt'>num_get</span> <a class='abbr_ref' href='locale.num.get'>[locale.num.get]</a></h4><p ><span class='indexparent'><a class='index' id='num_get'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class charT, class InputIterator = istreambuf_iterator&lt;charT&gt; &gt;
+  class num_get : public locale::facet {
+  public:
+    typedef charT            char_type;
+    typedef InputIterator    iter_type;
+
+    explicit num_get(size_t refs = 0);
+
+    iter_type get(iter_type in, iter_type end, ios_base&amp;,
+                  ios_base::iostate&amp; err, bool&amp; v) const;
+    iter_type get(iter_type in, iter_type end, ios_base&amp;,
+                  ios_base::iostate&amp; err, long&amp; v) const;
+    iter_type get(iter_type in, iter_type end, ios_base&amp;,
+                  ios_base::iostate&amp; err, long long&amp; v) const;
+    iter_type get(iter_type in, iter_type end, ios_base&amp;,
+                  ios_base::iostate&amp; err, unsigned short&amp; v) const;
+    iter_type get(iter_type in, iter_type end, ios_base&amp;,
+                  ios_base::iostate&amp; err, unsigned int&amp; v) const;
+    iter_type get(iter_type in, iter_type end, ios_base&amp;,
+                  ios_base::iostate&amp; err, unsigned long&amp; v) const;
+    iter_type get(iter_type in, iter_type end, ios_base&amp;,
+                  ios_base::iostate&amp; err, unsigned long long&amp; v) const;
+    iter_type get(iter_type in, iter_type end, ios_base&amp;,
+                  ios_base::iostate&amp; err, float&amp; v) const;
+    iter_type get(iter_type in, iter_type end, ios_base&amp;,
+                  ios_base::iostate&amp; err, double&amp; v) const;
+    iter_type get(iter_type in, iter_type end, ios_base&amp;,
+                  ios_base::iostate&amp; err, long double&amp; v) const;
+    iter_type get(iter_type in, iter_type end, ios_base&amp;,
+                  ios_base::iostate&amp; err, void*&amp; v) const;
+
+    static locale::id id;
+
+  protected:
+    ~num_get();
+    virtual iter_type do_get(iter_type, iter_type, ios_base&amp;,
+                             ios_base::iostate&amp; err, bool&amp; v) const;
+    virtual iter_type do_get(iter_type, iter_type, ios_base&amp;,
+                             ios_base::iostate&amp; err, long&amp; v) const;
+    virtual iter_type do_get(iter_type, iter_type, ios_base&amp;,
+                             ios_base::iostate&amp; err, long long&amp; v) const;
+    virtual iter_type do_get(iter_type, iter_type, ios_base&amp;,
+                             ios_base::iostate&amp; err, unsigned short&amp; v) const;
+    virtual iter_type do_get(iter_type, iter_type, ios_base&amp;,
+                             ios_base::iostate&amp; err, unsigned int&amp; v) const;
+    virtual iter_type do_get(iter_type, iter_type, ios_base&amp;,
+                             ios_base::iostate&amp; err, unsigned long&amp; v) const;
+    virtual iter_type do_get(iter_type, iter_type, ios_base&amp;,
+                             ios_base::iostate&amp; err, unsigned long long&amp; v) const;
+    virtual iter_type do_get(iter_type, iter_type, ios_base&amp;,
+                             ios_base::iostate&amp; err, float&amp; v) const;
+    virtual iter_type do_get(iter_type, iter_type, ios_base&amp;,
+                             ios_base::iostate&amp; err, double&amp; v) const;
+    virtual iter_type do_get(iter_type, iter_type, ios_base&amp;,
+                             ios_base::iostate&amp; err, long double&amp; v) const;
+    virtual iter_type do_get(iter_type, iter_type, ios_base&amp;,
+                             ios_base::iostate&amp; err, void*&amp; v) const;
+  };
+}
+</pre><div class='para' id='locale.num.get-1'><div class='marginalizedparent'><a class='marginalized' href='#locale.num.get-1'>1</a></div><p >The facet
+<span class='texttt'>num_get</span>
+is used to parse numeric values from an input sequence such as an istream.</p></div><div id='facet.num.get.members'><h4 ><a class='secnum' href='#facet.num.get.members' style='min-width:133pt'>22.4.2.1.1</a> <span class='texttt'>num_get</span> members <a class='abbr_ref' href='facet.num.get.members'>[facet.num.get.members]</a></h4><p ><span class='indexparent'><a class='index' id='num_get,get'></a></span><span class='indexparent'><a class='index' id='get,num_get'></a></span><code class='itemdecl'>
+iter_type get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, bool&amp; val) const;
+iter_type get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, long&amp; val) const;
+iter_type get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, long long&amp; val) const;
+iter_type get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, unsigned short&amp; val) const;
+iter_type get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, unsigned int&amp; val) const;
+iter_type get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, unsigned long&amp; val) const;
+iter_type get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, unsigned long long&amp; val) const;
+iter_type get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, float&amp; val) const;
+iter_type get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, double&amp; val) const;
+iter_type get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, long double&amp; val) const;
+iter_type get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, void*&amp; val) const;
+</code></p><div class='itemdescr'></div><div class='para' id='facet.num.get.members-1'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.get.members-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>do_get(in, end, str, err, val)</span>.
+</p></div></div></div><div id='facet.num.get.virtuals'><h4 ><a class='secnum' href='#facet.num.get.virtuals' style='min-width:133pt'>22.4.2.1.2</a> <span class='texttt'>num_get</span> virtual functions <a class='abbr_ref' href='facet.num.get.virtuals'>[facet.num.get.virtuals]</a></h4><p ><span class='indexparent'><a class='index' id='num_get,do_get'></a></span><span class='indexparent'><a class='index' id='do_get,num_get'></a></span><code class='itemdecl'>
+iter_type do_get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, long&amp; val) const;
+iter_type do_get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, long long&amp; val) const;
+iter_type do_get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, unsigned short&amp; val) const;
+iter_type do_get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, unsigned int&amp; val) const;
+iter_type do_get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, unsigned long&amp; val) const;
+iter_type do_get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, unsigned long long&amp; val) const;
+iter_type do_get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, float&amp; val) const;
+iter_type do_get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, double&amp; val) const;
+iter_type do_get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, long double&amp; val) const;
+iter_type do_get(iter_type in, iter_type end, ios_base&amp; str,
+  ios_base::iostate&amp; err, void*&amp; val) const;
+</code></p><div class='itemdescr'></div><div class='para' id='facet.num.get.virtuals-1'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.get.virtuals-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Reads characters from <span class='texttt'>in</span>,
+interpreting them according to
+<span class='texttt'>str.flags()</span>,
+<span class='texttt'>use_facet&lt;ctype&lt;<span class='discretionary'></span>charT&gt; &gt;(loc)</span>,
+and
+<span class='texttt'>use_facet&lt; numpunct&lt;charT&gt; &gt;(loc)</span>,
+where
+<span class='texttt'>loc</span>
+is
+<span class='texttt'>str.getloc()</span>.</p></div></div><div class='para' id='facet.num.get.virtuals-2'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.get.virtuals-2'>2</a></div><div class='itemdescr'><p >The details of this operation occur in three stages</p><ul ><li ><p >Stage 1:
+Determine a conversion specifier
+</p></li><li ><p >Stage 2: Extract characters from <span class='texttt'>in</span> and determine a corresponding
+<span class='texttt'>char</span>
+value for the format expected by the conversion specification determined
+in stage 1.
+</p></li><li ><p >Stage 3:
+Store results
+</p></li></ul></div></div><div class='para' id='facet.num.get.virtuals-3'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.get.virtuals-3'>3</a></div><div class='itemdescr'><p >The details of the stages are presented below.</p><ul ><li ><p >The function initializes local variables via</p><pre class='codeblock'>
+fmtflags flags = str .flags();
+fmtflags basefield = (flags &amp; ios_base::basefield);
+fmtflags uppercase = (flags &amp; ios_base::uppercase);
+fmtflags boolalpha = (flags &amp; ios_base::boolalpha);
+</pre><p >For conversion to an integral type, the
+function determines the integral conversion specifier as indicated in
+Table <a href='#tab:localization.integer.conversions.in'>[tab:localization.integer.conversions.in]</a>.
+The table is ordered.
+That is, the first line whose condition is true applies.</p><div class='numberedTable' id='tab:localization.integer.conversions.in'>Table <a href='#tab:localization.integer.conversions.in'>85</a> — Integer conversions<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>State</b></td><td class='center'>   <span class='texttt'>stdio</span> equivalent   </td></tr><tr class='capsep'><td class='left'> 
+<span class='texttt'>basefield == oct</span>        </td><td class='center'>   <span class='texttt'>%o</span>                 </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>basefield == hex</span>        </td><td class='center'>   <span class='texttt'>%X</span>                 </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>basefield == 0</span>          </td><td class='center'>   <span class='texttt'>%i</span>                 </td></tr><tr class='capsep'><td class='left'> 
+<span class='texttt'>signed</span> integral type    </td><td class='center'>   <span class='texttt'>%d</span>                 </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>unsigned</span> integral type  </td><td class='center'>   <span class='texttt'>%u</span>                 </td></tr></table></div><p >For conversions to a  floating type the specifier is
+<span class='texttt'>%g</span>.</p><p >For conversions to
+<span class='texttt'>void*</span>
+the specifier is
+<span class='texttt'>%p</span>.</p><p >A length modifier is added to the conversion specification, if needed,
+as indicated in Table <a href='#tab:localization.length.modifier.in'>[tab:localization.length.modifier.in]</a>.</p><div class='numberedTable' id='tab:localization.length.modifier.in'>Table <a href='#tab:localization.length.modifier.in'>86</a> — Length modifier<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Type</b></td><td class='center'>   Length modifier </td></tr><tr class='capsep'><td class='left'> 
+<span class='texttt'>short</span>               </td><td class='center'>   <span class='texttt'>h</span>       </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>unsigned short</span>      </td><td class='center'>   <span class='texttt'>h</span>       </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>long</span>                </td><td class='center'>   <span class='texttt'>l</span>       </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>unsigned long</span>       </td><td class='center'>   <span class='texttt'>l</span>       </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>long long</span>           </td><td class='center'>   <span class='texttt'>ll</span>      </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>unsigned long long</span>  </td><td class='center'>   <span class='texttt'>ll</span>      </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>double</span>              </td><td class='center'>   <span class='texttt'>l</span>       </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>long double</span>         </td><td class='center'>   <span class='texttt'>L</span>       </td></tr></table></div></li><li ><p >If
+<span class='texttt'>in==end</span>
+then stage 2 terminates.
+Otherwise a
+<span class='texttt'>charT</span>
+is taken from <span class='texttt'>in</span> and local variables are initialized as if by</p><pre class='codeblock'>
+char_type ct = *in ;
+char c = src[find(atoms, atoms + sizeof(src) - 1, ct) - atoms];
+if (ct ==  use_facet&lt;numpunct&lt;charT&gt; &gt;(loc).decimal_point())
+c = '.';
+bool discard =
+  ct == use_facet&lt;numpunct&lt;charT&gt; &gt;(loc).thousands_sep()
+  &amp;&amp; use_facet&lt;numpunct&lt;charT&gt; &gt;(loc).grouping().length() != 0;
+</pre><p >where the values
+<span class='texttt'>src</span>
+and
+<span class='texttt'>atoms</span>
+are defined as if by:</p><pre class='codeblock'>
+static const char src[] = "0123456789abcdefxABCDEFX+-";
+char_type atoms[sizeof(src)];
+use_facet&lt;ctype&lt;charT&gt; &gt;(loc).widen(src, src + sizeof(src), atoms);
+</pre><p >for this value of
+<span class='texttt'>loc</span>.</p><p >If <span class='texttt'>discard</span> is true, then if
+<span class='texttt'>'.'</span>
+has not yet been accumulated, then the position of the character is remembered,
+but the character is otherwise ignored.
+Otherwise, if
+<span class='texttt'>'.'</span>
+has already been accumulated, the character is discarded and
+Stage 2 terminates.
+If it is not discarded, then a check is made to determine if <span class='texttt'>c</span> is
+allowed as the next character of an input field of the conversion specifier
+returned by Stage 1. If so, it is accumulated.</p><p >If the character is either discarded or accumulated then <span class='texttt'>in</span>
+is advanced by
+<span class='texttt'>++in</span>
+and processing returns to the beginning of stage 2.</p></li><li ><p >The sequence of <span class='texttt'>char</span>s accumulated in stage 2 (the field) is converted to a numeric value by the rules of one of the functions declared in the header <span class='texttt'>&lt;cstdlib&gt;</span>:</p><ul ><li ><p >For a signed integer value, the function <span class='texttt'>strtoll</span>.</p></li><li ><p >For an unsigned integer value, the function <span class='texttt'>strtoull</span>.</p></li><li ><p >For a floating-point value, the function <span class='texttt'>strtold</span>.
+</p></li></ul><p >The numeric value to be stored can be one of:</p><ul ><li ><p >zero, if the conversion function fails to convert the entire field. <span class='texttt'>ios_base::failbit</span> is assigned to <span class='texttt'>err</span>.</p></li><li ><p >the most positive representable value, if the field represents a value too large positive to be represented in <span class='texttt'>val</span>. <span class='texttt'>ios_base::failbit</span> is assigned to <span class='texttt'>err</span>.</p></li><li ><p >the most negative representable value or zero for an unsigned integer type, if the field represents a value too large negative to be represented in <span class='texttt'>val</span>. <span class='texttt'>ios_base::failbit</span> is assigned to <span class='texttt'>err</span>.</p></li><li ><p >the converted value, otherwise.
+</p></li></ul><p >The resultant numeric value is stored in <span class='texttt'>val</span>.</p></li></ul></div></div><div class='para' id='facet.num.get.virtuals-4'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.get.virtuals-4'>4</a></div><div class='itemdescr'><p >Digit grouping is checked.
+That is, the positions of discarded
+separators is examined for consistency with
+<span class='texttt'>use_facet&lt;numpunct&lt;charT&gt; &gt;(loc).grouping()</span>.
+If they are not consistent then
+<span class='texttt'>ios_base::failbit</span>
+is assigned to <span class='texttt'>err</span>.</p></div></div><div class='para' id='facet.num.get.virtuals-5'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.get.virtuals-5'>5</a></div><div class='itemdescr'><p >In any case, if stage 2 processing was terminated by the test for
+<span class='texttt'>in==end</span>
+then
+<span class='texttt'>err |=ios_base::eofbit</span>
+is performed.
+</p></div></div><p ><span class='indexparent'><a class='index' id='do_get,num_get'></a></span><span class='indexparent'><a class='index' id='num_get,do_get'></a></span><code class='itemdecl'>
+iter_type do_get(iter_type in, iter_type end, ios_base&amp; str,
+                 ios_base::iostate&amp; err, bool&amp; val) const;
+</code></p><div class='itemdescr'></div><div class='para' id='facet.num.get.virtuals-6'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.get.virtuals-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>
+If
+<span class='texttt'>(str<span class='texttt'>.flags()&amp;ios_base::boolalpha)==0</span></span>
+then input proceeds as it would for a
+<span class='texttt'>long</span>
+except that if a value is being stored into <span class='texttt'>val</span>,
+the value is determined according to the following:
+If the value to be stored is 0 then
+<span class='texttt'>false</span>
+is stored.
+If the value is 1
+then
+<span class='texttt'>true</span>
+is stored.
+Otherwise <span class='texttt'>true</span> is stored and <span class='texttt'>ios_base::failbit</span> is assigned to <span class='texttt'>err</span>.</p></div></div><div class='para' id='facet.num.get.virtuals-7'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.get.virtuals-7'>7</a></div><div class='itemdescr'><p >Otherwise target sequences are determined “as if” by calling the
+members
+<span class='texttt'>falsename()</span>
+and
+<span class='texttt'>truename()</span>
+of the facet obtained by
+<span class='texttt'>use_facet&lt;numpunct&lt;charT&gt; &gt;(str.getloc())</span>.
+Successive characters in the range
+<span class='texttt'>[<span class='discretionary'></span>in,<span class='discretionary'></span>end<span class='discretionary'></span>)</span>
+(see <a href='sequence.reqmts'>[sequence.reqmts]</a>) are obtained and
+matched against corresponding positions in the target sequences only
+as necessary to identify a unique match. The input iterator <span class='texttt'>in</span> is
+compared to <span class='texttt'>end</span> only when necessary to obtain a character. If a target sequence is uniquely matched, <span class='texttt'>val</span> is set to the
+corresponding value. Otherwise <span class='texttt'>false</span> is stored and <span class='texttt'>ios_base::failbit</span> is assigned to <span class='texttt'>err</span>.</p></div></div><div class='para' id='facet.num.get.virtuals-8'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.get.virtuals-8'>8</a></div><div class='itemdescr'><p >The <span class='texttt'>in</span> iterator is always left pointing one position beyond the last
+character successfully matched. If <span class='texttt'>val</span> is set, then <span class='texttt'>err</span> is set to
+<span class='texttt'>str.goodbit</span>;
+or to
+<span class='texttt'>str.eofbit</span>
+if, when seeking another character to match, it is found that
+<span class='texttt'>(in == end)</span>.
+If <span class='texttt'>val</span> is not set, then <span class='texttt'>err</span> is set to
+<span class='texttt'>str.failbit</span>;
+or to
+<span class='texttt'>(str.failbit|str.eofbit)</span>
+if the reason for the failure was that
+<span class='texttt'>(in == end)</span>.
+[&nbsp;<i>Example:</i>
+For targets
+<span class='texttt'>true</span>:
+<span class='texttt'>"a"</span>
+and
+<span class='texttt'>false</span>:
+<span class='texttt'>"abb"</span>,
+the input sequence
+ <span class='texttt'>"a"</span>
+yields
+<span class='texttt'>val == true</span>
+and
+<span class='texttt'>err == str.eofbit</span>;
+the input sequence
+ <span class='texttt'>"abc"</span>
+yields
+<span class='texttt'>err = str.failbit</span>,
+with <span class='texttt'>in</span> ending at the
+<span class='texttt'>'c'</span>
+element. For targets
+<span class='texttt'>true</span>:
+<span class='texttt'>"1"</span>
+and
+<span class='texttt'>false</span>:
+<span class='texttt'>"0"</span>, the input sequence <span class='texttt'>"1"</span> yields
+<span class='texttt'>val == true</span>
+and
+<span class='texttt'>err == str.goodbit</span>.
+For empty targets <span class='texttt'>("")</span>, any input sequence yields
+<span class='texttt'>err == str.failbit</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div class='para' id='facet.num.get.virtuals-9'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.get.virtuals-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>in</span>.
+</p></div></div></div></div><div id='locale.nm.put'><h4 ><a class='secnum' href='#locale.nm.put' style='min-width:118pt'>22.4.2.2</a> Class template <span class='texttt'>num_put</span> <a class='abbr_ref' href='locale.nm.put'>[locale.nm.put]</a></h4><p ><span class='indexparent'><a class='index' id='num_put'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class charT, class OutputIterator = ostreambuf_iterator&lt;charT&gt; &gt;
+  class num_put : public locale::facet {
+  public:
+    typedef charT            char_type;
+    typedef OutputIterator   iter_type;
+
+    explicit num_put(size_t refs = 0);
+
+    iter_type put(iter_type s, ios_base&amp; f, char_type fill, bool v) const;
+    iter_type put(iter_type s, ios_base&amp; f, char_type fill, long v) const;
+    iter_type put(iter_type s, ios_base&amp; f, char_type fill, long long v) const;
+    iter_type put(iter_type s, ios_base&amp; f, char_type fill,
+                  unsigned long v) const;
+    iter_type put(iter_type s, ios_base&amp; f, char_type fill,
+                  unsigned long long v) const;
+    iter_type put(iter_type s, ios_base&amp; f, char_type fill,
+                  double v) const;
+    iter_type put(iter_type s, ios_base&amp; f, char_type fill,
+                  long double v) const;
+    iter_type put(iter_type s, ios_base&amp; f, char_type fill,
+                  const void* v) const;
+
+    static locale::id id;
+
+  protected:
+    ~num_put();
+    virtual iter_type do_put(iter_type, ios_base&amp;, char_type fill,
+                             bool v) const;
+    virtual iter_type do_put(iter_type, ios_base&amp;, char_type fill,
+                             long v) const;
+    virtual iter_type do_put(iter_type, ios_base&amp;, char_type fill,
+                             long long v) const;
+    virtual iter_type do_put(iter_type, ios_base&amp;, char_type fill,
+                             unsigned long) const;
+    virtual iter_type do_put(iter_type, ios_base&amp;, char_type fill,
+                             unsigned long long) const;
+    virtual iter_type do_put(iter_type, ios_base&amp;, char_type fill,
+                             double v) const;
+    virtual iter_type do_put(iter_type, ios_base&amp;, char_type fill,
+                             long double v) const;
+    virtual iter_type do_put(iter_type, ios_base&amp;, char_type fill,
+                             const void* v) const;
+  };
+}
+</pre><div class='para' id='locale.nm.put-1'><div class='marginalizedparent'><a class='marginalized' href='#locale.nm.put-1'>1</a></div><p >The facet
+<span class='texttt'>num_put</span>
+is used to format numeric values to a character sequence such as an ostream.</p></div><div id='facet.num.put.members'><h4 ><a class='secnum' href='#facet.num.put.members' style='min-width:133pt'>22.4.2.2.1</a> <span class='texttt'>num_put</span> members <a class='abbr_ref' href='facet.num.put.members'>[facet.num.put.members]</a></h4><p ><span class='indexparent'><a class='index' id='num_put,put'></a></span><span class='indexparent'><a class='index' id='put,num_put'></a></span><code class='itemdecl'>
+iter_type put(iter_type out, ios_base&amp; str, char_type fill,
+  bool val) const;
+iter_type put(iter_type out, ios_base&amp; str, char_type fill,
+  long val) const;
+iter_type put(iter_type out, ios_base&amp; str, char_type fill,
+  long long val) const;
+iter_type put(iter_type out, ios_base&amp; str, char_type fill,
+  unsigned long val) const;
+iter_type put(iter_type out, ios_base&amp; str, char_type fill,
+  unsigned long long val) const;
+iter_type put(iter_type out, ios_base&amp; str, char_type fill,
+  double val) const;
+iter_type put(iter_type out, ios_base&amp; str, char_type fill,
+  long double val) const;
+iter_type put(iter_type out, ios_base&amp; str, char_type fill,
+  const void* val) const;
+</code></p><div class='itemdescr'></div><div class='para' id='facet.num.put.members-1'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.put.members-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>do_put(out, str, fill, val)</span>.
+</p></div></div></div><div id='facet.num.put.virtuals'><h4 ><a class='secnum' href='#facet.num.put.virtuals' style='min-width:133pt'>22.4.2.2.2</a> <span class='texttt'>num_put</span> virtual functions <a class='abbr_ref' href='facet.num.put.virtuals'>[facet.num.put.virtuals]</a></h4><p ><span class='indexparent'><a class='index' id='num_put,do_put'></a></span><span class='indexparent'><a class='index' id='do_put,num_put'></a></span><code class='itemdecl'>
+iter_type do_put(iter_type out, ios_base&amp; str, char_type fill,
+  long val) const;
+iter_type do_put(iter_type out, ios_base&amp; str, char_type fill,
+  long long val) const;
+iter_type do_put(iter_type out, ios_base&amp; str, char_type fill,
+  unsigned long val) const;
+iter_type do_put(iter_type out, ios_base&amp; str, char_type fill,
+  unsigned long long val) const;
+iter_type do_put(iter_type out, ios_base&amp; str, char_type fill,
+  double val) const;
+iter_type do_put(iter_type out, ios_base&amp; str, char_type fill,
+  long double val) const;
+iter_type do_put(iter_type out, ios_base&amp; str, char_type fill,
+  const void* val) const;
+</code></p><div class='itemdescr'></div><div class='para' id='facet.num.put.virtuals-1'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.put.virtuals-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Writes characters to the sequence <span class='texttt'>out</span>,
+formatting <span class='texttt'>val</span> as desired.
+In the following description,
+a local variable initialized with</p><pre class='codeblock'>
+locale loc = str.getloc();
+</pre></div></div><div class='para' id='facet.num.put.virtuals-2'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.put.virtuals-2'>2</a></div><div class='itemdescr'><p >The details of this operation occur in several stages:</p><ul ><li ><p >Stage 1:
+Determine a printf conversion specifier <span class='texttt'>spec</span> and
+determining the characters that would be printed by
+<span class='texttt'>printf</span> (<a href='c.files'>[c.files]</a>)
+given this conversion specifier for</p><pre class='codeblock'>
+printf(spec, val )
+</pre><p >assuming that the current locale is
+the <span class='texttt'>"C"</span> locale.
+</p></li><li ><p >Stage 2:
+Adjust the representation by converting each
+<span class='texttt'>char</span>
+determined by stage 1 to a
+<span class='texttt'>charT</span>
+using a conversion and values returned by members of
+<span class='texttt'>use_facet&lt; numpunct&lt;charT&gt; &gt;(str.getloc())</span>
+</p></li><li ><p >Stage 3:
+Determine where padding is required.
+</p></li><li ><p >Stage 4:
+Insert the sequence into the <span class='texttt'>out</span>.
+</p></li></ul></div></div><div class='para' id='facet.num.put.virtuals-3'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.put.virtuals-3'>3</a></div><div class='itemdescr'><p >Detailed descriptions of each stage follow.</p></div></div><div class='para' id='facet.num.put.virtuals-4'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.put.virtuals-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>out</span>.</p></div></div><div class='para' id='facet.num.put.virtuals-5'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.put.virtuals-5'>5</a></div><div class='itemdescr'><ul ><li ><p >The first action of stage 1 is to determine a conversion specifier.
+The tables that describe this determination use the following local variables</p><pre class='codeblock'>
+fmtflags flags = str.flags() ;
+fmtflags basefield =  (flags &amp; (ios_base::basefield));
+fmtflags uppercase =  (flags &amp; (ios_base::uppercase));
+fmtflags floatfield = (flags &amp; (ios_base::floatfield));
+fmtflags showpos =    (flags &amp; (ios_base::showpos));
+fmtflags showbase =   (flags &amp; (ios_base::showbase));
+</pre><p >All tables used in describing stage 1 are ordered.
+That is, the first line whose condition is true applies.
+A line without a condition is the default behavior when none of the earlier
+lines apply.</p><p >For conversion from an integral type other than a character type, the
+function determines the integral conversion specifier as indicated in
+Table <a href='#tab:localization.integer.conversions.out'>[tab:localization.integer.conversions.out]</a>.</p><div class='numberedTable' id='tab:localization.integer.conversions.out'>Table <a href='#tab:localization.integer.conversions.out'>87</a> — Integer conversions<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>State</b></td><td class='center'>   <span class='texttt'>stdio</span> equivalent       </td></tr><tr class='capsep'><td class='left'> 
+<span class='texttt'>basefield == ios_base::oct</span>                      </td><td class='center'>   <span class='texttt'>%o</span> </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>(basefield == ios_base::hex) &amp;&amp; !uppercase</span>    </td><td class='center'>   <span class='texttt'>%x</span> </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>(basefield == ios_base::hex)</span>                    </td><td class='center'>   <span class='texttt'>%X</span> </td></tr><tr class='rowsep'><td class='left'> 
+for a <span class='texttt'>signed</span> integral type                     </td><td class='center'>   <span class='texttt'>%d</span> </td></tr><tr class='rowsep'><td class='left'> 
+for an <span class='texttt'>unsigned</span> integral type                  </td><td class='center'>   <span class='texttt'>%u</span> </td></tr></table></div><p >For conversion from a floating-point type, the function determines
+the floating-point conversion specifier as indicated in Table <a href='#tab:localization.fp.conversions.out'>[tab:localization.fp.conversions.out]</a>.</p><div class='numberedTable' id='tab:localization.fp.conversions.out'>Table <a href='#tab:localization.fp.conversions.out'>88</a> — Floating-point conversions<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>State</b></td><td class='center'>   <span class='texttt'>stdio</span> equivalent                       </td></tr><tr class='capsep'><td class='left'> 
+<span class='texttt'>floatfield == ios_base::fixed</span>                       </td><td class='center'>   <span class='texttt'>%f</span> </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>floatfield == ios_base::scientific &amp;&amp; !uppercase</span>  </td><td class='center'>   <span class='texttt'>%e</span> </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>floatfield == ios_base::scientific</span>                  </td><td class='center'>   <span class='texttt'>%E</span> </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>floatfield == (ios_base::fixed | ios_base::scientific) &amp;&amp; !uppercase</span> </td><td class='center'> <span class='texttt'>%a</span> </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>floatfield == (ios_base::fixed | ios_base::scientific)</span> </td><td class='center'> <span class='texttt'>%A</span> </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>!uppercase</span>                                          </td><td class='center'>   <span class='texttt'>%g</span> </td></tr><tr class='rowsep'><td class='left'> 
+<i>otherwise</i>                                          </td><td class='center'>   <span class='texttt'>%G</span> </td></tr></table></div><p >For conversions from an integral or floating-point
+type a length modifier is added to the
+conversion specifier as indicated in  Table <a href='#tab:localization.length.modifier.out'>[tab:localization.length.modifier.out]</a>.</p><div class='numberedTable' id='tab:localization.length.modifier.out'>Table <a href='#tab:localization.length.modifier.out'>89</a> — Length modifier<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Type</b></td><td class='center'>   Length modifier </td></tr><tr class='capsep'><td class='left'> 
+<span class='texttt'>long</span>                </td><td class='center'>   <span class='texttt'>l</span>       </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>long long</span>           </td><td class='center'>   <span class='texttt'>ll</span>      </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>unsigned long</span>       </td><td class='center'>   <span class='texttt'>l</span>       </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>unsigned long long</span>  </td><td class='center'>   <span class='texttt'>ll</span>      </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>long double</span>         </td><td class='center'>   <span class='texttt'>L</span>       </td></tr><tr class='rowsep'><td class='left'> 
+<i>otherwise</i>          </td><td class='center'>   <i>none</i>   </td></tr></table></div><p >The conversion specifier has the following optional additional qualifiers
+prepended as indicated in Table <a href='#tab:localization.numeric.conversions'>[tab:localization.numeric.conversions]</a>.</p><div class='numberedTable' id='tab:localization.numeric.conversions'>Table <a href='#tab:localization.numeric.conversions'>90</a> — Numeric conversions<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Type(s)</b></td><td colspan='1' class='center'><b>State</b></td><td class='center'>   <span class='texttt'>stdio</span> equivalent   </td></tr><tr class='capsep'><td class='left'> 
+an integral type                </td><td class='left'>   <span class='texttt'>flags &amp; showpos</span>    </td><td class='center'>   <span class='texttt'>+</span>                   </td></tr><tr ><td class='left'>
+                                </td><td class='left'>   <span class='texttt'>flags &amp; showbase</span>   </td><td class='center'>   <span class='texttt'>#</span>                  </td></tr><tr class='rowsep'><td class='left'> 
+a floating-point type           </td><td class='left'>   <span class='texttt'>flags &amp; showpos</span>    </td><td class='center'>   <span class='texttt'>+</span>                   </td></tr><tr ><td class='left'>
+                                </td><td class='left'>   <span class='texttt'>flags &amp; showpoint</span>  </td><td class='center'>   <span class='texttt'>#</span>                  </td></tr></table></div><p >For conversion from a floating-point type,
+if <span class='texttt'>floatfield != (ios_base::fixed | ios_base::<span class='discretionary'></span>scientific)</span>,
+<span class='texttt'>str.precision()</span>
+is specified as precision in the conversion specification.
+Otherwise, no precision is specified.
+ 
+For conversion from
+<span class='texttt'>void*</span>
+the specifier is
+<span class='texttt'>%p</span>.
+ 
+The representations at the end of stage 1 consists of the
+<span class='texttt'>char</span>'s
+that would be printed by a call of
+<span class='texttt'>printf(s, val)</span>
+where <span class='texttt'>s</span> is the conversion specifier determined above.</p></li><li ><p >Any character <span class='texttt'>c</span> other than a decimal point(.) is converted to a
+<span class='texttt'>charT</span>
+via
+<span class='texttt'>use_facet&lt;ctype&lt;charT&gt; &gt;(loc).widen( c )</span></p><p >A local variable <span class='texttt'>punct</span> is initialized via
+</p><pre class='codeblock'>
+const numpunct&lt;charT&gt;&amp; punct = use_facet&lt; numpunct&lt;charT&gt; &gt;(str.getloc());
+</pre><p >For arithmetic types,
+<span class='texttt'>punct.thousands_sep()</span>
+characters are inserted into the sequence as determined by the value returned
+by
+<span class='texttt'>punct.do_grouping()</span>
+using the method described in <a href='facet.numpunct.virtuals'>[facet.numpunct.virtuals]</a>
+ 
+Decimal point characters(.) are replaced by
+<span class='texttt'>punct.decimal_point()</span></p></li><li ><p >A local variable is initialized as</p><pre class='codeblock'>
+fmtflags adjustfield=   (flags &amp; (ios_base::adjustfield));
+</pre><p >The location of any padding<a class='footnotenum' href='#footnote-247'>247</a> is determined according to Table <a href='#tab:localization.fill.padding'>[tab:localization.fill.padding]</a>.</p><div class='numberedTable' id='tab:localization.fill.padding'>Table <a href='#tab:localization.fill.padding'>91</a> — Fill padding<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>State</b></td><td colspan='1' class='center'><b>Location</b></td></tr><tr class='capsep'><td class='justify'> 
+<span class='texttt'>adjustfield == ios_base::left</span>   </td><td class='left'>   pad after                       </td></tr><tr class='rowsep'><td class='justify'> 
+<span class='texttt'>adjustfield == ios_base::right</span>  </td><td class='left'>   pad before                      </td></tr><tr class='rowsep'><td class='justify'> 
+<span class='texttt'>adjustfield == internal</span> and a sign occurs in the representation
+                                        </td><td class='left'>   pad after the sign              </td></tr><tr class='rowsep'><td class='justify'> 
+<span class='texttt'>adjustfield == internal</span> and representation after stage 1
+began with 0x or 0X                     </td><td class='left'>   pad after x or X                </td></tr><tr class='rowsep'><td class='justify'> 
+<i>otherwise</i>                      </td><td class='left'>   pad before                      </td></tr></table></div><p >If
+<span class='texttt'>str.width()</span>
+is nonzero and the number of
+<span class='texttt'>charT</span>'s
+in the sequence after stage 2 is less than
+<span class='texttt'>str.<span class='discretionary'></span>width()</span>,
+then enough <span class='texttt'>fill</span> characters are added to the sequence at the position
+indicated for padding to bring the length of the sequence to
+<span class='texttt'>str.width()</span>.
+ 
+<span class='texttt'>str.width(0)</span>
+is called.</p></li><li ><p >The sequence of
+<span class='texttt'>charT</span>'s
+at the end of stage 3 are output via</p><pre class='codeblock'>
+*out++ = c
+</pre></li></ul></div></div><p ><span class='indexparent'><a class='index' id='do_put,num_put'></a></span><span class='indexparent'><a class='index' id='num_put,do_put'></a></span><code class='itemdecl'>
+iter_type do_put(iter_type out, ios_base&amp; str, char_type fill,
+                 bool val) const;
+</code></p><div class='itemdescr'></div><div class='para' id='facet.num.put.virtuals-6'><div class='marginalizedparent'><a class='marginalized' href='#facet.num.put.virtuals-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If
+<span class='texttt'>(str.flags() &amp; ios_base::boolalpha) == 0</span>
+returns
+<span class='texttt'>do_put(out, str, fill,<br/>(int)val)</span>,
+otherwise obtains a string
+<span class='texttt'>s</span>
+as if by
+</p><pre class='codeblock'>
+string_type s =
+  val ? use_facet&lt;ctype&lt;charT&gt; &gt;(loc).truename()
+    : use_facet&lt;ctype&lt;charT&gt; &gt;(loc).falsename();
+</pre><p >and then inserts each character
+<span class='texttt'>c</span>
+of
+<span class='texttt'>s</span>
+into
+<span class='texttt'>out</span>
+via
+<span class='texttt'>*out++ = c</span>
+and returns
+<span class='texttt'>out</span>.
+</p></div></div><div class='footnote' id='footnote-246'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-246'>246)</a></div><p >The conversion specification
+<span class='texttt'>#o</span>
+generates a leading
+<span class='texttt'>0</span>
+which is
+<i>not</i>
+a padding character.</p></div></div></div></div></div></body></html>

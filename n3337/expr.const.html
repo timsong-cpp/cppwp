@@ -1,0 +1,124 @@
+<!DOCTYPE html><html lang='en'><head><title>[expr.const]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>5</a> Expressions <a class='abbr_ref' href='./#expr'>[expr]</a></h1><div id='expr.const'><h2 ><a class='secnum' style='min-width:88pt'>5.19</a> Constant expressions <a class='abbr_ref'>[expr.const]</a></h2><p ><span class='indexparent'><a class='index' id='expression,constant'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Certain contexts require expressions that satisfy additional
+requirements as detailed in this sub-clause; other contexts have different
+semantics depending on whether or not an expression satisfies these requirements.
+Expressions that satisfy these requirements are called 
+<a class='hidden_link' href='#def:constant_expressions' id='def:constant_expressions'><i>constant expressions</i></a>. [&nbsp;<i>Note:</i> Constant expressions can be evaluated
+during translation.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><pre class='bnf'><a id='nt:constant-expression'>constant-expression:</a>
+    <i ><a href='expr.cond#nt:conditional-expression'>conditional-expression</a></i></pre></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >A <i ><a href='expr.cond#nt:conditional-expression'>conditional-expression</a></i> is a
+<a class='hidden_link' href='#def:core_constant_expression' id='def:core_constant_expression'><i>core constant expression</i></a>
+unless it involves one of the following as a potentially evaluated
+subexpression (<a href='basic.def.odr'>[basic.def.odr]</a>), but 
+subexpressions of logical AND (<a href='expr.log.and'>[expr.log.and]</a>),
+logical OR (<a href='expr.log.or'>[expr.log.or]</a>), and conditional (<a href='expr.cond'>[expr.cond]</a>)
+operations that are not evaluated are not considered 
+[&nbsp;<i>Note:</i> An overloaded operator invokes a function.<i>&nbsp;—&nbsp;end note</i>&nbsp;]:</p><ul ><li ><p ><span class='texttt'>this</span> (<a href='expr.prim'>[expr.prim]</a>) unless it appears as
+the <i ><a href='expr.post#nt:postfix-expression'>postfix-expression</a></i> in a class member access
+expression, including the result of the implicit transformation in the body
+of a non-static member function (<a href='class.mfct.non-static'>[class.mfct.non-static]</a>);</p></li><li ><p >an invocation of a function other than
+a <span class='texttt'>constexpr</span> constructor for a literal class or
+a <span class='texttt'>constexpr</span> function
+[&nbsp;<i>Note:</i> Overload resolution (<a href='over.match'>[over.match]</a>)
+is applied as usual <i>&nbsp;—&nbsp;end note</i>&nbsp;];</p></li><li ><p >an invocation of an undefined <span class='texttt'>constexpr</span> function or an
+undefined <span class='texttt'>constexpr</span> constructor outside the definition of a <span class='texttt'>constexpr</span>
+function or a <span class='texttt'>constexpr</span> constructor;</p></li><li ><p >an invocation of a <span class='texttt'>constexpr</span> function with arguments that, when
+substituted by function invocation substitution (<a href='dcl.constexpr'>[dcl.constexpr]</a>),
+do not
+produce a constant expression; [&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+constexpr const int* addr(const int&amp; ir) { return &amp;ir; }  <span class='comment'>// OK
+</span>static const int x = 5;
+constexpr const int* xp = addr(x);  <span class='comment'>// OK: <span class='texttt'>(const int*)&amp;(const int&amp;)x</span> is an
+</span>                                    <span class='comment'>// address constant expression
+</span>constexpr const int* tp = addr(5);  <span class='comment'>// error, initializer for <span class='texttt'>constexpr</span> variable not a constant
+</span>                                    <span class='comment'>// expression; <span class='texttt'>(const int*)&amp;(const int&amp;)5</span> is not a constant
+</span>                                    <span class='comment'>// expression because it takes the address of a temporary
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></li><li ><p >an invocation of a <span class='texttt'>constexpr</span> constructor with arguments that, when substituted
+by function invocation substitution (<a href='dcl.constexpr'>[dcl.constexpr]</a>), do not produce all constant
+expressions for the constructor calls and full-expressions in the
+<i ><a href='class.base.init#nt:mem-initializer'>mem-initializers</a></i>; [&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+int x;                              <span class='comment'>// not constant
+</span>struct A {
+  constexpr A(bool b) : m(b?42:x) { }
+  int m;
+};
+constexpr int v = A(true).m;        <span class='comment'>// OK: constructor call initializes
+</span>                                    <span class='comment'>// <span class='texttt'>m</span> with the value <span class='texttt'>42</span> after substitution
+</span>constexpr int w = A(false).m;       <span class='comment'>// error: initializer for <span class='texttt'>m</span> is
+</span>                                    <span class='comment'>// <span class='texttt'>x</span>, which is non-constant
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></li><li ><p >an invocation of a <span class='texttt'>constexpr</span> function or a <span class='texttt'>constexpr</span>
+constructor that would exceed the implementation-defined recursion limits
+(see Annex <a href='implimits'>[implimits]</a>);</p></li><li ><p >a result that is not mathematically defined or not in the range of representable
+values for its type;</p></li><li ><p >a <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> (<a href='expr.prim.lambda'>[expr.prim.lambda]</a>);</p></li><li ><p >an lvalue-to-rvalue conversion (<a href='conv.lval'>[conv.lval]</a>) unless
+it is applied to</p><ul ><li ><p >a glvalue of integral or enumeration type that refers to a non-volatile const
+object with a preceding initialization, initialized with a constant expression, or</p></li><li ><p >a glvalue of literal type that refers to a non-volatile object
+defined with <span class='texttt'>constexpr</span>, or that refers to a sub-object
+of such an object, or</p></li><li ><p >a glvalue of literal type that refers to a non-volatile temporary object
+whose lifetime has not ended,
+initialized with
+a constant expression;
+</p></li></ul></li><li ><p >an lvalue-to-rvalue conversion (<a href='conv.lval'>[conv.lval]</a>) that is applied to a glvalue
+that refers to a non-active member of a union or a subobject thereof;</p></li><li ><p >an <i ><a href='expr.prim.general#nt:id-expression'>id-expression</a></i> that refers to a variable or
+data member of reference type
+unless the reference has a preceding initialization, initialized with a constant
+expression;</p></li><li ><p >a dynamic cast (<a href='expr.dynamic.cast'>[expr.dynamic.cast]</a>);</p></li><li ><p >a <span class='texttt'>reinterpret_cast</span> (<a href='expr.reinterpret.cast'>[expr.reinterpret.cast]</a>);</p></li><li ><p >a pseudo-destructor call (<a href='expr.pseudo'>[expr.pseudo]</a>);</p></li><li ><p >increment or decrement operations (<a href='expr.post.incr'>[expr.post.incr]</a>, <a href='expr.pre.incr'>[expr.pre.incr]</a>);</p></li><li ><p >a typeid expression (<a href='expr.typeid'>[expr.typeid]</a>) whose operand
+is of a polymorphic class type;</p></li><li ><p >a <i ><a href='expr.new#nt:new-expression'>new-expression</a></i> (<a href='expr.new'>[expr.new]</a>);</p></li><li ><p >a <i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i> (<a href='expr.delete'>[expr.delete]</a>);</p></li><li ><p >a subtraction (<a href='expr.add'>[expr.add]</a>) where both operands are pointers;</p></li><li ><p >a relational (<a href='expr.rel'>[expr.rel]</a>) or equality (<a href='expr.eq'>[expr.eq]</a>)
+operator where the result is unspecified;</p></li><li ><p >an assignment or a compound assignment (<a href='expr.ass'>[expr.ass]</a>); or</p></li><li ><p >a <i ><a href='except#nt:throw-expression'>throw-expression</a></i> (<a href='except.throw'>[except.throw]</a>).
+</p></li></ul></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >A <a class='hidden_link' href='#def:literal_constant_expression' id='def:literal_constant_expression'><i>literal constant expression</i></a> is a prvalue core constant expression of
+literal type, but not pointer type. An <a class='hidden_link' href='#def:integral_constant_expression' id='def:integral_constant_expression'><i>integral constant expression</i></a> is a
+literal constant expression of integral or unscoped enumeration type.
+[&nbsp;<i>Note:</i> Such expressions may be
+used as array bounds (<a href='dcl.array'>[dcl.array]</a>, <a href='expr.new'>[expr.new]</a>),
+as bit-field lengths (<a href='class.bit'>[class.bit]</a>), as enumerator
+initializers if the underlying type is not fixed (<a href='dcl.enum'>[dcl.enum]</a>),
+as null pointer constants (<a href='conv.ptr'>[conv.ptr]</a>), and as alignments (<a href='dcl.align'>[dcl.align]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+A <a class='hidden_link' href='#def:converted_constant_expression' id='def:converted_constant_expression'><i>converted constant expression</i></a> of type <span class='texttt'>T</span> is a literal constant
+expression, implicitly converted to type <span class='texttt'>T</span>, where the implicit
+conversion (if any) is permitted in a literal constant expression and the
+implicit conversion sequence contains only user-defined conversions, lvalue-to-rvalue
+conversions (<a href='conv.lval'>[conv.lval]</a>), integral promotions (<a href='conv.prom'>[conv.prom]</a>), and
+integral conversions (<a href='conv.integral'>[conv.integral]</a>) other than narrowing conversions (<a href='dcl.init.list'>[dcl.init.list]</a>).
+[&nbsp;<i>Note:</i> such expressions may be used as case expressions (<a href='stmt.switch'>[stmt.switch]</a>),
+as enumerator initializers if the underlying type is fixed (<a href='dcl.enum'>[dcl.enum]</a>), and
+as integral or enumeration non-type template arguments (<a href='temp.arg'>[temp.arg]</a>). <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+A <a class='hidden_link' href='#def:reference_constant_expression' id='def:reference_constant_expression'><i>reference constant expression</i></a> is an lvalue core constant expression
+that designates an object with static storage duration or a function. An
+<a class='hidden_link' href='#def:address_constant_expression' id='def:address_constant_expression'><i>address constant expression</i></a> is a prvalue core constant expression of
+pointer type that evaluates to the address of an object with static storage
+duration, to the address of a function, or to a null pointer value, or a prvalue
+core constant expression of type <span class='texttt'>std::nullptr_t</span>. Collectively, literal
+constant expressions, reference constant expressions, and address constant
+expressions are called <a class='hidden_link' href='#def:constant_expressions' id='def:constant_expressions'><i>constant expressions</i></a>.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >[&nbsp;<i>Note:</i> Although in some contexts constant expressions must be evaluated during program
+translation, others may be evaluated during program execution. Since this International Standard
+imposes no restrictions on the accuracy of floating-point operations, it is unspecified whether the
+evaluation of a floating-point expression during translation yields the same result as the
+evaluation of the same expression (or the same operations on the same values) during program
+execution.<a class='footnotenum' href='#footnote-84'>84</a> [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+bool f() {
+    char array[1 + int(1 + 0.2 - 0.1 - 0.1)];  <span class='comment'>// Must be evaluated during translation
+</span>    int size = 1 + int(1 + 0.2 - 0.1 - 0.1);   <span class='comment'>// May be evaluated at runtime
+</span>    return sizeof(array) == size;
+}
+</pre><p >It is unspecified whether the value of <span class='texttt'>f()</span> will be <span class='texttt'>true</span> or <span class='texttt'>false</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;] <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >If an expression of literal class type is used in a context where an 
+integral constant expression is required, then that class type shall 
+have a single non-explicit conversion function to an integral or unscoped
+enumeration type 
+and that conversion function shall be <span class='texttt'>constexpr</span>. [&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct A { 
+  constexpr A(int i) : val(i) { } 
+  constexpr operator int() { return val; } 
+  constexpr operator long() { return 43; } 
+private: 
+  int val; 
+}; 
+template&lt;int&gt; struct X { }; 
+constexpr A a = 42; 
+X&lt;a&gt; x;             <span class='comment'>// OK: unique conversion to <span class='texttt'>int</span>
+</span>int ary[a];         <span class='comment'>// error: ambiguous conversion 
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]<span class='indexparent'><a class='index' id='expression'></a></span>
+</p></div><div class='footnote' id='footnote-84'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-84'>84)</a></div><p >Nonetheless, implementations are encouraged to provide consistent results,
+irrespective of whether the evaluation was actually performed during translation or during program
+execution.</p></div></div></div></body></html>

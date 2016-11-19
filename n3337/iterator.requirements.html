@@ -1,0 +1,403 @@
+<!DOCTYPE html><html lang='en'><head><title>[iterator.requirements]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>24</a> Iterators library <a class='abbr_ref' href='./#iterators'>[iterators]</a></h1><div id='iterator.requirements'><h2 ><a class='secnum' style='min-width:88pt'>24.2</a> Iterator requirements <a class='abbr_ref'>[iterator.requirements]</a></h2><div id='general'><h3 ><a class='secnum' href='#general' style='min-width:103pt'>24.2.1</a> In general <a class='abbr_ref' href='iterator.requirements.general'>[iterator.requirements.general]</a></h3><div class='para' id='general-1'><div class='marginalizedparent'><a class='marginalized' href='#general-1'>1</a></div><p ><span class='indexparent'><a class='index' id='requirements,iterator'></a></span>Iterators are a generalization of pointers that allow a C++ program to work with different data structures
+(containers) in a uniform manner.
+To be able to construct template algorithms that work correctly and
+efficiently on different types of data structures, the library formalizes not just the interfaces but also the
+semantics and complexity assumptions of iterators.
+All input iterators
+<span class='texttt'>i</span>
+support the expression
+<span class='texttt'>*i</span>,
+resulting in a value of some object type
+<span class='texttt'>T</span>,
+called the
+<a class='hidden_link' href='#def:value_type' id='def:value_type'><i>value type</i></a>
+of the iterator.
+All output iterators support the expression
+<span class='texttt'>*i = o</span>
+where
+<span class='texttt'>o</span>
+is a value of some type that is in the set of types that are
+<a class='hidden_link' href='#def:writable' id='def:writable'><i>writable</i></a>
+to the particular iterator type of
+<span class='texttt'>i</span>.
+All iterators
+<span class='texttt'>i</span>
+for which the expression
+<span class='texttt'>(*i).m</span>
+is well-defined, support the expression
+<span class='texttt'>i-&gt;m</span>
+with the same semantics as
+<span class='texttt'>(*i).m</span>.
+For every iterator type
+<span class='texttt'>X</span>
+for which
+equality is defined, there is a corresponding signed integer type called the
+<a class='hidden_link' href='#def:difference_type' id='def:difference_type'><i>difference type</i></a>
+of the iterator.</p></div><div class='para' id='general-2'><div class='marginalizedparent'><a class='marginalized' href='#general-2'>2</a></div><p >Since iterators are an abstraction of pointers, their semantics is
+a generalization of most of the semantics of pointers in C++.
+This ensures that every
+function template
+that takes iterators
+works as well with regular pointers.
+This International Standard defines
+five categories of iterators, according to the operations
+defined on them:
+<i>input iterators</i>,
+<i>output iterators</i>,
+<i>forward iterators</i>,
+<i>bidirectional iterators</i>
+and
+<i>random access iterators</i>,
+as shown in Table <a href='#tab:iterators.relations'>[tab:iterators.relations]</a>.</p><div class='numberedTable' id='tab:iterators.relations'>Table <a href='#tab:iterators.relations'>105</a> — Relations among iterator categories<br><table ><tr class='rowsep'><td class='left'>
+
+
+
+<b>Random Access</b>          </td><td class='left'>   <span class='math'>→</span> <b>Bidirectional</b>    </td><td class='left'>
+<span class='math'>→</span> <b>Forward</b>  </td><td class='left'>   <span class='math'>→</span> <b>Input</b>            </td></tr><tr ><td class='left'>
+                        </td><td class='left'>   </td><td class='left'>   </td><td class='left'>   <span class='math'>→</span> <b>Output</b>           </td></tr></table></div></div><div class='para' id='general-3'><div class='marginalizedparent'><a class='marginalized' href='#general-3'>3</a></div><p >Forward iterators satisfy all the requirements of input
+iterators and can be used whenever
+an input iterator is specified;
+Bidirectional iterators also satisfy all the requirements of
+forward iterators and can be used whenever a forward iterator is specified;
+Random access iterators also satisfy all the requirements of bidirectional
+iterators and can be used whenever a bidirectional iterator is specified.</p></div><div class='para' id='general-4'><div class='marginalizedparent'><a class='marginalized' href='#general-4'>4</a></div><p >Iterators that further satisfy the requirements of output iterators are
+called <a class='hidden_link' href='#def:mutable_iterator' id='def:mutable_iterator'><i>mutable iterator</i></a>s. Nonmutable iterators are referred to
+as <a class='hidden_link' href='#def:constant_iterator' id='def:constant_iterator'><i>constant iterator</i></a>s.</p></div><div class='para' id='general-5'><div class='marginalizedparent'><a class='marginalized' href='#general-5'>5</a></div><p >Just as a regular pointer to an array guarantees that there is a pointer value pointing past the last element
+of the array, so for any iterator type there is an iterator value that points past the last element of a
+corresponding sequence.
+These values are called
+<a class='hidden_link' href='#def:past-the-end' id='def:past-the-end'><i>past-the-end</i></a>
+values.
+Values of an iterator
+<span class='texttt'>i</span>
+for which the expression
+<span class='texttt'>*i</span>
+is defined are called
+<a class='hidden_link' href='#def:dereferenceable' id='def:dereferenceable'><i>dereferenceable</i></a>.
+The library never assumes that past-the-end values are dereferenceable.
+Iterators can also have singular values that are not associated with any
+sequence.
+[&nbsp;<i>Example:</i>
+After the declaration of an uninitialized pointer
+<span class='texttt'>x</span>
+(as with
+<span class='texttt'>int* x;</span>),
+<span class='texttt'>x</span>
+must always be assumed to have a singular value of a pointer.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]
+Results of most expressions are undefined for singular values;
+the only exceptions are destroying an iterator that holds a singular value,
+the assignment of a non-singular value to
+an iterator that holds a singular value, and, for iterators that satisfy the
+<span class='texttt'>DefaultConstructible</span> requirements, using a value-initialized iterator
+as the source of a copy or move operation. [&nbsp;<i>Note:</i> This guarantee is not
+offered for default initialization, although the distinction only matters for types
+with trivial default constructors such as pointers or aggregates holding pointers.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+In these cases the singular
+value is overwritten the same way as any other value.
+Dereferenceable
+values are always non-singular.</p></div><div class='para' id='general-6'><div class='marginalizedparent'><a class='marginalized' href='#general-6'>6</a></div><p >An iterator
+<span class='texttt'>j</span>
+is called
+<a class='hidden_link' href='#def:reachable' id='def:reachable'><i>reachable</i></a>
+from an iterator
+<span class='texttt'>i</span>
+if and only if there is a finite sequence of applications of
+the expression
+<span class='texttt'>++i</span>
+that makes
+<span class='texttt'>i == j</span>.
+If
+<span class='texttt'>j</span>
+is reachable from
+<span class='texttt'>i</span>,
+they refer to elements of the same sequence.</p></div><div class='para' id='general-7'><div class='marginalizedparent'><a class='marginalized' href='#general-7'>7</a></div><p >Most of the library's algorithmic templates that operate on data structures have interfaces that use ranges.
+A
+<a class='hidden_link' href='#def:range' id='def:range'><i>range</i></a>
+is a pair of iterators that designate the beginning and end of the computation.
+A range <span class='texttt'>[<span class='discretionary'></span>i,<span class='discretionary'></span>i<span class='discretionary'></span>)</span>
+is an empty range;
+in general, a range <span class='texttt'>[<span class='discretionary'></span>i,<span class='discretionary'></span>j<span class='discretionary'></span>)</span>
+refers to the elements in the data structure starting with the element
+pointed to by
+<span class='texttt'>i</span>
+and up to but not including the element pointed to by
+<span class='texttt'>j</span>.
+Range <span class='texttt'>[<span class='discretionary'></span>i,<span class='discretionary'></span>j<span class='discretionary'></span>)</span>
+is valid if and only if
+<span class='texttt'>j</span>
+is reachable from
+<span class='texttt'>i</span>.
+The result of the application of functions in the library to invalid ranges is
+undefined.</p></div><div class='para' id='general-8'><div class='marginalizedparent'><a class='marginalized' href='#general-8'>8</a></div><p >All the categories of iterators require only those functions that are realizable for a given category in
+constant time (amortized).
+Therefore, requirement tables for the iterators do not have a complexity column.</p></div><div class='para' id='general-9'><div class='marginalizedparent'><a class='marginalized' href='#general-9'>9</a></div><p >Destruction of an iterator may invalidate pointers and references
+previously obtained from that iterator.</p></div><div class='para' id='general-10'><div class='marginalizedparent'><a class='marginalized' href='#general-10'>10</a></div><p >An
+<i>invalid</i>
+iterator is an iterator that may be singular.<a class='footnotenum' href='#footnote-268'>268</a></p></div><div class='para' id='general-11'><div class='marginalizedparent'><a class='marginalized' href='#general-11'>11</a></div><p >In the following sections,
+<span class='texttt'>a</span>
+and
+<span class='texttt'>b</span>
+denote values of type
+<span class='texttt'>X</span> or <span class='texttt'>const X</span>,
+<span class='texttt'>difference_type</span> and <span class='texttt'>reference</span> refer to the
+types <span class='texttt'>iterator_traits&lt;X&gt;::difference_type</span> and
+<span class='texttt'>iterator_traits&lt;X&gt;::reference</span>, respectively,
+<span class='texttt'>n</span>
+denotes a value of
+<span class='texttt'>difference_type</span>,
+<span class='texttt'>u</span>,
+<span class='texttt'>tmp</span>,
+and
+<span class='texttt'>m</span>
+denote identifiers,
+<span class='texttt'>r</span>
+denotes a value of
+<span class='texttt'>X&amp;</span>,
+<span class='texttt'>t</span>
+denotes a value of value type
+<span class='texttt'>T</span>,
+<span class='texttt'>o</span>
+denotes a value of some type that is writable to the output iterator.
+[&nbsp;<i>Note:</i> For an iterator type <span class='texttt'>X</span> there must be an instantiation
+of <span class='texttt'>iterator_traits&lt;X&gt;</span> (<a href='iterator.traits'>[iterator.traits]</a>). <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-267'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-267'>267)</a></div><p >This definition applies to pointers, since pointers are iterators.
+The effect of dereferencing an iterator that has been invalidated
+is undefined.
+</p></div></div><div id='iterator.iterators'><h3 ><a class='secnum' href='#iterator.iterators' style='min-width:103pt'>24.2.2</a> Iterator <a class='abbr_ref' href='iterator.iterators'>[iterator.iterators]</a></h3><div class='para' id='iterator.iterators-1'><div class='marginalizedparent'><a class='marginalized' href='#iterator.iterators-1'>1</a></div><p >The <span class='texttt'>Iterator</span> requirements form the basis of the iterator concept
+taxonomy; every iterator satisfies the <span class='texttt'>Iterator</span> requirements. This
+set of requirements specifies operations for dereferencing and incrementing
+an iterator. Most algorithms will require additional operations to
+read (<a href='input.iterators'>[input.iterators]</a>) or write (<a href='output.iterators'>[output.iterators]</a>) values, or
+to provide a richer set of iterator movements (<a href='forward.iterators'>[forward.iterators]</a>,
+<a href='bidirectional.iterators'>[bidirectional.iterators]</a>, <a href='random.access.iterators'>[random.access.iterators]</a>).)</p></div><div class='para' id='iterator.iterators-2'><div class='marginalizedparent'><a class='marginalized' href='#iterator.iterators-2'>2</a></div><p >A type <span class='texttt'>X</span> satisfies the <span class='texttt'>Iterator</span> requirements if:</p><ul ><li ><p ><span class='texttt'>X</span> satisfies the <span class='texttt'>CopyConstructible</span>, <span class='texttt'>CopyAssignable</span>, and
+<span class='texttt'>Destructible</span> requirements (<a href='utility.arg.requirements'>[utility.arg.requirements]</a>) and lvalues
+of type <span class='texttt'>X</span> are swappable (<a href='swappable.requirements'>[swappable.requirements]</a>), and</p></li><li ><p >the expressions in Table <a href='#tab:iterator.requirements'>[tab:iterator.requirements]</a> are valid and have
+the indicated semantics.
+</p></li></ul><div class='numberedTable' id='tab:iterator.requirements'>Table <a href='#tab:iterator.requirements'>106</a> — Iterator requirements<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Operational</b></td><td colspan='1' class='center'><b>Assertion/note</b></td></tr><tr ><td class='left'>
+                    </td><td class='left'>                       </td><td colspan='1' class='center'><b>semantics</b></td><td colspan='1' class='center'><b>pre-/post-condition</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='endhead'></span><span class='texttt'>*r</span>          </td><td class='left'>
+  <span class='texttt'>reference</span> </td><td class='left'>
+                            </td><td class='left'>
+  pre: <span class='texttt'>r</span> is dereferenceable.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>++r</span>         </td><td class='left'>
+  <span class='texttt'>X&amp;</span>       </td><td class='left'>
+                            </td><td class='left'>
+                    </td></tr></table></div></div></div><div id='input.iterators'><h3 ><a class='secnum' href='#input.iterators' style='min-width:103pt'>24.2.3</a> Input iterators <a class='abbr_ref' href='input.iterators'>[input.iterators]</a></h3><div class='para' id='input.iterators-1'><div class='marginalizedparent'><a class='marginalized' href='#input.iterators-1'>1</a></div><p >A class or pointer type
+<span class='texttt'>X</span>
+satisfies the requirements of an input iterator for the value type
+<span class='texttt'>T</span>
+if
+X satisfies the <span class='texttt'>Iterator</span> (<a href='iterator.iterators'>[iterator.iterators]</a>) and
+<span class='texttt'>EqualityComparable</span> (Table <a href='equalitycomparable'>[equalitycomparable]</a>) requirements and
+the expressions in Table <a href='#tab:iterator.input.requirements'>[tab:iterator.input.requirements]</a> are valid and have
+the indicated semantics.</p></div><div class='para' id='input.iterators-2'><div class='marginalizedparent'><a class='marginalized' href='#input.iterators-2'>2</a></div><p >In Table <a href='#tab:iterator.input.requirements'>[tab:iterator.input.requirements]</a>, the term
+<i>the domain of <span class='texttt'>==</span></i>
+is used in the ordinary mathematical sense to denote
+the set of values over which
+<span class='texttt'>==</span> is (required to be) defined.
+This set can change over time.
+Each algorithm places additional requirements on the domain of
+<span class='texttt'>==</span> for the iterator values it uses.
+These requirements can be inferred from the uses that algorithm
+makes of <span class='texttt'>==</span> and <span class='texttt'>!=</span>.
+[&nbsp;<i>Example:</i>
+the call <span class='texttt'>find(a,b,x)</span>
+is defined only if the value of <span class='texttt'>a</span>
+has the property <i>p</i>
+defined as follows:
+<span class='texttt'>b</span> has property <i>p</i>
+and a value <span class='texttt'>i</span>
+has property <i>p</i>
+if
+<span class='texttt'>(*i==x)</span>
+or if
+<span class='texttt'>(*i!=x</span>
+and
+<span class='texttt'>++i</span>
+has property
+<span class='texttt'>p</span>).
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><div class='numberedTable' id='tab:iterator.input.requirements'>Table <a href='#tab:iterator.input.requirements'>107</a> — Input iterator requirements (in addition to Iterator)<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Operational</b></td><td colspan='1' class='center'><b>Assertion/note</b></td></tr><tr ><td class='left'>
+                    </td><td class='left'>                       </td><td colspan='1' class='center'><b>semantics</b></td><td colspan='1' class='center'><b>pre-/post-condition</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='endhead'></span>
+<span class='texttt'>a != b</span>                  </td><td class='left'>
+ contextually convertible to <span class='texttt'>bool</span>    </td><td class='left'>
+ <span class='texttt'>!(a == b)</span>                              </td><td class='left'>
+ pre: (a, b) is in the domain of ==. </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>*a</span>                      </td><td class='left'>
+ convertible to <span class='texttt'>T</span>       </td><td class='left'>
+                                </td><td class='left'>
+ pre: <span class='texttt'>a</span> is dereferenceable.<span class='hfill'></span><br/>
+ The expression<span class='hfill'></span><br/> <span class='texttt'>(void)*a, *a</span> is equivalent to <span class='texttt'>*a</span>.<span class='hfill'></span><br/>
+ If <span class='texttt'>a == b</span> and <span class='texttt'>(<span class='discretionary'></span>a,<span class='discretionary'></span>b<span class='discretionary'></span>)</span> is in the domain of <span class='texttt'>==</span>
+ then <span class='texttt'>*a</span> is equivalent to <span class='texttt'>*b</span>.  </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a-&gt;m</span>                    </td><td class='left'>
+                                </td><td class='left'>
+ <span class='texttt'>(*a).m</span>                                </td><td class='left'>
+ pre: <span class='texttt'>a</span> is dereferenceable. </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>++r</span>                     </td><td class='left'>
+ <span class='texttt'>X&amp;</span>                    </td><td class='left'>
+                                </td><td class='left'>
+ pre: <span class='texttt'>r</span> is dereferenceable.<span class='hfill'></span><br/>
+ post: <span class='texttt'>r</span> is dereferenceable or <span class='texttt'>r</span> is past-the-end.<span class='hfill'></span><br/>
+ post: any copies of the previous value of <span class='texttt'>r</span> are no longer
+ required either to be dereferenceable or to be in the domain of <span class='texttt'>==</span>.    </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>(void)r++</span>               </td><td class='left'>
+                                </td><td class='left'>
+                                </td><td class='left'>
+ equivalent to <span class='texttt'>(void)++r</span>    </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>*r++</span>                    </td><td class='left'>
+ convertible to <span class='texttt'>T</span>       </td><td class='left'>
+ <span class='texttt'>{ T tmp = *r;</span><span class='hfill'></span><br/>
+ <span class='texttt'>++r;</span><span class='hfill'></span><br/>
+ <span class='texttt'>return tmp; }</span> </td><td class='left'> </td></tr></table></div></div><div class='para' id='input.iterators-3'><div class='marginalizedparent'><a class='marginalized' href='#input.iterators-3'>3</a></div><p >[&nbsp;<i>Note:</i>
+For input iterators,
+<span class='texttt'>a == b</span>
+does not imply
+<span class='texttt'>++a == ++b</span>.
+(Equality does not guarantee the substitution property or referential transparency.)
+Algorithms on input iterators should never attempt to pass through the same iterator twice.
+They should be
+<a class='hidden_link' href='#def:single_pass' id='def:single_pass'><i>single pass</i></a>
+algorithms.
+Value type T is not required to be a <span class='texttt'>CopyAssignable</span> type (Table <a href='copyassignable'>[copyassignable]</a>).
+These algorithms can be used with istreams as the source of the input data through the
+<span class='texttt'>istream_iterator</span>
+class template.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='output.iterators'><h3 ><a class='secnum' href='#output.iterators' style='min-width:103pt'>24.2.4</a> Output iterators <a class='abbr_ref' href='output.iterators'>[output.iterators]</a></h3><div class='para' id='output.iterators-1'><div class='marginalizedparent'><a class='marginalized' href='#output.iterators-1'>1</a></div><p >A class or pointer type
+<span class='texttt'>X</span>
+satisfies the requirements of an output iterator
+if <span class='texttt'>X</span> satisfies the <span class='texttt'>Iterator</span> requirements (<a href='iterator.iterators'>[iterator.iterators]</a>)
+and the expressions in Table <a href='#tab:iterator.output.requirements'>[tab:iterator.output.requirements]</a>
+are valid and have the indicated semantics.</p><div class='numberedTable' id='tab:iterator.output.requirements'>Table <a href='#tab:iterator.output.requirements'>108</a> — Output iterator requirements (in addition to Iterator)<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Operational</b></td><td colspan='1' class='center'><b>Assertion/note</b></td></tr><tr ><td class='left'>
+                    </td><td class='left'>                       </td><td colspan='1' class='center'><b>semantics</b></td><td colspan='1' class='center'><b>pre-/post-condition</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='endhead'></span>
+<span class='texttt'>*r = o</span>      </td><td class='left'>
+ result is not used </td><td class='left'>
+                    </td><td class='left'>
+ <i>Remark:</i> After this operation <span class='texttt'>r</span> is not required to be dereferenceable.<span class='hfill'></span><br/>
+ post: <span class='texttt'>r</span> is incrementable. </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>++r</span>         </td><td class='left'>
+ <span class='texttt'>X&amp;</span>        </td><td class='left'>
+                    </td><td class='left'>
+ <span class='texttt'>&amp;r == &amp;++r</span>.<span class='hfill'></span><br/>
+ <i>Remark:</i> After this operation <span class='texttt'>r</span> is not required to be dereferenceable.<span class='hfill'></span><br/>
+ post: <span class='texttt'>r</span> is incrementable. </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>r++</span>         </td><td class='left'>
+ convertible to <span class='texttt'>const X&amp;</span>   </td><td class='left'>
+ <span class='texttt'>{ X tmp = r;</span><span class='hfill'></span><br/>
+ <span class='texttt'>  ++r;</span><span class='hfill'></span><br/>
+ <span class='texttt'>  return tmp; }</span>   </td><td class='left'>
+ <i>Remark:</i> After this operation <span class='texttt'>r</span> is not required to be dereferenceable.<span class='hfill'></span><br/>
+ post: <span class='texttt'>r</span> is incrementable. </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>*r++ = o</span>    </td><td class='left'>
+ result is not used </td><td class='left'></td><td class='left'>
+ <i>Remark:</i> After this operation <span class='texttt'>r</span> is not required to be dereferenceable.<span class='hfill'></span><br/>
+ post: <span class='texttt'>r</span> is incrementable. </td></tr></table></div></div><div class='para' id='output.iterators-2'><div class='marginalizedparent'><a class='marginalized' href='#output.iterators-2'>2</a></div><p >[&nbsp;<i>Note:</i>
+The only valid use of an
+<span class='texttt'>operator*</span>
+is on the left side of the assignment statement.
+<i>Assignment through the same value of the iterator happens only once.</i>
+Algorithms on output iterators should never attempt to pass through the same iterator twice.
+They should be
+<a class='hidden_link' href='#def:single_pass' id='def:single_pass'><i>single pass</i></a>
+algorithms.
+Equality and inequality might not be defined.
+Algorithms that take output iterators can be used with ostreams as the destination
+for placing data through the
+<span class='texttt'>ostream_iterator</span>
+class as well as with insert iterators and insert pointers.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='forward.iterators'><h3 ><a class='secnum' href='#forward.iterators' style='min-width:103pt'>24.2.5</a> Forward iterators <a class='abbr_ref' href='forward.iterators'>[forward.iterators]</a></h3><div class='para' id='forward.iterators-1'><div class='marginalizedparent'><a class='marginalized' href='#forward.iterators-1'>1</a></div><p >A class or pointer type
+<span class='texttt'>X</span>
+satisfies the requirements of a forward iterator if</p><ul ><li ><p ><span class='texttt'>X</span> satisfies the requirements of an input iterator (<a href='input.iterators'>[input.iterators]</a>),</p></li><li ><p >X satisfies the <span class='texttt'>DefaultConstructible</span>
+requirements (<a href='utility.arg.requirements'>[utility.arg.requirements]</a>),</p></li><li ><p >if <span class='texttt'>X</span> is a mutable iterator, <span class='texttt'>reference</span> is a reference to <span class='texttt'>T</span>;
+if <span class='texttt'>X</span> is a const iterator, <span class='texttt'>reference</span> is a reference to <span class='texttt'>const T</span>,</p></li><li ><p >the expressions in Table <a href='#tab:iterator.forward.requirements'>[tab:iterator.forward.requirements]</a>
+are valid and have the indicated semantics, and</p></li><li ><p >objects of type <span class='texttt'>X</span> offer the multi-pass guarantee, described below.
+</p></li></ul></div><div class='para' id='forward.iterators-2'><div class='marginalizedparent'><a class='marginalized' href='#forward.iterators-2'>2</a></div><p >The domain of == for forward iterators is that of iterators over the same
+underlying sequence.</p></div><div class='para' id='forward.iterators-3'><div class='marginalizedparent'><a class='marginalized' href='#forward.iterators-3'>3</a></div><p >Two dereferenceable iterators <span class='texttt'>a</span> and <span class='texttt'>b</span> of type <span class='texttt'>X</span> offer the
+<a class='hidden_link' href='#def:multi-pass_guarantee' id='def:multi-pass_guarantee'><i>multi-pass guarantee</i></a> if:</p><ul ><li ><p ><span class='texttt'>a == b</span> implies <span class='texttt'>++a == ++b</span> and
+</p></li><li ><p ><span class='texttt'>X</span> is a pointer type or the expression
+<span class='texttt'>(void)++X(a), *a</span> is equivalent to the expression <span class='texttt'>*a</span>.
+</p></li></ul></div><div class='para' id='forward.iterators-4'><div class='marginalizedparent'><a class='marginalized' href='#forward.iterators-4'>4</a></div><p >[&nbsp;<i>Note:</i>
+The requirement that
+<span class='texttt'>a == b</span>
+implies
+<span class='texttt'>++a == ++b</span>
+(which is not true for input and output iterators)
+and the removal of the restrictions on the number of the assignments through
+a mutable iterator
+(which applies to output iterators)
+allows the use of multi-pass one-directional algorithms with forward iterators.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><div class='numberedTable' id='tab:iterator.forward.requirements'>Table <a href='#tab:iterator.forward.requirements'>109</a> — Forward iterator requirements (in addition to input iterator)<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Operational</b></td><td colspan='1' class='center'><b>Assertion/note</b></td></tr><tr ><td class='left'>
+                    </td><td class='left'>                       </td><td colspan='1' class='center'><b>semantics</b></td><td colspan='1' class='center'><b>pre-/post-condition</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='endhead'></span>
+<span class='texttt'>r++</span>         </td><td class='left'>
+ convertible to <span class='texttt'>const X&amp;</span>   </td><td class='left'>
+ <span class='texttt'>{ X tmp = r;</span><span class='hfill'></span><br/>
+ <span class='texttt'>  ++r;</span><span class='hfill'></span><br/>
+ <span class='texttt'>  return tmp; }</span></td><td class='left'>  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>*r++</span>        </td><td class='left'>
+ <span class='texttt'>reference</span>     </td><td class='left'></td><td class='left'>  </td></tr></table></div></div><div class='para' id='forward.iterators-5'><div class='marginalizedparent'><a class='marginalized' href='#forward.iterators-5'>5</a></div><p >If <span class='texttt'>a</span> and <span class='texttt'>b</span> are equal, then either <span class='texttt'>a</span> and <span class='texttt'>b</span>
+are both dereferenceable
+or else neither is dereferenceable.</p></div><div class='para' id='forward.iterators-6'><div class='marginalizedparent'><a class='marginalized' href='#forward.iterators-6'>6</a></div><p >If <span class='texttt'>a</span> and <span class='texttt'>b</span> are both dereferenceable, then <span class='texttt'>a == b</span>
+if and only if
+<span class='texttt'>*a</span> and <span class='texttt'>*b</span> are bound to the same object.</p></div></div><div id='bidirectional.iterators'><h3 ><a class='secnum' href='#bidirectional.iterators' style='min-width:103pt'>24.2.6</a> Bidirectional iterators <a class='abbr_ref' href='bidirectional.iterators'>[bidirectional.iterators]</a></h3><div class='para' id='bidirectional.iterators-1'><div class='marginalizedparent'><a class='marginalized' href='#bidirectional.iterators-1'>1</a></div><p >A class or pointer type
+<span class='texttt'>X</span>
+satisfies the requirements of a bidirectional iterator if,
+in addition to satisfying the requirements for forward iterators,
+the following expressions are valid as shown in Table <a href='#tab:iterator.bidirectional.requirements'>[tab:iterator.bidirectional.requirements]</a>.</p><div class='numberedTable' id='tab:iterator.bidirectional.requirements'>Table <a href='#tab:iterator.bidirectional.requirements'>110</a> — Bidirectional iterator requirements (in addition to forward iterator)<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Operational</b></td><td colspan='1' class='center'><b>Assertion/note</b></td></tr><tr ><td class='left'>
+                    </td><td class='left'>                       </td><td colspan='1' class='center'><b>semantics</b></td><td colspan='1' class='center'><b>pre-/post-condition</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='endhead'></span>
+<span class='texttt'>-- r</span>      </td><td class='left'>
+ <span class='texttt'>X&amp;</span>        </td><td class='left'>
+                    </td><td class='left'>
+ pre: there exists <span class='texttt'>s</span> such that <span class='texttt'>r == ++s</span>.<span class='hfill'></span><br/>
+ post: <span class='texttt'>r</span> is dereferenceable.<span class='hfill'></span><br/>
+ <span class='texttt'>--(++r) == r</span>.<span class='hfill'></span><br/>
+ <span class='texttt'>-- r == -- s</span> implies <span class='texttt'>r == s</span>.<span class='hfill'></span><br/>
+ <span class='texttt'>&amp;r == &amp;-- r</span>.   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>r--</span>           </td><td class='left'>
+ convertible to <span class='texttt'>const X&amp;</span>   </td><td class='left'>
+ <span class='texttt'>{ X tmp = r;</span><span class='hfill'></span><br/>
+ <span class='texttt'>  -- r;</span><span class='hfill'></span><br/>
+ <span class='texttt'>  return tmp; }</span></td><td class='left'>  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>*r--</span>      </td><td class='left'>
+ <span class='texttt'>reference</span>   </td><td class='left'></td><td class='left'>  </td></tr></table></div></div><div class='para' id='bidirectional.iterators-2'><div class='marginalizedparent'><a class='marginalized' href='#bidirectional.iterators-2'>2</a></div><p >[&nbsp;<i>Note:</i>
+Bidirectional iterators allow algorithms to move iterators backward as well as forward.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='random.access.iterators'><h3 ><a class='secnum' href='#random.access.iterators' style='min-width:103pt'>24.2.7</a> Random access iterators <a class='abbr_ref' href='random.access.iterators'>[random.access.iterators]</a></h3><div class='para' id='random.access.iterators-1'><div class='marginalizedparent'><a class='marginalized' href='#random.access.iterators-1'>1</a></div><p >A class or pointer type
+<span class='texttt'>X</span>
+satisfies the requirements of a random access iterator if,
+in addition to satisfying the requirements for bidirectional iterators,
+the following expressions are valid as shown in Table <a href='#tab:iterator.random.access.requirements'>[tab:iterator.random.access.requirements]</a>.</p><div class='numberedTable' id='tab:iterator.random.access.requirements'>Table <a href='#tab:iterator.random.access.requirements'>111</a> — Random access iterator requirements (in addition to bidirectional iterator)<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Operational</b></td><td colspan='1' class='center'><b>Assertion/note</b></td></tr><tr ><td class='left'>
+                    </td><td class='left'>                       </td><td colspan='1' class='center'><b>semantics</b></td><td colspan='1' class='center'><b>pre-/post-condition</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='endhead'></span>
+<span class='texttt'>r += n</span>      </td><td class='left'>
+ <span class='texttt'>X&amp;</span>        </td><td class='left'>
+ <span class='texttt'>{ difference_type m = n;</span><span class='hfill'></span><br/>
+ <span class='texttt'>  if (m &gt;= 0)</span><span class='hfill'></span><br/>
+ <span class='texttt'>    while (m--)</span><span class='hfill'></span><br/>
+ <span class='texttt'>      ++r;</span><span class='hfill'></span><br/>
+ <span class='texttt'>  else</span><span class='hfill'></span><br/>
+ <span class='texttt'>    while (m++)</span><span class='hfill'></span><br/>
+ <span class='texttt'>      -- r;</span><span class='hfill'></span><br/>
+ <span class='texttt'>  return r; }</span></td><td class='left'>    </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a + n</span><span class='hfill'></span><br/>
+<span class='texttt'>n + a</span>       </td><td class='left'>
+ <span class='texttt'>X</span>          </td><td class='left'>
+ <span class='texttt'>{ X tmp = a;</span><span class='hfill'></span><br/>
+ <span class='texttt'>  return tmp += n; }</span>  </td><td class='left'>
+ <span class='texttt'>a + n == n + a</span>.        </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>r -= n</span>      </td><td class='left'>
+ <span class='texttt'>X&amp;</span>        </td><td class='left'>
+ <span class='texttt'>return r += -n;</span>    </td><td class='left'>   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a - n</span>       </td><td class='left'>
+ <span class='texttt'>X</span>          </td><td class='left'>
+ <span class='texttt'>{ X tmp = a;</span><span class='hfill'></span><br/>
+ <span class='texttt'>  return tmp -= n; }</span>  </td><td class='left'>   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>b - a</span>       </td><td class='left'>
+ <span class='texttt'>difference_type</span>   </td><td class='left'>
+ <span class='texttt'>return n</span>   </td><td class='left'>
+ pre: there exists a value <span class='texttt'>n</span> of type <span class='texttt'>difference_type</span> such that <span class='texttt'>a + n == b</span>.<span class='hfill'></span><br/>
+ <span class='texttt'>b == a + (b - a)</span>.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a[n]</span>        </td><td class='left'>
+ convertible to <span class='texttt'>reference</span>  </td><td class='left'>
+ <span class='texttt'>*(a + n)</span>   </td><td class='left'>   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a &lt; b</span>       </td><td class='left'>
+ contextually
+ convertible to <span class='texttt'>bool</span>    </td><td class='left'>
+ <span class='texttt'>b - a &gt; 0</span>  </td><td class='left'>
+ <span class='texttt'>&lt;</span> is a total ordering relation </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a &gt; b</span>       </td><td class='left'>
+ contextually
+ convertible to <span class='texttt'>bool</span>    </td><td class='left'>
+ <span class='texttt'>b &lt; a</span>      </td><td class='left'>
+ <span class='texttt'>&gt;</span> is a total ordering relation opposite to <span class='texttt'>&lt;</span>.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a &gt;= b</span>      </td><td class='left'>
+ contextually
+ convertible to <span class='texttt'>bool</span>    </td><td class='left'>
+ <span class='texttt'>!(a &lt; b)</span>   </td><td class='left'>   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a &lt;= b</span>      </td><td class='left'>
+ contextually
+ convertible to <span class='texttt'>bool</span>.    </td><td class='left'>
+ <span class='texttt'>!(a &gt; b)</span>   </td><td class='left'>   </td></tr></table></div></div></div></div></div></body></html>

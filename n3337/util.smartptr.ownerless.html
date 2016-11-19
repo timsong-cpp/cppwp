@@ -1,0 +1,29 @@
+<!DOCTYPE html><html lang='en'><head><title>[util.smartptr.ownerless]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.7</a> Smart pointers <a class='abbr_ref' href='smartptr#util.smartptr.ownerless'>[smartptr]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>20.7.2</a> Shared-ownership pointers <a class='abbr_ref' href='util.smartptr#ownerless'>[util.smartptr]</a></h3><h4 ><a class='secnum' style='min-width:118pt'>20.7.2.3</a> Class template <span class='texttt'>weak_ptr</span> <a class='abbr_ref' href='util.smartptr.weak#util.smartptr.ownerless'>[util.smartptr.weak]</a></h4><div id='util.smartptr.ownerless'><h4 ><a class='secnum' style='min-width:133pt'>20.7.2.3.7</a> Class template <span class='texttt'>owner_less</span> <a class='abbr_ref'>[util.smartptr.ownerless]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The class template <span class='texttt'>owner_less</span> allows ownership-based mixed comparisons of shared
+and weak pointers.</p><pre class='codeblock'>
+namespace std {
+  template&lt;class T&gt; struct owner_less;
+
+  template&lt;class T&gt; struct owner_less&lt;shared_ptr&lt;T&gt; &gt; {
+    typedef bool result_type;
+    typedef shared_ptr&lt;T&gt; first_argument_type;
+    typedef shared_ptr&lt;T&gt; second_argument_type;
+    bool operator()(shared_ptr&lt;T&gt; const&amp;, shared_ptr&lt;T&gt; const&amp;) const;
+    bool operator()(shared_ptr&lt;T&gt; const&amp;, weak_ptr&lt;T&gt; const&amp;) const;
+    bool operator()(weak_ptr&lt;T&gt; const&amp;, shared_ptr&lt;T&gt; const&amp;) const;
+  };
+
+  template&lt;class T&gt; struct owner_less&lt;weak_ptr&lt;T&gt; &gt; {
+    typedef bool result_type;
+    typedef weak_ptr&lt;T&gt; first_argument_type;
+    typedef weak_ptr&lt;T&gt; second_argument_type;
+    bool operator()(weak_ptr&lt;T&gt; const&amp;, weak_ptr&lt;T&gt; const&amp;) const;
+    bool operator()(shared_ptr&lt;T&gt; const&amp;, weak_ptr&lt;T&gt; const&amp;) const;
+    bool operator()(weak_ptr&lt;T&gt; const&amp;, shared_ptr&lt;T&gt; const&amp;) const;
+  };
+}
+</pre></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='texttt'>operator()(x,y)</span> shall return <span class='texttt'>x.owner_before(y)</span>. [&nbsp;<i>Note:</i>
+Note that</p><ul ><li ><p ><span class='texttt'>operator()</span> defines a strict weak ordering as defined in <a href='alg.sorting'>[alg.sorting]</a>;</p></li><li ><p >under the equivalence relation defined by <span class='texttt'>operator()</span>,
+<span class='texttt'>!operator()(a, b) &amp;&amp; !operator()(b, a)</span>, two <span class='texttt'>shared_ptr</span> or
+<span class='texttt'>weak_ptr</span> instances are equivalent if and only if they share ownership or are
+both empty.
+</p></li></ul></div></div></div></body></html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html><html lang='en'><head><title>[dcl.constexpr]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>7</a> Declarations <a class='abbr_ref' href='./#dcl.dcl'>[dcl.dcl]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>7.1</a> Specifiers <a class='abbr_ref' href='dcl.spec#dcl.constexpr'>[dcl.spec]</a></h2><div id='dcl.constexpr'><h3 ><a class='secnum' style='min-width:103pt'>7.1.5</a> The <span class='texttt'>constexpr</span> specifier <a class='abbr_ref'>[dcl.constexpr]</a></h3><p ><span class='indexparent'><a class='index' id='specifier,constexpr'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The <span class='texttt'>constexpr</span> specifier shall be applied only to the definition of
+a variable,
+the declaration of a
+function or function template, or the declaration of a static
+data member of a literal type (<a href='basic.types'>[basic.types]</a>).
+If any declaration of a function or function template has <span class='texttt'>constexpr</span> specifier,
+then all its declarations shall contain the <span class='texttt'>constexpr</span> specifier. [&nbsp;<i>Note:</i> An
+explicit specialization can differ from the template declaration with respect to the
+<span class='texttt'>constexpr</span> specifier. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+Function parameters cannot be declared <span class='texttt'>constexpr</span>.<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+constexpr int square(int x);    <span class='comment'>// OK: declaration
+</span>constexpr int bufsz = 1024;     <span class='comment'>// OK: definition
+</span>constexpr struct pixel {        <span class='comment'>// error: <span class='texttt'>pixel</span> is a type
+</span>  int x;
+  int y;
+  constexpr pixel(int);         <span class='comment'>// OK: declaration
+</span>}; 
+constexpr pixel::pixel(int a)
+  : x(square(a)), y(square(a))  <span class='comment'>// OK: definition
+</span>  { }
+constexpr pixel small(2);       <span class='comment'>// error: <span class='texttt'>square</span> not defined, so <span class='texttt'>small(2)</span>
+</span>                                <span class='comment'>// not constant (<a href='expr.const'>[expr.const]</a>) so <span class='texttt'>constexpr</span> not satisfied
+</span>
+constexpr int square(int x) {   <span class='comment'>// OK: definition
+</span>  return x * x;
+}
+constexpr pixel large(4);       <span class='comment'>// OK: <span class='texttt'>square</span> defined
+</span>int next(constexpr int x) {     <span class='comment'>// error: not for parameters
+</span>     return x + 1;
+} 
+extern constexpr int memsz;     <span class='comment'>// error: not a definition 
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >A <span class='texttt'>constexpr</span> specifier used in the declaration of a function that is not a
+constructor declares that
+function to be a <a class='hidden_link' href='#def:specifier,constexpr,function' id='def:specifier,constexpr,function'><i>constexpr function</i></a>. Similarly, a
+<span class='texttt'>constexpr</span> specifier used in 
+a constructor declaration declares that constructor to be a
+<a class='hidden_link' href='#def:specifier,constexpr,constructor' id='def:specifier,constexpr,constructor'><i>constexpr constructor</i></a>.
+<span class='texttt'>constexpr</span> functions and <span class='texttt'>constexpr</span> constructors are
+implicitly <span class='texttt'>inline</span> (<a href='dcl.fct.spec'>[dcl.fct.spec]</a>).</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p ><span class='indexparent'><a class='index' id='specifier,constexpr,function'></a></span>
+<span class='indexparent'><a class='index' id='constexpr_function'></a></span>
+The definition of a <span class='texttt'>constexpr</span> function shall satisfy the following
+constraints:</p><ul ><li ><p >it shall not be virtual (<a href='class.virtual'>[class.virtual]</a>);</p></li><li ><p >its return type shall be a literal type;</p></li><li ><p >each of its parameter types shall be a literal type;</p></li><li ><p >its <span class='grammarterm'>function-body</span> shall be
+<span class='texttt'>= delete</span>, <span class='texttt'>= default</span>, or
+a <i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i>
+that contains only</p><ul ><li ><p >null statements,
+</p></li><li ><p ><i ><a href='dcl.dcl#nt:static_assert-declaration'>static_assert-declarations</a></i>
+</p></li><li ><p ><span class='texttt'>typedef</span> declarations and <i ><a href='dcl.dcl#nt:alias-declaration'>alias-declarations</a></i> that
+do not define classes or enumerations,
+</p></li><li ><p ><i ><a href='namespace.udecl#nt:using-declaration'>using-declarations</a></i>,
+</p></li><li ><p ><i ><a href='namespace.udir#nt:using-directive'>using-directives</a></i>,
+</p></li><li ><p >and exactly one return statement;
+</p></li></ul></li><li ><p >every constructor call and implicit conversion used in
+initializing the return value (<a href='stmt.return'>[stmt.return]</a>, <a href='dcl.init'>[dcl.init]</a>)
+shall be one of those allowed in a constant
+expression (<a href='expr.const'>[expr.const]</a>).
+</p></li></ul><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+constexpr int square(int x) 
+  { return x * x; }             <span class='comment'>// OK
+</span>constexpr long long_max() 
+  { return 2147483647; }        <span class='comment'>// OK
+</span>constexpr int abs(int x) 
+  { return x &lt; 0 ? -x : x; }    <span class='comment'>// OK 
+</span>constexpr void f(int x)         <span class='comment'>// error: return type is <span class='texttt'>void</span> /* ... */ 
+</span>constexpr int prev(int x)
+  { return --x; }               <span class='comment'>// error: use of decrement
+</span>constexpr int g(int x, int n) { <span class='comment'>// error: body not just “return expr”
+</span>  int r = 1;
+  while (--n &gt; 0) r *= x;
+  return r;
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p ><span class='indexparent'><a class='index' id='specifier,constexpr,constructor'></a></span>In a definition of a <span class='texttt'>constexpr</span> constructor, each of the parameter types
+shall be a literal type. In addition, either its <span class='grammarterm'>function-body</span>
+shall be <span class='texttt'>= delete</span> or <span class='texttt'>= default</span> or it
+shall satisfy the
+following constraints:</p><ul ><li ><p >the class shall not have any virtual base classes;</p></li><li ><p >its <span class='grammarterm'>function-body</span> shall not be a <i ><a href='except#nt:function-try-block'>function-try-block</a></i>;</p></li><li ><p >the <i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i> of its <span class='grammarterm'>function-body</span>
+shall contain only</p><ul ><li ><p >null statements,
+</p></li><li ><p ><i ><a href='dcl.dcl#nt:static_assert-declaration'>static_assert-declarations</a></i>
+</p></li><li ><p ><span class='texttt'>typedef</span> declarations and <i ><a href='dcl.dcl#nt:alias-declaration'>alias-declarations</a></i> that
+do not define classes or enumerations,
+</p></li><li ><p ><i ><a href='namespace.udecl#nt:using-declaration'>using-declarations</a></i>,
+</p></li><li ><p >and <i ><a href='namespace.udir#nt:using-directive'>using-directives</a></i>;
+</p></li></ul></li><li ><p >every non-static data member and base class sub-object
+shall be initialized (<a href='class.base.init'>[class.base.init]</a>);</p></li><li ><p >every constructor involved in initializing non-static
+data members and base class sub-objects shall be a <span class='texttt'>constexpr</span> constructor;</p></li><li ><p >every <i ><a href='expr.ass#nt:assignment-expression'>assignment-expression</a></i> that is an <i ><a href='dcl.init#nt:initializer-clause'>initializer-clause</a></i>
+appearing directly or indirectly within a <i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializer</a></i>
+for a non-static data member that is not named by a <i ><a href='class.base.init#nt:mem-initializer-id'>mem-initializer-id</a></i>
+shall be a constant expression; and</p></li><li ><p >every implicit conversion used in converting a constructor argument to the corresponding
+parameter type and converting a full-expression to the corresponding member type shall
+be one of those allowed in a constant expression.
+</p></li></ul><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct Length { 
+  explicit constexpr Length(int i = 0) : val(i) { }
+private: 
+    int val; 
+}; 
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p ><span class='indexparent'><a class='index' id='function_invocation_substitution'></a></span><a class='hidden_link' href='#def:Function_invocation_substitution' id='def:Function_invocation_substitution'><i>Function invocation substitution</i></a>
+for a call of a <span class='texttt'>constexpr</span> function or
+of a <span class='texttt'>constexpr</span> constructor means implicitly converting each argument
+to the corresponding parameter type as if by copy-initialization,<a class='footnotenum' href='#footnote-91'>91</a>
+substituting that converted expression for each use of the corresponding parameter in the
+<span class='grammarterm'>function-body</span>, and, for <span class='texttt'>constexpr</span> functions, implicitly converting the resulting
+returned expression or <i ><a href='dcl.init#nt:braced-init-list'>braced-init-list</a></i> to the
+return type of the function as if by copy-initialization. Such substitution does not change the
+meaning. [&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+constexpr int f(void *) { return 0; }
+constexpr int f(...) { return 1; }
+constexpr int g1() { return f(0); }         <span class='comment'>// calls <span class='texttt'>f(void *)</span>
+</span>constexpr int g2(int n) { return f(n); }    <span class='comment'>// calls <span class='texttt'>f(...)</span> even for <span class='texttt'>n == 0</span>
+</span>constexpr int g3(int n) { return f(n*0); }  <span class='comment'>// calls <span class='texttt'>f(...)</span>
+</span>
+namespace N {
+  constexpr int c = 5;
+  constexpr int h() { return c; }
+}
+constexpr int c = 0;
+constexpr int g4() { return N::h(); }       <span class='comment'>// value is <span class='texttt'>5</span>, <span class='texttt'>c</span> is not looked up again after the substitution
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p >For a <span class='texttt'>constexpr</span> function, if no function argument values exist such that the function
+invocation substitution would produce a constant expression (<a href='expr.const'>[expr.const]</a>), the
+program is ill-formed; no diagnostic required. For a <span class='texttt'>constexpr</span> constructor, if no
+argument values exist such that after function invocation substitution, every constructor
+call and full-expression in the <i ><a href='class.base.init#nt:mem-initializer'>mem-initializers</a></i> would be a constant
+expression (including conversions), the program is ill-formed; no diagnostic required.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+constexpr int f(bool b)
+  { return b ? throw 0 : 0; }               <span class='comment'>// OK
+</span>constexpr int f() { throw 0; }              <span class='comment'>// ill-formed, no diagnostic required
+</span>
+struct B {
+  constexpr B(int x) : i(0) { }             <span class='comment'>// <span class='texttt'>x</span> is unused
+</span>  int i;
+};
+
+int global;
+
+struct D : B {
+  constexpr D() : B(global) { }             <span class='comment'>// ill-formed, no diagnostic required
+</span>                                            <span class='comment'>// lvalue-to-rvalue conversion on non-constant <span class='texttt'>global</span>
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >If the instantiated template specialization of a <span class='texttt'>constexpr</span> function
+template
+or member function of a class template
+would fail to satisfy the requirements for a <span class='texttt'>constexpr</span>
+function or <span class='texttt'>constexpr</span> constructor,
+that specialization is not a <span class='texttt'>constexpr</span> function or <span class='texttt'>constexpr</span>
+constructor. [&nbsp;<i>Note:</i>
+If the function is a member function it will still be <span class='texttt'>const</span> as described below.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+If no specialization of the template would yield a <span class='texttt'>constexpr</span> function
+or <span class='texttt'>constexpr</span> constructor, the program is ill-formed; no diagnostic
+required.</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >A call to a <span class='texttt'>constexpr</span> function produces the same result as a call to an equivalent
+non-<span class='texttt'>constexpr</span> function in all respects except that a call to a <span class='texttt'>constexpr</span>
+function can appear in a constant expression.</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >A <span class='texttt'>constexpr</span> specifier for a non-static member
+function that is not a constructor declares that member function to be
+<span class='texttt'>const</span> (<a href='class.mfct.non-static'>[class.mfct.non-static]</a>).
+[&nbsp;<i>Note:</i> The <span class='texttt'>constexpr</span> specifier has no
+other effect on the function type.<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+The keyword <span class='texttt'>const</span> is ignored if it appears in the <i ><a href='dcl.decl#nt:cv-qualifier-seq'>cv-qualifier-seq</a></i>
+of the function declarator of the declaration of such a member function.
+The class of
+which that function is a member shall be a literal
+type (<a href='basic.types'>[basic.types]</a>). [&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+class debug_flag { 
+public: 
+  explicit debug_flag(bool); 
+  constexpr bool is_on();       <span class='comment'>// error: <span class='texttt'>debug_flag</span> not 
+</span>                                <span class='comment'>// literal type 
+</span>private: 
+  bool flag; 
+}; 
+constexpr int bar(int x, int y) <span class='comment'>// OK 
+</span>    { return x + y + x*y; } 
+<span class='comment'>// ... 
+</span>int bar(int x, int y)           <span class='comment'>// error: redefinition of <span class='texttt'>bar</span>
+</span>    { return x * 2 + 3 * y; } 
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >A <span class='texttt'>constexpr</span> specifier used in an object
+declaration declares the object as <span class='texttt'>const</span>.
+Such an object
+shall have literal type and
+shall be initialized.
+If it is initialized by a constructor call,
+that call shall be a constant expression (<a href='expr.const'>[expr.const]</a>).
+Otherwise,
+or if a <span class='texttt'>constexpr</span> specifier is used in a reference declaration,
+every full-expression that appears in its initializer shall be a constant expression. Each
+implicit conversion used in converting the initializer expressions and each constructor call
+used for the initialization shall be one of those allowed in a constant
+expression (<a href='expr.const'>[expr.const]</a>).
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct pixel { 
+  int x, y; 
+}; 
+constexpr pixel ur = { 1294, 1024 };<span class='comment'>// OK 
+</span>constexpr pixel origin;             <span class='comment'>// error: initializer missing 
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-91'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-91'>91)</a></div><p >The
+resulting converted value will include an lvalue-to-rvalue
+conversion (<a href='conv.lval'>[conv.lval]</a>)
+if the corresponding copy-initialization requires one.</p></div></div></div></body></html>

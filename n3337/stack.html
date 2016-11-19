@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang='en'><head><title>[stack]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>23</a> Containers library <a class='abbr_ref' href='./#containers'>[containers]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>23.6</a> Container adaptors <a class='abbr_ref' href='container.adaptors#stack'>[container.adaptors]</a></h2><div id='stack'><h3 ><a class='secnum' style='min-width:103pt'>23.6.5</a> Class template <span class='texttt'>stack</span> <a class='abbr_ref'>[stack]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='stack'></a></span>Any sequence container supporting operations
+<span class='texttt'>back()</span>,
+<span class='texttt'>push_back()</span>
+and
+<span class='texttt'>pop_back()</span>
+can be used to instantiate
+<span class='texttt'>stack</span>.
+In particular,
+<span class='texttt'>vector</span> (<a href='vector'>[vector]</a>),
+<span class='texttt'>list</span> (<a href='list'>[list]</a>)
+and
+<span class='texttt'>deque</span> (<a href='deque'>[deque]</a>)
+can be used.</p></div><div id='syn'><h4 ><a class='secnum' href='#syn' style='min-width:118pt'>23.6.5.1</a> Header <span class='texttt'>&lt;stack&gt;</span> synopsis <a class='abbr_ref' href='stack.syn'>[stack.syn]</a></h4><p ><span class='indexparent'><a class='index' id='stack'></a></span></p><pre class='codeblock'>
+#include &lt;initializer_list&gt;
+
+namespace std {
+
+  template &lt;class T, class Container = deque&lt;T&gt; &gt; class stack;
+  template &lt;class T, class Container&gt;
+    bool operator==(const stack&lt;T, Container&gt;&amp; x,const stack&lt;T, Container&gt;&amp; y);
+  template &lt;class T, class Container&gt;
+    bool operator&lt; (const stack&lt;T, Container&gt;&amp; x,const stack&lt;T, Container&gt;&amp; y);
+  template &lt;class T, class Container&gt;
+    bool operator!=(const stack&lt;T, Container&gt;&amp; x,const stack&lt;T, Container&gt;&amp; y);
+  template &lt;class T, class Container&gt;
+    bool operator&gt; (const stack&lt;T, Container&gt;&amp; x,const stack&lt;T, Container&gt;&amp; y);
+  template &lt;class T, class Container&gt;
+    bool operator&gt;=(const stack&lt;T, Container&gt;&amp; x,const stack&lt;T, Container&gt;&amp; y);
+  template &lt;class T, class Container&gt;
+    bool operator&lt;=(const stack&lt;T, Container&gt;&amp; x,const stack&lt;T, Container&gt;&amp; y);
+  template &lt;class T, class Container&gt;
+    void swap(stack&lt;T, Container&gt;&amp; x, stack&lt;T, Container&gt;&amp; y) noexcept(noexcept(x.swap(y)));
+}
+</pre></div><div id='defn'><h4 ><a class='secnum' href='#defn' style='min-width:118pt'>23.6.5.2</a> <span class='texttt'>stack</span> definition <a class='abbr_ref' href='stack.defn'>[stack.defn]</a></h4><pre class='codeblock'>
+namespace std {
+  template &lt;class T, class Container = deque&lt;T&gt; &gt;
+  class stack {
+  public:
+    typedef typename Container::value_type            value_type;
+    typedef typename Container::reference             reference;
+    typedef typename Container::const_reference       const_reference;
+    typedef typename Container::size_type             size_type;
+    typedef          Container                        container_type;
+  protected:
+    Container c;
+
+  public:
+    explicit stack(const Container&amp;);
+    explicit stack(Container&amp;&amp; = Container());
+    template &lt;class Alloc&gt; explicit stack(const Alloc&amp;);
+    template &lt;class Alloc&gt; stack(const Container&amp;, const Alloc&amp;);
+    template &lt;class Alloc&gt; stack(Container&amp;&amp;, const Alloc&amp;);
+    template &lt;class Alloc&gt; stack(const stack&amp;, const Alloc&amp;);
+    template &lt;class Alloc&gt; stack(stack&amp;&amp;, const Alloc&amp;);
+
+    bool      empty() const             { return c.empty(); }
+    size_type size()  const             { return c.size(); }
+    reference         top()             { return c.back(); }
+    const_reference   top() const       { return c.back(); }
+    void push(const value_type&amp; x)      { c.push_back(x); }
+    void push(value_type&amp;&amp; x)           { c.push_back(std::move(x)); }
+    template &lt;class... Args&gt; void emplace(Args&amp;&amp;... args)
+      { c.emplace_back(std::forward&lt;Args&gt;(args)...); }
+    void pop()                          { c.pop_back(); }
+    void swap(stack&amp; s) noexcept(noexcept(swap(c, s.c)))
+      { using std::swap; swap(c, s.c); }
+  };
+
+  template &lt;class T, class Container&gt;
+    bool operator==(const stack&lt;T, Container&gt;&amp; x, const stack&lt;T, Container&gt;&amp; y);
+  template &lt;class T, class Container&gt;
+    bool operator&lt; (const stack&lt;T, Container&gt;&amp; x, const stack&lt;T, Container&gt;&amp; y);
+  template &lt;class T, class Container&gt;
+    bool operator!=(const stack&lt;T, Container&gt;&amp; x, const stack&lt;T, Container&gt;&amp; y);
+  template &lt;class T, class Container&gt;
+    bool operator&gt; (const stack&lt;T, Container&gt;&amp; x, const stack&lt;T, Container&gt;&amp; y);
+  template &lt;class T, class Container&gt;
+    bool operator&gt;=(const stack&lt;T, Container&gt;&amp; x, const stack&lt;T, Container&gt;&amp; y);
+  template &lt;class T, class Container&gt;
+    bool operator&lt;=(const stack&lt;T, Container&gt;&amp; x, const stack&lt;T, Container&gt;&amp; y);
+  template &lt;class T, class Allocator&gt;
+    void swap(stack&lt;T,Allocator&gt;&amp; x, stack&lt;T,Allocator&gt;&amp; y);
+
+  template &lt;class T, class Container, class Alloc&gt;
+    struct uses_allocator&lt;stack&lt;T, Container&gt;, Alloc&gt;
+      : uses_allocator&lt;Container, Alloc&gt;::type { };
+}
+</pre></div><div id='cons'><h4 ><a class='secnum' href='#cons' style='min-width:118pt'>23.6.5.3</a> <span class='texttt'>stack</span> constructors <a class='abbr_ref' href='stack.cons'>[stack.cons]</a></h4><p ><code class='itemdecl'>
+explicit stack(const Container&amp; cont);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-1'><div class='marginalizedparent'><a class='marginalized' href='#cons-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>c</span> with <span class='texttt'>cont</span>.
+</p></div></div><p ><code class='itemdecl'>
+explicit stack(Container&amp;&amp; const = Container());
+</code></p><div class='itemdescr'></div><div class='para' id='cons-2'><div class='marginalizedparent'><a class='marginalized' href='#cons-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>c</span> with <span class='texttt'>std::move(cont)</span>.
+</p></div></div></div><div id='cons.alloc'><h4 ><a class='secnum' href='#cons.alloc' style='min-width:118pt'>23.6.5.4</a> <span class='texttt'>stack</span> constructors with allocators <a class='abbr_ref' href='stack.cons.alloc'>[stack.cons.alloc]</a></h4><div class='para' id='cons.alloc-1'><div class='marginalizedparent'><a class='marginalized' href='#cons.alloc-1'>1</a></div><p >If <span class='texttt'>uses_allocator&lt;container_type, Alloc&gt;::value</span> is <span class='texttt'>false</span>
+the constructors in this subclause shall not participate in overload resolution.</p><p ><code class='itemdecl'>
+template &lt;class Alloc&gt;
+  explicit stack(const Alloc&amp; a);
+</code></p></div><div class='itemdescr'></div><div class='para' id='cons.alloc-2'><div class='marginalizedparent'><a class='marginalized' href='#cons.alloc-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>c</span> with <span class='texttt'>a</span>.
+</p></div></div><p ><code class='itemdecl'>
+template &lt;class Alloc&gt;
+  stack(const container_type&amp; cont, const Alloc&amp; a);
+</code></p><div class='itemdescr'></div><div class='para' id='cons.alloc-3'><div class='marginalizedparent'><a class='marginalized' href='#cons.alloc-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>c</span> with <span class='texttt'>cont</span> as the first argument and <span class='texttt'>a</span> as the
+second argument.
+</p></div></div><p ><code class='itemdecl'>
+template &lt;class Alloc&gt;
+  stack(container_type&amp;&amp; cont, const Alloc&amp; a);
+</code></p><div class='itemdescr'></div><div class='para' id='cons.alloc-4'><div class='marginalizedparent'><a class='marginalized' href='#cons.alloc-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>c</span> with <span class='texttt'>std::move(cont)</span> as the first argument and <span class='texttt'>a</span>
+as the second argument.
+</p></div></div><p ><code class='itemdecl'>
+template &lt;class Alloc&gt;
+  stack(const stack&amp; s, const Alloc&amp; a);
+</code></p><div class='itemdescr'></div><div class='para' id='cons.alloc-5'><div class='marginalizedparent'><a class='marginalized' href='#cons.alloc-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>c</span> with <span class='texttt'>s.c</span> as the first argument and <span class='texttt'>a</span>
+as the second argument.
+</p></div></div><p ><code class='itemdecl'>
+template &lt;class Alloc&gt;
+  stack(stack&amp;&amp; s, const Alloc&amp; a);
+</code></p><div class='itemdescr'></div><div class='para' id='cons.alloc-6'><div class='marginalizedparent'><a class='marginalized' href='#cons.alloc-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>c</span> with <span class='texttt'>std::move(s.c)</span> as the first argument and <span class='texttt'>a</span>
+as the second argument.
+</p></div></div></div><div id='ops'><h4 ><a class='secnum' href='#ops' style='min-width:118pt'>23.6.5.5</a> <span class='texttt'>stack</span> operators <a class='abbr_ref' href='stack.ops'>[stack.ops]</a></h4><p ><span class='indexparent'><a class='index' id='operator==,stack'></a></span><code class='itemdecl'>
+template &lt;class T, class Container&gt;
+    bool operator==(const stack&lt;T, Container&gt;&amp; x,
+                    const stack&lt;T, Container&gt;&amp; y);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-1'><div class='marginalizedparent'><a class='marginalized' href='#ops-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>x.c == y.c</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator!=,stack'></a></span><code class='itemdecl'>
+template &lt;class T, class Container&gt;
+    bool operator!=(const stack&lt;T, Container&gt;&amp; x,
+                    const stack&lt;T, Container&gt;&amp; y);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-2'><div class='marginalizedparent'><a class='marginalized' href='#ops-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>x.c != y.c</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<,stack'></a></span><code class='itemdecl'>
+template &lt;class T, class Container&gt;
+    bool operator&lt; (const stack&lt;T, Container&gt;&amp; x,
+                    const stack&lt;T, Container&gt;&amp; y);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-3'><div class='marginalizedparent'><a class='marginalized' href='#ops-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>x.c &lt; y.c</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<=,stack'></a></span><code class='itemdecl'>
+template &lt;class T, class Container&gt;
+    bool operator&lt;=(const stack&lt;T, Container&gt;&amp; x,
+                    const stack&lt;T, Container&gt;&amp; y);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-4'><div class='marginalizedparent'><a class='marginalized' href='#ops-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>x.c &lt;= y.c</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>,stack'></a></span><code class='itemdecl'>
+template &lt;class T, class Container&gt;
+    bool operator&gt; (const stack&lt;T, Container&gt;&amp; x,
+                    const stack&lt;T, Container&gt;&amp; y);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-5'><div class='marginalizedparent'><a class='marginalized' href='#ops-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>x.c &gt; y.c</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>=,stack'></a></span><code class='itemdecl'>
+template &lt;class T, class Container&gt;
+    bool operator&gt;=(const stack&lt;T, Container&gt;&amp; x,
+                    const stack&lt;T, Container&gt;&amp; y);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-6'><div class='marginalizedparent'><a class='marginalized' href='#ops-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>x.c &gt;= y.c</span>.
+</p></div></div></div><div id='special'><h4 ><a class='secnum' href='#special' style='min-width:118pt'>23.6.5.6</a> <span class='texttt'>stack</span> specialized algorithms <a class='abbr_ref' href='stack.special'>[stack.special]</a></h4><p ><span class='indexparent'><a class='index' id='swap,stack'></a></span><span class='indexparent'><a class='index' id='stack,swap'></a></span><code class='itemdecl'>
+template &lt;class T, class Container&gt;
+  void swap(stack&lt;T, Container&gt;&amp; x, stack&lt;T, Container&gt;&amp; y) noexcept(noexcept(x.swap(y)));
+</code></p><div class='itemdescr'></div><div class='para' id='special-1'><div class='marginalizedparent'><a class='marginalized' href='#special-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>x.swap(y)</span>.
+</p></div></div></div></div></div></body></html>

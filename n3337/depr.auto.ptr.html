@@ -1,0 +1,135 @@
+<!DOCTYPE html><html lang='en'><head><title>[depr.auto.ptr]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='annexnum' style='min-width:73pt'>Annex D&emsp;(normative)</a> Compatibility features <a class='abbr_ref' href='./#depr'>[depr]</a></h1><div id='depr.auto.ptr'><h2 ><a class='secnum' style='min-width:88pt'>D.10</a> <span class='texttt'>auto_ptr</span> <a class='abbr_ref'>[depr.auto.ptr]</a></h2><p >The class template <span class='texttt'>auto_ptr</span> is deprecated.
+[&nbsp;<i>Note:</i> The class template
+<span class='texttt'>unique_ptr</span> (<a href='unique.ptr'>[unique.ptr]</a>) provides a better
+solution. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><div id='auto.ptr'><h3 ><a class='secnum' href='#auto.ptr' style='min-width:103pt'>D.10.1</a> Class template <span class='texttt'>auto_ptr</span> <a class='abbr_ref' href='auto.ptr'>[auto.ptr]</a></h3><div class='para' id='auto.ptr-1'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr-1'>1</a></div><p ><span class='indexparent'><a class='index' id='auto_ptr'></a></span>The class template <span class='texttt'>auto_ptr</span> stores a pointer to an object obtained via <span class='texttt'>new</span>
+and deletes that object when it itself is destroyed (such as when leaving block
+scope <a href='stmt.dcl'>[stmt.dcl]</a>).</p></div><div class='para' id='auto.ptr-2'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr-2'>2</a></div><p >The class template
+<span class='texttt'>auto_ptr_ref</span>
+is for exposition only.
+An implementation is permitted to provide equivalent functionality without
+providing a template with this name.
+The template holds a reference to an <span class='texttt'>auto_ptr</span>. It
+is used by the <span class='texttt'>auto_ptr</span> conversions to allow <span class='texttt'>auto_ptr</span> objects
+to be passed to and returned from functions.</p><pre class='codeblock'>
+namespace std {
+  template &lt;class Y&gt; struct auto_ptr_ref;   <span class='comment'>// <i>exposition only</i>
+</span>
+  template &lt;class X&gt; class auto_ptr {
+  public:
+    typedef X element_type;
+
+    <span class='comment'>// <a href='auto.ptr.cons'>[auto.ptr.cons]</a> construct/copy/destroy:
+</span>    explicit auto_ptr(X* p =0) throw();
+    auto_ptr(auto_ptr&amp;) throw();
+    template&lt;class Y&gt; auto_ptr(auto_ptr&lt;Y&gt;&amp;) throw();
+    auto_ptr&amp; operator=(auto_ptr&amp;) throw();
+    template&lt;class Y&gt; auto_ptr&amp; operator=(auto_ptr&lt;Y&gt;&amp;) throw();
+    auto_ptr&amp; operator=(auto_ptr_ref&lt;X&gt; r) throw();
+   ~auto_ptr() throw();
+
+    <span class='comment'>// <a href='auto.ptr.members'>[auto.ptr.members]</a> members:
+</span>    X&amp; operator*() const throw();
+    X* operator-&gt;() const throw();
+    X* get() const throw();
+    X* release() throw();
+    void reset(X* p =0) throw();
+
+    <span class='comment'>// <a href='auto.ptr.conv'>[auto.ptr.conv]</a> conversions:
+</span>    auto_ptr(auto_ptr_ref&lt;X&gt;) throw();
+    template&lt;class Y&gt; operator auto_ptr_ref&lt;Y&gt;() throw();
+    template&lt;class Y&gt; operator auto_ptr&lt;Y&gt;() throw();
+  };
+
+  template &lt;&gt; class auto_ptr&lt;void&gt;
+  {
+  public:
+    typedef void element_type;
+  };
+}
+</pre></div><div class='para' id='auto.ptr-3'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr-3'>3</a></div><p >The class template <span class='texttt'>auto_ptr</span> provides a semantics of strict ownership. An <span class='texttt'>auto_ptr</span>
+owns the object it holds a pointer to. Copying an <span class='texttt'>auto_ptr</span> copies the
+pointer and transfers ownership to the destination. If more than one
+<span class='texttt'>auto_ptr</span> owns the same object at the same time the behavior of the
+program is undefined.
+[&nbsp;<i>Note:</i> 
+The uses of <span class='texttt'>auto_ptr</span> include providing temporary exception-safety
+for dynamically allocated memory, passing ownership of dynamically allocated
+memory to a function, and returning dynamically allocated memory from a function.
+Instances of <span class='texttt'>auto_ptr</span> meet the requirements of <span class='texttt'>MoveConstructible</span> and <span class='texttt'>MoveAssignable</span>, but do not meet the requirements of <span class='texttt'>CopyConstructible</span> and <span class='texttt'>CopyAssignable</span>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div id='auto.ptr.cons'><h4 ><a class='secnum' href='#auto.ptr.cons' style='min-width:118pt'>D.10.1.1</a> <span class='texttt'>auto_ptr</span> constructors <a class='abbr_ref' href='auto.ptr.cons'>[auto.ptr.cons]</a></h4><p ><span class='indexparent'><a class='index' id='auto_ptr,auto_ptr'></a></span><code class='itemdecl'>
+explicit auto_ptr(X* p =0) throw();
+</code></p><div class='itemdescr'></div><div class='para' id='auto.ptr.cons-1'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.cons-1'>1</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
+<span class='texttt'>*this</span> holds the pointer <span class='texttt'>p</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='auto_ptr,constructor'></a></span><code class='itemdecl'>
+auto_ptr(auto_ptr&amp; a) throw();
+</code></p><div class='itemdescr'></div><div class='para' id='auto.ptr.cons-2'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.cons-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls <span class='texttt'>a.release()</span>.</p></div></div><div class='para' id='auto.ptr.cons-3'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.cons-3'>3</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
+<span class='texttt'>*this</span> holds the pointer returned from <span class='texttt'>a.release()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='auto_ptr,constructor'></a></span><code class='itemdecl'>
+template&lt;class Y&gt; auto_ptr(auto_ptr&lt;Y&gt;&amp; a) throw();
+</code></p><div class='itemdescr'></div><div class='para' id='auto.ptr.cons-4'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.cons-4'>4</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>Y*</span> can be implicitly converted to <span class='texttt'>X*</span>.</p></div></div><div class='para' id='auto.ptr.cons-5'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.cons-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls <span class='texttt'>a.release()</span>.</p></div></div><div class='para' id='auto.ptr.cons-6'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.cons-6'>6</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
+<span class='texttt'>*this</span> holds the pointer returned from <span class='texttt'>a.release()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=,auto_ptr'></a></span><code class='itemdecl'>
+auto_ptr&amp; operator=(auto_ptr&amp; a) throw();
+</code></p><div class='itemdescr'></div><div class='para' id='auto.ptr.cons-7'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.cons-7'>7</a></div><div class='itemdescr'><p ><i>Requires:</i>
+The expression <span class='texttt'>delete get()</span> is well formed.</p></div></div><div class='para' id='auto.ptr.cons-8'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.cons-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i>
+<span class='texttt'>reset(a.release())</span>.</p></div></div><div class='para' id='auto.ptr.cons-9'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.cons-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='auto_ptr,operator='></a></span><span class='indexparent'><a class='index' id='operator=,auto_ptr'></a></span><code class='itemdecl'>
+template&lt;class Y&gt; auto_ptr&amp; operator=(auto_ptr&lt;Y&gt;&amp; a) throw();
+</code></p><div class='itemdescr'></div><div class='para' id='auto.ptr.cons-10'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.cons-10'>10</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>Y*</span> can be implicitly converted to <span class='texttt'>X*</span>. The expression
+<span class='texttt'>delete get()</span> is well formed.</p></div></div><div class='para' id='auto.ptr.cons-11'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.cons-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i>
+<span class='texttt'>reset(a.release())</span>.</p></div></div><div class='para' id='auto.ptr.cons-12'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.cons-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='auto_ptr,destructor'></a></span><code class='itemdecl'>
+~auto_ptr() throw();
+</code></p><div class='itemdescr'></div><div class='para' id='auto.ptr.cons-13'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.cons-13'>13</a></div><div class='itemdescr'><p ><i>Requires:</i>
+The expression <span class='texttt'>delete get()</span> is well formed.</p></div></div><div class='para' id='auto.ptr.cons-14'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.cons-14'>14</a></div><div class='itemdescr'><p ><i>Effects:</i>
+<span class='texttt'>delete get()</span>.
+</p></div></div></div><div id='auto.ptr.members'><h4 ><a class='secnum' href='#auto.ptr.members' style='min-width:118pt'>D.10.1.2</a> <span class='texttt'>auto_ptr</span> members <a class='abbr_ref' href='auto.ptr.members'>[auto.ptr.members]</a></h4><p ><span class='indexparent'><a class='index' id='operator*,auto_ptr'></a></span><code class='itemdecl'>
+X&amp; operator*() const throw();
+</code></p><div class='itemdescr'></div><div class='para' id='auto.ptr.members-1'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.members-1'>1</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>get() != 0</span></p></div></div><div class='para' id='auto.ptr.members-2'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.members-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*get()</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator->,auto_ptr'></a></span><code class='itemdecl'>
+X* operator-&gt;() const throw();
+</code></p><div class='itemdescr'></div><div class='para' id='auto.ptr.members-3'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.members-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>get()</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='get,auto_ptr'></a></span><code class='itemdecl'>
+X* get() const throw();
+</code></p><div class='itemdescr'></div><div class='para' id='auto.ptr.members-4'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.members-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The pointer <span class='texttt'>*this</span> holds.
+</p></div></div><p ><span class='indexparent'><a class='index' id='release,auto_ptr'></a></span><code class='itemdecl'>
+X* release() throw();
+</code></p><div class='itemdescr'></div><div class='para' id='auto.ptr.members-5'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.members-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>get()</span></p></div></div><div class='para' id='auto.ptr.members-6'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.members-6'>6</a></div><div class='itemdescr'><p ><i>Postcondition:</i>
+<span class='texttt'>*this</span> holds the null pointer.
+</p></div></div><p ><span class='indexparent'><a class='index' id='reset,auto_ptr'></a></span><code class='itemdecl'>
+void reset(X* p=0) throw();
+</code></p><div class='itemdescr'></div><div class='para' id='auto.ptr.members-7'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.members-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
+If <span class='texttt'>get() != p</span> then <span class='texttt'>delete get()</span>.</p></div></div><div class='para' id='auto.ptr.members-8'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.members-8'>8</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
+<span class='texttt'>*this</span> holds the pointer <span class='texttt'>p</span>.
+</p></div></div></div><div id='auto.ptr.conv'><h4 ><a class='secnum' href='#auto.ptr.conv' style='min-width:118pt'>D.10.1.3</a> <span class='texttt'>auto_ptr</span> conversions <a class='abbr_ref' href='auto.ptr.conv'>[auto.ptr.conv]</a></h4><p ><span class='indexparent'><a class='index' id='auto_ptr,constructor'></a></span><code class='itemdecl'>
+auto_ptr(auto_ptr_ref&lt;X&gt; r) throw();
+</code></p><div class='itemdescr'></div><div class='para' id='auto.ptr.conv-1'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.conv-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls <span class='texttt'>p.release()</span> for the <span class='texttt'>auto_ptr</span> <span class='texttt'>p</span> that <span class='texttt'>r</span> holds.</p></div></div><div class='para' id='auto.ptr.conv-2'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.conv-2'>2</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
+<span class='texttt'>*this</span> holds the pointer returned from <span class='texttt'>release()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='auto_ptr,auto_ptr_ref'></a></span><span class='indexparent'><a class='index' id='auto_ptr_ref,auto_ptr'></a></span><code class='itemdecl'>
+template&lt;class Y&gt; operator auto_ptr_ref&lt;Y&gt;() throw();
+</code></p><div class='itemdescr'></div><div class='para' id='auto.ptr.conv-3'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.conv-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+An <span class='texttt'>auto_ptr_ref&lt;Y&gt;</span> that holds <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='auto_ptr_ref,operator_auto_ptr'></a></span><span class='indexparent'><a class='index' id='operator_auto_ptr,auto_ptr_ref'></a></span><code class='itemdecl'>
+template&lt;class Y&gt; operator auto_ptr&lt;Y&gt;() throw();
+</code></p><div class='itemdescr'></div><div class='para' id='auto.ptr.conv-4'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.conv-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls <span class='texttt'>release()</span>.</p></div></div><div class='para' id='auto.ptr.conv-5'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.conv-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+An <span class='texttt'>auto_ptr&lt;Y&gt;</span> that holds the pointer returned from <span class='texttt'>release()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='auto_ptr_ref,operator='></a></span><span class='indexparent'><a class='index' id='operator=,auto_ptr_ref'></a></span><code class='itemdecl'>
+auto_ptr&amp; operator=(auto_ptr_ref&lt;X&gt; r) throw()
+</code></p><div class='itemdescr'></div><div class='para' id='auto.ptr.conv-6'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.conv-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls <span class='texttt'>reset(p.release())</span> for the <span class='texttt'>auto_ptr p</span>
+that <span class='texttt'>r</span> holds a reference to.</p></div></div><div class='para' id='auto.ptr.conv-7'><div class='marginalizedparent'><a class='marginalized' href='#auto.ptr.conv-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>
+</p></div></div></div></div></div></div></body></html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html><html lang='en'><head><title>[util.smartptr.weak]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.7</a> Smart pointers <a class='abbr_ref' href='smartptr#util.smartptr.weak'>[smartptr]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>20.7.2</a> Shared-ownership pointers <a class='abbr_ref' href='util.smartptr#weak'>[util.smartptr]</a></h3><div id='util.smartptr.weak'><h4 ><a class='secnum' style='min-width:118pt'>20.7.2.3</a> Class template <span class='texttt'>weak_ptr</span> <a class='abbr_ref'>[util.smartptr.weak]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='weak_ptr'></a></span>The <span class='texttt'>weak_ptr</span> class template stores a weak reference to an object
+that is already managed by a <span class='texttt'>shared_ptr</span>. To access the object, a
+<span class='texttt'>weak_ptr</span> can be converted to a <span class='texttt'>shared_ptr</span> using the member
+function <span class='texttt'>lock</span>.</p><pre class='codeblock'>
+namespace std {
+  template&lt;class T&gt; class weak_ptr {
+  public:
+    typedef T element_type;
+
+    <span class='comment'>// <a href='util.smartptr.weak.const'>[util.smartptr.weak.const]</a>, constructors
+</span>    constexpr weak_ptr() noexcept;
+    template&lt;class Y&gt; weak_ptr(shared_ptr&lt;Y&gt; const&amp; r) noexcept;
+    weak_ptr(weak_ptr const&amp; r) noexcept;
+    template&lt;class Y&gt; weak_ptr(weak_ptr&lt;Y&gt; const&amp; r) noexcept;
+
+    <span class='comment'>// <a href='util.smartptr.weak.dest'>[util.smartptr.weak.dest]</a>, destructor
+</span>    ~weak_ptr();
+
+    <span class='comment'>// <a href='util.smartptr.weak.assign'>[util.smartptr.weak.assign]</a>, assignment
+</span>    weak_ptr&amp; operator=(weak_ptr const&amp; r) noexcept;
+    template&lt;class Y&gt; weak_ptr&amp; operator=(weak_ptr&lt;Y&gt; const&amp; r) noexcept;
+    template&lt;class Y&gt; weak_ptr&amp; operator=(shared_ptr&lt;Y&gt; const&amp; r) noexcept;
+
+    <span class='comment'>// <a href='util.smartptr.weak.mod'>[util.smartptr.weak.mod]</a>, modifiers
+</span>    void swap(weak_ptr&amp; r) noexcept;
+    void reset() noexcept;
+
+    <span class='comment'>// <a href='util.smartptr.weak.obs'>[util.smartptr.weak.obs]</a>, observers
+</span>    long use_count() const noexcept;
+    bool expired() const noexcept;
+    shared_ptr&lt;T&gt; lock() const noexcept;
+    template&lt;class U&gt; bool owner_before(shared_ptr&lt;U&gt; const&amp; b);
+    template&lt;class U&gt; bool owner_before(weak_ptr&lt;U&gt; const&amp; b);
+  };
+
+  <span class='comment'>// <a href='util.smartptr.weak.spec'>[util.smartptr.weak.spec]</a>, specialized algorithms
+</span>  template&lt;class T&gt; void swap(weak_ptr&lt;T&gt;&amp; a, weak_ptr&lt;T&gt;&amp; b) noexcept;
+} <span class='comment'>// namespace std
+</span></pre></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Specializations of <span class='texttt'>weak_ptr</span> shall be <span class='texttt'>CopyConstructible</span> and
+<span class='texttt'>CopyAssignable</span>, allowing their use in standard
+containers.  The template parameter <span class='texttt'>T</span> of <span class='texttt'>weak_ptr</span> may be an
+incomplete type.</p></div><div id='const'><h4 ><a class='secnum' href='#const' style='min-width:133pt'>20.7.2.3.1</a> <span class='texttt'>weak_ptr</span> constructors <a class='abbr_ref' href='util.smartptr.weak.const'>[util.smartptr.weak.const]</a></h4><p ><span class='indexparent'><a class='index' id='weak_ptr,constructor'></a></span><code class='itemdecl'>
+constexpr weak_ptr() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='const-1'><div class='marginalizedparent'><a class='marginalized' href='#const-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>  Constructs an <i>empty</i> <span class='texttt'>weak_ptr</span> object.</p></div></div><div class='para' id='const-2'><div class='marginalizedparent'><a class='marginalized' href='#const-2'>2</a></div><div class='itemdescr'><p ><i>Postconditions:</i>  <span class='texttt'>use_count() == 0</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='weak_ptr,constructor'></a></span><code class='itemdecl'>
+weak_ptr(const weak_ptr&amp; r) noexcept;
+template&lt;class Y&gt; weak_ptr(const weak_ptr&lt;Y&gt;&amp; r) noexcept;
+template&lt;class Y&gt; weak_ptr(const shared_ptr&lt;Y&gt;&amp; r) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='const-3'><div class='marginalizedparent'><a class='marginalized' href='#const-3'>3</a></div><div class='itemdescr'><p ><i>Requires:</i> The second and third constructors shall not participate in the
+overload resolution unless <span class='texttt'>Y*</span> is implicitly convertible to <span class='texttt'>T*</span>.</p></div></div><div class='para' id='const-4'><div class='marginalizedparent'><a class='marginalized' href='#const-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>  If <span class='texttt'>r</span> is <i>empty</i>, constructs
+an <i>empty</i> <span class='texttt'>weak_ptr</span> object; otherwise, constructs
+a <span class='texttt'>weak_ptr</span> object that <i>shares ownership</i>
+with <span class='texttt'>r</span> and stores a copy of the pointer stored in <span class='texttt'>r</span>.</p></div></div><div class='para' id='const-5'><div class='marginalizedparent'><a class='marginalized' href='#const-5'>5</a></div><div class='itemdescr'><p ><i>Postconditions:</i>  <span class='texttt'>use_count() == r.use_count()</span>.
+</p></div></div></div><div id='dest'><h4 ><a class='secnum' href='#dest' style='min-width:133pt'>20.7.2.3.2</a> <span class='texttt'>weak_ptr</span> destructor <a class='abbr_ref' href='util.smartptr.weak.dest'>[util.smartptr.weak.dest]</a></h4><p ><span class='indexparent'><a class='index' id='weak_ptr,destructor'></a></span><code class='itemdecl'>
+~weak_ptr();
+</code></p><div class='itemdescr'></div><div class='para' id='dest-1'><div class='marginalizedparent'><a class='marginalized' href='#dest-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>  Destroys this <span class='texttt'>weak_ptr</span> object but has no
+effect on the object its stored pointer points to.
+</p></div></div></div><div id='assign'><h4 ><a class='secnum' href='#assign' style='min-width:133pt'>20.7.2.3.3</a> <span class='texttt'>weak_ptr</span> assignment <a class='abbr_ref' href='util.smartptr.weak.assign'>[util.smartptr.weak.assign]</a></h4><p ><span class='indexparent'><a class='index' id='weak_ptr,operator='></a></span><span class='indexparent'><a class='index' id='operator=,weak_ptr'></a></span><code class='itemdecl'>
+weak_ptr&amp; operator=(const weak_ptr&amp; r) noexcept;
+template&lt;class Y&gt; weak_ptr&amp; operator=(const weak_ptr&lt;Y&gt;&amp; r) noexcept;
+template&lt;class Y&gt; weak_ptr&amp; operator=(const shared_ptr&lt;Y&gt;&amp; r) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='assign-1'><div class='marginalizedparent'><a class='marginalized' href='#assign-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>  Equivalent to <span class='texttt'>weak_ptr(r).swap(*this)</span>.</p></div></div><div class='para' id='assign-2'><div class='marginalizedparent'><a class='marginalized' href='#assign-2'>2</a></div><div class='itemdescr'><p ><i>Remarks:</i>  The implementation may meet the effects (and the
+implied guarantees) via different means, without creating a temporary.
+</p></div></div></div><div id='mod'><h4 ><a class='secnum' href='#mod' style='min-width:133pt'>20.7.2.3.4</a> <span class='texttt'>weak_ptr</span> modifiers <a class='abbr_ref' href='util.smartptr.weak.mod'>[util.smartptr.weak.mod]</a></h4><p ><span class='indexparent'><a class='index' id='weak_ptr,swap'></a></span><span class='indexparent'><a class='index' id='swap,weak_ptr'></a></span><code class='itemdecl'>
+void swap(weak_ptr&amp; r) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='mod-1'><div class='marginalizedparent'><a class='marginalized' href='#mod-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>  Exchanges the contents of <span class='texttt'>*this</span> and <span class='texttt'>r</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='weak_ptr,reset'></a></span><span class='indexparent'><a class='index' id='reset,weak_ptr'></a></span><code class='itemdecl'>
+void reset() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='mod-2'><div class='marginalizedparent'><a class='marginalized' href='#mod-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>  Equivalent to <span class='texttt'>weak_ptr().swap(*this)</span>.
+</p></div></div></div><div id='obs'><h4 ><a class='secnum' href='#obs' style='min-width:133pt'>20.7.2.3.5</a> <span class='texttt'>weak_ptr</span> observers <a class='abbr_ref' href='util.smartptr.weak.obs'>[util.smartptr.weak.obs]</a></h4><p ><span class='indexparent'><a class='index' id='weak_ptr,use_count'></a></span><span class='indexparent'><a class='index' id='use_count,weak_ptr'></a></span><code class='itemdecl'>
+long use_count() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='obs-1'><div class='marginalizedparent'><a class='marginalized' href='#obs-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>0</span> if <span class='texttt'>*this</span> is <i>empty</i>;
+otherwise, the number of <span class='texttt'>shared_ptr</span> instances
+that <i>share ownership</i> with <span class='texttt'>*this</span>.</p></div></div><div class='para' id='obs-2'><div class='marginalizedparent'><a class='marginalized' href='#obs-2'>2</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> <span class='texttt'>use_count()</span> is not necessarily
+efficient.<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='weak_ptr,expired'></a></span><span class='indexparent'><a class='index' id='expired,weak_ptr'></a></span><code class='itemdecl'>
+bool expired() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='obs-3'><div class='marginalizedparent'><a class='marginalized' href='#obs-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>use_count() == 0</span>.</p></div></div><div class='para' id='obs-4'><div class='marginalizedparent'><a class='marginalized' href='#obs-4'>4</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i>  <span class='texttt'>expired()</span> may be faster
+than <span class='texttt'>use_count()</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='weak_ptr,lock'></a></span><span class='indexparent'><a class='index' id='lock,weak_ptr'></a></span><code class='itemdecl'>
+shared_ptr&lt;T&gt; lock() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='obs-5'><div class='marginalizedparent'><a class='marginalized' href='#obs-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>  <span class='texttt'>expired() ? shared_ptr&lt;T&gt;() : shared_ptr&lt;T&gt;(*this)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='owner_before,shared_ptr'></a></span><span class='indexparent'><a class='index' id='shared_ptr,owner_before'></a></span><code class='itemdecl'>
+template&lt;class U&gt; bool owner_before(shared_ptr&lt;U&gt; const&amp; b);
+template&lt;class U&gt; bool owner_before(weak_ptr&lt;U&gt; const&amp; b);
+</code></p><div class='itemdescr'></div><div class='para' id='obs-6'><div class='marginalizedparent'><a class='marginalized' href='#obs-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> An unspecified value such that</p><ul ><li ><p ><span class='texttt'>x.owner_before(y)</span> defines a strict weak ordering as defined in <a href='alg.sorting'>[alg.sorting]</a>;</p></li><li ><p >under the equivalence relation defined by <span class='texttt'>owner_before</span>,
+<span class='texttt'>!a.owner_before(b) &amp;&amp; !b.owner_before(a)</span>, two <span class='texttt'>shared_ptr</span> or
+<span class='texttt'>weak_ptr</span> instances are equivalent if and only if they share ownership or are
+both empty.
+</p></li></ul></div></div></div><div id='spec'><h4 ><a class='secnum' href='#spec' style='min-width:133pt'>20.7.2.3.6</a> <span class='texttt'>weak_ptr</span> specialized algorithms <a class='abbr_ref' href='util.smartptr.weak.spec'>[util.smartptr.weak.spec]</a></h4><p ><span class='indexparent'><a class='index' id='weak_ptr,swap'></a></span><span class='indexparent'><a class='index' id='swap,weak_ptr'></a></span><code class='itemdecl'>
+template&lt;class T&gt; void swap(weak_ptr&lt;T&gt;&amp; a, weak_ptr&lt;T&gt;&amp; b) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='spec-1'><div class='marginalizedparent'><a class='marginalized' href='#spec-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>  Equivalent to <span class='texttt'>a.swap(b)</span>.
+</p></div></div></div><div id='util.smartptr.ownerless'><h4 ><a class='secnum' href='#util.smartptr.ownerless' style='min-width:133pt'>20.7.2.3.7</a> Class template <span class='texttt'>owner_less</span> <a class='abbr_ref' href='util.smartptr.ownerless'>[util.smartptr.ownerless]</a></h4><div class='para' id='util.smartptr.ownerless-1'><div class='marginalizedparent'><a class='marginalized' href='#util.smartptr.ownerless-1'>1</a></div><p >The class template <span class='texttt'>owner_less</span> allows ownership-based mixed comparisons of shared
+and weak pointers.</p><pre class='codeblock'>
+namespace std {
+  template&lt;class T&gt; struct owner_less;
+
+  template&lt;class T&gt; struct owner_less&lt;shared_ptr&lt;T&gt; &gt; {
+    typedef bool result_type;
+    typedef shared_ptr&lt;T&gt; first_argument_type;
+    typedef shared_ptr&lt;T&gt; second_argument_type;
+    bool operator()(shared_ptr&lt;T&gt; const&amp;, shared_ptr&lt;T&gt; const&amp;) const;
+    bool operator()(shared_ptr&lt;T&gt; const&amp;, weak_ptr&lt;T&gt; const&amp;) const;
+    bool operator()(weak_ptr&lt;T&gt; const&amp;, shared_ptr&lt;T&gt; const&amp;) const;
+  };
+
+  template&lt;class T&gt; struct owner_less&lt;weak_ptr&lt;T&gt; &gt; {
+    typedef bool result_type;
+    typedef weak_ptr&lt;T&gt; first_argument_type;
+    typedef weak_ptr&lt;T&gt; second_argument_type;
+    bool operator()(weak_ptr&lt;T&gt; const&amp;, weak_ptr&lt;T&gt; const&amp;) const;
+    bool operator()(shared_ptr&lt;T&gt; const&amp;, weak_ptr&lt;T&gt; const&amp;) const;
+    bool operator()(weak_ptr&lt;T&gt; const&amp;, shared_ptr&lt;T&gt; const&amp;) const;
+  };
+}
+</pre></div><div class='para' id='util.smartptr.ownerless-2'><div class='marginalizedparent'><a class='marginalized' href='#util.smartptr.ownerless-2'>2</a></div><p ><span class='texttt'>operator()(x,y)</span> shall return <span class='texttt'>x.owner_before(y)</span>. [&nbsp;<i>Note:</i>
+Note that</p><ul ><li ><p ><span class='texttt'>operator()</span> defines a strict weak ordering as defined in <a href='alg.sorting'>[alg.sorting]</a>;</p></li><li ><p >under the equivalence relation defined by <span class='texttt'>operator()</span>,
+<span class='texttt'>!operator()(a, b) &amp;&amp; !operator()(b, a)</span>, two <span class='texttt'>shared_ptr</span> or
+<span class='texttt'>weak_ptr</span> instances are equivalent if and only if they share ownership or are
+both empty.
+</p></li></ul></div></div></div></div></body></html>

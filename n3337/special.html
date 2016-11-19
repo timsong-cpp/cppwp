@@ -1,0 +1,2208 @@
+<!DOCTYPE html><html lang='en'><head><title>[special]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><div id='special'><h1 ><a class='secnum' style='min-width:73pt'>12</a> Special member functions <a class='abbr_ref' href='./#special'>[special]</a></h1><p ><span class='indexparent'><a class='index' id='special_member_function'></a></span><span class='indexparent'><a class='index' id='X(X&)'></a></span><span class='indexparent'><a class='index' id='_'></a></span><span class='indexparent'><a class='index' id='assignment,copy'></a></span><span class='indexparent'><a class='index' id='assignment,move'></a></span><span class='indexparent'><a class='index' id='implicitly-declared_default_constructor'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='constructor,default'></a></span><span class='indexparent'><a class='index' id='constructor,copy'></a></span><span class='indexparent'><a class='index' id='constructor,move'></a></span><span class='indexparent'><a class='index' id='assignment_operator,copy'></a></span><span class='indexparent'><a class='index' id='assignment_operator,move'></a></span>The default constructor (<a href='class.ctor'>[class.ctor]</a>),
+copy constructor and copy assignment operator (<a href='class.copy'>[class.copy]</a>),
+move constructor and move assignment operator (<a href='class.copy'>[class.copy]</a>),
+and destructor (<a href='class.dtor'>[class.dtor]</a>) are
+<a class='hidden_link' href='#def:special_member_functions' id='def:special_member_functions'><i>special member functions</i></a>.
+[&nbsp;<i>Note:</i> The implementation will implicitly declare these member functions for some class
+types when the program does not explicitly declare them.
+The implementation will implicitly define them if they are odr-used (<a href='basic.def.odr'>[basic.def.odr]</a>).
+See <a href='class.ctor'>[class.ctor]</a>, <a href='class.dtor'>[class.dtor]</a> and <a href='class.copy'>[class.copy]</a>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+Programs shall not define implicitly-declared special member functions.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Programs may explicitly refer to implicitly-declared special member functions.
+[&nbsp;<i>Example:</i>
+a program may explicitly call, take the address of or form a pointer to member
+to an implicitly-declared special member function.</p><pre class='codeblock'>
+struct A { };                   <span class='comment'>// implicitly declared <span class='texttt'>A::operator=</span>
+</span>struct B : A {
+  B&amp; operator=(const B &amp;);
+};
+B&amp; B::operator=(const B&amp; s) {
+  this-&gt;A::operator=(s);        <span class='comment'>// well formed
+</span>  return *this;
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >[&nbsp;<i>Note:</i>
+The special member functions affect the way objects of class type are created,
+copied, moved, and destroyed, and how values can be converted to values of other types.
+Often such special member functions are called implicitly.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p ><span class='indexparent'><a class='index' id='access_control,member_function_and'></a></span>Special member functions obey the usual access rules (Clause <a href='class.access'>[class.access]</a>).
+[&nbsp;<i>Example:</i>
+declaring a constructor
+<span class='texttt'>protected</span>
+ensures that only derived classes and friends can create objects using it.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div id='class.ctor'><h2 ><a class='secnum' href='#class.ctor' style='min-width:88pt'>12.1</a> Constructors <a class='abbr_ref' href='class.ctor'>[class.ctor]</a></h2><p ><span class='indexparent'><a class='index' id='constructor'></a></span></p><div class='para' id='class.ctor-1'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-1'>1</a></div><p >Constructors do not have names.
+A special declarator syntax is used to declare or define the constructor.
+The syntax uses:</p><ul ><li ><p >an optional <i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i> in which each
+<i ><a href='dcl.spec#nt:decl-specifier'>decl-specifier</a></i> is either a <i ><a href='dcl.fct.spec#nt:function-specifier'>function-specifier</a></i> or <span class='texttt'>constexpr</span>,
+</p></li><li ><p >the constructor's class name, and
+</p></li><li ><p >a parameter list
+</p></li></ul><p >in that order.
+In such a declaration, optional parentheses around the constructor class name
+are ignored.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct S {
+  S();              <span class='comment'>// declares the constructor
+</span>};
+
+S::S() { }          <span class='comment'>// defines the constructor
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.ctor-2'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-2'>2</a></div><p >A constructor is used to initialize objects of its class type.
+Because constructors do not have names, they are never found during
+name lookup; however an explicit type conversion using the functional
+notation (<a href='expr.type.conv'>[expr.type.conv]</a>) will cause a constructor to be called to
+initialize an object.
+[&nbsp;<i>Note:</i>
+For initialization of objects of class type see <a href='class.init'>[class.init]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.ctor-3'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-3'>3</a></div><p >A
+<i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i>
+shall not be used as the
+<i ><a href='class#nt:class-name'>class-name</a></i>
+in the
+<i ><a href='dcl.decl#nt:declarator-id'>declarator-id</a></i>
+for a constructor declaration.</p></div><div class='para' id='class.ctor-4'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-4'>4</a></div><p >A constructor shall not be
+<span class='texttt'>virtual</span> (<a href='class.virtual'>[class.virtual]</a>) or
+<span class='texttt'>static</span> (<a href='class.static'>[class.static]</a>).
+<span class='indexparent'><a class='index' id='const,constructor_and'></a></span><span class='indexparent'><a class='index' id='volatile,constructor_and'></a></span>A constructor can be invoked for a
+<span class='texttt'>const</span>,
+<span class='texttt'>volatile</span>
+or
+<span class='texttt'>const</span>
+<span class='texttt'>volatile</span>
+object.
+<span class='indexparent'><a class='index' id='restriction,constructor'></a></span>A constructor shall not be declared
+<span class='texttt'>const</span>,
+<span class='texttt'>volatile</span>,
+or
+<span class='texttt'>const</span>
+<span class='texttt'>volatile</span> (<a href='class.this'>[class.this]</a>).
+<span class='texttt'>const</span>
+and
+<span class='texttt'>volatile</span>
+semantics (<a href='dcl.type.cv'>[dcl.type.cv]</a>) are not applied on an object under construction.
+They come into effect when the constructor for the
+most derived object (<a href='intro.object'>[intro.object]</a>) ends.
+A constructor shall not be declared with a <i ><a href='dcl.decl#nt:ref-qualifier'>ref-qualifier</a></i>.</p></div><div class='para' id='class.ctor-5'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-5'>5</a></div><p ><span class='indexparent'><a class='index' id='constructor,inheritance_of'></a></span><span class='indexparent'><a class='index' id='constructor,default'></a></span><span class='indexparent'><a class='index' id='constructor,non-trivial'></a></span>A
+<a class='hidden_link' href='#def:default' id='def:default'><i>default</i></a>
+constructor for a class
+<span class='texttt'>X</span>
+is a constructor of class
+<span class='texttt'>X</span>
+that can be called without an argument.
+<span class='indexparent'><a class='index' id='implicitly-declared_default_constructor'></a></span>If there is no user-declared constructor for class
+<span class='texttt'>X</span>,
+a constructor having no parameters is implicitly declared
+as defaulted (<a href='dcl.fct.def'>[dcl.fct.def]</a>).
+An implicitly-declared default constructor is an
+<span class='texttt'>inline</span>
+<span class='texttt'>public</span>
+member of its class.
+A defaulted default constructor for class <span class='texttt'>X</span> is defined as deleted if:</p><ul ><li ><p ><span class='texttt'>X</span> is a union-like class that has a variant
+  member with a non-trivial default constructor,</p></li><li ><p >any non-static data member with no <i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializer</a></i> is of reference type,</p></li><li ><p >any non-variant non-static data member of const-qualified type (or array
+thereof) with no <i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializer</a></i> does not have a user-provided default constructor,</p></li><li ><p ><span class='texttt'>X</span> is a union and all of its variant members are of const-qualified
+type (or array thereof),</p></li><li ><p ><span class='texttt'>X</span> is a non-union class and all members of any anonymous union member are
+of const-qualified type (or array thereof),</p></li><li ><p >any direct or virtual base class, or non-static data member
+with no <i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializer</a></i>, has
+class type <span class='texttt'>M</span> (or array thereof) and either <span class='texttt'>M</span>
+has no default constructor or overload resolution
+(<a href='over.match'>[over.match]</a>) as applied to <span class='texttt'>M</span>'s default
+constructor results in an ambiguity or in a function that is deleted or
+inaccessible from the defaulted default constructor, or</p></li><li ><p >any direct or virtual base class or non-static data member has a type
+with a destructor that is deleted or inaccessible from the defaulted default
+constructor.
+</p></li></ul><p >A default constructor is
+trivial
+if it is not user-provided and if:</p><ul ><li ><p >its class has no virtual functions (<a href='class.virtual'>[class.virtual]</a>) and no virtual base
+classes (<a href='class.mi'>[class.mi]</a>), and</p></li><li ><p >no non-static data member of its class has a <i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializer</a></i>, and</p></li><li ><p >all the direct base classes of its class have trivial default constructors, and</p></li><li ><p >for all the non-static data members of its class that are of class
+type (or array thereof), each such class has a trivial default constructor.
+</p></li></ul><p >Otherwise, the default constructor is
+<span class='grammarterm'>non-trivial</span>.</p></div><div class='para' id='class.ctor-6'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-6'>6</a></div><p ><span class='indexparent'><a class='index' id='constructor,implicitly_defined'></a></span>A default constructor
+that is defaulted and not defined as deleted
+is
+<a class='hidden_link' href='#def:implicitly_defined' id='def:implicitly_defined'><i>implicitly defined</i></a>
+when it is odr-used (<a href='basic.def.odr'>[basic.def.odr]</a>)
+to create an object of its class type (<a href='intro.object'>[intro.object]</a>)
+or when it is explicitly defaulted after its first declaration.
+The implicitly-defined default constructor performs the set of
+initializations of the class that would be performed by a user-written default
+constructor for that class with no
+<i ><a href='class.base.init#nt:ctor-initializer'>ctor-initializer</a></i> (<a href='class.base.init'>[class.base.init]</a>) and an empty
+<i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i>.
+If that user-written default constructor would be ill-formed,
+the program is ill-formed.
+If that user-written default constructor would satisfy the requirements
+of a <span class='texttt'>constexpr</span> constructor (<a href='dcl.constexpr'>[dcl.constexpr]</a>), the implicitly-defined
+default constructor is <span class='texttt'>constexpr</span>.
+Before the defaulted default constructor for a class is
+implicitly defined,
+all the non-user-provided default constructors for its base classes and
+its non-static data members shall have been implicitly defined.
+[&nbsp;<i>Note:</i>
+An implicitly-declared default constructor has an
+<i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i> (<a href='except.spec'>[except.spec]</a>).
+An explicitly-defaulted definition might have an
+implicit <span class='grammarterm'>exception-specification,</span> see <a href='dcl.fct.def'>[dcl.fct.def]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.ctor-7'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-7'>7</a></div><p ><span class='indexparent'><a class='index' id='constructor,implicitly_called'></a></span>Default constructors are called implicitly to create class objects of static, thread,
+or automatic storage duration (<a href='basic.stc.static'>[basic.stc.static]</a>, <a href='basic.stc.thread'>[basic.stc.thread]</a>, <a href='basic.stc.auto'>[basic.stc.auto]</a>) defined
+without an initializer (<a href='dcl.init'>[dcl.init]</a>),
+are called to create class objects of dynamic storage duration (<a href='basic.stc.dynamic'>[basic.stc.dynamic]</a>) created by a
+<i ><a href='expr.new#nt:new-expression'>new-expression</a></i>
+in which the
+<i ><a href='expr.new#nt:new-initializer'>new-initializer</a></i>
+is omitted (<a href='expr.new'>[expr.new]</a>), or
+are called when the explicit type conversion syntax (<a href='expr.type.conv'>[expr.type.conv]</a>) is
+used.
+A program is ill-formed if the default constructor for an object
+is implicitly used and the constructor is not accessible (Clause <a href='class.access'>[class.access]</a>).</p></div><div class='para' id='class.ctor-8'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-8'>8</a></div><p >[&nbsp;<i>Note:</i>
+<span class='indexparent'><a class='index' id='order_of_execution,base_class_constructor'></a></span><span class='indexparent'><a class='index' id='order_of_execution,member_constructor'></a></span><a href='class.base.init'>[class.base.init]</a> describes the order in which constructors for base
+classes and non-static data members are called and
+describes how arguments can be specified for the calls to these constructors.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.ctor-9'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-9'>9</a></div><p ><span class='indexparent'><a class='index' id='constructor,copy'></a></span><span class='indexparent'><a class='index' id='constructor,move'></a></span>A copy constructor (<a href='class.copy'>[class.copy]</a>) is used to copy objects of class type.
+A move constructor (<a href='class.copy'>[class.copy]</a>) is used to move the contents of objects of class type.</p></div><div class='para' id='class.ctor-10'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-10'>10</a></div><p ><span class='indexparent'><a class='index' id='restriction,constructor'></a></span><span class='indexparent'><a class='index' id='constructor,type_of'></a></span>No return type (not even
+<span class='texttt'>void</span>)
+shall be specified for a constructor.
+A
+<span class='texttt'>return</span>
+statement in the body of a constructor shall not specify a return value.
+<span class='indexparent'><a class='index' id='constructor,address_of'></a></span>The address of a constructor shall not be taken.</p></div><div class='para' id='class.ctor-11'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-11'>11</a></div><p ><span class='indexparent'><a class='index' id='object,unnamed'></a></span><span class='indexparent'><a class='index' id='constructor,explicit_call'></a></span>A functional notation type conversion (<a href='expr.type.conv'>[expr.type.conv]</a>) can be used
+to create new objects of its type.
+[&nbsp;<i>Note:</i>
+The syntax looks like an explicit call of the constructor.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i>
+<span class='indexparent'><a class='index' id='example,constructor'></a></span>
+</p><pre class='codeblock'>
+complex zz = complex(1,2.3);
+cprint( complex(7.8,1.2) );
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.ctor-12'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-12'>12</a></div><p >An object created in this way is unnamed.
+[&nbsp;<i>Note:</i>
+<a href='class.temporary'>[class.temporary]</a> describes the lifetime of temporary objects.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+Explicit constructor calls do not yield lvalues, see <a href='basic.lval'>[basic.lval]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.ctor-13'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-13'>13</a></div><p >[&nbsp;<i>Note:</i>
+<span class='indexparent'><a class='index' id='member_function,constructor_and'></a></span>some language constructs have special semantics when used during construction;
+see <a href='class.base.init'>[class.base.init]</a> and <a href='class.cdtor'>[class.cdtor]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.ctor-14'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-14'>14</a></div><p >During the construction of a
+<span class='texttt'>const</span>
+object, if the value of the object or any of its subobjects is
+accessed through a glvalue that is not obtained, directly or indirectly, from
+the constructor's
+<span class='texttt'>this</span>
+pointer, the value of the object or subobject thus obtained is unspecified.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct C;
+void no_opt(C*);
+
+struct C {
+  int c;
+  C() : c(0) { no_opt(this); }
+};
+
+const C cobj;
+
+void no_opt(C* cptr) {
+  int i = cobj.c * 100;         <span class='comment'>// value of <span class='texttt'>cobj.c</span> is unspecified
+</span>  cptr-&gt;c = 1;
+  cout &lt;&lt; cobj.c * 100          <span class='comment'>// value of <span class='texttt'>cobj.c</span> is unspecified
+</span>       &lt;&lt; '\n';
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div id='class.temporary'><h2 ><a class='secnum' href='#class.temporary' style='min-width:88pt'>12.2</a> Temporary objects <a class='abbr_ref' href='class.temporary'>[class.temporary]</a></h2><div class='para' id='class.temporary-1'><div class='marginalizedparent'><a class='marginalized' href='#class.temporary-1'>1</a></div><p ><span class='indexparent'><a class='index' id='object_temporary'></a></span><span class='indexparent'><a class='index' id='temporary'></a></span><span class='indexparent'><a class='index' id='optimization_of_temporary'></a></span><span class='indexparent'><a class='index' id='temporary,elimination_of'></a></span><span class='indexparent'><a class='index' id='temporary,implementation-defined_generation_of'></a></span>Temporaries of class type are created in various contexts:
+binding a reference to a prvalue (<a href='dcl.init.ref'>[dcl.init.ref]</a>),
+returning a prvalue (<a href='stmt.return'>[stmt.return]</a>),
+a conversion that creates a prvalue (<a href='conv.lval'>[conv.lval]</a>, <a href='expr.static.cast'>[expr.static.cast]</a>,
+<a href='expr.const.cast'>[expr.const.cast]</a>, <a href='expr.cast'>[expr.cast]</a>),
+throwing an exception (<a href='except.throw'>[except.throw]</a>),
+entering a
+<a class='hidden_link' href='#def:handler' id='def:handler'><i>handler</i></a> (<a href='except.handle'>[except.handle]</a>), and in some initializations (<a href='dcl.init'>[dcl.init]</a>).
+[&nbsp;<i>Note:</i>
+The lifetime of exception objects is described in <a href='except.throw'>[except.throw]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+Even when the creation of the temporary object is
+unevaluated (Clause <a href='expr'>[expr]</a>) or otherwise
+avoided (<a href='class.copy'>[class.copy]</a>),
+all the semantic restrictions shall be respected as if the temporary object
+had been created and later destroyed.
+[&nbsp;<i>Note:</i>
+even if
+there is no call to the destructor or copy/move constructor,
+all the semantic restrictions,
+such as accessibility (Clause <a href='class.access'>[class.access]</a>)
+and whether the function is deleted (<a href='dcl.fct.def.delete'>[dcl.fct.def.delete]</a>), shall be satisfied.
+However, in the special case of a function call used as the operand of a
+<i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i> (<a href='expr.call'>[expr.call]</a>), no temporary is introduced,
+so the foregoing does not apply to the prvalue of any such function call.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.temporary-2'><div class='marginalizedparent'><a class='marginalized' href='#class.temporary-2'>2</a></div><p >[&nbsp;<i>Example:</i> Consider the following code:
+</p><pre class='codeblock'>
+class X {
+public:
+  X(int);
+  X(const X&amp;);
+  X&amp; operator=(const X&amp;);
+  ~X();
+};
+
+class Y {
+public:
+  Y(int);
+  Y(Y&amp;&amp;);
+  ~Y();
+};
+
+X f(X);
+Y g(Y);
+
+void h() {
+  X a(1);
+  X b = f(X(2));
+  Y c = g(Y(3));
+  a = f(a);
+}
+</pre><p ><span class='indexparent'><a class='index' id='class_object_copy'></a></span><span class='indexparent'><a class='index' id='constructor,copy'></a></span>An implementation might use a temporary in which to construct
+<span class='texttt'>X(2)</span>
+before passing it to
+<span class='texttt'>f()</span>
+using
+<span class='texttt'>X</span>'s
+copy constructor; alternatively,
+<span class='texttt'>X(2)</span>
+might be constructed in the space used to hold the argument.
+Likewise, an implementation might use a temporary in which to construct
+<span class='texttt'>Y(3)</span> before passing it to <span class='texttt'>g()</span> using <span class='texttt'>Y</span>'s move constructor;
+alternatively, <span class='texttt'>Y(3)</span> might be constructed in the space used to hold the argument.
+Also, a temporary might be used to hold the result of
+<span class='texttt'>f(X(2))</span>
+before copying it to
+<span class='texttt'>b</span>
+using
+<span class='texttt'>X</span>'s
+copy constructor; alternatively,
+<span class='texttt'>f()</span>'s
+result might be constructed in
+<span class='texttt'>b</span>.
+Likewise, a temporary might be used to hold the result of <span class='texttt'>g(Y(3))</span> before
+moving it to <span class='texttt'>c</span> using <span class='texttt'>Y</span>'s move constructor; alternatively, <span class='texttt'>g()</span>'s
+result might be constructed in <span class='texttt'>c</span>.
+On the other hand, the expression
+<span class='texttt'>a=f(a)</span>
+requires a temporary for
+the result of <span class='texttt'>f(a)</span>, which is then assigned to <span class='texttt'>a</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.temporary-3'><div class='marginalizedparent'><a class='marginalized' href='#class.temporary-3'>3</a></div><p ><span class='indexparent'><a class='index' id='temporary,constructor_for'></a></span><span class='indexparent'><a class='index' id='temporary,destructor_for'></a></span><span class='indexparent'><a class='index' id='temporary,destruction_of'></a></span>When an implementation introduces a temporary object of a class that has a
+non-trivial constructor (<a href='class.ctor'>[class.ctor]</a>, <a href='class.copy'>[class.copy]</a>), it shall ensure that
+a constructor is called for the temporary object.
+Similarly, the destructor shall be called for a temporary with a non-trivial
+destructor (<a href='class.dtor'>[class.dtor]</a>).
+Temporary objects are destroyed as the last step
+in evaluating
+the full-expression (<a href='intro.execution'>[intro.execution]</a>)
+that (lexically) contains the point where
+they were created.
+This is true even if that evaluation ends in throwing an exception.
+The
+<span class='indexparent'><a class='index' id='value_computation'></a></span>value computations and
+<span class='indexparent'><a class='index' id='side_effects'></a></span>side effects of destroying a temporary object
+are associated only with the full-expression, not with any specific
+subexpression.</p></div><div class='para' id='class.temporary-4'><div class='marginalizedparent'><a class='marginalized' href='#class.temporary-4'>4</a></div><p ><span class='indexparent'><a class='index' id='initializer,temporary_and_declarator'></a></span><span class='indexparent'><a class='index' id='temporary,order_of_destruction_of'></a></span>There are two contexts in which temporaries are destroyed at a different
+point than the end of the full-expression.
+The first context is when a default constructor is called to initialize an
+element of an array. If the constructor has one or more default arguments,
+the destruction of every temporary created in
+a default argument is sequenced before the construction of the next array element, if any.</p></div><div class='para' id='class.temporary-5'><div class='marginalizedparent'><a class='marginalized' href='#class.temporary-5'>5</a></div><p >The second context is when a reference is bound to a temporary.
+The temporary to which the reference is bound or the temporary
+that is the complete object of a subobject to which the reference is bound
+persists for the lifetime of the reference except:</p><ul ><li ><p >A temporary bound to a reference member in a constructor's ctor-initializer (<a href='class.base.init'>[class.base.init]</a>) persists until the constructor exits.</p></li><li ><p >A temporary bound to a reference parameter in a function call (<a href='expr.call'>[expr.call]</a>)
+persists until the completion of the full-expression containing the call.</p></li><li ><p >The lifetime of a temporary bound to the returned value in a function return statement (<a href='stmt.return'>[stmt.return]</a>) is not extended; the temporary is destroyed at the end of the full-expression in the return statement.</p></li><li ><p >A temporary bound to a reference in a <i ><a href='expr.new#nt:new-initializer'>new-initializer</a></i> (<a href='expr.new'>[expr.new]</a>) persists until the completion of the full-expression containing the <i ><a href='expr.new#nt:new-initializer'>new-initializer</a></i>. [&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct S { int mi; const std::pair&lt;int,int&gt;&amp; mp; };
+S a { 1, {2,3} };
+S* p = new S{ 1, {2,3} };   <span class='comment'>// Creates dangling reference
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;] [&nbsp;<i>Note:</i> This may introduce a dangling reference, and implementations are encouraged to issue a warning in such a case. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></li></ul><p >The destruction of a temporary whose lifetime is not extended by being
+bound to a reference is sequenced before the destruction of every
+temporary which is constructed earlier in the same full-expression.
+If the lifetime of two or more temporaries to which references are bound ends
+at the same point,
+these temporaries are destroyed at that point in the reverse order of the
+completion of their construction.
+In addition, the destruction of temporaries bound to references shall
+take into account the ordering of destruction of objects with static, thread, or
+automatic storage duration (<a href='basic.stc.static'>[basic.stc.static]</a>, <a href='basic.stc.thread'>[basic.stc.thread]</a>, <a href='basic.stc.auto'>[basic.stc.auto]</a>);
+that is, if
+<span class='texttt'>obj1</span>
+is an object with the same storage duration as the temporary and
+created before the temporary is created 
+the temporary shall be destroyed before
+<span class='texttt'>obj1</span>
+is destroyed;
+if
+<span class='texttt'>obj2</span>
+is an object with the same storage duration as the temporary and
+created after the temporary is created
+the temporary shall be destroyed after
+<span class='texttt'>obj2</span>
+is destroyed.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct S {
+  S();
+  S(int);
+  friend S operator+(const S&amp;, const S&amp;);
+  ~S();
+};
+S obj1;
+const S&amp; cr = S(16)+S(23);
+S obj2;
+</pre><p >the expression
+<span class='texttt'>S(16) + S(23)</span>
+creates three temporaries:
+a first temporary
+<span class='texttt'>T1</span>
+to hold the result of the expression
+<span class='texttt'>S(16)</span>,
+a second temporary
+<span class='texttt'>T2</span>
+to hold the result of the expression
+<span class='texttt'>S(23)</span>,
+and a third temporary
+<span class='texttt'>T3</span>
+to hold the result of the addition of these two expressions.
+The temporary
+<span class='texttt'>T3</span>
+is then bound to the reference
+<span class='texttt'>cr</span>.
+It is unspecified whether
+<span class='texttt'>T1</span>
+or
+<span class='texttt'>T2</span>
+is created first.
+On an implementation where
+<span class='texttt'>T1</span>
+is created before
+<span class='texttt'>T2</span>,
+it is guaranteed that
+<span class='texttt'>T2</span>
+is destroyed before
+<span class='texttt'>T1</span>.
+The temporaries
+<span class='texttt'>T1</span>
+and
+<span class='texttt'>T2</span>
+are bound to the reference parameters of
+<span class='texttt'>operator+</span>;
+these temporaries are destroyed at the end of the full-expression
+containing the call to
+<span class='texttt'>operator+</span>.
+The temporary
+<span class='texttt'>T3</span>
+bound to the reference
+<span class='texttt'>cr</span>
+is destroyed at the end of
+<span class='texttt'>cr</span>'s
+lifetime, that is, at the end of the program.
+In addition, the order in which
+<span class='texttt'>T3</span>
+is destroyed takes into account the destruction order of other objects with
+static storage duration.
+That is, because
+<span class='texttt'>obj1</span>
+is constructed before
+<span class='texttt'>T3</span>,
+and
+<span class='texttt'>T3</span>
+is constructed before
+<span class='texttt'>obj2</span>,
+it is guaranteed that
+<span class='texttt'>obj2</span>
+is destroyed before
+<span class='texttt'>T3</span>,
+and that
+<span class='texttt'>T3</span>
+is destroyed before
+<span class='texttt'>obj1</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div id='class.conv'><h2 ><a class='secnum' href='#class.conv' style='min-width:88pt'>12.3</a> Conversions <a class='abbr_ref' href='class.conv'>[class.conv]</a></h2><div class='para' id='class.conv-1'><div class='marginalizedparent'><a class='marginalized' href='#class.conv-1'>1</a></div><p ><span class='indexparent'><a class='index' id='conversion,class'></a></span><span class='indexparent'><a class='index' id='conversion,user-defined'></a></span><span class='indexparent'><a class='index' id='constructor,_conversion_by'></a></span><span class='indexparent'><a class='index' id='conversion_function'></a></span><span class='indexparent'><a class='index' id='conversion,implicit'></a></span>Type conversions of class objects can be specified by constructors and
+by conversion functions.
+These conversions are called
+<a class='hidden_link' href='#def:user-defined_conversions' id='def:user-defined_conversions'><i>user-defined conversions</i></a>
+and are used for implicit type conversions (Clause <a href='conv'>[conv]</a>),
+for initialization (<a href='dcl.init'>[dcl.init]</a>),
+and for explicit type conversions (<a href='expr.cast'>[expr.cast]</a>, <a href='expr.static.cast'>[expr.static.cast]</a>).</p></div><div class='para' id='class.conv-2'><div class='marginalizedparent'><a class='marginalized' href='#class.conv-2'>2</a></div><p >User-defined conversions are applied only where they are unambiguous (<a href='class.member.lookup'>[class.member.lookup]</a>, <a href='class.conv.fct'>[class.conv.fct]</a>).
+Conversions obey the access control rules (Clause <a href='class.access'>[class.access]</a>).
+Access control is applied after ambiguity resolution (<a href='basic.lookup'>[basic.lookup]</a>).</p></div><div class='para' id='class.conv-3'><div class='marginalizedparent'><a class='marginalized' href='#class.conv-3'>3</a></div><p >[&nbsp;<i>Note:</i>
+See <a href='over.match'>[over.match]</a> for a discussion of the use of conversions in function calls
+as well as examples below.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.conv-4'><div class='marginalizedparent'><a class='marginalized' href='#class.conv-4'>4</a></div><p ><span class='indexparent'><a class='index' id='conversion,implicit_user-defined'></a></span>At most one user-defined conversion (constructor or conversion function)
+is implicitly applied to a single value.</p><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct X {
+  operator int();
+};
+
+struct Y {
+  operator X();
+};
+
+Y a;
+int b = a;          <span class='comment'>// error
+</span>                    <span class='comment'>// <span class='texttt'>a.operator X().operator int()</span> not tried
+</span>int c = X(a);       <span class='comment'>// OK: <span class='texttt'>a.operator X().operator int()</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.conv-5'><div class='marginalizedparent'><a class='marginalized' href='#class.conv-5'>5</a></div><p >User-defined conversions are used implicitly only if they are unambiguous.
+<span class='indexparent'><a class='index' id='name_hiding,user-defined_conversion_and'></a></span>A conversion function in a derived class does not hide a conversion function
+in a base class unless the two functions convert to the same type.
+Function overload resolution (<a href='over.match.best'>[over.match.best]</a>) selects the best
+conversion function to perform the conversion.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct X {
+  operator int();
+};
+
+struct Y : X {
+    operator char();
+};
+
+void f(Y&amp; a) {
+  if (a) {          <span class='comment'>// ill-formed:
+</span>                    <span class='comment'>// <span class='texttt'>X::operator int()</span> or <span class='texttt'>Y::operator char()</span>
+</span>  }
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div id='class.conv.ctor'><h3 ><a class='secnum' href='#class.conv.ctor' style='min-width:103pt'>12.3.1</a> Conversion by constructor <a class='abbr_ref' href='class.conv.ctor'>[class.conv.ctor]</a></h3><p ><span class='indexparent'><a class='index' id='conversion,user-defined'></a></span></p><div class='para' id='class.conv.ctor-1'><div class='marginalizedparent'><a class='marginalized' href='#class.conv.ctor-1'>1</a></div><p >A constructor declared without the
+<i ><a href='dcl.fct.spec#nt:function-specifier'>function-specifier</a></i>
+<span class='texttt'>explicit</span>
+specifies a conversion from
+the types of its parameters
+to the type of its class.
+Such a constructor is called a
+<span class='indexparent'><a class='index' id='constructor,converting'></a></span><a class='hidden_link' href='#def:converting_constructor' id='def:converting_constructor'><i>converting constructor</i></a>.
+[&nbsp;<i>Example:</i></p><p ><span class='indexparent'><a class='index' id='Jessie'></a></span></p><pre class='codeblock'>
+struct X {
+    X(int);
+    X(const char*, int =0);
+};
+
+void f(X arg) {
+  X a = 1;          <span class='comment'>// <span class='texttt'>a = X(1)</span>
+</span>  X b = "Jessie";   <span class='comment'>// <span class='texttt'>b = X("Jessie",0)</span>
+</span>  a = 2;            <span class='comment'>// <span class='texttt'>a = X(2)</span>
+</span>  f(3);             <span class='comment'>// <span class='texttt'>f(X(3))</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.conv.ctor-2'><div class='marginalizedparent'><a class='marginalized' href='#class.conv.ctor-2'>2</a></div><p >An explicit constructor constructs objects just like non-explicit
+constructors, but does so only where the direct-initialization syntax (<a href='dcl.init'>[dcl.init]</a>) or where casts (<a href='expr.static.cast'>[expr.static.cast]</a>, <a href='expr.cast'>[expr.cast]</a>) are explicitly
+used.
+A default constructor may be an explicit constructor; such a constructor
+will be used to perform default-initialization
+or value-initialization (<a href='dcl.init'>[dcl.init]</a>).
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct Z {
+  explicit Z();
+  explicit Z(int);
+};
+
+Z a;                            <span class='comment'>// OK: default-initialization performed
+</span>Z a1 = 1;                       <span class='comment'>// error: no implicit conversion
+</span>Z a3 = Z(1);                    <span class='comment'>// OK: direct initialization syntax used
+</span>Z a2(1);                        <span class='comment'>// OK: direct initialization syntax used
+</span>Z* p = new Z(1);                <span class='comment'>// OK: direct initialization syntax used
+</span>Z a4 = (Z)1;                    <span class='comment'>// OK: explicit cast used
+</span>Z a5 = static_cast&lt;Z&gt;(1);       <span class='comment'>// OK: explicit cast used
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.conv.ctor-3'><div class='marginalizedparent'><a class='marginalized' href='#class.conv.ctor-3'>3</a></div><p >A
+non-explicit
+copy/move constructor (<a href='class.copy'>[class.copy]</a>) is a converting constructor.
+An implicitly-declared copy/move constructor is not an explicit constructor;
+it may be called for implicit type conversions.</p></div></div><div id='class.conv.fct'><h3 ><a class='secnum' href='#class.conv.fct' style='min-width:103pt'>12.3.2</a> Conversion functions <a class='abbr_ref' href='class.conv.fct'>[class.conv.fct]</a></h3><p ><span class='indexparent'><a class='index' id='function,conversion'></a></span><span class='indexparent'><a class='index' id='fundamental_type_conversion'></a></span><span class='indexparent'><a class='index' id='conversion,user-defined'></a></span><span class='indexparent'><a class='index' id='conversion_operator'></a></span></p><div class='para' id='class.conv.fct-1'><div class='marginalizedparent'><a class='marginalized' href='#class.conv.fct-1'>1</a></div><p >A member function of a class <span class='texttt'>X</span> having no parameters with a name of the form</p><pre class='bnf'><a id='nt:conversion-function-id'>conversion-function-id:</a>
+    <span class='terminal'>operator</span> <i ><a href='class.conv.fct#nt:conversion-type-id'>conversion-type-id</a></i></pre><pre class='bnf'><a id='nt:conversion-type-id'>conversion-type-id:</a>
+    <i ><a href='dcl.type#nt:type-specifier-seq'>type-specifier-seq</a></i> <i ><a href='class.conv.fct#nt:conversion-declarator'>conversion-declarator</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span></pre><pre class='bnf'><a id='nt:conversion-declarator'>conversion-declarator:</a>
+    <i ><a href='dcl.decl#nt:ptr-operator'>ptr-operator</a></i> <i ><a href='class.conv.fct#nt:conversion-declarator'>conversion-declarator</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span></pre><p >specifies a conversion from
+<span class='texttt'>X</span>
+to the type specified by the
+<i ><a href='class.conv.fct#nt:conversion-type-id'>conversion-type-id</a></i>.
+Such functions are called conversion functions.
+No return type can be specified.
+<span class='indexparent'><a class='index' id='conversion,type_of'></a></span>If a conversion function is a member function, the type of the conversion function (<a href='dcl.fct'>[dcl.fct]</a>) is
+“function taking no parameter returning
+<i ><a href='class.conv.fct#nt:conversion-type-id'>conversion-type-id</a></i>”.
+A conversion function is never used to convert a (possibly cv-qualified) object
+to the (possibly cv-qualified) same object type (or a reference to it),
+to a (possibly cv-qualified) base class of that type (or a reference to it),
+or to (possibly cv-qualified) void.<a class='footnotenum' href='#footnote-116'>116</a></p><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct X {
+  operator int();
+};
+
+void f(X a) {
+  int i = int(a);
+  i = (int)a;
+  i = a;
+}
+</pre><p >In all three cases the value assigned will be converted by
+<span class='texttt'>X::operator int()</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.conv.fct-2'><div class='marginalizedparent'><a class='marginalized' href='#class.conv.fct-2'>2</a></div><p >A conversion function may be explicit (<a href='dcl.fct.spec'>[dcl.fct.spec]</a>), in which case it is only considered as a user-defined conversion for direct-initialization (<a href='dcl.init'>[dcl.init]</a>). Otherwise, user-defined conversions are not restricted to use in assignments and initializations.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+class Y { };
+struct Z {
+  explicit operator Y() const;
+};
+
+void h(Z z) {
+  Y y1(z);          <span class='comment'>// OK: direct-initialization
+</span>  Y y2 = z;         <span class='comment'>// ill-formed: copy-initialization
+</span>  Y y3 = (Y)z;      <span class='comment'>// OK: cast notation
+</span>}
+
+void g(X a, X b) {
+  int i = (a) ? 1+a : 0;
+  int j = (a&amp;&amp;b) ? a+b : i;
+  if (a) {
+  }
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.conv.fct-3'><div class='marginalizedparent'><a class='marginalized' href='#class.conv.fct-3'>3</a></div><p >The
+<i ><a href='class.conv.fct#nt:conversion-type-id'>conversion-type-id</a></i>
+shall not represent a function type nor an array type.
+The
+<i ><a href='class.conv.fct#nt:conversion-type-id'>conversion-type-id</a></i>
+in a
+<i ><a href='class.conv.fct#nt:conversion-function-id'>conversion-function-id</a></i>
+is the longest possible sequence of
+<i ><a href='class.conv.fct#nt:conversion-declarator'>conversion-declarators</a></i>.
+[&nbsp;<i>Note:</i>
+This prevents ambiguities between the declarator operator * and its expression
+counterparts.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+&amp;ac.operator int*i; <span class='comment'>// syntax error:
+</span>                    <span class='comment'>// parsed as: <span class='texttt'>&amp;(ac.operator int *)i</span>
+</span>                    <span class='comment'>// not as: <span class='texttt'>&amp;(ac.operator int)*i</span>
+</span></pre><p >The <span class='texttt'>*</span> is the pointer declarator and not the multiplication operator.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.conv.fct-4'><div class='marginalizedparent'><a class='marginalized' href='#class.conv.fct-4'>4</a></div><p ><span class='indexparent'><a class='index' id='conversion,inheritance_of_user-defined'></a></span>Conversion functions are inherited.</p></div><div class='para' id='class.conv.fct-5'><div class='marginalizedparent'><a class='marginalized' href='#class.conv.fct-5'>5</a></div><p ><span class='indexparent'><a class='index' id='conversion,virtual_user-defined'></a></span>Conversion functions can be virtual.</p></div><div class='para' id='class.conv.fct-6'><div class='marginalizedparent'><a class='marginalized' href='#class.conv.fct-6'>6</a></div><p ><span class='indexparent'><a class='index' id='conversion,static_user-defined'></a></span>Conversion functions cannot be declared
+<span class='texttt'>static</span>.</p></div><div class='footnote' id='footnote-116'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-116'>116)</a></div><p >These conversions are considered
+as standard conversions for the purposes of overload resolution (<a href='over.best.ics'>[over.best.ics]</a>, <a href='over.ics.ref'>[over.ics.ref]</a>) and therefore initialization (<a href='dcl.init'>[dcl.init]</a>) and explicit casts (<a href='expr.static.cast'>[expr.static.cast]</a>). A conversion to <span class='texttt'>void</span> does not invoke any conversion function (<a href='expr.static.cast'>[expr.static.cast]</a>).
+Even though never directly called to perform a conversion,
+such conversion functions can be declared and can potentially
+be reached through a call to a virtual conversion function in a base class.</p></div></div></div><div id='class.dtor'><h2 ><a class='secnum' href='#class.dtor' style='min-width:88pt'>12.4</a> Destructors <a class='abbr_ref' href='class.dtor'>[class.dtor]</a></h2><p ><span class='indexparent'><a class='index' id='destructor'></a></span></p><div class='para' id='class.dtor-1'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-1'>1</a></div><p >A special declarator syntax using an optional
+<i ><a href='dcl.fct.spec#nt:function-specifier'>function-specifier</a></i> (<a href='dcl.fct.spec'>[dcl.fct.spec]</a>) followed by
+<span class='texttt'>~</span>
+followed by the destructor's class name
+followed by an empty parameter list
+is used to declare the destructor in a class definition.
+In such a declaration, the
+<span class='texttt'>~</span>
+followed by the destructor's class name can be enclosed in optional parentheses;
+such parentheses are ignored.
+A
+<i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i>
+shall not be used as the
+<i ><a href='class#nt:class-name'>class-name</a></i>
+following the
+<span class='texttt'><span class='math'>~</span></span>
+in the declarator for a destructor declaration.</p></div><div class='para' id='class.dtor-2'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-2'>2</a></div><p >A destructor is used to destroy objects of its class type.
+<span class='indexparent'><a class='index' id='restriction,destructor'></a></span>A destructor takes no parameters, and no return type can be
+specified for it (not even
+<span class='texttt'>void</span>).
+The address of a destructor shall not be taken.
+A destructor shall not be
+<span class='texttt'>static</span>.
+<span class='indexparent'><a class='index' id='const,destructor_and'></a></span><span class='indexparent'><a class='index' id='volatile,destructor_and'></a></span>A destructor can be invoked for a
+<span class='texttt'>const</span>,
+<span class='texttt'>volatile</span>
+or
+<span class='texttt'>const</span>
+<span class='texttt'>volatile</span>
+object.
+A destructor shall not be declared
+<span class='texttt'>const</span>,
+<span class='texttt'>volatile</span>
+or
+<span class='texttt'>const</span>
+<span class='texttt'>volatile</span> (<a href='class.this'>[class.this]</a>).
+<span class='texttt'>const</span>
+and
+<span class='texttt'>volatile</span>
+semantics (<a href='dcl.type.cv'>[dcl.type.cv]</a>) are not applied on an object under destruction.
+They stop being in effect when the destructor for the
+most derived object (<a href='intro.object'>[intro.object]</a>) starts.
+A destructor shall not be declared with a <i ><a href='dcl.decl#nt:ref-qualifier'>ref-qualifier</a></i>.</p></div><div class='para' id='class.dtor-3'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-3'>3</a></div><p >A declaration of a destructor that does not have an <i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i>
+is implicitly considered to have the same <i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i> as an
+implicit declaration (<a href='except.spec'>[except.spec]</a>).</p></div><div class='para' id='class.dtor-4'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-4'>4</a></div><p ><span class='indexparent'><a class='index' id='generated_destructor'></a></span><span class='indexparent'><a class='index' id='destructor,default'></a></span><span class='indexparent'><a class='index' id='destructor,non-trivial'></a></span>If a class has no user-declared
+destructor, a destructor is implicitly
+declared as defaulted (<a href='dcl.fct.def'>[dcl.fct.def]</a>).
+An implicitly-declared destructor is an
+<span class='texttt'>inline</span>
+<span class='texttt'>public</span>
+member of its class.</p></div><div class='para' id='class.dtor-5'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-5'>5</a></div><p >A defaulted destructor for a class
+  <span class='texttt'>X</span> is defined as deleted if:
+</p><ul ><li ><p ><span class='texttt'>X</span> is a union-like class that has a variant
+  member with a non-trivial destructor,</p></li><li ><p >any of the non-static data members has class type
+  <span class='texttt'>M</span> (or array thereof) and
+  <span class='texttt'>M</span> has a deleted destructor or a destructor
+  that is inaccessible from the defaulted destructor,</p></li><li ><p >any direct or virtual base class has a deleted
+  destructor or a destructor that is inaccessible from the
+  defaulted destructor,</p></li><li ><p >or, for a virtual destructor, lookup of the non-array deallocation
+  function results in an ambiguity or in a function that is deleted or
+  inaccessible from the defaulted destructor.
+</p></li></ul><p >A destructor is trivial if it is not user-provided and if:</p><ul ><li ><p >the destructor is not <span class='texttt'>virtual</span>,</p></li><li ><p >all of the direct base classes of its class have trivial destructors, and</p></li><li ><p >for all of the non-static data members of its class that are of class
+type (or array thereof), each such class has a trivial destructor.
+</p></li></ul><p >Otherwise, the destructor is
+<span class='grammarterm'>non-trivial</span>.</p></div><div class='para' id='class.dtor-6'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-6'>6</a></div><p ><span class='indexparent'><a class='index' id='destructor,implicitly_defined'></a></span>A destructor
+that is defaulted and not defined as deleted
+is
+<a class='hidden_link' href='#def:implicitly_defined' id='def:implicitly_defined'><i>implicitly defined</i></a>
+when it is odr-used (<a href='basic.def.odr'>[basic.def.odr]</a>) to destroy an object of its class type (<a href='basic.stc'>[basic.stc]</a>)
+or when it is explicitly defaulted after its first declaration.</p></div><div class='para' id='class.dtor-7'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-7'>7</a></div><p >Before the
+defaulted destructor for a class is implicitly defined, all the non-user-provided
+destructors for its base classes and its non-static data members shall have been
+implicitly defined.</p></div><div class='para' id='class.dtor-8'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-8'>8</a></div><p ><span class='indexparent'><a class='index' id='order_of_execution,destructor'></a></span><span class='indexparent'><a class='index' id='order_of_execution,base_class_destructor'></a></span><span class='indexparent'><a class='index' id='order_of_execution,member_destructor'></a></span>After executing the body of the destructor and destroying
+any automatic objects allocated within the body, a
+destructor for class
+<span class='texttt'>X</span>
+calls the destructors for
+<span class='texttt'>X</span>'s
+direct non-variant non-static data members, the destructors for
+<span class='texttt'>X</span>'s
+direct base classes and, if
+<span class='texttt'>X</span>
+is the type of the most derived class (<a href='class.base.init'>[class.base.init]</a>),
+its destructor calls the destructors for
+<span class='texttt'>X</span>'s
+virtual base classes.
+All destructors are called as if they were referenced with a qualified name,
+that is, ignoring any possible virtual overriding destructors in more
+derived classes.
+Bases and members are destroyed in the reverse order of the completion of
+their constructor (see <a href='class.base.init'>[class.base.init]</a>).
+A
+<span class='texttt'>return</span>
+statement (<a href='stmt.return'>[stmt.return]</a>) in a destructor might not directly return to the
+caller; before transferring control to the caller, the destructors for the
+members and bases are called.
+<span class='indexparent'><a class='index' id='order_of_execution,destructor_and_array'></a></span>Destructors for elements of an array are called in reverse order of their
+construction (see <a href='class.init'>[class.init]</a>).</p></div><div class='para' id='class.dtor-9'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-9'>9</a></div><p ><span class='indexparent'><a class='index' id='destructor,virtual'></a></span><span class='indexparent'><a class='index' id='destructor,pure_virtual'></a></span>A destructor can be declared
+<span class='texttt'>virtual</span> (<a href='class.virtual'>[class.virtual]</a>)
+or pure
+<span class='texttt'>virtual</span> (<a href='class.abstract'>[class.abstract]</a>);
+if any objects of that class or any derived class are created in the program,
+the destructor shall be defined.
+If a class has a base class with a virtual destructor, its  destructor
+(whether user- or implicitly-declared) is virtual.</p></div><div class='para' id='class.dtor-10'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-10'>10</a></div><p >[&nbsp;<i>Note:</i>
+<span class='indexparent'><a class='index' id='member_function,destructor_and'></a></span>some language constructs have special semantics when used during destruction;
+see <a href='class.cdtor'>[class.cdtor]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.dtor-11'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-11'>11</a></div><p ><span class='indexparent'><a class='index' id='destructor,implicit_call'></a></span><span class='indexparent'><a class='index' id='destructor,program_termination_and'></a></span>Destructors are invoked implicitly</p><ul ><li ><p >for constructed objects with static storage duration (<a href='basic.stc.static'>[basic.stc.static]</a>) at program termination (<a href='basic.start.term'>[basic.start.term]</a>),</p></li><li ><p >for constructed objects with thread storage duration (<a href='basic.stc.thread'>[basic.stc.thread]</a>) at thread exit,</p></li><li ><p >for constructed objects with automatic storage duration (<a href='basic.stc.auto'>[basic.stc.auto]</a>) when the block in which an object is created exits (<a href='stmt.dcl'>[stmt.dcl]</a>),</p></li><li ><p >for constructed temporary objects when the lifetime
+of a temporary object ends (<a href='class.temporary'>[class.temporary]</a>),
+<span class='indexparent'><a class='index' id='delete,destructor_and'></a></span>
+</p></li><li ><p >for constructed objects allocated by a
+<i ><a href='expr.new#nt:new-expression'>new-expression</a></i> (<a href='expr.new'>[expr.new]</a>), through use of a
+<i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i> (<a href='expr.delete'>[expr.delete]</a>),</p></li><li ><p >in several situations due to the handling of exceptions (<a href='except.handle'>[except.handle]</a>).
+</p></li></ul><p >A program is ill-formed if an object of class type or array thereof is
+declared and the destructor for the class is not accessible at the point
+of the declaration.
+<span class='indexparent'><a class='index' id='destructor,explicit_call'></a></span>Destructors can also be invoked explicitly.</p></div><div class='para' id='class.dtor-12'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-12'>12</a></div><p >At the point of definition of a virtual destructor (including an implicit
+definition (<a href='class.copy'>[class.copy]</a>)), the non-array deallocation function is looked up
+in the scope of the destructor's class (<a href='class.member.lookup'>[class.member.lookup]</a>), and, if no
+declaration is found, the function is looked up in the global scope.
+If the result of this lookup is ambiguous or inaccessible, or if the lookup
+selects a placement deallocation function or a function with a deleted definition (<a href='dcl.fct.def'>[dcl.fct.def]</a>), the program is ill-formed.
+[&nbsp;<i>Note:</i>
+This assures that a deallocation function corresponding to the dynamic type of an
+object is available for the
+<i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i> (<a href='class.free'>[class.free]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.dtor-13'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-13'>13</a></div><p ><span class='indexparent'><a class='index' id='destructor,explicit_call'></a></span>In an explicit destructor call, the destructor name appears as a
+<span class='texttt'>~</span>
+followed by a
+<i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i> or <i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i>
+that denotes the destructor's class type.
+The invocation of a destructor is subject to the usual rules for member
+functions (<a href='class.mfct'>[class.mfct]</a>),
+that is, if the object is not of the destructor's class type and
+not of a class derived from the destructor's class type, the program has
+undefined behavior
+(except that invoking
+<span class='texttt'>delete</span>
+on a null pointer has no effect).
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct B {
+  virtual ~B() { }
+};
+struct D : B {
+  ~D() { }
+};
+
+D D_object;
+typedef B B_alias;
+B* B_ptr = &amp;D_object;
+
+void f() {
+  D_object.B::~B();             <span class='comment'>// calls <span class='texttt'>B</span>'s destructor
+</span>  B_ptr-&gt;~B();                  <span class='comment'>// calls <span class='texttt'>D</span>'s destructor
+</span>  B_ptr-&gt;~B_alias();            <span class='comment'>// calls <span class='texttt'>D</span>'s destructor
+</span>  B_ptr-&gt;B_alias::~B();         <span class='comment'>// calls <span class='texttt'>B</span>'s destructor
+</span>  B_ptr-&gt;B_alias::~B_alias();   <span class='comment'>// calls <span class='texttt'>B</span>'s destructor
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+An explicit destructor call must always be written using
+a member access operator (<a href='expr.ref'>[expr.ref]</a>) or a qualified-id (<a href='expr.prim'>[expr.prim]</a>);
+in particular, the
+<i ><a href='expr.unary#nt:unary-expression'>unary-expression</a></i>
+<span class='texttt'>~X()</span>
+in a member function is not an explicit destructor call (<a href='expr.unary.op'>[expr.unary.op]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.dtor-14'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-14'>14</a></div><p >[&nbsp;<i>Note:</i>
+<span class='indexparent'><a class='index' id='object,destructor_and_placement_of'></a></span>explicit calls of destructors are rarely needed.
+One use of such calls is for objects placed at specific
+addresses using a
+<i ><a href='expr.new#nt:new-expression'>new-expression</a></i>
+with the placement option.
+Such use of explicit placement and destruction of objects can be necessary
+to cope with dedicated hardware resources and for writing memory management
+facilities.
+For example,
+<span class='indexparent'><a class='index' id='example,explicit_destructor_call'></a></span>
+</p><pre class='codeblock'>
+void* operator new(std::size_t, void* p) { return p; }
+struct X {
+  X(int);
+  ~X();
+};
+void f(X* p);
+
+void g() {                      <span class='comment'>// rare, specialized use:
+</span>  char* buf = new char[sizeof(X)];
+  X* p = new(buf) X(222);       <span class='comment'>// use <span class='texttt'>buf[]</span> and initialize
+</span>  f(p);
+  p-&gt;X::~X();                   <span class='comment'>// cleanup
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.dtor-15'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-15'>15</a></div><p >Once a destructor is invoked for an object, the object no longer exists;
+the behavior is undefined if the destructor is invoked
+for an object whose lifetime has ended (<a href='basic.life'>[basic.life]</a>).
+[&nbsp;<i>Example:</i>
+if the destructor for an automatic object is explicitly invoked,
+and the block is subsequently left in a manner that would ordinarily
+invoke implicit destruction of the object, the behavior is undefined.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.dtor-16'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-16'>16</a></div><p >[&nbsp;<i>Note:</i>
+<span class='indexparent'><a class='index' id='fundamental_type,destructor_and'></a></span>the notation for explicit call of a destructor can be used for any scalar type
+name (<a href='expr.pseudo'>[expr.pseudo]</a>).
+Allowing this makes it possible to write code without having to know if a
+destructor exists for a given type.
+For example,</p><pre class='codeblock'>
+typedef int I;
+I* p;
+p-&gt;I::~I();
+</pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='class.free'><h2 ><a class='secnum' href='#class.free' style='min-width:88pt'>12.5</a> Free store <a class='abbr_ref' href='class.free'>[class.free]</a></h2><p ><span class='indexparent'><a class='index' id='free_store'></a></span>
+</p><div class='para' id='class.free-1'><div class='marginalizedparent'><a class='marginalized' href='#class.free-1'>1</a></div><p ><span class='indexparent'><a class='index' id='new,type_of'></a></span>
+Any allocation function for a class
+<span class='texttt'>T</span>
+is a static member (even if not explicitly declared
+<span class='texttt'>static</span>).</p></div><div class='para' id='class.free-2'><div class='marginalizedparent'><a class='marginalized' href='#class.free-2'>2</a></div><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+class Arena;
+struct B {
+  void* operator new(std::size_t, Arena*);
+};
+struct D1 : B {
+};
+
+Arena*  ap;
+void foo(int i) {
+  new (ap) D1;      <span class='comment'>// calls <span class='texttt'>B::operator new(std::size_t, Arena*)</span>
+</span>  new D1[i];        <span class='comment'>// calls <span class='texttt'>::operator new[](std::size_t)</span>
+</span>  new D1;           <span class='comment'>// ill-formed: <span class='texttt'>::operator new(std::size_t)</span> hidden
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.free-3'><div class='marginalizedparent'><a class='marginalized' href='#class.free-3'>3</a></div><p ><span class='indexparent'><a class='index' id='delete'></a></span>When an object is deleted with a
+<i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i> (<a href='expr.delete'>[expr.delete]</a>),
+a <a class='hidden_link' href='#def:deallocation_function' id='def:deallocation_function'><i>deallocation function</i></a>
+<span class='indexparent'><a class='index' id='function,deallocation'></a></span>(<span class='texttt'>operator delete()</span>
+<span class='indexparent'><a class='index' id='operator_delete'></a></span>for non-array objects or
+<span class='texttt'>operator delete[]()</span>
+<span class='indexparent'><a class='index' id='operator_delete'></a></span>for arrays) is (implicitly) called to reclaim the storage occupied by
+the object (<a href='basic.stc.dynamic.deallocation'>[basic.stc.dynamic.deallocation]</a>).</p></div><div class='para' id='class.free-4'><div class='marginalizedparent'><a class='marginalized' href='#class.free-4'>4</a></div><p >If a
+<i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i>
+begins with a unary
+<span class='texttt'>::</span>
+operator,
+the deallocation function's name is looked up in global scope.
+Otherwise, if the
+<i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i>
+is used to deallocate a class object whose static type has a virtual
+destructor, the deallocation function is the one selected at the point
+of definition of the dynamic type's virtual
+destructor (<a href='class.dtor'>[class.dtor]</a>).<a class='footnotenum' href='#footnote-117'>117</a>
+Otherwise, if the
+<i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i>
+is used to deallocate an object of class
+<span class='texttt'>T</span>
+or array thereof, the static and dynamic types of the object shall be
+identical and the deallocation function's name is looked up in the scope of
+<span class='texttt'>T</span>.
+If this lookup fails to find the name, the name is looked up in the global
+scope.
+If the result of the lookup is ambiguous or inaccessible, or if the lookup
+selects a placement deallocation function, the program is ill-formed.</p></div><div class='para' id='class.free-5'><div class='marginalizedparent'><a class='marginalized' href='#class.free-5'>5</a></div><p >When a
+<i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i>
+is executed, the selected deallocation function shall be called with
+the address of the block of storage to be reclaimed as its first argument and
+(if the two-parameter style is used) the size of the block as its second
+argument.<a class='footnotenum' href='#footnote-118'>118</a></p></div><div class='para' id='class.free-6'><div class='marginalizedparent'><a class='marginalized' href='#class.free-6'>6</a></div><p ><span class='indexparent'><a class='index' id='delete,type_of'></a></span>Any deallocation function for a class
+<span class='texttt'>X</span>
+is a static member (even if not explicitly declared
+<span class='texttt'>static</span>).
+<span class='indexparent'><a class='index' id='example,delete'></a></span>[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+class X {
+  void operator delete(void*);
+  void operator delete[](void*, std::size_t);
+};
+
+class Y {
+  void operator delete(void*, std::size_t);
+  void operator delete[](void*);
+};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.free-7'><div class='marginalizedparent'><a class='marginalized' href='#class.free-7'>7</a></div><p >Since member allocation and deallocation functions are
+<span class='texttt'>static</span>
+they cannot be virtual.
+[&nbsp;<i>Note:</i>
+<span class='indexparent'><a class='index' id='example,destructor_and_delete'></a></span><span class='indexparent'><a class='index' id='example,scope_of_delete'></a></span>however, when the
+<i ><a href='expr.cast#nt:cast-expression'>cast-expression</a></i>
+of a
+<i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i>
+refers to an object of class type,
+because the deallocation function actually called is looked up in the scope of
+the class that is the dynamic type of the object,
+if the destructor is virtual, the effect is the same.
+For example,</p><pre class='codeblock'>
+struct B {
+  virtual ~B();
+  void operator delete(void*, std::size_t);
+};
+
+struct D : B {
+  void operator delete(void*);
+};
+
+void f() {
+  B* bp = new D;
+  delete bp;        <span class='comment'>//1: uses <span class='texttt'>D::operator delete(void*)</span>
+</span>}
+</pre><p >Here, storage for the non-array object of class
+<span class='texttt'>D</span>
+is deallocated by
+<span class='texttt'>D::operator delete()</span>,
+due to the virtual destructor.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+Virtual destructors have no effect on the deallocation function actually
+called when the
+<i ><a href='expr.cast#nt:cast-expression'>cast-expression</a></i>
+of a
+<i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i>
+refers to an array of objects of class type.
+For example,</p><pre class='codeblock'>
+struct B {
+  virtual ~B();
+  void operator delete[](void*, std::size_t);
+};
+
+struct D : B {
+  void operator delete[](void*, std::size_t);
+};
+
+void f(int i) {
+  D* dp = new D[i];
+  delete [] dp;     <span class='comment'>// uses <span class='texttt'>D::operator delete[](void*, std::size_t)</span>
+</span>  B* bp = new D[i];
+  delete[] bp;      <span class='comment'>// undefined behavior
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.free-8'><div class='marginalizedparent'><a class='marginalized' href='#class.free-8'>8</a></div><p >Access to the deallocation function is checked statically.
+Hence, even though a different one might actually be executed,
+the statically visible deallocation function is required to be accessible.
+[&nbsp;<i>Example:</i>
+for the call on line //1 above,
+if
+<span class='texttt'>B::operator delete()</span>
+had been
+<span class='texttt'>private</span>,
+the delete expression would have been ill-formed.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.free-9'><div class='marginalizedparent'><a class='marginalized' href='#class.free-9'>9</a></div><p >[&nbsp;<i>Note:</i>
+If a deallocation function has no explicit <i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i>, it is
+treated as if it were specified with <span class='texttt'>noexcept(true)</span> (<a href='except.spec'>[except.spec]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-117'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-117'>117)</a></div><p >A similar provision is not needed for
+the array version of <span class='texttt'>operator</span> <span class='texttt'>delete</span> because <a href='expr.delete'>[expr.delete]</a>
+requires that in this situation, the static type of the object to be deleted be
+the same as its dynamic type.
+</p></div><div class='footnote' id='footnote-118'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-118'>118)</a></div><p >If the static type of the object to be deleted is different
+from
+the dynamic type and the destructor is not virtual the size might be
+incorrect, but that case is already undefined; see <a href='expr.delete'>[expr.delete]</a>.
+</p></div></div><div id='class.init'><h2 ><a class='secnum' href='#class.init' style='min-width:88pt'>12.6</a> Initialization <a class='abbr_ref' href='class.init'>[class.init]</a></h2><p ><span class='indexparent'><a class='index' id='initialization,class_object'></a></span><span class='indexparent'><a class='index' id='initialization,default_constructor_and'></a></span><span class='indexparent'><a class='index' id='initialization,constructor_and'></a></span></p><div class='para' id='class.init-1'><div class='marginalizedparent'><a class='marginalized' href='#class.init-1'>1</a></div><p >When no initializer is specified for an object of (possibly
+cv-qualified) class type (or array thereof), or the initializer has
+the form
+<span class='texttt'>()</span>,
+the object is initialized as specified in <a href='dcl.init'>[dcl.init]</a>.</p></div><div class='para' id='class.init-2'><div class='marginalizedparent'><a class='marginalized' href='#class.init-2'>2</a></div><p >An object of class type (or array thereof) can be explicitly initialized;
+see <a href='class.expl.init'>[class.expl.init]</a> and <a href='class.base.init'>[class.base.init]</a>.</p></div><div class='para' id='class.init-3'><div class='marginalizedparent'><a class='marginalized' href='#class.init-3'>3</a></div><p ><span class='indexparent'><a class='index' id='order_of_execution,constructor_and_array'></a></span>When an array of class objects is initialized
+(either explicitly or implicitly) and the elements are initialized by constructor,
+the constructor shall be called for each element of the array,
+following the subscript order; see <a href='dcl.array'>[dcl.array]</a>.
+[&nbsp;<i>Note:</i>
+Destructors for the array elements are called in reverse order of their
+construction.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div id='class.expl.init'><h3 ><a class='secnum' href='#class.expl.init' style='min-width:103pt'>12.6.1</a> Explicit initialization <a class='abbr_ref' href='class.expl.init'>[class.expl.init]</a></h3><p ><span class='indexparent'><a class='index' id='initialization,explicit'></a></span><span class='indexparent'><a class='index' id='initialization,constructor_and'></a></span>
+</p><div class='para' id='class.expl.init-1'><div class='marginalizedparent'><a class='marginalized' href='#class.expl.init-1'>1</a></div><p >An object of class type can be initialized with a parenthesized
+<i ><a href='expr.post#nt:expression-list'>expression-list</a></i>,
+where the
+<i ><a href='expr.post#nt:expression-list'>expression-list</a></i>
+is construed as an argument list for a constructor
+that is called to initialize the object.
+Alternatively, a single
+<i ><a href='expr.ass#nt:assignment-expression'>assignment-expression</a></i>
+can be specified as an
+<i ><a href='dcl.init#nt:initializer'>initializer</a></i>
+using the
+<span class='texttt'>=</span>
+form of initialization.
+Either direct-initialization semantics or copy-initialization semantics apply;
+see <a href='dcl.init'>[dcl.init]</a>.
+<span class='indexparent'><a class='index' id='example,constructor_and_initialization'></a></span>[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct complex {
+  complex();
+  complex(double);
+  complex(double,double);
+};
+
+complex sqrt(complex,complex);
+
+complex a(1);                   <span class='comment'>// initialize by a call of
+</span>                                <span class='comment'>// <span class='texttt'>complex(double)</span>
+</span>complex b = a;                  <span class='comment'>// initialize by a copy of <span class='texttt'>a</span>
+</span>complex c = complex(1,2);       <span class='comment'>// construct <span class='texttt'>complex(1,2)</span>
+</span>                                <span class='comment'>// using <span class='texttt'>complex(double,double)</span>
+</span>                                <span class='comment'>// copy/move it into <span class='texttt'>c</span>
+</span>complex d = sqrt(b,c);          <span class='comment'>// call <span class='texttt'>sqrt(complex,complex)</span>
+</span>                                <span class='comment'>// and copy/move the result into <span class='texttt'>d</span>
+</span>complex e;                      <span class='comment'>// initialize by a call of
+</span>                                <span class='comment'>// <span class='texttt'>complex()</span>
+</span>complex f = 3;                  <span class='comment'>// construct <span class='texttt'>complex(3)</span> using
+</span>                                <span class='comment'>// <span class='texttt'>complex(double)</span>
+</span>                                <span class='comment'>// copy/move it into <span class='texttt'>f</span>
+</span>complex g = { 1, 2 };           <span class='comment'>// construct <span class='texttt'>complex(1, 2)</span>
+</span>                                <span class='comment'>// using <span class='texttt'>complex(double, double)</span>
+</span>                                <span class='comment'>// and copy/move it into <span class='texttt'>g</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+<span class='indexparent'><a class='index' id='initialization,overloaded_assignment_and'></a></span>overloading of the assignment operator (<a href='over.ass'>[over.ass]</a>)
+has no effect on initialization.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.expl.init-2'><div class='marginalizedparent'><a class='marginalized' href='#class.expl.init-2'>2</a></div><p ><span class='indexparent'><a class='index' id='initialization,array_of_class_objects'></a></span><span class='indexparent'><a class='index' id='constructor,array_of_class_objects_and'></a></span>An object of class type can also be initialized by a
+<i ><a href='dcl.init#nt:braced-init-list'>braced-init-list</a></i>. List-initialization semantics apply;
+see <a href='dcl.init'>[dcl.init]</a> and <a href='dcl.init.list'>[dcl.init.list]</a>. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+complex v[6] = { 1, complex(1,2), complex(), 2 };
+</pre><p >Here,
+<span class='texttt'>complex::complex(double)</span>
+is called for the initialization of
+<span class='texttt'>v[0]</span>
+and
+<span class='texttt'>v[3]</span>,
+<span class='texttt'>complex::complex(<span class='discretionary'></span>double, double)</span>
+is called for the initialization of
+<span class='texttt'>v[1]</span>,
+<span class='texttt'>complex::complex()</span>
+is called for the initialization
+<span class='texttt'>v[2]</span>,
+<span class='texttt'>v[4]</span>,
+and
+<span class='texttt'>v[5]</span>.
+For another example,</p><pre class='codeblock'>
+struct X {
+  int i;
+  float f;
+  complex c;
+} x = { 99, 88.8, 77.7 };
+</pre><p >Here,
+<span class='texttt'>x.i</span>
+is initialized with 99,
+<span class='texttt'>x.f</span>
+is initialized with 88.8, and
+<span class='texttt'>complex::complex(double)</span>
+is called for the initialization of
+<span class='texttt'>x.c</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+Braces can be elided in the
+<i ><a href='dcl.init#nt:initializer-list'>initializer-list</a></i>
+for any aggregate, even if the aggregate has members of a class type with
+user-defined type conversions; see <a href='dcl.init.aggr'>[dcl.init.aggr]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.expl.init-3'><div class='marginalizedparent'><a class='marginalized' href='#class.expl.init-3'>3</a></div><p >[&nbsp;<i>Note:</i>
+If
+<span class='texttt'>T</span>
+is a class type with no default constructor,
+any declaration of an object of type
+<span class='texttt'>T</span>
+(or array thereof) is ill-formed if no
+<i ><a href='dcl.init#nt:initializer'>initializer</a></i>
+is explicitly specified (see <a href='class.init'>[class.init]</a> and <a href='dcl.init'>[dcl.init]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.expl.init-4'><div class='marginalizedparent'><a class='marginalized' href='#class.expl.init-4'>4</a></div><p >[&nbsp;<i>Note:</i>
+<span class='indexparent'><a class='index' id='order_of_execution,constructor_and_static_objects'></a></span>the order in which objects with static or thread storage duration
+are initialized is described in <a href='basic.start.init'>[basic.start.init]</a> and <a href='stmt.dcl'>[stmt.dcl]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='class.base.init'><h3 ><a class='secnum' href='#class.base.init' style='min-width:103pt'>12.6.2</a> Initializing bases and members <a class='abbr_ref' href='class.base.init'>[class.base.init]</a></h3><p ><span class='indexparent'><a class='index' id='initialization,base_class'></a></span><span class='indexparent'><a class='index' id='initialization,member'></a></span></p><div class='para' id='class.base.init-1'><div class='marginalizedparent'><a class='marginalized' href='#class.base.init-1'>1</a></div><p >In the definition of a constructor for a class,
+initializers for direct and virtual base subobjects and
+non-static data members can be specified by a
+<i ><a href='class.base.init#nt:ctor-initializer'>ctor-initializer</a></i>,
+which has the form</p><pre class='bnf'><a id='nt:ctor-initializer'>ctor-initializer:</a>
+    <span class='terminal'>:</span> <i ><a href='class.base.init#nt:mem-initializer-list'>mem-initializer-list</a></i></pre><pre class='bnf'><a id='nt:mem-initializer-list'>mem-initializer-list:</a>
+    <i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i> <span class='terminal'>...</span><span class='math'><sub ><span class='mathit'>opt</span></sub></span>
+    <i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i> <span class='terminal'>,</span> <i ><a href='class.base.init#nt:mem-initializer-list'>mem-initializer-list</a></i> <span class='terminal'>...</span><span class='math'><sub ><span class='mathit'>opt</span></sub></span></pre><pre class='bnf'><a id='nt:mem-initializer'>mem-initializer:</a>
+    <i ><a href='class.base.init#nt:mem-initializer-id'>mem-initializer-id</a></i> <span class='terminal'>(</span> <i ><a href='expr.post#nt:expression-list'>expression-list</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <span class='terminal'>)</span>
+    <i ><a href='class.base.init#nt:mem-initializer-id'>mem-initializer-id</a></i> <i ><a href='dcl.init#nt:braced-init-list'>braced-init-list</a></i></pre><pre class='bnf'><a id='nt:mem-initializer-id'>mem-initializer-id:</a>
+    <i ><a href='class.derived#nt:class-or-decltype'>class-or-decltype</a></i>
+    <i ><a href='lex.name#nt:identifier'>identifier</a></i></pre></div><div class='para' id='class.base.init-2'><div class='marginalizedparent'><a class='marginalized' href='#class.base.init-2'>2</a></div><p >In a <i ><a href='class.base.init#nt:mem-initializer-id'>mem-initializer-id</a></i> an initial unqualified
+<i ><a href='lex.name#nt:identifier'>identifier</a></i> is looked up in the scope of the constructor's class
+and, if not found in that scope, it is looked up in the scope containing the
+constructor's definition.
+[&nbsp;<i>Note:</i>
+If the constructor's class contains a member with the same name as a direct
+or virtual base class of the class, a
+<i ><a href='class.base.init#nt:mem-initializer-id'>mem-initializer-id</a></i>
+naming the member or base class and composed of a single identifier
+refers to the class member.
+A
+<i ><a href='class.base.init#nt:mem-initializer-id'>mem-initializer-id</a></i>
+for the hidden base class may be specified using a qualified name.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+Unless the
+<i ><a href='class.base.init#nt:mem-initializer-id'>mem-initializer-id</a></i>
+names the constructor's class,
+a non-static data member of the constructor's class, or
+a direct or virtual base of that class,
+the
+<i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i>
+is ill-formed.</p></div><div class='para' id='class.base.init-3'><div class='marginalizedparent'><a class='marginalized' href='#class.base.init-3'>3</a></div><p >A
+<i ><a href='class.base.init#nt:mem-initializer-list'>mem-initializer-list</a></i>
+can initialize a base class using any <i ><a href='class.derived#nt:class-or-decltype'>class-or-decltype</a></i> that denotes that base class type.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct A { A(); };
+  typedef A global_A;
+  struct B { };
+  struct C: public A, public B { C(); };
+  C::C(): global_A() { }        <span class='comment'>// mem-initializer for base <span class='texttt'>A</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.base.init-4'><div class='marginalizedparent'><a class='marginalized' href='#class.base.init-4'>4</a></div><p >If a
+<i ><a href='class.base.init#nt:mem-initializer-id'>mem-initializer-id</a></i>
+is ambiguous because it designates both a direct non-virtual base class and
+an inherited virtual base class, the
+<i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i>
+is ill-formed.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct A { A(); };
+struct B: public virtual A { };
+struct C: public A, public B { C(); };
+C::C(): A() { }                 <span class='comment'>// ill-formed: which <span class='texttt'>A</span>?
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.base.init-5'><div class='marginalizedparent'><a class='marginalized' href='#class.base.init-5'>5</a></div><p >A
+<i ><a href='class.base.init#nt:ctor-initializer'>ctor-initializer</a></i>
+may initialize a variant member of the
+constructor's class.
+If a
+<i ><a href='class.base.init#nt:ctor-initializer'>ctor-initializer</a></i>
+specifies more than one
+<i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i>
+for the same member or for the same base class,
+the
+<i ><a href='class.base.init#nt:ctor-initializer'>ctor-initializer</a></i>
+is ill-formed.</p></div><div class='para' id='class.base.init-6'><div class='marginalizedparent'><a class='marginalized' href='#class.base.init-6'>6</a></div><p >A <i ><a href='class.base.init#nt:mem-initializer-list'>mem-initializer-list</a></i> can delegate to another
+constructor of the constructor's class using any
+<i ><a href='class.derived#nt:class-or-decltype'>class-or-decltype</a></i> that denotes the constructor's class itself. If a
+<span class='small'></span><span class='rmfamily'></span><i> mem-initializer-id</i> designates the constructor's class,
+it shall be the only <span class='small'></span><span class='rmfamily'></span><i> mem-initializer</i>; the constructor
+is a <a class='hidden_link' href='#def:delegating_constructor' id='def:delegating_constructor'><i>delegating constructor</i></a>, and the constructor selected by the
+<span class='small'></span><span class='rmfamily'></span><i> mem-initializer</i> is the <a class='hidden_link' href='#def:target_constructor' id='def:target_constructor'><i>target constructor</i></a>.
+The <a class='hidden_link' href='#def:principal_constructor' id='def:principal_constructor'><i>principal constructor</i></a> is the first constructor invoked in
+the construction of an object (that is, not a target constructor for that
+object's construction). The target constructor is selected by overload resolution.
+Once the target constructor returns, the body of the delegating constructor
+is executed. If a constructor delegates to itself directly or indirectly,
+the program is ill-formed; no diagnostic is required. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct C {
+  C( int ) { }                  <span class='comment'>// #1: non-delegating constructor
+</span>  C(): C(42) { }                <span class='comment'>// #2: delegates to #1
+</span>  C( char c ) : C(42.0) { }     <span class='comment'>// #3: ill-formed due to recursion with #4
+</span>  C( double d ) : C('a') { }    <span class='comment'>// #4: ill-formed due to recursion with #3
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.base.init-7'><div class='marginalizedparent'><a class='marginalized' href='#class.base.init-7'>7</a></div><p ><span class='indexparent'><a class='index' id='initialization,base_class'></a></span><span class='indexparent'><a class='index' id='initialization,member_object'></a></span>The
+<i ><a href='expr.post#nt:expression-list'>expression-list</a></i>
+or <i ><a href='dcl.init#nt:braced-init-list'>braced-init-list</a></i>
+in a
+<i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i>
+is used to initialize the
+designated subobject (or, in the case of a delegating constructor, the complete class object)
+according to the initialization rules of <a href='dcl.init'>[dcl.init]</a> for direct-initialization.</p><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct B1 { B1(int); <span class='comment'>/* ... */</span> };
+struct B2 { B2(int); <span class='comment'>/* ... */</span> };
+struct D : B1, B2 {
+  D(int);
+  B1 b;
+  const int c;
+};
+
+D::D(int a) : B2(a+1), B1(a+2), c(a+3), b(a+4)
+  { <span class='comment'>/* ... */</span> }
+D d(10);
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+The initialization
+performed by each <i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i>
+constitutes a full-expression.
+Any expression in
+a
+<i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i>
+is evaluated as part of the full-expression that performs the initialization.
+A <i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i> where the <i ><a href='class.base.init#nt:mem-initializer-id'>mem-initializer-id</a></i> denotes
+a virtual base class is ignored during execution of a constructor of any class that is
+not the most derived class.</p></div><div class='para' id='class.base.init-8'><div class='marginalizedparent'><a class='marginalized' href='#class.base.init-8'>8</a></div><p >In a non-delegating constructor, if
+a given non-static data member or base class is not designated by a
+<i ><a href='class.base.init#nt:mem-initializer-id'>mem-initializer-id</a></i>
+(including the case where there is no
+<i ><a href='class.base.init#nt:mem-initializer-list'>mem-initializer-list</a></i>
+because the constructor has no
+<i ><a href='class.base.init#nt:ctor-initializer'>ctor-initializer</a></i>)
+and the entity is not a virtual base class of an abstract class (<a href='class.abstract'>[class.abstract]</a>),
+then</p><ul ><li ><p >if the entity is a non-static data member that has a <i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializer</a></i>, the entity is initialized as specified in <a href='dcl.init'>[dcl.init]</a>;</p></li><li ><p >otherwise, if the entity is a variant member (<a href='class.union'>[class.union]</a>), no initialization is performed;</p></li><li ><p >otherwise, the entity is default-initialized (<a href='dcl.init'>[dcl.init]</a>).
+</p></li></ul><p >[&nbsp;<i>Note:</i> An abstract class (<a href='class.abstract'>[class.abstract]</a>) is never a most derived
+class, thus its constructors never initialize virtual base classes, therefore the
+corresponding <i ><a href='class.base.init#nt:mem-initializer'>mem-initializers</a></i> may be omitted. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+An attempt to initialize more than one non-static data member of a union renders the
+program ill-formed.
+<span class='indexparent'><a class='index' id='initialization,const_member'></a></span><span class='indexparent'><a class='index' id='initialization,reference_member'></a></span>After the call to a constructor for class
+<span class='texttt'>X</span>
+has completed, if a member of
+<span class='texttt'>X</span>
+is neither initialized nor
+given a value
+during execution of the <i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i> of the body of the constructor,
+the member has indeterminate value.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct A {
+  A();
+};
+
+struct B {
+  B(int);
+};
+
+struct C {
+  C() { }               <span class='comment'>// initializes members as follows:
+</span>  A a;                    <span class='comment'>// OK: calls <span class='texttt'>A::A()</span>
+</span>  const B b;              <span class='comment'>// error: <span class='texttt'>B</span> has no default constructor
+</span>  int i;                  <span class='comment'>// OK: <span class='texttt'>i</span> has indeterminate value
+</span>  int j = 5;              <span class='comment'>// OK: <span class='texttt'>j</span> has the value <span class='texttt'>5</span>
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.base.init-9'><div class='marginalizedparent'><a class='marginalized' href='#class.base.init-9'>9</a></div><p >If a given non-static data member has both a <i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializer</a></i>
+and a <i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i>, the initialization specified by the
+<i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i> is performed, and the non-static data member's 
+<i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializer</a></i> is ignored.
+[&nbsp;<i>Example:</i> Given
+</p><pre class='codeblock'>
+struct A {
+  int i = <span class='comment'>/* some integer expression with side effects */</span> ;
+  A(int arg) : i(arg) { }
+  <span class='comment'>// ...
+</span>};
+</pre><p >the <span class='texttt'>A(int)</span> constructor will simply initialize <span class='texttt'>i</span> to the value of
+<span class='texttt'>arg</span>, and the
+<span class='indexparent'><a class='index' id='side_effects'></a></span>side effects in <span class='texttt'>i</span>'s <i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializer</a></i>
+will not take place.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.base.init-10'><div class='marginalizedparent'><a class='marginalized' href='#class.base.init-10'>10</a></div><p >In a non-delegating constructor, initialization
+proceeds in the following order:</p><ul ><li ><p ><span class='indexparent'><a class='index' id='initialization,order_of_virtual_base_class'></a></span>First, and only for the constructor of the most derived class (<a href='intro.object'>[intro.object]</a>),
+virtual base classes are initialized in the order they appear on a
+depth-first left-to-right traversal of the directed acyclic graph of
+base classes,
+where “left-to-right” is the order of appearance of the base classes
+in the derived class
+<i ><a href='class.derived#nt:base-specifier-list'>base-specifier-list</a></i>.
+</p></li><li ><p ><span class='indexparent'><a class='index' id='initialization,order_of_base_class'></a></span>Then, direct base classes are initialized in declaration order
+as they appear in the
+<i ><a href='class.derived#nt:base-specifier-list'>base-specifier-list</a></i>
+(regardless of the order of the
+<span class='grammarterm'>mem-initializers</span>).
+</p></li><li ><p ><span class='indexparent'><a class='index' id='initialization,order_of_member'></a></span>Then, non-static data members are initialized in the order
+they were declared in the class definition
+(again regardless of the order of the
+<span class='grammarterm'>mem-initializers</span>).
+</p></li><li ><p >Finally, the <i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i> of the constructor
+body  is executed.
+</p></li></ul><p >[&nbsp;<i>Note:</i>
+The declaration order is mandated to ensure that base and member
+subobjects are destroyed in the reverse order of initialization.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.base.init-11'><div class='marginalizedparent'><a class='marginalized' href='#class.base.init-11'>11</a></div><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct V {
+  V();
+  V(int);
+};
+
+struct A : virtual V {
+  A();
+  A(int);
+};
+
+struct B : virtual V {
+  B();
+  B(int);
+};
+
+struct C : A, B, virtual V {
+  C();
+  C(int);
+};
+
+A::A(int i) : V(i) { <span class='comment'>/* ... */</span> }
+B::B(int i) { <span class='comment'>/* ... */</span> }
+C::C(int i) { <span class='comment'>/* ... */</span> }
+
+V v(1);             <span class='comment'>// use <span class='texttt'>V(int)</span>
+</span>A a(2);             <span class='comment'>// use <span class='texttt'>V(int)</span>
+</span>B b(3);             <span class='comment'>// use <span class='texttt'>V()</span>
+</span>C c(4);             <span class='comment'>// use <span class='texttt'>V()</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.base.init-12'><div class='marginalizedparent'><a class='marginalized' href='#class.base.init-12'>12</a></div><p ><span class='indexparent'><a class='index' id='initializer,scope_of_member'></a></span>Names in the
+<i ><a href='expr.post#nt:expression-list'>expression-list</a></i>
+or <i ><a href='dcl.init#nt:braced-init-list'>braced-init-list</a></i>
+of a
+<i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i>
+are evaluated in the scope of the constructor for which the
+<i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i>
+is specified.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+class X {
+  int a;
+  int b;
+  int i;
+  int j;
+public:
+  const int&amp; r;
+  X(int i): r(a), b(i), i(i), j(this-&gt;i) { }
+};
+</pre><p >initializes
+<span class='texttt'>X::r</span>
+to refer to
+<span class='texttt'>X::a</span>,
+initializes
+<span class='texttt'>X::b</span>
+with the value of the constructor parameter
+<span class='texttt'>i</span>,
+initializes
+<span class='texttt'>X::i</span>
+with the value of the constructor parameter
+<span class='texttt'>i</span>,
+and initializes
+<span class='texttt'>X::j</span>
+with the value of
+<span class='texttt'>X::i</span>;
+this takes place each time an object of class
+<span class='texttt'>X</span>
+is created.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+Because the
+<i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i>
+are evaluated in the scope of the constructor, the
+<span class='texttt'>this</span>
+pointer can be used in the
+<i ><a href='expr.post#nt:expression-list'>expression-list</a></i>
+of a
+<i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i>
+to refer to the object being initialized.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.base.init-13'><div class='marginalizedparent'><a class='marginalized' href='#class.base.init-13'>13</a></div><p ><span class='indexparent'><a class='index' id='initialization,member_function_call_during'></a></span>Member functions (including virtual member functions, <a href='class.virtual'>[class.virtual]</a>) can be
+called for an object under construction.
+Similarly, an object under construction can be the operand of the
+<span class='texttt'>typeid</span>
+operator (<a href='expr.typeid'>[expr.typeid]</a>) or of a
+<span class='texttt'>dynamic_cast</span> (<a href='expr.dynamic.cast'>[expr.dynamic.cast]</a>).
+However, if these operations are performed in a
+<i ><a href='class.base.init#nt:ctor-initializer'>ctor-initializer</a></i>
+(or in a function called directly or indirectly from a
+<i ><a href='class.base.init#nt:ctor-initializer'>ctor-initializer</a></i>)
+before all the
+<i ><a href='class.base.init#nt:mem-initializer'>mem-initializers</a></i>
+for base classes have completed, the result of the operation is undefined.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+class A {
+public:
+  A(int);
+};
+
+class B : public A {
+  int j;
+public:
+  int f();
+  B() : A(f()),     <span class='comment'>// undefined: calls member function
+</span>                    <span class='comment'>// but base <span class='texttt'>A</span> not yet initialized
+</span>  j(f()) { }        <span class='comment'>// well-defined: bases are all initialized
+</span>};
+
+class C {
+public:
+  C(int);
+};
+
+class D : public B, C {
+  int i;
+public:
+  D() : C(f()),     <span class='comment'>// undefined: calls member function
+</span>                    <span class='comment'>// but base <span class='texttt'>C</span> not yet initialized
+</span>  i(f()) { }        <span class='comment'>// well-defined: bases are all initialized
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.base.init-14'><div class='marginalizedparent'><a class='marginalized' href='#class.base.init-14'>14</a></div><p >[&nbsp;<i>Note:</i>
+<a href='class.cdtor'>[class.cdtor]</a> describes the result of virtual function calls,
+<span class='texttt'>typeid</span>
+and
+<span class='texttt'>dynamic_cast</span>s
+during construction for the well-defined cases;
+that is, describes the
+<a class='hidden_link' href='#def:polymorphic_behavior' id='def:polymorphic_behavior'><i>polymorphic behavior</i></a>
+of an object under construction.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.base.init-15'><div class='marginalizedparent'><a class='marginalized' href='#class.base.init-15'>15</a></div><p ><span class='indexparent'><a class='index' id='initializer,pack_expansion'></a></span>A <i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i> followed by an ellipsis is
+a pack expansion (<a href='temp.variadic'>[temp.variadic]</a>) that initializes the base
+classes specified by a pack expansion in the <i ><a href='class.derived#nt:base-specifier-list'>base-specifier-list</a></i>
+for the class. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class... Mixins&gt;
+class X : public Mixins... {
+public:
+  X(const Mixins&amp;... mixins) : Mixins(mixins)... { }
+};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]<span class='indexparent'><a class='index' id='initialization,class_object'></a></span></p></div></div></div><div id='class.cdtor'><h2 ><a class='secnum' href='#class.cdtor' style='min-width:88pt'>12.7</a> Construction and destruction <a class='abbr_ref' href='class.cdtor'>[class.cdtor]</a></h2><p ><span class='indexparent'><a class='index' id='construction'></a></span><span class='indexparent'><a class='index' id='destruction'></a></span></p><div class='para' id='class.cdtor-1'><div class='marginalizedparent'><a class='marginalized' href='#class.cdtor-1'>1</a></div><p ><span class='indexparent'><a class='index' id='construction,member_access'></a></span><span class='indexparent'><a class='index' id='destruction,member_access'></a></span>For an object with a non-trivial constructor, referring to any non-static member
+or base class of the object before the constructor begins execution results in
+undefined behavior. For an object with a non-trivial destructor, referring to
+any non-static member or base class of the object after the destructor finishes
+execution results in undefined behavior.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct X { int i; };
+struct Y : X { Y(); };                  <span class='comment'>// non-trivial
+</span>struct A { int a; };
+struct B : public A { int j; Y y; };    <span class='comment'>// non-trivial
+</span>
+extern B bobj;
+B* pb = &amp;bobj;                          <span class='comment'>// OK
+</span>int* p1 = &amp;bobj.a;                      <span class='comment'>// undefined, refers to base class member
+</span>int* p2 = &amp;bobj.y.i;                    <span class='comment'>// undefined, refers to member's member
+</span>
+A* pa = &amp;bobj;                          <span class='comment'>// undefined, upcast to a base class type
+</span>B bobj;                                 <span class='comment'>// definition of <span class='texttt'>bobj</span>
+</span>
+extern X xobj;
+int* p3 = &amp;xobj.i;                      <span class='comment'>//OK, <span class='texttt'>X</span> is a trivial class
+</span>X xobj;
+</pre></div><div class='para' id='class.cdtor-2'><div class='marginalizedparent'><a class='marginalized' href='#class.cdtor-2'>2</a></div><p >For another example,</p><pre class='codeblock'>
+struct W { int j; };
+struct X : public virtual W { };
+struct Y {
+  int *p;
+  X x;
+  Y() : p(&amp;x.j) {   <span class='comment'>// undefined, <span class='texttt'>x</span> is not yet constructed
+</span>    }
+};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.cdtor-3'><div class='marginalizedparent'><a class='marginalized' href='#class.cdtor-3'>3</a></div><p ><span class='indexparent'><a class='index' id='construction,pointer_to_member_or_base'></a></span><span class='indexparent'><a class='index' id='destruction,pointer_to_member_or_base'></a></span>To explicitly or implicitly convert a pointer (a glvalue) referring to
+an object of class
+<span class='texttt'>X</span>
+to a pointer (reference) to a direct or indirect base class
+<span class='texttt'>B</span>
+of
+<span class='texttt'>X</span>,
+the construction of
+<span class='texttt'>X</span>
+and the construction of all of its direct or indirect bases that directly or
+indirectly derive from
+<span class='texttt'>B</span>
+shall have started and the destruction of these classes shall not have
+completed, otherwise the conversion results in undefined behavior.
+To form a pointer to (or access the value of) a direct non-static member of
+an object
+<span class='texttt'>obj</span>,
+the construction of
+<span class='texttt'>obj</span>
+shall have started and its destruction shall not have completed,
+otherwise the computation of the pointer value (or accessing the member
+value) results in undefined behavior.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct A { };
+struct B : virtual A { };
+struct C : B { };
+struct D : virtual A { D(A*); };
+struct X { X(A*); };
+
+struct E : C, D, X {
+  E() : D(this),    <span class='comment'>// undefined: upcast from <span class='texttt'>E*</span> to <span class='texttt'>A*</span>
+</span>                    <span class='comment'>// might use path <span class='texttt'>E*</span> <span class='math'>→</span> <span class='texttt'>D*</span> <span class='math'>→</span> <span class='texttt'>A*</span>
+</span>                    <span class='comment'>// but <span class='texttt'>D</span> is not constructed
+</span>                    <span class='comment'>// <span class='texttt'>D((C*)this)</span>, // defined:
+</span>                    <span class='comment'>// <span class='texttt'>E*</span> <span class='math'>→</span> <span class='texttt'>C*</span> defined because <span class='texttt'>E()</span> has started
+</span>                    <span class='comment'>// and <span class='texttt'>C*</span> <span class='math'>→</span> <span class='texttt'>A*</span> defined because
+</span>                    <span class='comment'>// <span class='texttt'>C</span> fully constructed
+</span>  X(this) {         <span class='comment'>// defined: upon construction of <span class='texttt'>X</span>,
+</span>                    <span class='comment'>// <span class='texttt'>C/B/D/A</span> sublattice is fully constructed
+</span>  }
+};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.cdtor-4'><div class='marginalizedparent'><a class='marginalized' href='#class.cdtor-4'>4</a></div><p ><span class='indexparent'><a class='index' id='virtual_function_call,constructor_and'></a></span><span class='indexparent'><a class='index' id='virtual_function_call,destructor_and'></a></span><span class='indexparent'><a class='index' id='construction,virtual_function_call'></a></span><span class='indexparent'><a class='index' id='destruction,virtual_function_call'></a></span>Member functions, including virtual functions (<a href='class.virtual'>[class.virtual]</a>), can be called
+during construction or destruction (<a href='class.base.init'>[class.base.init]</a>).
+When a virtual function is called directly or indirectly from a constructor
+or from a destructor,
+including during the construction or destruction of the class's non-static data
+members,
+and the object to which the call applies is the object (call it <span class='texttt'>x</span>) under construction or
+destruction,
+the function called is the
+final overrider in the constructor's or destructor's class and not one
+overriding it in a more-derived class.
+If the virtual function call uses an explicit class member access (<a href='expr.ref'>[expr.ref]</a>)
+and the object expression refers to
+the complete object of <span class='texttt'>x</span> or one of that object's base class subobjects
+but not <span class='texttt'>x</span> or one of its base class subobjects, the behavior
+is undefined.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct V {
+  virtual void f();
+  virtual void g();
+};
+
+struct A : virtual V {
+  virtual void f();
+};
+
+struct B : virtual V {
+  virtual void g();
+  B(V*, A*);
+};
+
+struct D : A, B {
+  virtual void f();
+  virtual void g();
+  D() : B((A*)this, this) { }
+};
+
+B::B(V* v, A* a) {
+  f();              <span class='comment'>// calls <span class='texttt'>V::f</span>, not <span class='texttt'>A::f</span>
+</span>  g();              <span class='comment'>// calls <span class='texttt'>B::g</span>, not <span class='texttt'>D::g</span>
+</span>  v-&gt;g();           <span class='comment'>// <span class='texttt'>v</span> is base of <span class='texttt'>B</span>, the call is well-defined, calls <span class='texttt'>B::g</span>
+</span>  a-&gt;f();           <span class='comment'>// undefined behavior, <span class='texttt'>a</span>'s type not a base of <span class='texttt'>B</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.cdtor-5'><div class='marginalizedparent'><a class='marginalized' href='#class.cdtor-5'>5</a></div><p ><span class='indexparent'><a class='index' id='construction,typeid'></a></span><span class='indexparent'><a class='index' id='destruction,typeid'></a></span><span class='indexparent'><a class='index' id='typeid,construction_and'></a></span><span class='indexparent'><a class='index' id='typeid,destruction_and'></a></span>The
+<span class='texttt'>typeid</span>
+operator (<a href='expr.typeid'>[expr.typeid]</a>) can be used during construction or destruction (<a href='class.base.init'>[class.base.init]</a>).
+When
+<span class='texttt'>typeid</span>
+is used in a constructor (including the
+<i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i> or <i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializer</a></i>
+for a non-static data member)
+or in a destructor, or used in a function called (directly or indirectly) from
+a constructor or destructor, if the operand of
+<span class='texttt'>typeid</span>
+refers to the object under construction or destruction,
+<span class='texttt'>typeid</span>
+yields the
+<span class='texttt'>std::type_info</span>
+object representing the constructor or destructor's class.
+If the operand of
+<span class='texttt'>typeid</span>
+refers to the object under construction or destruction and the static type of
+the operand is neither the constructor or destructor's class nor one of its
+bases, the result of
+<span class='texttt'>typeid</span>
+is undefined.</p></div><div class='para' id='class.cdtor-6'><div class='marginalizedparent'><a class='marginalized' href='#class.cdtor-6'>6</a></div><p ><span class='indexparent'><a class='index' id='construction,dynamic_cast_and'></a></span><span class='indexparent'><a class='index' id='destruction,dynamic_cast_and'></a></span><span class='indexparent'><a class='index' id='cast,dynamic,construction_and'></a></span><span class='indexparent'><a class='index' id='cast,dynamic,destruction_and'></a></span><span class='texttt'>dynamic_cast</span>s (<a href='expr.dynamic.cast'>[expr.dynamic.cast]</a>) can be used during construction
+or destruction (<a href='class.base.init'>[class.base.init]</a>). When a
+<span class='texttt'>dynamic_cast</span>
+is used in a constructor (including the
+<i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i> or <i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializer</a></i>
+for a non-static data member)
+or in a destructor, or used in a function called (directly or indirectly) from
+a constructor or destructor, if the operand of the
+<span class='texttt'>dynamic_cast</span>
+refers to the object under construction or destruction, this object is
+considered to be a most derived object that has the type of the constructor or
+destructor's class.
+If the operand of the
+<span class='texttt'>dynamic_cast</span>
+refers to the object under construction or destruction and the static type of
+the operand is not a pointer to or object of the constructor or destructor's
+own class or one of its bases, the
+<span class='texttt'>dynamic_cast</span>
+results in undefined behavior.</p><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct V {
+  virtual void f();
+};
+
+struct A : virtual V { };
+
+struct B : virtual V {
+  B(V*, A*);
+};
+
+struct D : A, B {
+  D() : B((A*)this, this) { }
+};
+
+B::B(V* v, A* a) {
+  typeid(*this);                <span class='comment'>// <span class='texttt'>type_info</span> for <span class='texttt'>B</span>
+</span>  typeid(*v);                   <span class='comment'>// well-defined: <span class='texttt'>*v</span> has type <span class='texttt'>V</span>, a base of <span class='texttt'>B</span>
+</span>                                <span class='comment'>// yields <span class='texttt'>type_info</span> for <span class='texttt'>B</span>
+</span>  typeid(*a);                   <span class='comment'>// undefined behavior: type <span class='texttt'>A</span> not a base of <span class='texttt'>B</span>
+</span>  dynamic_cast&lt;B*&gt;(v);          <span class='comment'>// well-defined: <span class='texttt'>v</span> of type <span class='texttt'>V*</span>, <span class='texttt'>V</span> base of <span class='texttt'>B</span>
+</span>                                <span class='comment'>// results in <span class='texttt'>B*</span>
+</span>  dynamic_cast&lt;B*&gt;(a);          <span class='comment'>// undefined behavior,
+</span>                                <span class='comment'>// <span class='texttt'>a</span> has type <span class='texttt'>A*</span>, <span class='texttt'>A</span> not a base of <span class='texttt'>B</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]<span class='indexparent'><a class='index' id='destruction'></a></span><span class='indexparent'><a class='index' id='construction'></a></span></p></div></div><div id='class.copy'><h2 ><a class='secnum' href='#class.copy' style='min-width:88pt'>12.8</a> Copying and moving class objects <a class='abbr_ref' href='class.copy'>[class.copy]</a></h2><p ><span class='indexparent'><a class='index' id='copy,class_object'></a></span><span class='indexparent'><a class='index' id='move,class_object'></a></span><span class='indexparent'><a class='index' id='constructor,copy'></a></span><span class='indexparent'><a class='index' id='constructor,move'></a></span><span class='indexparent'><a class='index' id='operator,copy_assignment'></a></span><span class='indexparent'><a class='index' id='operator,move_assignment'></a></span></p><div class='para' id='class.copy-1'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-1'>1</a></div><p >A class object can be copied or moved in two ways:
+by initialization (<a href='class.ctor'>[class.ctor]</a>, <a href='dcl.init'>[dcl.init]</a>), including for function argument passing (<a href='expr.call'>[expr.call]</a>) and for function value return (<a href='stmt.return'>[stmt.return]</a>);
+and by assignment (<a href='expr.ass'>[expr.ass]</a>).
+Conceptually, these two operations are implemented by a
+copy/move constructor (<a href='class.ctor'>[class.ctor]</a>)
+and copy/move assignment operator (<a href='over.ass'>[over.ass]</a>).</p></div><div class='para' id='class.copy-2'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-2'>2</a></div><p ><span class='indexparent'><a class='index' id='constructor,copy'></a></span><span class='indexparent'><a class='index' id='constructor,move'></a></span>A non-template constructor for class
+<span class='texttt'>X</span>
+is
+a
+copy
+constructor if its first parameter is of type
+<span class='texttt'>X&amp;</span>,
+<span class='texttt'>const X&amp;</span>,
+<span class='texttt'>volatile X&amp;</span>
+or
+<span class='texttt'>const volatile X&amp;</span>,
+and either there are no other parameters
+or else all other parameters have default arguments (<a href='dcl.fct.default'>[dcl.fct.default]</a>).
+[&nbsp;<i>Example:</i>
+<span class='texttt'>X::X(const X&amp;)</span>
+and
+<span class='texttt'>X::X(X&amp;,int=1)</span>
+are copy constructors.</p><pre class='codeblock'>
+struct X {
+  X(int);
+  X(const X&amp;, int = 1);
+};
+X a(1);             <span class='comment'>// calls <span class='texttt'>X(int);</span>
+</span>X b(a, 0);          <span class='comment'>// calls <span class='texttt'>X(const X&amp;, int);</span>
+</span>X c = b;            <span class='comment'>// calls <span class='texttt'>X(const X&amp;, int);</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.copy-3'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-3'>3</a></div><p >A non-template constructor for class <span class='texttt'>X</span> is a move constructor if its
+first parameter is of type <span class='texttt'>X&amp;&amp;</span>, <span class='texttt'>const X&amp;&amp;</span>,
+<span class='texttt'>volatile X&amp;&amp;</span>, or <span class='texttt'>const volatile X&amp;&amp;</span>, and either there are
+no other parameters or else all other parameters have default 
+arguments (<a href='dcl.fct.default'>[dcl.fct.default]</a>).
+[&nbsp;<i>Example:</i> <span class='texttt'>Y::Y(Y&amp;&amp;)</span> is a move constructor.
+</p><pre class='codeblock'>
+struct Y {
+  Y(const Y&amp;);
+  Y(Y&amp;&amp;);
+};
+extern Y f(int);
+Y d(f(1));          <span class='comment'>// calls <span class='texttt'>Y(Y&amp;&amp;)</span>
+</span>Y e = d;            <span class='comment'>// calls <span class='texttt'>Y(const Y&amp;)</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.copy-4'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-4'>4</a></div><p >[&nbsp;<i>Note:</i>
+All forms of copy/move constructor may be declared for a class.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct X {
+  X(const X&amp;);
+  X(X&amp;);            <span class='comment'>// OK
+</span>  X(X&amp;&amp;);
+  X(const X&amp;&amp;);     <span class='comment'>// OK, but possibly not sensible
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.copy-5'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-5'>5</a></div><p >[&nbsp;<i>Note:</i>
+If a class
+<span class='texttt'>X</span>
+only has a copy constructor with a parameter of type
+<span class='texttt'>X&amp;</span>,
+an initializer of type
+<span class='texttt'>const</span>
+<span class='texttt'>X</span>
+or
+<span class='texttt'>volatile</span>
+<span class='texttt'>X</span>
+cannot initialize an object of type
+(possibly
+cv-qualified)
+<span class='texttt'>X</span>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct X {
+  X();              <span class='comment'>// default constructor
+</span>  X(X&amp;);            <span class='comment'>// copy constructor with a nonconst parameter
+</span>};
+const X cx;
+X x = cx;           <span class='comment'>// error: <span class='texttt'>X::X(X&amp;)</span> cannot copy <span class='texttt'>cx</span> into <span class='texttt'>x</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.copy-6'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-6'>6</a></div><p >A declaration of a constructor for a class
+<span class='texttt'>X</span>
+is ill-formed if its first parameter is of type (optionally cv-qualified)
+<span class='texttt'>X</span>
+and either there are no other parameters or else all other parameters have
+default arguments.
+A member function template is never instantiated to
+produce such a constructor signature.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct S {
+  template&lt;typename T&gt; S(T);
+  S();
+};
+
+S g;
+
+void h() {
+  S a(g);           <span class='comment'>// does not instantiate the member template to produce <span class='texttt'>S::S&lt;S&gt;(S)</span>;
+</span>                    <span class='comment'>// uses the implicitly declared copy constructor
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.copy-7'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-7'>7</a></div><p ><span class='indexparent'><a class='index' id='constructor,copy,implicitly_declared'></a></span>If the class definition does not explicitly declare a copy constructor,
+one is declared <a class='hidden_link' href='#def:implicitly' id='def:implicitly'><i>implicitly</i></a>. If the class definition declares a move
+constructor or move assignment operator, the implicitly declared copy
+constructor is defined as deleted; otherwise, it is defined as
+defaulted (<a href='dcl.fct.def'>[dcl.fct.def]</a>).
+The latter case is deprecated if the class has a user-declared copy assignment
+operator or a user-declared destructor.
+Thus, for the class definition</p><pre class='codeblock'>
+struct X {
+  X(const X&amp;, int);
+};
+</pre><p >a copy constructor is implicitly-declared.
+If the user-declared constructor is later defined as</p><pre class='codeblock'>
+X::X(const X&amp; x, int i =0) { <span class='comment'>/* ... */</span> }
+</pre><p >then any use of
+<span class='texttt'>X</span>'s
+copy constructor is ill-formed because of the ambiguity;
+no diagnostic is required.</p></div><div class='para' id='class.copy-8'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-8'>8</a></div><p >The implicitly-declared copy constructor for a class
+<span class='texttt'>X</span>
+will have the form</p><pre class='codeblock'>
+X::X(const X&amp;)
+</pre><p >if</p><ul ><li ><p >each direct or virtual base class
+<span class='texttt'>B</span>
+of
+<span class='texttt'>X</span>
+has a copy constructor whose first parameter is of type
+<span class='texttt'>const</span>
+<span class='texttt'>B&amp;</span>
+or
+<span class='texttt'>const</span>
+<span class='texttt'>volatile</span>
+<span class='texttt'>B&amp;</span>,
+and
+</p></li><li ><p >for all the non-static data members of
+<span class='texttt'>X</span>
+that are of a class type
+<span class='texttt'>M</span>
+(or array thereof),
+each such class type has a copy constructor whose first parameter is of type
+<span class='texttt'>const</span>
+<span class='texttt'>M&amp;</span>
+or
+<span class='texttt'>const</span>
+<span class='texttt'>volatile</span>
+<span class='texttt'>M&amp;</span>.<a class='footnotenum' href='#footnote-119'>119</a>
+</p></li></ul><p >Otherwise, the implicitly-declared copy constructor will have the form</p><pre class='codeblock'>
+X::X(X&amp;)
+</pre></div><div class='para' id='class.copy-9'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-9'>9</a></div><p ><span class='indexparent'><a class='index' id='constructor,move,implicitly_declared'></a></span>If the definition of a class <span class='texttt'>X</span> does not explicitly declare
+a move constructor, one will be
+implicitly declared as defaulted if and only if</p><ul ><li ><p ><span class='texttt'>X</span> does not have a user-declared copy constructor,</p></li><li ><p ><span class='texttt'>X</span> does not have a user-declared copy assignment operator,</p></li><li ><p ><span class='texttt'>X</span> does not have a user-declared move assignment operator,</p></li><li ><p ><span class='texttt'>X</span> does not have a user-declared destructor, and</p></li><li ><p >the move constructor would not be implicitly defined as deleted.
+</p></li></ul><p >[&nbsp;<i>Note:</i> When the move constructor is not implicitly declared or explicitly supplied,
+expressions that otherwise would have invoked the move constructor may instead invoke
+a copy constructor. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.copy-10'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-10'>10</a></div><p >The implicitly-declared move constructor for class <span class='texttt'>X</span> will have the form
+</p><pre class='codeblock'>
+X::X(X&amp;&amp;)
+</pre></div><div class='para' id='class.copy-11'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-11'>11</a></div><p >An implicitly-declared copy/move constructor is an
+<span class='texttt'>inline</span>
+<span class='texttt'>public</span>
+member of its class.
+A defaulted copy/<span class='discretionary'></span>move constructor for a class
+  <span class='texttt'>X</span> is defined as deleted (<a href='dcl.fct.def.delete'>[dcl.fct.def.delete]</a>) if <span class='texttt'>X</span> has:
+</p><ul ><li ><p >a variant member with a non-trivial corresponding constructor and
+  <span class='texttt'>X</span> is a union-like class,</p></li><li ><p >a non-static data member of class type
+  <span class='texttt'>M</span> (or array thereof) that cannot be copied/moved because
+  overload resolution (<a href='over.match'>[over.match]</a>), as applied to
+  <span class='texttt'>M</span>'s 
+  corresponding constructor, results in an ambiguity or 
+  a function that is deleted or inaccessible from the
+  defaulted constructor,</p></li><li ><p >a direct or virtual base class <span class='texttt'>B</span> that cannot
+  be copied/moved because overload resolution (<a href='over.match'>[over.match]</a>), as applied to
+  <span class='texttt'>B</span>'s corresponding constructor, results in an ambiguity
+  or a function that is deleted or
+  inaccessible from the defaulted
+  constructor,</p></li><li ><p >any direct or virtual base class or non-static data member of a type
+  with a destructor that is deleted or inaccessible from the defaulted
+  constructor,</p></li><li ><p >for the copy constructor, a non-static data member of rvalue reference type, or</p></li><li ><p >for the move constructor, a non-static data member or direct or virtual base class
+  with a type that does not have a move constructor and is not trivially
+  copyable.
+</p></li></ul></div><div class='para' id='class.copy-12'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-12'>12</a></div><p ><span class='indexparent'><a class='index' id='constructor,copy,trivial'></a></span><span class='indexparent'><a class='index' id='constructor,move,trivial'></a></span>A copy/move constructor for class
+<span class='texttt'>X</span>
+is
+trivial
+if it is not user-provided and if</p><ul ><li ><p >class
+<span class='texttt'>X</span>
+has no virtual functions (<a href='class.virtual'>[class.virtual]</a>)
+and no virtual base classes (<a href='class.mi'>[class.mi]</a>), and</p></li><li ><p >the constructor selected to copy/move each direct base class subobject is trivial, and</p></li><li ><p >for each non-static data member of
+<span class='texttt'>X</span>
+that is of class type (or array thereof),
+the constructor selected to copy/move that member is trivial;
+</p></li></ul><p >otherwise the copy/move constructor is
+<span class='grammarterm'>non-trivial</span>.</p></div><div class='para' id='class.copy-13'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-13'>13</a></div><p ><span class='indexparent'><a class='index' id='constructor,copy,implicitly_defined'></a></span><span class='indexparent'><a class='index' id='constructor,move,implicitly_defined'></a></span>A copy/move constructor
+that is defaulted and not defined as deleted
+is
+<a class='hidden_link' href='#def:implicitly_defined' id='def:implicitly_defined'><i>implicitly defined</i></a>
+if it is odr-used (<a href='basic.def.odr'>[basic.def.odr]</a>) to initialize an object of its class type from a copy of an
+object of its class type or of a class type derived from its class
+type<a class='footnotenum' href='#footnote-120'>120</a>
+or when it is explicitly defaulted after its first declaration.
+[&nbsp;<i>Note:</i>
+The copy/move constructor is implicitly defined even if the implementation elided
+its odr-use (<a href='basic.def.odr'>[basic.def.odr]</a>, <a href='class.temporary'>[class.temporary]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+If the implicitly-defined constructor would satisfy the requirements of a
+<span class='texttt'>constexpr</span> constructor (<a href='dcl.constexpr'>[dcl.constexpr]</a>), the implicitly-defined
+constructor is <span class='texttt'>constexpr</span>.</p></div><div class='para' id='class.copy-14'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-14'>14</a></div><p >Before the defaulted copy/move constructor for a class is
+implicitly defined,
+all non-user-provided copy/move constructors for its direct and
+virtual base classes and its non-static data members
+shall have been implicitly defined.
+[&nbsp;<i>Note:</i>
+An implicitly-declared copy/move constructor has an
+<i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i> (<a href='except.spec'>[except.spec]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.copy-15'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-15'>15</a></div><p >The implicitly-defined copy/move constructor for a non-union class
+<span class='texttt'>X</span>
+performs a memberwise copy/move of its bases and members.
+[&nbsp;<i>Note:</i> <i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializers</a></i> of non-static data members are ignored. See also the example in <a href='class.base.init'>[class.base.init]</a>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+The order of initialization is the same as the order of initialization of bases
+and members in a user-defined constructor (see <a href='class.base.init'>[class.base.init]</a>).
+Let <span class='texttt'>x</span> be either the parameter of the constructor or, for the move constructor, an
+xvalue referring to the parameter.
+Each base or non-static data member
+is copied/moved in the manner appropriate to its type:</p><ul ><li ><p >if the member is an array, each element is
+direct-initialized with the corresponding subobject of <span class='texttt'>x</span>;</p></li><li ><p >if a member <span class='texttt'>m</span> has rvalue reference type <span class='texttt'>T&amp;&amp;</span>, it is direct-initialized with
+<span class='texttt'>static_cast&lt;T&amp;&amp;&gt;(x.m)</span>;</p></li><li ><p >otherwise, the base or member is direct-initialized with the corresponding base or member of <span class='texttt'>x</span>.
+</p></li></ul><p ><span class='indexparent'><a class='index' id='initialization,virtual_base_class'></a></span>Virtual base class subobjects shall be initialized only once by
+the implicitly-defined copy/move constructor (see <a href='class.base.init'>[class.base.init]</a>).</p></div><div class='para' id='class.copy-16'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-16'>16</a></div><p >The implicitly-defined copy/move constructor for a union
+<span class='texttt'>X</span> copies the object representation (<a href='basic.types'>[basic.types]</a>) of <span class='texttt'>X</span>.<span class='indexparent'><a class='index' id='constructor,move'></a></span><span class='indexparent'><a class='index' id='constructor,copy'></a></span></p></div><div class='para' id='class.copy-17'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-17'>17</a></div><p ><span class='indexparent'><a class='index' id='assignment_operator,copy'></a></span><span class='indexparent'><a class='index' id='assignment_operator,move'></a></span>A user-declared <a class='hidden_link' href='#def:copy' id='def:copy'><i>copy</i></a> assignment operator <span class='texttt'>X::operator=</span> is a
+non-static non-template member function of class <span class='texttt'>X</span> with exactly one
+parameter of type <span class='texttt'>X</span>, <span class='texttt'>X&amp;</span>, <span class='texttt'>const</span> <span class='texttt'>X&amp;</span>,
+<span class='texttt'>volatile</span> <span class='texttt'>X&amp;</span> or <span class='texttt'>const</span> <span class='texttt'>volatile</span>
+<span class='texttt'>X&amp;</span>.<a class='footnotenum' href='#footnote-121'>121</a>
+[&nbsp;<i>Note:</i>
+An overloaded assignment operator must be declared to have only one parameter;
+see <a href='over.ass'>[over.ass]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+More than one form of copy assignment operator may be declared for a class.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+If a class
+<span class='texttt'>X</span>
+only has a copy assignment operator with a parameter of type
+<span class='texttt'>X&amp;</span>,
+an expression of type const
+<span class='texttt'>X</span>
+cannot be assigned to an object of type
+<span class='texttt'>X</span>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct X {
+  X();
+  X&amp; operator=(X&amp;);
+};
+const X cx;
+X x;
+void f() {
+  x = cx;           <span class='comment'>// error: <span class='texttt'>X::operator=(X&amp;)</span> cannot assign <span class='texttt'>cx</span> into <span class='texttt'>x</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.copy-18'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-18'>18</a></div><p ><span class='indexparent'><a class='index' id='assignment_operator,copy,implicitly_declared'></a></span>If the class definition does not explicitly declare a copy assignment operator,
+one is declared <a class='hidden_link' href='#def:implicitly' id='def:implicitly'><i>implicitly</i></a>. If the class definition declares a move
+constructor or move assignment operator, the implicitly declared copy
+assignment operator is defined as deleted; otherwise, it is defined as
+defaulted (<a href='dcl.fct.def'>[dcl.fct.def]</a>).
+The latter case is deprecated if the class has a user-declared copy constructor
+or a user-declared destructor.
+The implicitly-declared copy assignment operator for a class
+<span class='texttt'>X</span>
+will have the form</p><pre class='codeblock'>
+X&amp; X::operator=(const X&amp;)
+</pre><p >if</p><ul ><li ><p >each direct base class
+<span class='texttt'>B</span>
+of
+<span class='texttt'>X</span>
+has a copy assignment operator whose parameter is of type
+<span class='texttt'>const</span>
+<span class='texttt'>B&amp;</span>,
+<span class='texttt'>const</span>
+<span class='texttt'>volatile</span>
+<span class='texttt'>B&amp;</span>
+or
+<span class='texttt'>B</span>,
+and
+</p></li><li ><p >for all the non-static data members of
+<span class='texttt'>X</span>
+that are of a class type
+<span class='texttt'>M</span>
+(or array thereof),
+each such class type has a copy assignment operator whose parameter is of type
+<span class='texttt'>const</span>
+<span class='texttt'>M&amp;</span>,
+<span class='texttt'>const</span>
+<span class='texttt'>volatile</span>
+<span class='texttt'>M&amp;</span>
+or
+<span class='texttt'>M</span>.<a class='footnotenum' href='#footnote-122'>122</a>
+</p></li></ul><p >Otherwise, the implicitly-declared copy
+assignment operator
+will have the form</p><pre class='codeblock'>
+X&amp; X::operator=(X&amp;)
+</pre></div><div class='para' id='class.copy-19'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-19'>19</a></div><p >A user-declared move assignment operator <span class='texttt'>X::operator=</span> is
+a non-static non-template member function of class <span class='texttt'>X</span> with exactly
+one parameter of type <span class='texttt'>X&amp;&amp;</span>, <span class='texttt'>const X&amp;&amp;</span>, <span class='texttt'>volatile X&amp;&amp;</span>, or
+<span class='texttt'>const volatile X&amp;&amp;</span>. [&nbsp;<i>Note:</i> An overloaded assignment operator must be
+declared to have only one parameter; see <a href='over.ass'>[over.ass]</a>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Note:</i> More
+than one form of move assignment operator may be declared for a class. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.copy-20'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-20'>20</a></div><p ><span class='indexparent'><a class='index' id='assignment_operator,move,implicitly_declared'></a></span>If the definition of a class <span class='texttt'>X</span> does not explicitly declare a
+move assignment operator, one
+will be implicitly declared as defaulted if and only if</p><ul ><li ><p ><span class='texttt'>X</span> does not have a user-declared copy constructor,</p></li><li ><p ><span class='texttt'>X</span> does not have a user-declared move constructor,</p></li><li ><p ><span class='texttt'>X</span> does not have a user-declared copy assignment operator,</p></li><li ><p ><span class='texttt'>X</span> does not have a user-declared destructor, and</p></li><li ><p >the move assignment operator would not be implicitly defined as deleted.
+</p></li></ul><p >[&nbsp;<i>Example:</i> The class definition
+</p><pre class='codeblock'>
+struct S {
+  int a;
+  S&amp; operator=(const S&amp;) = default;
+};
+</pre><p >will not have a default move assignment operator implicitly declared because the
+copy assignment operator has been user-declared. The move assignment operator may
+be explicitly defaulted.</p><pre class='codeblock'>
+struct S {
+  int a;
+  S&amp; operator=(const S&amp;) = default;
+  S&amp; operator=(S&amp;&amp;) = default;
+};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.copy-21'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-21'>21</a></div><p >The implicitly-declared move assignment operator for a class <span class='texttt'>X</span> will have the form
+</p><pre class='codeblock'>
+X&amp; X::operator=(X&amp;&amp;);
+</pre></div><div class='para' id='class.copy-22'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-22'>22</a></div><p >The implicitly-declared copy/move assignment operator for class
+<span class='texttt'>X</span>
+has the return type
+<span class='texttt'>X&amp;</span>;
+it returns the object for which the assignment operator is invoked, that is,
+the object assigned to.
+An implicitly-declared copy/move assignment operator is an
+<span class='texttt'>inline</span>
+<span class='texttt'>public</span>
+member of its class.</p></div><div class='para' id='class.copy-23'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-23'>23</a></div><p >A defaulted copy/move assignment operator for
+class <span class='texttt'>X</span> is defined as deleted if <span class='texttt'>X</span> has:
+</p><ul ><li ><p >a variant member with a non-trivial corresponding assignment operator and
+  <span class='texttt'>X</span> is a union-like class, or</p></li><li ><p >a non-static data member of <span class='texttt'>const</span> non-class
+  type (or array thereof), or</p></li><li ><p >a non-static data member of reference type, or</p></li><li ><p >a non-static data member of class type <span class='texttt'>M</span>
+  (or array thereof) that cannot be copied/moved because overload resolution
+  (<a href='over.match'>[over.match]</a>), as applied to <span class='texttt'>M</span>'s corresponding
+  assignment operator, results in an ambiguity or
+  a function that is deleted or inaccessible from the
+  defaulted assignment operator, or</p></li><li ><p >a direct or virtual base class <span class='texttt'>B</span> that cannot
+  be copied/moved because overload resolution 
+  (<a href='over.match'>[over.match]</a>), as applied to <span class='texttt'>B</span>'s corresponding
+  assignment operator, results in an ambiguity or
+  a function that is deleted or inaccessible from the
+  defaulted assignment
+  operator, or</p></li><li ><p >for the move assignment operator, a non-static data member or direct base class with
+  a type that does not have a move assignment operator and is not trivially copyable,
+  or any direct or indirect virtual base class.
+</p></li></ul></div><div class='para' id='class.copy-24'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-24'>24</a></div><p ><span class='indexparent'><a class='index' id='assignment_operator,copy,hidden'></a></span><span class='indexparent'><a class='index' id='assignment_operator,move,hidden'></a></span>Because a copy/move assignment operator is implicitly declared for a class
+if not declared by the user,
+a base class copy/move assignment operator is always hidden
+by the corresponding assignment operator of a derived class (<a href='over.ass'>[over.ass]</a>).
+A
+<i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> (<a href='namespace.udecl'>[namespace.udecl]</a>) that brings in from a base class an assignment operator
+with a parameter type that could be that of a
+copy/move assignment operator for the
+derived class is not considered an explicit declaration of such an
+operator and does not suppress the implicit declaration of the derived class
+operator;
+the operator introduced by the
+<i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i>
+is hidden by the implicitly-declared operator in the derived
+class.</p></div><div class='para' id='class.copy-25'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-25'>25</a></div><p ><span class='indexparent'><a class='index' id='assignment_operator,copy,trivial'></a></span><span class='indexparent'><a class='index' id='assignment_operator,move,trivial'></a></span>A copy/move assignment operator for class
+<span class='texttt'>X</span>
+is
+trivial
+if it is not user-provided and if</p><ul ><li ><p >class
+<span class='texttt'>X</span>
+has no virtual functions (<a href='class.virtual'>[class.virtual]</a>)
+and no virtual base classes (<a href='class.mi'>[class.mi]</a>), and</p></li><li ><p >the assignment operator selected to copy/move each direct
+base class subobject is trivial, and</p></li><li ><p >for each non-static data member of
+<span class='texttt'>X</span>
+that is of class type (or array thereof),
+the assignment operator selected to copy/move that member is trivial;
+</p></li></ul><p >otherwise the copy/move assignment operator is
+<span class='grammarterm'>non-trivial</span>.</p></div><div class='para' id='class.copy-26'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-26'>26</a></div><p ><span class='indexparent'><a class='index' id='assignment_operator,copy,implicitly_defined'></a></span><span class='indexparent'><a class='index' id='assignment_operator,move,implicitly_defined'></a></span>A copy/move assignment operator
+that is defaulted and not defined as deleted
+is
+<a class='hidden_link' href='#def:implicitly_defined' id='def:implicitly_defined'><i>implicitly defined</i></a>
+when
+it is odr-used (<a href='basic.def.odr'>[basic.def.odr]</a>) (e.g., when it is selected by overload resolution
+to assign to an object of its class type)
+or when it is explicitly defaulted after its first declaration.</p></div><div class='para' id='class.copy-27'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-27'>27</a></div><p >Before the defaulted copy/move assignment operator for a class is
+implicitly defined,
+all non-user-provided copy/move assignment operators for
+its direct base classes and
+its non-static data members shall have been implicitly defined.
+[&nbsp;<i>Note:</i>
+An implicitly-declared copy/move assignment operator has an
+<i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i> (<a href='except.spec'>[except.spec]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.copy-28'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-28'>28</a></div><p >The implicitly-defined copy/move assignment operator for a
+non-union class <span class='texttt'>X</span> performs memberwise copy/move assignment of its subobjects. The direct
+base classes of <span class='texttt'>X</span> are assigned first, in the order of their declaration in the
+<i ><a href='class.derived#nt:base-specifier-list'>base-specifier-list</a></i>, and then the immediate non-static data members of
+<span class='texttt'>X</span> are assigned, in the order in which they were declared in the class
+definition.
+Let <span class='texttt'>x</span> be either the parameter of the function or, for the move operator, an
+xvalue referring to the parameter.
+Each subobject is assigned in the manner appropriate to its type:</p><ul ><li ><p >if the subobject is of class type,
+as if by a call to <span class='texttt'>operator=</span> with the subobject as the object expression
+and the corresponding subobject of <span class='texttt'>x</span> as a single function argument
+(as if by explicit qualification; that is,
+ignoring any possible virtual overriding functions in more derived classes);
+</p></li><li ><p >if the subobject is an array, each element is assigned,
+in the manner appropriate to the element type;
+</p></li><li ><p >if the subobject is of scalar type,
+the built-in assignment operator is used.
+</p></li></ul><p ><span class='indexparent'><a class='index' id='assignment_operator,copy,virtual_bases_and'></a></span>It is unspecified whether subobjects representing virtual base classes
+are assigned more than once by the implicitly-defined copy assignment
+operator.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct V { };
+struct A : virtual V { };
+struct B : virtual V { };
+struct C : B, A { };
+</pre><p >It is unspecified whether the virtual base class subobject
+<span class='texttt'>V</span>
+is assigned twice by the implicitly-defined copy assignment operator for
+<span class='texttt'>C</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+<span class='indexparent'><a class='index' id='assignment_operator,move,virtual_bases_and'></a></span>This does not apply to move assignment, as a defaulted move assignment operator
+is deleted if the class has virtual bases.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.copy-29'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-29'>29</a></div><p >The implicitly-defined copy assignment operator for a
+union <span class='texttt'>X</span> copies the object representation (<a href='basic.types'>[basic.types]</a>) of <span class='texttt'>X</span>.<span class='indexparent'><a class='index' id='assignment_operator,move'></a></span><span class='indexparent'><a class='index' id='assignment_operator,copy'></a></span></p></div><div class='para' id='class.copy-30'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-30'>30</a></div><p ><span class='indexparent'><a class='index' id='constructor,copy,inaccessible'></a></span><span class='indexparent'><a class='index' id='constructor,move,inaccessible'></a></span><span class='indexparent'><a class='index' id='assignment_operator,copy,inaccessible'></a></span><span class='indexparent'><a class='index' id='assignment_operator,move,inaccessible'></a></span>A program is ill-formed if the copy/move constructor or the copy/move assignment
+operator for an object is implicitly odr-used and the special member function
+is not accessible (Clause <a href='class.access'>[class.access]</a>).
+[&nbsp;<i>Note:</i>
+Copying/moving one object into another using the copy/move constructor or
+the copy/move assignment operator does not change the layout or size of either
+object.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.copy-31'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-31'>31</a></div><p ><span class='indexparent'><a class='index' id='temporary,elimination_of'></a></span><span class='indexparent'><a class='index' id='elision,copy_constructor'></a></span><span class='indexparent'><a class='index' id='elision,move_constructor'></a></span><span class='indexparent'><a class='index' id='constructor,copy,elision'></a></span><span class='indexparent'><a class='index' id='constructor,move,elision'></a></span>When certain criteria are met, an implementation is
+allowed to omit the copy/move construction of a class object,
+even if the copy/move constructor and/or destructor for the
+object have
+<span class='indexparent'><a class='index' id='side_effects'></a></span>side effects.  In such cases, the
+implementation treats the source and target of the
+omitted copy/move operation as simply two different ways of
+referring to the same object, and the destruction of
+that object occurs at the later of the times when the
+two objects would have been destroyed without the
+optimization.<a class='footnotenum' href='#footnote-123'>123</a>
+This elision of copy/move operations, called
+<span class='indexparent'><a class='index' id='copy_elision'></a></span><span class='indexparent'><a class='index' id='elision,copy'></a></span><span class='indexparent'><a class='index' id='constructor,copy,elision'></a></span><span class='indexparent'><a class='index' id='constructor,move,elision'></a></span><a class='hidden_link' href='#def:copy_elision' id='def:copy_elision'><i>copy elision</i></a>,
+is permitted in the
+following circumstances (which may be combined to
+eliminate multiple copies):</p><ul ><li ><p >in a <span class='texttt'>return</span> statement in a function with a class return type,
+when the expression is the name of a non-volatile
+automatic object
+(other than a function or catch-clause parameter)
+with the same cv-unqualified type as
+the function return type, the copy/move operation can be
+omitted by constructing the automatic object directly
+into the function's return value</p></li><li ><p >in a <span class='small'></span><span class='rmfamily'></span><i> throw-expression</i>, when the operand
+is the name of a non-volatile automatic object
+(other than a function or catch-clause parameter)
+whose scope does not extend beyond the end of the innermost enclosing
+<i ><a href='except#nt:try-block'>try-block</a></i> (if there is one), the copy/move operation from the
+operand to the exception object (<a href='except.throw'>[except.throw]</a>) can be omitted by
+constructing the automatic object directly into the exception object</p></li><li ><p >when a temporary class object that has not been bound to a
+reference (<a href='class.temporary'>[class.temporary]</a>) would be copied/moved to a class object with
+the same cv-unqualified type, the copy/move operation can be omitted by constructing
+the temporary object directly into the target of the omitted copy/move</p></li><li ><p >when the <span class='small'></span><span class='rmfamily'></span><i> exception-declaration</i> of an
+exception handler (Clause <a href='except'>[except]</a>) declares an object of the same
+type (except for cv-qualification) as the exception
+object (<a href='except.throw'>[except.throw]</a>), the copy/move operation can be omitted by treating
+the <span class='small'></span><span class='rmfamily'></span><i> exception-declaration</i> as an alias for the exception
+object if the meaning of the program will be unchanged except for the execution
+of constructors and destructors for the object declared by the
+<span class='small'></span><span class='rmfamily'></span><i> exception-declaration</i>.
+</p></li></ul><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+class Thing {
+public:
+  Thing();
+  ~Thing();
+  Thing(const Thing&amp;);
+};
+
+Thing f() {
+  Thing t;
+  return t;
+}
+
+Thing t2 = f();
+</pre><p >Here the criteria for elision can be combined to
+eliminate two calls to the copy constructor of class
+<span class='texttt'>Thing</span>:
+the copying of the local automatic object
+<span class='texttt'>t</span>
+into the temporary object for the return value of
+function
+<span class='texttt'>f()</span>
+and the copying of that temporary object into object
+<span class='texttt'>t2</span>.
+Effectively, the construction of the local object
+<span class='texttt'>t</span>
+can be viewed as directly initializing the global
+object
+<span class='texttt'>t2</span>,
+and that object's destruction will occur at program
+exit.
+Adding a move constructor to <span class='texttt'>Thing</span> has the same effect, but it is the
+move construction from the temporary object to <span class='texttt'>t2</span> that is elided.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.copy-32'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-32'>32</a></div><p >When the criteria for elision of a copy operation are met
+or would be met save for the fact that the source object is a function parameter,
+and the object
+to be copied is designated by an lvalue, overload resolution to select the constructor
+for the copy is first performed as if the object were designated by an rvalue.
+If overload resolution fails, or if the type of the first parameter of the selected
+constructor is not an rvalue reference to the object's type (possibly cv-qualified),
+overload resolution is performed again, considering the object as an lvalue.
+[&nbsp;<i>Note:</i> This two-stage overload resolution must be performed regardless
+of whether copy elision will occur. It determines the constructor to be called if
+elision is not performed, and the selected constructor must be accessible even if
+the call is elided. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+class Thing {
+public:
+  Thing();
+  ~Thing();
+  Thing(Thing&amp;&amp;);
+private:
+  Thing(const Thing&amp;);
+};
+
+Thing f(bool b) {
+  Thing t;
+  if (b)
+    throw t;                    <span class='comment'>// OK: <span class='texttt'>Thing(Thing&amp;&amp;)</span> used (or elided) to throw t
+</span>  return t;                     <span class='comment'>// OK: <span class='texttt'>Thing(Thing&amp;&amp;)</span> used (or elided) to return t
+</span>}
+
+Thing t2 = f(false);            <span class='comment'>// OK: <span class='texttt'>Thing(Thing&amp;&amp;)</span> used (or elided) to construct t2
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-119'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-119'>119)</a></div><p >This implies that the reference parameter of the
+implicitly-declared copy constructor
+cannot bind to a
+<span class='texttt'>volatile</span>
+lvalue; see <a href='diff.special'>[diff.special]</a>.</p></div><div class='footnote' id='footnote-120'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-120'>120)</a></div><p >See <a href='dcl.init'>[dcl.init]</a> for more details on direct and copy
+initialization.</p></div><div class='footnote' id='footnote-121'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-121'>121)</a></div><p >Because a template assignment operator or an assignment
+operator taking an rvalue reference parameter is never a copy assignment
+operator, the presence of such an assignment operator does not suppress the
+implicit declaration of a copy assignment operator. Such assignment operators
+participate in overload resolution with other assignment operators, including
+copy assignment operators, and, if selected, will be used to assign an object.</p></div><div class='footnote' id='footnote-122'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-122'>122)</a></div><p >This implies that the reference parameter of the
+implicitly-declared copy assignment operator cannot bind to a
+<span class='texttt'>volatile</span>
+lvalue; see <a href='diff.special'>[diff.special]</a>.</p></div><div class='footnote' id='footnote-123'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-123'>123)</a></div><p >Because only one object is destroyed instead of two,
+and one copy/move constructor
+is not executed, there is still one object destroyed for each one constructed.</p></div></div><div id='class.inhctor'><h2 ><a class='secnum' href='#class.inhctor' style='min-width:88pt'>12.9</a> Inheriting constructors <a class='abbr_ref' href='class.inhctor'>[class.inhctor]</a></h2><p ><span class='indexparent'><a class='index' id='constructor,inheriting'></a></span></p><div class='para' id='class.inhctor-1'><div class='marginalizedparent'><a class='marginalized' href='#class.inhctor-1'>1</a></div><p >A <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> (<a href='namespace.udecl'>[namespace.udecl]</a>) that names a
+constructor implicitly declares a set of <a class='hidden_link' href='#def:inheriting_constructors' id='def:inheriting_constructors'><i>inheriting constructors</i></a>.
+The <a class='hidden_link' href='#def:candidate_set_of_inherited_constructors' id='def:candidate_set_of_inherited_constructors'><i>candidate set of inherited constructors</i></a> from the class <span class='texttt'>X</span>
+named in the <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> consists of actual constructors and
+notional constructors that result from the transformation of defaulted
+parameters as follows:</p><ul ><li ><p >all non-template constructors of <span class='texttt'>X</span>, and
+</p></li><li ><p >for each non-template constructor of <span class='texttt'>X</span> that has at least one parameter with a default argument, the set of constructors that results from omitting any ellipsis parameter specification and successively omitting parameters with a default argument from the end of the parameter-type-list, and
+</p></li><li ><p >all constructor templates of <span class='texttt'>X</span>, and
+</p></li><li ><p >for each constructor template of <span class='texttt'>X</span> that has at least one parameter with a default argument, the set of constructor templates that results from omitting any ellipsis parameter specification and successively omitting parameters with a default argument from the end of the parameter-type-list.
+</p></li></ul></div><div class='para' id='class.inhctor-2'><div class='marginalizedparent'><a class='marginalized' href='#class.inhctor-2'>2</a></div><p >The <a class='hidden_link' href='#def:constructor_characteristics' id='def:constructor_characteristics'><i>constructor characteristics</i></a> of a constructor or constructor template are</p><ul ><li ><p >the template parameter list (<a href='temp.param'>[temp.param]</a>), if any,
+</p></li><li ><p >the <span class='grammarterm'>parameter-type-list</span> (<a href='dcl.fct'>[dcl.fct]</a>),
+</p></li><li ><p >the <i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i> (<a href='except.spec'>[except.spec]</a>),
+</p></li><li ><p >absence or presence of <span class='texttt'>explicit</span> (<a href='class.conv.ctor'>[class.conv.ctor]</a>), and
+</p></li><li ><p >absence or presence of <span class='texttt'>constexpr</span> (<a href='dcl.constexpr'>[dcl.constexpr]</a>).
+</p></li></ul></div><div class='para' id='class.inhctor-3'><div class='marginalizedparent'><a class='marginalized' href='#class.inhctor-3'>3</a></div><p >For each non-template constructor in the candidate set of inherited constructors other
+than a constructor having no parameters or a copy/move constructor having a single parameter,
+a constructor is implicitly declared with the same constructor characteristics unless
+there is a user-declared constructor with the same signature in the class where the
+<i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> appears. Similarly, for each constructor template in the
+candidate set of inherited constructors, a constructor template is implicitly declared
+with the same constructor characteristics unless there is an equivalent user-declared
+constructor template (<a href='temp.over.link'>[temp.over.link]</a>) in the class where the using-declaration
+appears. [&nbsp;<i>Note:</i> Default arguments are not inherited. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.inhctor-4'><div class='marginalizedparent'><a class='marginalized' href='#class.inhctor-4'>4</a></div><p >A constructor so declared has the same access as the corresponding constructor in <span class='texttt'>X</span>. It is deleted if the corresponding constructor in <span class='texttt'>X</span> is deleted (<a href='dcl.fct.def'>[dcl.fct.def]</a>).</p></div><div class='para' id='class.inhctor-5'><div class='marginalizedparent'><a class='marginalized' href='#class.inhctor-5'>5</a></div><p >[&nbsp;<i>Note:</i> Default and copy/move constructors may be implicitly declared as specified in <a href='class.ctor'>[class.ctor]</a> and <a href='class.copy'>[class.copy]</a>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.inhctor-6'><div class='marginalizedparent'><a class='marginalized' href='#class.inhctor-6'>6</a></div><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct B1 {
+  B1(int);
+};
+
+struct B2 {
+  B2(int = 13, int = 42);
+};
+
+struct D1 : B1 {
+  using B1::B1;
+};
+
+struct D2 : B2 {
+  using B2::B2;
+};
+</pre><p >The candidate set of inherited constructors in <span class='texttt'>D1</span> for <span class='texttt'>B1</span> is</p><ul ><li ><p ><span class='texttt'>B1(const B1&amp;)</span>
+</p></li><li ><p ><span class='texttt'>B1(B1&amp;&amp;)</span>
+</p></li><li ><p ><span class='texttt'>B1(int)</span>
+</p></li></ul><p >The set of constructors present in <span class='texttt'>D1</span> is</p><ul ><li ><p ><span class='texttt'>D1()</span>, implicitly-declared default constructor, ill-formed if odr-used
+</p></li><li ><p ><span class='texttt'>D1(const D1&amp;)</span>, implicitly-declared copy constructor, not inherited
+</p></li><li ><p ><span class='texttt'>D1(D1&amp;&amp;)</span>, implicitly-declared move constructor, not inherited
+</p></li><li ><p ><span class='texttt'>D1(int)</span>, implicitly-declared inheriting constructor
+</p></li></ul><p >The candidate set of inherited constructors in <span class='texttt'>D2</span> for <span class='texttt'>B2</span> is</p><ul ><li ><p ><span class='texttt'>B2(const B2&amp;)</span>
+</p></li><li ><p ><span class='texttt'>B2(B2&amp;&amp;)</span>
+</p></li><li ><p ><span class='texttt'>B2(int = 13, int = 42)</span>
+</p></li><li ><p ><span class='texttt'>B2(int = 13)</span>
+</p></li><li ><p ><span class='texttt'>B2()</span>
+</p></li></ul><p >The set of constructors present in <span class='texttt'>D2</span> is</p><ul ><li ><p ><span class='texttt'>D2()</span>, implicitly-declared default constructor, not inherited
+</p></li><li ><p ><span class='texttt'>D2(const D2&amp;)</span>, implicitly-declared copy constructor, not inherited
+</p></li><li ><p ><span class='texttt'>D2(D2&amp;&amp;)</span>, implicitly-declared move constructor, not inherited
+</p></li><li ><p ><span class='texttt'>D2(int, int)</span>, implicitly-declared inheriting constructor
+</p></li><li ><p ><span class='texttt'>D2(int)</span>, implicitly-declared inheriting constructor
+</p></li></ul><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.inhctor-7'><div class='marginalizedparent'><a class='marginalized' href='#class.inhctor-7'>7</a></div><p >[&nbsp;<i>Note:</i> If two <i ><a href='namespace.udecl#nt:using-declaration'>using-declarations</a></i> declare inheriting constructors with the same
+signatures, the program is ill-formed (<a href='class.mem'>[class.mem]</a>, <a href='over.load'>[over.load]</a>), because an
+implicitly-declared constructor introduced by the first <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> is not a
+user-declared constructor and thus does not preclude another declaration of a constructor with the
+same signature by a subsequent <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i>. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct B1 {
+  B1(int);
+};
+
+struct B2 {
+  B2(int);
+};
+
+struct D1 : B1, B2 {
+  using B1::B1;
+  using B2::B2;     
+};                  <span class='comment'>// ill-formed: attempts to declare D1(int) twice
+</span>
+struct D2 : B1, B2 {
+  using B1::B1;
+  using B2::B2;
+  D2(int);          <span class='comment'>// OK: user declaration supersedes both implicit declarations
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;] <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.inhctor-8'><div class='marginalizedparent'><a class='marginalized' href='#class.inhctor-8'>8</a></div><p >An inheriting constructor for a class is implicitly defined when
+it is odr-used (<a href='basic.def.odr'>[basic.def.odr]</a>) to
+create an object of its class type (<a href='intro.object'>[intro.object]</a>). An implicitly-defined inheriting
+constructor performs the set of initializations of the class that would be performed by a
+user-written <span class='texttt'>inline</span> constructor for that class with a <i ><a href='class.base.init#nt:mem-initializer-list'>mem-initializer-list</a></i>
+whose only <i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i> has a <i ><a href='class.base.init#nt:mem-initializer-id'>mem-initializer-id</a></i> that names the base
+class denoted in the <i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i> of the
+<i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i> and an <i ><a href='expr.post#nt:expression-list'>expression-list</a></i> as specified below, and where
+the <i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i> in its function body is empty (<a href='class.base.init'>[class.base.init]</a>). If that
+user-written constructor would be ill-formed, the program is ill-formed. Each
+<i ><a href='expr.comma#nt:expression'>expression</a></i> in the <i ><a href='expr.post#nt:expression-list'>expression-list</a></i> is of the form
+<span class='texttt'>static_cast&lt;T&amp;&amp;&gt;(p)</span>, where <span class='texttt'>p</span> is the name of the corresponding constructor
+parameter and <span class='texttt'>T</span> is the declared type of <span class='texttt'>p</span>.</p></div><div class='para' id='class.inhctor-9'><div class='marginalizedparent'><a class='marginalized' href='#class.inhctor-9'>9</a></div><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct B1 {
+  B1(int) { }
+};
+
+struct B2 {
+  B2(double) { }
+};
+
+struct D1 : B1 {
+  using B1::B1;     <span class='comment'>// implicitly declares <span class='texttt'>D1(int)</span>
+</span>  int x;
+};
+
+void test() {
+  D1 d(6);          <span class='comment'>// OK: <span class='texttt'>d.x</span> is not initialized
+</span>  D1 e;             <span class='comment'>// error: <span class='texttt'>D1</span> has no default constructor
+</span>}
+
+struct D2 : B2 {
+  using B2::B2;     <span class='comment'>// OK: implicitly declares <span class='texttt'>D2(double)</span>
+</span>  B1 b;
+};
+
+D2 f(1.0);          <span class='comment'>// error: B1 has no default constructor
+</span>
+template&lt; class T &gt;
+struct D : T {
+  using T::T;       <span class='comment'>// declares all constructors from class T
+</span>  ~D() { std::clog &lt;&lt; "Destroying wrapper" &lt;&lt; std::endl; }
+};
+</pre><p >Class template <span class='texttt'>D</span> wraps any class and forwards all of its constructors,
+while writing a message to the standard log whenever an object of class
+<span class='texttt'>D</span> is destroyed. <i>&nbsp;—&nbsp;end example</i>&nbsp;]<span class='indexparent'><a class='index' id='constructor,inheriting'></a></span>
+</p></div></div></div></div></body></html>

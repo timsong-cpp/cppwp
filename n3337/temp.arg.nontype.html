@@ -1,0 +1,185 @@
+<!DOCTYPE html><html lang='en'><head><title>[temp.arg.nontype]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>14</a> Templates <a class='abbr_ref' href='./#temp'>[temp]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>14.3</a> Template arguments <a class='abbr_ref' href='temp.arg#nontype'>[temp.arg]</a></h2><div id='temp.arg.nontype'><h3 ><a class='secnum' style='min-width:103pt'>14.3.2</a> Template non-type arguments <a class='abbr_ref'>[temp.arg.nontype]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+for a non-type, non-template
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+shall be one of:
+</p><ul ><li ><p >for a non-type <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i> of integral or enumeration type,
+a converted
+constant expression (<a href='expr.const'>[expr.const]</a>)
+of the type of the <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>; or
+</p></li><li ><p >the name of a non-type
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>;
+or
+</p></li><li ><p >a constant expression (<a href='expr.const'>[expr.const]</a>) that designates
+the address of an object
+with static storage duration and external or internal linkage
+or a function with external or internal linkage,
+including function templates and function
+<i ><a href='temp.names#nt:template-id'>template-ids</a></i>
+but
+excluding non-static class members, expressed (ignoring parentheses) as
+<span class='texttt'>&amp;</span>
+<i ><a href='expr.prim.general#nt:id-expression'>id-expression</a></i>, except that
+the
+<span class='texttt'>&amp;</span>
+may be omitted if the name refers to a function or
+array and shall be omitted if the corresponding
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+is a reference;
+or
+</p></li><li ><p >a constant expression that evaluates to a null pointer
+value (<a href='conv.ptr'>[conv.ptr]</a>);
+or
+</p></li><li ><p >a constant expression that evaluates to a null member pointer
+value (<a href='conv.mem'>[conv.mem]</a>);
+or
+</p></li><li ><p >a pointer to member expressed as described in <a href='expr.unary.op'>[expr.unary.op]</a>.
+</p></li></ul></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >[&nbsp;<i>Note:</i>
+A string literal (<a href='lex.string'>[lex.string]</a>)
+does not satisfy the requirements of any of these
+categories and thus is not an acceptable
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T, const char* p&gt; class X {
+  <span class='comment'>/* ... */</span>
+};
+
+X&lt;int, "Studebaker"&gt; x1;        <span class='comment'>// error: string literal as template-argument
+</span>
+const char p[] = "Vivisectionist";
+X&lt;int,p&gt; x2;                    <span class='comment'>// OK
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >[&nbsp;<i>Note:</i>
+Addresses of array elements and names or addresses of non-static class
+members are not acceptable
+<i ><a href='temp.names#nt:template-argument'>template-arguments</a></i>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;int* p&gt; class X { };
+
+int a[10];
+struct S { int m; static int s; } s;
+
+X&lt;&amp;a[2]&gt; x3;                    <span class='comment'>// error: address of array element
+</span>X&lt;&amp;s.m&gt; x4;                     <span class='comment'>// error: address of non-static member
+</span>X&lt;&amp;s.s&gt; x5;                     <span class='comment'>// error: <span class='texttt'>&amp;S::s</span> must be used
+</span>X&lt;&amp;S::s&gt; x6;                    <span class='comment'>// OK: address of static member
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >[&nbsp;<i>Note:</i>
+Temporaries, unnamed lvalues, and named lvalues
+with no linkage
+are not acceptable
+<i ><a href='temp.names#nt:template-argument'>template-arguments</a></i>
+when the corresponding
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+has reference type.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;const int&amp; CRI&gt; struct B { <span class='comment'>/* ... */</span> };
+
+B&lt;1&gt; b2;                        <span class='comment'>// error: temporary would be required for template argument
+</span>
+int c = 1;
+B&lt;c&gt; b1;                        <span class='comment'>// OK
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >The following conversions are performed on each expression used as a non-type
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>.
+If a non-type
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+cannot be converted to the type of the corresponding
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+then the program is ill-formed.</p><ul ><li ><p >For a non-type
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+of integral or enumeration type,
+conversions permitted in a converted constant expression (<a href='expr.const'>[expr.const]</a>)
+are applied.
+</p></li><li ><p >for a non-type
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+of type pointer to object,
+qualification conversions (<a href='conv.qual'>[conv.qual]</a>) and
+the array-to-pointer conversion (<a href='conv.array'>[conv.array]</a>) are applied; if the
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i> is of type <span class='texttt'>std::nullptr_t</span>, the null
+pointer conversion (<a href='conv.ptr'>[conv.ptr]</a>) is applied.
+[&nbsp;<i>Note:</i>
+In particular, neither the null pointer conversion for a zero-valued integral
+constant expression (<a href='conv.ptr'>[conv.ptr]</a>) nor the
+derived-to-base conversion (<a href='conv.ptr'>[conv.ptr]</a>) are applied.
+Although
+<span class='texttt'>0</span>
+is a valid
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+for a non-type
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+of integral type, it is not a valid
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+for a non-type
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+of pointer type.
+However, both <span class='texttt'>(int*)0</span> and <span class='texttt'>nullptr</span> are valid <i ><a href='temp.names#nt:template-argument'>template-arguments</a></i>
+for a non-type <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i> of type “pointer to int.”
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></li><li ><p >For a non-type
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+of type reference to object,
+no conversions apply.
+The type referred to by the reference may be more cv-qualified than the
+(otherwise identical) type of the
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>.
+The
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+is bound directly to the
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>,
+which shall be an lvalue.
+</p></li><li ><p >For a non-type
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+of type pointer to function, the function-to-pointer conversion (<a href='conv.func'>[conv.func]</a>)
+is applied; if the <i ><a href='temp.names#nt:template-argument'>template-argument</a></i> is of type
+<span class='texttt'>std::nullptr_t</span>, the null pointer conversion (<a href='conv.ptr'>[conv.ptr]</a>) is applied.
+If the
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+represents a set of overloaded functions (or a pointer to such), the matching
+function is selected from the set (<a href='over.over'>[over.over]</a>).
+</p></li><li ><p >For a non-type
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+of type reference to function, no conversions apply.
+If the
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+represents a set of overloaded functions, the matching function is selected
+from the set (<a href='over.over'>[over.over]</a>).
+</p></li><li ><p >For a non-type
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+of type pointer to member function,
+if the <i ><a href='temp.names#nt:template-argument'>template-argument</a></i> is of type <span class='texttt'>std::nullptr_t</span>, the
+null member pointer conversion (<a href='conv.mem'>[conv.mem]</a>) is applied; otherwise,
+no conversions apply.
+If the
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+represents a set of overloaded member functions, the matching
+member function is selected from the set (<a href='over.over'>[over.over]</a>).
+</p></li><li ><p >For a non-type
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+of type pointer to data member,
+qualification conversions (<a href='conv.qual'>[conv.qual]</a>)
+are applied; if the <i ><a href='temp.names#nt:template-argument'>template-argument</a></i> is of type
+<span class='texttt'>std::nullptr_t</span>, the null member pointer conversion (<a href='conv.mem'>[conv.mem]</a>) is
+applied.
+</p></li></ul><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;const int* pci&gt; struct X { <span class='comment'>/* ... */</span> };
+int ai[10];
+X&lt;ai&gt; xi;                       <span class='comment'>// array to pointer and qualification conversions
+</span>
+struct Y { <span class='comment'>/* ... */</span> };
+template&lt;const Y&amp; b&gt; struct Z { <span class='comment'>/* ... */</span> };
+Y y;
+Z&lt;y&gt; z;                         <span class='comment'>// no conversion, but note extra cv-qualification
+</span>
+template&lt;int (&amp;pa)[5]&gt; struct W { <span class='comment'>/* ... */</span> };
+int b[5];
+W&lt;b&gt; w;                         <span class='comment'>// no conversion
+</span>
+void f(char);
+void f(int);
+
+template&lt;void (*pf)(int)&gt; struct A { <span class='comment'>/* ... */</span> };
+
+A&lt;&amp;f&gt; a;                        <span class='comment'>// selects <span class='texttt'>f(int)</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>

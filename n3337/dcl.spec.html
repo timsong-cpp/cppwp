@@ -1,0 +1,876 @@
+<!DOCTYPE html><html lang='en'><head><title>[dcl.spec]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>7</a> Declarations <a class='abbr_ref' href='./#dcl.dcl'>[dcl.dcl]</a></h1><div id='dcl.spec'><h2 ><a class='secnum' style='min-width:88pt'>7.1</a> Specifiers <a class='abbr_ref'>[dcl.spec]</a></h2><p ><span class='indexparent'><a class='index' id='specifier'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='specifier,declaration'></a></span>The specifiers that can be used in a declaration are</p><pre class='bnf'><a id='nt:decl-specifier'>decl-specifier:</a>
+    <i ><a href='dcl.stc#nt:storage-class-specifier'>storage-class-specifier</a></i>
+    <i ><a href='dcl.type#nt:type-specifier'>type-specifier</a></i>
+    <i ><a href='dcl.fct.spec#nt:function-specifier'>function-specifier</a></i>
+    <span class='terminal'>friend</span>
+    <span class='terminal'>typedef</span>
+    <span class='terminal'>constexpr</span></pre><pre class='bnf'><a id='nt:decl-specifier-seq'>decl-specifier-seq:</a>
+    <i ><a href='dcl.spec#nt:decl-specifier'>decl-specifier</a></i> <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span>
+    <i ><a href='dcl.spec#nt:decl-specifier'>decl-specifier</a></i> <i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i></pre><p >The optional <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i> in a <i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i>
+appertains to the type determined by the preceding
+<i ><a href='dcl.spec#nt:decl-specifier'>decl-specifiers</a></i> (<a href='dcl.meaning'>[dcl.meaning]</a>). The <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i>
+affects the type only for the declaration it appears in, not other declarations involving the
+same type.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='indexparent'><a class='index' id='ambiguity,declaration_type'></a></span>If a <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i> is encountered while parsing a <i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i>,
+it is interpreted as part of the <i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i> if and only if there is no
+previous <i ><a href='dcl.type#nt:type-specifier'>type-specifier</a></i> other than a <i ><a href='dcl.decl#nt:cv-qualifier'>cv-qualifier</a></i> in the
+<i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i>.
+The sequence shall be self-consistent as
+described below.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+typedef char* Pc;
+static Pc;                      <span class='comment'>// error: name missing
+</span></pre><p >Here, the declaration <span class='texttt'>static</span> <span class='texttt'>Pc</span> is ill-formed because no
+name was specified for the static variable of type <span class='texttt'>Pc</span>. To get a
+variable called <span class='texttt'>Pc</span>, a <i ><a href='dcl.type#nt:type-specifier'>type-specifier</a></i> (other than
+<span class='texttt'>const</span> or <span class='texttt'>volatile</span>) has to be present to indicate that
+the <i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i> <span class='texttt'>Pc</span> is the name being (re)declared,
+rather than being part of the <i ><a href='dcl.spec#nt:decl-specifier'>decl-specifier</a></i> sequence. For
+another example,</p><pre class='codeblock'>
+void f(const Pc);               <span class='comment'>// <span class='texttt'>void f(char* const)</span> (not <span class='texttt'>const char*</span>)
+</span>void g(const int Pc);           <span class='comment'>// <span class='texttt'>void g(const int)</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p ><span class='indexparent'><a class='index' id='signed,typedef'></a></span><span class='indexparent'><a class='index' id='unsigned,typedef'></a></span><span class='indexparent'><a class='index' id='long,typedef'></a></span><span class='indexparent'><a class='index' id='short,typedef'></a></span>[&nbsp;<i>Note:</i>
+Since <span class='texttt'>signed</span>, <span class='texttt'>unsigned</span>, <span class='texttt'>long</span>, and <span class='texttt'>short</span>
+by default imply <span class='texttt'>int</span>, a <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i> appearing after one
+of those specifiers is treated as the name being (re)declared.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+void h(unsigned Pc);            <span class='comment'>// <span class='texttt'>void h(unsigned int)</span>
+</span>void k(unsigned int Pc);        <span class='comment'>// <span class='texttt'>void k(unsigned int)</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div id='dcl.stc'><h3 ><a class='secnum' href='#dcl.stc' style='min-width:103pt'>7.1.1</a> Storage class specifiers <a class='abbr_ref' href='dcl.stc'>[dcl.stc]</a></h3><p ><span class='indexparent'><a class='index' id='specifier,storage_class'></a></span><span class='indexparent'><a class='index' id='declaration,storage_class'></a></span><span class='indexparent'><a class='index' id='register'></a></span><span class='indexparent'><a class='index' id='static'></a></span><span class='indexparent'><a class='index' id='thread_local'></a></span><span class='indexparent'><a class='index' id='extern'></a></span><span class='indexparent'><a class='index' id='mutable'></a></span></p><div class='para' id='dcl.stc-1'><div class='marginalizedparent'><a class='marginalized' href='#dcl.stc-1'>1</a></div><p >The storage class specifiers are</p><pre class='bnf'><a id='nt:storage-class-specifier'>storage-class-specifier:</a>
+    <span class='terminal'>register</span>
+    <span class='terminal'>static</span>
+    <span class='terminal'>thread_local</span>
+    <span class='terminal'>extern</span>
+    <span class='terminal'>mutable</span></pre><p >At most one <i ><a href='dcl.stc#nt:storage-class-specifier'>storage-class-specifier</a></i> shall appear in a given
+<i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i>, except that <span class='texttt'>thread_local</span> may appear with <span class='texttt'>static</span> or 
+<span class='texttt'>extern</span>. If <span class='texttt'>thread_local</span> appears in any declaration of
+a variable it shall be present in all declarations of that entity. If a 
+<i ><a href='dcl.stc#nt:storage-class-specifier'>storage-class-specifier</a></i>
+appears in a <i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i>, there can be no
+<span class='texttt'>typedef</span> specifier in the same <i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i> and
+the <i ><a href='dcl.decl#nt:init-declarator-list'>init-declarator-list</a></i> of the declaration shall not be
+empty (except for an anonymous union declared in a named namespace or in the
+global namespace, which shall be declared
+<span class='indexparent'><a class='index' id='specifier,static'></a></span><span class='texttt'>static</span> (<a href='class.union'>[class.union]</a>)). The
+<i ><a href='dcl.stc#nt:storage-class-specifier'>storage-class-specifier</a></i> applies to the name declared by each
+<i ><a href='dcl.decl#nt:init-declarator'>init-declarator</a></i> in the list and not to any names declared by
+other specifiers. A <i ><a href='dcl.stc#nt:storage-class-specifier'>storage-class-specifier</a></i> shall not be
+specified in an explicit specialization (<a href='temp.expl.spec'>[temp.expl.spec]</a>) or an
+explicit instantiation (<a href='temp.explicit'>[temp.explicit]</a>) directive.</p></div><div class='para' id='dcl.stc-2'><div class='marginalizedparent'><a class='marginalized' href='#dcl.stc-2'>2</a></div><p ><span class='indexparent'><a class='index' id='restriction,register'></a></span>The <span class='texttt'>register</span> specifier shall be applied only to names of variables
+declared in a block (<a href='stmt.block'>[stmt.block]</a>) or to function
+parameters (<a href='dcl.fct.def'>[dcl.fct.def]</a>). It specifies that the named variable has
+automatic storage duration (<a href='basic.stc.auto'>[basic.stc.auto]</a>). A variable declared
+without a <i ><a href='dcl.stc#nt:storage-class-specifier'>storage-class-specifier</a></i> at block scope or declared
+as a function parameter has automatic storage duration by default.</p></div><div class='para' id='dcl.stc-3'><div class='marginalizedparent'><a class='marginalized' href='#dcl.stc-3'>3</a></div><p ><span class='indexparent'><a class='index' id='declaration,register'></a></span>A <span class='texttt'>register</span> specifier is a hint to the implementation that the
+variable so declared will be heavily used.
+[&nbsp;<i>Note:</i>
+The hint can be ignored and in most implementations it will be ignored
+if the address of the variable is taken. This use is deprecated (see <a href='depr.register'>[depr.register]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='dcl.stc-4'><div class='marginalizedparent'><a class='marginalized' href='#dcl.stc-4'>4</a></div><p >The <span class='texttt'>thread_local</span> specifier
+indicates that the named entity has thread storage duration (<a href='basic.stc.thread'>[basic.stc.thread]</a>). It
+shall be applied only
+to the names of variables of namespace
+or block scope and to the names of static data members.
+When <span class='texttt'>thread_local</span> is applied to a variable of block scope the
+<i ><a href='dcl.stc#nt:storage-class-specifier'>storage-class-specifier</a></i> <span class='texttt'>static</span> is implied if it does not
+appear explicitly.</p></div><div class='para' id='dcl.stc-5'><div class='marginalizedparent'><a class='marginalized' href='#dcl.stc-5'>5</a></div><p ><span class='indexparent'><a class='index' id='restriction,static'></a></span>The <span class='texttt'>static</span> specifier can be applied only to names of variables and
+functions and to anonymous unions (<a href='class.union'>[class.union]</a>). There can be no
+<span class='texttt'>static</span> function declarations within a block, nor any
+<span class='texttt'>static</span> function parameters. A <span class='texttt'>static</span> specifier used in
+the declaration of a variable declares the variable to have static storage
+duration (<a href='basic.stc.static'>[basic.stc.static]</a>), unless accompanied by the
+<span class='texttt'>thread_local</span> specifier, which declares the variable to have thread
+storage duration (<a href='basic.stc.thread'>[basic.stc.thread]</a>). A <span class='texttt'>static</span> specifier can be
+used in declarations of class members; <a href='class.static'>[class.static]</a> describes its
+effect.
+<span class='indexparent'><a class='index' id='static,linkage_of'></a></span>For the linkage of a name declared with a <span class='texttt'>static</span> specifier,
+see <a href='basic.link'>[basic.link]</a>.</p></div><div class='para' id='dcl.stc-6'><div class='marginalizedparent'><a class='marginalized' href='#dcl.stc-6'>6</a></div><p ><span class='indexparent'><a class='index' id='restriction,extern'></a></span>The <span class='texttt'>extern</span> specifier can be applied only to the names of variables
+and functions. The <span class='texttt'>extern</span> specifier cannot be used in the
+declaration of class members or function parameters.
+<span class='indexparent'><a class='index' id='extern,linkage_of'></a></span><span class='indexparent'><a class='index' id='consistency,linkage'></a></span>For the linkage of a name declared with an <span class='texttt'>extern</span> specifier,
+see <a href='basic.link'>[basic.link]</a>.
+[&nbsp;<i>Note:</i>
+The <span class='texttt'>extern</span> keyword can also be used in
+<span class='small'></span><span class='rmfamily'></span><i> explicit-instantiation</i>s and
+<span class='small'></span><span class='rmfamily'></span><i> linkage-specification</i>s, but it is not a
+<span class='small'></span><span class='rmfamily'></span><i> storage-class-specifier</i> in such contexts.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='dcl.stc-7'><div class='marginalizedparent'><a class='marginalized' href='#dcl.stc-7'>7</a></div><p ><span class='indexparent'><a class='index' id='const,linkage_of'></a></span><span class='indexparent'><a class='index' id='specifier,missing_storage_class'></a></span>A name declared in a namespace scope without a
+<i ><a href='dcl.stc#nt:storage-class-specifier'>storage-class-specifier</a></i> has external linkage unless it has
+internal linkage because of a previous declaration and provided it is
+not declared <span class='texttt'>const</span>. Objects declared <span class='texttt'>const</span> and not
+explicitly declared <span class='texttt'>extern</span> have internal linkage.</p></div><div class='para' id='dcl.stc-8'><div class='marginalizedparent'><a class='marginalized' href='#dcl.stc-8'>8</a></div><p >The linkages implied by successive declarations for a given entity shall
+agree. That is, within a given scope, each declaration declaring the
+same variable name or the same overloading of a function name shall imply
+the same linkage. Each function in a given set of overloaded functions
+can have a different linkage, however.
+[&nbsp;<i>Example:</i>
+<span class='indexparent'><a class='index' id='example,linkage_consistency'></a></span>
+</p><pre class='codeblock'>
+static char* f();               <span class='comment'>// <span class='texttt'>f()</span> has internal linkage
+</span>char* f()                       <span class='comment'>// <span class='texttt'>f()</span> still has internal linkage
+</span>  { <span class='comment'>/* ... */</span> }
+
+char* g();                      <span class='comment'>// <span class='texttt'>g()</span> has external linkage
+</span>static char* g()                <span class='comment'>// error: inconsistent linkage
+</span>  { <span class='comment'>/* ... */</span> }
+
+void h();
+inline void h();                <span class='comment'>// external linkage
+</span>
+inline void l();
+void l();                       <span class='comment'>// external linkage
+</span>
+inline void m();
+extern void m();                <span class='comment'>// external linkage
+</span>
+static void n();
+inline void n();                <span class='comment'>// internal linkage
+</span>
+static int a;                   <span class='comment'>// <span class='texttt'>a</span> has internal linkage
+</span>int a;                          <span class='comment'>// error: two definitions
+</span>
+static int b;                   <span class='comment'>// <span class='texttt'>b</span> has internal linkage
+</span>extern int b;                   <span class='comment'>// <span class='texttt'>b</span> still has internal linkage
+</span>
+int c;                          <span class='comment'>// <span class='texttt'>c</span> has external linkage
+</span>static int c;                   <span class='comment'>// error: inconsistent linkage
+</span>
+extern int d;                   <span class='comment'>// <span class='texttt'>d</span> has external linkage
+</span>static int d;                   <span class='comment'>// error: inconsistent linkage
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.stc-9'><div class='marginalizedparent'><a class='marginalized' href='#dcl.stc-9'>9</a></div><p ><span class='indexparent'><a class='index' id='declaration,forward'></a></span>The name of a declared but undefined class can be used in an
+<span class='texttt'>extern</span> declaration. Such a declaration can only be used in ways
+that do not require a complete class type.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct S;
+extern S a;
+extern S f();
+extern void g(S);
+
+void h() {
+  g(a);                         <span class='comment'>// error: <span class='texttt'>S</span> is incomplete
+</span>  f();                          <span class='comment'>// error: <span class='texttt'>S</span> is incomplete
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.stc-10'><div class='marginalizedparent'><a class='marginalized' href='#dcl.stc-10'>10</a></div><p >The <span class='texttt'>mutable</span> specifier can be applied only to names of class data
+members (<a href='class.mem'>[class.mem]</a>) and cannot be applied to names declared
+<span class='texttt'>const</span> or <span class='texttt'>static</span>, and cannot be applied to reference
+members.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+class X {
+  mutable const int* p;         <span class='comment'>// OK
+</span>  mutable int* const q;         <span class='comment'>// ill-formed
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.stc-11'><div class='marginalizedparent'><a class='marginalized' href='#dcl.stc-11'>11</a></div><p >The <span class='texttt'>mutable</span> specifier on a class data member nullifies a
+<span class='texttt'>const</span> specifier applied to the containing class object and
+permits modification of the mutable class member even though the rest of
+the object is <span class='texttt'>const</span> (<a href='dcl.type.cv'>[dcl.type.cv]</a>).</p></div></div><div id='dcl.fct.spec'><h3 ><a class='secnum' href='#dcl.fct.spec' style='min-width:103pt'>7.1.2</a> Function specifiers <a class='abbr_ref' href='dcl.fct.spec'>[dcl.fct.spec]</a></h3><p ><span class='indexparent'><a class='index' id='specifier,function'></a></span><span class='indexparent'><a class='index' id='function'></a></span></p><div class='para' id='dcl.fct.spec-1'><div class='marginalizedparent'><a class='marginalized' href='#dcl.fct.spec-1'>1</a></div><p ><span class='grammarterm'>Function-specifiers</span>
+can be used only in function declarations.</p><pre class='bnf'><a id='nt:function-specifier'>function-specifier:</a>
+    <span class='terminal'>inline</span>
+    <span class='terminal'>virtual</span>
+    <span class='terminal'>explicit</span></pre></div><div class='para' id='dcl.fct.spec-2'><div class='marginalizedparent'><a class='marginalized' href='#dcl.fct.spec-2'>2</a></div><p ><span class='indexparent'><a class='index' id='specifier,inline'></a></span><span class='indexparent'><a class='index' id='inline_function'></a></span>A function declaration (<a href='dcl.fct'>[dcl.fct]</a>, <a href='class.mfct'>[class.mfct]</a>,
+<a href='class.friend'>[class.friend]</a>) with an <span class='texttt'>inline</span> specifier declares an
+<a class='hidden_link' href='#def:inline_function' id='def:inline_function'><i>inline function</i></a>. The inline specifier indicates to
+the implementation that inline substitution of the function body at the
+point of call is to be preferred to the usual function call mechanism.
+An implementation is not required to perform this inline substitution at
+the point of call; however, even if this inline substitution is omitted,
+the other rules for inline functions defined by <a href='dcl.fct.spec'>[dcl.fct.spec]</a> shall
+still be respected.</p></div><div class='para' id='dcl.fct.spec-3'><div class='marginalizedparent'><a class='marginalized' href='#dcl.fct.spec-3'>3</a></div><p >A function defined within a class definition is an inline function. The
+<span class='texttt'>inline</span> specifier shall not appear on a block scope function
+declaration.<a class='footnotenum' href='#footnote-90'>90</a>
+If the <span class='texttt'>inline</span> specifier is used in a friend declaration, that
+declaration shall be a definition or the function shall have previously
+been declared inline.</p></div><div class='para' id='dcl.fct.spec-4'><div class='marginalizedparent'><a class='marginalized' href='#dcl.fct.spec-4'>4</a></div><p >An inline function shall be defined in every translation unit in which
+it is odr-used and shall have exactly the same definition in every
+case (<a href='basic.def.odr'>[basic.def.odr]</a>).
+[&nbsp;<i>Note:</i>
+A call to the inline function may be encountered before its definition
+appears in the translation unit.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+If the definition of a function appears in a translation unit before its
+first declaration as inline, the program is ill-formed. If a function
+with external linkage is declared inline in one translation unit, it
+shall be declared inline in all translation units in which it appears;
+no diagnostic is required. An <span class='texttt'>inline</span> function with external
+linkage shall have the same address in all translation units. A
+<span class='texttt'>static</span> local variable in an <span class='texttt'>extern</span> <span class='texttt'>inline</span>
+function always refers to the same object. A string literal in the body
+of an <span class='texttt'>extern</span> <span class='texttt'>inline</span> function is the same object in
+different translation units.
+[&nbsp;<i>Note:</i>
+A string literal appearing in a default argument is not in
+the body of an inline function merely because the expression is used in
+a function call from that inline function.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+A type defined within the body of an <span class='texttt'>extern inline</span> function is the
+same type in every translation unit.</p></div><div class='para' id='dcl.fct.spec-5'><div class='marginalizedparent'><a class='marginalized' href='#dcl.fct.spec-5'>5</a></div><p ><span class='indexparent'><a class='index' id='specifier,virtual'></a></span>The <span class='texttt'>virtual</span> specifier shall be used only in the initial
+declaration of a non-static class member function;
+see <a href='class.virtual'>[class.virtual]</a>.</p></div><div class='para' id='dcl.fct.spec-6'><div class='marginalizedparent'><a class='marginalized' href='#dcl.fct.spec-6'>6</a></div><p ><span class='indexparent'><a class='index' id='specifier,explicit'></a></span>The <span class='texttt'>explicit</span> specifier shall be used only in the declaration of
+a constructor or conversion function within its class definition;
+see <a href='class.conv.ctor'>[class.conv.ctor]</a> and <a href='class.conv.fct'>[class.conv.fct]</a>.</p></div><div class='footnote' id='footnote-90'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-90'>90)</a></div><p >The inline keyword has no effect on the linkage of a function.</p></div></div><div id='dcl.typedef'><h3 ><a class='secnum' href='#dcl.typedef' style='min-width:103pt'>7.1.3</a> The <span class='texttt'>typedef</span> specifier <a class='abbr_ref' href='dcl.typedef'>[dcl.typedef]</a></h3><p ><span class='indexparent'><a class='index' id='specifier,typedef'></a></span></p><div class='para' id='dcl.typedef-1'><div class='marginalizedparent'><a class='marginalized' href='#dcl.typedef-1'>1</a></div><p >Declarations containing the <i ><a href='dcl.spec#nt:decl-specifier'>decl-specifier</a></i> <span class='texttt'>typedef</span>
+declare identifiers that can be used later for naming
+fundamental (<a href='basic.fundamental'>[basic.fundamental]</a>) or compound (<a href='basic.compound'>[basic.compound]</a>)
+types. The <span class='texttt'>typedef</span> specifier shall not be
+combined in a <i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i> with any other kind of
+specifier except a <span class='grammarterm'>type-specifier,</span> and it shall not be used in the
+<i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i> of a
+<i ><a href='dcl.fct#nt:parameter-declaration'>parameter-declaration</a></i> (<a href='dcl.fct'>[dcl.fct]</a>) nor in the
+<i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i> of a
+<i ><a href='dcl.fct.def.general#nt:function-definition'>function-definition</a></i> (<a href='dcl.fct.def'>[dcl.fct.def]</a>).</p><pre class='bnf'><a id='nt:typedef-name'>typedef-name:</a>
+    <i ><a href='lex.name#nt:identifier'>identifier</a></i></pre><p >A name declared with the <span class='texttt'>typedef</span> specifier becomes a
+<i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i>. Within the scope of its declaration, a
+<i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i> is syntactically equivalent to a keyword and
+names the type associated with the identifier in the way described in
+Clause <a href='dcl.decl'>[dcl.decl]</a>.
+<span class='indexparent'><a class='index' id='declaration,typedef'></a></span><span class='indexparent'><a class='index' id='equivalence,type'></a></span><span class='indexparent'><a class='index' id='synonym,type_name_as'></a></span>A <i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i> is thus a synonym for another type. A
+<i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i> does not introduce a new type the way a class
+declaration (<a href='class.name'>[class.name]</a>) or enum declaration does.
+[&nbsp;<i>Example:</i>
+<span class='indexparent'><a class='index' id='example,typedef'></a></span>after</p><pre class='codeblock'>
+typedef int MILES, *KLICKSP;
+</pre><p >the constructions</p><pre class='codeblock'>
+MILES distance;
+extern KLICKSP metricp;
+</pre><p >are all correct declarations; the type of <span class='texttt'>distance</span> is
+<span class='texttt'>int</span> and that of <span class='texttt'>metricp</span> is “pointer to <span class='texttt'>int</span>.”
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.typedef-2'><div class='marginalizedparent'><a class='marginalized' href='#dcl.typedef-2'>2</a></div><p >A <i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i> can also be introduced by an
+<i ><a href='dcl.dcl#nt:alias-declaration'>alias-declaration</a></i>. The <i ><a href='lex.name#nt:identifier'>identifier</a></i> following the
+<span class='texttt'>using</span> keyword becomes a <i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i>
+and the optional <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i> following the
+<i ><a href='lex.name#nt:identifier'>identifier</a></i> appertains to that <i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i>.
+It has the same
+semantics as if it were introduced by the <span class='texttt'>typedef</span> specifier. In
+particular, it does not define a new type and it shall not appear in the
+<i ><a href='dcl.name#nt:type-id'>type-id</a></i>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+using handler_t = void (*)(int);
+extern handler_t ignore;
+extern void (*ignore)(int);         <span class='comment'>// redeclare <span class='texttt'>ignore</span>
+</span>using cell = pair&lt;void*, cell*&gt;;    <span class='comment'>// ill-formed
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.typedef-3'><div class='marginalizedparent'><a class='marginalized' href='#dcl.typedef-3'>3</a></div><p ><span class='indexparent'><a class='index' id='redefinition,typedef'></a></span>In a given non-class scope, a <span class='texttt'>typedef</span> specifier can be used to
+redefine the name of any type declared in that scope to refer to the
+type to which it already refers.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+typedef struct s { <span class='comment'>/* ... */</span> } s;
+typedef int I;
+typedef int I;
+typedef I I;
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.typedef-4'><div class='marginalizedparent'><a class='marginalized' href='#dcl.typedef-4'>4</a></div><p >In a given class scope, a <span class='texttt'>typedef</span> specifier can be used to
+redefine any <i ><a href='class#nt:class-name'>class-name</a></i> declared in that scope that is not
+also a <i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i> to refer to the type to which it already
+refers.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct S {
+  typedef struct A { } A;       <span class='comment'>// OK
+</span>  typedef struct B B;           <span class='comment'>// OK
+</span>  typedef A A;                  <span class='comment'>// error
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.typedef-5'><div class='marginalizedparent'><a class='marginalized' href='#dcl.typedef-5'>5</a></div><p >If a <span class='texttt'>typedef</span> specifier is used to redefine in a given scope an
+entity that can be referenced using an <i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i>,
+the entity can continue to be referenced by an
+<i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i> or as an enumeration or class name
+in an enumeration or class definition respectively. [&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct S;
+typedef struct S S;
+int main() {
+  struct S* p;                  <span class='comment'>// OK
+</span>}
+struct S { };                   <span class='comment'>// OK
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.typedef-6'><div class='marginalizedparent'><a class='marginalized' href='#dcl.typedef-6'>6</a></div><p >In a given scope, a <span class='texttt'>typedef</span> specifier shall not be used to
+redefine the name of any type declared in that scope to refer to a
+different type.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+class complex { <span class='comment'>/* ... */</span> };
+typedef int complex;            <span class='comment'>// error: redefinition
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.typedef-7'><div class='marginalizedparent'><a class='marginalized' href='#dcl.typedef-7'>7</a></div><p >Similarly, in a given scope, a class or enumeration shall not be
+declared with the same name as a <i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i> that is
+declared in that scope and refers to a type other than the class or
+enumeration itself.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+typedef int complex;
+class complex <span class='texttt'>{ /* ... */ }</span>;   <span class='comment'>// error: redefinition
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.typedef-8'><div class='marginalizedparent'><a class='marginalized' href='#dcl.typedef-8'>8</a></div><p >[&nbsp;<i>Note:</i>
+<span class='indexparent'><a class='index' id='class_name,typedef'></a></span>A <i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i> that names a class type, or a cv-qualified
+version thereof, is also a <i ><a href='class#nt:class-name'>class-name</a></i> (<a href='class.name'>[class.name]</a>). If
+a <i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i> is used to identify the subject of an
+<i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i> (<a href='dcl.type.elab'>[dcl.type.elab]</a>), a class
+definition (Clause <a href='class'>[class]</a>), a constructor
+declaration (<a href='class.ctor'>[class.ctor]</a>), or a destructor
+declaration (<a href='class.dtor'>[class.dtor]</a>), the program is ill-formed.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct S {
+  S();
+  ~S();
+};
+
+typedef struct S T;
+
+S a = T();                      <span class='comment'>// OK
+</span>struct T * p;                   <span class='comment'>// error
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.typedef-9'><div class='marginalizedparent'><a class='marginalized' href='#dcl.typedef-9'>9</a></div><p ><span class='indexparent'><a class='index' id='class_name,typedef'></a></span><span class='indexparent'><a class='index' id='enum_name,typedef'></a></span><span class='indexparent'><a class='index' id='class,unnamed'></a></span>If the typedef declaration defines an unnamed class (or enum), the first
+<i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i> declared by the declaration to be that class
+type (or enum type) is used to denote the class type (or enum type) for
+linkage purposes only (<a href='basic.link'>[basic.link]</a>).
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+typedef struct { } *ps, S;      <span class='comment'>// <span class='texttt'>S</span> is the class name for linkage purposes
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div id='dcl.friend'><h3 ><a class='secnum' href='#dcl.friend' style='min-width:103pt'>7.1.4</a> The <span class='texttt'>friend</span> specifier <a class='abbr_ref' href='dcl.friend'>[dcl.friend]</a></h3><p ><span class='indexparent'><a class='index' id='specifier,friend'></a></span></p><div class='para' id='dcl.friend-1'><div class='marginalizedparent'><a class='marginalized' href='#dcl.friend-1'>1</a></div><p >The <span class='texttt'>friend</span> specifier is used to specify access to class members;
+see <a href='class.friend'>[class.friend]</a>.</p></div></div><div id='dcl.constexpr'><h3 ><a class='secnum' href='#dcl.constexpr' style='min-width:103pt'>7.1.5</a> The <span class='texttt'>constexpr</span> specifier <a class='abbr_ref' href='dcl.constexpr'>[dcl.constexpr]</a></h3><p ><span class='indexparent'><a class='index' id='specifier,constexpr'></a></span></p><div class='para' id='dcl.constexpr-1'><div class='marginalizedparent'><a class='marginalized' href='#dcl.constexpr-1'>1</a></div><p >The <span class='texttt'>constexpr</span> specifier shall be applied only to the definition of
+a variable,
+the declaration of a
+function or function template, or the declaration of a static
+data member of a literal type (<a href='basic.types'>[basic.types]</a>).
+If any declaration of a function or function template has <span class='texttt'>constexpr</span> specifier,
+then all its declarations shall contain the <span class='texttt'>constexpr</span> specifier. [&nbsp;<i>Note:</i> An
+explicit specialization can differ from the template declaration with respect to the
+<span class='texttt'>constexpr</span> specifier. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+Function parameters cannot be declared <span class='texttt'>constexpr</span>.<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+constexpr int square(int x);    <span class='comment'>// OK: declaration
+</span>constexpr int bufsz = 1024;     <span class='comment'>// OK: definition
+</span>constexpr struct pixel {        <span class='comment'>// error: <span class='texttt'>pixel</span> is a type
+</span>  int x;
+  int y;
+  constexpr pixel(int);         <span class='comment'>// OK: declaration
+</span>}; 
+constexpr pixel::pixel(int a)
+  : x(square(a)), y(square(a))  <span class='comment'>// OK: definition
+</span>  { }
+constexpr pixel small(2);       <span class='comment'>// error: <span class='texttt'>square</span> not defined, so <span class='texttt'>small(2)</span>
+</span>                                <span class='comment'>// not constant (<a href='expr.const'>[expr.const]</a>) so <span class='texttt'>constexpr</span> not satisfied
+</span>
+constexpr int square(int x) {   <span class='comment'>// OK: definition
+</span>  return x * x;
+}
+constexpr pixel large(4);       <span class='comment'>// OK: <span class='texttt'>square</span> defined
+</span>int next(constexpr int x) {     <span class='comment'>// error: not for parameters
+</span>     return x + 1;
+} 
+extern constexpr int memsz;     <span class='comment'>// error: not a definition 
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.constexpr-2'><div class='marginalizedparent'><a class='marginalized' href='#dcl.constexpr-2'>2</a></div><p >A <span class='texttt'>constexpr</span> specifier used in the declaration of a function that is not a
+constructor declares that
+function to be a <a class='hidden_link' href='#def:specifier,constexpr,function' id='def:specifier,constexpr,function'><i>constexpr function</i></a>. Similarly, a
+<span class='texttt'>constexpr</span> specifier used in 
+a constructor declaration declares that constructor to be a
+<a class='hidden_link' href='#def:specifier,constexpr,constructor' id='def:specifier,constexpr,constructor'><i>constexpr constructor</i></a>.
+<span class='texttt'>constexpr</span> functions and <span class='texttt'>constexpr</span> constructors are
+implicitly <span class='texttt'>inline</span> (<a href='dcl.fct.spec'>[dcl.fct.spec]</a>).</p></div><div class='para' id='dcl.constexpr-3'><div class='marginalizedparent'><a class='marginalized' href='#dcl.constexpr-3'>3</a></div><p ><span class='indexparent'><a class='index' id='specifier,constexpr,function'></a></span>
+<span class='indexparent'><a class='index' id='constexpr_function'></a></span>
+The definition of a <span class='texttt'>constexpr</span> function shall satisfy the following
+constraints:</p><ul ><li ><p >it shall not be virtual (<a href='class.virtual'>[class.virtual]</a>);</p></li><li ><p >its return type shall be a literal type;</p></li><li ><p >each of its parameter types shall be a literal type;</p></li><li ><p >its <span class='grammarterm'>function-body</span> shall be
+<span class='texttt'>= delete</span>, <span class='texttt'>= default</span>, or
+a <i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i>
+that contains only</p><ul ><li ><p >null statements,
+</p></li><li ><p ><i ><a href='dcl.dcl#nt:static_assert-declaration'>static_assert-declarations</a></i>
+</p></li><li ><p ><span class='texttt'>typedef</span> declarations and <i ><a href='dcl.dcl#nt:alias-declaration'>alias-declarations</a></i> that
+do not define classes or enumerations,
+</p></li><li ><p ><i ><a href='namespace.udecl#nt:using-declaration'>using-declarations</a></i>,
+</p></li><li ><p ><i ><a href='namespace.udir#nt:using-directive'>using-directives</a></i>,
+</p></li><li ><p >and exactly one return statement;
+</p></li></ul></li><li ><p >every constructor call and implicit conversion used in
+initializing the return value (<a href='stmt.return'>[stmt.return]</a>, <a href='dcl.init'>[dcl.init]</a>)
+shall be one of those allowed in a constant
+expression (<a href='expr.const'>[expr.const]</a>).
+</p></li></ul><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+constexpr int square(int x) 
+  { return x * x; }             <span class='comment'>// OK
+</span>constexpr long long_max() 
+  { return 2147483647; }        <span class='comment'>// OK
+</span>constexpr int abs(int x) 
+  { return x &lt; 0 ? -x : x; }    <span class='comment'>// OK 
+</span>constexpr void f(int x)         <span class='comment'>// error: return type is <span class='texttt'>void</span> /* ... */ 
+</span>constexpr int prev(int x)
+  { return --x; }               <span class='comment'>// error: use of decrement
+</span>constexpr int g(int x, int n) { <span class='comment'>// error: body not just “return expr”
+</span>  int r = 1;
+  while (--n &gt; 0) r *= x;
+  return r;
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.constexpr-4'><div class='marginalizedparent'><a class='marginalized' href='#dcl.constexpr-4'>4</a></div><p ><span class='indexparent'><a class='index' id='specifier,constexpr,constructor'></a></span>In a definition of a <span class='texttt'>constexpr</span> constructor, each of the parameter types
+shall be a literal type. In addition, either its <span class='grammarterm'>function-body</span>
+shall be <span class='texttt'>= delete</span> or <span class='texttt'>= default</span> or it
+shall satisfy the
+following constraints:</p><ul ><li ><p >the class shall not have any virtual base classes;</p></li><li ><p >its <span class='grammarterm'>function-body</span> shall not be a <i ><a href='except#nt:function-try-block'>function-try-block</a></i>;</p></li><li ><p >the <i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i> of its <span class='grammarterm'>function-body</span>
+shall contain only</p><ul ><li ><p >null statements,
+</p></li><li ><p ><i ><a href='dcl.dcl#nt:static_assert-declaration'>static_assert-declarations</a></i>
+</p></li><li ><p ><span class='texttt'>typedef</span> declarations and <i ><a href='dcl.dcl#nt:alias-declaration'>alias-declarations</a></i> that
+do not define classes or enumerations,
+</p></li><li ><p ><i ><a href='namespace.udecl#nt:using-declaration'>using-declarations</a></i>,
+</p></li><li ><p >and <i ><a href='namespace.udir#nt:using-directive'>using-directives</a></i>;
+</p></li></ul></li><li ><p >every non-static data member and base class sub-object
+shall be initialized (<a href='class.base.init'>[class.base.init]</a>);</p></li><li ><p >every constructor involved in initializing non-static
+data members and base class sub-objects shall be a <span class='texttt'>constexpr</span> constructor;</p></li><li ><p >every <i ><a href='expr.ass#nt:assignment-expression'>assignment-expression</a></i> that is an <i ><a href='dcl.init#nt:initializer-clause'>initializer-clause</a></i>
+appearing directly or indirectly within a <i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializer</a></i>
+for a non-static data member that is not named by a <i ><a href='class.base.init#nt:mem-initializer-id'>mem-initializer-id</a></i>
+shall be a constant expression; and</p></li><li ><p >every implicit conversion used in converting a constructor argument to the corresponding
+parameter type and converting a full-expression to the corresponding member type shall
+be one of those allowed in a constant expression.
+</p></li></ul><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct Length { 
+  explicit constexpr Length(int i = 0) : val(i) { }
+private: 
+    int val; 
+}; 
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.constexpr-5'><div class='marginalizedparent'><a class='marginalized' href='#dcl.constexpr-5'>5</a></div><p ><span class='indexparent'><a class='index' id='function_invocation_substitution'></a></span><a class='hidden_link' href='#def:Function_invocation_substitution' id='def:Function_invocation_substitution'><i>Function invocation substitution</i></a>
+for a call of a <span class='texttt'>constexpr</span> function or
+of a <span class='texttt'>constexpr</span> constructor means implicitly converting each argument
+to the corresponding parameter type as if by copy-initialization,<a class='footnotenum' href='#footnote-91'>91</a>
+substituting that converted expression for each use of the corresponding parameter in the
+<span class='grammarterm'>function-body</span>, and, for <span class='texttt'>constexpr</span> functions, implicitly converting the resulting
+returned expression or <i ><a href='dcl.init#nt:braced-init-list'>braced-init-list</a></i> to the
+return type of the function as if by copy-initialization. Such substitution does not change the
+meaning. [&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+constexpr int f(void *) { return 0; }
+constexpr int f(...) { return 1; }
+constexpr int g1() { return f(0); }         <span class='comment'>// calls <span class='texttt'>f(void *)</span>
+</span>constexpr int g2(int n) { return f(n); }    <span class='comment'>// calls <span class='texttt'>f(...)</span> even for <span class='texttt'>n == 0</span>
+</span>constexpr int g3(int n) { return f(n*0); }  <span class='comment'>// calls <span class='texttt'>f(...)</span>
+</span>
+namespace N {
+  constexpr int c = 5;
+  constexpr int h() { return c; }
+}
+constexpr int c = 0;
+constexpr int g4() { return N::h(); }       <span class='comment'>// value is <span class='texttt'>5</span>, <span class='texttt'>c</span> is not looked up again after the substitution
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p >For a <span class='texttt'>constexpr</span> function, if no function argument values exist such that the function
+invocation substitution would produce a constant expression (<a href='expr.const'>[expr.const]</a>), the
+program is ill-formed; no diagnostic required. For a <span class='texttt'>constexpr</span> constructor, if no
+argument values exist such that after function invocation substitution, every constructor
+call and full-expression in the <i ><a href='class.base.init#nt:mem-initializer'>mem-initializers</a></i> would be a constant
+expression (including conversions), the program is ill-formed; no diagnostic required.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+constexpr int f(bool b)
+  { return b ? throw 0 : 0; }               <span class='comment'>// OK
+</span>constexpr int f() { throw 0; }              <span class='comment'>// ill-formed, no diagnostic required
+</span>
+struct B {
+  constexpr B(int x) : i(0) { }             <span class='comment'>// <span class='texttt'>x</span> is unused
+</span>  int i;
+};
+
+int global;
+
+struct D : B {
+  constexpr D() : B(global) { }             <span class='comment'>// ill-formed, no diagnostic required
+</span>                                            <span class='comment'>// lvalue-to-rvalue conversion on non-constant <span class='texttt'>global</span>
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.constexpr-6'><div class='marginalizedparent'><a class='marginalized' href='#dcl.constexpr-6'>6</a></div><p >If the instantiated template specialization of a <span class='texttt'>constexpr</span> function
+template
+or member function of a class template
+would fail to satisfy the requirements for a <span class='texttt'>constexpr</span>
+function or <span class='texttt'>constexpr</span> constructor,
+that specialization is not a <span class='texttt'>constexpr</span> function or <span class='texttt'>constexpr</span>
+constructor. [&nbsp;<i>Note:</i>
+If the function is a member function it will still be <span class='texttt'>const</span> as described below.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+If no specialization of the template would yield a <span class='texttt'>constexpr</span> function
+or <span class='texttt'>constexpr</span> constructor, the program is ill-formed; no diagnostic
+required.</p></div><div class='para' id='dcl.constexpr-7'><div class='marginalizedparent'><a class='marginalized' href='#dcl.constexpr-7'>7</a></div><p >A call to a <span class='texttt'>constexpr</span> function produces the same result as a call to an equivalent
+non-<span class='texttt'>constexpr</span> function in all respects except that a call to a <span class='texttt'>constexpr</span>
+function can appear in a constant expression.</p></div><div class='para' id='dcl.constexpr-8'><div class='marginalizedparent'><a class='marginalized' href='#dcl.constexpr-8'>8</a></div><p >A <span class='texttt'>constexpr</span> specifier for a non-static member
+function that is not a constructor declares that member function to be
+<span class='texttt'>const</span> (<a href='class.mfct.non-static'>[class.mfct.non-static]</a>).
+[&nbsp;<i>Note:</i> The <span class='texttt'>constexpr</span> specifier has no
+other effect on the function type.<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+The keyword <span class='texttt'>const</span> is ignored if it appears in the <i ><a href='dcl.decl#nt:cv-qualifier-seq'>cv-qualifier-seq</a></i>
+of the function declarator of the declaration of such a member function.
+The class of
+which that function is a member shall be a literal
+type (<a href='basic.types'>[basic.types]</a>). [&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+class debug_flag { 
+public: 
+  explicit debug_flag(bool); 
+  constexpr bool is_on();       <span class='comment'>// error: <span class='texttt'>debug_flag</span> not 
+</span>                                <span class='comment'>// literal type 
+</span>private: 
+  bool flag; 
+}; 
+constexpr int bar(int x, int y) <span class='comment'>// OK 
+</span>    { return x + y + x*y; } 
+<span class='comment'>// ... 
+</span>int bar(int x, int y)           <span class='comment'>// error: redefinition of <span class='texttt'>bar</span>
+</span>    { return x * 2 + 3 * y; } 
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.constexpr-9'><div class='marginalizedparent'><a class='marginalized' href='#dcl.constexpr-9'>9</a></div><p >A <span class='texttt'>constexpr</span> specifier used in an object
+declaration declares the object as <span class='texttt'>const</span>.
+Such an object
+shall have literal type and
+shall be initialized.
+If it is initialized by a constructor call,
+that call shall be a constant expression (<a href='expr.const'>[expr.const]</a>).
+Otherwise,
+or if a <span class='texttt'>constexpr</span> specifier is used in a reference declaration,
+every full-expression that appears in its initializer shall be a constant expression. Each
+implicit conversion used in converting the initializer expressions and each constructor call
+used for the initialization shall be one of those allowed in a constant
+expression (<a href='expr.const'>[expr.const]</a>).
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct pixel { 
+  int x, y; 
+}; 
+constexpr pixel ur = { 1294, 1024 };<span class='comment'>// OK 
+</span>constexpr pixel origin;             <span class='comment'>// error: initializer missing 
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-91'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-91'>91)</a></div><p >The
+resulting converted value will include an lvalue-to-rvalue
+conversion (<a href='conv.lval'>[conv.lval]</a>)
+if the corresponding copy-initialization requires one.</p></div></div><div id='dcl.type'><h3 ><a class='secnum' href='#dcl.type' style='min-width:103pt'>7.1.6</a> Type specifiers <a class='abbr_ref' href='dcl.type'>[dcl.type]</a></h3><p ><span class='indexparent'><a class='index' id='specifier,type'></a></span></p><div class='para' id='dcl.type-1'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type-1'>1</a></div><p >The type-specifiers are</p><p ><span class='indexparent'><a class='index' id='type,const'></a></span><span class='indexparent'><a class='index' id='type,volatile'></a></span></p><pre class='bnf'><a id='nt:type-specifier'>type-specifier:</a>
+    <i ><a href='dcl.type#nt:trailing-type-specifier'>trailing-type-specifier</a></i>
+    <i ><a href='class#nt:class-specifier'>class-specifier</a></i>
+    <i ><a href='dcl.enum#nt:enum-specifier'>enum-specifier</a></i></pre><pre class='bnf'><a id='nt:trailing-type-specifier'>trailing-type-specifier:</a>
+  <i ><a href='dcl.type.simple#nt:simple-type-specifier'>simple-type-specifier</a></i>
+  <i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i>
+  <i ><a href='temp.res#nt:typename-specifier'>typename-specifier</a></i>
+  <i ><a href='dcl.decl#nt:cv-qualifier'>cv-qualifier</a></i></pre><pre class='bnf'><a id='nt:type-specifier-seq'>type-specifier-seq:</a>
+    <i ><a href='dcl.type#nt:type-specifier'>type-specifier</a></i> <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span>
+    <i ><a href='dcl.type#nt:type-specifier'>type-specifier</a></i> <i ><a href='dcl.type#nt:type-specifier-seq'>type-specifier-seq</a></i></pre><pre class='bnf'><a id='nt:trailing-type-specifier-seq'>trailing-type-specifier-seq:</a>
+  <i ><a href='dcl.type#nt:trailing-type-specifier'>trailing-type-specifier</a></i> <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span>
+  <i ><a href='dcl.type#nt:trailing-type-specifier'>trailing-type-specifier</a></i> <i ><a href='dcl.type#nt:trailing-type-specifier-seq'>trailing-type-specifier-seq</a></i></pre><p >The optional <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i> in a <i ><a href='dcl.type#nt:type-specifier-seq'>type-specifier-seq</a></i>
+or a <i ><a href='dcl.type#nt:trailing-type-specifier-seq'>trailing-type-specifier-seq</a></i>
+appertains
+to the type denoted by the preceding <i ><a href='dcl.type#nt:type-specifier'>type-specifiers</a></i> (<a href='dcl.meaning'>[dcl.meaning]</a>). The
+<i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i> affects the type only for the declaration it appears in,
+not other declarations involving the same type.</p></div><div class='para' id='dcl.type-2'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type-2'>2</a></div><p >As a general rule, at most one <i ><a href='dcl.type#nt:type-specifier'>type-specifier</a></i> is allowed in the complete
+<i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i> of a <i ><a href='dcl.dcl#nt:declaration'>declaration</a></i> or in a
+<i ><a href='dcl.type#nt:type-specifier-seq'>type-specifier-seq</a></i> or <i ><a href='dcl.type#nt:trailing-type-specifier-seq'>trailing-type-specifier-seq</a></i>.
+The only exceptions to this rule are the following:</p><ul ><li ><p ><span class='texttt'>const</span> can be combined with any type specifier except itself.</p></li><li ><p ><span class='texttt'>volatile</span> can be combined with any type specifier except itself.</p></li><li ><p ><span class='texttt'>signed</span> or <span class='texttt'>unsigned</span> can be combined with
+<span class='texttt'>char</span>, <span class='texttt'>long</span>, <span class='texttt'>short</span>, or <span class='texttt'>int</span>.</p></li><li ><p ><span class='texttt'>short</span> or <span class='texttt'>long</span> can be combined with <span class='texttt'>int</span>.</p></li><li ><p ><span class='texttt'>long</span> can be combined with <span class='texttt'>double</span>.</p></li><li ><p ><span class='texttt'>long</span> can be combined with <span class='texttt'>long</span>.
+</p></li></ul></div><div class='para' id='dcl.type-3'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type-3'>3</a></div><p >At least one <i ><a href='dcl.type#nt:type-specifier'>type-specifier</a></i> that is not a
+<i ><a href='dcl.decl#nt:cv-qualifier'>cv-qualifier</a></i> is required in a declaration unless it declares
+a constructor, destructor or conversion function.<a class='footnotenum' href='#footnote-92'>92</a>
+A <i ><a href='dcl.type#nt:type-specifier-seq'>type-specifier-seq</a></i> shall not define a class or enumeration unless
+it appears in the <i ><a href='dcl.name#nt:type-id'>type-id</a></i> of an
+<i ><a href='dcl.dcl#nt:alias-declaration'>alias-declaration</a></i> (<a href='dcl.typedef'>[dcl.typedef]</a>) that is not the <i ><a href='dcl.dcl#nt:declaration'>declaration</a></i>
+of a <i ><a href='temp#nt:template-declaration'>template-declaration</a></i>.</p></div><div class='para' id='dcl.type-4'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type-4'>4</a></div><p >[&nbsp;<i>Note:</i>
+<i ><a href='dcl.enum#nt:enum-specifier'>enum-specifiers</a></i>,
+<i ><a href='class#nt:class-specifier'>class-specifiers</a></i>,
+and
+<i ><a href='temp.res#nt:typename-specifier'>typename-specifiers</a></i>
+are discussed
+in
+<a href='dcl.enum'>[dcl.enum]</a>,
+<a href='class'>[class]</a>,
+and
+<a href='temp.res'>[temp.res]</a>, respectively. The remaining
+<i ><a href='dcl.type#nt:type-specifier'>type-specifiers</a></i> are discussed in the rest of this section.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-92'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-92'>92)</a></div><p >There is no special
+provision for a <i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i> that
+lacks a <i ><a href='dcl.type#nt:type-specifier'>type-specifier</a></i> or that has a
+<i ><a href='dcl.type#nt:type-specifier'>type-specifier</a></i> that only specifies <i ><a href='dcl.decl#nt:cv-qualifier'>cv-qualifiers</a></i>.
+The “implicit int” rule of C is no longer supported.</p></div><div id='dcl.type.cv'><h4 ><a class='secnum' href='#dcl.type.cv' style='min-width:118pt'>7.1.6.1</a> The <span class='grammarterm'>cv-qualifiers</span> <a class='abbr_ref' href='dcl.type.cv'>[dcl.type.cv]</a></h4><p ><span class='indexparent'><a class='index' id='specifier,cv-qualifier'></a></span><span class='indexparent'><a class='index' id='initialization,const'></a></span><span class='indexparent'><a class='index' id='type_specifier,const'></a></span><span class='indexparent'><a class='index' id='type_specifier,volatile'></a></span></p><div class='para' id='dcl.type.cv-1'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type.cv-1'>1</a></div><p >There are two <span class='grammarterm'>cv-qualifiers</span>, <span class='texttt'>const</span> and
+<span class='texttt'>volatile</span>. If a <i ><a href='dcl.decl#nt:cv-qualifier'>cv-qualifier</a></i> appears in a
+<i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i>, the <i ><a href='dcl.decl#nt:init-declarator-list'>init-declarator-list</a></i> of
+the declaration shall not be empty.
+[&nbsp;<i>Note:</i>
+<a href='basic.type.qualifier'>[basic.type.qualifier]</a> and <a href='dcl.fct'>[dcl.fct]</a> describe how cv-qualifiers affect object and
+function types.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+Redundant cv-qualifications are ignored. [&nbsp;<i>Note:</i> For example,
+these could be introduced by typedefs.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='dcl.type.cv-2'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type.cv-2'>2</a></div><p >[&nbsp;<i>Note:</i>
+Declaring a variable <span class='texttt'>const</span> can affect its linkage (<a href='dcl.stc'>[dcl.stc]</a>)
+and its usability in constant expressions (<a href='expr.const'>[expr.const]</a>). As
+described in <a href='dcl.init'>[dcl.init]</a>, the definition of an object or subobject
+of const-qualified type must specify an initializer or be subject to
+default-initialization.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='dcl.type.cv-3'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type.cv-3'>3</a></div><p >A pointer or reference to a cv-qualified type need not actually point or
+refer to a cv-qualified object, but it is treated as if it does; a
+const-qualified access path cannot be used to modify an object even if
+the object referenced is a non-const object and can be modified through
+some other access path.
+[&nbsp;<i>Note:</i>
+Cv-qualifiers are supported by the type system so that they cannot be
+subverted without casting (<a href='expr.const.cast'>[expr.const.cast]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='dcl.type.cv-4'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type.cv-4'>4</a></div><p ><span class='indexparent'><a class='index' id='const_object,undefined_change_to'></a></span>Except that any class member declared <span class='texttt'>mutable</span> (<a href='dcl.stc'>[dcl.stc]</a>)
+can be modified, any attempt to modify a <span class='texttt'>const</span> object during its
+lifetime (<a href='basic.life'>[basic.life]</a>) results in undefined behavior.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+const int ci = 3;               <span class='comment'>// cv-qualified (initialized as required)
+</span>ci = 4;                         <span class='comment'>// ill-formed: attempt to modify <span class='texttt'>const</span>
+</span>
+int i = 2;                      <span class='comment'>// not cv-qualified
+</span>const int* cip;                 <span class='comment'>// pointer to <span class='texttt'>const int</span>
+</span>cip = &amp;i;                       <span class='comment'>// OK: cv-qualified access path to unqualified
+</span>*cip = 4;                       <span class='comment'>// ill-formed: attempt to modify through ptr to <span class='texttt'>const</span>
+</span>
+int* ip;
+ip = const_cast&lt;int*&gt;(cip);     <span class='comment'>// cast needed to convert <span class='texttt'>const int*</span> to <span class='texttt'>int*</span>
+</span>*ip = 4;                        <span class='comment'>// defined: <span class='texttt'>*ip</span> points to <span class='texttt'>i</span>, a non-<span class='texttt'>const</span> object
+</span>
+const int* ciq = new const int (3);     <span class='comment'>// initialized as required
+</span>int* iq = const_cast&lt;int*&gt;(ciq);        <span class='comment'>// cast required
+</span>*iq = 4;                                <span class='comment'>// undefined: modifies a <span class='texttt'>const</span> object
+</span></pre></div><div class='para' id='dcl.type.cv-5'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type.cv-5'>5</a></div><p >For another example</p><pre class='codeblock'>
+struct X {
+  mutable int i;
+  int j;
+};
+struct Y {
+  X x;
+  Y();
+};
+
+const Y y;
+y.x.i++;                        <span class='comment'>// well-formed: <span class='texttt'>mutable</span> member can be modified
+</span>y.x.j++;                        <span class='comment'>// ill-formed: <span class='texttt'>const</span>-qualified member modified
+</span>Y* p = const_cast&lt;Y*&gt;(&amp;y);      <span class='comment'>// cast away const-ness of <span class='texttt'>y</span>
+</span>p-&gt;x.i = 99;                    <span class='comment'>// well-formed: <span class='texttt'>mutable</span> member can be modified
+</span>p-&gt;x.j = 99;                    <span class='comment'>// undefined: modifies a <span class='texttt'>const</span> member
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.type.cv-6'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type.cv-6'>6</a></div><p >If an attempt is made to refer to an object defined with a
+volatile-qualified type through the use of a glvalue with a
+non-volatile-qualified type, the program behavior is undefined.</p></div><div class='para' id='dcl.type.cv-7'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type.cv-7'>7</a></div><p ><span class='indexparent'><a class='index' id='type_specifier,volatile'></a></span><span class='indexparent'><a class='index' id='volatile,implementation-defined'></a></span>[&nbsp;<i>Note:</i>
+<span class='texttt'>volatile</span> is a hint to the implementation to avoid aggressive
+optimization involving the object because the value of the object might
+be changed by means undetectable by an implementation.
+See <a href='intro.execution'>[intro.execution]</a> for detailed semantics. In general, the
+semantics of <span class='texttt'>volatile</span> are intended to be the same in C++ as
+they are in C.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='dcl.type.simple'><h4 ><a class='secnum' href='#dcl.type.simple' style='min-width:118pt'>7.1.6.2</a> Simple type specifiers <a class='abbr_ref' href='dcl.type.simple'>[dcl.type.simple]</a></h4><p ><span class='indexparent'><a class='index' id='type_specifier,simple'></a></span></p><div class='para' id='dcl.type.simple-1'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type.simple-1'>1</a></div><p >The simple type specifiers are</p><pre class='bnf'><a id='nt:simple-type-specifier'>simple-type-specifier:</a>
+    <i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i>
+    <i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i> <span class='terminal'>template</span> <i ><a href='temp.names#nt:simple-template-id'>simple-template-id</a></i>
+    <span class='terminal'>char</span>
+    <span class='terminal'>char16_t</span>
+    <span class='terminal'>char32_t</span>
+    <span class='terminal'>wchar_t</span>
+    <span class='terminal'>bool</span>
+    <span class='terminal'>short</span>
+    <span class='terminal'>int</span>
+    <span class='terminal'>long</span>
+    <span class='terminal'>signed</span>
+    <span class='terminal'>unsigned</span>
+    <span class='terminal'>float</span>
+    <span class='terminal'>double</span>
+    <span class='terminal'>void</span>
+    <span class='terminal'>auto</span>
+    <i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i></pre><pre class='bnf'><a id='nt:type-name'>type-name:</a>
+    <i ><a href='class#nt:class-name'>class-name</a></i>
+    <i ><a href='dcl.enum#nt:enum-name'>enum-name</a></i>
+    <i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i>
+    <i ><a href='temp.names#nt:simple-template-id'>simple-template-id</a></i></pre><pre class='bnf'><a id='nt:decltype-specifier'>decltype-specifier:</a>
+  <span class='terminal'>decltype</span> <span class='terminal'>(</span> <i ><a href='expr.comma#nt:expression'>expression</a></i> <span class='terminal'>)</span></pre></div><div class='para' id='dcl.type.simple-2'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type.simple-2'>2</a></div><p ><span class='indexparent'><a class='index' id='type_specifier,char'></a></span><span class='indexparent'><a class='index' id='type_specifier,char16_t'></a></span><span class='indexparent'><a class='index' id='type_specifier,char32_t'></a></span><span class='indexparent'><a class='index' id='type-specifier,wchar_t'></a></span><span class='indexparent'><a class='index' id='type-specifier,bool'></a></span><span class='indexparent'><a class='index' id='type_specifier,short'></a></span><span class='indexparent'><a class='index' id='type_specifier,int'></a></span><span class='indexparent'><a class='index' id='type_specifier,long'></a></span><span class='indexparent'><a class='index' id='type_specifier,signed'></a></span><span class='indexparent'><a class='index' id='type_specifier,unsigned'></a></span><span class='indexparent'><a class='index' id='type_specifier,float'></a></span><span class='indexparent'><a class='index' id='type_specifier,double'></a></span><span class='indexparent'><a class='index' id='type_specifier,void'></a></span><span class='indexparent'><a class='index' id='type_specifier,auto'></a></span><span class='indexparent'><a class='index' id='type_specifier,decltype'></a></span><span class='indexparent'><a class='index' id='type-name'></a></span><span class='indexparent'><a class='index' id='lambda-introducer'></a></span>The <span class='texttt'>auto</span> specifier is a placeholder for a type to be
+deduced (<a href='dcl.spec.auto'>[dcl.spec.auto]</a>).
+The other
+<i ><a href='dcl.type.simple#nt:simple-type-specifier'>simple-type-specifiers</a></i>
+specify either a previously-declared user-defined type or one of the
+fundamental types (<a href='basic.fundamental'>[basic.fundamental]</a>).
+Table <a href='#tab:simple.type.specifiers'>[tab:simple.type.specifiers]</a>
+ summarizes the valid combinations of
+<i ><a href='dcl.type.simple#nt:simple-type-specifier'>simple-type-specifiers</a></i>
+and the types they specify.</p><div class='numberedTable' id='tab:simple.type.specifiers'>Table <a href='#tab:simple.type.specifiers'>10</a> — <span class='grammarterm'>simple-type-specifiers</span> and the types they specify<br><table ><tr class='rowsep'><td class='left'>
+
+
+Specifier(s)                    </td><td class='left'>   Type                 </td></tr><tr class='capsep'><td class='left'> 
+<span class='grammarterm'>type-name</span>         </td><td class='left'>   the type named          </td></tr><tr ><td class='left'>
+<span class='grammarterm'>simple-template-id</span>    </td><td class='left'>   the type as defined in <a href='temp.names'>[temp.names]</a>   </td></tr><tr ><td class='left'>
+char                            </td><td class='left'>   “char”                </td></tr><tr ><td class='left'>
+unsigned char                   </td><td class='left'>   “unsigned char”       </td></tr><tr ><td class='left'>
+signed char                     </td><td class='left'>   “signed char”         </td></tr><tr ><td class='left'>
+char16_t                        </td><td class='left'>   “char16_t”            </td></tr><tr ><td class='left'>
+char32_t                        </td><td class='left'>   “char32_t”            </td></tr><tr ><td class='left'>
+bool                            </td><td class='left'>   “bool”                </td></tr><tr ><td class='left'>
+unsigned                        </td><td class='left'>   “unsigned int”        </td></tr><tr ><td class='left'>
+unsigned int                    </td><td class='left'>   “unsigned int”        </td></tr><tr ><td class='left'>
+signed                          </td><td class='left'>   “int”                 </td></tr><tr ><td class='left'>
+signed int                      </td><td class='left'>   “int”                 </td></tr><tr ><td class='left'>
+int                             </td><td class='left'>   “int”                 </td></tr><tr ><td class='left'>
+unsigned short int              </td><td class='left'>   “unsigned short int”  </td></tr><tr ><td class='left'>
+unsigned short                  </td><td class='left'>   “unsigned short int”  </td></tr><tr ><td class='left'>
+unsigned long int               </td><td class='left'>   “unsigned long int”   </td></tr><tr ><td class='left'>
+unsigned long                   </td><td class='left'>   “unsigned long int”   </td></tr><tr ><td class='left'>
+unsigned long long int          </td><td class='left'> “unsigned long long int”</td></tr><tr ><td class='left'>
+unsigned long long              </td><td class='left'> “unsigned long long int”</td></tr><tr ><td class='left'>
+signed long int                 </td><td class='left'>   “long int”            </td></tr><tr ><td class='left'>
+signed long                     </td><td class='left'>   “long int”            </td></tr><tr ><td class='left'>
+signed long long int            </td><td class='left'>   “long long int”       </td></tr><tr ><td class='left'>
+signed long long                </td><td class='left'>   “long long int”       </td></tr><tr ><td class='left'>
+long long int                   </td><td class='left'>   “long long int”       </td></tr><tr ><td class='left'>
+long long                       </td><td class='left'>   “long long int”       </td></tr><tr ><td class='left'>
+long int                        </td><td class='left'>   “long int”            </td></tr><tr ><td class='left'>
+long                            </td><td class='left'>   “long int”            </td></tr><tr ><td class='left'>
+signed short int                </td><td class='left'>   “short int”           </td></tr><tr ><td class='left'>
+signed short                    </td><td class='left'>   “short int”           </td></tr><tr ><td class='left'>
+short int                       </td><td class='left'>   “short int”           </td></tr><tr ><td class='left'>
+short                           </td><td class='left'>   “short int”           </td></tr><tr ><td class='left'>
+wchar_t                         </td><td class='left'>   “wchar_t”             </td></tr><tr ><td class='left'>
+float                           </td><td class='left'>   “float”               </td></tr><tr ><td class='left'>
+double                          </td><td class='left'>   “double”              </td></tr><tr ><td class='left'>
+long double                     </td><td class='left'>   “long double”         </td></tr><tr ><td class='left'>
+void                            </td><td class='left'>   “void”                </td></tr><tr ><td class='left'>
+auto                            </td><td class='left'> placeholder for a type to be deduced</td></tr><tr ><td class='left'>
+decltype(<span class='grammarterm'>expression</span>) </td><td class='left'>   the type as defined below</td></tr></table></div></div><div class='para' id='dcl.type.simple-3'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type.simple-3'>3</a></div><p >When multiple <span class='grammarterm'>simple-type-specifiers</span> are allowed, they can be
+freely intermixed with other <span class='grammarterm'>decl-specifiers</span> in any order.
+[&nbsp;<i>Note:</i>
+It is implementation-defined whether objects of <span class='texttt'>char</span> type and
+certain bit-fields (<a href='class.bit'>[class.bit]</a>) are represented as signed or
+unsigned quantities. The <span class='texttt'>signed</span> specifier forces <span class='texttt'>char</span>
+objects and bit-fields to be signed; it is redundant in other contexts.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div><div class='para' id='dcl.type.simple-4'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type.simple-4'>4</a></div><p ><span class='indexparent'><a class='index' id='type_specifier,decltype'></a></span>The type denoted by <span class='texttt'>decltype(e)</span> is defined as follows:
+</p><ul ><li ><p >if <span class='texttt'>e</span> is an unparenthesized <i ><a href='expr.prim.general#nt:id-expression'>id-expression</a></i> or
+an unparenthesized
+class
+member access (<a href='expr.ref'>[expr.ref]</a>), <span class='texttt'>decltype(e)</span> is the
+type of the entity named by <span class='texttt'>e</span>. If there is no such entity, or
+if <span class='texttt'>e</span> names a set of overloaded functions, the program is
+ill-formed;</p></li><li ><p >otherwise, if <span class='texttt'>e</span> is
+an xvalue, <span class='texttt'>decltype(e)</span> is <span class='texttt'>T&amp;&amp;</span>, where <span class='texttt'>T</span> is the type
+of <span class='texttt'>e</span>;</p></li><li ><p >otherwise, if <span class='texttt'>e</span> is an lvalue, <span class='texttt'>decltype(e)</span>
+is <span class='texttt'>T&amp;</span>, where <span class='texttt'>T</span> is the type of <span class='texttt'>e</span>;</p></li><li ><p >otherwise, <span class='texttt'>decltype(e)</span> is the type of <span class='texttt'>e</span>.
+</p></li></ul><p >The operand of the <span class='texttt'>decltype</span> specifier is an unevaluated
+operand (Clause <a href='expr'>[expr]</a>).</p><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+const int&amp;&amp; foo(); 
+int i; 
+struct A { double x; };
+const A* a = new A(); 
+decltype(foo()) x1 = i;         <span class='comment'>// type is <span class='texttt'>const int&amp;&amp;</span>
+</span>decltype(i) x2;                 <span class='comment'>// type is <span class='texttt'>int</span>
+</span>decltype(a-&gt;x) x3;              <span class='comment'>// type is <span class='texttt'>double</span>
+</span>decltype((a-&gt;x)) x4 = x3;       <span class='comment'>// type is <span class='texttt'>const double&amp;</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='dcl.type.simple-5'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type.simple-5'>5</a></div><p >[&nbsp;<i>Note:</i> in the case where the operand of a <i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i>
+is a function call and the return type of the function is a class type, a
+special rule (<a href='expr.call'>[expr.call]</a>) ensures that the return type is not required to
+be complete (as it would be if the call appeared in a sub-expression or outside
+of a <i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i>). In this context, the common purpose of
+writing the expression is merely to refer to its type. In that sense, a
+<i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i> is analogous to a use of a <i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i>,
+so the usual reasons for requiring a complete type do not apply. In particular,
+it is not necessary to allocate storage for a temporary object or to enforce the
+semantic constraints associated with invoking the type's destructor. [&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;class T&gt; struct A { ~A() = delete; };
+template&lt;class T&gt; auto h()
+  -&gt; A&lt;T&gt;;
+template&lt;class T&gt; auto i(T)     <span class='comment'>// identity
+</span>  -&gt; T;
+template&lt;class T&gt; auto f(T)     <span class='comment'>// #1
+</span>  -&gt; decltype(i(h&lt;T&gt;()));       <span class='comment'>// forces completion of <span class='texttt'>A&lt;T&gt;</span> and implicitly uses
+</span>                                <span class='comment'>// <span class='texttt'>A&lt;T&gt;::~A()</span> for the temporary introduced by the
+</span>                                <span class='comment'>// use of <span class='texttt'>h()</span>. (A temporary is not introduced
+</span>                                <span class='comment'>// as a result of the use of <span class='texttt'>i()</span>.)
+</span>template&lt;class T&gt; auto f(T)     <span class='comment'>// #2
+</span>  -&gt; void;
+auto g() -&gt; void {
+  f(42);                        <span class='comment'>// OK: calls #2. (#1 is not a viable candidate: type
+</span>                                <span class='comment'>// deduction fails (<a href='temp.deduct'>[temp.deduct]</a>) because <span class='texttt'>A&lt;int&gt;::~A()</span>
+</span>                                <span class='comment'>// is implicitly used in its <span class='grammarterm'>decltype-specifier</span>)
+</span>}
+template&lt;class T&gt; auto q(T)
+  -&gt; decltype((h&lt;T&gt;()));        <span class='comment'>// does not force completion of <span class='texttt'>A&lt;T&gt;</span>; <span class='texttt'>A&lt;T&gt;::~A()</span> is
+</span>                                <span class='comment'>// not implicitly used within the context of this <span class='grammarterm'>decltype-specifier</span>
+</span>void r() {
+  q(42);                        <span class='comment'>// Error: deduction against <span class='texttt'>q</span> succeeds, so overload resolution
+</span>                                <span class='comment'>// selects the specialization “<span class='texttt'>q(T) -&gt; decltype((h&lt;T&gt;())) [with T=int]</span>”.
+</span>                                <span class='comment'>// The return type is <span class='texttt'>A&lt;int&gt;</span>, so a temporary is introduced and its
+</span>                                <span class='comment'>// destructor is used, so the program is ill-formed.
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='dcl.type.elab'><h4 ><a class='secnum' href='#dcl.type.elab' style='min-width:118pt'>7.1.6.3</a> Elaborated type specifiers <a class='abbr_ref' href='dcl.type.elab'>[dcl.type.elab]</a></h4><p ><span class='indexparent'><a class='index' id='type_specifier,elaborated'></a></span><span class='indexparent'><a class='index' id='typename'></a></span><span class='indexparent'><a class='index' id='type_specifier,enum'></a></span></p><pre class='bnf'><a id='nt:elaborated-type-specifier'>elaborated-type-specifier:</a>
+    <i ><a href='class#nt:class-key'>class-key</a></i> <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='lex.name#nt:identifier'>identifier</a></i>
+    <i ><a href='class#nt:class-key'>class-key</a></i> <i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <span class='terminal'>template</span><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='temp.names#nt:simple-template-id'>simple-template-id</a></i>
+    <span class='terminal'>enum</span> <i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='lex.name#nt:identifier'>identifier</a></i></pre><div class='para' id='dcl.type.elab-1'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type.elab-1'>1</a></div><p ><span class='indexparent'><a class='index' id='class_name,elaborated'></a></span><span class='indexparent'><a class='index' id='name,elaborated,enum'></a></span>An <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i> shall not appear in an <i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i>
+unless the latter is the sole constituent of a declaration.
+If an <i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i> is the sole constituent of a
+declaration, the declaration is ill-formed unless it is an explicit
+specialization (<a href='temp.expl.spec'>[temp.expl.spec]</a>), an explicit
+instantiation (<a href='temp.explicit'>[temp.explicit]</a>) or it has one of the following
+forms:</p><pre class='bnf'><i ><a href='class#nt:class-key'>class-key</a></i> <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='lex.name#nt:identifier'>identifier</a></i> <span class='terminal'>;</span>
+<span class='terminal'>friend</span> <i ><a href='class#nt:class-key'>class-key</a></i> <span class='terminal'>::<span class='math'><sub ><span class='mathit'>opt</span></sub></span></span> <i ><a href='lex.name#nt:identifier'>identifier</a></i> <span class='terminal'>;</span>
+<span class='terminal'>friend</span> <i ><a href='class#nt:class-key'>class-key</a></i> <span class='terminal'>::<span class='math'><sub ><span class='mathit'>opt</span></sub></span></span> <i ><a href='temp.names#nt:simple-template-id'>simple-template-id</a></i> <span class='terminal'>;</span>
+<span class='terminal'>friend</span> <i ><a href='class#nt:class-key'>class-key</a></i> <i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i> <i ><a href='lex.name#nt:identifier'>identifier</a></i> <span class='terminal'>;</span>
+<span class='terminal'>friend</span> <i ><a href='class#nt:class-key'>class-key</a></i> <i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i> <span class='terminal'>template<span class='math'><sub ><span class='mathit'>opt</span></sub></span></span> <i ><a href='temp.names#nt:simple-template-id'>simple-template-id</a></i> <span class='terminal'>;</span></pre><p >In the first case, the <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i>, if any, appertains
+to the class being declared; the attributes in the
+<i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i> are thereafter considered attributes of
+the class whenever it is named.</p></div><div class='para' id='dcl.type.elab-2'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type.elab-2'>2</a></div><p ><a href='basic.lookup.elab'>[basic.lookup.elab]</a> describes how name lookup proceeds for the
+<i ><a href='lex.name#nt:identifier'>identifier</a></i> in an <i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i>. If the
+<i ><a href='lex.name#nt:identifier'>identifier</a></i> resolves to a <i ><a href='class#nt:class-name'>class-name</a></i> or
+<i ><a href='dcl.enum#nt:enum-name'>enum-name</a></i>, the <i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i>
+introduces it into the declaration the same way a
+<i ><a href='dcl.type.simple#nt:simple-type-specifier'>simple-type-specifier</a></i> introduces its <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i>. If
+the <i ><a href='lex.name#nt:identifier'>identifier</a></i> resolves to a
+<i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i> or the <i ><a href='temp.names#nt:simple-template-id'>simple-template-id</a></i> resolves to
+an alias template specialization,
+the
+<i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i> is ill-formed.
+[&nbsp;<i>Note:</i>
+This implies that, within a class template with a template
+<i ><a href='temp.param#nt:type-parameter'>type-parameter</a></i> <span class='texttt'>T</span>, the declaration</p><pre class='codeblock'>
+friend class T;
+</pre><p >is ill-formed. However, the similar declaration <span class='texttt'>friend T;</span> is allowed (<a href='class.friend'>[class.friend]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='dcl.type.elab-3'><div class='marginalizedparent'><a class='marginalized' href='#dcl.type.elab-3'>3</a></div><p >The <i ><a href='class#nt:class-key'>class-key</a></i> or <span class='texttt'>enum</span> keyword
+present in the
+<i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i> shall agree in kind with the
+declaration to which the name in the
+<i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i> refers. This rule also applies to
+the form of <i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i> that declares a
+<i ><a href='class#nt:class-name'>class-name</a></i> or <span class='texttt'>friend</span> class since it can be construed
+as referring to the definition of the class. Thus, in any
+<i ><a href='dcl.type.elab#nt:elaborated-type-specifier'>elaborated-type-specifier</a></i>, the <span class='texttt'>enum</span> keyword
+shall be
+used to refer to an enumeration (<a href='dcl.enum'>[dcl.enum]</a>), the <span class='texttt'>union</span>
+<i ><a href='class#nt:class-key'>class-key</a></i> shall be used to refer to a union
+(Clause <a href='class'>[class]</a>), and either the <span class='texttt'>class</span> or <span class='texttt'>struct</span>
+<i ><a href='class#nt:class-key'>class-key</a></i> shall be used to refer to a class
+(Clause <a href='class'>[class]</a>) declared using the <span class='texttt'>class</span> or <span class='texttt'>struct</span>
+<i ><a href='class#nt:class-key'>class-key</a></i>. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+enum class E { a, b };
+enum E x = E::a;                <span class='comment'>// OK
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div id='auto'><h4 ><a class='secnum' href='#auto' style='min-width:118pt'>7.1.6.4</a> <span class='texttt'>auto</span> specifier <a class='abbr_ref' href='dcl.spec.auto'>[dcl.spec.auto]</a></h4><p ><span class='indexparent'><a class='index' id='type_specifier,auto'></a></span></p><div class='para' id='auto-1'><div class='marginalizedparent'><a class='marginalized' href='#auto-1'>1</a></div><p >The <span class='texttt'>auto</span> <i ><a href='dcl.type#nt:type-specifier'>type-specifier</a></i> signifies that the type of
+a variable being declared shall be deduced from its
+initializer or that a function declarator shall include a
+<i ><a href='dcl.decl#nt:trailing-return-type'>trailing-return-type</a></i>.</p></div><div class='para' id='auto-2'><div class='marginalizedparent'><a class='marginalized' href='#auto-2'>2</a></div><p >The <span class='texttt'>auto</span> <i ><a href='dcl.type#nt:type-specifier'>type-specifier</a></i> may appear with a function declarator with
+a <i ><a href='dcl.decl#nt:trailing-return-type'>trailing-return-type</a></i> (<a href='dcl.fct'>[dcl.fct]</a>) in any context where such a
+declarator is valid.</p></div><div class='para' id='auto-3'><div class='marginalizedparent'><a class='marginalized' href='#auto-3'>3</a></div><p >Otherwise, the type of the variable is deduced from its initializer. The name of the
+variable being declared shall not appear in the initializer expression. This use of
+<span class='texttt'>auto</span> is allowed when declaring variables in a block (<a href='stmt.block'>[stmt.block]</a>), in
+namespace scope (<a href='basic.scope.namespace'>[basic.scope.namespace]</a>), and in a
+<span class='small'></span><span class='rmfamily'></span><i> for-init-statement</i> (<a href='stmt.for'>[stmt.for]</a>).
+<span class='texttt'>auto</span> shall appear as one of the <i ><a href='dcl.spec#nt:decl-specifier'>decl-specifiers</a></i> in the
+<i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i> and the
+<i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i>
+shall be followed by one or more <i ><a href='dcl.decl#nt:init-declarator'>init-declarators</a></i>, each of which shall
+have a non-empty <i ><a href='dcl.init#nt:initializer'>initializer</a></i>.</p><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+auto x = 5;                 <span class='comment'>// OK: <span class='texttt'>x</span> has type <span class='texttt'>int</span>
+</span>const auto *v = &amp;x, u = 6;  <span class='comment'>// OK: <span class='texttt'>v</span> has type <span class='texttt'>const int*</span>, <span class='texttt'>u</span> has type <span class='texttt'>const int</span>
+</span>static auto y = 0.0;        <span class='comment'>// OK: <span class='texttt'>y</span> has type <span class='texttt'>double</span>
+</span>auto int r;                 <span class='comment'>// error: auto is not a <span class='grammarterm'>storage-class-specifier</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='auto-4'><div class='marginalizedparent'><a class='marginalized' href='#auto-4'>4</a></div><p >The <span class='texttt'>auto</span> <span class='small'></span><span class='rmfamily'></span><i> type-specifier</i> can also be used in declaring a variable in
+the <span class='small'></span><span class='rmfamily'></span><i> condition</i> of a selection statement (<a href='stmt.select'>[stmt.select]</a>) or an iteration
+statement (<a href='stmt.iter'>[stmt.iter]</a>), in the <span class='small'></span><span class='rmfamily'></span><i> type-specifier-seq</i> in 
+the <span class='small'></span><span class='rmfamily'></span><i> new-type-id</i> or <span class='small'></span><span class='rmfamily'></span><i> type-id</i> of a
+<span class='small'></span><span class='rmfamily'></span><i> new-expression</i> (<a href='expr.new'>[expr.new]</a>), in a
+<i ><a href='stmt.iter#nt:for-range-declaration'>for-range-declaration</a></i>, and in declaring a static data member with a
+<i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializer</a></i> that appears within the
+<span class='small'></span><span class='rmfamily'></span><i> member-specification</i> of a class definition (<a href='class.static.data'>[class.static.data]</a>).</p></div><div class='para' id='auto-5'><div class='marginalizedparent'><a class='marginalized' href='#auto-5'>5</a></div><p >A program that uses <span class='texttt'>auto</span> in a context not explicitly allowed in
+this section is ill-formed.</p></div><div class='para' id='auto-6'><div class='marginalizedparent'><a class='marginalized' href='#auto-6'>6</a></div><p >Once the type of a <span class='small'></span><span class='rmfamily'></span><i> declarator-id</i> has been determined according
+to <a href='dcl.meaning'>[dcl.meaning]</a>, the type of the declared variable using the
+<span class='small'></span><span class='rmfamily'></span><i> declarator-id</i> is determined from the type of its initializer
+using the rules for template argument deduction. Let <span class='texttt'>T</span> be the type that
+has been determined for a variable identifier <span class='texttt'>d</span>. Obtain <span class='texttt'>P</span> from
+<span class='texttt'>T</span> by replacing the occurrences of <span class='texttt'>auto</span> with either a new
+invented type template parameter <span class='texttt'>U</span> or, if the initializer is a
+<i ><a href='dcl.init#nt:braced-init-list'>braced-init-list</a></i> (<a href='dcl.init.list'>[dcl.init.list]</a>), with
+<span class='texttt'>std::initializer_list&lt;U&gt;</span>. The type deduced for the variable <span class='texttt'>d</span>
+is then the deduced <span class='texttt'>A</span> determined using the rules of template argument
+deduction from a function call (<a href='temp.deduct.call'>[temp.deduct.call]</a>), where <span class='texttt'>P</span> is a
+function template parameter type and the initializer for <span class='texttt'>d</span> is the
+corresponding argument. If the deduction fails, the declaration is ill-formed.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+auto x1 = { 1, 2 };         <span class='comment'>// <span class='texttt'>decltype(x1)</span> is <span class='texttt'>std::initializer_list&lt;int&gt;</span>
+</span>auto x2 = { 1, 2.0 };       <span class='comment'>// error: cannot deduce element type
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='auto-7'><div class='marginalizedparent'><a class='marginalized' href='#auto-7'>7</a></div><p >If the list of declarators contains more than one declarator, the type
+of each declared variable is determined as described above. If the type
+deduced for the template parameter <span class='texttt'>U</span> is not the same in each
+deduction, the program is ill-formed.</p><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+const auto &amp;i = expr;
+</pre><p >The type of <span class='texttt'>i</span> is the deduced type of the parameter <span class='texttt'>u</span> in
+the call <span class='texttt'>f(expr)</span> of the following invented function template:</p><pre class='codeblock'>
+template &lt;class U&gt; void f(const U&amp; u);
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]<span class='indexparent'><a class='index' id='specifier'></a></span></p></div></div></div></div></div></body></html>

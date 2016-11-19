@@ -1,0 +1,113 @@
+<!DOCTYPE html><html lang='en'><head><title>[meta.trans.other]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.9</a> Metaprogramming and type traits <a class='abbr_ref' href='meta#trans.other'>[meta]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>20.9.7</a> Transformations between types <a class='abbr_ref' href='meta.trans#other'>[meta.trans]</a></h3><div id='meta.trans.other'><h4 ><a class='secnum' style='min-width:118pt'>20.9.7.6</a> Other transformations <a class='abbr_ref'>[meta.trans.other]</a></h4><div class='numberedTable' id='tab:type-traits.other'>Table <a href='#tab:type-traits.other'>57</a> — Other transformations<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Template</b></td><td colspan='1' class='center'><b>Condition</b></td><td colspan='1' class='center'><b>Comments</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='endhead'></span><span class='texttt'>template &lt;std::size_t Len,<span class='hfill'></span><br/>
+ std::size_t Align<span class='hfill'></span><br/>
+ = <i>default-alignment</i>&gt;<span class='hfill'></span><br/>
+ struct aligned_storage;</span>
+ </td><td class='left'>
+ <span class='texttt'>Len</span> shall not be zero.
+ <span class='texttt'>Align</span> shall be equal
+ to <span class='texttt'>alignof(T)</span> for some type <span class='texttt'>T</span>
+ or to <i>default-alignment</i>.
+ </td><td class='left'>
+ The value of <i>default-alignment</i> shall be the most
+ stringent alignment requirement for any C++ object type whose size
+ is no greater than <span class='texttt'>Len</span> (<a href='basic.types'>[basic.types]</a>).
+ The member typedef <span class='texttt'>type</span> shall be a POD type
+ suitable for use as uninitialized storage for any object whose size
+ is at most <i>Len</i> and whose alignment is a divisor of <i>Align</i>. </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>template &lt;std::size_t Len,<span class='hfill'></span><br/>
+  class... Types&gt;<span class='hfill'></span><br/>
+  struct aligned_union;</span>
+  </td><td class='left'>
+  At least one type is provided.
+  </td><td class='left'>
+  The member typedef <span class='texttt'>type</span> shall be a POD type suitable for use as
+  uninitialized storage for any object whose type is listed in <span class='texttt'>Types</span>;
+  its size shall be at least <span class='texttt'>Len</span>. The static member <span class='texttt'>alignment_value</span>
+  shall be an integral constant of type <span class='texttt'>std::size_t</span> whose value is the
+  strictest alignment of all types listed in <span class='texttt'>Types</span>.
+  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>template &lt;class T&gt; struct</span> <span class='texttt'>decay;</span> </td><td class='left'>   </td><td class='left'>
+ Let <span class='texttt'>U</span> be <span class='texttt'>remove_reference&lt;T&gt;::type</span>. If <span class='texttt'>is_array&lt;U&gt;::value</span>
+ is <span class='texttt'>true</span>, the member typedef <span class='texttt'>type</span> shall equal
+ <span class='texttt'>remove_extent&lt;U&gt;::type*</span>. If <span class='texttt'>is_function&lt;U&gt;::value</span> is <span class='texttt'>true</span>,
+ the member typedef <span class='texttt'>type</span> shall equal <span class='texttt'>add_pointer&lt;U&gt;::type</span>. Otherwise
+ the member typedef <span class='texttt'>type</span> equals <span class='texttt'>remove_cv&lt;U&gt;::type</span>.
+ [&nbsp;<i>Note:</i> This behavior is similar to the lvalue-to-rvalue (<a href='conv.lval'>[conv.lval]</a>),
+ array-to-pointer (<a href='conv.array'>[conv.array]</a>), and function-to-pointer (<a href='conv.func'>[conv.func]</a>)
+ conversions applied when an lvalue expression is used as an rvalue, but also
+ strips <i>cv</i>-qualifiers from class types in order to more closely model by-value
+ argument passing. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+ </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>template &lt;bool B, class T = void&gt;</span> <span class='texttt'>struct enable_if;</span> </td><td class='left'> </td><td class='left'>
+ If <span class='texttt'>B</span> is <span class='texttt'>true</span>, the member typedef <span class='texttt'>type</span>
+ shall equal <span class='texttt'>T</span>; otherwise, there shall be no member typedef
+ <span class='texttt'>type</span>. </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>template &lt;bool B, class T,</span> <span class='texttt'>class F&gt; struct conditional</span>; </td><td class='left'> </td><td class='left'>
+ If <span class='texttt'>B</span> is <span class='texttt'>true</span>, the member typedef <span class='texttt'>type</span>
+ shall equal <span class='texttt'>T</span>.
+ If <span class='texttt'>B</span> is <span class='texttt'>false</span>, the member typedef <span class='texttt'>type</span>
+ shall equal <span class='texttt'>F</span>. </td></tr><tr class='rowsep'><td class='left'>  <span class='texttt'>template &lt;class... T&gt;</span> <span class='texttt'>struct common_type;</span> </td><td class='left'> </td><td class='left'>
+ The member typedef <span class='texttt'>type</span> shall be defined as set out below. All types in
+the parameter pack <span class='texttt'>T</span> shall be complete or (possibly <i>cv</i>) <span class='texttt'>void</span>. A
+program may specialize this trait if at least one template parameter in the
+specialization is a user-defined type. [&nbsp;<i>Note:</i> Such specializations are
+needed when only explicit conversions are desired among the template arguments.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>template &lt;class T&gt;</span><span class='hfill'></span><br/>
+ <span class='texttt'>struct underlying_type;</span>  </td><td class='left'>
+ <span class='texttt'>T</span> shall be an enumeration type (<a href='dcl.enum'>[dcl.enum]</a>) </td><td class='left'>
+ The member typedef <span class='texttt'>type</span> shall name the underlying type
+ of <span class='texttt'>T</span>. </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>template &lt;class Fn,</span><span class='hfill'></span><br/>
+ <span class='texttt'>class... ArgTypes&gt; struct</span>
+ <span class='texttt'>result_of&lt;Fn(ArgTypes...)&gt;;</span>  </td><td class='left'>
+ <span class='texttt'>Fn</span> shall be a callable
+ type (<a href='func.def'>[func.def]</a>),
+ reference to function, or reference to callable type. The
+ expression
+ <span class='texttt'>decltype(INVOKE(declval&lt;Fn&gt;(),</span> <span class='texttt'>declval&lt;ArgTypes&gt;()...))</span>
+ shall be well formed.                </td><td class='left'>
+ The member typedef <span class='texttt'>type</span> shall name the type
+ <span class='texttt'>decltype(INVOKE(declval&lt;Fn&gt;(),</span> <span class='texttt'>declval&lt;ArgTypes&gt;()...))</span> </td></tr></table></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >[&nbsp;<i>Note:</i> A typical implementation would define <span class='texttt'>aligned_storage</span> as:</p><pre class='codeblock'>
+template &lt;std::size_t Len, std::size_t Alignment&gt;
+struct aligned_storage {
+  typedef struct {
+    alignas(Alignment) unsigned char __data[Len];
+  } type;
+};
+</pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >It is <span class='indexparent'><a class='index' id='support_for_extended_alignment'></a></span>implementation-defined whether any extended alignment is
+supported (<a href='basic.align'>[basic.align]</a>).</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The nested typedef <span class='texttt'>common_type::type</span> shall be defined as follows:</p><pre class='codeblock'>
+template &lt;class ...T&gt; struct common_type;
+
+template &lt;class T&gt;
+struct common_type&lt;T&gt; {
+  typedef T type;
+};
+
+template &lt;class T, class U&gt;
+struct common_type&lt;T, U&gt; {
+  typedef decltype(true ? declval&lt;T&gt;() : declval&lt;U&gt;()) type;
+};
+
+template &lt;class T, class U, class... V&gt;
+struct common_type&lt;T, U, V...&gt; {
+  typedef typename common_type&lt;typename common_type&lt;T, U&gt;::type, V...&gt;::type type;
+};
+</pre></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >[&nbsp;<i>Example:</i>
+Given these definitions:
+</p><pre class='codeblock'>
+typedef bool (&amp;PF1)();
+typedef short (*PF2)(long);
+
+struct S {
+  operator PF2() const;
+  double operator()(char, int&amp;);
+  void fn(long) const;
+  char data;
+};
+
+typedef void (S::*PMF)(long) const;
+typedef char S::*PMD;
+</pre><p >the following assertions will hold:</p><pre class='codeblock'>
+static_assert(is_same&lt;result_of&lt;S(int)&gt;::type, short&gt;::value, "Error!");
+static_assert(is_same&lt;result_of&lt;S&amp;(unsigned char, int&amp;)&gt;::type, double&gt;::value, "Error!");
+static_assert(is_same&lt;result_of&lt;PF1()&gt;::type, bool&gt;::value, "Error!");
+static_assert(is_same&lt;result_of&lt;PMF(unique_ptr&lt;S&gt;, int)&gt;::type, void&gt;::value, "Error!");
+static_assert(is_same&lt;result_of&lt;PMD(S)&gt;::type, char&amp;&amp;&gt;::value, "Error!");
+static_assert(is_same&lt;result_of&lt;PMD(const S*)&gt;::type, const char&amp;&gt;::value, "Error!");
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>

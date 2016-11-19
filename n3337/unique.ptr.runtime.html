@@ -1,0 +1,72 @@
+<!DOCTYPE html><html lang='en'><head><title>[unique.ptr.runtime]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.7</a> Smart pointers <a class='abbr_ref' href='smartptr#unique.ptr.runtime'>[smartptr]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>20.7.1</a> Class template <span class='texttt'>unique_ptr</span> <a class='abbr_ref' href='unique.ptr#runtime'>[unique.ptr]</a></h3><div id='unique.ptr.runtime'><h4 ><a class='secnum' style='min-width:118pt'>20.7.1.3</a> <span class='texttt'>unique_ptr</span> for array objects with a runtime length <a class='abbr_ref'>[unique.ptr.runtime]</a></h4><pre class='codeblock'>
+namespace std {
+  template &lt;class T, class D&gt; class unique_ptr&lt;T[], D&gt; {
+  public:
+    typedef <i><span class='texttt'>see below</span></i> pointer;
+    typedef T element_type;
+    typedef D deleter_type;
+
+    <span class='comment'>// <a href='unique.ptr.runtime.ctor'>[unique.ptr.runtime.ctor]</a>, constructors
+</span>    constexpr unique_ptr() noexcept;
+    explicit unique_ptr(pointer p) noexcept;
+    unique_ptr(pointer p, <i><span class='texttt'>see below</span></i> d) noexcept;
+    unique_ptr(pointer p, <i><span class='texttt'>see below</span></i> d) noexcept;
+    unique_ptr(unique_ptr&amp;&amp; u) noexcept;
+    constexpr unique_ptr(nullptr_t) noexcept : unique_ptr() { }
+
+    <span class='comment'>// destructor
+</span>    ~unique_ptr();
+
+    <span class='comment'>// assignment
+</span>    unique_ptr&amp; operator=(unique_ptr&amp;&amp; u) noexcept;
+    unique_ptr&amp; operator=(nullptr_t) noexcept;
+
+    <span class='comment'>// <a href='unique.ptr.runtime.observers'>[unique.ptr.runtime.observers]</a>, observers
+</span>    T&amp; operator[](size_t i) const;
+    pointer get() const noexcept;
+    deleter_type&amp; get_deleter() noexcept;
+    const deleter_type&amp; get_deleter() const noexcept;
+    explicit operator bool() const noexcept;
+
+    <span class='comment'>// <a href='unique.ptr.runtime.modifiers'>[unique.ptr.runtime.modifiers]</a> modifiers
+</span>    pointer release() noexcept;
+    void reset(pointer p = pointer()) noexcept;
+    void reset(nullptr_t) noexcept;
+    template &lt;class U&gt; void reset(U) = delete;
+    void swap(unique_ptr&amp; u) noexcept;
+
+    <span class='comment'>// disable copy from lvalue
+</span>    unique_ptr(const unique_ptr&amp;) = delete;
+    unique_ptr&amp; operator=(const unique_ptr&amp;) = delete;
+  };
+}
+</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A specialization for array types is provided with a slightly altered
+interface.</p><ul ><li ><p >Conversions between different types of
+<span class='texttt'>unique_ptr&lt;T[], D&gt;</span> or to or from the non-array forms of
+<span class='texttt'>unique_ptr</span> produce an ill-formed program.</p></li><li ><p >Pointers to types derived from <span class='texttt'>T</span> are
+rejected by the constructors, and by <span class='texttt'>reset</span>.</p></li><li ><p >The observers <span class='texttt'>operator*</span> and
+<span class='texttt'>operator-&gt;</span> are not provided.</p></li><li ><p >The indexing observer <span class='texttt'>operator[]</span> is provided.</p></li><li ><p >The default deleter will call <span class='texttt'>delete[]</span>.
+</p></li></ul></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Descriptions are provided below only for member functions that
+have behavior different from the primary template.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The template argument <span class='texttt'>T</span> shall be a complete type.</p></div><div id='ctor'><h4 ><a class='secnum' href='#ctor' style='min-width:133pt'>20.7.1.3.1</a> <span class='texttt'>unique_ptr</span> constructors <a class='abbr_ref' href='unique.ptr.runtime.ctor'>[unique.ptr.runtime.ctor]</a></h4><p ><span class='indexparent'><a class='index' id='unique_ptr,constructor'></a></span><code class='itemdecl'>
+explicit unique_ptr(pointer p) noexcept;
+unique_ptr(pointer p, <i><span class='texttt'>see below</span></i> d) noexcept;
+unique_ptr(pointer p, <i><span class='texttt'>see below</span></i> d) noexcept;
+</code></p><div class='itemdescr'><p >These constructors behave the same as in the primary template
+except that they do not accept pointer types which are convertible
+to <span class='texttt'>pointer</span>. [&nbsp;<i>Note:</i> One implementation technique
+is to create private templated overloads of these members. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><div id='observers'><h4 ><a class='secnum' href='#observers' style='min-width:133pt'>20.7.1.3.2</a> <span class='texttt'>unique_ptr</span> observers <a class='abbr_ref' href='unique.ptr.runtime.observers'>[unique.ptr.runtime.observers]</a></h4><p ><span class='indexparent'><a class='index' id='operator[],unique_ptr'></a></span>
+<span class='indexparent'><a class='index' id='unique_ptr,operator[]'></a></span>
+<code class='itemdecl'>
+T&amp; operator[](size_t i) const;
+</code></p><div class='itemdescr'></div><div class='para' id='observers-1'><div class='marginalizedparent'><a class='marginalized' href='#observers-1'>1</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>i &lt;</span> the
+number of elements in the array to which
+the stored pointer points.</p></div></div><div class='para' id='observers-2'><div class='marginalizedparent'><a class='marginalized' href='#observers-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>get()[i]</span>.
+</p></div></div></div><div id='modifiers'><h4 ><a class='secnum' href='#modifiers' style='min-width:133pt'>20.7.1.3.3</a> <span class='texttt'>unique_ptr</span> modifiers <a class='abbr_ref' href='unique.ptr.runtime.modifiers'>[unique.ptr.runtime.modifiers]</a></h4><p ><span class='indexparent'><a class='index' id='reset,unique_ptr'></a></span>
+<span class='indexparent'><a class='index' id='unique_ptr,reset'></a></span>
+<code class='itemdecl'>
+void reset(pointer p = pointer()) noexcept;
+void reset(nullptr_t p) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='modifiers-1'><div class='marginalizedparent'><a class='marginalized' href='#modifiers-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>get() == nullptr</span> there are no
+effects. Otherwise <span class='texttt'>get_deleter()(get())</span>.</p></div></div><div class='para' id='modifiers-2'><div class='marginalizedparent'><a class='marginalized' href='#modifiers-2'>2</a></div><div class='itemdescr'><p ><i>Postcondition:</i> <span class='texttt'>get() == p</span>.
+</p></div></div></div></div></div></body></html>

@@ -1,0 +1,766 @@
+<!DOCTYPE html><html lang='en'><head><title>[memory]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><div id='memory'><h2 ><a class='secnum' style='min-width:88pt'>20.6</a> Memory <a class='abbr_ref'>[memory]</a></h2><div id='general'><h3 ><a class='secnum' href='#general' style='min-width:103pt'>20.6.1</a> In general <a class='abbr_ref' href='memory.general'>[memory.general]</a></h3><div class='para' id='general-1'><div class='marginalizedparent'><a class='marginalized' href='#general-1'>1</a></div><p >This subclause describes the contents of the header
+<span class='texttt'>&lt;memory&gt;</span> (<a href='memory.syn'>[memory.syn]</a>) and some
+of the contents of the C headers <span class='texttt'>&lt;cstdlib&gt;</span> and
+<span class='texttt'>cstring&gt;</span> (<a href='c.malloc'>[c.malloc]</a>).</p></div></div><div id='syn'><h3 ><a class='secnum' href='#syn' style='min-width:103pt'>20.6.2</a> Header <span class='texttt'>&lt;memory&gt;</span> synopsis <a class='abbr_ref' href='memory.syn'>[memory.syn]</a></h3><div class='para' id='syn-1'><div class='marginalizedparent'><a class='marginalized' href='#syn-1'>1</a></div><p >The header <span class='texttt'>&lt;memory&gt;</span> defines several types and function templates that
+describe properties of pointers and pointer-like types, manage memory
+for containers and other template types, and construct multiple objects in
+uninitialized memory
+buffers (<a href='pointer.traits'>[pointer.traits]</a>–<a href='specialized.algorithms'>[specialized.algorithms]</a>).
+The header also defines the templates
+<span class='texttt'>unique_ptr</span>, <span class='texttt'>shared_ptr</span>, <span class='texttt'>weak_ptr</span>, and various template
+functions that operate on objects of these types (<a href='smartptr'>[smartptr]</a>).</p><p ><span class='indexparent'><a class='index' id='memory'></a></span></p><pre class='codeblock'>
+namespace std {
+  <span class='comment'>// <a href='pointer.traits'>[pointer.traits]</a>, pointer traits
+</span>  template &lt;class Ptr&gt; struct pointer_traits;
+  template &lt;class T&gt; struct pointer_traits&lt;T*&gt;;
+
+  <span class='comment'>// <a href='util.dynamic.safety'>[util.dynamic.safety]</a>, pointer safety
+</span>  enum class pointer_safety { relaxed, preferred, strict };
+  void declare_reachable(void *p);
+  template &lt;class T&gt; T *undeclare_reachable(T *p);
+  void declare_no_pointers(char *p, size_t n);
+  void undeclare_no_pointers(char *p, size_t n);
+  pointer_safety get_pointer_safety() noexcept;
+
+  <span class='comment'>// <a href='ptr.align'>[ptr.align]</a>, pointer alignment function
+</span>  void *align(std::size_t alignment, std::size_t size,
+    void *&amp;ptr, std::size_t&amp; space);
+
+  <span class='comment'>// <a href='allocator.tag'>[allocator.tag]</a>, allocator argument tag
+</span>  struct allocator_arg_t { };
+  constexpr allocator_arg_t allocator_arg = allocator_arg_t();
+
+  <span class='comment'>// <a href='allocator.uses'>[allocator.uses]</a>, <span class='texttt'>uses_allocator</span>
+</span>  template &lt;class T, class Alloc&gt; struct uses_allocator;
+
+  <span class='comment'>// <a href='allocator.traits'>[allocator.traits]</a>, allocator traits
+</span>  template &lt;class Alloc&gt; struct allocator_traits;
+
+  <span class='comment'>// <a href='default.allocator'>[default.allocator]</a>, the default allocator:
+</span>  template &lt;class T&gt; class allocator;
+  template &lt;&gt; class allocator&lt;void&gt;;
+  template &lt;class T, class U&gt;
+    bool operator==(const allocator&lt;T&gt;&amp;, const allocator&lt;U&gt;&amp;) noexcept;
+  template &lt;class T, class U&gt;
+    bool operator!=(const allocator&lt;T&gt;&amp;, const allocator&lt;U&gt;&amp;) noexcept;
+
+  <span class='comment'>// <a href='storage.iterator'>[storage.iterator]</a>, raw storage iterator:
+</span>  template &lt;class OutputIterator, class T&gt; class raw_storage_iterator;
+
+  <span class='comment'>// <a href='temporary.buffer'>[temporary.buffer]</a>, temporary buffers:
+</span>  template &lt;class T&gt;
+    pair&lt;T*,ptrdiff_t&gt; get_temporary_buffer(ptrdiff_t n) noexcept;
+  template &lt;class T&gt;
+    void return_temporary_buffer(T* p);
+
+  <span class='comment'>// <a href='specialized.algorithms'>[specialized.algorithms]</a>, specialized algorithms:
+</span>  template &lt;class T&gt; T* addressof(T&amp; r) noexcept;
+  template &lt;class InputIterator, class ForwardIterator&gt;
+    ForwardIterator uninitialized_copy(InputIterator first, InputIterator last,
+                                       ForwardIterator result);
+  template &lt;class InputIterator, class Size, class ForwardIterator&gt;
+    ForwardIterator uninitialized_copy_n(InputIterator first, Size n,
+                                         ForwardIterator result);
+  template &lt;class ForwardIterator, class T&gt;
+    void uninitialized_fill(ForwardIterator first, ForwardIterator last,
+                            const T&amp; x);
+  template &lt;class ForwardIterator, class Size, class T&gt;
+    ForwardIterator uninitialized_fill_n(ForwardIterator first, Size n, const T&amp; x);
+
+  <span class='comment'>// <a href='unique.ptr'>[unique.ptr]</a> class template unique_ptr:
+</span>  template &lt;class T&gt; struct default_delete;
+  template &lt;class T&gt; struct default_delete&lt;T[]&gt;;
+  template &lt;class T, class D = default_delete&lt;T&gt;&gt; class unique_ptr;
+  template &lt;class T, class D&gt; class unique_ptr&lt;T[], D&gt;;
+
+  template &lt;class T1, class D1, class T2, class D2&gt;
+    bool operator==(const unique_ptr&lt;T1, D1&gt;&amp; x, const unique_ptr&lt;T2, D2&gt;&amp; y);
+  template &lt;class T1, class D1, class T2, class D2&gt;
+    bool operator!=(const unique_ptr&lt;T1, D1&gt;&amp; x, const unique_ptr&lt;T2, D2&gt;&amp; y);
+  template &lt;class T1, class D1, class T2, class D2&gt;
+    bool operator&lt;(const unique_ptr&lt;T1, D1&gt;&amp; x, const unique_ptr&lt;T2, D2&gt;&amp; y);
+  template &lt;class T1, class D1, class T2, class D2&gt;
+    bool operator&lt;=(const unique_ptr&lt;T1, D1&gt;&amp; x, const unique_ptr&lt;T2, D2&gt;&amp; y);
+  template &lt;class T1, class D1, class T2, class D2&gt;
+    bool operator&gt;(const unique_ptr&lt;T1, D1&gt;&amp; x, const unique_ptr&lt;T2, D2&gt;&amp; y);
+  template &lt;class T1, class D1, class T2, class D2&gt;
+    bool operator&gt;=(const unique_ptr&lt;T1, D1&gt;&amp; x, const unique_ptr&lt;T2, D2&gt;&amp; y);
+
+  template &lt;class T, class D&gt;
+    bool operator==(const unique_ptr&lt;T, D&gt;&amp; x, nullptr_t) noexcept;
+  template &lt;class T, class D&gt;
+    bool operator==(nullptr_t, const unique_ptr&lt;T, D&gt;&amp; y) noexcept;
+  template &lt;class T, class D&gt;
+    bool operator!=(const unique_ptr&lt;T, D&gt;&amp; x, nullptr_t) noexcept;
+  template &lt;class T, class D&gt;
+    bool operator!=(nullptr_t, const unique_ptr&lt;T, D&gt;&amp; y) noexcept;
+  template &lt;class T, class D&gt;
+    bool operator&lt;(const unique_ptr&lt;T, D&gt;&amp; x, nullptr_t);
+  template &lt;class T, class D&gt;
+    bool operator&lt;(nullptr_t, const unique_ptr&lt;T, D&gt;&amp; y);
+  template &lt;class T, class D&gt;
+    bool operator&lt;=(const unique_ptr&lt;T, D&gt;&amp; x, nullptr_t);
+  template &lt;class T, class D&gt;
+    bool operator&lt;=(nullptr_t, const unique_ptr&lt;T, D&gt;&amp; y);
+  template &lt;class T, class D&gt;
+    bool operator&gt;(const unique_ptr&lt;T, D&gt;&amp; x, nullptr_t);
+  template &lt;class T, class D&gt;
+    bool operator&gt;(nullptr_t, const unique_ptr&lt;T, D&gt;&amp; y);
+  template &lt;class T, class D&gt;
+    bool operator&gt;=(const unique_ptr&lt;T, D&gt;&amp; x, nullptr_t);
+  template &lt;class T, class D&gt;
+    bool operator&gt;=(nullptr_t, const unique_ptr&lt;T, D&gt;&amp; y);
+
+  <span class='comment'>// <a href='util.smartptr.weakptr'>[util.smartptr.weakptr]</a>, class bad_weak_ptr:
+</span>  class bad_weak_ptr;
+
+  <span class='comment'>// <a href='util.smartptr.shared'>[util.smartptr.shared]</a>, class template shared_ptr:
+</span>  template&lt;class T&gt; class shared_ptr;
+
+  <span class='comment'>// <a href='util.smartptr.shared.cmp'>[util.smartptr.shared.cmp]</a>, shared_ptr comparisons:
+</span>  template&lt;class T, class U&gt;
+    bool operator==(shared_ptr&lt;T&gt; const&amp; a, shared_ptr&lt;U&gt; const&amp; b) noexcept;
+  template&lt;class T, class U&gt;
+    bool operator!=(shared_ptr&lt;T&gt; const&amp; a, shared_ptr&lt;U&gt; const&amp; b) noexcept;
+  template&lt;class T, class U&gt;
+    bool operator&lt;(shared_ptr&lt;T&gt; const&amp; a, shared_ptr&lt;U&gt; const&amp; b) noexcept;
+  template&lt;class T, class U&gt;
+    bool operator&gt;(shared_ptr&lt;T&gt; const&amp; a, shared_ptr&lt;U&gt; const&amp; b) noexcept;
+  template&lt;class T, class U&gt;
+    bool operator&lt;=(shared_ptr&lt;T&gt; const&amp; a, shared_ptr&lt;U&gt; const&amp; b) noexcept;
+  template&lt;class T, class U&gt;
+    bool operator&gt;=(shared_ptr&lt;T&gt; const&amp; a, shared_ptr&lt;U&gt; const&amp; b) noexcept;
+
+  template &lt;class T&gt;
+    bool operator==(const shared_ptr&lt;T&gt;&amp; x, nullptr_t) noexcept;
+  template &lt;class T&gt;
+    bool operator==(nullptr_t, const shared_ptr&lt;T&gt;&amp; y) noexcept;
+  template &lt;class T&gt;
+    bool operator!=(const shared_ptr&lt;T&gt;&amp; x, nullptr_t) noexcept;
+  template &lt;class T&gt;
+    bool operator!=(nullptr_t, const shared_ptr&lt;T&gt;&amp; y) noexcept;
+  template &lt;class T&gt;
+    bool operator&lt;(const shared_ptr&lt;T&gt;&amp; x, nullptr_t) noexcept;
+  template &lt;class T&gt;
+    bool operator&lt;(nullptr_t, const shared_ptr&lt;T&gt;&amp; y) noexcept;
+  template &lt;class T&gt;
+    bool operator&lt;=(const shared_ptr&lt;T&gt;&amp; x, nullptr_t) noexcept;
+  template &lt;class T&gt;
+    bool operator&lt;=(nullptr_t, const shared_ptr&lt;T&gt;&amp; y) noexcept;
+  template &lt;class T&gt;
+    bool operator&gt;(const shared_ptr&lt;T&gt;&amp; x, nullptr_t) noexcept;
+  template &lt;class T&gt;
+    bool operator&gt;(nullptr_t, const shared_ptr&lt;T&gt;&amp; y) noexcept;
+  template &lt;class T&gt;
+    bool operator&gt;=(const shared_ptr&lt;T&gt;&amp; x, nullptr_t) noexcept;
+  template &lt;class T&gt;
+    bool operator&gt;=(nullptr_t, const shared_ptr&lt;T&gt;&amp; y) noexcept;
+
+  <span class='comment'>// <a href='util.smartptr.shared.spec'>[util.smartptr.shared.spec]</a>, shared_ptr specialized algorithms:
+</span>  template&lt;class T&gt; void swap(shared_ptr&lt;T&gt;&amp; a, shared_ptr&lt;T&gt;&amp; b) noexcept;
+
+  <span class='comment'>// <a href='util.smartptr.shared.cast'>[util.smartptr.shared.cast]</a>, shared_ptr casts:
+</span>  template&lt;class T, class U&gt;
+    shared_ptr&lt;T&gt; static_pointer_cast(shared_ptr&lt;U&gt; const&amp; r) noexcept;
+  template&lt;class T, class U&gt;
+    shared_ptr&lt;T&gt; dynamic_pointer_cast(shared_ptr&lt;U&gt; const&amp; r) noexcept;
+  template&lt;class T, class U&gt;
+    shared_ptr&lt;T&gt; const_pointer_cast(shared_ptr&lt;U&gt; const&amp; r) noexcept;
+
+  <span class='comment'>// <a href='util.smartptr.getdeleter'>[util.smartptr.getdeleter]</a>, shared_ptr get_deleter:
+</span>  template&lt;class D, class T&gt; D* get_deleter(shared_ptr&lt;T&gt; const&amp; p) noexcept;
+
+  <span class='comment'>// <a href='util.smartptr.shared.io'>[util.smartptr.shared.io]</a>, shared_ptr I/O:
+</span>  template&lt;class E, class T, class Y&gt;
+    basic_ostream&lt;E, T&gt;&amp; operator&lt;&lt; (basic_ostream&lt;E, T&gt;&amp; os, shared_ptr&lt;Y&gt; const&amp; p);
+
+  <span class='comment'>// <a href='util.smartptr.weak'>[util.smartptr.weak]</a>, class template weak_ptr:
+</span>  template&lt;class T&gt; class weak_ptr;
+
+  <span class='comment'>// <a href='util.smartptr.weak.spec'>[util.smartptr.weak.spec]</a>, weak_ptr specialized algorithms:
+</span>  template&lt;class T&gt; void swap(weak_ptr&lt;T&gt;&amp; a, weak_ptr&lt;T&gt;&amp; b) noexcept;
+
+  <span class='comment'>// <a href='util.smartptr.ownerless'>[util.smartptr.ownerless]</a>, class template owner_less:
+</span>  template&lt;class T&gt; class owner_less;
+
+  <span class='comment'>// <a href='util.smartptr.enab'>[util.smartptr.enab]</a>, class template enable_shared_from_this:
+</span>  template&lt;class T&gt; class enable_shared_from_this;
+
+  <span class='comment'>// <a href='util.smartptr.shared.atomic'>[util.smartptr.shared.atomic]</a>, shared_ptr atomic access:
+</span>  template&lt;class T&gt;
+    bool atomic_is_lock_free(const shared_ptr&lt;T&gt;* p);
+
+  template&lt;class T&gt;
+    shared_ptr&lt;T&gt; atomic_load(const shared_ptr&lt;T&gt;* p);
+  template&lt;class T&gt;
+    shared_ptr&lt;T&gt; atomic_load_explicit(const shared_ptr&lt;T&gt;* p, memory_order mo);
+
+  template&lt;class T&gt;
+    void atomic_store(shared_ptr&lt;T&gt;* p, shared_ptr&lt;T&gt; r);
+  template&lt;class T&gt;
+    void atomic_store_explicit(shared_ptr&lt;T&gt;* p, shared_ptr&lt;T&gt; r, memory_order mo);
+
+  template&lt;class T&gt;
+    shared_ptr&lt;T&gt; atomic_exchange(shared_ptr&lt;T&gt;* p, shared_ptr&lt;T&gt; r);
+  template&lt;class T&gt;
+    shared_ptr&lt;T&gt; atomic_exchange_explicit(shared_ptr&lt;T&gt;* p, shared_ptr&lt;T&gt; r,
+                                           memory_order mo);
+
+  template&lt;class T&gt;
+    bool atomic_compare_exchange_weak(
+      shared_ptr&lt;T&gt;* p, shared_ptr&lt;T&gt;* v, shared_ptr&lt;T&gt; w);
+  template&lt;class T&gt;
+    bool atomic_compare_exchange_strong(
+      shared_ptr&lt;T&gt;* p, shared_ptr&lt;T&gt;* v, shared_ptr&lt;T&gt; w);
+  template&lt;class T&gt;
+    bool atomic_compare_exchange_weak_explicit(
+      shared_ptr&lt;T&gt;* p, shared_ptr&lt;T&gt;* v, shared_ptr&lt;T&gt; w,
+      memory_order success, memory_order failure);
+  template&lt;class T&gt;
+    bool atomic_compare_exchange_strong_explicit(
+      shared_ptr&lt;T&gt;* p, shared_ptr&lt;T&gt;* v, shared_ptr&lt;T&gt; w,
+      memory_order success, memory_order failure);
+
+  <span class='comment'>// <a href='util.smartptr.hash'>[util.smartptr.hash]</a> hash support
+</span>  template &lt;class T&gt; struct hash;
+  template &lt;class T, class D&gt; struct hash&lt;unique_ptr&lt;T, D&gt; &gt;;
+  template &lt;class T&gt; struct hash&lt;shared_ptr&lt;T&gt; &gt;;
+
+  <span class='comment'>// <a href='depr.auto.ptr'>[depr.auto.ptr]</a>, auto_ptr (deprecated)
+</span>  template &lt;class X&gt; class auto_ptr;
+}
+</pre></div></div><div id='pointer.traits'><h3 ><a class='secnum' href='#pointer.traits' style='min-width:103pt'>20.6.3</a> Pointer traits <a class='abbr_ref' href='pointer.traits'>[pointer.traits]</a></h3><div class='para' id='pointer.traits-1'><div class='marginalizedparent'><a class='marginalized' href='#pointer.traits-1'>1</a></div><p >The class template <span class='texttt'>pointer_traits</span> supplies a uniform interface to certain
+attributes of pointer-like types.</p><p ><span class='indexparent'><a class='index' id='pointer_traits'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class Ptr&gt; struct pointer_traits {
+    typedef Ptr       pointer;
+    typedef <i><span class='texttt'>see below</span></i> element_type;
+    typedef <i><span class='texttt'>see below</span></i> difference_type;
+
+    template &lt;class U&gt; using rebind = <i><span class='texttt'>see below</span></i>;
+
+    static pointer pointer_to(<i><span class='texttt'>see below</span></i> r);
+  };
+
+  template &lt;class T&gt; struct pointer_traits&lt;T*&gt; {
+    typedef T*        pointer;
+    typedef T         element_type;
+    typedef ptrdiff_t difference_type;
+
+    template &lt;class U&gt; using rebind = U*;
+
+    static pointer pointer_to(<i><span class='texttt'>see below</span></i> r) noexcept;
+  };
+}
+</pre></div><div id='pointer.traits.types'><h4 ><a class='secnum' href='#pointer.traits.types' style='min-width:118pt'>20.6.3.1</a> Pointer traits member types <a class='abbr_ref' href='pointer.traits.types'>[pointer.traits.types]</a></h4><p ><span class='indexparent'><a class='index' id='pointer_traits,element_type'></a></span><span class='indexparent'><a class='index' id='element_type,pointer_traits'></a></span><code class='itemdecl'>
+typedef <i><span class='texttt'>see below</span></i> element_type;
+</code></p><div class='itemdescr'></div><div class='para' id='pointer.traits.types-1'><div class='marginalizedparent'><a class='marginalized' href='#pointer.traits.types-1'>1</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Ptr::element_type</span> if such a type exists; otherwise, <span class='texttt'>T</span> if
+<span class='texttt'>Ptr</span> is a class template instantiation of the form <span class='texttt'>SomePointer&lt;T, Args&gt;</span>,
+where <span class='texttt'>Args</span> is zero or more type arguments; otherwise, the specialization is
+ill-formed.
+</p></div></div><p ><span class='indexparent'><a class='index' id='pointer_traits,difference_type'></a></span><span class='indexparent'><a class='index' id='difference_type,pointer_traits'></a></span><code class='itemdecl'>
+typedef <i><span class='texttt'>see below</span></i> difference_type;
+</code></p><div class='itemdescr'></div><div class='para' id='pointer.traits.types-2'><div class='marginalizedparent'><a class='marginalized' href='#pointer.traits.types-2'>2</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Ptr::difference_type</span> if such a type exists; otherwise,
+<span class='texttt'>std::ptrdiff_t</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='pointer_traits,rebind'></a></span><span class='indexparent'><a class='index' id='rebind,pointer_traits'></a></span><code class='itemdecl'>
+template &lt;class U&gt; using rebind = <i><span class='texttt'>see below</span></i>;
+</code></p><div class='itemdescr'></div><div class='para' id='pointer.traits.types-3'><div class='marginalizedparent'><a class='marginalized' href='#pointer.traits.types-3'>3</a></div><div class='itemdescr'><p ><i>Alias template:</i> <span class='texttt'>Ptr::rebind&lt;U&gt;</span> if such a type exists; otherwise,
+<span class='texttt'>SomePointer&lt;U, Args&gt;</span> if
+<span class='texttt'>Ptr</span> is a class template instantiation of the form <span class='texttt'>SomePointer&lt;T, Args&gt;</span>,
+where <span class='texttt'>Args</span> is zero or more type arguments; otherwise, the instantiation of
+<span class='texttt'>rebind</span> is ill-formed.
+</p></div></div></div><div id='pointer.traits.functions'><h4 ><a class='secnum' href='#pointer.traits.functions' style='min-width:118pt'>20.6.3.2</a> Pointer traits member functions <a class='abbr_ref' href='pointer.traits.functions'>[pointer.traits.functions]</a></h4><p ><span class='indexparent'><a class='index' id='pointer_traits,pointer_to'></a></span><span class='indexparent'><a class='index' id='pointer_to,pointer_traits'></a></span><code class='itemdecl'>
+static pointer pointer_traits::pointer_to(<i><span class='texttt'>see below</span></i> r);
+static pointer pointer_traits&lt;T*&gt;::pointer_to(<i><span class='texttt'>see below</span></i> r) noexcept;
+</code></p><div class='itemdescr'><p ><i>Remark:</i> if <span class='texttt'>element_type</span> is (possibly cv-qualified) <span class='texttt'>void</span>, the type of
+<span class='texttt'>r</span> is unspecified; otherwise, it is <span class='texttt'>element_type&amp;</span>.</p><p ><i>Returns:</i> The first member function returns a dereferenceable pointer to <span class='texttt'>r</span>
+obtained by calling <span class='texttt'>Ptr::pointer_to(r)</span>; an instantiation of this function is
+ill-formed if <span class='texttt'>Ptr</span> does not have a matching <span class='texttt'>pointer_to</span> static member
+function. The second member function returns <span class='texttt'>std::addressof(r)</span>.
+</p></div></div></div><div id='util.dynamic.safety'><h3 ><a class='secnum' href='#util.dynamic.safety' style='min-width:103pt'>20.6.4</a> Pointer safety <a class='abbr_ref' href='util.dynamic.safety'>[util.dynamic.safety]</a></h3><div class='para' id='util.dynamic.safety-1'><div class='marginalizedparent'><a class='marginalized' href='#util.dynamic.safety-1'>1</a></div><p >A complete object is <i>declared reachable</i> while the number of calls to
+<span class='texttt'>declare_reachable</span> with an argument referencing the object exceeds the
+number of calls to <span class='texttt'>undeclare_reachable</span> with an argument referencing the
+object.</p><p ><span class='indexparent'><a class='index' id='declare_reachable'></a></span><code class='itemdecl'>
+void declare_reachable(void *p);
+</code></p></div><div class='itemdescr'></div><div class='para' id='util.dynamic.safety-2'><div class='marginalizedparent'><a class='marginalized' href='#util.dynamic.safety-2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>p</span> shall be a safely-derived
+pointer (<a href='basic.stc.dynamic.safety'>[basic.stc.dynamic.safety]</a>) or a null pointer value.</p></div></div><div class='para' id='util.dynamic.safety-3'><div class='marginalizedparent'><a class='marginalized' href='#util.dynamic.safety-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>p</span> is not null, the complete object referenced by <span class='texttt'>p</span>
+is subsequently declared reachable (<a href='basic.stc.dynamic.safety'>[basic.stc.dynamic.safety]</a>).</p></div></div><div class='para' id='util.dynamic.safety-4'><div class='marginalizedparent'><a class='marginalized' href='#util.dynamic.safety-4'>4</a></div><div class='itemdescr'><p ><i>Throws:</i> May throw <span class='texttt'>std::bad_alloc</span> if the system cannot allocate
+additional memory that may be required to track objects declared reachable.
+</p></div></div><p ><span class='indexparent'><a class='index' id='undeclare_reachable'></a></span><code class='itemdecl'>
+template &lt;class T&gt; T *undeclare_reachable(T *p);
+</code></p><div class='itemdescr'></div><div class='para' id='util.dynamic.safety-5'><div class='marginalizedparent'><a class='marginalized' href='#util.dynamic.safety-5'>5</a></div><div class='itemdescr'><p ><i>Requires:</i> If <span class='texttt'>p</span> is not null, the complete object referenced by <span class='texttt'>p</span>
+shall have been previously declared reachable, and shall be
+live (<a href='basic.life'>[basic.life]</a>) from the time of the call until the last
+<span class='texttt'>undeclare_reachable(p)</span> call on the object.</p></div></div><div class='para' id='util.dynamic.safety-6'><div class='marginalizedparent'><a class='marginalized' href='#util.dynamic.safety-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> A safely derived copy of <span class='texttt'>p</span> which shall compare equal to <span class='texttt'>p</span>.</p></div></div><div class='para' id='util.dynamic.safety-7'><div class='marginalizedparent'><a class='marginalized' href='#util.dynamic.safety-7'>7</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing.</p></div></div><div class='para' id='util.dynamic.safety-8'><div class='marginalizedparent'><a class='marginalized' href='#util.dynamic.safety-8'>8</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> It is expected that calls to <span class='texttt'>declare_reachable(p)</span> will consume
+a small amount of memory in addition to that occupied by the referenced object until the
+matching call to <span class='texttt'>undeclare_reachable(p)</span> is encountered. Long running programs
+should arrange that calls are matched. <i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div></div><p ><span class='indexparent'><a class='index' id='declare_no_pointers'></a></span><code class='itemdecl'>
+void declare_no_pointers(char *p, size_t n);
+</code></p><div class='itemdescr'></div><div class='para' id='util.dynamic.safety-9'><div class='marginalizedparent'><a class='marginalized' href='#util.dynamic.safety-9'>9</a></div><div class='itemdescr'><p ><i>Requires:</i> No bytes in the specified range
+are currently registered with
+<span class='texttt'>declare_no_pointers()</span>. If the specified range is in an allocated object,
+then it must be entirely within a single allocated object. The object must be
+live until the corresponding <span class='texttt'>undeclare_no_pointers()</span> call. [&nbsp;<i>Note:</i> In
+a garbage-collecting implementation, the fact that a region in an object is
+registered with <span class='texttt'>declare_no_pointers()</span> should not prevent the object from
+being collected. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='util.dynamic.safety-10'><div class='marginalizedparent'><a class='marginalized' href='#util.dynamic.safety-10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i> The <span class='texttt'>n</span> bytes starting at <span class='texttt'>p</span> no longer contain traceable
+pointer locations, independent of their type. Hence pointers located there may
+not be dereferenced if the object they point to was created by global
+<span class='texttt'>operator new</span> and not previously declared reachable. [&nbsp;<i>Note:</i> This may
+be used to inform a garbage collector or leak detector that this region of
+memory need not be traced. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='util.dynamic.safety-11'><div class='marginalizedparent'><a class='marginalized' href='#util.dynamic.safety-11'>11</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing.</p></div></div><div class='para' id='util.dynamic.safety-12'><div class='marginalizedparent'><a class='marginalized' href='#util.dynamic.safety-12'>12</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> Under some conditions implementations may need to allocate memory.
+However, the request can be ignored if memory allocation fails. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='undeclare_no_pointers'></a></span><code class='itemdecl'>
+void undeclare_no_pointers(char *p, size_t n);
+</code></p><div class='itemdescr'></div><div class='para' id='util.dynamic.safety-13'><div class='marginalizedparent'><a class='marginalized' href='#util.dynamic.safety-13'>13</a></div><div class='itemdescr'><p ><i>Requires:</i> The same range must previously have been passed to
+<span class='texttt'>declare_no_pointers()</span>.</p></div></div><div class='para' id='util.dynamic.safety-14'><div class='marginalizedparent'><a class='marginalized' href='#util.dynamic.safety-14'>14</a></div><div class='itemdescr'><p ><i>Effects:</i> Unregisters a range registered with <span class='texttt'>declare_no_pointers()</span> for
+destruction. It must be called before the lifetime of the object ends.</p></div></div><div class='para' id='util.dynamic.safety-15'><div class='marginalizedparent'><a class='marginalized' href='#util.dynamic.safety-15'>15</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing.
+</p></div></div><p ><span class='indexparent'><a class='index' id='get_pointer_safety'></a></span><code class='itemdecl'>
+pointer_safety get_pointer_safety() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='util.dynamic.safety-16'><div class='marginalizedparent'><a class='marginalized' href='#util.dynamic.safety-16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>pointer_safety::strict</span> if the implementation has strict pointer
+safety (<a href='basic.stc.dynamic.safety'>[basic.stc.dynamic.safety]</a>). It is implementation defined<span class='indexparent'><a class='index' id='whether_get_pointer_safety_returns_pointer_safety::relaxed_or_pointer_safety::preferred_if_the_implementation_has_relaxed_pointer_safety'></a></span>
+whether
+<span class='texttt'>get_pointer_safety</span> returns <span class='texttt'>pointer_safety::relaxed</span> or
+<span class='texttt'>pointer_safety::preferred</span> if the implementation has relaxed pointer
+safety.<a class='footnotenum' href='#footnote-230'>230</a>
+</p></div></div><div class='footnote' id='footnote-229'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-229'>229)</a></div><p ><span class='texttt'>pointer_safety::preferred</span> might be returned to indicate
+that a leak detector is running so that the program can avoid spurious leak
+reports.</p></div></div><div id='ptr.align'><h3 ><a class='secnum' href='#ptr.align' style='min-width:103pt'>20.6.5</a> Align <a class='abbr_ref' href='ptr.align'>[ptr.align]</a></h3><p ><span class='indexparent'><a class='index' id='align'></a></span><code class='itemdecl'>
+void *align(std::size_t alignment, std::size_t size,
+    void *&amp;ptr, std::size_t&amp; space);
+</code></p><div class='itemdescr'></div><div class='para' id='ptr.align-1'><div class='marginalizedparent'><a class='marginalized' href='#ptr.align-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> If it is possible to fit <span class='texttt'>size</span> bytes
+of storage aligned by <span class='texttt'>alignment</span> into the buffer pointed to by
+<span class='texttt'>ptr</span> with length <span class='texttt'>space</span>, the function updates
+<span class='texttt'>ptr</span> to point to the first possible address of such storage
+and decreases <span class='texttt'>space</span> by the number of bytes used for alignment.
+Otherwise, the function does nothing.</p></div></div><div class='para' id='ptr.align-2'><div class='marginalizedparent'><a class='marginalized' href='#ptr.align-2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i></p><ul ><li ><p ><span class='texttt'>alignment</span> shall be a fundamental alignment value or an
+extended alignment value supported by the implementation in this context</p></li><li ><p ><span class='texttt'>ptr</span> shall point to contiguous storage of at least
+<span class='texttt'>space</span> bytes
+</p></li></ul></div></div><div class='para' id='ptr.align-3'><div class='marginalizedparent'><a class='marginalized' href='#ptr.align-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> A null pointer if the requested aligned buffer
+would not fit into the available space, otherwise the adjusted value
+of <span class='texttt'>ptr</span>.</p></div></div><div class='para' id='ptr.align-4'><div class='marginalizedparent'><a class='marginalized' href='#ptr.align-4'>4</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> The function updates its <span class='texttt'>ptr</span>
+and <span class='texttt'>space</span> arguments so that it can be called repeatedly
+with possibly different <span class='texttt'>alignment</span> and <span class='texttt'>size</span>
+arguments for the same buffer.
+</p></div></div></div><div id='allocator.tag'><h3 ><a class='secnum' href='#allocator.tag' style='min-width:103pt'>20.6.6</a> Allocator argument tag <a class='abbr_ref' href='allocator.tag'>[allocator.tag]</a></h3><p ><span class='indexparent'><a class='index' id='allocator_arg_t'></a></span>
+<span class='indexparent'><a class='index' id='allocator_arg'></a></span>
+<code class='itemdecl'>
+namespace std {
+  struct allocator_arg_t { };
+  constexpr allocator_arg_t allocator_arg = allocator_arg_t();
+}
+</code></p><div class='para' id='allocator.tag-1'><div class='marginalizedparent'><a class='marginalized' href='#allocator.tag-1'>1</a></div><p >The <span class='texttt'>allocator_arg_t</span> struct is an empty structure type used as a unique type to
+disambiguate constructor and function overloading. Specifically, several types (see
+<span class='texttt'>tuple</span> <a href='tuple'>[tuple]</a>) have constructors with <span class='texttt'>allocator_arg_t</span> as the first
+argument, immediately followed by an argument of a type that satisfies the
+<span class='texttt'>Allocator</span> requirements (<a href='allocator.requirements'>[allocator.requirements]</a>).</p></div></div><div id='allocator.uses'><h3 ><a class='secnum' href='#allocator.uses' style='min-width:103pt'>20.6.7</a> <span class='texttt'>uses_allocator</span> <a class='abbr_ref' href='allocator.uses'>[allocator.uses]</a></h3><div id='allocator.uses.trait'><h4 ><a class='secnum' href='#allocator.uses.trait' style='min-width:118pt'>20.6.7.1</a> <span class='texttt'>uses_allocator</span> trait <a class='abbr_ref' href='allocator.uses.trait'>[allocator.uses.trait]</a></h4><p ><span class='indexparent'><a class='index' id='uses_allocator'></a></span><code class='itemdecl'>
+template &lt;class T, class Alloc&gt; struct uses_allocator;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.uses.trait-1'><div class='marginalizedparent'><a class='marginalized' href='#allocator.uses.trait-1'>1</a></div><div class='itemdescr'><p ><i>Remark:</i> automatically detects whether <span class='texttt'>T</span> has a nested <span class='texttt'>allocator_type</span> that
+is convertible from <span class='texttt'>Alloc</span>. Meets the BinaryTypeTrait
+requirements (<a href='meta.rqmts'>[meta.rqmts]</a>). The implementation shall provide a definition that is
+derived from <span class='texttt'>true_type</span> if a type <span class='texttt'>T::allocator_type</span> exists and
+<span class='texttt'>is_convertible&lt;Alloc, T::allocator_type&gt;::value != false</span>, otherwise it shall be
+derived from <span class='texttt'>false_type</span>. A program may specialize this template to derive from
+<span class='texttt'>true_type</span> for a user-defined type <span class='texttt'>T</span> that does not have a nested
+<span class='texttt'>allocator_type</span> but nonetheless can be constructed with an allocator where
+either:</p><ul ><li ><p >the first argument of a constructor has type <span class='texttt'>allocator_arg_t</span> and the
+second argument has type <span class='texttt'>Alloc</span> or</p></li><li ><p >the last argument of a constructor has type <span class='texttt'>Alloc</span>.
+</p></li></ul></div></div></div><div id='allocator.uses.construction'><h4 ><a class='secnum' href='#allocator.uses.construction' style='min-width:118pt'>20.6.7.2</a> uses-allocator construction <a class='abbr_ref' href='allocator.uses.construction'>[allocator.uses.construction]</a></h4><div class='para' id='allocator.uses.construction-1'><div class='marginalizedparent'><a class='marginalized' href='#allocator.uses.construction-1'>1</a></div><p ><a class='hidden_link' href='#def:Uses-allocator_construction' id='def:Uses-allocator_construction'><i>Uses-allocator construction</i></a> with allocator <span class='texttt'>Alloc</span> refers to the
+construction of an object <span class='texttt'>obj</span> of type <span class='texttt'>T</span>, using constructor arguments
+<span class='texttt'>v1, v2, ..., vN</span> of types <span class='texttt'>V1, V2, ..., VN</span>, respectively, and an allocator
+<span class='texttt'>alloc</span> of type <span class='texttt'>Alloc</span>, according to the following rules:</p><ul ><li ><p >if <span class='texttt'>uses_allocator&lt;T, Alloc&gt;::value</span> is <span class='texttt'>false</span> and
+<span class='texttt'>is_constructible&lt;T, V1, V2, ..., VN&gt;::value</span> is <span class='texttt'>true</span>, then <span class='texttt'>obj</span> is
+initialized as <span class='texttt'>obj(v1, v2, ..., vN)</span>;</p></li><li ><p >otherwise, if <span class='texttt'>uses_allocator&lt;T, Alloc&gt;::value</span> is <span class='texttt'>true</span> and
+<span class='texttt'>is_constructible&lt;T, allocator_arg_t, Alloc,</span> <span class='texttt'>V1, V2, ..., VN&gt;::value</span> is
+<span class='texttt'>true</span>, then <span class='texttt'>obj</span> is initialized as <span class='texttt'>obj(allocator_arg, alloc, v1,
+v2, ..., vN)</span>;</p></li><li ><p >otherwise, if <span class='texttt'>uses_allocator&lt;T, Alloc&gt;::value</span> is <span class='texttt'>true</span> and
+<span class='texttt'>is_constructible&lt;T, V1, V2, ..., VN, Alloc&gt;::value</span> is <span class='texttt'>true</span>, then
+<span class='texttt'>obj</span> is initialized as <span class='texttt'>obj(v1, v2, ..., vN, alloc)</span>;</p></li><li ><p >otherwise, the request for uses-allocator construction is ill-formed. [&nbsp;<i>Note:</i>
+An error will result if <span class='texttt'>uses_allocator&lt;T, Alloc&gt;::value</span> is <span class='texttt'>true</span> but the
+specific constructor does not take an allocator. This definition prevents a silent
+failure to pass the allocator to an element. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></li></ul></div></div></div><div id='allocator.traits'><h3 ><a class='secnum' href='#allocator.traits' style='min-width:103pt'>20.6.8</a> Allocator traits <a class='abbr_ref' href='allocator.traits'>[allocator.traits]</a></h3><div class='para' id='allocator.traits-1'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits-1'>1</a></div><p >The class template <span class='texttt'>allocator_traits</span> supplies a uniform interface to all
+allocator types.
+An allocator cannot be a non-class type, however, even if <span class='texttt'>allocator_traits</span>
+supplies the entire required interface. [&nbsp;<i>Note:</i> Thus, it is always possible to create
+a derived class from an allocator. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='allocator_traits'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class Alloc&gt; struct allocator_traits {
+    typedef Alloc allocator_type;
+
+    typedef typename Alloc::value_type value_type;
+
+    typedef <i><span class='texttt'>see below</span></i> pointer;
+    typedef <i><span class='texttt'>see below</span></i> const_pointer;
+    typedef <i><span class='texttt'>see below</span></i> void_pointer;
+    typedef <i><span class='texttt'>see below</span></i> const_void_pointer;
+
+    typedef <i><span class='texttt'>see below</span></i> difference_type;
+    typedef <i><span class='texttt'>see below</span></i> size_type;
+
+    typedef <i><span class='texttt'>see below</span></i> propagate_on_container_copy_assignment;
+    typedef <i><span class='texttt'>see below</span></i> propagate_on_container_move_assignment;
+    typedef <i><span class='texttt'>see below</span></i> propagate_on_container_swap;
+
+    template &lt;class T&gt; using rebind_alloc = <i><span class='texttt'>see below</span></i>;
+    template &lt;class T&gt; using rebind_traits = allocator_traits&lt;rebind_alloc&lt;T&gt; &gt;;
+
+    static pointer allocate(Alloc&amp; a, size_type n);
+    static pointer allocate(Alloc&amp; a, size_type n, const_void_pointer hint);
+
+    static void deallocate(Alloc&amp; a, pointer p, size_type n);
+
+    template &lt;class T, class... Args&gt;
+      static void construct(Alloc&amp; a, T* p, Args&amp;&amp;... args);
+
+    template &lt;class T&gt;
+      static void destroy(Alloc&amp; a, T* p);
+
+    static size_type max_size(const Alloc&amp; a);
+
+    static Alloc select_on_container_copy_construction(const Alloc&amp; rhs);
+  };
+}
+</pre></div><div id='allocator.traits.types'><h4 ><a class='secnum' href='#allocator.traits.types' style='min-width:118pt'>20.6.8.1</a> Allocator traits member types <a class='abbr_ref' href='allocator.traits.types'>[allocator.traits.types]</a></h4><p ><span class='indexparent'><a class='index' id='allocator_traits,pointer'></a></span><span class='indexparent'><a class='index' id='pointer,allocator_traits'></a></span><code class='itemdecl'>
+typedef <i><span class='texttt'>see below</span></i> pointer;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.types-1'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.types-1'>1</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::pointer</span> if such a type exists; otherwise, <span class='texttt'>value_type*</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator_traits,const_pointer'></a></span><span class='indexparent'><a class='index' id='const_pointer,allocator_traits'></a></span><code class='itemdecl'>
+typedef <i><span class='texttt'>see below</span></i> const_pointer;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.types-2'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.types-2'>2</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::const_pointer</span> if such a type exists; otherwise,
+<span class='texttt'>pointer_traits&lt;pointer&gt;::rebind&lt;<span class='discretionary'></span>const value_type&gt;</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator_traits,void_pointer'></a></span><span class='indexparent'><a class='index' id='void_pointer,allocator_traits'></a></span><code class='itemdecl'>
+typedef <i><span class='texttt'>see below</span></i> void_pointer;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.types-3'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.types-3'>3</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::void_pointer</span> if such a type exists; otherwise,
+<span class='texttt'>pointer_traits&lt;pointer&gt;::rebind&lt;<span class='discretionary'></span>void&gt;</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator_traits,const_void_pointer'></a></span><span class='indexparent'><a class='index' id='const_void_pointer,allocator_traits'></a></span><code class='itemdecl'>
+typedef <i><span class='texttt'>see below</span></i> const_void_pointer;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.types-4'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.types-4'>4</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::const_void_pointer</span> if such a type exists; otherwise,
+<span class='texttt'>pointer_traits&lt;pointer&gt;::<span class='discretionary'></span>rebind&lt;const void&gt;</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator_traits,difference_type'></a></span><span class='indexparent'><a class='index' id='difference_type,allocator_traits'></a></span><code class='itemdecl'>
+typedef <i><span class='texttt'>see below</span></i> difference_type;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.types-5'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.types-5'>5</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::difference_type</span> if such a type exists; otherwise,
+<span class='texttt'>pointer_traits&lt;pointer&gt;::difference_type</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator_traits,size_type'></a></span><span class='indexparent'><a class='index' id='size_type,allocator_traits'></a></span><code class='itemdecl'>
+typedef <i><span class='texttt'>see below</span></i> size_type;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.types-6'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.types-6'>6</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::size_type</span> if such a type exists; otherwise,
+<span class='texttt'>make_unsigned&lt;difference_type&gt;::type</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator_traits,propagate_on_container_copy_assignment'></a></span><span class='indexparent'><a class='index' id='propagate_on_container_copy_assignment,allocator_traits'></a></span><code class='itemdecl'>
+typedef <i><span class='texttt'>see below</span></i> propagate_on_container_copy_assignment;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.types-7'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.types-7'>7</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::propagate_on_container_copy_assignment</span> if such a type
+exists, otherwise <span class='texttt'>false_type</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator_traits,propagate_on_container_move_assignment'></a></span><span class='indexparent'><a class='index' id='propagate_on_container_move_assignment,allocator_traits'></a></span><code class='itemdecl'>
+typedef <i><span class='texttt'>see below</span></i> propagate_on_container_move_assignment;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.types-8'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.types-8'>8</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::propagate_on_container_move_assignment</span> if such a type
+exists, otherwise <span class='texttt'>false_type</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator_traits,propagate_on_container_swap'></a></span><span class='indexparent'><a class='index' id='propagate_on_container_swap,allocator_traits'></a></span><code class='itemdecl'>
+typedef <i><span class='texttt'>see below</span></i> propagate_on_container_swap;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.types-9'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.types-9'>9</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::propagate_on_container_swap</span> if such a type exists, otherwise <span class='texttt'>false_type</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator_traits,rebind_alloc'></a></span><span class='indexparent'><a class='index' id='rebind_alloc,allocator_traits'></a></span><code class='itemdecl'>
+template &lt;class T&gt; using rebind_alloc = <i><span class='texttt'>see below</span></i>;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.types-10'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.types-10'>10</a></div><div class='itemdescr'><p ><i>Alias template:</i> <span class='texttt'>Alloc::rebind&lt;T&gt;::other</span> if such a type exists; otherwise,
+<span class='texttt'>Alloc&lt;T, Args&gt;</span> if <span class='texttt'>Alloc</span> is a class template instantiation
+of the form <span class='texttt'>Alloc&lt;U, Args&gt;</span>, where <span class='texttt'>Args</span> is zero or more type arguments;
+otherwise, the instantiation of <span class='texttt'>rebind_alloc</span> is ill-formed.
+</p></div></div></div><div id='allocator.traits.members'><h4 ><a class='secnum' href='#allocator.traits.members' style='min-width:118pt'>20.6.8.2</a> Allocator traits static member functions <a class='abbr_ref' href='allocator.traits.members'>[allocator.traits.members]</a></h4><p ><span class='indexparent'><a class='index' id='allocator_traits,allocate'></a></span><span class='indexparent'><a class='index' id='allocate,allocator_traits'></a></span><code class='itemdecl'>
+static pointer allocate(Alloc&amp; a, size_type n);
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.members-1'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.members-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>a.allocate(n)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator_traits,allocate'></a></span><span class='indexparent'><a class='index' id='allocate,allocator_traits'></a></span><code class='itemdecl'>
+static pointer allocate(Alloc&amp; a, size_type n, const_void_pointer hint);
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.members-2'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.members-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>a.allocate(n, hint)</span> if that expression is well-formed; otherwise, <span class='texttt'>a.allocate(n)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator_traits,deallocate'></a></span><span class='indexparent'><a class='index' id='deallocate,allocator_traits'></a></span><code class='itemdecl'>
+static void deallocate(Alloc&amp; a, pointer p, size_type n);
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.members-3'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.members-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> calls <span class='texttt'>a.deallocate(p, n)</span>.</p></div></div><div class='para' id='allocator.traits.members-4'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.members-4'>4</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator_traits,constructor'></a></span><code class='itemdecl'>
+template &lt;class T, class... Args&gt;
+  static void construct(Alloc&amp; a, T* p, Args&amp;&amp;... args);
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.members-5'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.members-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> calls <span class='texttt'>a.construct(p, std::forward&lt;Args&gt;(args)...)</span>
+if that call is well-formed;
+otherwise, invokes <span class='texttt'>::new (static_cast&lt;void*&gt;(p)) T(std::forward&lt;Args&gt;(args)...)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator_traits,destructor'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+  static void destroy(Alloc&amp; a, T* p);
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.members-6'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.members-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> calls <span class='texttt'>a.destroy(p)</span> if that call is well-formed; otherwise, invokes
+<span class='texttt'>p-&gt;~T()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator_traits,max_size'></a></span><span class='indexparent'><a class='index' id='max_size,allocator_traits'></a></span><code class='itemdecl'>
+static size_type max_size(Alloc&amp; a);
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.members-7'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.members-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>a.max_size()</span> if that expression is well-formed; otherwise,
+<span class='texttt'>numeric_limits&lt;size_type&gt;::<span class='discretionary'></span>max()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator_traits,select_on_container_copy_construction'></a></span><span class='indexparent'><a class='index' id='select_on_container_copy_construction,allocator_traits'></a></span><code class='itemdecl'>
+static Alloc select_on_container_copy_construction(const Alloc&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.traits.members-8'><div class='marginalizedparent'><a class='marginalized' href='#allocator.traits.members-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>rhs.select_on_container_copy_construction()</span> if that expression is
+well-formed; otherwise, <span class='texttt'>rhs</span>.
+</p></div></div></div></div><div id='default.allocator'><h3 ><a class='secnum' href='#default.allocator' style='min-width:103pt'>20.6.9</a> The default allocator <a class='abbr_ref' href='default.allocator'>[default.allocator]</a></h3><p ><span class='indexparent'><a class='index' id='allocator'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class T&gt; class allocator;
+
+  <span class='comment'>// specialize for <span class='texttt'>void</span>:
+</span>  template &lt;&gt; class allocator&lt;void&gt; {
+  public:
+    typedef void*   pointer;
+    typedef const void* const_pointer;
+    <span class='comment'>// reference-to-<span class='texttt'>void</span> members are impossible.
+</span>    typedef void  value_type;
+    template &lt;class U&gt; struct rebind { typedef allocator&lt;U&gt; other; };
+  };
+
+  template &lt;class T&gt; class allocator {
+   public:
+    typedef size_t    size_type;
+    typedef ptrdiff_t difference_type;
+    typedef T*        pointer;
+    typedef const T*  const_pointer;
+    typedef T&amp;        reference;
+    typedef const T&amp;  const_reference;
+    typedef T         value_type;
+    template &lt;class U&gt; struct rebind { typedef allocator&lt;U&gt; other; };
+
+    allocator() noexcept;
+    allocator(const allocator&amp;) noexcept;
+    template &lt;class U&gt; allocator(const allocator&lt;U&gt;&amp;) noexcept;
+   ~allocator();
+
+    pointer address(reference x) const noexcept;
+    const_pointer address(const_reference x) const noexcept;
+
+    pointer allocate(
+      size_type, allocator&lt;void&gt;::const_pointer hint = 0);
+    void deallocate(pointer p, size_type n);
+    size_type max_size() const noexcept;
+
+    template&lt;class U, class... Args&gt;
+      void construct(U* p, Args&amp;&amp;... args);
+    template &lt;class U&gt;
+      void destroy(U* p);
+  };
+}
+</pre><div id='allocator.members'><h4 ><a class='secnum' href='#allocator.members' style='min-width:118pt'>20.6.9.1</a> <span class='texttt'>allocator</span> members <a class='abbr_ref' href='allocator.members'>[allocator.members]</a></h4><div class='para' id='allocator.members-1'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-1'>1</a></div><p >Except for the destructor, member functions of the default allocator shall not introduce
+data races (<a href='intro.multithread'>[intro.multithread]</a>) as a result of concurrent calls to those member
+functions from different threads. Calls to these functions that allocate or deallocate a
+particular unit of storage shall occur in a single total order, and each such
+deallocation call shall happen before the next allocation (if any) in this order.</p><p ><span class='indexparent'><a class='index' id='address,allocator'></a></span>
+<span class='indexparent'><a class='index' id='allocator,address'></a></span>
+<code class='itemdecl'>
+pointer address(reference x) const noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='allocator.members-2'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The actual address of the object referenced by <span class='texttt'>x</span>, even in the presence of an
+overloaded operator&amp;.
+</p></div></div><p ><span class='indexparent'><a class='index' id='address,allocator'></a></span>
+<span class='indexparent'><a class='index' id='allocator,address'></a></span>
+<code class='itemdecl'>
+const_pointer address(const_reference x) const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.members-3'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The actual address of the object referenced by <span class='texttt'>x</span>, even in the presence of an
+overloaded operator&amp;.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocate,allocator'></a></span>
+<span class='indexparent'><a class='index' id='allocator,allocate'></a></span>
+<code class='itemdecl'>
+pointer allocate(size_type n, allocator&lt;void&gt;::const_pointer hint = 0);
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.members-4'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-4'>4</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> In a container member function, the address of an adjacent
+element is often a good choice to pass for the <span class='texttt'>hint</span> argument. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='allocator.members-5'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A pointer to the initial element of an array of storage of size <span class='texttt'>n</span>
+<span class='texttt'>* sizeof(T)</span>, aligned appropriately for objects of type <span class='texttt'>T</span>.
+It is <span class='indexparent'><a class='index' id='support_for_over-aligned_types'></a></span>implementation-defined whether over-aligned types are
+supported (<a href='basic.align'>[basic.align]</a>).</p></div></div><div class='para' id='allocator.members-6'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-6'>6</a></div><div class='itemdescr'><p ><i>Remark:</i>
+the storage is obtained by calling <span class='texttt'>::operator
+new(std::size_t)</span> (<a href='new.delete'>[new.delete]</a>), but it is unspecified when or how often this
+function is called. The use of <span class='texttt'>hint</span> is unspecified, but intended as an aid to
+locality if an implementation so desires.</p></div></div><div class='para' id='allocator.members-7'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-7'>7</a></div><div class='itemdescr'><p ><i>Throws:</i>
+<span class='texttt'>bad_alloc</span> if the storage cannot be obtained.
+</p></div></div><p ><span class='indexparent'><a class='index' id='deallocate,allocator'></a></span>
+<span class='indexparent'><a class='index' id='allocator,deallocate'></a></span>
+<code class='itemdecl'>
+void deallocate(pointer p, size_type n);
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.members-8'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-8'>8</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>p</span> shall be a pointer value obtained from <span class='texttt'>allocate()</span>.
+<span class='texttt'>n</span> shall equal the value passed as the first argument
+to the invocation of allocate which returned <span class='texttt'>p</span>.</p></div></div><div class='para' id='allocator.members-9'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Deallocates the storage referenced by <span class='texttt'>p</span> .</p></div></div><div class='para' id='allocator.members-10'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-10'>10</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Uses
+<span class='texttt'>::operator delete(void*)</span> (<a href='new.delete'>[new.delete]</a>), but it is unspecified when this function is called.
+</p></div></div><p ><span class='indexparent'><a class='index' id='max_size,allocator'></a></span>
+<span class='indexparent'><a class='index' id='allocator,max_size'></a></span>
+<code class='itemdecl'>
+size_type max_size() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.members-11'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-11'>11</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The largest value <i>N</i> for which the call <span class='texttt'>allocate(N,0)</span>
+might succeed.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator,constructor'></a></span><code class='itemdecl'>
+template &lt;class U, class... Args&gt;
+  void construct(U* p, Args&amp;&amp;... args);
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.members-12'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-12'>12</a></div><div class='itemdescr'><p ><i>Effects:</i>
+<span class='texttt'>::new((void *)p) U(std::forward&lt;Args&gt;(args)...)</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocator,destructor'></a></span><code class='itemdecl'>
+template &lt;class U&gt;
+  void destroy(U* p);
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.members-13'><div class='marginalizedparent'><a class='marginalized' href='#allocator.members-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i>
+<span class='texttt'>p-&gt;~U()</span>
+</p></div></div></div><div id='allocator.globals'><h4 ><a class='secnum' href='#allocator.globals' style='min-width:118pt'>20.6.9.2</a> <span class='texttt'>allocator</span> globals <a class='abbr_ref' href='allocator.globals'>[allocator.globals]</a></h4><p ><span class='indexparent'><a class='index' id='operator==,allocator'></a></span><span class='indexparent'><a class='index' id='allocator,operator=='></a></span><code class='itemdecl'>
+template &lt;class T1, class T2&gt;
+  bool operator==(const allocator&lt;T1&gt;&amp;, const allocator&lt;T2&gt;&amp;) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.globals-1'><div class='marginalizedparent'><a class='marginalized' href='#allocator.globals-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>true</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator!=,allocator'></a></span><span class='indexparent'><a class='index' id='allocator,operator!='></a></span><code class='itemdecl'>
+template &lt;class T1, class T2&gt;
+  bool operator!=(const allocator&lt;T1&gt;&amp;, const allocator&lt;T2&gt;&amp;) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='allocator.globals-2'><div class='marginalizedparent'><a class='marginalized' href='#allocator.globals-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>false</span>.
+</p></div></div></div></div><div id='storage.iterator'><h3 ><a class='secnum' href='#storage.iterator' style='min-width:103pt'>20.6.10</a> Raw storage iterator <a class='abbr_ref' href='storage.iterator'>[storage.iterator]</a></h3><div class='para' id='storage.iterator-1'><div class='marginalizedparent'><a class='marginalized' href='#storage.iterator-1'>1</a></div><p ><span class='texttt'>raw_storage_iterator</span> is provided to enable algorithms to store their
+results into uninitialized memory. The formal template parameter
+<span class='texttt'>OutputIterator</span> is required to have its <span class='texttt'>operator*</span> return an
+object for which <span class='texttt'>operator&amp;</span> is defined and returns a pointer to
+<span class='texttt'>T</span>, and is also required to satisfy the requirements of an output
+iterator (<a href='output.iterators'>[output.iterators]</a>).</p><pre class='codeblock'>
+namespace std {
+  template &lt;class OutputIterator, class T&gt;
+  class raw_storage_iterator
+    : public iterator&lt;output_iterator_tag,void,void,void,void&gt; {
+  public:
+    explicit raw_storage_iterator(OutputIterator x);
+
+    raw_storage_iterator&lt;OutputIterator,T&gt;&amp; operator*();
+    raw_storage_iterator&lt;OutputIterator,T&gt;&amp; operator=(const T&amp; element);
+    raw_storage_iterator&lt;OutputIterator,T&gt;&amp; operator++();
+    raw_storage_iterator&lt;OutputIterator,T&gt;  operator++(int);
+  };
+}
+</pre><p ><span class='indexparent'><a class='index' id='raw_storage_iterator,constructor'></a></span><code class='itemdecl'>
+explicit raw_storage_iterator(OutputIterator x);
+</code></p></div><div class='itemdescr'></div><div class='para' id='storage.iterator-2'><div class='marginalizedparent'><a class='marginalized' href='#storage.iterator-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Initializes the iterator to point to the same value to which <span class='texttt'>x</span> points.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator*,raw_storage_iterator'></a></span>
+<span class='indexparent'><a class='index' id='raw_storage_iterator,operator*'></a></span>
+<code class='itemdecl'>
+raw_storage_iterator&lt;OutputIterator,T&gt;&amp; operator*();
+</code></p><div class='itemdescr'></div><div class='para' id='storage.iterator-3'><div class='marginalizedparent'><a class='marginalized' href='#storage.iterator-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=,raw_storage_iterator'></a></span>
+<span class='indexparent'><a class='index' id='raw_storage_iterator,operator='></a></span>
+<code class='itemdecl'>
+raw_storage_iterator&lt;OutputIterator,T&gt;&amp; operator=(const T&amp; element);
+</code></p><div class='itemdescr'></div><div class='para' id='storage.iterator-4'><div class='marginalizedparent'><a class='marginalized' href='#storage.iterator-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs a value from <span class='texttt'>element</span> at the location to which the iterator points.</p></div></div><div class='para' id='storage.iterator-5'><div class='marginalizedparent'><a class='marginalized' href='#storage.iterator-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A reference to the iterator.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator++,raw_storage_iterator'></a></span>
+<span class='indexparent'><a class='index' id='raw_storage_iterator,operator++'></a></span>
+<code class='itemdecl'>
+raw_storage_iterator&lt;OutputIterator,T&gt;&amp; operator++();
+</code></p><div class='itemdescr'></div><div class='para' id='storage.iterator-6'><div class='marginalizedparent'><a class='marginalized' href='#storage.iterator-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Pre-increment:  advances the iterator and returns a reference to the updated iterator.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator++,raw_storage_iterator'></a></span>
+<span class='indexparent'><a class='index' id='raw_storage_iterator,operator++'></a></span>
+<code class='itemdecl'>
+raw_storage_iterator&lt;OutputIterator,T&gt; operator++(int);
+</code></p><div class='itemdescr'></div><div class='para' id='storage.iterator-7'><div class='marginalizedparent'><a class='marginalized' href='#storage.iterator-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Post-increment:  advances the iterator and returns the old value of the iterator.
+</p></div></div></div><div id='temporary.buffer'><h3 ><a class='secnum' href='#temporary.buffer' style='min-width:103pt'>20.6.11</a> Temporary buffers <a class='abbr_ref' href='temporary.buffer'>[temporary.buffer]</a></h3><p ><span class='indexparent'><a class='index' id='get_temporary_buffer'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+  pair&lt;T*, ptrdiff_t&gt; get_temporary_buffer(ptrdiff_t n) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='temporary.buffer-1'><div class='marginalizedparent'><a class='marginalized' href='#temporary.buffer-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Obtains a pointer to storage sufficient to store up to <span class='texttt'>n</span>
+adjacent <span class='texttt'>T</span> objects.
+It is <span class='indexparent'><a class='index' id='support_for_over-aligned_types'></a></span>implementation-defined whether over-aligned types are
+supported (<a href='basic.align'>[basic.align]</a>).</p></div></div><div class='para' id='temporary.buffer-2'><div class='marginalizedparent'><a class='marginalized' href='#temporary.buffer-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A <span class='texttt'>pair</span> containing the buffer's address and capacity (in the units of
+<span class='texttt'>sizeof(T)</span>), or a pair of 0 values if no storage can be obtained or
+if <span class='texttt'>n &lt;= 0</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='return_temporary_buffer'></a></span><code class='itemdecl'>
+template &lt;class T&gt; void return_temporary_buffer(T* p);
+</code></p><div class='itemdescr'></div><div class='para' id='temporary.buffer-3'><div class='marginalizedparent'><a class='marginalized' href='#temporary.buffer-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Deallocates the buffer to which <span class='texttt'>p</span>
+points.</p></div></div><div class='para' id='temporary.buffer-4'><div class='marginalizedparent'><a class='marginalized' href='#temporary.buffer-4'>4</a></div><div class='itemdescr'><p ><i>Requires:</i>
+The buffer shall have been previously allocated by <span class='texttt'>get_temporary_buffer</span>.
+</p></div></div></div><div id='specialized.algorithms'><h3 ><a class='secnum' href='#specialized.algorithms' style='min-width:103pt'>20.6.12</a> Specialized algorithms <a class='abbr_ref' href='specialized.algorithms'>[specialized.algorithms]</a></h3><div class='para' id='specialized.algorithms-1'><div class='marginalizedparent'><a class='marginalized' href='#specialized.algorithms-1'>1</a></div><p >All the iterators that are used as formal template parameters in the following
+algorithms are required to  have their <span class='texttt'>operator*</span> return an object
+for which <span class='texttt'>operator&amp;</span> is defined and returns a pointer to <span class='texttt'>T</span>.
+In the algorithm <span class='texttt'>uninitialized_copy</span>, the formal template parameter
+<span class='texttt'>InputIterator</span> is required to satisfy the requirements of an input
+iterator (<a href='input.iterators'>[input.iterators]</a>). In all of the following algorithms,
+the formal template parameter <span class='texttt'>ForwardIterator</span> is required to satisfy the
+requirements of a forward iterator (<a href='forward.iterators'>[forward.iterators]</a>),
+and is required to have the property that no exceptions are thrown
+from increment, assignment, comparison, or dereference of valid iterators.
+In the following algorithms, if an exception is thrown there are no effects.</p></div><div id='specialized.addressof'><h4 ><a class='secnum' href='#specialized.addressof' style='min-width:118pt'>20.6.12.1</a> <span class='texttt'>addressof</span> <a class='abbr_ref' href='specialized.addressof'>[specialized.addressof]</a></h4><p ><span class='indexparent'><a class='index' id='addressof'></a></span><code class='itemdecl'>
+template &lt;class T&gt; T* addressof(T&amp; r) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='specialized.addressof-1'><div class='marginalizedparent'><a class='marginalized' href='#specialized.addressof-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> The actual address of the object or function referenced by <span class='texttt'>r</span>, even in the
+presence of an overloaded <span class='texttt'>operator&amp;</span>.
+</p></div></div></div><div id='uninitialized.copy'><h4 ><a class='secnum' href='#uninitialized.copy' style='min-width:118pt'>20.6.12.2</a> <span class='texttt'>uninitialized_copy</span> <a class='abbr_ref' href='uninitialized.copy'>[uninitialized.copy]</a></h4><p ><span class='indexparent'><a class='index' id='uninitialized_copy'></a></span><code class='itemdecl'>
+template &lt;class InputIterator, class ForwardIterator&gt;
+  ForwardIterator uninitialized_copy(InputIterator first, InputIterator last,
+                                     ForwardIterator result);
+</code></p><div class='itemdescr'></div><div class='para' id='uninitialized.copy-1'><div class='marginalizedparent'><a class='marginalized' href='#uninitialized.copy-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><pre class='codeblock'>
+for (; first != last; ++result, ++first)
+  ::new (static_cast&lt;void*&gt;(&amp;*result))
+    typename iterator_traits&lt;ForwardIterator&gt;::value_type(*first);
+</pre></div></div><div class='para' id='uninitialized.copy-2'><div class='marginalizedparent'><a class='marginalized' href='#uninitialized.copy-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>result</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='uninitialized_copy_n'></a></span><code class='itemdecl'>
+template &lt;class InputIterator, class Size, class ForwardIterator&gt;
+  ForwardIterator uninitialized_copy_n(InputIterator first, Size n,
+                                       ForwardIterator result);
+</code></p><div class='itemdescr'></div><div class='para' id='uninitialized.copy-3'><div class='marginalizedparent'><a class='marginalized' href='#uninitialized.copy-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><pre class='codeblock'>
+for ( ; n &gt; 0; ++result, ++first, --n) {
+  ::new (static_cast&lt;void*&gt;(&amp;*result))
+    typename iterator_traits&lt;ForwardIterator&gt;::value_type(*first);
+}
+</pre></div></div><div class='para' id='uninitialized.copy-4'><div class='marginalizedparent'><a class='marginalized' href='#uninitialized.copy-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>result</span>
+</p></div></div></div><div id='uninitialized.fill'><h4 ><a class='secnum' href='#uninitialized.fill' style='min-width:118pt'>20.6.12.3</a> <span class='texttt'>uninitialized_fill</span> <a class='abbr_ref' href='uninitialized.fill'>[uninitialized.fill]</a></h4><p ><span class='indexparent'><a class='index' id='uninitialized_fill'></a></span><code class='itemdecl'>
+template &lt;class ForwardIterator, class T&gt;
+  void uninitialized_fill(ForwardIterator first, ForwardIterator last,
+                          const T&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='uninitialized.fill-1'><div class='marginalizedparent'><a class='marginalized' href='#uninitialized.fill-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><pre class='codeblock'>
+for (; first != last; ++first)
+  ::new (static_cast&lt;void*&gt;(&amp;*first))
+    typename iterator_traits&lt;ForwardIterator&gt;::value_type(x);
+</pre></div></div></div><div id='uninitialized.fill.n'><h4 ><a class='secnum' href='#uninitialized.fill.n' style='min-width:118pt'>20.6.12.4</a> <span class='texttt'>uninitialized_fill_n</span> <a class='abbr_ref' href='uninitialized.fill.n'>[uninitialized.fill.n]</a></h4><p ><span class='indexparent'><a class='index' id='uninitialized_fill_n'></a></span><code class='itemdecl'>
+template &lt;class ForwardIterator, class Size, class T&gt;
+  ForwardIterator uninitialized_fill_n(ForwardIterator first, Size n, const T&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='uninitialized.fill.n-1'><div class='marginalizedparent'><a class='marginalized' href='#uninitialized.fill.n-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><pre class='codeblock'>
+for (; n--; ++first)
+  ::new (static_cast&lt;void*&gt;(&amp;*first))
+    typename iterator_traits&lt;ForwardIterator&gt;::value_type(x);
+return first;
+</pre></div></div></div></div><div id='c.malloc'><h3 ><a class='secnum' href='#c.malloc' style='min-width:103pt'>20.6.13</a> C library <a class='abbr_ref' href='c.malloc'>[c.malloc]</a></h3><div class='para' id='c.malloc-1'><div class='marginalizedparent'><a class='marginalized' href='#c.malloc-1'>1</a></div><p >Table <a href='#tab:util.hdr.cstdlib'>[tab:util.hdr.cstdlib]</a> describes the header
+<span class='texttt'>&lt;cstdlib&gt;</span>.</p><div class='numberedTable' id='tab:util.hdr.cstdlib'>Table <a href='#tab:util.hdr.cstdlib'>45</a> — Header <span class='texttt'>&lt;cstdlib&gt;</span> synopsis<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Type</b></td><td colspan='2' class='center'><b>Name(s)</b></td></tr><tr class='capsep'><td class='left'> 
+
+
+
+<b>Functions</b>:  </td><td class='left'>   <span class='texttt'>calloc</span>  </td><td class='left'>   <span class='texttt'>malloc</span>      </td></tr><tr ><td class='left'>
+            </td><td class='left'>   <span class='texttt'>free</span>    </td><td class='left'>   <span class='texttt'>realloc</span>     </td></tr></table></div></div><div class='para' id='c.malloc-2'><div class='marginalizedparent'><a class='marginalized' href='#c.malloc-2'>2</a></div><p >The contents are the same as the Standard C library header
+<span class='texttt'>&lt;stdlib.h&gt;,</span>
+with the following changes:</p></div><div class='para' id='c.malloc-3'><div class='marginalizedparent'><a class='marginalized' href='#c.malloc-3'>3</a></div><p >The functions <span class='texttt'>calloc()</span><span class='indexparent'><a class='index' id='calloc'></a></span>,
+<span class='texttt'>malloc()</span><span class='indexparent'><a class='index' id='malloc'></a></span>, and
+<span class='texttt'>realloc()</span><span class='indexparent'><a class='index' id='realloc'></a></span> do not attempt to allocate
+storage by calling <span class='texttt'>::operator new()</span> (<a href='support.dynamic'>[support.dynamic]</a>).
+<span class='indexparent'><a class='index' id='new,operator'></a></span>
+</p></div><div class='para' id='c.malloc-4'><div class='marginalizedparent'><a class='marginalized' href='#c.malloc-4'>4</a></div><p >The function <span class='texttt'>free()</span><span class='indexparent'><a class='index' id='free'></a></span> does not attempt to
+deallocate storage by calling
+<span class='texttt'>::operator delete()</span><span class='indexparent'><a class='index' id='delete,operator'></a></span>.</p><p ><span class='textsc'>See also:</span>
+ISO C Clause 7.11.2.</p></div><div class='para' id='c.malloc-5'><div class='marginalizedparent'><a class='marginalized' href='#c.malloc-5'>5</a></div><p >Storage allocated directly with <span class='texttt'>malloc()</span>, <span class='texttt'>calloc()</span>, or
+<span class='texttt'>realloc()</span> is implicitly declared reachable
+(see <a href='basic.stc.dynamic.safety'>[basic.stc.dynamic.safety]</a>) on allocation, ceases to be declared
+reachable on deallocation, and need not cease to be declared reachable as the
+result of an <span class='texttt'>undeclare_reachable()</span> call. [&nbsp;<i>Note:</i> This allows existing
+C libraries to remain unaffected by restrictions on pointers that are not safely
+derived, at the expense of providing far fewer garbage collection and leak
+detection options for <span class='texttt'>malloc()</span>-allocated objects. It also allows
+<span class='texttt'>malloc()</span> to be implemented with a separate allocation arena, bypassing
+the normal <span class='texttt'>declare_reachable()</span> implementation. The above functions
+should never intentionally be used as a replacement for
+<span class='texttt'>declare_reachable()</span>, and newly written code is strongly encouraged to
+treat memory allocated with these functions as though it were allocated with
+<span class='texttt'>operator new</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='c.malloc-6'><div class='marginalizedparent'><a class='marginalized' href='#c.malloc-6'>6</a></div><p >Table <a href='#tab:util.hdr.cstring'>[tab:util.hdr.cstring]</a> describes the header
+<span class='texttt'>&lt;cstring&gt;</span>.</p><div class='numberedTable' id='tab:util.hdr.cstring'>Table <a href='#tab:util.hdr.cstring'>46</a> — Header <span class='texttt'>&lt;cstring&gt;</span> synopsis<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Type</b></td><td colspan='2' class='center'><b>Name(s)</b></td></tr><tr class='capsep'><td class='left'> 
+
+
+
+<b>Macro</b>:          </td><td class='left'>   <span class='texttt'>NULL</span>    </td><td class='left'>                   </td></tr><tr class='rowsep'><td class='left'> 
+<b>Type</b>:           </td><td class='left'>   <span class='texttt'>size_t</span>  </td><td class='left'>                   </td></tr><tr class='rowsep'><td class='left'> 
+<b>Functions</b>:      </td><td class='left'>   <span class='texttt'>memchr</span>  </td><td class='left'>   <span class='texttt'>memcmp</span>  </td></tr><tr ><td class='left'>
+<span class='texttt'>memcpy</span>  </td><td class='left'>   <span class='texttt'>memmove</span> </td><td class='left'>   <span class='texttt'>memset</span>  </td></tr></table></div></div><div class='para' id='c.malloc-7'><div class='marginalizedparent'><a class='marginalized' href='#c.malloc-7'>7</a></div><p >The contents are the same as the Standard C library header
+<span class='texttt'>&lt;string.h&gt;</span>, with the change to <span class='texttt'>memchr()</span> specified
+in <a href='c.strings'>[c.strings]</a>.</p><p ><span class='textsc'>See also:</span>
+ISO C Clause 7.11.2.</p></div></div></div></div></body></html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang='en'><head><title>[rand.adapt.disc]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>26</a> Numerics library <a class='abbr_ref' href='./#numerics'>[numerics]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>26.5</a> Random number generation <a class='abbr_ref' href='rand#adapt.disc'>[rand]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>26.5.4</a> Random number engine adaptor class templates <a class='abbr_ref' href='rand.adapt#disc'>[rand.adapt]</a></h3><div id='rand.adapt.disc'><h4 ><a class='secnum' style='min-width:118pt'>26.5.4.2</a> Class template <span class='texttt'>discard_block_engine</span> <a class='abbr_ref'>[rand.adapt.disc]</a></h4><p ><span class='indexparent'><a class='index' id='discard_block_engine'></a></span><span class='indexparent'><a class='index' id='random_number_engine_adaptor,discard_block_engine'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A <span class='texttt'>discard_block_engine</span> random number engine adaptor
+produces random numbers
+selected from those produced by some base engine <span class='math'><span class='mathalpha'>e</span></span>.
+The state<span class='indexparent'><a class='index' id='discard_block_engine,state'></a></span><span class='indexparent'><a class='index' id='state,discard_block_engine'></a></span>
+<span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>
+of a <span class='texttt'>discard_block_engine</span> engine adaptor object <span class='texttt'>x</span>
+consists of the state <span class='texttt'>e</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span> of its base engine <span class='texttt'>e</span>
+and an additional integer <span class='math'><span class='mathalpha'>n</span></span>.
+The size of the state is
+ the size of <span class='math'><span class='mathalpha'>e</span></span>'s state plus <span class='math'>1</span>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >The transition algorithm<span class='indexparent'><a class='index' id='discard_block_engine,transition_algorithm'></a></span><span class='indexparent'><a class='index' id='transition_algorithm,discard_block_engine'></a></span>
+discards all but <span class='math'><span class='mathalpha'>r</span> &gt; 0</span> values
+from each block of <span class='math'><span class='mathalpha'>p</span> ≥ <span class='mathalpha'>r</span></span> values delivered by <span class='math'><span class='mathalpha'>e</span></span>.
+The state transition is performed as follows:
+If <span class='math'><span class='mathalpha'>n</span> ≥ <span class='mathalpha'>r</span></span>,
+ advance the state of <span class='texttt'>e</span> from <span class='texttt'>e</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span> to <span class='texttt'>e</span><span class='math'><sub ><span class='mathalpha'>i</span>+<span class='mathalpha'>p</span>-<span class='mathalpha'>r</span></sub></span>
+ and set <span class='math'><span class='mathalpha'>n</span></span> to <span class='math'>0</span>.
+In any case,
+ then increment <span class='math'><span class='mathalpha'>n</span></span>
+ and advance <span class='texttt'>e</span>'s then-current state <span class='texttt'>e</span><span class='math'><sub ><span class='mathalpha'>j</span></sub></span>
+ to <span class='texttt'>e</span><span class='math'><sub ><span class='mathalpha'>j</span>+1</sub></span>.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The generation algorithm<span class='indexparent'><a class='index' id='discard_block_engine,generation_algorithm'></a></span><span class='indexparent'><a class='index' id='generation_algorithm,discard_block_engine'></a></span>
+yields the value returned by the last invocation of <span class='texttt'>e()</span>
+ while advancing <span class='texttt'>e</span>'s state as described above.</p><pre class='codeblock'>
+template&lt;class Engine, size_t p, size_t r&gt;
+ class discard_block_engine{
+public:
+ <span class='comment'>// types
+</span> typedef typename Engine::result_type result_type;
+
+ <span class='comment'>// engine characteristics
+</span> static constexpr size_t block_size = p;
+ static constexpr size_t used_block = r;
+ static constexpr result_type min() { return Engine::min(); }
+ static constexpr result_type max() { return Engine::max(); }
+
+ <span class='comment'>// constructors and seeding functions
+</span> discard_block_engine();
+ explicit discard_block_engine(const Engine&amp; e);
+ explicit discard_block_engine(Engine&amp;&amp; e);
+ explicit discard_block_engine(result_type s);
+ template&lt;class Sseq&gt; explicit discard_block_engine(Sseq&amp; q);
+ void seed();
+ void seed(result_type s);
+ template&lt;class Sseq&gt; void seed(Sseq&amp; q);
+
+ <span class='comment'>// generating functions
+</span> result_type operator()();
+ void discard(unsigned long long z);
+
+ <span class='comment'>// property functions
+</span> const Engine&amp; base() const noexcept { return e; };
+
+private:
+ Engine e;   <span class='comment'>// <i>exposition only</i>
+</span> int n;      <span class='comment'>// <i>exposition only</i>
+</span>};
+</pre></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >The following relations shall hold:
+  <span class='texttt'>0 &lt; r</span>
+and
+  <span class='texttt'>r &lt;= p</span>.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >The textual representation<span class='indexparent'><a class='index' id='discard_block_engine,textual_representation'></a></span><span class='indexparent'><a class='index' id='textual_representation,discard_block_engine'></a></span>
+consists of
+ the textual representation of <span class='texttt'>e</span>
+followed by
+ the value of <span class='texttt'>n</span>.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >In addition to its behavior
+pursuant to section <a href='rand.req.adapt'>[rand.req.adapt]</a>,
+each constructor<span class='indexparent'><a class='index' id='discard_block_engine,constructor'></a></span>
+that is not a copy constructor
+sets <span class='texttt'>n</span> to <span class='math'>0</span>.</p></div></div></div></body></html>

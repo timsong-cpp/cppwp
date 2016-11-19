@@ -1,0 +1,89 @@
+<!DOCTYPE html><html lang='en'><head><title>[refwrap]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.8</a> Function objects <a class='abbr_ref' href='function.objects#refwrap'>[function.objects]</a></h2><div id='refwrap'><h3 ><a class='secnum' style='min-width:103pt'>20.8.3</a> Class template <span class='texttt'>reference_wrapper</span> <a class='abbr_ref'>[refwrap]</a></h3><p ><span class='indexparent'><a class='index' id='reference_wrapper'></a></span><span class='indexparent'><a class='index' id='function_object,reference_wrapper'></a></span><span class='indexparent'><a class='index' id='unary_function'></a></span><span class='indexparent'><a class='index' id='binary_function'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class T&gt; class reference_wrapper {
+  public :
+    <span class='comment'>// types
+</span>    typedef T type;
+    typedef <i><span class='texttt'>see below</span></i> result_type;               <span class='comment'>// not always defined
+</span>    typedef <i><span class='texttt'>see below</span></i> argument_type;             <span class='comment'>// not always defined
+</span>    typedef <i><span class='texttt'>see below</span></i> first_argument_type;       <span class='comment'>// not always defined
+</span>    typedef <i><span class='texttt'>see below</span></i> second_argument_type;      <span class='comment'>// not always defined
+</span>
+    <span class='comment'>// construct/copy/destroy
+</span>    reference_wrapper(T&amp;) noexcept;
+    reference_wrapper(T&amp;&amp;) = delete;     <span class='comment'>// do not bind to temporary objects
+</span>    reference_wrapper(const reference_wrapper&lt;T&gt;&amp; x) noexcept;
+
+    <span class='comment'>// assignment
+</span>    reference_wrapper&amp; operator=(const reference_wrapper&lt;T&gt;&amp; x) noexcept;
+
+    <span class='comment'>// access
+</span>    operator T&amp; () const noexcept;
+    T&amp; get() const noexcept;
+
+    <span class='comment'>// invocation
+</span>    template &lt;class... ArgTypes&gt;
+    typename result_of&lt;T&amp;(ArgTypes&amp;&amp;...)&gt;::type
+    operator() (ArgTypes&amp;&amp;...) const;
+  };
+}
+</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='texttt'>reference_wrapper&lt;T&gt;</span> is a <span class='texttt'>CopyConstructible</span> and <span class='texttt'>CopyAssignable</span> wrapper
+around a reference to an object or function of type <span class='texttt'>T</span>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='texttt'>reference_wrapper&lt;T&gt;</span> has a weak result type (<a href='func.require'>[func.require]</a>).
+If <span class='texttt'>T</span> is a function type, <span class='texttt'>result_type</span> shall be a synonym for the
+return type of <span class='texttt'>T</span>.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p ><span class='indexparent'><a class='index' id='unary_function'></a></span>The template instantiation <span class='texttt'>reference_wrapper&lt;T&gt;</span> shall
+define a nested type named <span class='texttt'>argument_type</span> as a synonym for <span class='texttt'>T1</span>
+only if the type <span class='texttt'>T</span> is any of the
+following:</p><ul ><li ><p >a function type or a pointer to function type taking one argument of type <span class='texttt'>T1</span></p></li><li ><p >a pointer to member function <span class='texttt'>R T0::f</span> <i>cv</i> (where <i>cv</i> represents the
+member function's cv-qualifiers); the type <span class='texttt'>T1</span> is <i>cv</i> <span class='texttt'>T0*</span></p></li><li ><p >a class type with a member type <span class='texttt'>argument_type</span>; the type <span class='texttt'>T1</span> is
+<span class='texttt'>T::argument_type</span>.
+</p></li></ul><p ><span class='indexparent'><a class='index' id='binary_function'></a></span></p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >The template instantiation <span class='texttt'>reference_wrapper&lt;T&gt;</span> shall
+define two nested types named <span class='texttt'>first_argument_type</span> and <span class='texttt'>second_argument_type</span>
+as synonyms for <span class='texttt'>T1</span> and <span class='texttt'>T2</span>, respectively,
+only if the type
+<span class='texttt'>T</span> is any of the following:</p><ul ><li ><p >a function type or a pointer to function type taking two arguments of types <span class='texttt'>T1</span> and
+<span class='texttt'>T2</span></p></li><li ><p >a pointer to member function <span class='texttt'>R T0::f(T2)</span> <i>cv</i> (where <i>cv</i> represents the
+member function's cv-qualifiers); the type <span class='texttt'>T1</span> is <i>cv</i> <span class='texttt'>T0*</span></p></li><li ><p >a class type with member types <span class='texttt'>first_argument_type</span> and
+<span class='texttt'>second_argument_type</span>;
+the type <span class='texttt'>T1</span> is <span class='texttt'>T::first_argument_type</span>.
+and the type <span class='texttt'>T2</span> is <span class='texttt'>T::second_argument_type</span>.</p></li></ul></div><div id='const'><h4 ><a class='secnum' href='#const' style='min-width:118pt'>20.8.3.1</a> <span class='texttt'>reference_wrapper</span> construct/copy/destroy <a class='abbr_ref' href='refwrap.const'>[refwrap.const]</a></h4><p ><span class='indexparent'><a class='index' id='reference_wrapper,reference_wrapper'></a></span><code class='itemdecl'>
+reference_wrapper(T&amp; t) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='const-1'><div class='marginalizedparent'><a class='marginalized' href='#const-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>reference_wrapper</span> object that stores a
+reference to <span class='texttt'>t</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='reference_wrapper,reference_wrapper'></a></span><code class='itemdecl'>
+reference_wrapper(const reference_wrapper&lt;T&gt;&amp; x) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='const-2'><div class='marginalizedparent'><a class='marginalized' href='#const-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>reference_wrapper</span> object that
+stores a reference to <span class='texttt'>x.get()</span>.
+</p></div></div></div><div id='assign'><h4 ><a class='secnum' href='#assign' style='min-width:118pt'>20.8.3.2</a> <span class='texttt'>reference_wrapper</span> assignment <a class='abbr_ref' href='refwrap.assign'>[refwrap.assign]</a></h4><p ><span class='indexparent'><a class='index' id='operator=,reference_wrapper'></a></span>
+<span class='indexparent'><a class='index' id='reference_wrapper,operator='></a></span>
+<code class='itemdecl'>
+reference_wrapper&amp; operator=(const reference_wrapper&lt;T&gt;&amp; x) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='assign-1'><div class='marginalizedparent'><a class='marginalized' href='#assign-1'>1</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>*this</span> stores a reference to  <span class='texttt'>x.get()</span>.
+</p></div></div></div><div id='access'><h4 ><a class='secnum' href='#access' style='min-width:118pt'>20.8.3.3</a> <span class='texttt'>reference_wrapper</span> access <a class='abbr_ref' href='refwrap.access'>[refwrap.access]</a></h4><p ><span class='indexparent'><a class='index' id='operator_T&,reference_wrapper'></a></span>
+<span class='indexparent'><a class='index' id='reference_wrapper,operator_T&'></a></span>
+<code class='itemdecl'>
+operator T&amp; () const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='access-1'><div class='marginalizedparent'><a class='marginalized' href='#access-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> The stored reference.
+</p></div></div><p ><span class='indexparent'><a class='index' id='reference_wrapper,get'></a></span><span class='indexparent'><a class='index' id='get,reference_wrapper'></a></span><code class='itemdecl'>
+T&amp; get() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='access-2'><div class='marginalizedparent'><a class='marginalized' href='#access-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> The stored reference.
+</p></div></div></div><div id='invoke'><h4 ><a class='secnum' href='#invoke' style='min-width:118pt'>20.8.3.4</a> reference_wrapper invocation <a class='abbr_ref' href='refwrap.invoke'>[refwrap.invoke]</a></h4><p ><span class='indexparent'><a class='index' id='reference_wrapper,operator()'></a></span><span class='indexparent'><a class='index' id='operator(),reference_wrapper'></a></span><code class='itemdecl'>
+template &lt;class... ArgTypes&gt;
+  typename result_of&lt;T&amp;(ArgTypes&amp;&amp;... )&gt;::type
+    operator()(ArgTypes&amp;&amp;... args) const;
+</code></p><div class='itemdescr'></div><div class='para' id='invoke-1'><div class='marginalizedparent'><a class='marginalized' href='#invoke-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'><i>INVOKE</i>(get(), std::forward&lt;ArgTypes&gt;(args)...)</span>. (<a href='func.require'>[func.require]</a>)</p></div></div><div class='para' id='invoke-2'><div class='marginalizedparent'><a class='marginalized' href='#invoke-2'>2</a></div><div class='itemdescr'><p ><i>Remark:</i> <span class='texttt'>operator()</span> is described for exposition only.
+Implementations are not required to provide an actual
+<span class='texttt'>reference_wrapper::operator()</span>.  Implementations are
+permitted to support <span class='texttt'>reference_wrapper</span> function invocation
+through multiple overloaded operators or through other means.</p></div></div></div><div id='helpers'><h4 ><a class='secnum' href='#helpers' style='min-width:118pt'>20.8.3.5</a> reference_wrapper helper functions <a class='abbr_ref' href='refwrap.helpers'>[refwrap.helpers]</a></h4><p ><span class='indexparent'><a class='index' id='reference_wrapper,ref'></a></span><span class='indexparent'><a class='index' id='ref,reference_wrapper'></a></span><code class='itemdecl'>
+template &lt;class T&gt; reference_wrapper&lt;T&gt; ref(T&amp; t) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='helpers-1'><div class='marginalizedparent'><a class='marginalized' href='#helpers-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>reference_wrapper&lt;T&gt;(t)</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='reference_wrapper,ref'></a></span><span class='indexparent'><a class='index' id='ref,reference_wrapper'></a></span><code class='itemdecl'>
+template &lt;class T&gt; reference_wrapper&lt;T&gt; ref(reference_wrapper&lt;T&gt;t) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='helpers-2'><div class='marginalizedparent'><a class='marginalized' href='#helpers-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>ref(t.get())</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='reference_wrapper,cref'></a></span><span class='indexparent'><a class='index' id='cref,reference_wrapper'></a></span><code class='itemdecl'>
+template &lt;class T&gt; reference_wrapper&lt;const T&gt; cref(const T&amp; t) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='helpers-3'><div class='marginalizedparent'><a class='marginalized' href='#helpers-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>reference_wrapper &lt;const T&gt;(t)</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='reference_wrapper,cref'></a></span><span class='indexparent'><a class='index' id='cref,reference_wrapper'></a></span><code class='itemdecl'>
+template &lt;class T&gt; reference_wrapper&lt;const T&gt; cref(reference_wrapper&lt;T&gt; t) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='helpers-4'><div class='marginalizedparent'><a class='marginalized' href='#helpers-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>cref(t.get());</span>
+</p></div></div></div></div></div></body></html>

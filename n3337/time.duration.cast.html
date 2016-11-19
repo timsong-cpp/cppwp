@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang='en'><head><title>[time.duration.cast]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.11</a> Time utilities <a class='abbr_ref' href='time#duration.cast'>[time]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>20.11.5</a> Class template <span class='texttt'>duration</span> <a class='abbr_ref' href='time.duration#cast'>[time.duration]</a></h3><div id='time.duration.cast'><h4 ><a class='secnum' style='min-width:118pt'>20.11.5.7</a> <span class='texttt'>duration_cast</span> <a class='abbr_ref'>[time.duration.cast]</a></h4><p ><span class='indexparent'><a class='index' id='duration_cast'></a></span><code class='itemdecl'>
+template &lt;class ToDuration, class Rep, class Period&gt;
+  constexpr ToDuration duration_cast(const duration&lt;Rep, Period&gt;&amp; d);
+</code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p ><i>Remarks:</i> This function shall not participate in overload
+resolution unless <span class='texttt'>ToDuration</span> is an instantiation of <span class='texttt'>duration</span>.</p></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> Let <span class='texttt'>CF</span> be <span class='texttt'>ratio_divide&lt;Period, typename
+ToDuration::period&gt;</span>, and <span class='texttt'>CR</span> be <span class='texttt'>common_type&lt;</span> <span class='texttt'>typename
+ToDuration::rep, Rep, intmax_t&gt;::type.</span>
+</p><ul ><li ><p >If <span class='texttt'>CF::num == 1</span> and <span class='texttt'>CF::den == 1</span>, returns
+</p><pre class='codeblock'>
+ToDuration(static_cast&lt;typename ToDuration::rep&gt;(d.count()))
+</pre></li><li ><p >otherwise, if <span class='texttt'>CF::num != 1</span> and <span class='texttt'>CF::den == 1</span>, returns
+</p><pre class='codeblock'>
+ToDuration(static_cast&lt;typename ToDuration::rep&gt;(
+  static_cast&lt;CR&gt;(d.count()) * static_cast&lt;CR&gt;(CF::num)))
+</pre></li><li ><p >otherwise, if <span class='texttt'>CF::num == 1</span> and <span class='texttt'>CF::den != 1</span>, returns
+</p><pre class='codeblock'>
+ToDuration(static_cast&lt;typename ToDuration::rep&gt;(
+  static_cast&lt;CR&gt;(d.count()) / static_cast&lt;CR&gt;(CF::den)))
+</pre></li><li ><p >otherwise, returns
+</p><pre class='codeblock'>
+ToDuration(static_cast&lt;typename ToDuration::rep&gt;(
+  static_cast&lt;CR&gt;(d.count()) * static_cast&lt;CR&gt;(CF::num) / static_cast&lt;CR&gt;(CF::den)))
+</pre></li></ul><p ><i>Notes:</i> This function does not use any implicit conversions; all conversions
+are done with <span class='texttt'>static_cast</span>. It avoids multiplications and divisions when
+it is known at compile time that one or more arguments is 1. Intermediate
+computations are carried out in the widest representation and only converted to
+the destination representation at the final step.
+</p></div></div></div></div></body></html>

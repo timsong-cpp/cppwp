@@ -1,0 +1,128 @@
+<!DOCTYPE html><html lang='en'><head><title>[cpp.cond]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>16</a> Preprocessing directives <a class='abbr_ref' href='./#cpp'>[cpp]</a></h1><div id='cpp.cond'><h2 ><a class='secnum' style='min-width:88pt'>16.1</a> Conditional inclusion <a class='abbr_ref'>[cpp.cond]</a></h2><p ><span class='indexparent'><a class='index' id='preprocessing_directive,conditional_inclusion'></a></span><span class='indexparent'><a class='index' id='inclusion,conditional'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The expression that controls conditional inclusion
+shall be an integral constant expression except that
+identifiers
+(including those lexically identical to keywords)
+are interpreted as described below<a class='footnotenum' href='#footnote-147'>147</a>
+and it may contain unary operator expressions of the form</p><pre class='bnf'><span class='terminal'>defined</span> <i ><a href='lex.name#nt:identifier'>identifier</a></i></pre><p >or</p><pre class='bnf'><span class='terminal'>defined (</span> <i ><a href='lex.name#nt:identifier'>identifier</a></i> <span class='terminal'>)</span></pre><p >which evaluate to
+<span class='texttt'>1</span>
+if the identifier is currently defined
+as a macro name
+(that is, if it is predefined
+or if it has been the subject of a
+<span class='texttt'>#define</span>
+preprocessing directive
+without an intervening
+<span class='texttt'>#undef</span>
+directive with the same subject identifier), <span class='texttt'>0</span> if it is not.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Each preprocessing token that remains (in the list of preprocessing tokens that
+will become the controlling expression)
+after all macro replacements have occurred
+shall be in the lexical form of a token (<a href='lex.token'>[lex.token]</a>).</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >Preprocessing directives of the forms</p><pre class='bnf'><span class='indexparent'><a class='index' id='#if'></a></span><span class='terminal'># if</span>&#9;&#9;<i ><a href='expr.const#nt:constant-expression'>constant-expression</a></i> <i ><a href='cpp#nt:new-line'>new-line</a></i> <i ><a href='cpp#nt:group'>group</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span>
+<span class='indexparent'><a class='index' id='#elif'></a></span><span class='terminal'># elif</span>&#9;&#9;<i ><a href='expr.const#nt:constant-expression'>constant-expression</a></i> <i ><a href='cpp#nt:new-line'>new-line</a></i> <i ><a href='cpp#nt:group'>group</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span></pre><p >check whether the controlling constant expression evaluates to nonzero.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Prior to evaluation,
+macro invocations in the list of preprocessing tokens
+that will become the controlling constant expression
+are replaced
+(except for those macro names modified by the
+<span class='texttt'>defined</span>
+unary operator),
+just as in normal text.
+If the token
+<span class='texttt'>defined</span>
+is generated as a result of this replacement process
+or use of the
+<span class='texttt'>defined</span>
+unary operator does not match one of the two specified forms
+prior to macro replacement,
+the behavior is undefined.
+After all replacements due to macro expansion and the
+<span class='texttt'>defined</span>
+unary operator have been performed,
+all remaining identifiers and keywords<a class='footnotenum' href='#footnote-148'>148</a>,
+except for
+<span class='texttt'>true</span>
+and
+<span class='texttt'>false</span>,
+are replaced with the pp-number
+<span class='texttt'>0</span>,
+and then each preprocessing token is converted into a token.
+The resulting tokens comprise the controlling constant expression
+which is evaluated according to the rules of <a href='expr.const'>[expr.const]</a>
+using arithmetic that has at least the ranges specified
+in <a href='support.limits'>[support.limits]</a>. For the purposes of this token conversion and evaluation
+all signed and unsigned integer types
+act as if they have the same representation as, respectively,
+<span class='texttt'>intmax_t</span> or <span class='texttt'>uintmax_t</span> (<a href='cstdint'>[cstdint]</a>).<a class='footnotenum' href='#footnote-149'>149</a>
+This includes interpreting character literals, which may involve
+converting escape sequences into execution character set members.
+Whether the numeric value for these character literals
+matches the value obtained when an identical character literal
+occurs in an expression
+(other than within a
+<span class='texttt'>#if</span>
+or
+<span class='texttt'>#elif</span>
+directive)
+is <span class='indexparent'><a class='index' id='numeric_values_of_character_literals_in_#if_directives'></a></span>implementation-defined.<a class='footnotenum' href='#footnote-150'>150</a>
+Also, whether a single-character character literal may have a negative
+value is <span class='indexparent'><a class='index' id='negative_value_of_character_literal_in_preprocessor'></a></span>implementation-defined.
+Each subexpression with type
+<span class='texttt'>bool</span>
+is subjected to integral promotion before processing continues.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >Preprocessing directives of the forms</p><pre class='bnf'><span class='terminal'># ifdef</span>&#9;&#9;<i ><a href='lex.name#nt:identifier'>identifier</a></i> <i ><a href='cpp#nt:new-line'>new-line</a></i> <i ><a href='cpp#nt:group'>group</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span>
+<span class='indexparent'><a class='index' id='#ifdef'></a></span><span class='terminal'># ifndef</span>&#9;&#9;<i ><a href='lex.name#nt:identifier'>identifier</a></i> <i ><a href='cpp#nt:new-line'>new-line</a></i> <i ><a href='cpp#nt:group'>group</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span>
+<span class='indexparent'><a class='index' id='#ifndef'></a></span></pre><p >check whether the identifier is or is not currently defined as a macro name.
+Their conditions are equivalent to
+<span class='texttt'>#if</span>
+<span class='texttt'>defined</span>
+<a class='hidden_link' href='#def:identifier' id='def:identifier'><i>identifier</i></a>
+and
+<span class='texttt'>#if</span>
+<span class='texttt'>!defined</span>
+<a class='hidden_link' href='#def:identifier' id='def:identifier'><i>identifier</i></a>
+respectively.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >Each directive's condition is checked in order.
+If it evaluates to false (zero),
+the group that it controls is skipped:
+directives are processed only through the name that determines
+the directive in order to keep track of the level
+of nested conditionals;
+the rest of the directives' preprocessing tokens are ignored,
+as are the other preprocessing tokens in the group.
+Only the first group
+whose control condition evaluates to true (nonzero) is processed.
+If none of the conditions evaluates to true,
+and there is a
+<span class='texttt'>#else</span>
+<span class='indexparent'><a class='index' id='#else'></a></span>directive,
+the group controlled by the
+<span class='texttt'>#else</span>
+is processed; lacking a
+<span class='texttt'>#else</span>
+directive, all the groups until the
+<span class='texttt'>#endif</span>
+<span class='indexparent'><a class='index' id='#endif'></a></span>are skipped.<a class='footnotenum' href='#footnote-151'>151</a></p></div><div class='footnote' id='footnote-147'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-147'>147)</a></div><p >Because the controlling constant expression is evaluated
+during translation phase 4,
+all identifiers either are or are not macro names —
+there simply are no keywords, enumeration constants, etc.</p></div><div class='footnote' id='footnote-148'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-148'>148)</a></div><p >An alternative
+token (<a href='lex.digraph'>[lex.digraph]</a>) is not an identifier,
+even when its spelling consists entirely of letters and underscores.
+Therefore it is not subject to this replacement.</p></div><div class='footnote' id='footnote-149'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-149'>149)</a></div><p >Thus on an
+implementation where <span class='texttt'>std::numeric_limits&lt;int&gt;::max()</span> is <span class='texttt'>0x7FFF</span>
+and <span class='texttt'>std::numeric_limits&lt;unsigned int&gt;::max()</span> is <span class='texttt'>0xFFFF</span>,
+the integer literal <span class='texttt'>0x8000</span> is signed and positive within a <span class='texttt'>#if</span>
+expression even though it is unsigned in translation phase
+7 (<a href='lex.phases'>[lex.phases]</a>).</p></div><div class='footnote' id='footnote-150'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-150'>150)</a></div><p >Thus, the constant expression in the following
+<span class='texttt'>#if</span>
+directive and
+<span class='texttt'>if</span>
+statement is not guaranteed to evaluate to the same value in these two
+contexts.
+</p><pre >
+<span class='='></span><span class='kill'></span>&#9;<span class='texttt'>#if 'z' - 'a' == 25</span>
+&#9;<span class='texttt'>if ('z' - 'a' == 25)</span>
+</pre></div><div class='footnote' id='footnote-151'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-151'>151)</a></div><p >As indicated by the syntax,
+a preprocessing token shall not follow a
+<span class='texttt'>#else</span>
+or
+<span class='texttt'>#endif</span>
+directive before the terminating new-line character.
+However,
+comments may appear anywhere in a source file,
+including within a preprocessing directive.</p></div></div></div></body></html>

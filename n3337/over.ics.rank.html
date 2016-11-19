@@ -1,0 +1,271 @@
+<!DOCTYPE html><html lang='en'><head><title>[over.ics.rank]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>13</a> Overloading <a class='abbr_ref' href='./#over'>[over]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>13.3</a> Overload resolution <a class='abbr_ref' href='over.match#over.ics.rank'>[over.match]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>13.3.3</a> Best viable function <a class='abbr_ref' href='over.match.best#over.ics.rank'>[over.match.best]</a></h3><div id='over.ics.rank'><h4 ><a class='secnum' style='min-width:118pt'>13.3.3.2</a> Ranking implicit conversion sequences <a class='abbr_ref'>[over.ics.rank]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><a href='over.ics.rank'>[over.ics.rank]</a> defines a partial ordering of implicit conversion
+sequences based on the relationships
+<a class='hidden_link' href='#def:better_conversion_sequence' id='def:better_conversion_sequence'><i>better conversion sequence</i></a>
+and
+<a class='hidden_link' href='#def:better_conversion' id='def:better_conversion'><i>better conversion</i></a>.
+If an implicit conversion sequence S1 is
+defined by these rules to be a better conversion sequence than
+S2, then it is also the case that S2 is a
+<a class='hidden_link' href='#def:worse_conversion_sequence' id='def:worse_conversion_sequence'><i>worse conversion sequence</i></a>
+than S1.
+If conversion sequence S1 is neither better
+than nor worse than conversion sequence S2, S1 and S2 are said to
+be
+<a class='hidden_link' href='#def:indistinguishable_conversion_sequences' id='def:indistinguishable_conversion_sequences'><i>indistinguishable conversion sequences</i></a>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >When comparing the basic forms of implicit conversion sequences
+(as defined in <a href='over.best.ics'>[over.best.ics]</a>)</p><ul ><li ><p >a standard conversion sequence (<a href='over.ics.scs'>[over.ics.scs]</a>) is a better
+conversion sequence than a user-defined conversion sequence
+or an ellipsis conversion sequence, and
+</p></li><li ><p >a user-defined conversion sequence (<a href='over.ics.user'>[over.ics.user]</a>) is a
+better conversion sequence than an ellipsis conversion
+sequence (<a href='over.ics.ellipsis'>[over.ics.ellipsis]</a>).
+</p></li></ul></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >Two implicit conversion sequences of the same form are
+indistinguishable conversion sequences unless one of the
+following rules applies:</p><ul ><li ><p >Standard conversion sequence
+<span class='texttt'>S1</span>
+is a better conversion
+sequence than standard conversion sequence
+<span class='texttt'>S2</span>
+if</p><ul ><li ><p ><span class='indexparent'><a class='index' id='subsequence_rule,overloading'></a></span><span class='texttt'>S1</span>
+is a proper subsequence of
+<span class='texttt'>S2</span>
+(comparing the conversion sequences in the canonical form defined
+by <a href='over.ics.scs'>[over.ics.scs]</a>, excluding any Lvalue Transformation;
+the identity conversion sequence is considered to be a
+subsequence of any non-identity conversion sequence)
+or, if not that,
+</p></li><li ><p >the rank of
+<span class='texttt'>S1</span>
+is better than the rank of
+<span class='texttt'>S2</span>,
+or
+<span class='texttt'>S1</span>
+and
+<span class='texttt'>S2</span>
+have the same rank and are distinguishable by the rules
+in the paragraph below,
+or, if not that,
+</p></li><li ><p ><span class='texttt'>S1</span>
+and
+<span class='texttt'>S2</span>
+differ only in their qualification conversion and yield similar types
+<span class='texttt'>T1</span>
+and
+<span class='texttt'>T2</span> (<a href='conv.qual'>[conv.qual]</a>), respectively, and the cv-qualification signature of type
+<span class='texttt'>T1</span>
+is a proper subset of the cv-qualification signature of type
+<span class='texttt'>T2</span>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+int f(const int *);
+int f(int *);
+int i;
+int j = f(&amp;i);                  <span class='comment'>// calls <span class='texttt'>f(int*)</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+or, if not that,</p></li><li ><p ><span class='texttt'>S1</span> and <span class='texttt'>S2</span> are reference bindings (<a href='dcl.init.ref'>[dcl.init.ref]</a>) and
+neither refers to an implicit object parameter of a non-static member function
+declared without a <i ><a href='dcl.decl#nt:ref-qualifier'>ref-qualifier</a></i>,
+and <span class='texttt'>S1</span> binds an rvalue reference to an
+rvalue and <span class='texttt'>S2</span> binds an lvalue reference.</p><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+int i;
+int f1();
+int&amp;&amp; f2();
+int g(const int&amp;);
+int g(const int&amp;&amp;);
+int j = g(i);                   <span class='comment'>// calls <span class='texttt'>g(const int&amp;)</span>
+</span>int k = g(f1());                <span class='comment'>// calls <span class='texttt'>g(const int&amp;&amp;)</span>
+</span>int l = g(f2());                <span class='comment'>// calls <span class='texttt'>g(const int&amp;&amp;)</span>
+</span>
+struct A {
+  A&amp; operator&lt;&lt;(int);
+  void p() &amp;;
+  void p() &amp;&amp;;
+};
+A&amp; operator&lt;&lt;(A&amp;&amp;, char);
+A() &lt;&lt; 1;                       <span class='comment'>// calls <span class='texttt'>A::operator&lt;&lt;(int)</span>
+</span>A() &lt;&lt; 'c';                     <span class='comment'>// calls <span class='texttt'>operator&lt;&lt;(A&amp;&amp;, char)</span>
+</span>A a;
+a &lt;&lt; 1;                         <span class='comment'>// calls <span class='texttt'>A::operator&lt;&lt;(int)</span>
+</span>a &lt;&lt; 'c';                       <span class='comment'>// calls <span class='texttt'>A::operator&lt;&lt;(int)</span>
+</span>A().p();                        <span class='comment'>// calls <span class='texttt'>A::p()&amp;&amp;</span>
+</span>a.p();                          <span class='comment'>// calls <span class='texttt'>A::p()&amp;</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+or, if not that,</p></li><li ><p ><span class='texttt'>S1</span> and <span class='texttt'>S2</span> are reference bindings (<a href='dcl.init.ref'>[dcl.init.ref]</a>) and
+<span class='texttt'>S1</span> binds an lvalue reference to a function lvalue and <span class='texttt'>S2</span> binds
+an rvalue reference to a function lvalue. [&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;class T&gt; int f(T&amp;);
+template&lt;class T&gt; int f(T&amp;&amp;);
+void g();
+int i1 = f(g);                  <span class='comment'>// calls <span class='texttt'>f(T&amp;)</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></li><li ><p ><span class='texttt'>S1</span>
+and
+<span class='texttt'>S2</span>
+are reference bindings (<a href='dcl.init.ref'>[dcl.init.ref]</a>), and the types to which the references
+refer are the same type except for top-level cv-qualifiers, and the type to
+which the reference initialized by
+<span class='texttt'>S2</span>
+refers is more cv-qualified than the type to which the reference initialized by
+<span class='texttt'>S1</span>
+refers.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+int f(const int &amp;);
+int f(int &amp;);
+int g(const int &amp;);
+int g(int);
+
+int i;
+int j = f(i);                   <span class='comment'>// calls <span class='texttt'>f(int &amp;)</span>
+</span>int k = g(i);                   <span class='comment'>// ambiguous
+</span>
+struct X {
+  void f() const;
+  void f();
+};
+void g(const X&amp; a, X b) {
+  a.f();                        <span class='comment'>// calls <span class='texttt'>X::f() const</span>
+</span>  b.f();                        <span class='comment'>// calls <span class='texttt'>X::f()</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></li></ul></li><li ><p >User-defined conversion sequence
+<span class='texttt'>U1</span>
+is a better conversion
+sequence than another user-defined conversion sequence
+<span class='texttt'>U2</span>
+if they contain the same user-defined conversion function or constructor
+or aggregate initialization
+and
+the second standard conversion sequence of
+<span class='texttt'>U1</span>
+is better than
+the second standard conversion sequence of
+<span class='texttt'>U2</span>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct A {
+  operator short();
+} a;
+int f(int);
+int f(float);
+int i = f(a);                   <span class='comment'>// calls <span class='texttt'>f(int)</span>, because <span class='texttt'>short</span> <span class='math'>→</span> <span class='texttt'>int</span> is
+</span>                                <span class='comment'>// better than <span class='texttt'>short</span> <span class='math'>→</span> <span class='texttt'>float</span>.
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></li><li ><p >List-initialization sequence <span class='texttt'>L1</span> is a better conversion sequence than
+list-initialization sequence <span class='texttt'>L2</span> if <span class='texttt'>L1</span> converts to
+<span class='texttt'>std::initializer_list&lt;X&gt;</span> for some <span class='texttt'>X</span> and <span class='texttt'>L2</span> does not.</p></li></ul></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Standard conversion sequences are ordered by their ranks: an Exact Match is a
+better conversion than a Promotion, which is a better conversion than
+a Conversion.
+Two conversion sequences with the same rank are indistinguishable unless
+one of the following rules applies:</p><ul ><li ><p >A conversion that does not convert a pointer,
+a pointer to member, or <span class='texttt'>std::nullptr_t</span>
+to
+<span class='texttt'>bool</span>
+is better than one that does.
+</p></li><li ><p >If class
+<span class='texttt'>B</span>
+is derived directly or indirectly from class
+<span class='texttt'>A</span>,
+conversion of
+<span class='texttt'>B*</span>
+to
+<span class='texttt'>A*</span>
+is better than conversion of
+<span class='texttt'>B*</span>
+to
+<span class='texttt'>void*</span>,
+and conversion of
+<span class='texttt'>A*</span>
+to
+<span class='texttt'>void*</span>
+is better than conversion
+of
+<span class='texttt'>B*</span>
+to
+<span class='texttt'>void*</span>.
+</p></li><li ><p >If class
+<span class='texttt'>B</span>
+is derived directly or indirectly from class
+<span class='texttt'>A</span>
+and class
+<span class='texttt'>C</span>
+is derived directly or indirectly from
+<span class='texttt'>B</span>,</p><ul ><li ><p >conversion of
+<span class='texttt'>C*</span>
+to
+<span class='texttt'>B*</span>
+is better than conversion of
+<span class='texttt'>C*</span>
+to
+<span class='texttt'>A*</span>,
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct A {};
+struct B : public A {};
+struct C : public B {};
+C *pc;
+int f(A *);
+int f(B *);
+int i = f(pc);                  <span class='comment'>// calls <span class='texttt'>f(B*)</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></li><li ><p >binding of an expression of type
+<span class='texttt'>C</span>
+to a reference of type
+<span class='texttt'>B&amp;</span>
+is better than binding an expression of type
+<span class='texttt'>C</span>
+to a reference of type
+<span class='texttt'>A&amp;</span>,
+</p></li><li ><p >conversion of
+<span class='texttt'>A::*</span>
+to
+<span class='texttt'>B::*</span>
+is better than conversion of
+<span class='texttt'>A::*</span>
+to
+<span class='texttt'>C::*</span>,
+</p></li><li ><p >conversion of
+<span class='texttt'>C</span>
+to
+<span class='texttt'>B</span>
+is better than conversion of
+<span class='texttt'>C</span>
+to
+<span class='texttt'>A</span>,
+</p></li><li ><p >conversion of
+<span class='texttt'>B*</span>
+to
+<span class='texttt'>A*</span>
+is better than conversion of
+<span class='texttt'>C*</span>
+to
+<span class='texttt'>A*</span>,
+</p></li><li ><p >binding of an expression of type
+<span class='texttt'>B</span>
+to a reference of type
+<span class='texttt'>A&amp;</span>
+is better than binding an expression of type
+<span class='texttt'>C</span>
+to a
+reference of type
+<span class='texttt'>A&amp;</span>,
+</p></li><li ><p >conversion of
+<span class='texttt'>B::*</span>
+to
+<span class='texttt'>C::*</span>
+is better than conversion
+of
+<span class='texttt'>A::*</span>
+to
+<span class='texttt'>C::*</span>,
+and
+</p></li><li ><p >conversion of
+<span class='texttt'>B</span>
+to
+<span class='texttt'>A</span>
+is better than conversion of
+<span class='texttt'>C</span>
+to
+<span class='texttt'>A</span>.
+</p></li></ul><p >[&nbsp;<i>Note:</i>
+Compared conversion sequences will have different source types only in the
+context of comparing the second standard conversion sequence of an
+initialization by user-defined conversion (see <a href='over.match.best'>[over.match.best]</a>); in
+all other contexts, the source types will be the same and the target
+types will be different.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></li></ul><p ><span class='indexparent'><a class='index' id='overloading,resolution,implicit_conversions_and'></a></span><span class='indexparent'><a class='index' id='overloading,resolution'></a></span></p></div></div></div></body></html>

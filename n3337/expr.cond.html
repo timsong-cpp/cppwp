@@ -1,0 +1,92 @@
+<!DOCTYPE html><html lang='en'><head><title>[expr.cond]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>5</a> Expressions <a class='abbr_ref' href='./#expr'>[expr]</a></h1><div id='expr.cond'><h2 ><a class='secnum' style='min-width:88pt'>5.16</a> Conditional operator <a class='abbr_ref'>[expr.cond]</a></h2><p ><span class='indexparent'><a class='index' id='expression,conditional_operator'></a></span><span class='indexparent'><a class='index' id='operator,conditional_expression'></a></span><span class='indexparent'><a class='index' id='?:'></a></span>
+</p><pre class='bnf'><a id='nt:conditional-expression'>conditional-expression:</a>
+    <i ><a href='expr.log.or#nt:logical-or-expression'>logical-or-expression</a></i>
+    <i ><a href='expr.log.or#nt:logical-or-expression'>logical-or-expression</a></i> <span class='terminal'>?</span> <i ><a href='expr.comma#nt:expression'>expression</a></i> <span class='terminal'>:</span> <i ><a href='expr.ass#nt:assignment-expression'>assignment-expression</a></i></pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Conditional expressions group right-to-left. The first expression is
+contextually converted to <span class='texttt'>bool</span>
+(Clause <a href='conv'>[conv]</a>). It is
+evaluated and if it is <span class='texttt'>true</span>, the result of the conditional
+expression is the value of the second expression, otherwise that of the
+third expression. Only one of the second and third expressions is
+evaluated. Every
+<span class='indexparent'><a class='index' id='value_computation'></a></span>value computation and side effect associated with the
+first expression is sequenced before every value computation and side
+effect associated with the second or third expression.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >If either the second or the third operand has type <span class='texttt'>void</span>,
+then the lvalue-to-rvalue (<a href='conv.lval'>[conv.lval]</a>),
+array-to-pointer (<a href='conv.array'>[conv.array]</a>), and
+function-to-pointer (<a href='conv.func'>[conv.func]</a>) standard conversions are performed
+on the second and third operands, and one of the following shall hold:</p><ul ><li ><p ><span class='indexparent'><a class='index' id='conditional-expression,throw-expression_in'></a></span></p><p >The second or the third operand (but not both) is a
+<i ><a href='except#nt:throw-expression'>throw-expression</a></i> (<a href='except.throw'>[except.throw]</a>); the result is of the
+type of the other and is a prvalue.</p></li><li ><p >Both the second and the third operands have type <span class='texttt'>void</span>; the
+result is of type <span class='texttt'>void</span> and is a prvalue. [&nbsp;<i>Note:</i> This
+includes the case where both operands are <i ><a href='except#nt:throw-expression'>throw-expressions</a></i>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></li></ul></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >Otherwise, if the second and third operand have different types and
+either has (possibly cv-qualified) class type, or if both
+are glvalues of the same value category and the same type except for
+cv-qualification, an attempt is made to
+convert each of those operands to the type of the other. The process for
+determining whether an operand expression <span class='texttt'>E1</span> of type <span class='texttt'>T1</span>
+can be converted to match an operand expression <span class='texttt'>E2</span> of type
+<span class='texttt'>T2</span> is defined as follows:</p><ul ><li ><p >If <span class='texttt'>E2</span> is an lvalue: <span class='texttt'>E1</span> can be converted to match
+<span class='texttt'>E2</span> if <span class='texttt'>E1</span> can be implicitly converted (Clause <a href='conv'>[conv]</a>)
+to the type “lvalue reference to <span class='texttt'>T2</span>”, subject to the
+constraint that in the conversion the reference must bind
+directly (<a href='dcl.init.ref'>[dcl.init.ref]</a>) to an lvalue.</p></li><li ><p >If <span class='texttt'>E2</span> is an xvalue: <span class='texttt'>E1</span> can be converted to match <span class='texttt'>E2</span>
+if <span class='texttt'>E1</span> can be implicitly converted to the type “rvalue reference to <span class='texttt'>T2</span>”,
+subject to the constraint that the reference must bind directly.</p></li><li ><p >If <span class='texttt'>E2</span> is an rvalue or if neither of the conversions above can be
+done and at least one of the operands has (possibly cv-qualified) class type:</p><ul ><li ><p >if <span class='texttt'>E1</span> and <span class='texttt'>E2</span> have class type, and the underlying
+class types are the same or one is a base class of the other: <span class='texttt'>E1</span>
+can be converted to match <span class='texttt'>E2</span> if the class of <span class='texttt'>T2</span> is the
+same type as, or a base class of, the class of <span class='texttt'>T1</span>, and the
+cv-qualification of <span class='texttt'>T2</span> is the same cv-qualification as, or a
+greater cv-qualification than, the cv-qualification of <span class='texttt'>T1</span>. If
+the conversion is applied, <span class='texttt'>E1</span> is changed to a prvalue of type
+<span class='texttt'>T2</span> by copy-initializing a temporary of type <span class='texttt'>T2</span> from
+<span class='texttt'>E1</span> and using that temporary as the converted operand.</p></li><li ><p >Otherwise (i.e., if <span class='texttt'>E1</span> or <span class='texttt'>E2</span> has a nonclass type,
+or if they both have class types but the underlying classes are not
+either the same or one a base class of the other): <span class='texttt'>E1</span> can be
+converted to match <span class='texttt'>E2</span> if <span class='texttt'>E1</span> can be implicitly converted
+to the type that expression <span class='texttt'>E2</span> would have if <span class='texttt'>E2</span> were
+converted to a prvalue (or the type it has,
+if <span class='texttt'>E2</span> is a prvalue).
+</p></li></ul><p >Using this process, it is determined whether the second operand can be
+converted to match the third operand, and whether the third operand can
+be converted to match the second operand. If both can be converted, or
+one can be converted but the conversion is ambiguous, the program is
+ill-formed. If neither can be converted, the operands are left unchanged
+and further checking is performed as described below. If exactly one
+conversion is possible, that conversion is applied to the chosen operand
+and the converted operand is used in place of the original operand for
+the remainder of this section.
+</p></li></ul></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >If the second and third operands are glvalues of the same value category
+and have the same type, the
+result is of that type and value category and it is a bit-field if the
+second or the third operand is a bit-field, or if both are bit-fields.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >Otherwise, the result is a prvalue. If the second and third operands do
+not have the same type, and either has (possibly cv-qualified) class
+type, overload resolution is used to determine the conversions (if any)
+to be applied to the operands (<a href='over.match.oper'>[over.match.oper]</a>, <a href='over.built'>[over.built]</a>).
+If the overload resolution fails, the program is ill-formed. Otherwise,
+the conversions thus determined are applied, and the converted operands
+are used in place of the original operands for the remainder of this
+section.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >Lvalue-to-rvalue (<a href='conv.lval'>[conv.lval]</a>), array-to-pointer (<a href='conv.array'>[conv.array]</a>),
+and function-to-pointer (<a href='conv.func'>[conv.func]</a>) standard conversions are
+performed on the second and third operands. After those conversions, one
+of the following shall hold:</p><ul ><li ><p >The second and third operands have the same type; the result is of
+that type. If the operands have class type, the result is a prvalue
+temporary of the result type, which is copy-initialized from either the
+second operand or the third operand depending on the value of the first
+operand.</p></li><li ><p >The second and third operands have arithmetic or enumeration type;
+the usual arithmetic conversions are performed to bring them to a common
+type, and the result is of that type.</p></li><li ><p >The second and third operands have pointer type, or one has
+pointer type and the other is a null pointer constant, or both are
+null pointer constants, at least one of which is non-integral; pointer
+conversions (<a href='conv.ptr'>[conv.ptr]</a>) and qualification
+conversions (<a href='conv.qual'>[conv.qual]</a>) are performed to bring them to their
+composite pointer type (<a href='expr.rel'>[expr.rel]</a>). The result is of the composite
+pointer type.</p></li><li ><p >The second and third operands have pointer to member type, or one
+has pointer to member type and the other is a null pointer constant;
+pointer to member conversions (<a href='conv.mem'>[conv.mem]</a>) and qualification
+conversions (<a href='conv.qual'>[conv.qual]</a>) are performed to bring them to a common
+type, whose cv-qualification shall match the cv-qualification of either
+the second or the third operand. The result is of the common type.
+</p></li></ul></div></div></div></body></html>

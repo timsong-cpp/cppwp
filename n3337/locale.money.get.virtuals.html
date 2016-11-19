@@ -1,0 +1,153 @@
+<!DOCTYPE html><html lang='en'><head><title>[locale.money.get.virtuals]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>22</a> Localization library <a class='abbr_ref' href='./#localization'>[localization]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>22.4</a> Standard <span class='texttt'>locale</span> categories <a class='abbr_ref' href='locale.categories#locale.money.get.virtuals'>[locale.categories]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>22.4.6</a> The monetary category <a class='abbr_ref' href='category.monetary#locale.money.get.virtuals'>[category.monetary]</a></h3><h4 ><a class='secnum' style='min-width:118pt'>22.4.6.1</a> Class template <span class='texttt'>money_get</span> <a class='abbr_ref' href='locale.money.get#virtuals'>[locale.money.get]</a></h4><div id='locale.money.get.virtuals'><h4 ><a class='secnum' style='min-width:133pt'>22.4.6.1.2</a> <span class='texttt'>money_get</span> virtual functions <a class='abbr_ref'>[locale.money.get.virtuals]</a></h4><p ><span class='indexparent'><a class='index' id='money_get,do_get'></a></span><span class='indexparent'><a class='index' id='do_get,money_get'></a></span><code class='itemdecl'>
+iter_type do_get(iter_type s, iter_type end, bool intl,
+                 ios_base&amp; str, ios_base::iostate&amp; err,
+                 long double&amp; units) const;
+iter_type do_get(iter_type s, iter_type end, bool intl,
+                 ios_base&amp; str, ios_base::iostate&amp; err,
+                 string_type&amp; digits) const;
+</code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Reads characters from
+<span class='texttt'>s</span>
+to parse and construct a monetary value according to the
+format specified by a
+<span class='texttt'>moneypunct&lt;charT,Intl&gt;</span>
+facet reference
+<span class='texttt'>mp</span>
+and the character mapping specified by a
+<span class='texttt'>ctype&lt;charT&gt;</span>
+facet reference
+<span class='texttt'>ct</span>
+obtained from the locale returned by
+<span class='texttt'>str.getloc()</span>,
+and
+<span class='texttt'>str.flags()</span>.
+If a valid sequence is recognized,
+does not change <span class='texttt'>err</span>;
+otherwise, sets <span class='texttt'>err</span> to
+<span class='texttt'>(err|str.failbit)</span>,
+or
+<span class='texttt'>(err|str.failbit|str.eofbit)</span>
+if no more characters are available,
+and does not change <span class='texttt'>units</span> or <span class='texttt'>digits</span>.
+Uses the pattern returned by
+<span class='texttt'>mp.neg_format()</span>
+to parse all values.
+The result is returned as an integral value stored in
+<span class='texttt'>units</span>
+or as a sequence of digits possibly preceded by a minus sign
+(as produced by
+<span class='texttt'>ct.widen(c)</span>
+where
+<span class='texttt'>c</span>
+is
+<span class='texttt'>'-'</span>
+or in the range from
+<span class='texttt'>'0'</span>
+through
+<span class='texttt'>'9'</span>,
+inclusive)
+stored in
+<span class='texttt'>digits</span>.
+[&nbsp;<i>Example:</i>
+The sequence
+<span class='texttt'>&#36;1,056.23</span>
+in a common United States locale would yield, for
+<span class='texttt'>units</span>,
+<span class='texttt'>105623</span>,
+or, for
+<span class='texttt'>digits</span>,
+<span class='texttt'>"105623"</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]
+If
+<span class='texttt'>mp.grouping()</span>
+indicates that no thousands separators are permitted,
+any such characters are not read, and parsing is terminated at the point
+where they first appear.
+Otherwise, thousands separators are optional;
+if present, they are checked for correct placement only after
+all format components have been read.</p></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p >Where
+<span class='texttt'>money_base::space</span>
+or
+<span class='texttt'>money_base::none</span>
+appears as the last element in the format pattern,
+no white space is consumed. Otherwise, where <span class='texttt'>money_base::space</span> appears in any of the
+initial elements of the format pattern, at least one white space character is required. Where
+<span class='texttt'>money_base::none</span> appears in any of the initial elements of the format pattern, white
+space is allowed but not required.
+If
+<span class='texttt'>(str.flags() &amp; str.showbase)</span>
+is false, the currency symbol is optional and is consumed only if
+other characters are needed to complete the format;
+otherwise, the currency symbol is required.</p></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p >If the first character (if any) in the string
+<span class='texttt'>pos</span>
+returned by
+<span class='texttt'>mp.positive_sign()</span>
+or the string
+<span class='texttt'>neg</span>
+returned by
+<span class='texttt'>mp.negative_sign()</span>
+is recognized in the position indicated by
+<span class='texttt'>sign</span>
+in the format pattern, it is consumed and any remaining characters
+in the string are required after all the other format components.
+[&nbsp;<i>Example:</i>
+If
+<span class='texttt'>showbase</span>
+is off, then for a
+<span class='texttt'>neg</span>
+value of <span class='texttt'>"()"</span> and a currency symbol of <span class='texttt'>"L"</span>,
+in <span class='texttt'>"(100 L)"</span> the <span class='texttt'>"L"</span> is consumed;
+but if
+<span class='texttt'>neg</span>
+is <span class='texttt'>"-"</span>, the <span class='texttt'>"L"</span> in <span class='texttt'>"-100 L"</span> is not consumed.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]
+If
+<span class='texttt'>pos</span>
+or
+<span class='texttt'>neg</span>
+is empty, the sign component is optional, and if no sign is
+detected, the result is given the sign that corresponds to the source
+of the empty string.
+Otherwise, the character in the indicated position must
+match the first character of
+<span class='texttt'>pos</span>
+or
+<span class='texttt'>neg</span>,
+and the result is given the corresponding sign.
+If the first character of
+<span class='texttt'>pos</span>
+is equal to the first character of
+<span class='texttt'>neg</span>,
+or if both strings are empty, the result is given a positive sign.</p></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p >Digits in the numeric monetary component are extracted and placed in
+<span class='texttt'>digits</span>,
+or into a character buffer
+<span class='texttt'>buf1</span>
+for conversion to produce a value for
+<span class='texttt'>units</span>,
+in the order in which they appear,
+preceded by a minus sign if and only if the result is negative.
+The value
+<span class='texttt'>units</span>
+is produced as if by<a class='footnotenum' href='#footnote-255'>255</a></p><pre class='codeblock'>
+for (int i = 0; i &lt; n; ++i)
+  buf2[i] = src[find(atoms, atoms+sizeof(src), buf1[i]) - atoms];
+buf2[n] = 0;
+sscanf(buf2, "%Lf", &amp;units);
+</pre><p >where
+<span class='texttt'>n</span>
+is the number of characters placed in
+<span class='texttt'>buf1</span>,
+<span class='texttt'>buf2</span>
+is a character buffer, and the values
+<span class='texttt'>src</span>
+and
+<span class='texttt'>atoms</span>
+are defined as if by</p><pre class='codeblock'>
+static const char src[] = "0123456789-";
+charT atoms[sizeof(src)];
+ct.widen(src, src + sizeof(src) - 1, atoms);
+</pre></div></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+An iterator pointing immediately beyond the last character recognized
+as part of a valid monetary quantity.
+</p></div></div><div class='footnote' id='footnote-254'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-254'>254)</a></div><p >The semantics here are different from
+<span class='texttt'>ct.narrow</span>.</p></div></div></div></body></html>

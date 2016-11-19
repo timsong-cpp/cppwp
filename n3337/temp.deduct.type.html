@@ -1,0 +1,458 @@
+<!DOCTYPE html><html lang='en'><head><title>[temp.deduct.type]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>14</a> Templates <a class='abbr_ref' href='./#temp'>[temp]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>14.8</a> Function template specializations <a class='abbr_ref' href='temp.fct.spec#temp.deduct.type'>[temp.fct.spec]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>14.8.2</a> Template argument deduction <a class='abbr_ref' href='temp.deduct#type'>[temp.deduct]</a></h3><div id='temp.deduct.type'><h4 ><a class='secnum' style='min-width:118pt'>14.8.2.5</a> Deducing template arguments from a type <a class='abbr_ref'>[temp.deduct.type]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Template arguments can be deduced in several different contexts, but
+in each case a type that is specified in terms of template parameters
+(call it
+<span class='texttt'>P</span>)
+is compared with an actual type (call it
+<span class='texttt'>A</span>),
+and an attempt is made to find template argument values (a type for a type
+parameter, a value for a non-type parameter, or a template for a
+template parameter) that will make
+<span class='texttt'>P</span>,
+after substitution of the deduced values (call it the deduced
+<span class='texttt'>A</span>),
+compatible with
+<span class='texttt'>A</span>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >In some cases, the deduction is done using a single set of types
+<span class='texttt'>P</span>
+and
+<span class='texttt'>A</span>,
+in other cases, there will be a set of corresponding types
+<span class='texttt'>P</span>
+and
+<span class='texttt'>A</span>.
+Type deduction is done
+independently for each
+<span class='texttt'>P/A</span>
+pair, and the deduced template
+argument values are then combined.
+If type deduction cannot be done
+for any
+<span class='texttt'>P/A</span>
+pair, or if for any pair the deduction leads to more than
+one possible set of deduced values, or if different pairs yield
+different deduced values, or if any template argument remains neither
+deduced nor explicitly specified, template argument deduction fails.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >A given type
+<span class='texttt'>P</span>
+can be composed from a number of other
+types, templates, and non-type values:</p><ul ><li ><p >A function type includes the types of each of the function parameters
+and the return type.
+</p></li><li ><p >A pointer to member type includes the type of the class object pointed to
+and the type of the member pointed to.
+</p></li><li ><p >A type that is a specialization of a class template (e.g.,
+<span class='texttt'>A&lt;int&gt;</span>)
+includes the types, templates, and non-type values referenced by the
+template argument list of the specialization.
+</p></li><li ><p >An array type includes the array element type and the value of the
+array bound.
+</p></li></ul></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >In most cases, the types, templates, and non-type values that are used
+to compose
+<span class='texttt'>P</span>
+participate in template argument deduction.
+That is,
+they may be used to determine the value of a template argument, and
+the value so determined must be consistent with the values determined
+elsewhere.
+In certain contexts, however, the value does not
+participate in type deduction, but instead uses the values of template
+arguments that were either deduced elsewhere or explicitly specified.
+If a template parameter is used only in non-deduced contexts and is not
+explicitly specified, template argument deduction fails.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >The non-deduced contexts are:</p><p ><span class='indexparent'><a class='index' id='context,non-deduced'></a></span></p><ul ><li ><p >The
+<i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i>
+of a type that was specified using a
+<i ><a href='expr.prim.general#nt:qualified-id'>qualified-id</a></i>.
+</p></li><li ><p >A non-type template argument or an array bound in which a subexpression
+references a template parameter.
+</p></li><li ><p >A template parameter used in the parameter type of a function parameter that
+has a default argument that is being used in the call for which argument
+deduction is being done.
+</p></li><li ><p >A function parameter for which argument deduction cannot be done because the
+associated function argument is a function, or a set of overloaded
+functions (<a href='over.over'>[over.over]</a>), and one or more of the following apply:
+</p><ul ><li ><p >more than one function matches the function parameter type (resulting in
+an ambiguous deduction), or
+</p></li><li ><p >no function matches the function parameter type, or
+</p></li><li ><p >the set of functions supplied as an argument contains one or more function templates.
+</p></li></ul></li><li ><p >A function parameter for which the associated argument is an initializer
+list (<a href='dcl.init.list'>[dcl.init.list]</a>) but the parameter does not have
+<span class='texttt'>std::initializer_list</span> or reference to possibly cv-qualified
+<span class='texttt'>std::initializer_list</span> type. [&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;class T&gt; void g(T);
+g({1,2,3});                 <span class='comment'>// error: no argument deduced for <span class='texttt'>T</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></li><li ><p >A function parameter pack that does not occur at the end of the 
+<i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i>.
+</p></li></ul></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >When a type name is specified in a way that includes a non-deduced
+context, all of the types that comprise that type name are also
+non-deduced.
+However, a compound type can include both deduced and non-deduced types.
+[&nbsp;<i>Example:</i>
+If a type is specified as
+<span class='texttt'>A&lt;T&gt;::B&lt;T2&gt;</span>,
+both
+<span class='texttt'>T</span>
+and
+<span class='texttt'>T2</span>
+are non-deduced.
+Likewise, if a type is specified as
+<span class='texttt'>A&lt;I+J&gt;::X&lt;T&gt;</span>,
+<span class='texttt'>I</span>,
+<span class='texttt'>J</span>,
+and
+<span class='texttt'>T</span>
+are non-deduced.
+If a type is specified as
+<span class='texttt'>void</span>
+<span class='texttt'>f(typename</span>
+<span class='texttt'>A&lt;T&gt;::B,</span>
+<span class='texttt'>A&lt;T&gt;)</span>,
+the
+<span class='texttt'>T</span>
+in
+<span class='texttt'>A&lt;T&gt;::B</span>
+is non-deduced but
+the
+<span class='texttt'>T</span>
+in
+<span class='texttt'>A&lt;T&gt;</span>
+is deduced.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >[&nbsp;<i>Example:</i>
+Here is an example in which different parameter/argument pairs produce
+inconsistent template argument deductions:</p><pre class='codeblock'>
+template&lt;class T&gt; void f(T x, T y) { <span class='comment'>/* ... */</span> }
+struct A { <span class='comment'>/* ... */</span> };
+struct B : A { <span class='comment'>/* ... */</span> };
+void g(A a, B b) {
+  f(a,b);           <span class='comment'>// error: <span class='texttt'>T</span> could be <span class='texttt'>A</span> or <span class='texttt'>B</span>
+</span>  f(b,a);           <span class='comment'>// error: <span class='texttt'>T</span> could be <span class='texttt'>A</span> or <span class='texttt'>B</span>
+</span>  f(a,a);           <span class='comment'>// OK: <span class='texttt'>T</span> is <span class='texttt'>A</span>
+</span>  f(b,b);           <span class='comment'>// OK: <span class='texttt'>T</span> is <span class='texttt'>B</span>
+</span>}
+</pre><p >Here is an example where two template arguments are deduced from a
+single function parameter/argument pair.
+This can lead to conflicts
+that cause type deduction to fail:</p><pre class='codeblock'>
+template &lt;class T, class U&gt; void f(  T (*)( T, U, U )  );
+
+int g1( int, float, float);
+char g2( int, float, float);
+int g3( int, char, float);
+
+void r() {
+  f(g1);            <span class='comment'>// OK: <span class='texttt'>T</span> is <span class='texttt'>int</span> and <span class='texttt'>U</span> is <span class='texttt'>float</span>
+</span>  f(g2);            <span class='comment'>// error: <span class='texttt'>T</span> could be <span class='texttt'>char</span> or <span class='texttt'>int</span>
+</span>  f(g3);            <span class='comment'>// error: <span class='texttt'>U</span> could be <span class='texttt'>char</span> or <span class='texttt'>float</span>
+</span>}
+</pre><p >Here is an example where a qualification conversion applies between the
+argument type on the function call and the deduced template argument type:</p><pre class='codeblock'>
+template&lt;class T&gt; void f(const T*) { }
+int *p;
+void s() {
+  f(p);             <span class='comment'>// <span class='texttt'>f(const int*)</span>
+</span>}
+</pre><p >Here is an example where the template argument is used to instantiate
+a derived class type of the corresponding function parameter type:</p><pre class='codeblock'>
+template &lt;class T&gt; struct B { };
+template &lt;class T&gt; struct D : public B&lt;T&gt; {};
+struct D2 : public B&lt;int&gt; {};
+template &lt;class T&gt; void f(B&lt;T&gt;&amp;){}
+void t() {
+  D&lt;int&gt; d;
+  D2     d2;
+  f(d);             <span class='comment'>// calls <span class='texttt'>f(B&lt;int&gt;&amp;)</span>
+</span>  f(d2);            <span class='comment'>// calls <span class='texttt'>f(B&lt;int&gt;&amp;)</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >A template type argument
+<span class='texttt'>T</span>,
+a template template argument
+<span class='texttt'>TT</span>
+or a template non-type argument
+<span class='texttt'>i</span>
+can be deduced if
+<span class='texttt'>P</span>
+and
+<span class='texttt'>A</span>
+have one of the following forms:</p><pre class='codeblock'>
+T
+<span class='grammarterm'>cv-list</span> T
+T*
+T&amp;
+T&amp;&amp;
+T[<span class='grammarterm'>integer-constant</span>]
+<span class='grammarterm'>template-name</span>&lt;T&gt;  (where <span class='grammarterm'>template-name</span> refers to a class template)
+<a class='hidden_link' href='#def:type' id='def:type'><i>type</i></a>(T)
+T()
+T(T)
+T <a class='hidden_link' href='#def:type' id='def:type'><i>type</i></a>::*
+<a class='hidden_link' href='#def:type' id='def:type'><i>type</i></a> T::*
+T T::*
+T (<a class='hidden_link' href='#def:type' id='def:type'><i>type</i></a>::*)()
+<a class='hidden_link' href='#def:type' id='def:type'><i>type</i></a> (T::*)()
+<a class='hidden_link' href='#def:type' id='def:type'><i>type</i></a> (<a class='hidden_link' href='#def:type' id='def:type'><i>type</i></a>::*)(T)
+<a class='hidden_link' href='#def:type' id='def:type'><i>type</i></a> (T::*)(T)
+T (<a class='hidden_link' href='#def:type' id='def:type'><i>type</i></a>::*)(T)
+T (T::*)()
+T (T::*)(T)
+<a class='hidden_link' href='#def:type' id='def:type'><i>type</i></a>[i]
+<span class='grammarterm'>template-name</span>&lt;i&gt;  (where <span class='grammarterm'>template-name</span> refers to a class template)
+TT&lt;T&gt;
+TT&lt;i&gt;
+TT&lt;&gt;
+</pre><p >where
+<span class='texttt'>(T)</span>
+represents
+a <span class='grammarterm'>parameter-type-list</span>
+where at least one parameter type contains a
+<span class='texttt'>T</span>,
+and
+<span class='texttt'>()</span>
+represents
+a <span class='grammarterm'>parameter-type-list</span>
+where no parameter type contains a
+<span class='texttt'>T</span>.
+Similarly,
+<span class='texttt'>&lt;T&gt;</span>
+represents template argument lists where at least one argument contains a
+<span class='texttt'>T</span>,
+<span class='texttt'>&lt;i&gt;</span>
+represents template argument lists where at least one argument contains an
+<span class='texttt'>i</span>
+and
+<span class='texttt'>&lt;&gt;</span>
+represents template argument lists where no argument contains a
+<span class='texttt'>T</span>
+or an
+<span class='texttt'>i</span>.</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >If <span class='texttt'>P</span> has a form that contains <span class='texttt'>&lt;T&gt;</span>
+or <span class='texttt'>&lt;i&gt;</span>, then each argument <span class='math'><span class='mathtt'>P</span><sub ><span class='mathalpha'>i</span></sub></span> of the
+respective template argument list <span class='texttt'>P</span> is compared with the
+corresponding argument <span class='math'><span class='mathtt'>A</span><sub ><span class='mathalpha'>i</span></sub></span> of the corresponding
+template argument list of <span class='texttt'>A</span>. If the template argument list
+of <span class='texttt'>P</span> contains a pack expansion that is not the last
+template argument, the entire template argument list is a non-deduced
+context. If <span class='math'><span class='texttt'>P</span><sub ><span class='mathalpha'>i</span></sub></span> is a pack expansion, then the pattern
+of <span class='math'><span class='texttt'>P</span><sub ><span class='mathalpha'>i</span></sub></span> is compared with each remaining argument in the
+template argument list of <span class='texttt'>A</span>. Each comparison deduces
+template arguments for subsequent positions in the template parameter
+packs expanded by <span class='math'><span class='texttt'>P</span><sub ><span class='mathalpha'>i</span></sub></span>.
+During partial ordering (<a href='temp.deduct.partial'>[temp.deduct.partial]</a>), if <span class='math'><span class='texttt'>A</span><sub ><span class='mathalpha'>i</span></sub></span> was
+originally a pack expansion:</p><ul ><li ><p >if <span class='texttt'>P</span> does not contain a template argument corresponding to
+<span class='math'><span class='texttt'>A</span><sub ><span class='mathalpha'>i</span></sub></span> then <span class='math'><span class='texttt'>A</span><sub ><span class='mathalpha'>i</span></sub></span> is ignored;</p></li><li ><p >otherwise, if <span class='math'><span class='texttt'>P</span><sub ><span class='mathalpha'>i</span></sub></span> is not a pack expansion, template argument
+deduction fails.
+</p></li></ul><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;class T1, class... Z&gt; class S;                               <span class='comment'>// #1
+</span>template&lt;class T1, class... Z&gt; class S&lt;T1, const Z&amp;...&gt; { };          <span class='comment'>// #2
+</span>template&lt;class T1, class T2&gt;   class S&lt;T1, const T2&amp;&gt; { };            <span class='comment'>// #3
+</span>S&lt;int, const int&amp;&gt; s;         <span class='comment'>// both #2 and #3 match; #3 is more specialized
+</span>
+template&lt;class T, class... U&gt;            struct A { };                <span class='comment'>// #1
+</span>template&lt;class T1, class T2, class... U&gt; struct A&lt;T1, T2*, U...&gt; { }; <span class='comment'>// #2
+</span>template&lt;class T1, class T2&gt;             struct A&lt;T1, T2&gt; { };        <span class='comment'>// #3
+</span>template struct A&lt;int, int*&gt;; <span class='comment'>// selects #2
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >Similarly, if <span class='texttt'>P</span> has a form that contains
+<span class='texttt'>(T)</span>, then each parameter type <span class='math'><span class='texttt'>P</span><sub ><span class='mathalpha'>i</span></sub></span>
+of the respective <span class='grammarterm'>parameter-type-list</span> of
+<span class='texttt'>P</span> is compared with the corresponding parameter type
+<span class='math'><span class='texttt'>A</span><sub ><span class='mathalpha'>i</span></sub></span> of the corresponding <span class='grammarterm'>parameter-type-list</span>
+of <span class='texttt'>A</span>.
+If <span class='texttt'>P</span> and <span class='texttt'>A</span> are function types that originated from deduction when
+taking the address of a function template (<a href='temp.deduct.funcaddr'>[temp.deduct.funcaddr]</a>) or when
+deducing template arguments from a function declaration (<a href='temp.deduct.decl'>[temp.deduct.decl]</a>)
+and <span class='math'><span class='texttt'>P</span><sub ><span class='mathalpha'>i</span></sub></span> and <span class='math'><span class='texttt'>A</span><sub ><span class='mathalpha'>i</span></sub></span> are parameters of the top-level
+<span class='grammarterm'>parameter-type-list</span> of <span class='texttt'>P</span> and <span class='texttt'>A</span>, respectively,
+<span class='math'><span class='texttt'>P</span><sub ><span class='mathalpha'>i</span></sub></span> is adjusted if it is an rvalue reference to a cv-unqualified template
+parameter and <span class='math'><span class='texttt'>A</span><sub ><span class='mathalpha'>i</span></sub></span> is an lvalue reference, in which case the type of
+<span class='math'><span class='texttt'>P</span><sub ><span class='mathalpha'>i</span></sub></span> is changed to be the template parameter type (i.e., <span class='texttt'>T&amp;&amp;</span> is
+changed to simply <span class='texttt'>T</span>). [&nbsp;<i>Note:</i> As a result, when <span class='math'><span class='texttt'>P</span><sub ><span class='mathalpha'>i</span></sub></span> is <span class='texttt'>T&amp;&amp;</span>
+and <span class='math'><span class='texttt'>A</span><sub ><span class='mathalpha'>i</span></sub></span> is <span class='texttt'>X&amp;</span>, the adjusted <span class='math'><span class='texttt'>P</span><sub ><span class='mathalpha'>i</span></sub></span> will be <span class='texttt'>T</span>,
+causing <span class='texttt'>T</span> to be deduced as <span class='texttt'>X&amp;</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template &lt;class T&gt; void f(T&amp;&amp;);
+template &lt;&gt; void f(int&amp;) { }  <span class='comment'>// #1
+</span>template &lt;&gt; void f(int&amp;&amp;) { } <span class='comment'>// #2
+</span>void g(int i) {
+  f(i);                       <span class='comment'>// calls <span class='texttt'>f&lt;int&amp;&gt;(int&amp;)</span>, i.e., #1
+</span>  f(0);                       <span class='comment'>// calls <span class='texttt'>f&lt;int&gt;(int&amp;&amp;)</span>, i.e., #2
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p >If the <i ><a href='dcl.fct#nt:parameter-declaration'>parameter-declaration</a></i>
+corresponding to <span class='math'><span class='texttt'>P</span><sub ><span class='mathalpha'>i</span></sub></span> is a function parameter pack,
+then the type of its <i ><a href='dcl.decl#nt:declarator-id'>declarator-id</a></i> is compared with
+each remaining parameter type in the <span class='grammarterm'>parameter-type-list</span>
+of <span class='texttt'>A</span>. Each comparison deduces template arguments for
+subsequent positions in the template parameter packs expanded by the
+function parameter pack.
+During partial ordering (<a href='temp.deduct.partial'>[temp.deduct.partial]</a>), if <span class='math'><span class='texttt'>A</span><sub ><span class='mathalpha'>i</span></sub></span> was
+originally a function parameter pack:</p><ul ><li ><p >if <span class='texttt'>P</span> does not contain a function parameter type corresponding to
+<span class='math'><span class='texttt'>A</span><sub ><span class='mathalpha'>i</span></sub></span> then <span class='math'><span class='texttt'>A</span><sub ><span class='mathalpha'>i</span></sub></span> is ignored;</p></li><li ><p >otherwise, if <span class='math'><span class='texttt'>P</span><sub ><span class='mathalpha'>i</span></sub></span> is not a function parameter pack, template
+argument deduction fails.
+</p></li></ul><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;class T, class... U&gt; void f(T*, U...) { }    <span class='comment'>// #1
+</span>template&lt;class T&gt;             void f(T) { }           <span class='comment'>// #2
+</span>template void f(int*);      <span class='comment'>// selects #1
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><p >These forms can be used in the same way as
+<span class='texttt'>T</span>
+is for further composition of types.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+X&lt;int&gt; (*)(char[6])
+</pre><p >is of the form</p><pre class='codeblock'>
+<span class='grammarterm'>template-name</span>&lt;T&gt; (*)(<a class='hidden_link' href='#def:type' id='def:type'><i>type</i></a>[i])
+</pre><p >which is a variant of</p><pre class='codeblock'>
+<a class='hidden_link' href='#def:type' id='def:type'><i>type</i></a> (*)(T)
+</pre><p >where type is
+<span class='texttt'>X&lt;int&gt;</span>
+and
+<span class='texttt'>T</span>
+is
+<span class='texttt'>char[6]</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><p >Template arguments cannot be deduced from function arguments involving
+constructs other than the ones specified above.</p></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><p >A template type argument cannot be deduced from the type of a non-type
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>.</p></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;class T, T i&gt; void f(double a[10][i]);
+int v[10][20];
+f(v);               <span class='comment'>// error: argument for template-parameter <span class='texttt'>T</span> cannot be deduced
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><p >[&nbsp;<i>Note:</i>
+Except for reference and pointer types, a major array bound is not part of a
+function parameter type and cannot be deduced from an argument:</p><pre class='codeblock'>
+template&lt;int i&gt; void f1(int a[10][i]);
+template&lt;int i&gt; void f2(int a[i][20]);
+template&lt;int i&gt; void f3(int (&amp;a)[i][20]);
+
+void g() {
+  int v[10][20];
+  f1(v);            <span class='comment'>// OK: <span class='texttt'>i</span> deduced to be <span class='texttt'>20</span>
+</span>  f1&lt;20&gt;(v);        <span class='comment'>// OK
+</span>  f2(v);            <span class='comment'>// error: cannot deduce template-argument <span class='texttt'>i</span>
+</span>  f2&lt;10&gt;(v);        <span class='comment'>// OK
+</span>  f3(v);            <span class='comment'>// OK: <span class='texttt'>i</span> deduced to be <span class='texttt'>10</span>
+</span>}
+</pre></div><div class='para' id='16'><div class='marginalizedparent'><a class='marginalized' href='#16'>16</a></div><p >If, in the declaration of a function template with a non-type
+template parameter, the non-type template parameter
+is used in a subexpression in the function parameter list,
+the expression is a non-deduced context as specified above.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template &lt;int i&gt; class A { <span class='comment'>/* ... */</span> };
+template &lt;int i&gt; void g(A&lt;i+1&gt;);
+template &lt;int i&gt; void f(A&lt;i&gt;, A&lt;i+1&gt;);
+void k() {
+  A&lt;1&gt; a1;
+  A&lt;2&gt; a2;
+  g(a1);            <span class='comment'>// error: deduction fails for expression <span class='texttt'>i+1</span>
+</span>  g&lt;0&gt;(a1);         <span class='comment'>// OK
+</span>  f(a1, a2);        <span class='comment'>// OK
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+Template parameters do not participate in template argument deduction if
+they are used only in non-deduced contexts.
+For example,</p><pre class='codeblock'>
+template&lt;int i, typename T&gt;
+T deduce(typename A&lt;T&gt;::X x,    <span class='comment'>// <span class='texttt'>T</span> is not deduced here
+</span>  T t,                          <span class='comment'>// but <span class='texttt'>T</span> is deduced here
+</span>  typename B&lt;i&gt;::Y y);          <span class='comment'>// <span class='texttt'>i</span> is not deduced here
+</span>A&lt;int&gt; a;
+B&lt;77&gt;  b;
+
+int    x = deduce&lt;77&gt;(a.xm, 62, b.ym);
+<span class='comment'>// <span class='texttt'>T</span> is deduced to be <span class='texttt'>int</span>, <span class='texttt'>a.xm</span> must be convertible to
+</span><span class='comment'>// <span class='texttt'>A&lt;int&gt;::X</span>
+</span><span class='comment'>// <span class='texttt'>i</span> is explicitly specified to be <span class='texttt'>77</span>, <span class='texttt'>b.ym</span> must be convertible
+</span><span class='comment'>// to <span class='texttt'>B&lt;77&gt;::Y</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='17'><div class='marginalizedparent'><a class='marginalized' href='#17'>17</a></div><p >If, in the declaration of a function template with a non-type
+<span class='grammarterm'>template-parameter,</span>
+the non-type
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+is used in an expression in the function parameter-list and,
+if the corresponding
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+is deduced, the
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+type shall match the type of the
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+exactly, except that a
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+deduced from an array bound may be of any integral type.<a class='footnotenum' href='#footnote-144'>144</a>
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;int i&gt; class A { <span class='comment'>/* ... */</span> };
+template&lt;short s&gt; void f(A&lt;s&gt;);
+void k1() {
+  A&lt;1&gt; a;
+  f(a);             <span class='comment'>// error: deduction fails for conversion from <span class='texttt'>int</span> to <span class='texttt'>short</span>
+</span>  f&lt;1&gt;(a);          <span class='comment'>// OK
+</span>}
+
+template&lt;const short cs&gt; class B { };
+template&lt;short s&gt; void g(B&lt;s&gt;);
+void k2() {
+  B&lt;1&gt; b;
+  g(b);             <span class='comment'>// OK: cv-qualifiers are ignored on template parameter types
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='18'><div class='marginalizedparent'><a class='marginalized' href='#18'>18</a></div><p >A
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+can be deduced from a function, pointer to function, or pointer to
+member function type.</p><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T&gt; void f(void(*)(T,int));
+template&lt;class T&gt; void foo(T,int);
+void g(int,int);
+void g(char,int);
+
+void h(int,int,int);
+void h(char,int);
+int m() {
+  f(&amp;g);            <span class='comment'>// error: ambiguous
+</span>  f(&amp;h);            <span class='comment'>// OK: void <span class='texttt'>h(char,int)</span> is a unique match
+</span>  f(&amp;foo);          <span class='comment'>// error: type deduction fails because <span class='texttt'>foo</span> is a template
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='19'><div class='marginalizedparent'><a class='marginalized' href='#19'>19</a></div><p >A template
+<i ><a href='temp.param#nt:type-parameter'>type-parameter</a></i>
+cannot be deduced from the type of a function default argument.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template &lt;class T&gt; void f(T = 5, T = 7);
+void g() {
+  f(1);             <span class='comment'>// OK: call <span class='texttt'>f&lt;int&gt;(1,7)</span>
+</span>  f();              <span class='comment'>// error: cannot deduce <span class='texttt'>T</span>
+</span>  f&lt;int&gt;();         <span class='comment'>// OK: call <span class='texttt'>f&lt;int&gt;(5,7)</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='20'><div class='marginalizedparent'><a class='marginalized' href='#20'>20</a></div><p >The
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+corresponding to a template
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+is deduced from the type of the
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+of a class template specialization used in the argument list of a function call.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template &lt;template &lt;class T&gt; class X&gt; struct A { };
+template &lt;template &lt;class T&gt; class X&gt; void f(A&lt;X&gt;) { }
+template&lt;class T&gt; struct B { };
+A&lt;B&gt; ab;
+f(ab);              <span class='comment'>// calls <span class='texttt'>f(A&lt;B&gt;)</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='21'><div class='marginalizedparent'><a class='marginalized' href='#21'>21</a></div><p >[&nbsp;<i>Note:</i> Template argument deduction involving parameter
+packs (<a href='temp.variadic'>[temp.variadic]</a>) can deduce zero or more arguments for
+each parameter pack. <i>&nbsp;—&nbsp;end note</i>&nbsp;][&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class&gt; struct X { };
+template&lt;class R, class ... ArgTypes&gt; struct X&lt;R(int, ArgTypes ...)&gt; { };
+template&lt;class ... Types&gt; struct Y { };
+template&lt;class T, class ... Types&gt; struct Y&lt;T, Types&amp; ...&gt; { };
+
+template&lt;class ... Types&gt; int f(void (*)(Types ...));
+void g(int, float);
+
+X&lt;int&gt; x1;                      <span class='comment'>// uses primary template
+</span>X&lt;int(int, float, double)&gt; x2;  <span class='comment'>// uses partial specialization; <span class='texttt'>ArgTypes</span> contains <span class='texttt'>float</span>, <span class='texttt'>double</span>
+</span>X&lt;int(float, int)&gt; x3;          <span class='comment'>// uses primary template
+</span>Y&lt;&gt; y1;                         <span class='comment'>// use primary template; <span class='texttt'>Types</span> is empty
+</span>Y&lt;int&amp;, float&amp;, double&amp;&gt; y2;    <span class='comment'>// uses partial specialization; <span class='texttt'>T</span> is <span class='texttt'>int&amp;</span>, <span class='texttt'>Types</span> contains <span class='texttt'>float</span>, <span class='texttt'>double</span>
+</span>Y&lt;int, float, double&gt; y3;       <span class='comment'>// uses primary template; <span class='texttt'>Types</span> contains <span class='texttt'>int</span>, <span class='texttt'>float</span>, <span class='texttt'>double</span>
+</span>int fv = f(g);                  <span class='comment'>// OK; <span class='texttt'>Types</span> contains <span class='texttt'>int</span>, <span class='texttt'>float</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-144'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-144'>144)</a></div><p >Although the
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+corresponding to a
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+of type
+<span class='texttt'>bool</span>
+may be deduced from an array bound, the resulting value will always be
+<span class='texttt'>true</span>
+because the array bound will be non-zero.</p></div></div></div></body></html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang='en'><head><title>[expr.rel]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>5</a> Expressions <a class='abbr_ref' href='./#expr'>[expr]</a></h1><div id='expr.rel'><h2 ><a class='secnum' style='min-width:88pt'>5.9</a> Relational operators <a class='abbr_ref'>[expr.rel]</a></h2><p ><span class='indexparent'><a class='index' id='expression,relational_operators'></a></span><span class='indexparent'><a class='index' id='operator,relational'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The relational operators group left-to-right.
+[&nbsp;<i>Example:</i> 
+<span class='texttt'>a&lt;b&lt;c</span> means <span class='texttt'>(a&lt;b)&lt;c</span> and <span class='emph'>not</span>
+<span class='texttt'>(a&lt;b)&amp;&amp;(b&lt;c)</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;] </p><p ><span class='indexparent'><a class='index' id='operator,less_than'></a></span><span class='indexparent'><a class='index' id='<'></a></span><span class='indexparent'><a class='index' id='operator,greater_than'></a></span><span class='indexparent'><a class='index' id='>'></a></span><span class='indexparent'><a class='index' id='operator,less_than_or_equal_to'></a></span><span class='indexparent'><a class='index' id='<='></a></span><span class='indexparent'><a class='index' id='operator,greater_than_or_equal_to'></a></span><span class='indexparent'><a class='index' id='>='></a></span></p><pre class='bnf'><a id='nt:relational-expression'>relational-expression:</a>
+    <i ><a href='expr.shift#nt:shift-expression'>shift-expression</a></i>
+    <i ><a href='expr.rel#nt:relational-expression'>relational-expression</a></i> <span class='terminal'>&lt;</span> <i ><a href='expr.shift#nt:shift-expression'>shift-expression</a></i>
+    <i ><a href='expr.rel#nt:relational-expression'>relational-expression</a></i> <span class='terminal'>&gt;</span> <i ><a href='expr.shift#nt:shift-expression'>shift-expression</a></i>
+    <i ><a href='expr.rel#nt:relational-expression'>relational-expression</a></i> <span class='terminal'>&lt;=</span> <i ><a href='expr.shift#nt:shift-expression'>shift-expression</a></i>
+    <i ><a href='expr.rel#nt:relational-expression'>relational-expression</a></i> <span class='terminal'>&gt;=</span> <i ><a href='expr.shift#nt:shift-expression'>shift-expression</a></i></pre><p >The operands shall have arithmetic, enumeration, or pointer type, or type <span class='texttt'>std::nullptr_t</span>. The
+operators <span class='texttt'>&lt;</span> (less than), <span class='texttt'>&gt;</span> (greater than), <span class='texttt'>&lt;=</span>
+(less than or equal to), and <span class='texttt'>&gt;=</span> (greater than or equal to) all
+yield <span class='texttt'>false</span> or <span class='texttt'>true</span>. The type of the result is
+<span class='texttt'>bool</span>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >The usual arithmetic conversions are performed on operands of arithmetic
+or enumeration type. Pointer conversions (<a href='conv.ptr'>[conv.ptr]</a>) and
+qualification conversions (<a href='conv.qual'>[conv.qual]</a>) are performed on pointer
+operands (or on a pointer operand and a null pointer constant, or on two
+null pointer constants, at least one of which is non-integral) to bring
+them to their <a class='hidden_link' href='#def:composite_pointer_type' id='def:composite_pointer_type'><i>composite pointer type</i></a>. If one operand is a
+null pointer constant, the composite pointer type is
+<span class='texttt'>std::nullptr_t</span> if the other operand is also a null pointer constant or,
+if the other operand is a pointer,
+the type of the
+other operand. Otherwise, if one of the operands has type “pointer to
+<i>cv1</i> <span class='texttt'>void</span>,” then the other has type “pointer to
+<i>cv2</i> <a class='hidden_link' href='#def:T' id='def:T'><i>T</i></a>” and the composite pointer type is “pointer to
+<i>cv12</i> <span class='texttt'>void</span>,” where <i>cv12</i> is the union of
+<i>cv1</i> and <i>cv2</i>. Otherwise, the composite pointer type is
+a pointer type similar (<a href='conv.qual'>[conv.qual]</a>) to the type of one of the
+operands, with a cv-qualification signature (<a href='conv.qual'>[conv.qual]</a>) that is
+the union of the cv-qualification signatures of the operand types.
+[&nbsp;<i>Note:</i> 
+<span class='indexparent'><a class='index' id='comparison,void*_pointer'></a></span>this implies
+that any pointer can be compared to a null pointer constant and that any
+object pointer can be compared to a pointer to (possibly cv-qualified)
+<span class='texttt'>void</span>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;] 
+[&nbsp;<i>Example:</i> </p><pre class='codeblock'>
+void *p;
+const int *q;
+int **pi;
+const int *const *pci;
+void ct() {
+  p &lt;= q;           <span class='comment'>// Both converted to <span class='texttt'>const void*</span> before comparison
+</span>  pi &lt;= pci;        <span class='comment'>// Both converted to <span class='texttt'>const int *const *</span> before comparison
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;] 
+<span class='indexparent'><a class='index' id='comparison,pointer'></a></span><span class='indexparent'><a class='index' id='comparison,pointer_to_function'></a></span>Pointers to objects or functions of the same type (after pointer
+conversions) can be compared, with a result defined as follows:</p><ul ><li ><p >If two pointers <span class='texttt'>p</span> and <span class='texttt'>q</span> of the same type point to
+the same object or function, or both point one past the end of the same
+array, or are both null, then <span class='texttt'>p&lt;=q</span> and <span class='texttt'>p&gt;=q</span> both yield
+<span class='texttt'>true</span> and <span class='texttt'>p&lt;q</span> and <span class='texttt'>p&gt;q</span> both yield <span class='texttt'>false</span>.</p></li><li ><p >If two pointers <span class='texttt'>p</span> and <span class='texttt'>q</span> of the same type point to
+different objects that are not members of the same object or elements of
+the same array or to different functions, or if only one of them is
+null, the results of <span class='texttt'>p&lt;q</span>, <span class='texttt'>p&gt;q</span>, <span class='texttt'>p&lt;=q</span>, and
+<span class='texttt'>p&gt;=q</span> are unspecified.</p></li><li ><p >If two pointers point to non-static data members of the same
+object, or to subobjects or array elements of such members, recursively,
+the pointer to the later declared member compares greater provided the
+two members
+have the same access control (Clause <a href='class.access'>[class.access]</a>)
+and provided their class is not a union.</p><p ><span class='indexparent'><a class='index' id='comparison,undefined_pointer'></a></span></p></li><li ><p >If two pointers point to non-static data members of the same
+object
+with different access control (Clause <a href='class.access'>[class.access]</a>)
+the result is unspecified.</p></li><li ><p >If two pointers point to non-static data members of the same union object,
+they compare equal (after conversion to <span class='texttt'>void*</span>, if necessary). If
+two pointers point to elements of the same array or one beyond the end
+of the array, the pointer to the object with the higher subscript
+compares higher.</p><p ><span class='indexparent'><a class='index' id='comparison,unspecified_pointer'></a></span><span class='indexparent'><a class='index' id='comparison,pointer'></a></span></p></li><li ><p >Other pointer comparisons are unspecified.
+</p></li></ul></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >Pointers to <span class='texttt'>void</span> (after pointer conversions) can be compared, with a result
+defined as follows: If both pointers represent the same address or are both the null
+pointer value, the result is <span class='texttt'>true</span> if the operator is <span class='texttt'>&lt;=</span> or <span class='texttt'>&gt;=</span>
+and <span class='texttt'>false</span> otherwise; otherwise the result is unspecified.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >If two operands of type <span class='texttt'>std::nullptr_t</span> are compared, the result is
+<span class='texttt'>true</span> if the operator is <span class='texttt'>&lt;=</span> or <span class='texttt'>&gt;=</span>, and <span class='texttt'>false</span>
+otherwise.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >If both operands (after conversions) are of arithmetic or enumeration type, each
+of the operators shall yield <span class='texttt'>true</span> if the specified relationship is true
+and <span class='texttt'>false</span> if it is false.</p></div></div></div></body></html>

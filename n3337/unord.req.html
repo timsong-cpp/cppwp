@@ -1,0 +1,450 @@
+<!DOCTYPE html><html lang='en'><head><title>[unord.req]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>23</a> Containers library <a class='abbr_ref' href='./#containers'>[containers]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>23.2</a> Container requirements <a class='abbr_ref' href='container.requirements#unord.req'>[container.requirements]</a></h2><div id='unord.req'><h3 ><a class='secnum' style='min-width:103pt'>23.2.5</a> Unordered associative containers <a class='abbr_ref'>[unord.req]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,complexity'></a></span>Unordered associative containers provide an ability for fast retrieval
+of data based on keys.  The worst-case complexity for most operations
+is linear, but the average case is much faster.  The library provides
+four unordered associative containers: <span class='texttt'>unordered_set</span>,
+<span class='texttt'>unordered_map</span>, <span class='texttt'>unordered_multiset</span>, and
+<span class='texttt'>unordered_multimap</span>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,lack_of_comparison_operators'></a></span><span class='indexparent'><a class='index' id='unordered_associative_containers,requirements'></a></span><span class='indexparent'><a class='index' id='requirements,container,not_required_for_unordered_associated_containers'></a></span>Unordered associative containers conform to the requirements for
+Containers (<a href='container.requirements'>[container.requirements]</a>), except that
+the expressions
+<span class='texttt'>a == b</span> and <span class='texttt'>a != b</span> have different semantics than for the other
+container types.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >Each unordered associative container is parameterized by <span class='texttt'>Key</span>,
+by a function object type <span class='texttt'>Hash</span> that meets the <span class='texttt'>Hash</span>
+requirements (<a href='hash.requirements'>[hash.requirements]</a>) and acts as a hash function for
+argument values of type <span class='texttt'>Key</span>, and by a binary predicate <span class='texttt'>Pred</span>
+that induces an equivalence relation on values of type <span class='texttt'>Key</span>.
+Additionally, <span class='texttt'>unordered_map</span> and <span class='texttt'>unordered_multimap</span> associate
+an arbitrary <i>mapped type</i> <span class='texttt'>T</span> with the <span class='texttt'>Key</span>.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,hash_function'></a></span><span class='indexparent'><a class='index' id='hash_function'></a></span>A hash function is a function object that takes a single argument
+of type <span class='texttt'>Key</span> and returns a value of type <span class='texttt'>std::size_t</span>.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,equality_function'></a></span>Two values <span class='texttt'>k1</span> and <span class='texttt'>k2</span> of type <span class='texttt'>Key</span> are
+considered equivalent if the container's
+<span class='texttt'>key_equal</span> function object returns
+<span class='texttt'>true</span> when passed those values.  If <span class='texttt'>k1</span> and
+<span class='texttt'>k2</span> are equivalent, the hash function shall return the same value
+for both.
+[&nbsp;<i>Note:</i> Thus, when an unordered associative container is instantiated with
+a non-default <span class='texttt'>Pred</span> parameter it usually needs a non-default <span class='texttt'>Hash</span>
+parameter as well. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,unique_keys'></a></span><span class='indexparent'><a class='index' id='unordered_associative_containers,equivalent_keys'></a></span>An unordered associative container supports <i>unique keys</i> if it
+may contain at most one element for each key.  Otherwise, it supports
+<i>equivalent keys</i>.  <span class='texttt'>unordered_set</span> and <span class='texttt'>unordered_map</span>
+support unique keys. <span class='texttt'>unordered_multiset</span> and <span class='texttt'>unordered_multimap</span>
+support equivalent keys.  In containers that support equivalent keys,
+elements with equivalent keys are adjacent to each other
+in the iteration order of the container. Thus, although the absolute order
+of elements in an unordered container is not specified, its elements are
+grouped into <a class='hidden_link' href='#def:equivalent-key_group' id='def:equivalent-key_group'><i>equivalent-key group</i></a>s such that all elements of each
+group have equivalent keys. Mutating operations on unordered containers shall
+preserve the relative order of elements within each equivalent-key group
+unless otherwise specified.</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >For <span class='texttt'>unordered_set</span> and <span class='texttt'>unordered_multiset</span> the value type is
+the same as the key type.  For <span class='texttt'>unordered_map</span> and
+<span class='texttt'>unordered_multimap</span> it is <span class='texttt'>std::pair&lt;const Key,
+T&gt;</span>.</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p ><span class='indexparent'><a class='index' id='buckets'></a></span><span class='indexparent'><a class='index' id='hash_code'></a></span>The elements of an unordered associative container are organized into
+<i>buckets</i>.  Keys with the same hash code appear in the same
+bucket.  The number of buckets is automatically increased as elements
+are added to an unordered associative container, so that the average
+number of elements per bucket is kept below a bound.  Rehashing
+invalidates iterators, changes ordering between elements, and changes
+which buckets elements appear in, but does not invalidate pointers or
+references to elements. For <span class='texttt'>unordered_multiset</span> and
+<span class='texttt'>unordered_multimap</span>, rehashing preserves the relative ordering of
+equivalent elements.</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >The unordered associative containers meet all the requirements of Allocator-aware
+containers (<a href='container.requirements.general'>[container.requirements.general]</a>), except that for
+<span class='texttt'>unordered_map</span> and <span class='texttt'>unordered_multimap</span>, the requirements placed on <span class='texttt'>value_type</span>
+in Table <a href='container.requirements.general#tab:containers.container.requirements'>[tab:containers.container.requirements]</a> apply instead to <span class='texttt'>key_type</span>
+and <span class='texttt'>mapped_type</span>. [&nbsp;<i>Note:</i> For example, <span class='texttt'>key_type</span> and <span class='texttt'>mapped_type</span>
+are sometimes required to be <span class='texttt'>CopyAssignable</span> even though the associated
+<span class='texttt'>value_type</span>, <span class='texttt'>pair&lt;const key_type, mapped_type&gt;</span>, is not
+<span class='texttt'>CopyAssignable</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers'></a></span><span class='indexparent'><a class='index' id='unordered_associative_containers,requirements'></a></span><span class='indexparent'><a class='index' id='requirements,unordered_associative_container'></a></span><span class='indexparent'><a class='index' id='unordered_associative_containers,unique_keys'></a></span><span class='indexparent'><a class='index' id='unordered_associative_containers,equivalent_keys'></a></span><span class='indexparent'><a class='index' id='requirements,container'></a></span>In table <a href='#tab:HashRequirements'>[tab:HashRequirements]</a>:
+<span class='texttt'>X</span> is an unordered associative container class, <span class='texttt'>a</span> is an
+object of type <span class='texttt'>X</span>, <span class='texttt'>b</span> is a possibly const object of
+type <span class='texttt'>X</span>, <span class='texttt'>a_uniq</span> is an object of type <span class='texttt'>X</span>
+when <span class='texttt'>X</span> supports unique keys, <span class='texttt'>a_eq</span> is an object of
+type <span class='texttt'>X</span> when <span class='texttt'>X</span> supports equivalent keys, <span class='texttt'>i</span>
+and <span class='texttt'>j</span> are input iterators that refer
+to <span class='texttt'>value_type</span>, <span class='texttt'>[i, j)</span> is a valid range,
+<span class='texttt'>p</span> and <span class='texttt'>q2</span> are valid const iterators to <span class='texttt'>a</span>,
+<span class='texttt'>q</span> and <span class='texttt'>q1</span> are valid dereferenceable const iterators to <span class='texttt'>a</span>,
+<span class='texttt'>[q1, q2)</span> is a valid range in <span class='texttt'>a</span>,
+<span class='texttt'>il</span> designates an object of type <span class='texttt'>initializer_list&lt;value_type&gt;</span>,
+<span class='texttt'>t</span> is a value of
+type <span class='texttt'>X::value_type</span>, <span class='texttt'>k</span> is a value of
+type <span class='texttt'>key_type</span>, <span class='texttt'>hf</span> is a possibly const value of
+type <span class='texttt'>hasher</span>, <span class='texttt'>eq</span> is a possibly const value of
+type <span class='texttt'>key_equal</span>, <span class='texttt'>n</span> is a value of
+type <span class='texttt'>size_type</span>, and <span class='texttt'>z</span> is a value of
+type <span class='texttt'>float</span>.</p><div class='numberedTable' id='tab:HashRequirements'>Table <a href='#tab:HashRequirements'>103</a> — Unordered associative container requirements (in addition to container)<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Assertion/note pre-/post-condition</b></td><td colspan='1' class='center'><b>Complexity</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='endhead'></span>
+<span class='texttt'>X::key_type</span>   </td><td class='left'>
+  <span class='texttt'>Key</span>         </td><td class='left'>
+  <span class='indexparent'><a class='index' id='unordered_associative_containers,key_type'></a></span>  <span class='indexparent'><a class='index' id='key_type,unordered_associative_containers'></a></span>  <i>Requires:</i> <span class='texttt'>Key</span> shall be <span class='texttt'>Destructible</span>.  </td><td class='left'>
+  compile time        </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::mapped_type</span> (<span class='texttt'>unordered_map</span> and <span class='texttt'>unordered_multimap</span> only)  </td><td class='left'>
+  <span class='texttt'>T</span>             </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>T</span> is <span class='texttt'>Destructible</span>. </td><td class='left'>
+  compile time          </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::hasher</span>
+</td><td class='left'>   <span class='texttt'>Hash</span>
+</td><td class='left'>   <span class='texttt'>Hash</span> shall be a unary function object type such that the expression
+    <span class='texttt'>hf(k)</span> has type <span class='texttt'>std::size_t</span>.    <span class='indexparent'><a class='index' id='unordered_associative_containers,hasher'></a></span>    <span class='indexparent'><a class='index' id='hasher,unordered_associative_containers'></a></span></td><td class='left'>   compile time
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X::key_equal</span>
+</td><td class='left'>   <span class='texttt'>Pred</span>
+</td><td class='left'>   <span class='texttt'>Pred</span> shall be a binary predicate that takes two arguments
+    of type <span class='texttt'>Key</span>.  <span class='texttt'>Pred</span> is an equivalence relation.    <span class='indexparent'><a class='index' id='unordered_associative_containers,key_equal'></a></span>    <span class='indexparent'><a class='index' id='key_equal,unordered_associative_containers'></a></span></td><td class='left'>   compile time
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X::local_iterator</span>
+</td><td class='left'>   An iterator type whose category, value type,
+    difference type, and pointer and reference types are the same as
+    <span class='texttt'>X::iterator</span>'s. <span class='indexparent'><a class='index' id='local_iterator'></a></span>
+</td><td class='left'>   A <span class='texttt'>local_iterator</span> object may be used to iterate through a
+    single bucket, but may not be used to iterate across
+    buckets.    <span class='indexparent'><a class='index' id='unordered_associative_containers,local_iterator'></a></span>    <span class='indexparent'><a class='index' id='local_iterator,unordered_associative_containers'></a></span></td><td class='left'>   compile time
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X::const_local_iterator</span>
+</td><td class='left'>   An iterator type whose category, value type,
+    difference type, and pointer and reference types are the same as
+    <span class='texttt'>X::const_iterator</span>'s. <span class='indexparent'><a class='index' id='const_local_iterator'></a></span>
+</td><td class='left'>   A <span class='texttt'>const_local_iterator</span> object may be used to iterate through a
+    single bucket, but may not be used to iterate across
+    buckets.    <span class='indexparent'><a class='index' id='unordered_associative_containers,const_local_iterator'></a></span>    <span class='indexparent'><a class='index' id='const_local_iterator,unordered_associative_containers'></a></span></td><td class='left'>   compile time
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(n, hf, eq)</span><span class='hfill'></span><br/> <span class='texttt'>X a(n, hf, eq)</span>
+</td><td class='left'>   X
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>hasher</span> and <span class='texttt'>key_equal</span> are <span class='texttt'>CopyConstructible</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Constructs an empty container with at least <span class='texttt'>n</span> buckets,
+using <span class='texttt'>hf</span> as the hash function and <span class='texttt'>eq</span> as the key
+equality predicate.
+</td><td class='left'>   <span class='math'>Ο(<span class='math'><span class='mathalpha'>n</span></span>)</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(n, hf)</span><span class='hfill'></span><br/> <span class='texttt'>X a(n, hf)</span>
+</td><td class='left'>   X
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>hasher</span> is <span class='texttt'>CopyConstructible</span> and <span class='texttt'>key_equal</span>
+    is <span class='texttt'>DefaultConstructible</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Constructs an empty container with at least <span class='texttt'>n</span> buckets,
+using <span class='texttt'>hf</span> as the hash function and <span class='texttt'>key_equal()</span> as the key
+equality predicate.
+</td><td class='left'>   <span class='math'>Ο(<span class='math'><span class='mathalpha'>n</span></span>)</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(n)</span><span class='hfill'></span><br/> <span class='texttt'>X a(n)</span>
+</td><td class='left'>   X
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>hasher</span> and <span class='texttt'>key_equal</span> are <span class='texttt'>DefaultConstructible</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Constructs an empty container with at least <span class='texttt'>n</span> buckets,
+using <span class='texttt'>hasher()</span> as the hash function and <span class='texttt'>key_equal()</span>
+as the key equality predicate.
+</td><td class='left'>   <span class='math'>Ο(<span class='math'><span class='mathalpha'>n</span></span>)</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X()</span><span class='hfill'></span><br/> <span class='texttt'>X a</span>
+</td><td class='left'>   X
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>hasher</span> and <span class='texttt'>key_equal</span> are <span class='texttt'>DefaultConstructible</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Constructs an empty container with an unspecified number of
+  buckets, using <span class='texttt'>hasher()</span> as the hash function and
+  <span class='texttt'>key_equal()</span> as the key equality predicate.
+</td><td class='left'>   constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(i, j, n, hf, eq)</span><span class='hfill'></span><br/> <span class='texttt'>X a(i, j, n, hf, eq)</span>
+</td><td class='left'>   X
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>hasher</span> and <span class='texttt'>key_equal</span> are <span class='texttt'>CopyConstructible</span>.
+    <span class='texttt'>value_type</span> is <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>*i</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Constructs an empty container with at least <span class='texttt'>n</span> buckets,
+using <span class='texttt'>hf</span> as the hash function and <span class='texttt'>eq</span> as the key
+equality predicate, and inserts elements from <span class='texttt'>[i, j)</span> into it.
+</td><td class='left'>   Average case <span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span></span>)</span> (<span class='math'><span class='mathalpha'>N</span></span> is <span class='texttt'>distance(i, j)</span>), worst case
+<span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span><sup >2</sup></span>)</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(i, j, n, hf)</span><span class='hfill'></span><br/> <span class='texttt'>X a(i, j, n, hf)</span>
+</td><td class='left'>   X
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>hasher</span> is <span class='texttt'>CopyConstructible</span> and <span class='texttt'>key_equal</span>
+    is <span class='texttt'>DefaultConstructible</span>.
+    <span class='texttt'>value_type</span> is <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>*i</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Constructs an empty container with at least <span class='texttt'>n</span> buckets,
+using <span class='texttt'>hf</span> as the hash function and <span class='texttt'>key_equal()</span> as the key
+equality predicate, and inserts elements from <span class='texttt'>[i, j)</span> into it.
+</td><td class='left'>   Average case <span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span></span>)</span> (<span class='math'><span class='mathalpha'>N</span></span> is <span class='texttt'>distance(i, j)</span>), worst case
+<span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span><sup >2</sup></span>)</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(i, j, n)</span><span class='hfill'></span><br/> <span class='texttt'>X a(i, j, n)</span>
+</td><td class='left'>   X
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>hasher</span> and <span class='texttt'>key_equal</span> are <span class='texttt'>DefaultConstructible</span>.
+    <span class='texttt'>value_type</span> is <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>*i</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Constructs an empty container with at least <span class='texttt'>n</span> buckets,
+using <span class='texttt'>hasher()</span> as the hash function and <span class='texttt'>key_equal()</span>
+as the key equality predicate, and inserts elements from <span class='texttt'>[i, j)</span>
+into it.
+</td><td class='left'>   Average case <span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span></span>)</span> (<span class='math'><span class='mathalpha'>N</span></span> is <span class='texttt'>distance(i, j)</span>), worst case
+<span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span><sup >2</sup></span>)</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(i, j)</span><span class='hfill'></span><br/> <span class='texttt'>X a(i, j)</span>
+</td><td class='left'>   X
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>hasher</span> and <span class='texttt'>key_equal</span> are <span class='texttt'>DefaultConstructible</span>.
+    <span class='texttt'>value_type</span> is <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>*i</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Constructs an empty container with an unspecified number of
+buckets, using <span class='texttt'>hasher()</span> as the hash function and
+<span class='texttt'>key_equal()</span> as the key equality predicate, and inserts elements
+from <span class='texttt'>[i, j)</span> into it.
+</td><td class='left'>   Average case <span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span></span>)</span> (<span class='math'><span class='mathalpha'>N</span></span> is <span class='texttt'>distance(i, j)</span>), worst case
+<span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span><sup >2</sup></span>)</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(il)</span>
+</td><td class='left'>   <span class='texttt'>X</span>
+</td><td class='left'>   Same as <span class='texttt'>X(il.begin(), il.end())</span>.
+</td><td class='left'>   Same as <span class='texttt'>X(il.begin(),</span> <span class='texttt'>il.end())</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>X(b)</span><span class='hfill'></span><br/> <span class='texttt'>X a(b)</span>
+</td><td class='left'>   <span class='texttt'>X</span>
+</td><td class='left'>   Copy constructor.  In addition to the requirements
+    of Table <a href='container.requirements.general#tab:containers.container.requirements'>[tab:containers.container.requirements]</a>, copies the
+  hash function, predicate, and maximum load factor.
+</td><td class='left'>   Average case linear in <span class='texttt'>b.size()</span>, worst case quadratic.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a = b</span>
+</td><td class='left'>   <span class='texttt'>X&amp;</span>
+</td><td class='left'>   Copy assignment operator.  In addition to the
+    requirements of Table <a href='container.requirements.general#tab:containers.container.requirements'>[tab:containers.container.requirements]</a>, copies
+  the hash function, predicate, and maximum load factor.
+</td><td class='left'>   Average case linear in <span class='texttt'>b.size()</span>, worst case quadratic.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a = il</span>
+</td><td class='left'>   <span class='texttt'>X&amp;</span>
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>value_type</span> is
+CopyInsertable into <span class='texttt'>X</span>
+and <span class='texttt'>CopyAssignable</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Assigns the range <span class='texttt'>[<span class='discretionary'></span>il.begin(),<span class='discretionary'></span>il.end()<span class='discretionary'></span>)</span> into <span class='texttt'>a</span>. All
+    existing elements of <span class='texttt'>a</span> are either assigned to or destroyed.
+</td><td class='left'>   Same as <span class='texttt'>a = X(il).</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.hash_function()</span>
+</td><td class='left'>   <span class='texttt'>hasher</span>
+</td><td class='left'>   Returns <span class='texttt'>b</span>'s hash function.    <span class='indexparent'><a class='index' id='unordered_associative_containers,hash_function'></a></span>    <span class='indexparent'><a class='index' id='hash_function,unordered_associative_containers'></a></span></td><td class='left'>   constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.key_eq()</span>
+</td><td class='left'>   <span class='texttt'>key_equal</span>
+</td><td class='left'>   Returns <span class='texttt'>b</span>'s key equality predicate.    <span class='indexparent'><a class='index' id='unordered_associative_containers,key_eq'></a></span>    <span class='indexparent'><a class='index' id='key_eq,unordered_associative_containers'></a></span></td><td class='left'>   constant
+</td></tr><tr class='rowsep'><td class='left'> 
+
+<span class='texttt'>a_uniq.</span> <span class='texttt'>emplace(args)</span> </td><td class='left'>
+  <span class='texttt'>pair&lt;iterator,</span> <span class='texttt'>bool&gt;</span> </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>value_type</span> shall be <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>args</span>.<span class='hfill'></span><br/>
+  <i>Effects:</i> Inserts a <span class='texttt'>value_type</span> object <span class='texttt'>t</span> constructed with
+  <span class='texttt'>std::forward&lt;Args&gt;(args)...</span> if and only if there is no
+  element in the container with key equivalent to the key of <span class='texttt'>t</span>.
+  The <span class='texttt'>bool</span> component of the returned
+  pair is true if and only if the insertion takes place, and the iterator
+  component of the pair points to the element with key equivalent to the
+  key of <span class='texttt'>t</span>.  </td><td class='left'>
+  Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a_uniq.</span><span class='hfill'></span><br/><span class='texttt'>size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a_eq.</span><span class='texttt'>emplace(args)</span>  </td><td class='left'>
+  <span class='texttt'>iterator</span>    </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>value_type</span> shall be <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>args</span>.<span class='hfill'></span><br/>
+  <i>Effects:</i> Inserts a <span class='texttt'>value_type</span> object <span class='texttt'>t</span> constructed with
+  <span class='texttt'>std::forward&lt;Args&gt;(args)...</span> and returns the iterator pointing
+  to the newly inserted element.    </td><td class='left'>
+  Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a_eq.</span><span class='hfill'></span><br/><span class='texttt'>size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.emplace_hint(p, args)</span>  </td><td class='left'>
+  <span class='texttt'>iterator</span>    </td><td class='left'>
+  <i>Requires:</i> <span class='texttt'>value_type</span> shall be <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>args</span>.<span class='hfill'></span><br/>
+  <i>Effects:</i> Equivalent to <span class='texttt'>a.emplace(</span> <span class='texttt'>std::forward&lt;Args&gt;(args)...)</span>.
+  Return value is an iterator pointing to the element with the key equivalent
+  to the newly inserted element. The <span class='texttt'>const_iterator</span> <span class='texttt'>p</span>
+  is a hint pointing to where the search should start. Implementations are
+  permitted to ignore the hint. </td><td class='left'>
+  Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a.</span> <span class='texttt'>size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a_uniq.insert(t)</span>
+</td><td class='left'>   <span class='texttt'>pair&lt;iterator, bool&gt;</span>
+</td><td class='left'>   <i>Requires:</i> If <span class='texttt'>t</span> is a non-const rvalue expression, <span class='texttt'>value_type</span> shall be
+    <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>; otherwise, <span class='texttt'>value_type</span> shall be
+    <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Inserts <span class='texttt'>t</span> if and only if there is no element in the container
+    with key equivalent to the key of <span class='texttt'>t</span>.  The <span class='texttt'>bool</span>
+    component of the returned pair indicates whether the insertion
+    takes place, and the <span class='texttt'>iterator</span> component points to the element
+    with key equivalent to the key of <span class='texttt'>t</span>.    <span class='indexparent'><a class='index' id='unordered_associative_containers,insert'></a></span>    <span class='indexparent'><a class='index' id='insert,unordered_associative_containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a_uniq.</span><span class='hfill'></span><br/><span class='texttt'>size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a_eq.insert(t)</span>
+</td><td class='left'>   <span class='texttt'>iterator</span>
+</td><td class='left'>   <i>Requires:</i> If <span class='texttt'>t</span> is a non-const rvalue expression, <span class='texttt'>value_type</span> shall be
+    <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>; otherwise, <span class='texttt'>value_type</span> shall be
+    <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Inserts <span class='texttt'>t</span>, and returns an iterator pointing to the newly
+    inserted element.
+    <span class='indexparent'><a class='index' id='unordered_associative_containers,insert'></a></span>    <span class='indexparent'><a class='index' id='insert,unordered_associative_containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a_eq.</span><span class='hfill'></span><br/><span class='texttt'>size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.insert(q, t)</span>
+</td><td class='left'>   <span class='texttt'>iterator</span>
+</td><td class='left'>   <i>Requires:</i> If <span class='texttt'>t</span> is a non-const rvalue expression, <span class='texttt'>value_type</span> shall be
+    <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>; otherwise, <span class='texttt'>value_type</span> shall be
+    <span class='texttt'>CopyInsertable</span> into <span class='texttt'>X</span>.<span class='hfill'></span><br/>
+    <i>Effects:</i> Equivalent to a.insert(t).  Return value is an iterator pointing
+to the element with the key equivalent to that of <span class='texttt'>t</span>.  The
+iterator <span class='texttt'>q</span> is a hint pointing to where the search should
+start.  Implementations are permitted to ignore the hint.    <span class='indexparent'><a class='index' id='unordered_associative_containers,insert'></a></span>    <span class='indexparent'><a class='index' id='insert,unordered_associative_containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a.size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.insert(i, j)</span>
+</td><td class='left'>   <span class='texttt'>void</span>
+</td><td class='left'>   <i>Requires:</i> <span class='texttt'>value_type</span> shall be <span class='texttt'>EmplaceConstructible</span> into <span class='texttt'>X</span> from <span class='texttt'>*i</span>.<span class='hfill'></span><br/>
+    Pre: <span class='texttt'>i</span> and <span class='texttt'>j</span> are not iterators in <span class='texttt'>a</span>.
+    Equivalent to <span class='texttt'>a.insert(t)</span> for each element in <span class='texttt'>[i,j)</span>.    <span class='indexparent'><a class='index' id='unordered_associative_containers,insert'></a></span>    <span class='indexparent'><a class='index' id='insert,unordered_associative_containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span></span>)</span>, where <span class='math'><span class='mathalpha'>N</span></span> is <span class='texttt'>distance(i, j)</span>.  Worst
+    case <span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span> * <span class='texttt'>(a.size())</span><span class='hfill'></span><br/><span class='texttt'>+ N</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.insert(il)</span>
+</td><td class='left'>   <span class='texttt'>void</span>
+</td><td class='left'>   Same as <span class='texttt'>a.insert(il.begin(), il.end())</span>.
+</td><td class='left'>   Same as <span class='texttt'>a.insert(</span> <span class='texttt'>il.begin(),</span> <span class='texttt'>il.end())</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.erase(k)</span>
+</td><td class='left'>   <span class='texttt'>size_type</span>
+</td><td class='left'>   Erases all elements with key equivalent to <span class='texttt'>k</span>.  Returns
+the number of elements erased.
+</td><td class='left'>   Average case <span class='math'>Ο(<span class='math'><span class='texttt'>a.count(k)</span></span>)</span>.  Worst case
+    <span class='math'>Ο(<span class='math'><span class='texttt'>a.size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.erase(q)</span>
+</td><td class='left'>   <span class='texttt'>iterator</span>
+</td><td class='left'>   Erases the element pointed to by <span class='texttt'>q</span>. Return value is the
+    iterator immediately following <span class='texttt'>q</span> prior to the erasure.
+    <span class='indexparent'><a class='index' id='unordered_associative_containers,erase'></a></span>    <span class='indexparent'><a class='index' id='erase,unordered_associative_containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a.size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.erase(q1, q2)</span>
+</td><td class='left'>   <span class='texttt'>iterator</span>
+</td><td class='left'>   Erases all elements in the range <span class='texttt'>[q1, q2)</span>. Return value is
+    the iterator immediately following the erased elements prior to the
+    erasure.    <span class='indexparent'><a class='index' id='unordered_associative_containers,erase'></a></span>    <span class='indexparent'><a class='index' id='erase,unordered_associative_containers'></a></span></td><td class='left'>   Average case linear in <span class='texttt'>distance(q1, q2)</span>,
+    worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a.size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.clear()</span>
+</td><td class='left'> <span class='texttt'>void</span>
+</td><td class='left'> Erases all elements in the container.
+   Post: <span class='texttt'>a.empty()</span> returns <span class='texttt'>true</span>    <span class='indexparent'><a class='index' id='unordered_associative_containers,clear'></a></span>    <span class='indexparent'><a class='index' id='clear,unordered_associative_containers'></a></span></td><td class='left'> Linear.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.find(k)</span>
+</td><td class='left'>   <span class='texttt'>iterator</span>; <span class='hfill'></span><br/> <span class='texttt'>const_iterator</span> for const <span class='texttt'>b</span>.
+</td><td class='left'>   Returns an iterator pointing to an element with key equivalent to
+    <span class='texttt'>k</span>, or <span class='texttt'>b.end()</span> if no such element exists.    <span class='indexparent'><a class='index' id='unordered_associative_containers,find'></a></span>    <span class='indexparent'><a class='index' id='find,unordered_associative_containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>b.size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.count(k)</span>
+</td><td class='left'>   <span class='texttt'>size_type</span>
+</td><td class='left'>   Returns the number of elements with key equivalent to <span class='texttt'>k</span>.    <span class='indexparent'><a class='index' id='unordered_associative_containers,count'></a></span>    <span class='indexparent'><a class='index' id='count,unordered_associative_containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>b.size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.equal_range(k)</span>
+</td><td class='left'>   <span class='texttt'>pair&lt;iterator, iterator&gt;</span>; <span class='hfill'></span><br/>
+    <span class='texttt'>pair&lt;const_iterator, const_iterator&gt;</span> for const <span class='texttt'>b</span>.
+</td><td class='left'>   Returns a range containing all elements with keys equivalent to
+    <span class='texttt'>k</span>.  Returns <span class='texttt'>make_pair(b.end(), b.end())</span> if
+    no such elements exist.    <span class='indexparent'><a class='index' id='unordered_associative_containers,equal_range'></a></span>    <span class='indexparent'><a class='index' id='equal_range,unordered_associative_containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'><span class='texttt'>b.count(k)</span></span>)</span>.  Worst case
+    <span class='math'>Ο(<span class='math'><span class='texttt'>b.size()</span></span>)</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.bucket_count()</span>
+</td><td class='left'>   <span class='texttt'>size_type</span>
+</td><td class='left'>   Returns the number of buckets that <span class='texttt'>b</span> contains.    <span class='indexparent'><a class='index' id='unordered_associative_containers,bucket_count'></a></span>    <span class='indexparent'><a class='index' id='bucket_count,unordered_associative_containers'></a></span></td><td class='left'>   Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.max_bucket_count()</span>
+</td><td class='left'>   <span class='texttt'>size_type</span>
+</td><td class='left'>   Returns an upper bound on the number of buckets that <span class='texttt'>b</span> might
+    ever contain.    <span class='indexparent'><a class='index' id='unordered_associative_containers,max_bucket_count'></a></span>    <span class='indexparent'><a class='index' id='max_bucket_count,unordered_associative_containers'></a></span></td><td class='left'>   Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.bucket(k)</span>
+</td><td class='left'> <span class='texttt'>size_type</span>
+</td><td class='left'>
+  Pre: <span class='texttt'>b.bucket_count() &gt; 0</span>.<span class='hfill'></span><br/>
+    Returns the index of the bucket in which elements with keys equivalent
+    to <span class='texttt'>k</span> would be found, if any such element existed.
+    Post: the return value shall be in the range <span class='texttt'>[0, b.bucket_count())</span>.    <span class='indexparent'><a class='index' id='unordered_associative_containers,bucket'></a></span>    <span class='indexparent'><a class='index' id='bucket,unordered_associative_containers'></a></span></td><td class='left'> Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.bucket_size(n)</span>
+</td><td class='left'>   <span class='texttt'>size_type</span>
+</td><td class='left'>   Pre: <span class='texttt'>n</span> shall be in the range <span class='texttt'>[0, b.bucket_count())</span>.
+    Returns the number of elements in the <span class='math'><span class='texttt'>n</span><sup ><span class='textrm'> th</span></sup></span> bucket.    <span class='indexparent'><a class='index' id='unordered_associative_containers,bucket_size'></a></span>    <span class='indexparent'><a class='index' id='bucket_size,unordered_associative_containers'></a></span></td><td class='left'>   <span class='math'>Ο(<span class='math'><span class='texttt'>b.bucket_</span><span class='texttt'>size(n)</span></span>)</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.begin(n)</span>
+</td><td class='left'>   <span class='texttt'>local_iterator</span>; <span class='hfill'></span><br/>
+    <span class='texttt'>const_local_iterator</span> for const <span class='texttt'>b</span>.
+</td><td class='left'>   Pre: <span class='texttt'>n</span> shall be in the range <span class='texttt'>[0, b.bucket_count())</span>.
+    <span class='texttt'>b.begin(n)</span> returns an iterator referring to the
+    first element in the bucket. If the bucket is empty, then
+    <span class='texttt'>b.begin(n) == b.end(n)</span>.    <span class='indexparent'><a class='index' id='unordered_associative_containers,begin'></a></span>    <span class='indexparent'><a class='index' id='begin,unordered_associative_containers'></a></span></td><td class='left'>   Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.end(n)</span>
+</td><td class='left'>   <span class='texttt'>local_iterator</span>; <span class='hfill'></span><br/>
+    <span class='texttt'>const_local_iterator</span> for const <span class='texttt'>b</span>.
+</td><td class='left'>   Pre: <span class='texttt'>n</span> shall be in the range <span class='texttt'>[0, b.bucket_count())</span>.
+    <span class='texttt'>b.end(n)</span> returns an iterator which is the past-the-end
+    value for the bucket.    <span class='indexparent'><a class='index' id='unordered_associative_containers,end'></a></span>    <span class='indexparent'><a class='index' id='end,unordered_associative_containers'></a></span></td><td class='left'>   Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.cbegin(n)</span>
+</td><td class='left'>   <span class='texttt'>const_local_iterator</span>
+</td><td class='left'>   Pre: <span class='texttt'>n</span> shall be in the range <span class='texttt'>[0, b.bucket_count())</span>.
+    Note: <span class='texttt'>[b.cbegin(n), b.cend(n))</span> is a valid range containing
+    all of the elements in the <span class='math'><span class='texttt'>n</span><sup ><span class='textrm'> th</span></sup></span> bucket.    <span class='indexparent'><a class='index' id='unordered_associative_containers,cbegin'></a></span>    <span class='indexparent'><a class='index' id='cbegin,unordered_associative_containers'></a></span></td><td class='left'>   Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.cend(n)</span>
+</td><td class='left'>   <span class='texttt'>const_local_iterator</span>
+</td><td class='left'>   Pre: <span class='texttt'>n</span> shall be in the range <span class='texttt'>[0, b.bucket_count())</span>.    <span class='indexparent'><a class='index' id='unordered_associative_containers,cend'></a></span>    <span class='indexparent'><a class='index' id='cend,unordered_associative_containers'></a></span></td><td class='left'>   Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.load_factor()</span>
+</td><td class='left'>   <span class='texttt'>float</span>
+</td><td class='left'>   Returns the average number of elements per bucket.    <span class='indexparent'><a class='index' id='unordered_associative_containers,load_factor'></a></span>    <span class='indexparent'><a class='index' id='load_factor,unordered_associative_containers'></a></span></td><td class='left'>   Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>b.max_load_factor()</span>
+</td><td class='left'>   <span class='texttt'>float</span>
+</td><td class='left'>   Returns a positive number that the container attempts to keep the load factor
+    less than or equal to. The container automatically increases the
+    number of buckets as necessary to keep the load factor below this
+    number.    <span class='indexparent'><a class='index' id='unordered_associative_containers,max_load_factor'></a></span>    <span class='indexparent'><a class='index' id='max_load_factor,unordered_associative_containers'></a></span></td><td class='left'>   Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.max_load_factor(z)</span>
+</td><td class='left'>   <span class='texttt'>void</span>
+</td><td class='left'>   Pre: <span class='texttt'>z</span> shall be positive.
+    May change the container's maximum load load factor, using <span class='texttt'>z</span> as a hint.</td><td class='left'> Constant
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>a.rehash(n)</span>
+</td><td class='left'> <span class='texttt'>void</span>
+</td><td class='left'> Post: <span class='texttt'>a.bucket_count() &gt; a.size() / a.max_load_factor()</span> and
+        <span class='texttt'>a.bucket_count() &gt;= n</span>.    <span class='indexparent'><a class='index' id='unordered_associative_containers,rehash'></a></span>    <span class='indexparent'><a class='index' id='rehash,unordered_associative_containers'></a></span></td><td class='left'> Average case linear in <span class='texttt'>a.size()</span>, worst case quadratic.
+</td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.reserve(n)</span>  </td><td class='left'>
+  <span class='texttt'>void</span>        </td><td class='left'>
+  Same as <span class='texttt'>a.rehash(ceil(n /</span> <span class='texttt'>a.max_load_factor()))</span>.  </td><td class='left'>
+  Average case linear in <span class='texttt'>a.size()</span>, worst case quadratic. </td></tr></table></div></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><p >Two unordered containers <span class='texttt'>a</span> and <span class='texttt'>b</span> compare equal if
+<span class='texttt'>a.size() == b.size()</span> and, for every equivalent-key group
+<span class='texttt'>[<span class='discretionary'></span>Ea1,<span class='discretionary'></span>Ea2<span class='discretionary'></span>)</span> obtained from <span class='texttt'>a.equal_range(Ea1)</span>, there exists an
+equivalent-key group <span class='texttt'>[<span class='discretionary'></span>Eb1,<span class='discretionary'></span>Eb2<span class='discretionary'></span>)</span> obtained from <span class='texttt'>b.equal_range(Ea1)</span>,
+such that <span class='texttt'>distance(Ea1, Ea2) == distance(Eb1, Eb2)</span> and
+<span class='texttt'>is_permutation(Ea1, Ea2, Eb1)</span> returns <span class='texttt'>true</span>. For
+<span class='texttt'>unordered_set</span> and <span class='texttt'>unordered_map</span>, the complexity of
+<span class='texttt'>operator==</span> (i.e., the number of calls to the <span class='texttt'>==</span> operator
+of the <span class='texttt'>value_type</span>, to the predicate returned by <span class='texttt'>key_equal()</span>,
+and to the hasher returned by <span class='texttt'>hash_function()</span>) is proportional to
+<span class='math'><span class='mathalpha'>N</span></span> in the average case and to <span class='math'><span class='mathalpha'>N</span><sup >2</sup></span> in the worst case, where <span class='math'><span class='mathalpha'>N</span></span> is
+a.size(). For <span class='texttt'>unordered_multiset</span> and <span class='texttt'>unordered_multimap</span>,
+the complexity of <span class='texttt'>operator==</span> is proportional to <img src='math/617882118394775188.png' class='mathinlineimg' alt='$\sum E_i^2$'/>
+in the average case and to <span class='math'><span class='mathalpha'>N</span><sup >2</sup></span> in the worst case, where <span class='math'><span class='mathalpha'>N</span></span> is <span class='texttt'>a.size()</span>,
+and <span class='math'><span class='mathalpha'>E</span><sub ><span class='mathalpha'>i</span></sub></span> is the size of the <span class='math'><span class='mathalpha'>i</span><sup ><span class='mathalpha'>th</span></sup></span> equivalent-key group in <span class='texttt'>a</span>.
+However, if the respective elements of each corresponding pair of
+equivalent-key groups <span class='math'><span class='mathalpha'>Ea</span><sub ><span class='mathalpha'>i</span></sub></span> and <span class='math'><span class='mathalpha'>Eb</span><sub ><span class='mathalpha'>i</span></sub></span> are arranged in the same order
+(as is commonly the case, e.g., if <span class='texttt'>a</span> and <span class='texttt'>b</span> are unmodified copies
+of the same container), then the average-case complexity for
+<span class='texttt'>unordered_multiset</span> and <span class='texttt'>unordered_multimap</span> becomes
+proportional to <span class='math'><span class='mathalpha'>N</span></span> (but worst-case complexity remains <span class='math'>Ο(<span class='math'><span class='mathalpha'>N</span><sup >2</sup></span>)</span>, e.g., for
+a pathologically bad hash function). The behavior of a program that uses
+<span class='texttt'>operator==</span> or <span class='texttt'>operator!=</span> on unordered containers is undefined
+unless the <span class='texttt'>Hash</span> and <span class='texttt'>Pred</span> function objects respectively have
+the same behavior for both containers and the equality comparison operator
+for <span class='texttt'>Key</span> is a refinement<a class='footnotenum' href='#footnote-264'>264</a>
+of the partition into equivalent-key groups produced by <span class='texttt'>Pred</span>.</p></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,iterators'></a></span>The iterator types <span class='texttt'>iterator</span> and <span class='texttt'>const_iterator</span> of
+an unordered associative container are of at least the forward iterator
+category.  For unordered associative containers where the key type and
+value type are the same, both <span class='texttt'>iterator</span> and
+<span class='texttt'>const_iterator</span> are const iterators.</p></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,iterator_invalidation'></a></span>The <span class='texttt'>insert</span> and <span class='texttt'>emplace</span> members shall not affect the validity of references to
+container elements, but may invalidate all iterators to the
+container.  The erase members shall invalidate only iterators and
+references to the erased elements.</p></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,iterator_invalidation'></a></span><span class='indexparent'><a class='index' id='unordered_associative_containers,requirements'></a></span>The <span class='texttt'>insert</span> and <span class='texttt'>emplace</span> members shall not affect the validity of iterators if
+<span class='texttt'>(N+n) &lt; z * B</span>, where <span class='texttt'>N</span> is the number of elements in
+the container prior to the insert operation, <span class='texttt'>n</span> is the
+number of elements inserted, <span class='texttt'>B</span> is the container's bucket count, and
+<span class='texttt'>z</span> is the container's maximum load factor.</p></div><div class='footnote' id='footnote-263'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-263'>263)</a></div><p >Equality comparison is a refinement
+of partitioning if no two objects that
+compare equal fall into different partitions.</p></div><div id='except'><h4 ><a class='secnum' href='#except' style='min-width:118pt'>23.2.5.1</a> Exception safety guarantees <a class='abbr_ref' href='unord.req.except'>[unord.req.except]</a></h4><div class='para' id='except-1'><div class='marginalizedparent'><a class='marginalized' href='#except-1'>1</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,exception_safety'></a></span><span class='indexparent'><a class='index' id='unordered_associative_containers,requirements'></a></span>For unordered associative containers, no <span class='texttt'>clear()</span> function
+throws an exception. <span class='texttt'>erase(k)</span> does not throw an
+exception unless that exception is thrown by the container's <span class='texttt'>Hash</span> or
+<span class='texttt'>Pred</span> object (if any).</p></div><div class='para' id='except-2'><div class='marginalizedparent'><a class='marginalized' href='#except-2'>2</a></div><p >For unordered associative containers, if an exception is thrown by any
+operation other than the container's hash function from within an
+<span class='texttt'>insert</span> or <span class='texttt'>emplace</span> function inserting a single element,
+the insertion has no effect.</p></div><div class='para' id='except-3'><div class='marginalizedparent'><a class='marginalized' href='#except-3'>3</a></div><p >For unordered associative containers, no <span class='texttt'>swap</span> function throws
+an exception unless that exception is thrown by the swap of the container's
+Hash or Pred object (if any).</p></div><div class='para' id='except-4'><div class='marginalizedparent'><a class='marginalized' href='#except-4'>4</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,exception_safety'></a></span><span class='indexparent'><a class='index' id='unordered_associative_containers,requirements'></a></span>For unordered associative containers, if an exception is thrown
+from within a <span class='texttt'>rehash()</span> function other than by the container's hash
+function or comparison function, the <span class='texttt'>rehash()</span> function has no effect.</p></div></div></div></div></body></html>

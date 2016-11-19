@@ -1,0 +1,107 @@
+<!DOCTYPE html><html lang='en'><head><title>[basic.start.init]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>3</a> Basic concepts <a class='abbr_ref' href='./#basic'>[basic]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>3.6</a> Start and termination <a class='abbr_ref' href='basic.start#init'>[basic.start]</a></h2><div id='basic.start.init'><h3 ><a class='secnum' style='min-width:103pt'>3.6.2</a> Initialization of non-local variables <a class='abbr_ref'>[basic.start.init]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='initialization'></a></span><span class='indexparent'><a class='index' id='initialization,static_and_thread'></a></span>There are two broad classes of named non-local variables: those with static storage
+duration (<a href='basic.stc.static'>[basic.stc.static]</a>) and those with thread storage
+duration (<a href='basic.stc.thread'>[basic.stc.thread]</a>). Non-local variables with static storage duration
+are initialized as a consequence of program initiation. Non-local variables with
+thread storage duration are initialized as a consequence of thread execution.
+Within each of these phases of initiation, initialization occurs as follows.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='indexparent'><a class='index' id='initialization,static_object'></a></span><span class='indexparent'><a class='index' id='initialization,dynamic'></a></span><span class='indexparent'><a class='index' id='initialization,run-time'></a></span><span class='indexparent'><a class='index' id='start,program'></a></span><span class='indexparent'><a class='index' id='initialization,order_of'></a></span>Variables with static storage duration (<a href='basic.stc.static'>[basic.stc.static]</a>) or thread storage
+duration (<a href='basic.stc.thread'>[basic.stc.thread]</a>) shall be zero-initialized (<a href='dcl.init'>[dcl.init]</a>) before
+any other initialization takes place.</p><p ><span class='indexparent'><a class='index' id='initialization,constant'></a></span><a class='hidden_link' href='#def:Constant_initialization' id='def:Constant_initialization'><i>Constant initialization</i></a> is performed:</p><ul ><li ><p >if each full-expression (including implicit conversions) that appears in
+the initializer of a reference with static or thread storage duration is a
+constant expression (<a href='expr.const'>[expr.const]</a>) and the reference is bound to an lvalue
+designating an object with static storage duration or to a temporary (see <a href='class.temporary'>[class.temporary]</a>);</p></li><li ><p >if an object with static or thread storage duration is initialized
+by a constructor call, if the constructor is a <span class='texttt'>constexpr</span> constructor, if all constructor
+arguments are constant expressions (including conversions), and if, after function
+invocation substitution (<a href='dcl.constexpr'>[dcl.constexpr]</a>), every constructor call and full-expression in
+the <i ><a href='class.base.init#nt:mem-initializer'>mem-initializers</a></i>
+and in the <i ><a href='dcl.init#nt:brace-or-equal-initializer'>brace-or-equal-initializers</a></i> for non-static data members
+is a constant expression;</p></li><li ><p >if an object with static or thread storage duration is not initialized by a constructor call
+and if every full-expression that appears in its initializer is a constant expression.</p></li></ul><p >Together, zero-initialization and constant initialization are called <a class='hidden_link' href='#def:static_initialization' id='def:static_initialization'><i>static
+initialization</i></a>; all other initialization is <a class='hidden_link' href='#def:dynamic_initialization' id='def:dynamic_initialization'><i>dynamic initialization</i></a>. Static
+initialization shall be performed before any dynamic initialization takes place. Dynamic
+initialization of a non-local variable with static storage duration is either ordered or
+unordered. Definitions of explicitly specialized class template static data members have
+ordered initialization. Other class template static data members (i.e., implicitly or
+explicitly instantiated specializations) have unordered initialization. Other non-local
+variables with static storage duration have ordered initialization. Variables with ordered
+initialization defined within a single translation unit shall be initialized in the order of
+their definitions in the translation unit. If a program starts a thread (<a href='thread.threads'>[thread.threads]</a>),
+the subsequent initialization of a variable is unsequenced with respect to the initialization
+of a variable defined in a different translation unit. Otherwise, the initialization of a
+variable is indeterminately sequenced with respect to the initialization of a variable defined
+in a different translation unit. If a program starts a thread, the subsequent unordered
+initialization of a variable is unsequenced with respect to every other dynamic initialization.
+Otherwise, the unordered initialization of a variable is indeterminately sequenced with respect
+to every other dynamic initialization. [&nbsp;<i>Note:</i> This definition permits initialization of a
+sequence of ordered variables concurrently with another sequence. <i>&nbsp;—&nbsp;end note</i>&nbsp;] [&nbsp;<i>Note:</i> The
+initialization of local static variables is described in <a href='stmt.dcl'>[stmt.dcl]</a>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >An implementation is permitted to perform the initialization of a
+non-local variable with static storage duration as a static
+initialization even if such initialization is not required to be done
+statically, provided that</p><ul ><li ><p >the dynamic version of the initialization does not change the
+value of any other object of namespace scope prior to its initialization, and</p></li><li ><p >the static version of the initialization produces the same value
+in the initialized variable as would be produced by the dynamic
+initialization if all variables not required to be initialized statically
+were initialized dynamically.
+</p></li></ul><p >[&nbsp;<i>Note:</i> As a consequence, if the initialization of an object <span class='texttt'>obj1</span> refers to an
+object <span class='texttt'>obj2</span> of namespace scope potentially requiring dynamic initialization and defined
+later in the same translation unit, it is unspecified whether the value of <span class='texttt'>obj2</span> used
+will be the value of the fully initialized <span class='texttt'>obj2</span> (because <span class='texttt'>obj2</span> was statically
+initialized) or will be the value of <span class='texttt'>obj2</span> merely zero-initialized. For example,</p><pre class='codeblock'>
+inline double fd() { return 1.0; }
+extern double d1;
+double d2 = d1;     <span class='comment'>// unspecified:
+</span>                    <span class='comment'>// may be statically initialized to <span class='texttt'>0.0</span> or
+</span>                    <span class='comment'>// dynamically initialized to <span class='texttt'>0.0</span> if <span class='texttt'>d1</span> is
+</span>                    <span class='comment'>// dynamically initialized, or <span class='texttt'>1.0</span> otherwise
+</span>double d1 = fd();   <span class='comment'>// may be initialized statically or dynamically to <span class='texttt'>1.0</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p ><span class='indexparent'><a class='index' id='evaluation,unspecified_order_of'></a></span>It is <span class='indexparent'><a class='index' id='dynamic_initialization_of_static_objects_before_main'></a></span>implementation-defined whether the
+dynamic initialization of a non-local variable with static storage duration is
+done before the first statement of <span class='texttt'>main</span>. If the initialization is deferred to
+some point in time after the first statement of <span class='texttt'>main</span>, it shall occur before the
+first odr-use (<a href='basic.def.odr'>[basic.def.odr]</a>) of any function or variable
+defined in the same translation unit as the variable
+to be initialized.<a class='footnotenum' href='#footnote-34'>34</a>
+[&nbsp;<i>Example:</i> </p><pre class='codeblock'>
+<span class='comment'>// - File 1 -
+</span>#include "a.h"
+#include "b.h"
+B b;
+A::A(){
+  b.Use();
+}
+
+<span class='comment'>// - File 2 -
+</span>#include "a.h"
+A a;
+
+<span class='comment'>// - File 3 -
+</span>#include "a.h"
+#include "b.h"
+extern A a;
+extern B b;
+
+int main() {
+  a.Use();
+  b.Use();
+}
+</pre><p >It is implementation-defined whether either <span class='texttt'>a</span> or <span class='texttt'>b</span> is
+initialized before <span class='texttt'>main</span> is entered or whether the
+initializations are delayed until <span class='texttt'>a</span> is first odr-used in
+<span class='texttt'>main</span>. In particular, if <span class='texttt'>a</span> is initialized before
+<span class='texttt'>main</span> is entered, it is not guaranteed that <span class='texttt'>b</span> will be
+initialized before it is odr-used by the initialization of <span class='texttt'>a</span>, that
+is, before <span class='texttt'>A::A</span> is called. If, however, <span class='texttt'>a</span> is initialized
+at some point after the first statement of <span class='texttt'>main</span>, <span class='texttt'>b</span> will
+be initialized prior to its use in <span class='texttt'>A::A</span>. <i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >It is <span class='indexparent'><a class='index' id='dynamic_initialization_of_thread-local_objects_before_entry'></a></span>implementation-defined whether the
+dynamic initialization of a non-local variable with static or
+thread storage duration
+is done before the first statement of the initial function of the thread. If the
+initialization is deferred to some point in time after the first statement of the
+initial function of the thread, it shall occur before the first
+odr-use (<a href='basic.def.odr'>[basic.def.odr]</a>) of any variable with
+thread storage duration defined in the same translation unit as the variable to be
+initialized.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >If the initialization of a non-local variable with static or thread storage duration
+exits via
+an exception, <span class='texttt'>std::terminate</span> is called (<a href='except.terminate'>[except.terminate]</a>).<span class='indexparent'><a class='index' id='program,start'></a></span></p></div><div class='footnote' id='footnote-34'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-34'>34)</a></div><p >A non-local variable with static storage duration
+having initialization
+with side-effects must be initialized even if it is not
+odr-used (<a href='basic.def.odr'>[basic.def.odr]</a>, <a href='basic.stc.static'>[basic.stc.static]</a>).</p></div></div></div></body></html>

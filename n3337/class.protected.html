@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang='en'><head><title>[class.protected]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>11</a> Member access control <a class='abbr_ref' href='./#class.access'>[class.access]</a></h1><div id='class.protected'><h2 ><a class='secnum' style='min-width:88pt'>11.4</a> Protected member access <a class='abbr_ref'>[class.protected]</a></h2><p ><span class='indexparent'><a class='index' id='access_control,protected'></a></span>
+</p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >An additional access check beyond those described earlier in Clause <a href='class.access'>[class.access]</a>
+is applied when a non-static data member or non-static member function is a
+protected member of its naming class (<a href='class.access.base'>[class.access.base]</a>)<a class='footnotenum' href='#footnote-115'>115</a>
+As described earlier, access to a protected member is granted because the
+reference occurs in a friend or member of some class <span class='texttt'>C</span>. If the access is
+to form a pointer to member (<a href='expr.unary.op'>[expr.unary.op]</a>), the
+<i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i> shall denote <span class='texttt'>C</span> or a class derived from
+<span class='texttt'>C</span>. All other accesses involve a (possibly implicit) object
+expression (<a href='expr.ref'>[expr.ref]</a>). In this case, the class of the object expression shall be
+<span class='texttt'>C</span> or a class derived from <span class='texttt'>C</span>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+class B {
+protected:
+  int i;
+  static int j;
+};
+
+class D1 : public B {
+};
+
+class D2 : public B {
+  friend void fr(B*,D1*,D2*);
+  void mem(B*,D1*);
+};
+
+void fr(B* pb, D1* p1, D2* p2) {
+  pb-&gt;i = 1;                    <span class='comment'>// ill-formed
+</span>  p1-&gt;i = 2;                    <span class='comment'>// ill-formed
+</span>  p2-&gt;i = 3;                    <span class='comment'>// OK (access through a <span class='texttt'>D2</span>)
+</span>  p2-&gt;B::i = 4;                 <span class='comment'>// OK (access through a <span class='texttt'>D2</span>, even though
+</span>                                <span class='comment'>// naming class is <span class='texttt'>B</span>)
+</span>  int B::* pmi_B = &amp;B::i;       <span class='comment'>// ill-formed
+</span>  int B::* pmi_B2 = &amp;D2::i;     <span class='comment'>// OK (type of <span class='texttt'>&amp;D2::i</span> is <span class='texttt'>int B::*</span>)
+</span>  B::j = 5;                     <span class='comment'>// OK (because refers to static member)
+</span>  D2::j = 6;                    <span class='comment'>// OK (because refers to static member)
+</span>}
+
+void D2::mem(B* pb, D1* p1) {
+  pb-&gt;i = 1;                    <span class='comment'>// ill-formed
+</span>  p1-&gt;i = 2;                    <span class='comment'>// ill-formed
+</span>  i = 3;                        <span class='comment'>// OK (access through <span class='texttt'>this</span>)
+</span>  B::i = 4;                     <span class='comment'>// OK (access through <span class='texttt'>this</span>, qualification ignored)
+</span>  int B::* pmi_B = &amp;B::i;       <span class='comment'>// ill-formed
+</span>  int B::* pmi_B2 = &amp;D2::i;     <span class='comment'>// OK
+</span>  j = 5;                        <span class='comment'>// OK (because <span class='texttt'>j</span> refers to static member)
+</span>  B::j = 6;                     <span class='comment'>// OK (because <span class='texttt'>B::j</span> refers to static member)
+</span>}
+
+void g(B* pb, D1* p1, D2* p2) {
+  pb-&gt;i = 1;                    <span class='comment'>// ill-formed
+</span>  p1-&gt;i = 2;                    <span class='comment'>// ill-formed
+</span>  p2-&gt;i = 3;                    <span class='comment'>// ill-formed
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-115'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-115'>115)</a></div><p >This
+additional check does not apply to other members,
+e.g., static data members or enumerator member constants.</p></div></div></div></body></html>

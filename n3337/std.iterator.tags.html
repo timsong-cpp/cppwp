@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang='en'><head><title>[std.iterator.tags]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>24</a> Iterators library <a class='abbr_ref' href='./#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>24.4</a> Iterator primitives <a class='abbr_ref' href='iterator.primitives#std.iterator.tags'>[iterator.primitives]</a></h2><div id='std.iterator.tags'><h3 ><a class='secnum' style='min-width:103pt'>24.4.3</a> Standard iterator tags <a class='abbr_ref'>[std.iterator.tags]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='input_iterator_tag'></a></span><span class='indexparent'><a class='index' id='output_iterator_tag'></a></span><span class='indexparent'><a class='index' id='forward_iterator_tag'></a></span><span class='indexparent'><a class='index' id='bidirectional_iterator_tag'></a></span><span class='indexparent'><a class='index' id='random_access_iterator_tag'></a></span>It is often desirable for a
+function template specialization
+to find out what is the most specific category of its iterator
+argument, so that the function can select the most efficient algorithm at compile time.
+To facilitate this, the
+library introduces
+<i>category tag</i>
+classes which are used as compile time tags for algorithm selection.
+They are:
+<span class='texttt'>input_iterator_tag</span>,
+<span class='texttt'>output_iterator_tag</span>,
+<span class='texttt'>forward_iterator_tag</span>,
+<span class='texttt'>bidirectional_iterator_tag</span>
+and
+<span class='texttt'>random_access_iterator_tag</span>.
+For every iterator of type
+<span class='texttt'>Iterator</span>,
+<span class='texttt'>iterator_traits&lt;Iterator&gt;::iterator_category</span>
+shall be defined to be the most specific category tag that describes the
+iterator's behavior.</p><pre class='codeblock'>
+namespace std {
+  struct input_iterator_tag { };
+  struct output_iterator_tag { };
+  struct forward_iterator_tag: public input_iterator_tag { };
+  struct bidirectional_iterator_tag: public forward_iterator_tag { };
+  struct random_access_iterator_tag: public bidirectional_iterator_tag { };
+}
+</pre></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='indexparent'><a class='index' id='empty'></a></span><span class='indexparent'><a class='index' id='input_iterator_tag'></a></span><span class='indexparent'><a class='index' id='output_iterator_tag'></a></span><span class='indexparent'><a class='index' id='forward_iterator_tag'></a></span><span class='indexparent'><a class='index' id='bidirectional_iterator_tag'></a></span><span class='indexparent'><a class='index' id='random_access_iterator_tag'></a></span>[&nbsp;<i>Example:</i>
+For a program-defined iterator
+<span class='texttt'>BinaryTreeIterator</span>,
+it could be included
+into the bidirectional iterator category by specializing the
+<span class='texttt'>iterator_traits</span>
+template:</p><pre class='codeblock'>
+template&lt;class T&gt; struct iterator_traits&lt;BinaryTreeIterator&lt;T&gt; &gt; {
+  typedef std::ptrdiff_t difference_type;
+  typedef T value_type;
+  typedef T* pointer;
+  typedef T&amp; reference;
+  typedef bidirectional_iterator_tag iterator_category;
+};
+</pre><p >Typically, however, it would be easier to derive
+<span class='texttt'>BinaryTreeIterator&lt;T&gt;</span>
+from
+<span class='texttt'>iterator&lt;bidirectional_iterator_tag,T,ptrdiff_t,T*,T&amp;&gt;</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >[&nbsp;<i>Example:</i>
+If
+<span class='texttt'>evolve()</span>
+is well defined for bidirectional iterators, but can be implemented more
+efficiently for random access iterators, then the implementation is as follows:</p><pre class='codeblock'>
+template &lt;class BidirectionalIterator&gt;
+inline void
+evolve(BidirectionalIterator first, BidirectionalIterator last) {
+  evolve(first, last,
+    typename iterator_traits&lt;BidirectionalIterator&gt;::iterator_category());
+}
+
+template &lt;class BidirectionalIterator&gt;
+void evolve(BidirectionalIterator first, BidirectionalIterator last,
+  bidirectional_iterator_tag) {
+  <span class='comment'>// more generic, but less efficient algorithm
+</span>}
+
+template &lt;class RandomAccessIterator&gt;
+void evolve(RandomAccessIterator first, RandomAccessIterator last,
+  random_access_iterator_tag) {
+  <span class='comment'>// more efficient, but less generic algorithm
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >[&nbsp;<i>Example:</i>
+If a C++ program wants to define a bidirectional iterator for some data structure containing
+<span class='texttt'>double</span>
+and such that it
+works on a large memory model of the implementation, it can do so with:</p><pre class='codeblock'>
+class MyIterator :
+  public iterator&lt;bidirectional_iterator_tag, double, long, T*, T&amp;&gt; {
+  <span class='comment'>// code implementing <span class='texttt'>++</span>, etc.
+</span>};
+</pre></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >Then there is no need to specialize the
+<span class='texttt'>iterator_traits</span>
+template.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>

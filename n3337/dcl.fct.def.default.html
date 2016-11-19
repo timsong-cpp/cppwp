@@ -1,0 +1,61 @@
+<!DOCTYPE html><html lang='en'><head><title>[dcl.fct.def.default]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>8</a> Declarators <a class='abbr_ref' href='./#dcl.decl'>[dcl.decl]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>8.4</a> Function definitions <a class='abbr_ref' href='dcl.fct.def#default'>[dcl.fct.def]</a></h2><div id='dcl.fct.def.default'><h3 ><a class='secnum' style='min-width:103pt'>8.4.2</a> Explicitly-defaulted functions <a class='abbr_ref'>[dcl.fct.def.default]</a></h3><p ><span class='indexparent'><a class='index' id='definition,function,explicitly-defaulted'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A function definition of the form:</p><pre class='bnf'><i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='dcl.decl#nt:declarator'>declarator</a></i> <span class='terminal'> = default ;</span></pre><p >is called an <span class='grammarterm'>explicitly-defaulted</span> definition.
+A function that is explicitly defaulted shall</p><ul ><li ><p >be a special member function,</p></li><li ><p >have the same declared function type (except for possibly differing
+<i ><a href='dcl.decl#nt:ref-qualifier'>ref-qualifiers</a></i> and except that in the case of a copy constructor or
+copy assignment operator, the parameter type may be “reference to non-const <span class='texttt'>T</span>”,
+where <span class='texttt'>T</span> is the name of the member function's class) as if it had been implicitly
+declared, and</p></li><li ><p >not have default arguments.
+</p></li></ul></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >An explicitly-defaulted function may be declared
+<span class='texttt'>constexpr</span> only if it would have been implicitly declared as
+<span class='texttt'>constexpr</span>,
+and may have an explicit <i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i> only if it is
+compatible (<a href='except.spec'>[except.spec]</a>) with the <i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i>
+on the implicit declaration. If
+a function is explicitly defaulted on its first declaration,</p><ul ><li ><p >it is implicitly considered to be <span class='texttt'>constexpr</span> if the implicit
+declaration would be,
+</p></li><li ><p >it is implicitly considered to have the same <i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i>
+as if it had been implicitly declared (<a href='except.spec'>[except.spec]</a>), and
+</p></li><li ><p >in the case of a copy constructor, move constructor,
+copy assignment operator, or move assignment operator, it shall have the
+same parameter type as if it had been implicitly declared.
+</p></li></ul></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct S {
+  constexpr S() = default;                  <span class='comment'>// ill-formed: implicit <span class='texttt'>S()</span> is not <span class='texttt'>constexpr</span>
+</span>  S(int a = 0) = default;                   <span class='comment'>// ill-formed: default argument
+</span>  void operator=(const S&amp;) = default;       <span class='comment'>// ill-formed: non-matching return type
+</span>  ~S() throw(int) = default;                <span class='comment'>// ill-formed: exception specification does not match
+</span>private:
+  int i;
+  S(S&amp;);                                    <span class='comment'>// OK: private copy constructor
+</span>};
+S::S(S&amp;) = default;                         <span class='comment'>// OK: defines copy constructor
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Explicitly-defaulted functions and implicitly-declared functions are collectively
+called <a class='hidden_link' href='#def:defaulted' id='def:defaulted'><i>defaulted</i></a> functions, and the implementation
+shall provide implicit definitions
+for them (<a href='class.ctor'>[class.ctor]</a>
+<a href='class.dtor'>[class.dtor]</a>, <a href='class.copy'>[class.copy]</a>), which might mean defining them as deleted.
+A special member function is
+<a class='hidden_link' href='#def:user-provided' id='def:user-provided'><i>user-provided</i></a> if it is user-declared and not explicitly
+defaulted or deleted on its first declaration. A user-provided explicitly-defaulted function
+(i.e., explicitly defaulted after its first declaration)
+is defined at the point where it is explicitly defaulted; if such a function is implicitly
+defined as deleted, the program is ill-formed.
+[&nbsp;<i>Note:</i>
+Declaring a function as defaulted after its first declaration can provide
+efficient execution and concise
+definition while enabling a stable binary interface to an evolving code
+base.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct trivial {
+  trivial() = default;
+  trivial(const trivial&amp;) = default;
+  trivial(trivial&amp;&amp;) = default;
+  trivial&amp; operator=(const trivial&amp;) = default;
+  trivial&amp; operator=(trivial&amp;&amp;) = default;
+  ~trivial() = default;
+};
+
+struct nontrivial1 {
+  nontrivial1();
+};
+nontrivial1::nontrivial1() = default;           <span class='comment'>// not first declaration
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>

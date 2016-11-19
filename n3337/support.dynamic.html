@@ -1,0 +1,347 @@
+<!DOCTYPE html><html lang='en'><head><title>[support.dynamic]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>18</a> Language support library <a class='abbr_ref' href='./#language.support'>[language.support]</a></h1><div id='support.dynamic'><h2 ><a class='secnum' style='min-width:88pt'>18.6</a> Dynamic memory management <a class='abbr_ref'>[support.dynamic]</a></h2><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The header
+<span class='texttt'>&lt;new&gt;</span>
+defines several
+functions that manage the allocation of dynamic storage in a program.
+It also defines components for reporting storage management errors.</p><p ><b>Header <span class='texttt'>&lt;new&gt;</span> synopsis</b>
+<span class='indexparent'><a class='index' id='new'></a></span><span class='indexparent'><a class='index' id='new'></a></span>
+</p><pre class='codeblock'>
+namespace std {
+  class bad_alloc;
+  class bad_array_new_length;
+  struct nothrow_t {};
+  extern const nothrow_t nothrow;
+  typedef void (*new_handler)();
+  new_handler get_new_handler() noexcept;
+  new_handler set_new_handler(new_handler new_p) noexcept;
+}
+
+void* operator new(std::size_t size);
+void* operator new(std::size_t size, const std::nothrow_t&amp;) noexcept;
+void  operator delete(void* ptr) noexcept;
+void  operator delete(void* ptr, const std::nothrow_t&amp;) noexcept;
+void* operator new[](std::size_t size);
+void* operator new[](std::size_t size, const std::nothrow_t&amp;) noexcept;
+void  operator delete[](void* ptr) noexcept;
+void  operator delete[](void* ptr, const std::nothrow_t&amp;) noexcept;
+
+void* operator new  (std::size_t size, void* ptr) noexcept;
+void* operator new[](std::size_t size, void* ptr) noexcept;
+void  operator delete  (void* ptr, void*) noexcept;
+void  operator delete[](void* ptr, void*) noexcept;
+</pre><p ><span class='textsc'>See also:</span> <a href='intro.memory'>[intro.memory]</a>, <a href='basic.stc.dynamic'>[basic.stc.dynamic]</a>,
+<a href='expr.new'>[expr.new]</a>, <a href='expr.delete'>[expr.delete]</a>, <a href='class.free'>[class.free]</a>,
+<a href='memory'>[memory]</a>.</p></div><div id='new.delete'><h3 ><a class='secnum' href='#new.delete' style='min-width:103pt'>18.6.1</a> Storage allocation and deallocation <a class='abbr_ref' href='new.delete'>[new.delete]</a></h3><div class='para' id='new.delete-1'><div class='marginalizedparent'><a class='marginalized' href='#new.delete-1'>1</a></div><p >Except where otherwise specified, the provisions of (<a href='basic.stc.dynamic'>[basic.stc.dynamic]</a>)
+apply to the library versions of <span class='texttt'>operator new</span> and <span class='texttt'>operator
+delete</span>.</p></div><div id='new.delete.single'><h4 ><a class='secnum' href='#new.delete.single' style='min-width:118pt'>18.6.1.1</a> Single-object forms <a class='abbr_ref' href='new.delete.single'>[new.delete.single]</a></h4><p ><span class='indexparent'><a class='index' id='new,operator'></a></span><code class='itemdecl'>
+void* operator new(std::size_t size);
+</code></p><div class='itemdescr'></div><div class='para' id='new.delete.single-1'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+The
+<a class='hidden_link' href='#def:allocation_function' id='def:allocation_function'><i>allocation function</i></a> (<a href='basic.stc.dynamic.allocation'>[basic.stc.dynamic.allocation]</a>)
+called by a
+<i ><a href='expr.new#nt:new-expression'>new-expression</a></i> (<a href='expr.new'>[expr.new]</a>)
+to allocate
+<span class='texttt'>size</span> bytes of storage suitably aligned to represent any object
+of that size.</p></div></div><div class='para' id='new.delete.single-2'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-2'>2</a></div><div class='itemdescr'><p ><i>Replaceable:</i>
+a C++ program may define a function with this function signature
+that displaces the default version defined by the
+C++ standard library.</p></div></div><div class='para' id='new.delete.single-3'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-3'>3</a></div><div class='itemdescr'><p ><i>Required behavior:</i> 
+Return a non-null pointer to suitably aligned storage (<a href='basic.stc.dynamic'>[basic.stc.dynamic]</a>),
+or else throw a
+<span class='texttt'>bad_alloc</span>
+<span class='indexparent'><a class='index' id='bad_alloc'></a></span>exception.
+This requirement is binding on a replacement version of this function.</p></div></div><div class='para' id='new.delete.single-4'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-4'>4</a></div><div class='itemdescr'><p ><i>Default behavior:</i></p><ul ><li ><p >Executes a loop:
+Within the loop, the function first attempts to allocate the requested storage.
+Whether the attempt involves a call to the Standard C library function
+<span class='texttt'>malloc</span>
+is unspecified.
+<span class='indexparent'><a class='index' id='unspecified'></a></span></p></li><li ><p >Returns a pointer to the allocated storage if the attempt is successful.
+Otherwise, if the
+current <span class='texttt'>new_handler</span> (<a href='get.new.handler'>[get.new.handler]</a>) is
+a null pointer value, throws
+<span class='texttt'>bad_alloc</span>.
+</p></li><li ><p >Otherwise, the function calls the current
+<span class='texttt'>new_handler</span> function (<a href='new.handler'>[new.handler]</a>).
+If the called function returns, the loop repeats.
+</p></li><li ><p >The loop terminates when an attempt to allocate the requested storage is
+successful or when a called
+<span class='texttt'>new_handler</span>
+function does not return.
+</p></li></ul></div></div><p ><span class='indexparent'><a class='index' id='new,operator'></a></span><code class='itemdecl'>
+void* operator new(std::size_t size, const std::nothrow_t&amp;) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='new.delete.single-5'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Same as above, except that it is called by a placement version of a
+<i ><a href='expr.new#nt:new-expression'>new-expression</a></i>
+when a C++ program prefers a null pointer result as an error indication,
+instead of a
+<span class='texttt'>bad_alloc</span>
+exception.</p></div></div><div class='para' id='new.delete.single-6'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-6'>6</a></div><div class='itemdescr'><p ><i>Replaceable:</i>
+a C++ program may define a function with this function signature
+that displaces the default version defined by the
+C++ standard library.</p></div></div><div class='para' id='new.delete.single-7'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-7'>7</a></div><div class='itemdescr'><p ><i>Required behavior:</i>
+Return a non-null pointer to suitably aligned storage (<a href='basic.stc.dynamic'>[basic.stc.dynamic]</a>),
+or else return a null pointer.
+This nothrow version of
+<span class='texttt'>operator new</span>
+returns a pointer obtained as if acquired from the (possibly replaced)
+ordinary version.
+This requirement is binding on a replacement version of this function.</p></div></div><div class='para' id='new.delete.single-8'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-8'>8</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+Calls <span class='texttt'>operator new(size)</span>. If the call returns normally,
+returns the result of that call. Otherwise, returns a null pointer.</p></div></div><div class='para' id='new.delete.single-9'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-9'>9</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+T* p1 = new T;                  <span class='comment'>// throws <span class='texttt'>bad_alloc</span> if it fails
+</span>T* p2 = new(nothrow) T;         <span class='comment'>// returns <span class='texttt'>0</span> if it fails
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='delete,operator'></a></span><code class='itemdecl'>
+void operator delete(void* ptr) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='new.delete.single-10'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i>
+The
+<a class='hidden_link' href='#def:deallocation_function' id='def:deallocation_function'><i>deallocation function</i></a> (<a href='basic.stc.dynamic.deallocation'>[basic.stc.dynamic.deallocation]</a>)
+called by a
+<i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i>
+to render the value of <span class='texttt'>ptr</span> invalid.</p></div></div><div class='para' id='new.delete.single-11'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-11'>11</a></div><div class='itemdescr'><p ><i>Replaceable:</i>
+a C++ program may define a function with this
+function signature that displaces the default version defined by the
+C++ standard library.</p></div></div><div class='para' id='new.delete.single-12'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-12'>12</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<i>ptr</i> shall be a null pointer or
+its value shall be a value returned by an
+earlier call to the (possibly replaced)
+<span class='texttt'>operator new(std<span class='discretionary'></span>::<span class='discretionary'></span>size_t)</span>
+or
+<span class='texttt'>operator new(std::size_t,const std::nothrow_t&amp;)</span>
+which has not been invalidated by an intervening call to
+<span class='texttt'>operator delete(void*)</span>.</p></div></div><div class='para' id='new.delete.single-13'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-13'>13</a></div><div class='itemdescr'><p ><i>Requires:</i>
+If an implementation has strict pointer safety (<a href='basic.stc.dynamic.safety'>[basic.stc.dynamic.safety]</a>)
+then <span class='texttt'>ptr</span> shall be a safely-derived pointer.</p></div></div><div class='para' id='new.delete.single-14'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-14'>14</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+If <span class='texttt'>ptr</span> is null, does nothing. Otherwise, reclaims the
+storage allocated by the earlier call to <span class='texttt'>operator new</span>.</p></div></div><div class='para' id='new.delete.single-15'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-15'>15</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+It is unspecified under what conditions part or all of such
+<span class='indexparent'><a class='index' id='unspecified'></a></span>reclaimed storage will be allocated by subsequent
+calls to
+<span class='texttt'>operator new</span>
+or any of
+<span class='texttt'>calloc</span>,
+<span class='texttt'>malloc</span>,
+or
+<span class='texttt'>realloc</span>,
+declared in
+<span class='texttt'>&lt;cstdlib&gt;</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='delete,operator'></a></span><code class='itemdecl'>
+void operator delete(void* ptr, const std::nothrow_t&amp;) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='new.delete.single-16'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i>
+The
+<a class='hidden_link' href='#def:deallocation_function' id='def:deallocation_function'><i>deallocation function</i></a> (<a href='basic.stc.dynamic.deallocation'>[basic.stc.dynamic.deallocation]</a>)
+called by the implementation
+to render the value of <span class='texttt'>ptr</span> invalid
+when the constructor invoked from a nothrow
+placement version of the <i ><a href='expr.new#nt:new-expression'>new-expression</a></i> throws an exception.</p></div></div><div class='para' id='new.delete.single-17'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-17'>17</a></div><div class='itemdescr'><p ><i>Replaceable:</i>
+a C++ program may define a function with this
+function signature that displaces the default version defined by the
+C++ standard library.</p></div></div><div class='para' id='new.delete.single-18'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-18'>18</a></div><div class='itemdescr'><p ><i>Requires:</i>
+If an implementation has strict pointer safety (<a href='basic.stc.dynamic.safety'>[basic.stc.dynamic.safety]</a>)
+then <span class='texttt'>ptr</span> shall be a safely-derived pointer.</p></div></div><div class='para' id='new.delete.single-19'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.single-19'>19</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+calls <span class='texttt'>operator delete(ptr)</span>.
+</p></div></div></div><div id='new.delete.array'><h4 ><a class='secnum' href='#new.delete.array' style='min-width:118pt'>18.6.1.2</a> Array forms <a class='abbr_ref' href='new.delete.array'>[new.delete.array]</a></h4><p ><span class='indexparent'><a class='index' id='new,operator'></a></span><code class='itemdecl'>
+void* operator new[](std::size_t size);
+</code></p><div class='itemdescr'></div><div class='para' id='new.delete.array-1'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+The
+<a class='hidden_link' href='#def:allocation_function' id='def:allocation_function'><i>allocation function</i></a> (<a href='basic.stc.dynamic.allocation'>[basic.stc.dynamic.allocation]</a>)
+called by the array form of a
+<i ><a href='expr.new#nt:new-expression'>new-expression</a></i> (<a href='expr.new'>[expr.new]</a>)
+to allocate <span class='texttt'>size</span> bytes of storage suitably aligned to represent any array
+object of that size or smaller.<a class='footnotenum' href='#footnote-227'>227</a></p></div></div><div class='para' id='new.delete.array-2'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-2'>2</a></div><div class='itemdescr'><p ><i>Replaceable:</i>
+a C++ program can define a
+function with this function signature that displaces the default version
+defined by the C++ standard library.</p></div></div><div class='para' id='new.delete.array-3'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-3'>3</a></div><div class='itemdescr'><p ><i>Required behavior:</i>
+Same as for
+<span class='texttt'>operator new(std::size_t)</span>.
+This requirement is binding on a replacement version of this function.</p></div></div><div class='para' id='new.delete.array-4'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-4'>4</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+Returns
+<span class='texttt'>operator new(size)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='new,operator'></a></span><code class='itemdecl'>
+void* operator new[](std::size_t size, const std::nothrow_t&amp;) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='new.delete.array-5'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Same as above, except that it is called by a placement version of a
+<i ><a href='expr.new#nt:new-expression'>new-expression</a></i>
+when a C++ program prefers a null pointer result as an error indication,
+instead of a
+<span class='texttt'>bad_alloc</span>
+exception.</p></div></div><div class='para' id='new.delete.array-6'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-6'>6</a></div><div class='itemdescr'><p ><i>Replaceable:</i>
+a C++ program can define a
+function with this function signature that displaces the default version
+defined by the C++ standard library.</p></div></div><div class='para' id='new.delete.array-7'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-7'>7</a></div><div class='itemdescr'><p ><i>Required behavior:</i>
+Return a non-null pointer to suitably aligned storage (<a href='basic.stc.dynamic'>[basic.stc.dynamic]</a>),
+or return a null pointer.
+This requirement is binding on a replacement version of this function.</p></div></div><div class='para' id='new.delete.array-8'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-8'>8</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+Calls <span class='texttt'>operator new[](size)</span>. If the call returns normally,
+returns the result of that call. Otherwise, returns a null pointer.
+</p></div></div><p ><span class='indexparent'><a class='index' id='delete,operator'></a></span><code class='itemdecl'>
+void operator delete[](void* ptr) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='new.delete.array-9'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i>
+The
+<a class='hidden_link' href='#def:deallocation_function' id='def:deallocation_function'><i>deallocation function</i></a> (<a href='basic.stc.dynamic.deallocation'>[basic.stc.dynamic.deallocation]</a>)
+called by the array form of a
+<i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i>
+to render the value of <span class='texttt'>ptr</span> invalid.</p></div></div><div class='para' id='new.delete.array-10'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-10'>10</a></div><div class='itemdescr'><p ><i>Replaceable:</i>
+a C++ program can define a function with this
+function signature that displaces the default version defined by the
+C++ standard library.</p></div></div><div class='para' id='new.delete.array-11'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-11'>11</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<i>ptr</i> shall be a null pointer or its value shall be
+the value returned by an earlier call to
+<span class='texttt'>operator new[](<span class='discretionary'></span>std::size_t)</span>
+or
+<span class='texttt'>operator new[](std::size_t,const std::nothrow_t&amp;)</span>
+which has not been invalidated by an intervening call to
+<span class='texttt'>operator delete[](void*)</span>.</p></div></div><div class='para' id='new.delete.array-12'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-12'>12</a></div><div class='itemdescr'><p ><i>Requires:</i>
+If an implementation has strict pointer safety (<a href='basic.stc.dynamic.safety'>[basic.stc.dynamic.safety]</a>)
+then <span class='texttt'>ptr</span> shall be a safely-derived pointer.</p></div></div><div class='para' id='new.delete.array-13'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-13'>13</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+Calls
+<span class='texttt'>operator delete(ptr)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='delete,operator'></a></span><code class='itemdecl'>
+void operator delete[](void* ptr, const std::nothrow_t&amp;) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='new.delete.array-14'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-14'>14</a></div><div class='itemdescr'><p ><i>Effects:</i>
+The
+<a class='hidden_link' href='#def:deallocation_function' id='def:deallocation_function'><i>deallocation function</i></a> (<a href='basic.stc.dynamic.deallocation'>[basic.stc.dynamic.deallocation]</a>)
+called by the implementation
+to render the value of <span class='texttt'>ptr</span> invalid
+when the constructor invoked from a nothrow
+placement version of the array <i ><a href='expr.new#nt:new-expression'>new-expression</a></i> throws an exception.</p></div></div><div class='para' id='new.delete.array-15'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-15'>15</a></div><div class='itemdescr'><p ><i>Replaceable:</i>
+a C++ program may define a function with this
+function signature that displaces the default version defined by the
+C++ standard library.</p></div></div><div class='para' id='new.delete.array-16'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-16'>16</a></div><div class='itemdescr'><p ><i>Requires:</i>
+If an implementation has strict pointer safety (<a href='basic.stc.dynamic.safety'>[basic.stc.dynamic.safety]</a>)
+then <span class='texttt'>ptr</span> shall be a safely-derived pointer.</p></div></div><div class='para' id='new.delete.array-17'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.array-17'>17</a></div><div class='itemdescr'><p ><i>Default behavior:</i>
+calls <span class='texttt'>operator delete[](ptr)</span>.
+</p></div></div><div class='footnote' id='footnote-226'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-226'>226)</a></div><p >It is not the direct responsibility of
+<span class='texttt'>operator new[](std::size_t)</span>
+or
+<span class='texttt'>operator delete[](void*)</span>
+to note the repetition count or element size of the array.
+Those operations are performed elsewhere in the array
+<span class='texttt'>new</span>
+and
+<span class='texttt'>delete</span>
+expressions.
+The array
+<span class='texttt'>new</span>
+expression, may, however, increase the <span class='texttt'>size</span> argument to
+<span class='texttt'>operator new[](std::size_t)</span>
+to obtain space to store supplemental information.</p></div></div><div id='new.delete.placement'><h4 ><a class='secnum' href='#new.delete.placement' style='min-width:118pt'>18.6.1.3</a> Placement forms <a class='abbr_ref' href='new.delete.placement'>[new.delete.placement]</a></h4><div class='para' id='new.delete.placement-1'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.placement-1'>1</a></div><p >These functions are reserved, a C++ program may not define functions that displace
+the versions in the Standard C++ library (<a href='constraints'>[constraints]</a>).
+The provisions of (<a href='basic.stc.dynamic'>[basic.stc.dynamic]</a>) do not apply to these reserved
+placement forms of <span class='texttt'>operator new</span> and <span class='texttt'>operator delete</span>.</p><p ><span class='indexparent'><a class='index' id='new,operator'></a></span><code class='itemdecl'>
+void* operator new(std::size_t size, void* ptr) noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='new.delete.placement-2'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.placement-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>ptr</span>.</p></div></div><div class='para' id='new.delete.placement-3'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.placement-3'>3</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Intentionally performs no other action.</p></div></div><div class='para' id='new.delete.placement-4'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.placement-4'>4</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i>
+This can be useful for constructing an object at a known address:</p><pre class='codeblock'>
+void* place = operator new(sizeof(Something));
+Something* p = new (place) Something();
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='new,operator'></a></span><code class='itemdecl'>
+void* operator new[](std::size_t size, void* ptr) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='new.delete.placement-5'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.placement-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>ptr</span>.</p></div></div><div class='para' id='new.delete.placement-6'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.placement-6'>6</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Intentionally performs no other action.
+</p></div></div><p ><span class='indexparent'><a class='index' id='new,operator'></a></span><code class='itemdecl'>
+void operator delete(void* ptr, void*) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='new.delete.placement-7'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.placement-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Intentionally performs no action.</p></div></div><div class='para' id='new.delete.placement-8'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.placement-8'>8</a></div><div class='itemdescr'><p ><i>Requires:</i>
+If an implementation has strict pointer safety (<a href='basic.stc.dynamic.safety'>[basic.stc.dynamic.safety]</a>)
+then <span class='texttt'>ptr</span> shall be a safely-derived pointer.</p></div></div><div class='para' id='new.delete.placement-9'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.placement-9'>9</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Default function called when any part of the initialization in a
+placement new expression that invokes the library's
+non-array placement operator new
+terminates by throwing an exception (<a href='expr.new'>[expr.new]</a>).
+</p></div></div><p ><span class='indexparent'><a class='index' id='new,operator'></a></span><code class='itemdecl'>
+void operator delete[](void* ptr, void*) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='new.delete.placement-10'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.placement-10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Intentionally performs no action.</p></div></div><div class='para' id='new.delete.placement-11'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.placement-11'>11</a></div><div class='itemdescr'><p ><i>Requires:</i>
+If an implementation has strict pointer safety (<a href='basic.stc.dynamic.safety'>[basic.stc.dynamic.safety]</a>)
+then <span class='texttt'>ptr</span> shall be a safely-derived pointer.</p></div></div><div class='para' id='new.delete.placement-12'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.placement-12'>12</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Default function called when any part of the initialization in a
+placement new expression that invokes the library's
+array placement operator new
+terminates by throwing an exception (<a href='expr.new'>[expr.new]</a>).
+</p></div></div></div><div id='new.delete.dataraces'><h4 ><a class='secnum' href='#new.delete.dataraces' style='min-width:118pt'>18.6.1.4</a> Data races <a class='abbr_ref' href='new.delete.dataraces'>[new.delete.dataraces]</a></h4><div class='para' id='new.delete.dataraces-1'><div class='marginalizedparent'><a class='marginalized' href='#new.delete.dataraces-1'>1</a></div><p >For purposes of determining the existence of data races, the library versions
+of <span class='texttt'>operator new</span>, user replacement versions of global <span class='texttt'>operator new</span>,
+and the C standard library functions <span class='texttt'>calloc</span> and <span class='texttt'>malloc</span> shall
+behave as though they accessed and modified only the storage referenced by the
+return value. The library versions of <span class='texttt'>operator delete</span>, user replacement
+versions of <span class='texttt'>operator delete</span>, and the C standard library function
+<span class='texttt'>free</span> shall behave as though they accessed and modified only the
+storage referenced by their first argument. The C standard library function
+<span class='texttt'>realloc</span> shall behave as though it accessed and modified only the
+storage referenced by its first argument and by its return value.
+Calls to these functions that allocate or deallocate a particular unit
+of storage shall occur in a single total order, and each such deallocation call
+shall happen before the next allocation (if any) in this order.</p></div></div></div><div id='alloc.errors'><h3 ><a class='secnum' href='#alloc.errors' style='min-width:103pt'>18.6.2</a> Storage allocation errors <a class='abbr_ref' href='alloc.errors'>[alloc.errors]</a></h3><p ><span class='indexparent'><a class='index' id='bad_alloc'></a></span></p><div id='bad.alloc'><h4 ><a class='secnum' href='#bad.alloc' style='min-width:118pt'>18.6.2.1</a> Class <span class='texttt'>bad_alloc</span> <a class='abbr_ref' href='bad.alloc'>[bad.alloc]</a></h4><pre class='codeblock'>
+namespace std {
+  class bad_alloc : public exception {
+  public:
+    bad_alloc() noexcept;
+    bad_alloc(const bad_alloc&amp;) noexcept;
+    bad_alloc&amp; operator=(const bad_alloc&amp;) noexcept;
+    virtual const char* what() const noexcept;
+  };
+}
+</pre><div class='para' id='bad.alloc-1'><div class='marginalizedparent'><a class='marginalized' href='#bad.alloc-1'>1</a></div><p >The class
+<span class='texttt'>bad_alloc</span>
+defines the type of objects thrown as
+exceptions by the implementation to report a failure to allocate storage.</p><p ><span class='indexparent'><a class='index' id='bad_alloc,bad_alloc'></a></span><code class='itemdecl'>
+bad_alloc() noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='bad.alloc-2'><div class='marginalizedparent'><a class='marginalized' href='#bad.alloc-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs an object of class
+<span class='texttt'>bad_alloc</span>.</p></div></div><div class='para' id='bad.alloc-3'><div class='marginalizedparent'><a class='marginalized' href='#bad.alloc-3'>3</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The result of calling
+<span class='texttt'>what()</span>
+on the newly constructed object is implementation-defined.
+</p></div></div><p ><span class='indexparent'><a class='index' id='implementation-defined'></a></span><span class='indexparent'><a class='index' id='bad_alloc,bad_alloc'></a></span><span class='indexparent'><a class='index' id='operator=,bad_alloc'></a></span><code class='itemdecl'>
+    bad_alloc(const bad_alloc&amp;) noexcept;
+    bad_alloc&amp; operator=(const bad_alloc&amp;) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='bad.alloc-4'><div class='marginalizedparent'><a class='marginalized' href='#bad.alloc-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Copies an object of class
+<span class='texttt'>bad_alloc</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='what,bad_alloc'></a></span><code class='itemdecl'>
+virtual const char* what() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='bad.alloc-5'><div class='marginalizedparent'><a class='marginalized' href='#bad.alloc-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='indexparent'><a class='index' id='bad_alloc,bad_alloc::what,implementation-defined'></a></span>An <span class='indexparent'><a class='index' id='return_value_of_bad_alloc::what'></a></span>implementation-defined <span class='textsc'>ntbs</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='bad_array_new_length'></a></span></p></div><div id='new.badlength'><h4 ><a class='secnum' href='#new.badlength' style='min-width:118pt'>18.6.2.2</a> Class <span class='texttt'>bad_array_new_length</span> <a class='abbr_ref' href='new.badlength'>[new.badlength]</a></h4><pre class='codeblock'>
+namespace std {
+  class bad_array_new_length : public bad_alloc {
+  public:
+    bad_array_new_length() noexcept;
+  };
+}
+</pre><div class='para' id='new.badlength-1'><div class='marginalizedparent'><a class='marginalized' href='#new.badlength-1'>1</a></div><p >The class <span class='texttt'>bad_array_new_length</span> defines the type of objects thrown as
+exceptions by the implementation to report an attempt to allocate an array of size
+less than zero or
+greater than an implementation-defined limit (<a href='expr.new'>[expr.new]</a>).</p><p ><span class='indexparent'><a class='index' id='bad_array_new_length,bad_array_new_length'></a></span><code class='itemdecl'>
+bad_array_new_length() noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='new.badlength-2'><div class='marginalizedparent'><a class='marginalized' href='#new.badlength-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> constructs an object of class <span class='texttt'>bad_array_new_length</span>.</p></div></div><div class='para' id='new.badlength-3'><div class='marginalizedparent'><a class='marginalized' href='#new.badlength-3'>3</a></div><div class='itemdescr'><p ><i>Remarks:</i> the result of calling <span class='texttt'>what()</span> on the newly constructed object is
+implementation-defined.
+</p></div></div></div><div id='new.handler'><h4 ><a class='secnum' href='#new.handler' style='min-width:118pt'>18.6.2.3</a> Type <span class='texttt'>new_handler</span> <a class='abbr_ref' href='new.handler'>[new.handler]</a></h4><p ><span class='indexparent'><a class='index' id='new_handler'></a></span><code class='itemdecl'>
+typedef void (*new_handler)();
+</code></p><div class='itemdescr'></div><div class='para' id='new.handler-1'><div class='marginalizedparent'><a class='marginalized' href='#new.handler-1'>1</a></div><div class='itemdescr'><p >The type of a
+<a class='hidden_link' href='#def:handler_function' id='def:handler_function'><i>handler function</i></a>
+to be called by
+<span class='texttt'>operator new()</span>
+or
+<span class='texttt'>operator new[]()</span> (<a href='new.delete'>[new.delete]</a>) when they cannot satisfy a request for additional storage.</p></div></div><div class='para' id='new.handler-2'><div class='marginalizedparent'><a class='marginalized' href='#new.handler-2'>2</a></div><div class='itemdescr'><p ><i>Required behavior:</i>
+A <span class='texttt'>new_handler</span> shall perform one of the following:</p><ul ><li ><p >make more storage available for allocation and then return;
+</p></li><li ><p >throw an exception of type
+<span class='texttt'>bad_alloc</span>
+or a class derived from
+<span class='indexparent'><a class='index' id='bad_alloc'></a></span><span class='texttt'>bad_alloc</span>;
+</p></li><li ><p >terminate execution of the program without returning to the caller;
+<span class='indexparent'><a class='index' id='abort'></a></span><span class='indexparent'><a class='index' id='exit'></a></span></p></li></ul></div></div></div><div id='set.new.handler'><h4 ><a class='secnum' href='#set.new.handler' style='min-width:118pt'>18.6.2.4</a> <span class='texttt'>set_new_handler</span> <a class='abbr_ref' href='set.new.handler'>[set.new.handler]</a></h4><p ><span class='indexparent'><a class='index' id='set_new_handler'></a></span><code class='itemdecl'>
+new_handler set_new_handler(new_handler new_p) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='set.new.handler-1'><div class='marginalizedparent'><a class='marginalized' href='#set.new.handler-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Establishes the function designated by <span class='texttt'>new_p</span> as the current
+<span class='texttt'>new_handler</span>.</p></div></div><div class='para' id='set.new.handler-2'><div class='marginalizedparent'><a class='marginalized' href='#set.new.handler-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The previous <span class='texttt'>new_handler</span>.</p></div></div><div class='para' id='set.new.handler-3'><div class='marginalizedparent'><a class='marginalized' href='#set.new.handler-3'>3</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The initial <span class='texttt'>new_handler</span> is a null pointer.
+</p></div></div></div><div id='get.new.handler'><h4 ><a class='secnum' href='#get.new.handler' style='min-width:118pt'>18.6.2.5</a> <span class='texttt'>get_new_handler</span> <a class='abbr_ref' href='get.new.handler'>[get.new.handler]</a></h4><p ><code class='itemdecl'>
+new_handler get_new_handler() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='get.new.handler-1'><div class='marginalizedparent'><a class='marginalized' href='#get.new.handler-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> The current <span class='texttt'>new_handler</span>.
+[&nbsp;<i>Note:</i> This may be a null pointer value. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div></div></div></div></body></html>

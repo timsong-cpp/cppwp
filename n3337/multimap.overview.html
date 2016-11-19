@@ -1,0 +1,182 @@
+<!DOCTYPE html><html lang='en'><head><title>[multimap.overview]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>23</a> Containers library <a class='abbr_ref' href='./#containers'>[containers]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>23.4</a> Associative containers <a class='abbr_ref' href='associative#multimap.overview'>[associative]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>23.4.5</a> Class template <span class='texttt'>multimap</span> <a class='abbr_ref' href='multimap#overview'>[multimap]</a></h3><div id='multimap.overview'><h4 ><a class='secnum' style='min-width:118pt'>23.4.5.1</a> Class template <span class='texttt'>multimap</span> overview <a class='abbr_ref'>[multimap.overview]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='multimap'></a></span>A
+<span class='texttt'>multimap</span>
+is an associative container that supports equivalent keys (possibly containing multiple copies of
+the same key value) and provides for fast retrieval of values of another type
+<span class='texttt'>T</span>
+based on the keys.
+The
+<span class='texttt'>multimap</span>
+class
+supports bidirectional iterators.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >A
+<span class='texttt'>multimap</span> satisfies all of the requirements of a container and of a
+reversible container (<a href='container.requirements'>[container.requirements]</a>), of an associative
+container (<a href='associative.reqmts'>[associative.reqmts]</a>), and of an allocator-aware container
+(Table <a href='container.requirements.general#tab:containers.allocatoraware'>[tab:containers.allocatoraware]</a>).
+A
+<span class='texttt'>multimap</span>
+also provides most operations described in (<a href='associative.reqmts'>[associative.reqmts]</a>)
+for equal keys.
+This means that a
+<span class='texttt'>multimap</span>
+supports the
+<span class='texttt'>a_eq</span>
+operations in (<a href='associative.reqmts'>[associative.reqmts]</a>)
+but not the
+<span class='texttt'>a_uniq</span>
+operations.
+For a
+<span class='texttt'>multimap&lt;Key,T&gt;</span>
+the
+<span class='texttt'>key_type</span>
+is
+<span class='texttt'>Key</span>
+and the
+<span class='texttt'>value_type</span>
+is
+<span class='texttt'>pair&lt;const Key,T&gt;</span>.
+Descriptions are provided here only for operations on
+<span class='texttt'>multimap</span>
+that are not described in one of those tables
+or for operations where there is additional semantic information.</p><pre class='codeblock'>
+namespace std {
+  template &lt;class Key, class T, class Compare = less&lt;Key&gt;,
+            class Allocator = allocator&lt;pair&lt;const Key, T&gt; &gt; &gt;
+  class multimap {
+  public:
+    <span class='comment'>// types:
+</span>    typedef Key                                   key_type;
+    typedef T                                     mapped_type;
+    typedef pair&lt;const Key,T&gt;                     value_type;
+    typedef Compare                               key_compare;
+    typedef Allocator                             allocator_type;
+    typedef value_type&amp;                           reference;
+    typedef const value_type&amp;                     const_reference;
+    typedef <i>implementation-defined</i>                iterator;       <span class='comment'>// see <a href='container.requirements'>[container.requirements]</a>
+</span>    typedef <i>implementation-defined</i>                const_iterator; <span class='comment'>// see <a href='container.requirements'>[container.requirements]</a>
+</span>    typedef <i>implementation-defined</i>                size_type;      <span class='comment'>// see <a href='container.requirements'>[container.requirements]</a>
+</span>    typedef <i>implementation-defined</i>                difference_type;<span class='comment'>// see <a href='container.requirements'>[container.requirements]</a>
+</span>    typedef typename allocator_traits&lt;Allocator&gt;::pointer           pointer;
+    typedef typename allocator_traits&lt;Allocator&gt;::const_pointer     const_pointer;
+    typedef std::reverse_iterator&lt;iterator&gt;       reverse_iterator;
+    typedef std::reverse_iterator&lt;const_iterator&gt; const_reverse_iterator;
+
+    class value_compare {
+    friend class multimap;
+    protected:
+      Compare comp;
+      value_compare(Compare c) : comp(c) { }
+    public:
+      typedef bool result_type;
+      typedef value_type first_argument_type;
+      typedef value_type second_argument_type;
+      bool operator()(const value_type&amp; x, const value_type&amp; y) const {
+        return comp(x.first, y.first);
+      }
+    };
+
+    <span class='comment'>// construct/copy/destroy:
+</span>    explicit multimap(const Compare&amp; comp = Compare(),
+                      const Allocator&amp; = Allocator());
+    template &lt;class InputIterator&gt;
+      multimap(InputIterator first, InputIterator last,
+               const Compare&amp; comp = Compare(),
+               const Allocator&amp; = Allocator());
+    multimap(const multimap&lt;Key,T,Compare,Allocator&gt;&amp; x);
+    multimap(multimap&lt;Key,T,Compare,Allocator&gt;&amp;&amp; x);
+    explicit multimap(const Allocator&amp;);
+    multimap(const multimap&amp;, const Allocator&amp;);
+    multimap(multimap&amp;&amp;, const Allocator&amp;);
+    multimap(initializer_list&lt;value_type&gt;,
+      const Compare&amp; = Compare(),
+      const Allocator&amp; = Allocator());
+   ~multimap();
+    multimap&lt;Key,T,Compare,Allocator&gt;&amp;
+      operator=(const multimap&lt;Key,T,Compare,Allocator&gt;&amp; x);
+    multimap&lt;Key,T,Compare,Allocator&gt;&amp;
+      operator=(multimap&lt;Key,T,Compare,Allocator&gt;&amp;&amp; x);
+    multimap&amp; operator=(initializer_list&lt;value_type&gt;);
+    allocator_type get_allocator() const noexcept;
+
+    <span class='comment'>// iterators:
+</span>    iterator               begin() noexcept;
+    const_iterator         begin() const noexcept;
+    iterator               end() noexcept;
+    const_iterator         end() const noexcept;
+
+    reverse_iterator       rbegin() noexcept;
+    const_reverse_iterator rbegin() const noexcept;
+    reverse_iterator       rend() noexcept;
+    const_reverse_iterator rend() const noexcept;
+
+    const_iterator         cbegin() const noexcept;
+    const_iterator         cend() const noexcept;
+    const_reverse_iterator crbegin() const noexcept;
+    const_reverse_iterator crend() const noexcept;
+
+    <span class='comment'>// capacity:
+</span>    bool           empty() const noexcept;
+    size_type      size() const noexcept;
+    size_type      max_size() const noexcept;
+
+    <span class='comment'>// modifiers:
+</span>    template &lt;class... Args&gt; iterator emplace(Args&amp;&amp;... args);
+    template &lt;class... Args&gt; iterator emplace_hint(const_iterator position, Args&amp;&amp;... args);
+    iterator insert(const value_type&amp; x);
+    template &lt;class P&gt; iterator insert(P&amp;&amp; x);
+    iterator insert(const_iterator position, const value_type&amp; x);
+    template &lt;class P&gt; iterator insert(const_iterator position, P&amp;&amp; x);
+    template &lt;class InputIterator&gt;
+      void insert(InputIterator first, InputIterator last);
+    void insert(initializer_list&lt;value_type&gt;);
+
+    iterator  erase(const_iterator position);
+    size_type erase(const key_type&amp; x);
+    iterator  erase(const_iterator first, const_iterator last);
+    void swap(multimap&lt;Key,T,Compare,Allocator&gt;&amp;);
+    void clear() noexcept;
+
+    <span class='comment'>// observers:
+</span>    key_compare    key_comp() const;
+    value_compare  value_comp() const;
+
+    <span class='comment'>// map operations:
+</span>    iterator       find(const key_type&amp; x);
+    const_iterator find(const key_type&amp; x) const;
+    size_type      count(const key_type&amp; x) const;
+
+    iterator       lower_bound(const key_type&amp; x);
+    const_iterator lower_bound(const key_type&amp; x) const;
+    iterator       upper_bound(const key_type&amp; x);
+    const_iterator upper_bound(const key_type&amp; x) const;
+
+    pair&lt;iterator,iterator&gt;
+      equal_range(const key_type&amp; x);
+    pair&lt;const_iterator,const_iterator&gt;
+      equal_range(const key_type&amp; x) const;
+  };
+
+  template &lt;class Key, class T, class Compare, class Allocator&gt;
+    bool operator==(const multimap&lt;Key,T,Compare,Allocator&gt;&amp; x,
+                    const multimap&lt;Key,T,Compare,Allocator&gt;&amp; y);
+  template &lt;class Key, class T, class Compare, class Allocator&gt;
+    bool operator&lt; (const multimap&lt;Key,T,Compare,Allocator&gt;&amp; x,
+                    const multimap&lt;Key,T,Compare,Allocator&gt;&amp; y);
+  template &lt;class Key, class T, class Compare, class Allocator&gt;
+    bool operator!=(const multimap&lt;Key,T,Compare,Allocator&gt;&amp; x,
+                    const multimap&lt;Key,T,Compare,Allocator&gt;&amp; y);
+  template &lt;class Key, class T, class Compare, class Allocator&gt;
+    bool operator&gt; (const multimap&lt;Key,T,Compare,Allocator&gt;&amp; x,
+                    const multimap&lt;Key,T,Compare,Allocator&gt;&amp; y);
+  template &lt;class Key, class T, class Compare, class Allocator&gt;
+    bool operator&gt;=(const multimap&lt;Key,T,Compare,Allocator&gt;&amp; x,
+                    const multimap&lt;Key,T,Compare,Allocator&gt;&amp; y);
+  template &lt;class Key, class T, class Compare, class Allocator&gt;
+    bool operator&lt;=(const multimap&lt;Key,T,Compare,Allocator&gt;&amp; x,
+                    const multimap&lt;Key,T,Compare,Allocator&gt;&amp; y);
+
+  <span class='comment'>// specialized algorithms:
+</span>  template &lt;class Key, class T, class Compare, class Allocator&gt;
+    void swap(multimap&lt;Key,T,Compare,Allocator&gt;&amp; x,
+              multimap&lt;Key,T,Compare,Allocator&gt;&amp; y);
+}
+</pre><p ><span class='indexparent'><a class='index' id='multimap,operator=='></a></span><span class='indexparent'><a class='index' id='multimap,operator<'></a></span></p></div></div></div></body></html>

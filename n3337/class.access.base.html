@@ -1,0 +1,266 @@
+<!DOCTYPE html><html lang='en'><head><title>[class.access.base]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>11</a> Member access control <a class='abbr_ref' href='./#class.access'>[class.access]</a></h1><div id='class.access.base'><h2 ><a class='secnum' style='min-width:88pt'>11.2</a> Accessibility of base classes and base class members <a class='abbr_ref'>[class.access.base]</a></h2><p ><span class='indexparent'><a class='index' id='access_control,base_class'></a></span><span class='indexparent'><a class='index' id='access_specifier'></a></span><span class='indexparent'><a class='index' id='base_class,private'></a></span><span class='indexparent'><a class='index' id='base_class,protected'></a></span><span class='indexparent'><a class='index' id='base_class,public'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >If a class is declared to be a base class (Clause <a href='class.derived'>[class.derived]</a>) for another class using the
+<span class='texttt'>public</span>
+access specifier, the
+<span class='texttt'>public</span>
+members of the base class are accessible as
+<span class='texttt'>public</span>
+members of the derived class and
+<span class='texttt'>protected</span>
+members of the base class are accessible as
+<span class='texttt'>protected</span>
+members of the derived class.
+If a class is declared to be a base class for another class using the
+<span class='texttt'>protected</span>
+access specifier, the
+<span class='texttt'>public</span>
+and
+<span class='texttt'>protected</span>
+members of the base class are accessible as
+<span class='texttt'>protected</span>
+members of the derived class.
+If a class is declared to be a base class for another class using the
+<span class='texttt'>private</span>
+access specifier, the
+<span class='texttt'>public</span>
+and
+<span class='texttt'>protected</span>
+members of the base class are accessible as
+<span class='texttt'>private</span>
+members of the derived class<a class='footnotenum' href='#footnote-114'>114</a>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >In the absence of an
+<i ><a href='class.derived#nt:access-specifier'>access-specifier</a></i>
+for a base class,
+<span class='texttt'>public</span>
+is assumed when the derived class is
+defined with the <i ><a href='class#nt:class-key'>class-key</a></i>
+<span class='texttt'>struct</span>
+and
+<span class='texttt'>private</span>
+is assumed when the class is
+defined with the <i ><a href='class#nt:class-key'>class-key</a></i>
+<span class='texttt'>class</span>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+class B { <span class='comment'>/* ... */</span> };
+class D1 : private B { <span class='comment'>/* ... */</span> };
+class D2 : public B { <span class='comment'>/* ... */</span> };
+class D3 : B { <span class='comment'>/* ... */</span> };     <span class='comment'>// <span class='texttt'>B</span> private by default
+</span>struct D4 : public B { <span class='comment'>/* ... */</span> };
+struct D5 : private B { <span class='comment'>/* ... */</span> };
+struct D6 : B { <span class='comment'>/* ... */</span> };    <span class='comment'>// <span class='texttt'>B</span> public by default
+</span>class D7 : protected B { <span class='comment'>/* ... */</span> };
+struct D8 : protected B { <span class='comment'>/* ... */</span> };
+</pre><p >Here
+<span class='texttt'>B</span>
+is a public base of
+<span class='texttt'>D2</span>,
+<span class='texttt'>D4</span>,
+and
+<span class='texttt'>D6</span>,
+a private base of
+<span class='texttt'>D1</span>,
+<span class='texttt'>D3</span>,
+and
+<span class='texttt'>D5</span>,
+and a protected base of
+<span class='texttt'>D7</span>
+and
+<span class='texttt'>D8</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >[&nbsp;<i>Note:</i>
+A member of a private base class might be inaccessible as an inherited
+member name, but accessible directly.
+Because of the rules on pointer conversions (<a href='conv.ptr'>[conv.ptr]</a>) and explicit casts (<a href='expr.cast'>[expr.cast]</a>), a conversion from a pointer to a derived class to a pointer
+to an inaccessible base class might be ill-formed if an implicit conversion
+is used, but well-formed if an explicit cast is used.
+For example,</p><pre class='codeblock'>
+class B {
+public:
+  int mi;                       <span class='comment'>// non-static member
+</span>  static int si;                <span class='comment'>// static member
+</span>};
+class D : private B {
+};
+class DD : public D {
+  void f();
+};
+
+void DD::f() {
+  mi = 3;                       <span class='comment'>// error: <span class='texttt'>mi</span> is private in <span class='texttt'>D</span>
+</span>  si = 3;                       <span class='comment'>// error: <span class='texttt'>si</span> is private in <span class='texttt'>D</span>
+</span>  ::B  b;
+  b.mi = 3;                     <span class='comment'>// OK (<span class='texttt'>b.mi</span> is different from <span class='texttt'>this-&gt;mi</span>)
+</span>  b.si = 3;                     <span class='comment'>// OK (<span class='texttt'>b.si</span> is different from <span class='texttt'>this-&gt;si</span>)
+</span>  ::B::si = 3;                  <span class='comment'>// OK
+</span>  ::B* bp1 = this;              <span class='comment'>// error: <span class='texttt'>B</span> is a private base class
+</span>  ::B* bp2 = (::B*)this;        <span class='comment'>// OK with cast
+</span>  bp2-&gt;mi = 3;                  <span class='comment'>// OK: access through a pointer to <span class='texttt'>B</span>.
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >A base class
+<span class='texttt'>B</span>
+of
+<span class='texttt'>N</span>
+is
+<a class='hidden_link' href='#def:accessible' id='def:accessible'><i>accessible</i></a>
+at
+<a class='hidden_link' href='#def:R' id='def:R'><i>R</i></a>,
+if
+</p><ul ><li ><p >an invented public member of
+<span class='texttt'>B</span>
+would be a public member of
+<span class='texttt'>N</span>, or
+</p></li><li ><p ><a class='hidden_link' href='#def:R' id='def:R'><i>R</i></a>
+occurs in a member or friend of class
+<span class='texttt'>N</span>,
+and an invented public member of
+<span class='texttt'>B</span>
+would be a private or protected member of
+<span class='texttt'>N</span>, or
+</p></li><li ><p ><a class='hidden_link' href='#def:R' id='def:R'><i>R</i></a>
+occurs in a member or friend of a class
+<span class='texttt'>P</span>
+derived from
+<span class='texttt'>N</span>,
+and an invented public member of
+<span class='texttt'>B</span>
+would be a private or protected member of
+<span class='texttt'>P</span>, or
+</p></li><li ><p >there exists a class
+<span class='texttt'>S</span>
+such that
+<span class='texttt'>B</span>
+is a base class of
+<span class='texttt'>S</span>
+accessible at
+<a class='hidden_link' href='#def:R' id='def:R'><i>R</i></a>
+and
+<span class='texttt'>S</span>
+is a base class of
+<span class='texttt'>N</span>
+accessible at
+<a class='hidden_link' href='#def:R' id='def:R'><i>R</i></a>.
+</p></li></ul><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+class B {
+public:
+  int m;
+};
+
+class S: private B {
+  friend class N;
+};
+
+class N: private S {
+  void f() {
+    B* p = this;    <span class='comment'>// OK because class <span class='texttt'>S</span> satisfies the fourth condition
+</span>                    <span class='comment'>// above: <span class='texttt'>B</span> is a base class of <span class='texttt'>N</span> accessible in <span class='texttt'>f()</span> because
+</span>                    <span class='comment'>// <span class='texttt'>B</span> is an accessible base class of <span class='texttt'>S</span> and <span class='texttt'>S</span> is an accessible
+</span>                    <span class='comment'>// base class of <span class='texttt'>N</span>.
+</span>  }
+};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >If a base class is accessible, one can implicitly convert a pointer to
+a derived class to a pointer to that base class (<a href='conv.ptr'>[conv.ptr]</a>, <a href='conv.mem'>[conv.mem]</a>).
+[&nbsp;<i>Note:</i>
+It follows that
+members and friends of a class
+<span class='texttt'>X</span>
+can implicitly convert an
+<span class='texttt'>X*</span>
+to a pointer to a private or protected immediate base class of
+<span class='texttt'>X</span>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+The access to a member is affected by the class in which the member is
+named.
+This naming class is the class in which the member name was looked
+up and found.
+[&nbsp;<i>Note:</i>
+This class can be explicit, e.g., when a
+<i ><a href='expr.prim.general#nt:qualified-id'>qualified-id</a></i>
+is used, or implicit, e.g., when a class member access operator (<a href='expr.ref'>[expr.ref]</a>) is used (including cases where an implicit
+“<span class='texttt'>this-&gt;</span>”
+is
+added).
+If both a class member access operator and a
+<i ><a href='expr.prim.general#nt:qualified-id'>qualified-id</a></i>
+are used to name the member (as in
+<span class='texttt'>p-&gt;T::m</span>),
+the class naming the member is the class denoted by the
+<i ><a href='expr.prim.general#nt:nested-name-specifier'>nested-name-specifier</a></i>
+of the
+<i ><a href='expr.prim.general#nt:qualified-id'>qualified-id</a></i>
+(that is,
+<span class='texttt'>T</span>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+A member
+<span class='texttt'>m</span>
+is accessible at the point
+<a class='hidden_link' href='#def:R' id='def:R'><i>R</i></a>
+when named in class
+<span class='texttt'>N</span>
+if
+</p><ul ><li ><p ><span class='texttt'>m</span>
+as a member of
+<span class='texttt'>N</span>
+is public, or
+</p></li><li ><p ><span class='texttt'>m</span>
+as a member of
+<span class='texttt'>N</span>
+is private, and
+<a class='hidden_link' href='#def:R' id='def:R'><i>R</i></a>
+occurs in a member or friend of class
+<span class='texttt'>N</span>,
+or
+</p></li><li ><p ><span class='texttt'>m</span>
+as a member of
+<span class='texttt'>N</span>
+is protected, and
+<a class='hidden_link' href='#def:R' id='def:R'><i>R</i></a>
+occurs in a member or friend of class
+<span class='texttt'>N</span>,
+or in a member or friend of a class
+<span class='texttt'>P</span>
+derived from
+<span class='texttt'>N</span>,
+where
+<span class='texttt'>m</span>
+as a member of
+<span class='texttt'>P</span>
+is public, private, or protected, or
+</p></li><li ><p >there exists a base class
+<span class='texttt'>B</span>
+of
+<span class='texttt'>N</span>
+that is accessible at
+<a class='hidden_link' href='#def:R' id='def:R'><i>R</i></a>,
+and
+<span class='texttt'>m</span>
+is accessible at
+<a class='hidden_link' href='#def:R' id='def:R'><i>R</i></a>
+when named in class
+<span class='texttt'>B</span>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+class B;
+class A {
+private:
+  int i;
+  friend void f(B*);
+};
+class B : public A { };
+void f(B* p) {
+  p-&gt;i = 1;         <span class='comment'>// OK: <span class='texttt'>B*</span> can be implicitly converted to <span class='texttt'>A*</span>,
+</span>                    <span class='comment'>// and <span class='texttt'>f</span> has access to <span class='texttt'>i</span> in <span class='texttt'>A</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></li></ul></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >If a class member access operator, including an implicit
+“<span class='texttt'>this-&gt;</span>,”
+is used to access a non-static data member or non-static
+member function, the reference is ill-formed if the
+left operand (considered as a pointer in the
+“<span class='texttt'>.</span>”
+operator case) cannot be implicitly converted to a
+pointer to the naming class of the right operand.
+[&nbsp;<i>Note:</i>
+This requirement is in addition to the requirement that
+the member be accessible as named.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-114'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-114'>114)</a></div><p >As specified previously in Clause <a href='class.access'>[class.access]</a>,
+private members of a base class remain inaccessible even to derived classes
+unless
+<span class='texttt'>friend</span>
+declarations within the base class definition are used to grant access explicitly.</p></div></div></div></body></html>
