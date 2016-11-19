@@ -271,7 +271,7 @@ template &lt;class T&gt;
   T kill_dependency(T y) noexcept;
 </code></p></div><div class='itemdescr'></div><div class='para' id='order-13'><div class='marginalizedparent'><a class='marginalized' href='#order-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i> The argument does not carry a dependency to the return
 value (<a href='intro.multithread'>[intro.multithread]</a>).</p></div></div><div class='para' id='order-14'><div class='marginalizedparent'><a class='marginalized' href='#order-14'>14</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>y</span>.
-</p></div></div></div><div id='lockfree'><h2 ><a class='secnum' href='#lockfree' style='min-width:88pt'>29.4</a> Lock-free property <a class='abbr_ref' href='atomics.lockfree'>[atomics.lockfree]</a></h2><p ><span class='indexparent'><a class='index' id='values_of_various_ATOMIC_..._LOCK_FREE_macros'></a></span>
+</p></div></div></div><div id='lockfree'><h2 ><a class='secnum' href='#lockfree' style='min-width:88pt'>29.4</a> Lock-free property <a class='abbr_ref' href='atomics.lockfree'>[atomics.lockfree]</a></h2><p ><span class='indexparent'><a class='index' id='ATOMIC_BOOL_LOCK_FREE'></a></span><span class='indexparent'><a class='index' id='ATOMIC_CHAR_LOCK_FREE'></a></span><span class='indexparent'><a class='index' id='ATOMIC_CHAR16_T_LOCK_FREE'></a></span><span class='indexparent'><a class='index' id='ATOMIC_CHAR32_T_LOCK_FREE'></a></span><span class='indexparent'><a class='index' id='ATOMIC_WCHAR_T_LOCK_FREE'></a></span><span class='indexparent'><a class='index' id='ATOMIC_SHORT_LOCK_FREE'></a></span><span class='indexparent'><a class='index' id='ATOMIC_INT_LOCK_FREE'></a></span><span class='indexparent'><a class='index' id='ATOMIC_LONG_LOCK_FREE'></a></span><span class='indexparent'><a class='index' id='ATOMIC_LLONG_LOCK_FREE'></a></span><span class='indexparent'><a class='index' id='ATOMIC_POINTER_LOCK_FREE'></a></span><span class='indexparent'><a class='index' id='values_of_various_ATOMIC_..._LOCK_FREE_macros'></a></span>
 </p><pre class='codeblock'>
 #define ATOMIC_BOOL_LOCK_FREE <i><span class='texttt'>unspecified</span></i>
 #define ATOMIC_CHAR_LOCK_FREE <i><span class='texttt'>unspecified</span></i>
@@ -297,12 +297,12 @@ atomic operations on the same memory location via two different addresses will
 communicate atomically. The implementation should not depend on any
 per-process state. This restriction enables communication  by memory that is
 mapped into a process more than once and by memory that is shared between two
-processes. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='types.generic'><h2 ><a class='secnum' href='#types.generic' style='min-width:88pt'>29.5</a> Atomic types <a class='abbr_ref' href='atomics.types.generic'>[atomics.types.generic]</a></h2><pre class='codeblock'>
+processes. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='types.generic'><h2 ><a class='secnum' href='#types.generic' style='min-width:88pt'>29.5</a> Atomic types <a class='abbr_ref' href='atomics.types.generic'>[atomics.types.generic]</a></h2><p ><span class='indexparent'><a class='index' id='atomic'></a></span><span class='indexparent'><a class='index' id='atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>'></a></span></p><pre class='codeblock'>
 namespace std {
   template &lt;class T&gt; struct atomic {
+    static constexpr bool is_always_lock_free = <span class='indexparent'><a class='index' id='whether_a_given_atomic_type&#39;s_operations_are_always_lock_free'></a></span><i>implementation-defined</i>;
     bool is_lock_free() const volatile noexcept;
     bool is_lock_free() const noexcept;
-    static constexpr bool is_always_lock_free = <i>implementation-defined</i>;
     void store(T, memory_order = memory_order_seq_cst) volatile noexcept;
     void store(T, memory_order = memory_order_seq_cst) noexcept;
     T load(memory_order = memory_order_seq_cst) const volatile noexcept;
@@ -330,9 +330,9 @@ namespace std {
   };
 
   template &lt;&gt; struct atomic&lt;<i>integral</i>&gt; {
+    static constexpr bool is_always_lock_free = <span class='indexparent'><a class='index' id='whether_a_given_atomic_type&#39;s_operations_are_always_lock_free'></a></span><i>implementation-defined</i>;
     bool is_lock_free() const volatile noexcept;
     bool is_lock_free() const noexcept;
-    static constexpr bool is_always_lock_free = <i>implementation-defined</i>;
     void store(<i>integral<span class='nocorr'></span></i>, memory_order = memory_order_seq_cst) volatile noexcept;
     void store(<i>integral<span class='nocorr'></span></i>, memory_order = memory_order_seq_cst) noexcept;
     <i>integral<span class='nocorr'></span></i> load(memory_order = memory_order_seq_cst) const volatile noexcept;
@@ -341,14 +341,22 @@ namespace std {
     operator <i>integral<span class='nocorr'></span></i>() const noexcept;
     <i>integral<span class='nocorr'></span></i> exchange(<i>integral<span class='nocorr'></span></i>, memory_order = memory_order_seq_cst) volatile noexcept;
     <i>integral<span class='nocorr'></span></i> exchange(<i>integral<span class='nocorr'></span></i>, memory_order = memory_order_seq_cst) noexcept;
-    bool compare_exchange_weak(<i>integral</i>&amp;, <i>integral<span class='nocorr'></span></i>, memory_order, memory_order) volatile noexcept;
-    bool compare_exchange_weak(<i>integral</i>&amp;, <i>integral<span class='nocorr'></span></i>, memory_order, memory_order) noexcept;
-    bool compare_exchange_strong(<i>integral</i>&amp;, <i>integral<span class='nocorr'></span></i>, memory_order, memory_order) volatile noexcept;
-    bool compare_exchange_strong(<i>integral</i>&amp;, <i>integral<span class='nocorr'></span></i>, memory_order, memory_order) noexcept;
-    bool compare_exchange_weak(<i>integral</i>&amp;, <i>integral<span class='nocorr'></span></i>, memory_order = memory_order_seq_cst) volatile noexcept;
-    bool compare_exchange_weak(<i>integral</i>&amp;, <i>integral<span class='nocorr'></span></i>, memory_order = memory_order_seq_cst) noexcept;
-    bool compare_exchange_strong(<i>integral</i>&amp;, <i>integral<span class='nocorr'></span></i>, memory_order = memory_order_seq_cst) volatile noexcept;
-    bool compare_exchange_strong(<i>integral</i>&amp;, <i>integral<span class='nocorr'></span></i>, memory_order = memory_order_seq_cst) noexcept;
+    bool compare_exchange_weak(<i>integral</i>&amp;, <i>integral<span class='nocorr'></span></i>,
+                               memory_order, memory_order) volatile noexcept;
+    bool compare_exchange_weak(<i>integral</i>&amp;, <i>integral<span class='nocorr'></span></i>,
+                               memory_order, memory_order) noexcept;
+    bool compare_exchange_strong(<i>integral</i>&amp;, <i>integral<span class='nocorr'></span></i>,
+                                 memory_order, memory_order) volatile noexcept;
+    bool compare_exchange_strong(<i>integral</i>&amp;, <i>integral<span class='nocorr'></span></i>,
+                                 memory_order, memory_order) noexcept;
+    bool compare_exchange_weak(<i>integral</i>&amp;, <i>integral<span class='nocorr'></span></i>,
+                               memory_order = memory_order_seq_cst) volatile noexcept;
+    bool compare_exchange_weak(<i>integral</i>&amp;, <i>integral<span class='nocorr'></span></i>,
+                               memory_order = memory_order_seq_cst) noexcept;
+    bool compare_exchange_strong(<i>integral</i>&amp;, <i>integral<span class='nocorr'></span></i>,
+                               memory_order = memory_order_seq_cst) volatile noexcept;
+    bool compare_exchange_strong(<i>integral</i>&amp;, <i>integral<span class='nocorr'></span></i>,
+                               memory_order = memory_order_seq_cst) noexcept;
     <i>integral<span class='nocorr'></span></i> fetch_add(<i>integral<span class='nocorr'></span></i>, memory_order = memory_order_seq_cst) volatile noexcept;
     <i>integral<span class='nocorr'></span></i> fetch_add(<i>integral<span class='nocorr'></span></i>, memory_order = memory_order_seq_cst) noexcept;
     <i>integral<span class='nocorr'></span></i> fetch_sub(<i>integral<span class='nocorr'></span></i>, memory_order = memory_order_seq_cst) volatile noexcept;
@@ -389,9 +397,9 @@ namespace std {
   };
 
   template &lt;class T&gt; struct atomic&lt;T*&gt; {
+    static constexpr bool is_always_lock_free = <span class='indexparent'><a class='index' id='whether_a_given_atomic_type&#39;s_operations_are_always_lock_free'></a></span><i>implementation-defined</i>;
     bool is_lock_free() const volatile noexcept;
     bool is_lock_free() const noexcept;
-    static constexpr bool is_always_lock_free = <i>implementation-defined</i>;
     void store(T*, memory_order = memory_order_seq_cst) volatile noexcept;
     void store(T*, memory_order = memory_order_seq_cst) noexcept;
     T* load(memory_order = memory_order_seq_cst) const volatile noexcept;
@@ -435,11 +443,11 @@ namespace std {
     T* operator-=(ptrdiff_t) noexcept;
   };
 }
-</pre><div class='para' id='types.generic-1'><div class='marginalizedparent'><a class='marginalized' href='#types.generic-1'>1</a></div><p >There is a generic class template <span class='texttt'>atomic&lt;T&gt;</span>. The type of the template argument
+</pre><p ><span class='indexparent'><a class='index' id='atomic'></a></span></p><div class='para' id='types.generic-1'><div class='marginalizedparent'><a class='marginalized' href='#types.generic-1'>1</a></div><p >There is a generic class template <span class='texttt'>atomic&lt;T&gt;</span>. The type of the template argument
 <span class='texttt'>T</span> shall be trivially copyable (<a href='basic.types'>[basic.types]</a>). [&nbsp;<i>Note:</i><span class='space'></span> Type arguments that are
 not also statically initializable may be difficult to use. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='types.generic-2'><div class='marginalizedparent'><a class='marginalized' href='#types.generic-2'>2</a></div><p >The semantics of the operations on specializations of <span class='texttt'>atomic</span> are defined
 in <a href='atomics.types.operations'>[atomics.types.operations]</a>.</p></div><div class='para' id='types.generic-3'><div class='marginalizedparent'><a class='marginalized' href='#types.generic-3'>3</a></div><p >Specializations and instantiations of the <span class='texttt'>atomic</span> template shall have a deleted copy constructor, a deleted
-copy assignment operator, and a constexpr value constructor.</p></div><div class='para' id='types.generic-4'><div class='marginalizedparent'><a class='marginalized' href='#types.generic-4'>4</a></div><p >There shall be explicit specializations of the <span class='texttt'>atomic</span>
+copy assignment operator, and a constexpr value constructor.</p><p ><span class='indexparent'><a class='index' id='atomic<integral>'></a></span></p></div><div class='para' id='types.generic-4'><div class='marginalizedparent'><a class='marginalized' href='#types.generic-4'>4</a></div><p >There shall be explicit specializations of the <span class='texttt'>atomic</span>
 template for the integral types
 <span class='texttt'>char</span>,
 <span class='texttt'>signed char</span>,
@@ -457,20 +465,21 @@ template for the integral types
 <span class='texttt'>wchar_t</span>,
 and any other types needed by the typedefs in the header <span class='texttt'>&lt;cstdint&gt;</span>.
 For each integral type <span class='texttt'><i>integral</i></span>, the specialization
-<span class='texttt'>atomic&lt;integral&gt;</span> provides additional atomic operations appropriate to integral types.
+<span class='texttt'>atomic&lt;<i>integral</i>&gt;</span> provides additional atomic operations appropriate to integral types.
 There shall be a specialization <span class='texttt'>atomic&lt;bool&gt;</span> which provides the general
 atomic operations as specified in <a href='atomics.types.operations.general'>[atomics.types.operations.general]</a>.</p></div><div class='para' id='types.generic-5'><div class='marginalizedparent'><a class='marginalized' href='#types.generic-5'>5</a></div><p >The atomic integral specializations and the specialization <span class='texttt'>atomic&lt;bool&gt;</span>
 shall be standard-layout structs. They shall each have a trivial default constructor
 and a trivial destructor. They shall each support aggregate initialization
-syntax.</p></div><div class='para' id='types.generic-6'><div class='marginalizedparent'><a class='marginalized' href='#types.generic-6'>6</a></div><p >There shall be pointer partial specializations of the <span class='texttt'>atomic</span> class template.
+syntax.</p><p ><span class='indexparent'><a class='index' id='atomic<T*>'></a></span></p></div><div class='para' id='types.generic-6'><div class='marginalizedparent'><a class='marginalized' href='#types.generic-6'>6</a></div><p >There shall be pointer partial specializations of the <span class='texttt'>atomic</span> class template.
 These specializations shall be standard-layout structs.
 They shall each have a trivial default constructor and a trivial destructor.
-They shall each support aggregate initialization syntax.</p></div><div class='para' id='types.generic-7'><div class='marginalizedparent'><a class='marginalized' href='#types.generic-7'>7</a></div><p >There shall be named types corresponding to the integral specializations of
+They shall each support aggregate initialization syntax.</p><p ><span class='indexparent'><a class='index' id='atomic_bool'></a></span></p></div><div class='para' id='types.generic-7'><div class='marginalizedparent'><a class='marginalized' href='#types.generic-7'>7</a></div><p >There shall be named types corresponding to the integral specializations of
 <span class='texttt'>atomic</span>, as specified in Table <a href='#tab:atomics.integral'>[tab:atomics.integral]</a>, and a named type
 <span class='texttt'>atomic_bool</span> corresponding to the specified <span class='texttt'>atomic&lt;bool&gt;</span>. Each named
 type is either a typedef to the corresponding specialization or a base class of the
 corresponding specialization. If it is a base class, it shall support the same
-member functions as the corresponding specialization.</p><div class='numberedTable' id='tab:atomics.integral'>Table <a href='#tab:atomics.integral'>132</a> — Named atomic types<br><table ><tr class='rowsep'><td class='left'>
+member functions as the corresponding specialization.</p><p ><span class='indexparent'><a class='index' id='atomic_char'></a></span><span class='indexparent'><a class='index' id='atomic_schar'></a></span><span class='indexparent'><a class='index' id='atomic_uchar'></a></span><span class='indexparent'><a class='index' id='atomic_short'></a></span><span class='indexparent'><a class='index' id='atomic_ushort'></a></span><span class='indexparent'><a class='index' id='atomic_int'></a></span><span class='indexparent'><a class='index' id='atomic_uint'></a></span><span class='indexparent'><a class='index' id='atomic_long'></a></span><span class='indexparent'><a class='index' id='atomic_ulong'></a></span><span class='indexparent'><a class='index' id='atomic_llong'></a></span><span class='indexparent'><a class='index' id='atomic_ullong'></a></span><span class='indexparent'><a class='index' id='atomic_char16_t'></a></span><span class='indexparent'><a class='index' id='atomic_char32_t'></a></span><span class='indexparent'><a class='index' id='atomic_wchar_t'></a></span>
+ </p><div class='numberedTable' id='tab:atomics.integral'>Table <a href='#tab:atomics.integral'>132</a> — Named atomic types<br><table ><tr class='rowsep'><td class='left'>
 
 
 <b>Named atomic type</b> </td><td class='left'> <b>Corresponding non-atomic type</b> </td></tr><tr class='rowsep'><td class='left'> 
@@ -494,7 +503,8 @@ specified in Table <a href='#tab:atomics.typedefs'>[tab:atomics.typedefs]</a>.
 shall be defined if and only if
 <span class='texttt'>int<span class='math'><span class='mathalpha'>N</span></span>_t</span>, <span class='texttt'>uint<span class='math'><span class='mathalpha'>N</span></span>_t</span>,
 <span class='texttt'>intptr_t</span>, and <span class='texttt'>uintptr_t</span>
-are defined, respectively.</p><div class='numberedTable' id='tab:atomics.typedefs'>Table <a href='#tab:atomics.typedefs'>133</a> — Atomic typedefs<br><table ><tr class='rowsep'><td class='left'>
+are defined, respectively.</p><p ><span class='indexparent'><a class='index' id='atomic_int8_t'></a></span><span class='indexparent'><a class='index' id='atomic_uint8_t'></a></span><span class='indexparent'><a class='index' id='atomic_int16_t'></a></span><span class='indexparent'><a class='index' id='atomic_uint16_t'></a></span><span class='indexparent'><a class='index' id='atomic_int32_t'></a></span><span class='indexparent'><a class='index' id='atomic_uint32_t'></a></span><span class='indexparent'><a class='index' id='atomic_int64_t'></a></span><span class='indexparent'><a class='index' id='atomic_uint64_t'></a></span><span class='indexparent'><a class='index' id='atomic_int_least8_t'></a></span><span class='indexparent'><a class='index' id='atomic_uint_least8_t'></a></span><span class='indexparent'><a class='index' id='atomic_int_least16_t'></a></span><span class='indexparent'><a class='index' id='atomic_uint_least16_t'></a></span><span class='indexparent'><a class='index' id='atomic_int_least32_t'></a></span><span class='indexparent'><a class='index' id='atomic_uint_least32_t'></a></span><span class='indexparent'><a class='index' id='atomic_int_least64_t'></a></span><span class='indexparent'><a class='index' id='atomic_uint_least64_t'></a></span><span class='indexparent'><a class='index' id='atomic_int_fast8_t'></a></span><span class='indexparent'><a class='index' id='atomic_uint_fast8_t'></a></span><span class='indexparent'><a class='index' id='atomic_int_fast16_t'></a></span><span class='indexparent'><a class='index' id='atomic_uint_fast16_t'></a></span><span class='indexparent'><a class='index' id='atomic_int_fast32_t'></a></span><span class='indexparent'><a class='index' id='atomic_uint_fast32_t'></a></span><span class='indexparent'><a class='index' id='atomic_int_fast64_t'></a></span><span class='indexparent'><a class='index' id='atomic_uint_fast64_t'></a></span><span class='indexparent'><a class='index' id='atomic_intptr_t'></a></span><span class='indexparent'><a class='index' id='atomic_uintptr_t'></a></span><span class='indexparent'><a class='index' id='atomic_size_t'></a></span><span class='indexparent'><a class='index' id='atomic_ptrdiff_t'></a></span><span class='indexparent'><a class='index' id='atomic_intmax_t'></a></span><span class='indexparent'><a class='index' id='atomic_uintmax_t'></a></span>
+ </p><div class='numberedTable' id='tab:atomics.typedefs'>Table <a href='#tab:atomics.typedefs'>133</a> — Atomic typedefs<br><table ><tr class='rowsep'><td class='left'>
 
 
 <b>Atomic typedef</b> </td><td class='left'> <b>Corresponding non-atomic typedef</b> </td></tr><tr class='rowsep'><td class='left'> 
@@ -534,11 +544,12 @@ on atomic types” in <a href='atomics.syn'>[atomics.syn]</a>.</p></div><div cla
 <span class='texttt'><i>atomic-type</i></span> refers to either <span class='texttt'>atomic&lt;T&gt;</span> or to a named base class for <span class='texttt'>T</span>
 from Table <a href='#tab:atomics.integral'>[tab:atomics.integral]</a> or inferred from Table <a href='#tab:atomics.typedefs'>[tab:atomics.typedefs]</a>.</p></div></div><div id='types.operations.templ'><h3 ><a class='secnum' href='#types.operations.templ' style='min-width:103pt'>29.6.2</a> Templated operations on atomic types <a class='abbr_ref' href='atomics.types.operations.templ'>[atomics.types.operations.templ]</a></h3><div class='para' id='types.operations.templ-1'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.templ-1'>1</a></div><p >The implementation shall declare but not define the
 function templates identified as “templated operations on atomic types” in <a href='atomics.syn'>[atomics.syn]</a>.</p></div></div><div id='types.operations.arith'><h3 ><a class='secnum' href='#types.operations.arith' style='min-width:103pt'>29.6.3</a> Arithmetic operations on atomic types <a class='abbr_ref' href='atomics.types.operations.arith'>[atomics.types.operations.arith]</a></h3><div class='para' id='types.operations.arith-1'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.arith-1'>1</a></div><p >The implementation shall provide the functions and function template specializations identified as “arithmetic operations
-on atomic types” in <a href='atomics.syn'>[atomics.syn]</a>.</p></div><div class='para' id='types.operations.arith-2'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.arith-2'>2</a></div><p >In the declarations of these functions and function template specializations,
+on atomic types” in <a href='atomics.syn'>[atomics.syn]</a>.</p><p ><span class='indexparent'><a class='index' id='atomic<integral>'></a></span></p></div><div class='para' id='types.operations.arith-2'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.arith-2'>2</a></div><p >In the declarations of these functions and function template specializations,
 the name <span class='texttt'><i>integral</i></span> refers to an
 integral type and the name <span class='texttt'><i>atomic-integral</i></span> refers to either
 <span class='texttt'>atomic&lt;<i>integral</i>&gt;</span> or to a named base class for <span class='texttt'><i>integral</i></span> from
-Table <a href='#tab:atomics.integral'>[tab:atomics.integral]</a> or inferred from Table <a href='#tab:atomics.typedefs'>[tab:atomics.typedefs]</a>.</p></div></div><div id='types.operations.pointer'><h3 ><a class='secnum' href='#types.operations.pointer' style='min-width:103pt'>29.6.4</a> Operations on atomic pointer types <a class='abbr_ref' href='atomics.types.operations.pointer'>[atomics.types.operations.pointer]</a></h3><div class='para' id='types.operations.pointer-1'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.pointer-1'>1</a></div><p >The implementation shall provide the function template specializations
+Table <a href='#tab:atomics.integral'>[tab:atomics.integral]</a> or inferred from Table <a href='#tab:atomics.typedefs'>[tab:atomics.typedefs]</a>.</p></div></div><div id='types.operations.pointer'><h3 ><a class='secnum' href='#types.operations.pointer' style='min-width:103pt'>29.6.4</a> Operations on atomic pointer types <a class='abbr_ref' href='atomics.types.operations.pointer'>[atomics.types.operations.pointer]</a></h3><p ><span class='indexparent'><a class='index' id='atomic<T*>'></a></span>
+</p><div class='para' id='types.operations.pointer-1'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.pointer-1'>1</a></div><p >The implementation shall provide the function template specializations
 identified as “partial specializations for pointers” in <a href='atomics.syn'>[atomics.syn]</a>.</p></div></div><div id='types.operations.req'><h3 ><a class='secnum' href='#types.operations.req' style='min-width:103pt'>29.6.5</a> Requirements for operations on atomic types <a class='abbr_ref' href='atomics.types.operations.req'>[atomics.types.operations.req]</a></h3><div class='para' id='types.operations.req-1'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-1'>1</a></div><p >There are only a few kinds of operations on atomic types, though there are many
 instances on those kinds. This section specifies each general kind. The specific
 instances are defined in 
@@ -555,14 +566,14 @@ corresponding <span class='texttt'>_explicit</span> functions with <span class='
 semantics have not changed in the standard. This qualification means that volatility is
 preserved when applying these operations to volatile objects. It does not mean that
 operations on non-volatile objects become volatile. Thus, volatile qualified operations
-on non-volatile objects may be merged under some conditions. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='atomic_type,constructor'></a></span><code class='itemdecl'>
+on non-volatile objects may be merged under some conditions. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='atomic,constructor'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,constructor'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,constructor'></a></span><code class='itemdecl'>
 <i>A<span class='nocorr'></span></i>::<i>A<span class='nocorr'></span></i>() noexcept = default;
 </code></p></div><div class='itemdescr'></div><div class='para' id='types.operations.req-4'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Leaves the atomic object in an uninitialized state.
 [&nbsp;<i>Note:</i><span class='space'></span>
 These semantics ensure compatibility with C.
 <i>&nbsp;—&nbsp;end note</i>&nbsp;]
-</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_type,constructor'></a></span><code class='itemdecl'>
+</p></div></div><p ><span class='indexparent'><a class='index' id='atomic,constructor'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,constructor'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,constructor'></a></span><code class='itemdecl'>
 constexpr <i>A<span class='nocorr'></span></i>::<i>A<span class='nocorr'></span></i>(<i>C<span class='nocorr'></span></i> desired) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='types.operations.req-5'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes the object with the value <span class='texttt'>desired</span>.
 Initialization is not an atomic operation (<a href='intro.multithread'>[intro.multithread]</a>).
@@ -572,7 +583,7 @@ just-constructed object <span class='texttt'>A</span> to another thread via
 <span class='texttt'>memory_order_relaxed</span> operations on a suitable atomic pointer
 variable, and then immediately accessing <span class='texttt'>A</span> in the receiving thread.
 This results in undefined behavior. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
-</p></div></div><p ><code class='itemdecl'>
+</p></div></div><p ><span class='indexparent'><a class='index' id='ATOMIC_VAR_INIT'></a></span><code class='itemdecl'>
 #define ATOMIC_VAR_INIT(value) <i><span class='texttt'>see below</span></i>
 </code></p><div class='itemdescr'></div><div class='para' id='types.operations.req-6'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-6'>6</a></div><div class='itemdescr'><p >The macro expands to a token sequence suitable for
 constant initialization of
@@ -584,15 +595,15 @@ constitutes a data race. [&nbsp;<i>Example:</i><span class='space'></span>
 </p><pre class='codeblock'>
 atomic&lt;int&gt; v = ATOMIC_VAR_INIT(5);
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
-</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_type,is_always_lock_free'></a></span><span class='indexparent'><a class='index' id='is_always_lock_free,atomic_type'></a></span><code class='itemdecl'>
-static constexpr bool is_always_lock_free = <i>implementation-defined</i>;
+</p></div></div><p ><span class='indexparent'><a class='index' id='is_always_lock_free,atomic'></a></span><span class='indexparent'><a class='index' id='atomic,is_always_lock_free'></a></span><span class='indexparent'><a class='index' id='is_always_lock_free,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,is_always_lock_free'></a></span><span class='indexparent'><a class='index' id='is_always_lock_free,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,is_always_lock_free'></a></span><code class='itemdecl'>
+static constexpr bool is_always_lock_free = <span class='indexparent'><a class='index' id='whether_a_given_atomic_type&#39;s_operations_are_always_lock_free'></a></span><i>implementation-defined</i>;
 </code></p><div class='itemdescr'></div><div class='para' id='types.operations.req-7'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-7'>7</a></div><div class='itemdescr'><p >The <span class='texttt'>static</span> data member <span class='texttt'>is_always_lock_free</span> is <span class='texttt'>true</span>
 if the atomic type's operations are always lock-free, and <span class='texttt'>false</span> otherwise.
 [&nbsp;<i>Note:</i><span class='space'></span>
 The value of <span class='texttt'>is_always_lock_free</span> is consistent with the value of
 the corresponding <span class='texttt'>ATOMIC_..._LOCK_FREE</span> macro, if defined.
 <i>&nbsp;—&nbsp;end note</i>&nbsp;]
-</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_is_lock_free'></a></span><span class='indexparent'><a class='index' id='atomic_type,is_lock_free'></a></span><span class='indexparent'><a class='index' id='is_lock_free,atomic_type'></a></span><code class='itemdecl'>
+</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_is_lock_free'></a></span><span class='indexparent'><a class='index' id='is_lock_free,atomic'></a></span><span class='indexparent'><a class='index' id='atomic,is_lock_free'></a></span><span class='indexparent'><a class='index' id='is_lock_free,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,is_lock_free'></a></span><span class='indexparent'><a class='index' id='is_lock_free,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,is_lock_free'></a></span><code class='itemdecl'>
 bool atomic_is_lock_free(const volatile <i>A</i>* object) noexcept;
 bool atomic_is_lock_free(const <i>A</i>* object) noexcept;
 bool <i>A<span class='nocorr'></span></i>::is_lock_free() const volatile noexcept;
@@ -602,7 +613,7 @@ bool <i>A<span class='nocorr'></span></i>::is_lock_free() const noexcept;
 The return value of the <span class='texttt'>is_lock_free</span> member function
 is consistent with the value of <span class='texttt'>is_always_lock_free</span> for the same type.
 <i>&nbsp;—&nbsp;end note</i>&nbsp;]
-</p></div></div><p ><code class='itemdecl'>
+</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_init'></a></span><code class='itemdecl'>
 void atomic_init(volatile <i>A</i>* object, <i>C<span class='nocorr'></span></i> desired) noexcept;
 void atomic_init(<i>A</i>* object, <i>C<span class='nocorr'></span></i> desired) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='types.operations.req-9'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i> Non-atomically
@@ -614,7 +625,7 @@ These semantics ensure compatibility with C.
 [&nbsp;<i>Note:</i><span class='space'></span>
 Concurrent access from another thread, even via an atomic operation, constitutes
 a data race.
-<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_store'></a></span><span class='indexparent'><a class='index' id='atomic_store_explicit'></a></span><span class='indexparent'><a class='index' id='atomic_type,store'></a></span><span class='indexparent'><a class='index' id='store,atomic_type'></a></span><code class='itemdecl'>
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_store'></a></span><span class='indexparent'><a class='index' id='atomic_store_explicit'></a></span><span class='indexparent'><a class='index' id='store,atomic'></a></span><span class='indexparent'><a class='index' id='atomic,store'></a></span><span class='indexparent'><a class='index' id='store,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,store'></a></span><span class='indexparent'><a class='index' id='store,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,store'></a></span><code class='itemdecl'>
 void atomic_store(volatile <i>A</i>* object, <i>C<span class='nocorr'></span></i> desired) noexcept;
 void atomic_store(<i>A</i>* object, <i>C<span class='nocorr'></span></i> desired) noexcept;
 void atomic_store_explicit(volatile <i>A</i>* object, <i>C<span class='nocorr'></span></i> desired, memory_order order) noexcept;
@@ -625,11 +636,11 @@ void <i>A<span class='nocorr'></span></i>::store(<i>C<span class='nocorr'></span
 <span class='texttt'>memory_order_acquire</span>, nor <span class='texttt'>memory_order_acq_rel</span>.</p></div></div><div class='para' id='types.operations.req-11'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> Atomically replaces the value pointed to by <span class='texttt'>object</span> or by <span class='texttt'>this</span>
 with the value of <span class='texttt'>desired</span>. Memory is affected according to the value of
 <span class='texttt'>order</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_type,operator='></a></span><span class='indexparent'><a class='index' id='operator=,atomic_type'></a></span><code class='itemdecl'>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=,atomic'></a></span><span class='indexparent'><a class='index' id='atomic,operator='></a></span><span class='indexparent'><a class='index' id='operator=,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,operator='></a></span><span class='indexparent'><a class='index' id='operator=,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,operator='></a></span><code class='itemdecl'>
 <i>C<span class='nocorr'></span></i> <i>A<span class='nocorr'></span></i>::operator=(<i>C<span class='nocorr'></span></i> desired) volatile noexcept;
 <i>C<span class='nocorr'></span></i> <i>A<span class='nocorr'></span></i>::operator=(<i>C<span class='nocorr'></span></i> desired) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='types.operations.req-12'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-12'>12</a></div><div class='itemdescr'><p ><i>Effects:</i> As if by <span class='texttt'>store(desired)</span>.</p></div></div><div class='para' id='types.operations.req-13'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-13'>13</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>desired</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_load'></a></span><span class='indexparent'><a class='index' id='atomic_load_explicit'></a></span><span class='indexparent'><a class='index' id='atomic_type,load'></a></span><span class='indexparent'><a class='index' id='load,atomic_type'></a></span><code class='itemdecl'>
+</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_load'></a></span><span class='indexparent'><a class='index' id='atomic_load_explicit'></a></span><span class='indexparent'><a class='index' id='load,atomic'></a></span><span class='indexparent'><a class='index' id='atomic,load'></a></span><span class='indexparent'><a class='index' id='load,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,load'></a></span><span class='indexparent'><a class='index' id='load,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,load'></a></span><code class='itemdecl'>
 <i>C<span class='nocorr'></span></i> atomic_load(const volatile <i>A</i>* object) noexcept;
 <i>C<span class='nocorr'></span></i> atomic_load(const <i>A</i>* object) noexcept;
 <i>C<span class='nocorr'></span></i> atomic_load_explicit(const volatile <i>A</i>* object, memory_order) noexcept;
@@ -637,11 +648,11 @@ with the value of <span class='texttt'>desired</span>. Memory is affected accord
 <i>C<span class='nocorr'></span></i> <i>A<span class='nocorr'></span></i>::load(memory_order order = memory_order_seq_cst) const volatile noexcept;
 <i>C<span class='nocorr'></span></i> <i>A<span class='nocorr'></span></i>::load(memory_order order = memory_order_seq_cst) const noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='types.operations.req-14'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-14'>14</a></div><div class='itemdescr'><p ><i>Requires:</i> The <span class='texttt'>order</span> argument shall not be <span class='texttt'>memory_order_release</span> nor <span class='texttt'>memory_order_acq_rel</span>.</p></div></div><div class='para' id='types.operations.req-15'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> Memory is affected according to the value of <span class='texttt'>order</span>.</p></div></div><div class='para' id='types.operations.req-16'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i> Atomically returns the value pointed to by <span class='texttt'>object</span> or by <span class='texttt'>this</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_type,operator_C'></a></span><span class='indexparent'><a class='index' id='operator_C,atomic_type'></a></span><code class='itemdecl'>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator_type,atomic'></a></span><span class='indexparent'><a class='index' id='atomic,operator_type'></a></span><span class='indexparent'><a class='index' id='operator_T*,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,operator_T*'></a></span><span class='indexparent'><a class='index' id='operator_integral,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,operator_integral'></a></span><code class='itemdecl'>
 <i>A<span class='nocorr'></span></i>::operator <i>C</i>() const volatile noexcept;
 <i>A<span class='nocorr'></span></i>::operator <i>C</i>() const noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='types.operations.req-17'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-17'>17</a></div><div class='itemdescr'><p ><i>Effects:</i> As if by <span class='texttt'>load()</span>.</p></div></div><div class='para' id='types.operations.req-18'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-18'>18</a></div><div class='itemdescr'><p ><i>Returns:</i> The result of <span class='texttt'>load()</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_exchange'></a></span><span class='indexparent'><a class='index' id='atomic_exchange_explicit'></a></span><span class='indexparent'><a class='index' id='atomic_type,exchange'></a></span><span class='indexparent'><a class='index' id='exchange,atomic_type'></a></span><code class='itemdecl'>
+</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_exchange'></a></span><span class='indexparent'><a class='index' id='atomic_exchange_explicit'></a></span><span class='indexparent'><a class='index' id='exchange,atomic'></a></span><span class='indexparent'><a class='index' id='atomic,exchange'></a></span><span class='indexparent'><a class='index' id='exchange,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,exchange'></a></span><span class='indexparent'><a class='index' id='exchange,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,exchange'></a></span><code class='itemdecl'>
 <i>C<span class='nocorr'></span></i> atomic_exchange(volatile <i>A</i>* object, <i>C<span class='nocorr'></span></i> desired) noexcept;
 <i>C<span class='nocorr'></span></i> atomic_exchange(<i>A</i>* object, <i>C<span class='nocorr'></span></i> desired) noexcept;
 <i>C<span class='nocorr'></span></i> atomic_exchange_explicit(volatile <i>A</i>* object, <i>C<span class='nocorr'></span></i> desired, memory_order) noexcept;
@@ -652,7 +663,7 @@ with the value of <span class='texttt'>desired</span>. Memory is affected accord
 with <span class='texttt'>desired</span>.
 Memory is affected according to the value of <span class='texttt'>order</span>.
 These operations are atomic read-modify-write operations (<a href='intro.multithread'>[intro.multithread]</a>).</p></div></div><div class='para' id='types.operations.req-20'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-20'>20</a></div><div class='itemdescr'><p ><i>Returns:</i> Atomically returns the value pointed to by <span class='texttt'>object</span> or by <span class='texttt'>this</span> immediately before the effects.
-</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_compare_exchange_weak'></a></span><span class='indexparent'><a class='index' id='atomic_compare_exchange_strong'></a></span><span class='indexparent'><a class='index' id='atomic_compare_exchange_weak_explicit'></a></span><span class='indexparent'><a class='index' id='atomic_compare_exchange_strong_explicit'></a></span><span class='indexparent'><a class='index' id='atomic_type,compare_exchange_weak'></a></span><span class='indexparent'><a class='index' id='compare_exchange_weak,atomic_type'></a></span><span class='indexparent'><a class='index' id='atomic_type,compare_exchange_strong'></a></span><span class='indexparent'><a class='index' id='compare_exchange_strong,atomic_type'></a></span><code class='itemdecl'>
+</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_compare_exchange_weak'></a></span><span class='indexparent'><a class='index' id='atomic_compare_exchange_strong'></a></span><span class='indexparent'><a class='index' id='atomic_compare_exchange_weak_explicit'></a></span><span class='indexparent'><a class='index' id='atomic_compare_exchange_strong_explicit'></a></span><span class='indexparent'><a class='index' id='compare_exchange_weak,atomic'></a></span><span class='indexparent'><a class='index' id='atomic,compare_exchange_weak'></a></span><span class='indexparent'><a class='index' id='compare_exchange_weak,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,compare_exchange_weak'></a></span><span class='indexparent'><a class='index' id='compare_exchange_weak,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,compare_exchange_weak'></a></span><span class='indexparent'><a class='index' id='compare_exchange_strong,atomic'></a></span><span class='indexparent'><a class='index' id='atomic,compare_exchange_strong'></a></span><span class='indexparent'><a class='index' id='compare_exchange_strong,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,compare_exchange_strong'></a></span><span class='indexparent'><a class='index' id='compare_exchange_strong,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,compare_exchange_strong'></a></span><code class='itemdecl'>
 bool atomic_compare_exchange_weak(volatile <i>A</i>* object, <i>C</i>* expected, <i>C<span class='nocorr'></span></i> desired) noexcept;
 bool atomic_compare_exchange_weak(<i>A</i>* object, <i>C</i>* expected, <i>C<span class='nocorr'></span></i> desired) noexcept;
 bool atomic_compare_exchange_strong(volatile <i>A</i>* object, <i>C</i>* expected, <i>C<span class='nocorr'></span></i> desired) noexcept;
@@ -773,7 +784,7 @@ rapidly. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
   bitwise exclusive or  </td></tr><tr ><td class='left'>
 <span class='texttt'>and</span>       </td><td class='left'>
   <span class='texttt'>&amp;</span>      </td><td class='left'>
-  bitwise and     </td><td class='border left'></td><td class='left'></td><td class='left'></td></tr></table></div><p ><span class='indexparent'><a class='index' id='atomic_fetch_key'></a></span><span class='indexparent'><a class='index' id='atomic_fetch_key_explicit'></a></span><span class='indexparent'><a class='index' id='atomic_type,fetch_key'></a></span><span class='indexparent'><a class='index' id='fetch_key,atomic_type'></a></span><code class='itemdecl'>
+  bitwise and     </td><td class='border left'></td><td class='left'></td><td class='left'></td></tr></table></div><p ><span class='indexparent'><a class='index' id='atomic_fetch_add'></a></span><span class='indexparent'><a class='index' id='atomic_fetch_and'></a></span><span class='indexparent'><a class='index' id='atomic_fetch_or'></a></span><span class='indexparent'><a class='index' id='atomic_fetch_sub'></a></span><span class='indexparent'><a class='index' id='atomic_fetch_xor'></a></span><span class='indexparent'><a class='index' id='atomic_fetch_add_explicit'></a></span><span class='indexparent'><a class='index' id='atomic_fetch_and_explicit'></a></span><span class='indexparent'><a class='index' id='atomic_fetch_or_explicit'></a></span><span class='indexparent'><a class='index' id='atomic_fetch_sub_explicit'></a></span><span class='indexparent'><a class='index' id='atomic_fetch_xor_explicit'></a></span><span class='indexparent'><a class='index' id='fetch_add,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,fetch_add'></a></span><span class='indexparent'><a class='index' id='fetch_sub,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,fetch_sub'></a></span><span class='indexparent'><a class='index' id='fetch_add,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,fetch_add'></a></span><span class='indexparent'><a class='index' id='fetch_and,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,fetch_and'></a></span><span class='indexparent'><a class='index' id='fetch_or,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,fetch_or'></a></span><span class='indexparent'><a class='index' id='fetch_sub,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,fetch_sub'></a></span><span class='indexparent'><a class='index' id='fetch_xor,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,fetch_xor'></a></span><code class='itemdecl'>
 <i>C<span class='nocorr'></span></i> atomic_fetch_<i>key<span class='nocorr'></span></i>(volatile <i>A</i>* object, <i>M<span class='nocorr'></span></i> operand) noexcept;
 <i>C<span class='nocorr'></span></i> atomic_fetch_<i>key<span class='nocorr'></span></i>(<i>A</i>* object, <i>M<span class='nocorr'></span></i> operand) noexcept;
 <i>C<span class='nocorr'></span></i> atomic_fetch_<i>key<span class='nocorr'></span></i>_explicit(volatile <i>A</i>* object, <i>M<span class='nocorr'></span></i> operand, memory_order order) noexcept;
@@ -787,23 +798,23 @@ Memory is affected according to the value of <span class='texttt'>order</span>.
 These operations are atomic read-modify-write operations (<a href='intro.multithread'>[intro.multithread]</a>).</p></div></div><div class='para' id='types.operations.req-30'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-30'>30</a></div><div class='itemdescr'><p ><i>Returns:</i> Atomically, the value pointed to by <span class='texttt'>object</span> or by <span class='texttt'>this</span> immediately before the effects.</p></div></div><div class='para' id='types.operations.req-31'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-31'>31</a></div><div class='itemdescr'><p ><span class='indexparent'><a class='index' id='signed_integer_representation,two&#39;s_complement'></a></span><i>Remarks:</i> For signed integer types, arithmetic is defined to use two's complement
 representation. There are no undefined results. For address types, the result may be an
 undefined address, but the operations otherwise have no undefined behavior.
-</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_type,operator_@='></a></span><span class='indexparent'><a class='index' id='operator_@=,atomic_type'></a></span><code class='itemdecl'>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator+=,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,operator+='></a></span><span class='indexparent'><a class='index' id='operator-=,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,operator-='></a></span><span class='indexparent'><a class='index' id='operator+=,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,operator+='></a></span><span class='indexparent'><a class='index' id='operator-=,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,operator-='></a></span><span class='indexparent'><a class='index' id='operator&=,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,operator&='></a></span><span class='indexparent'><a class='index' id='operator|=,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,operator|='></a></span><span class='indexparent'><a class='index' id='operator^=,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,operator^='></a></span><code class='itemdecl'>
 <i>C<span class='nocorr'></span></i> <i>A<span class='nocorr'></span></i>::operator <i>op</i>=(<i>M<span class='nocorr'></span></i> operand) volatile noexcept;
 <i>C<span class='nocorr'></span></i> <i>A<span class='nocorr'></span></i>::operator <i>op</i>=(<i>M<span class='nocorr'></span></i> operand) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='types.operations.req-32'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-32'>32</a></div><div class='itemdescr'><p ><i>Effects:</i> As if by <span class='texttt'>fetch_<i>key</i>(operand)</span>.</p></div></div><div class='para' id='types.operations.req-33'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-33'>33</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>fetch_<i>key</i>(operand) op operand</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_type,operator++'></a></span><span class='indexparent'><a class='index' id='operator++,atomic_type'></a></span><code class='itemdecl'>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator++,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,operator++'></a></span><span class='indexparent'><a class='index' id='operator++,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,operator++'></a></span><code class='itemdecl'>
 <i>C<span class='nocorr'></span></i> <i>A<span class='nocorr'></span></i>::operator++(int) volatile noexcept;
 <i>C<span class='nocorr'></span></i> <i>A<span class='nocorr'></span></i>::operator++(int) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='types.operations.req-34'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-34'>34</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>fetch_add(1)</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_type,operator--'></a></span><span class='indexparent'><a class='index' id='operator--,atomic_type'></a></span><code class='itemdecl'>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator--,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,operator--'></a></span><span class='indexparent'><a class='index' id='operator--,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,operator--'></a></span><code class='itemdecl'>
 <i>C<span class='nocorr'></span></i> <i>A<span class='nocorr'></span></i>::operator--(int) volatile noexcept;
 <i>C<span class='nocorr'></span></i> <i>A<span class='nocorr'></span></i>::operator--(int) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='types.operations.req-35'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-35'>35</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>fetch_sub(1)</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_type,operator++'></a></span><span class='indexparent'><a class='index' id='operator++,atomic_type'></a></span><code class='itemdecl'>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator++,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,operator++'></a></span><span class='indexparent'><a class='index' id='operator++,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,operator++'></a></span><code class='itemdecl'>
 <i>C<span class='nocorr'></span></i> <i>A<span class='nocorr'></span></i>::operator++() volatile noexcept;
 <i>C<span class='nocorr'></span></i> <i>A<span class='nocorr'></span></i>::operator++() noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='types.operations.req-36'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-36'>36</a></div><div class='itemdescr'><p ><i>Effects:</i> As if by <span class='texttt'>fetch_add(1)</span>.</p></div></div><div class='para' id='types.operations.req-37'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-37'>37</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>fetch_add(1) + 1</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_type,operator--'></a></span><span class='indexparent'><a class='index' id='operator--,atomic_type'></a></span><code class='itemdecl'>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator--,atomic<T*>'></a></span><span class='indexparent'><a class='index' id='atomic<T*>,operator--'></a></span><span class='indexparent'><a class='index' id='operator--,atomic<integral>'></a></span><span class='indexparent'><a class='index' id='atomic<integral>,operator--'></a></span><code class='itemdecl'>
 <i>C<span class='nocorr'></span></i> <i>A<span class='nocorr'></span></i>::operator--() volatile noexcept;
 <i>C<span class='nocorr'></span></i> <i>A<span class='nocorr'></span></i>::operator--() noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='types.operations.req-38'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-38'>38</a></div><div class='itemdescr'><p ><i>Effects:</i> As if by <span class='texttt'>fetch_sub(1)</span>.</p></div></div><div class='para' id='types.operations.req-39'><div class='marginalizedparent'><a class='marginalized' href='#types.operations.req-39'>39</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>fetch_sub(1) - 1</span>.
@@ -844,7 +855,7 @@ atomic_flag guard = ATOMIC_FLAG_INIT;
 </pre><p >It is unspecified whether the macro can be used in other initialization contexts.
 For a complete static-duration object, that initialization shall be static.
 Unless initialized with <span class='texttt'>ATOMIC_FLAG_INIT</span>, it is unspecified whether an
-<span class='texttt'>atomic_flag</span> object has an initial state of set or clear.</p><p ><span class='indexparent'><a class='index' id='atomic_flag_test_and_set'></a></span><span class='indexparent'><a class='index' id='atomic_flag_test_and_set_explicit'></a></span><span class='indexparent'><a class='index' id='atomic_flag,test_and_set'></a></span><span class='indexparent'><a class='index' id='test_and_set,atomic_flag'></a></span><code class='itemdecl'>
+<span class='texttt'>atomic_flag</span> object has an initial state of set or clear.</p><p ><span class='indexparent'><a class='index' id='atomic_flag_test_and_set'></a></span><span class='indexparent'><a class='index' id='atomic_flag_test_and_set_explicit'></a></span><span class='indexparent'><a class='index' id='test_and_set,atomic_flag'></a></span><span class='indexparent'><a class='index' id='atomic_flag,test_and_set'></a></span><code class='itemdecl'>
 bool atomic_flag_test_and_set(volatile atomic_flag* object) noexcept;
 bool atomic_flag_test_and_set(atomic_flag* object) noexcept;
 bool atomic_flag_test_and_set_explicit(volatile atomic_flag* object, memory_order order) noexcept;
@@ -853,7 +864,7 @@ bool atomic_flag::test_and_set(memory_order order = memory_order_seq_cst) volati
 bool atomic_flag::test_and_set(memory_order order = memory_order_seq_cst) noexcept;
 </code></p></div><div class='itemdescr'></div><div class='para' id='flag-5'><div class='marginalizedparent'><a class='marginalized' href='#flag-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Atomically sets the value pointed to by <span class='texttt'>object</span> or by <span class='texttt'>this</span> to <span class='texttt'>true</span>. Memory is affected according to the value of
 <span class='texttt'>order</span>. These operations are atomic read-modify-write operations (<a href='intro.multithread'>[intro.multithread]</a>).</p></div></div><div class='para' id='flag-6'><div class='marginalizedparent'><a class='marginalized' href='#flag-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> Atomically, the value of the object immediately before the effects.
-</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_flag_clear'></a></span><span class='indexparent'><a class='index' id='atomic_flag_clear_explicit'></a></span><span class='indexparent'><a class='index' id='atomic_flag,clear'></a></span><span class='indexparent'><a class='index' id='clear,atomic_flag'></a></span><code class='itemdecl'>
+</p></div></div><p ><span class='indexparent'><a class='index' id='atomic_flag_clear'></a></span><span class='indexparent'><a class='index' id='atomic_flag_clear_explicit'></a></span><span class='indexparent'><a class='index' id='clear,atomic_flag'></a></span><span class='indexparent'><a class='index' id='atomic_flag,clear'></a></span><code class='itemdecl'>
 void atomic_flag_clear(volatile atomic_flag* object) noexcept;
 void atomic_flag_clear(atomic_flag* object) noexcept;
 void atomic_flag_clear_explicit(volatile atomic_flag* object, memory_order order) noexcept;
