@@ -21,7 +21,7 @@ cd ../networking-ts/src
 latexmk -pdf ts
 
 # Build the ranges TS
-cd ../ranges-ts
+cd ../../ranges-ts
 latexmk -pdf ranges
 
 # Fixup gh-pages
