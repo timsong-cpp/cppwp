@@ -25,7 +25,7 @@ cd ../../ranges-ts
 latexmk -pdf ranges
 
 # Fixup gh-pages
-cd ../../gh-pages
+cd ../gh-pages
 mv 14882.css.html 14882.css
 mv index.html.html index.html
 cp ../draft/source/std.pdf ./draft.pdf
