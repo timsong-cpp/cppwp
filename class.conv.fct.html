@@ -19,7 +19,8 @@ to a (possibly cv-qualified) base class of that type (or a reference to it),
 or to (possibly cv-qualified) void.<a class='footnotenum' href='#footnote-117'>117</a></p><p >[&nbsp;<i>Example:</i><span class='space'></span></p><pre class='codeblock'>
 struct X {
   operator int();
-};
+  operator auto() -&gt; short;  <span class='comment'>// error: trailing return type
+</span>};
 
 void f(X a) {
   int i = int(a);
@@ -70,7 +71,15 @@ counterparts.
 operator int [[noreturn]] (); <span class='comment'>// error: <span class='texttt'>noreturn</span> attribute applied to a type
 </span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
 <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p ><span class='indexparent'><a class='index' id='conversion,inheritance_of_user-defined'></a></span>Conversion functions are inherited.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p ><span class='indexparent'><a class='index' id='conversion,virtual_user-defined'></a></span>Conversion functions can be virtual.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p ><span class='indexparent'><a class='index' id='conversion,deduced_return_type_of_user-defined'></a></span>A conversion function template shall not have a
-deduced return type (<a href='dcl.spec.auto'>[dcl.spec.auto]</a>).</p></div><div class='footnote' id='footnote-117'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-117'>117)</a></div><p >These conversions are considered
+deduced return type (<a href='dcl.spec.auto'>[dcl.spec.auto]</a>).
+[&nbsp;<i>Example:</i><span class='space'></span>
+</p><pre class='codeblock'>
+struct S {
+  operator auto() const { return 10; }   <span class='comment'>// OK
+</span>  template&lt;class T&gt;
+  operator auto() const { return 1.2; }  <span class='comment'>// error: conversion function template
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-117'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-117'>117)</a></div><p >These conversions are considered
 as standard conversions for the purposes of overload resolution (<a href='over.best.ics'>[over.best.ics]</a>, <a href='over.ics.ref'>[over.ics.ref]</a>) and therefore initialization (<a href='dcl.init'>[dcl.init]</a>) and explicit casts (<a href='expr.static.cast'>[expr.static.cast]</a>). A conversion to <span class='texttt'>void</span> does not invoke any conversion function (<a href='expr.static.cast'>[expr.static.cast]</a>).
 Even though never directly called to perform a conversion,
 such conversion functions can be declared and can potentially
