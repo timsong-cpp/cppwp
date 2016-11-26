@@ -47,6 +47,16 @@ namespace std {
   template&lt;&gt; struct hash&lt;u16string_view&gt;;
   template&lt;&gt; struct hash&lt;u32string_view&gt;;
   template&lt;&gt; struct hash&lt;wstring_view&gt;;
+
+  inline namespace literals {
+  inline namespace string_view_literals {
+    <span class='comment'>// <a href='string.view.literals'>[string.view.literals]</a>, suffix for <span class='texttt'>basic_string_view</span> literals
+</span>    constexpr string_view    operator "" sv(const char* str, size_t len) noexcept;
+    constexpr u16string_view operator "" sv(const char16_t* str, size_t len) noexcept;
+    constexpr u32string_view operator "" sv(const char32_t* str, size_t len) noexcept;
+    constexpr wstring_view   operator "" sv(const wchar_t* str, size_t len) noexcept;
+  }
+  }
 }
 </pre><div class='para' id='synop-1'><div class='marginalizedparent'><a class='marginalized' href='#synop-1'>1</a></div><p >The function templates defined in <a href='utility.swap'>[utility.swap]</a> and <a href='iterator.range'>[iterator.range]</a>
 are available when <span class='texttt'>&lt;string_view&gt;</span> is included.</p></div></div><div id='template'><h3 ><a class='secnum' href='#template' style='min-width:103pt'>21.4.2</a> Class template <span class='texttt'>basic_string_view</span> <a class='abbr_ref' href='string.view.template'>[string.view.template]</a></h3><p ><span class='indexparent'><a class='index' id='basic_string_view'></a></span></p><pre class='codeblock'>
@@ -71,7 +81,7 @@ public:
   <span class='comment'>// <a href='string.view.cons'>[string.view.cons]</a>, construction and assignment
 </span>  constexpr basic_string_view() noexcept;
   constexpr basic_string_view(const basic_string_view&amp;) noexcept = default;
-  basic_string_view&amp; operator=(const basic_string_view&amp;) noexcept = default;
+  constexpr basic_string_view&amp; operator=(const basic_string_view&amp;) noexcept = default;
   constexpr basic_string_view(const charT* str);
   constexpr basic_string_view(const charT* str, size_type len);
 
@@ -80,10 +90,10 @@ public:
   constexpr const_iterator end() const noexcept;
   constexpr const_iterator cbegin() const noexcept;
   constexpr const_iterator cend() const noexcept;
-  const_reverse_iterator rbegin() const noexcept;
-  const_reverse_iterator rend() const noexcept;
-  const_reverse_iterator crbegin() const noexcept;
-  const_reverse_iterator crend() const noexcept;
+  constexpr const_reverse_iterator rbegin() const noexcept;
+  constexpr const_reverse_iterator rend() const noexcept;
+  constexpr const_reverse_iterator crbegin() const noexcept;
+  constexpr const_reverse_iterator crend() const noexcept;
 
   <span class='comment'>// <a href='string.view.capacity'>[string.view.capacity]</a>, capacity
 </span>  constexpr size_type size() const noexcept;
@@ -205,13 +215,13 @@ constexpr const_iterator cend() const noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='iterators-5'><div class='marginalizedparent'><a class='marginalized' href='#iterators-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>begin() + size()</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='rbegin,basic_string_view'></a></span><span class='indexparent'><a class='index' id='basic_string_view,rbegin'></a></span><span class='indexparent'><a class='index' id='crbegin,basic_string_view'></a></span><span class='indexparent'><a class='index' id='basic_string_view,crbegin'></a></span><code class='itemdecl'>
-const_reverse_iterator rbegin() const noexcept;
-const_reverse_iterator crbegin() const noexcept;
+constexpr const_reverse_iterator rbegin() const noexcept;
+constexpr const_reverse_iterator crbegin() const noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='iterators-6'><div class='marginalizedparent'><a class='marginalized' href='#iterators-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>const_reverse_iterator(end())</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='rend,basic_string_view'></a></span><span class='indexparent'><a class='index' id='basic_string_view,rend'></a></span><span class='indexparent'><a class='index' id='crend,basic_string_view'></a></span><span class='indexparent'><a class='index' id='basic_string_view,crend'></a></span><code class='itemdecl'>
-const_reverse_iterator rend() const noexcept;
-const_reverse_iterator crend() const noexcept;
+constexpr const_reverse_iterator rend() const noexcept;
+constexpr const_reverse_iterator crend() const noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='iterators-7'><div class='marginalizedparent'><a class='marginalized' href='#iterators-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>const_reverse_iterator(begin())</span>.
 </p></div></div></div><div id='capacity'><h4 ><a class='secnum' href='#capacity' style='min-width:118pt'>21.4.2.3</a> Capacity <a class='abbr_ref' href='string.view.capacity'>[string.view.capacity]</a></h4><p ><span class='indexparent'><a class='index' id='size,basic_string_view'></a></span><span class='indexparent'><a class='index' id='basic_string_view,size'></a></span><code class='itemdecl'>
@@ -283,7 +293,7 @@ size_type copy(charT* s, size_type n, size_type pos = 0) const;
 </code></p><div class='itemdescr'></div><div class='para' id='ops-1'><div class='marginalizedparent'><a class='marginalized' href='#ops-1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>rlen</span> be the smaller of <span class='texttt'>n</span> and <span class='texttt'>size() - pos</span>.</p></div></div><div class='para' id='ops-2'><div class='marginalizedparent'><a class='marginalized' href='#ops-2'>2</a></div><div class='itemdescr'><p ><i>Throws:</i>
 <span class='texttt'>out_of_range</span> if <span class='texttt'>pos &gt; size()</span>.</p></div></div><div class='para' id='ops-3'><div class='marginalizedparent'><a class='marginalized' href='#ops-3'>3</a></div><div class='itemdescr'><p ><i>Requires:</i>
 <span class='texttt'>[s, s + rlen)</span> is a valid range.</p></div></div><div class='para' id='ops-4'><div class='marginalizedparent'><a class='marginalized' href='#ops-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
-Equivalent to <span class='texttt'>copy_n(begin() + pos, rlen, s)</span>.</p></div></div><div class='para' id='ops-5'><div class='marginalizedparent'><a class='marginalized' href='#ops-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+Equivalent to <span class='texttt'>traits::copy(s, data() + pos, rlen)</span>.</p></div></div><div class='para' id='ops-5'><div class='marginalizedparent'><a class='marginalized' href='#ops-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>rlen</span>.</p></div></div><div class='para' id='ops-6'><div class='marginalizedparent'><a class='marginalized' href='#ops-6'>6</a></div><div class='itemdescr'><p ><i>Complexity:</i>
 <span class='math'>Ο(<span class='math'><span class='texttt'>rlen</span></span>)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='substr,basic_string_view'></a></span><span class='indexparent'><a class='index' id='basic_string_view,substr'></a></span><code class='itemdecl'>
@@ -485,11 +495,39 @@ template&lt;class charT, class traits&gt;
     operator&lt;&lt;(basic_ostream&lt;charT, traits&gt;&amp; os,
                basic_string_view&lt;charT, traits&gt; str);
 </code></p><div class='itemdescr'></div><div class='para' id='io-1'><div class='marginalizedparent'><a class='marginalized' href='#io-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
-Equivalent to: <span class='texttt'>return os &lt;&lt; str.to_string();</span>
+Behaves as a formatted output
+function (<a href='ostream.formatted.reqmts'>[ostream.formatted.reqmts]</a>) of <span class='texttt'>os</span>. Forms a character sequence
+<span class='texttt'>seq</span>, initially consisting of the elements defined by the range
+<span class='texttt'>[str.begin(), str.end())</span>. Determines padding for <span class='texttt'>seq</span>
+as described in <a href='ostream.formatted.reqmts'>[ostream.formatted.reqmts]</a>.
+Then inserts <span class='texttt'>seq</span> as if by calling
+<span class='texttt'>os.rdbuf()-&gt;sputn(seq, n)</span>, where <span class='texttt'>n</span> is the larger
+of <span class='texttt'>os.width()</span> and <span class='texttt'>str.size()</span>;
+then calls <span class='texttt'>os.width(0)</span>.</p></div></div><div class='para' id='io-2'><div class='marginalizedparent'><a class='marginalized' href='#io-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>os</span>
 </p></div></div></div><div id='hash'><h3 ><a class='secnum' href='#hash' style='min-width:103pt'>21.4.5</a> Hash support <a class='abbr_ref' href='string.view.hash'>[string.view.hash]</a></h3><p ><span class='indexparent'><a class='index' id='hash,string_view'></a></span><span class='indexparent'><a class='index' id='hash,u16string_view'></a></span><span class='indexparent'><a class='index' id='hash,u32string_view'></a></span><span class='indexparent'><a class='index' id='hash,wstring_view'></a></span><code class='itemdecl'>
 template&lt;&gt; struct hash&lt;string_view&gt;;
 template&lt;&gt; struct hash&lt;u16string_view&gt;;
 template&lt;&gt; struct hash&lt;u32string_view&gt;;
 template&lt;&gt; struct hash&lt;wstring_view&gt;;
-</code></p><div class='itemdescr'></div><div class='para' id='hash-1'><div class='marginalizedparent'><a class='marginalized' href='#hash-1'>1</a></div><div class='itemdescr'><p >The template specializations shall meet the requirements of class template hash (<a href='unord.hash'>[unord.hash]</a>).
+</code></p><div class='itemdescr'></div><div class='para' id='hash-1'><div class='marginalizedparent'><a class='marginalized' href='#hash-1'>1</a></div><div class='itemdescr'><p >The specialization is enabled (<a href='unord.hash'>[unord.hash]</a>).
+</p></div></div></div><div id='literals'><h3 ><a class='secnum' href='#literals' style='min-width:103pt'>21.4.6</a> Suffix for <span class='texttt'>basic_string_view</span> literals <a class='abbr_ref' href='string.view.literals'>[string.view.literals]</a></h3><p ><span class='indexparent'><a class='index' id='operator_""_sv,string_view'></a></span><span class='indexparent'><a class='index' id='string_view,operator_""_sv'></a></span><code class='itemdecl'>
+constexpr string_view operator "" sv(const char* str, size_t len) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='literals-1'><div class='marginalizedparent'><a class='marginalized' href='#literals-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>string_view{str, len}</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator_""_sv,u16string_view'></a></span><span class='indexparent'><a class='index' id='u16string_view,operator_""_sv'></a></span><code class='itemdecl'>
+constexpr u16string_view operator "" sv(const char16_t* str, size_t len) noexcept;
+</code>
+</p><div class='itemdescr'></div><div class='para' id='literals-2'><div class='marginalizedparent'><a class='marginalized' href='#literals-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>u16string_view{str, len}</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator_""_sv,u32string_view'></a></span><span class='indexparent'><a class='index' id='u32string_view,operator_""_sv'></a></span><code class='itemdecl'>
+constexpr u32string_view operator "" sv(const char32_t* str, size_t len) noexcept;
+</code>
+</p><div class='itemdescr'></div><div class='para' id='literals-3'><div class='marginalizedparent'><a class='marginalized' href='#literals-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>u32string_view{str, len}</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator_""_sv,wstring_view'></a></span><span class='indexparent'><a class='index' id='wstring_view,operator_""_sv'></a></span><code class='itemdecl'>
+constexpr wstring_view operator "" sv(const wchar_t* str, size_t len) noexcept;
+</code>
+</p><div class='itemdescr'></div><div class='para' id='literals-4'><div class='marginalizedparent'><a class='marginalized' href='#literals-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>wstring_view{str, len}</span>.
 </p></div></div></div></div></div></body></html>

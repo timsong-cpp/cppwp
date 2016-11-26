@@ -10,7 +10,7 @@ namespace std {
 </span>  template &lt;class... Types&gt; class tuple;
 
   <span class='comment'>// <a href='tuple.creation'>[tuple.creation]</a>, tuple creation functions:
-</span>  const <i><span class='texttt'>unspecified</span></i> ignore;
+</span>  constexpr <i><span class='texttt'>unspecified</span></i> ignore;
 
   template &lt;class... Types&gt;
     constexpr tuple&lt;<i>VTypes</i>...&gt; make_tuple(Types&amp;&amp;...);
@@ -103,7 +103,7 @@ namespace std {
   public:
 
     <span class='comment'>// <a href='tuple.cnstr'>[tuple.cnstr]</a>, <span class='texttt'>tuple</span> construction
-</span>    constexpr tuple();
+</span>    <i><span class='texttt'>EXPLICIT</span></i> constexpr tuple();
     <i><span class='texttt'>EXPLICIT</span></i> constexpr tuple(const Types&amp;...); <span class='comment'>// only if <span class='texttt'>sizeof...(Types) &gt;= 1</span>
 </span>    template &lt;class... UTypes&gt;
       <i><span class='texttt'>EXPLICIT</span></i> constexpr tuple(UTypes&amp;&amp;...); <span class='comment'>// only if <span class='texttt'>sizeof...(Types) &gt;= 1</span>
@@ -169,12 +169,16 @@ defaulted move and copy constructor of <span class='texttt'>tuple&lt;&gt;</span>
 <span class='texttt'>[0, sizeof...(Types))</span> in order, <span class='math'><span class='mathalpha'>T</span><sub ><span class='mathalpha'>i</span></sub></span> be the <span class='math'><span class='mathalpha'>i</span><sup ><span class='mathalpha'>th</span></sup></span> type in <span class='texttt'>Types</span>, and
 <span class='math'><span class='mathalpha'>U</span><sub ><span class='mathalpha'>i</span></sub></span> be the <span class='math'><span class='mathalpha'>i</span><sup ><span class='mathalpha'>th</span></sup></span> type in a template parameter pack named <span class='texttt'>UTypes</span>, where indexing
 is zero-based.</p><p ><span class='indexparent'><a class='index' id='tuple,constructor'></a></span><code class='itemdecl'>
-constexpr tuple();
+<i><span class='texttt'>EXPLICIT</span></i> constexpr tuple();
 </code></p></div><div class='itemdescr'></div><div class='para' id='cnstr-4'><div class='marginalizedparent'><a class='marginalized' href='#cnstr-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i> Value-initializes each element.</p></div></div><div class='para' id='cnstr-5'><div class='marginalizedparent'><a class='marginalized' href='#cnstr-5'>5</a></div><div class='itemdescr'><p ><i>Remarks:</i>
 This constructor shall not participate in overload resolution unless
 <span class='texttt'>is_default_constructible_v&lt;<span class='math'><span class='mathalpha'>T</span><sub ><span class='mathalpha'>i</span></sub></span>&gt;</span> is <span class='texttt'>true</span> for all <span class='math'><span class='mathalpha'>i</span></span>.
 [&nbsp;<i>Note:</i> This behaviour can be implemented by a constructor template
 with default template arguments. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+The constructor is explicit if and only if <span class='math'><span class='mathalpha'>T</span><sub ><span class='mathalpha'>i</span></sub></span> is not implicitly
+default-constructible for at least one <span class='math'><span class='mathalpha'>i</span></span>.
+[&nbsp;<i>Note:</i> This behaviour can be implemented with a trait that checks whether
+a <span class='texttt'>const <span class='math'><span class='mathalpha'>T</span><sub ><span class='mathalpha'>i</span></sub></span>&amp;</span> can be initialized with <span class='texttt'>{}</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
 </p></div></div><p ><span class='indexparent'><a class='index' id='tuple,constructor'></a></span><code class='itemdecl'>
 <i><span class='texttt'>EXPLICIT</span></i> constexpr tuple(const Types&amp;...);
 </code></p><div class='itemdescr'></div><div class='para' id='cnstr-6'><div class='marginalizedparent'><a class='marginalized' href='#cnstr-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> The constructor initializes each element with the value of the
@@ -274,39 +278,44 @@ In the function descriptions that follow, let <span class='math'><span class='ma
 in order, <span class='math'><span class='mathalpha'>T</span><sub ><span class='mathalpha'>i</span></sub></span> be the <span class='math'><span class='mathalpha'>i</span><sup ><span class='mathalpha'>th</span></sup></span> type in <span class='texttt'>Types</span>, and <span class='math'><span class='mathalpha'>U</span><sub ><span class='mathalpha'>i</span></sub></span> be the <span class='math'><span class='mathalpha'>i</span><sup ><span class='mathalpha'>th</span></sup></span> type in a
 template parameter pack named <span class='texttt'>UTypes</span>, where indexing is zero-based.</p><p ><span class='indexparent'><a class='index' id='operator=,tuple'></a></span><span class='indexparent'><a class='index' id='tuple,operator='></a></span><code class='itemdecl'>
 tuple&amp; operator=(const tuple&amp; u);
-</code></p></div><div class='itemdescr'></div><div class='para' id='assign-2'><div class='marginalizedparent'><a class='marginalized' href='#assign-2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>is_copy_assignable_v&lt;<span class='math'><span class='mathalpha'>T</span><sub ><span class='mathalpha'>i</span></sub></span>&gt;</span> is <span class='texttt'>true</span> for all <span class='math'><span class='mathalpha'>i</span></span>.</p></div></div><div class='para' id='assign-3'><div class='marginalizedparent'><a class='marginalized' href='#assign-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Assigns each element of <span class='texttt'>u</span> to the corresponding
+</code></p></div><div class='itemdescr'></div><div class='para' id='assign-2'><div class='marginalizedparent'><a class='marginalized' href='#assign-2'>2</a></div><div class='itemdescr'><p ><i>Remarks:</i> This operator shall be defined as deleted unless
+<span class='texttt'>is_copy_assignable_v&lt;<span class='math'><span class='mathalpha'>T</span><sub ><span class='mathalpha'>i</span></sub></span>&gt;</span> is <span class='texttt'>true</span> for all <span class='math'><span class='mathalpha'>i</span></span>.</p></div></div><div class='para' id='assign-3'><div class='marginalizedparent'><a class='marginalized' href='#assign-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Assigns each element of <span class='texttt'>u</span> to the corresponding
 element of <span class='texttt'>*this</span>.</p></div></div><div class='para' id='assign-4'><div class='marginalizedparent'><a class='marginalized' href='#assign-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,tuple'></a></span><span class='indexparent'><a class='index' id='tuple,operator='></a></span><code class='itemdecl'>
 tuple&amp; operator=(tuple&amp;&amp; u) noexcept(<i><span class='texttt'>see below</span></i>);
 </code></p><div class='itemdescr'></div><div class='para' id='assign-5'><div class='marginalizedparent'><a class='marginalized' href='#assign-5'>5</a></div><div class='itemdescr'><p ><i>Remarks:</i> The expression inside <span class='texttt'>noexcept</span> is equivalent to the logical <span class='textsc'>and</span> of the
 following expressions:</p><pre class='codeblock'>
 is_nothrow_move_assignable_v&lt;<span class='math'><span class='mathalpha'>T</span><sub ><span class='mathalpha'>i</span></sub></span>&gt;
-</pre><p >where <span class='math'><span class='mathalpha'>T</span><sub ><span class='mathalpha'>i</span></sub></span> is the <span class='math'><span class='mathalpha'>i</span><sup ><span class='mathalpha'>th</span></sup></span> type in <span class='texttt'>Types</span>.</p></div></div><div class='para' id='assign-6'><div class='marginalizedparent'><a class='marginalized' href='#assign-6'>6</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>is_move_assignable_v&lt;<span class='math'><span class='mathalpha'>T</span><sub ><span class='mathalpha'>i</span></sub></span>&gt;</span> is <span class='texttt'>true</span> for all <span class='math'><span class='mathalpha'>i</span></span>.</p></div></div><div class='para' id='assign-7'><div class='marginalizedparent'><a class='marginalized' href='#assign-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> For all <span class='math'><span class='mathalpha'>i</span></span>, assigns <span class='texttt'>std::forward&lt;<span class='math'><span class='mathalpha'>T</span><sub ><span class='mathalpha'>i</span></sub></span>&gt;(get&lt;<span class='math'><span class='mathalpha'>i</span></span>&gt;(u))</span> to
+</pre><p >where <span class='math'><span class='mathalpha'>T</span><sub ><span class='mathalpha'>i</span></sub></span> is the <span class='math'><span class='mathalpha'>i</span><sup ><span class='mathalpha'>th</span></sup></span> type in <span class='texttt'>Types</span>.</p></div></div><div class='para' id='assign-6'><div class='marginalizedparent'><a class='marginalized' href='#assign-6'>6</a></div><div class='itemdescr'><p ><i>Remarks:</i> This operator shall be defined as deleted unless
+<span class='texttt'>is_move_assignable_v&lt;<span class='math'><span class='mathalpha'>T</span><sub ><span class='mathalpha'>i</span></sub></span>&gt;</span> is <span class='texttt'>true</span> for all <span class='math'><span class='mathalpha'>i</span></span>.</p></div></div><div class='para' id='assign-7'><div class='marginalizedparent'><a class='marginalized' href='#assign-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> For all <span class='math'><span class='mathalpha'>i</span></span>, assigns <span class='texttt'>std::forward&lt;<span class='math'><span class='mathalpha'>T</span><sub ><span class='mathalpha'>i</span></sub></span>&gt;(get&lt;<span class='math'><span class='mathalpha'>i</span></span>&gt;(u))</span> to
 <span class='texttt'>get&lt;<span class='math'><span class='mathalpha'>i</span></span>&gt;(*this)</span>.</p></div></div><div class='para' id='assign-8'><div class='marginalizedparent'><a class='marginalized' href='#assign-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,tuple'></a></span><span class='indexparent'><a class='index' id='tuple,operator='></a></span><code class='itemdecl'>
 template &lt;class... UTypes&gt;
   tuple&amp; operator=(const tuple&lt;UTypes...&gt;&amp; u);
-</code></p><div class='itemdescr'></div><div class='para' id='assign-9'><div class='marginalizedparent'><a class='marginalized' href='#assign-9'>9</a></div><div class='itemdescr'><p ><i>Requires:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='assign-9'><div class='marginalizedparent'><a class='marginalized' href='#assign-9'>9</a></div><div class='itemdescr'><p ><i>Remarks:</i> This operator shall not participate in overload resolution unless
 <span class='texttt'>sizeof...(Types) == sizeof...(UTypes)</span> and
 <span class='texttt'>is_assignable_v&lt;<span class='math'><span class='mathalpha'>T</span><sub ><span class='mathalpha'>i</span></sub></span>&amp;, const <span class='math'><span class='mathalpha'>U</span><sub ><span class='mathalpha'>i</span></sub></span>&amp;&gt;</span> is <span class='texttt'>true</span> for all <span class='math'><span class='mathalpha'>i</span></span>.</p></div></div><div class='para' id='assign-10'><div class='marginalizedparent'><a class='marginalized' href='#assign-10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i>  Assigns each element of <span class='texttt'>u</span> to the corresponding element
 of <span class='texttt'>*this</span>.</p></div></div><div class='para' id='assign-11'><div class='marginalizedparent'><a class='marginalized' href='#assign-11'>11</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,tuple'></a></span><span class='indexparent'><a class='index' id='tuple,operator='></a></span><code class='itemdecl'>
 template &lt;class... UTypes&gt;
   tuple&amp; operator=(tuple&lt;UTypes...&gt;&amp;&amp; u);
-</code></p><div class='itemdescr'></div><div class='para' id='assign-12'><div class='marginalizedparent'><a class='marginalized' href='#assign-12'>12</a></div><div class='itemdescr'><p ><i>Requires:</i>
-<span class='texttt'>is_assignable_v&lt;Ti&amp;, Ui&amp;&amp;&gt; == true</span> for all <span class='texttt'>i</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='assign-12'><div class='marginalizedparent'><a class='marginalized' href='#assign-12'>12</a></div><div class='itemdescr'><p ><i>Remarks:</i> This operator shall not participate in overload resolution unless
+<span class='texttt'>is_assignable_v&lt;Ti&amp;, Ui&amp;&amp;&gt; == true</span> for all <span class='texttt'>i</span> and
 <span class='texttt'>sizeof...(Types)</span> <span class='texttt'>==</span><br/><span class='texttt'>sizeof...(UTypes)</span>.</p></div></div><div class='para' id='assign-13'><div class='marginalizedparent'><a class='marginalized' href='#assign-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i> For all <span class='math'><span class='mathalpha'>i</span></span>, assigns <span class='texttt'>std::forward&lt;<span class='math'><span class='mathalpha'>U</span><sub ><span class='mathalpha'>i</span></sub></span>&gt;(get&lt;<span class='math'><span class='mathalpha'>i</span></span>&gt;(u))</span> to
 <span class='texttt'>get&lt;<span class='math'><span class='mathalpha'>i</span></span>&gt;(*this)</span>.</p></div></div><div class='para' id='assign-14'><div class='marginalizedparent'><a class='marginalized' href='#assign-14'>14</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,tuple'></a></span><span class='indexparent'><a class='index' id='tuple,operator='></a></span><span class='indexparent'><a class='index' id='pair'></a></span><code class='itemdecl'>
 template &lt;class U1, class U2&gt; tuple&amp; operator=(const pair&lt;U1, U2&gt;&amp; u);
-</code></p><div class='itemdescr'></div><div class='para' id='assign-15'><div class='marginalizedparent'><a class='marginalized' href='#assign-15'>15</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>sizeof...(Types) == 2</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='assign-15'><div class='marginalizedparent'><a class='marginalized' href='#assign-15'>15</a></div><div class='itemdescr'><p ><i>Remarks:</i> This operator shall not participate in overload resolution unless
+<span class='texttt'>sizeof...(Types) == 2</span> and
 <span class='texttt'>is_assignable_v&lt;<span class='math'><span class='mathalpha'>T</span><sub >0</sub></span>&amp;, const U1&amp;&gt;</span> is <span class='texttt'>true</span> for the first type <span class='math'><span class='mathalpha'>T</span><sub >0</sub></span> in
 <span class='texttt'>Types</span> and <span class='texttt'>is_assignable_v&lt;<span class='math'><span class='mathalpha'>T</span><sub >1</sub></span>&amp;, const U2&amp;&gt;</span> is <span class='texttt'>true</span> for the
 second type <span class='math'><span class='mathalpha'>T</span><sub >1</sub></span> in <span class='texttt'>Types</span>.</p></div></div><div class='para' id='assign-16'><div class='marginalizedparent'><a class='marginalized' href='#assign-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i>  Assigns <span class='texttt'>u.first</span> to the first element of <span class='texttt'>*this</span>
 and <span class='texttt'>u.second</span> to the second element of <span class='texttt'>*this</span>.</p></div></div><div class='para' id='assign-17'><div class='marginalizedparent'><a class='marginalized' href='#assign-17'>17</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,tuple'></a></span><span class='indexparent'><a class='index' id='tuple,operator='></a></span><span class='indexparent'><a class='index' id='pair'></a></span><code class='itemdecl'>
 template &lt;class U1, class U2&gt; tuple&amp; operator=(pair&lt;U1, U2&gt;&amp;&amp; u);
-</code></p><div class='itemdescr'></div><div class='para' id='assign-18'><div class='marginalizedparent'><a class='marginalized' href='#assign-18'>18</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>sizeof...(Types) == 2</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='assign-18'><div class='marginalizedparent'><a class='marginalized' href='#assign-18'>18</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+This operator shall not participate in overload resolution unless
+<span class='texttt'>sizeof...(Types) == 2</span> and
 <span class='texttt'>is_assignable_v&lt;<span class='math'><span class='mathalpha'>T</span><sub >0</sub></span>&amp;, U1&amp;&amp;&gt;</span> is <span class='texttt'>true</span> for the first type <span class='math'><span class='mathalpha'>T</span><sub >0</sub></span> in
 <span class='texttt'>Types</span> and <span class='texttt'>is_assignable_v&lt;<span class='math'><span class='mathalpha'>T</span><sub >1</sub></span>&amp;, U2&amp;&amp;&gt;</span> is <span class='texttt'>true</span> for the second
 type <span class='math'><span class='mathalpha'>T</span><sub >1</sub></span> in <span class='texttt'>Types</span>.</p></div></div><div class='para' id='assign-19'><div class='marginalizedparent'><a class='marginalized' href='#assign-19'>19</a></div><div class='itemdescr'><p ><i>Effects:</i> Assigns <span class='texttt'>std::forward&lt;U1&gt;(u.first)</span> to the first
@@ -437,25 +446,36 @@ where indexing is zero-based.
 template &lt;class T&gt; class tuple_size&lt;const T&gt;;
 template &lt;class T&gt; class tuple_size&lt;volatile T&gt;;
 template &lt;class T&gt; class tuple_size&lt;const volatile T&gt;;
-</code></p><div class='itemdescr'></div><div class='para' id='helper-4'><div class='marginalizedparent'><a class='marginalized' href='#helper-4'>4</a></div><div class='itemdescr'><p >Let <span class='texttt'><i>TS</i></span> denote <span class='texttt'>tuple_size&lt;T&gt;</span> of the <i>cv</i>-unqualified type <span class='texttt'>T</span>. Then each
+</code></p><div class='itemdescr'></div><div class='para' id='helper-4'><div class='marginalizedparent'><a class='marginalized' href='#helper-4'>4</a></div><div class='itemdescr'><p >Let <span class='texttt'><i>TS</i></span> denote <span class='texttt'>tuple_size&lt;T&gt;</span> of the <i>cv</i>-unqualified type <span class='texttt'>T</span>.
+If the expression <span class='texttt'><i>TS</i>::value</span> is well-formed
+when treated as an unevaluated operand, then each
 of the three templates shall meet the <span class='texttt'>UnaryTypeTrait</span> requirements (<a href='meta.rqmts'>[meta.rqmts]</a>)
 with a <span class='texttt'>BaseCharacteristic</span> of
 </p><pre class='codeblock'>
 integral_constant&lt;size_t, <i>TS</i>::value&gt;
-</pre></div></div><div class='para' id='helper-5'><div class='marginalizedparent'><a class='marginalized' href='#helper-5'>5</a></div><div class='itemdescr'><p >In addition to being available via inclusion of the <span class='texttt'>&lt;tuple&gt;</span> header,
+</pre><p >Otherwise, they shall have no member <span class='texttt'>value</span>.</p></div></div><div class='para' id='helper-5'><div class='marginalizedparent'><a class='marginalized' href='#helper-5'>5</a></div><div class='itemdescr'><p >Access checking is performed as if in a context
+unrelated to <span class='texttt'><i>TS</i></span> and <span class='texttt'>T</span>.
+Only the validity of the immediate context of the expression is considered.
+[&nbsp;<i>Note:</i>
+The compilation of the expression can result in side effects
+such as the instantiation of class template specializations and
+function template specializations, the generation of implicitly-defined functions, and so on.
+Such side effects are not in the “immediate context” and
+can result in the program being ill-formed.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='helper-6'><div class='marginalizedparent'><a class='marginalized' href='#helper-6'>6</a></div><div class='itemdescr'><p >In addition to being available via inclusion of the <span class='texttt'>&lt;tuple&gt;</span> header,
 the three templates are available when either of the headers <span class='texttt'>&lt;array&gt;</span> or
 <span class='texttt'>&lt;utility&gt;</span> are included.
 </p></div></div><p ><span class='indexparent'><a class='index' id='tuple_element'></a></span><code class='itemdecl'>
 template &lt;size_t I, class T&gt; class tuple_element&lt;I, const T&gt;;
 template &lt;size_t I, class T&gt; class tuple_element&lt;I, volatile T&gt;;
 template &lt;size_t I, class T&gt; class tuple_element&lt;I, const volatile T&gt;;
-</code></p><div class='itemdescr'></div><div class='para' id='helper-6'><div class='marginalizedparent'><a class='marginalized' href='#helper-6'>6</a></div><div class='itemdescr'><p >Let <span class='texttt'><i>TE</i></span> denote <span class='texttt'>tuple_element_t&lt;I, T&gt;</span> of the <i>cv</i>-unqualified type <span class='texttt'>T</span>. Then
+</code></p><div class='itemdescr'></div><div class='para' id='helper-7'><div class='marginalizedparent'><a class='marginalized' href='#helper-7'>7</a></div><div class='itemdescr'><p >Let <span class='texttt'><i>TE</i></span> denote <span class='texttt'>tuple_element_t&lt;I, T&gt;</span> of the <i>cv</i>-unqualified type <span class='texttt'>T</span>. Then
 each of the three templates shall meet the <span class='texttt'>TransformationTrait</span>
 requirements (<a href='meta.rqmts'>[meta.rqmts]</a>) with a member typedef <span class='texttt'>type</span> that names the following
-type:</p><ul class='itemize'><li id='helper-6.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#helper-6.1'>(6.1)</a></div><p >for the first specialization, <span class='texttt'>add_const_t&lt;<i>TE</i>&gt;</span>,
-</p></li><li id='helper-6.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#helper-6.2'>(6.2)</a></div><p >for the second specialization, <span class='texttt'>add_volatile_t&lt;<i>TE</i>&gt;</span>, and
-</p></li><li id='helper-6.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#helper-6.3'>(6.3)</a></div><p >for the third specialization, <span class='texttt'>add_cv_t&lt;<i>TE</i>&gt;</span>.
-</p></li></ul></div></div><div class='para' id='helper-7'><div class='marginalizedparent'><a class='marginalized' href='#helper-7'>7</a></div><div class='itemdescr'><p >In addition to being available via inclusion of the <span class='texttt'>&lt;tuple&gt;</span> header,
+type:</p><ul class='itemize'><li id='helper-7.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#helper-7.1'>(7.1)</a></div><p >for the first specialization, <span class='texttt'>add_const_t&lt;<i>TE</i>&gt;</span>,
+</p></li><li id='helper-7.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#helper-7.2'>(7.2)</a></div><p >for the second specialization, <span class='texttt'>add_volatile_t&lt;<i>TE</i>&gt;</span>, and
+</p></li><li id='helper-7.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#helper-7.3'>(7.3)</a></div><p >for the third specialization, <span class='texttt'>add_cv_t&lt;<i>TE</i>&gt;</span>.
+</p></li></ul></div></div><div class='para' id='helper-8'><div class='marginalizedparent'><a class='marginalized' href='#helper-8'>8</a></div><div class='itemdescr'><p >In addition to being available via inclusion of the <span class='texttt'>&lt;tuple&gt;</span> header,
 the three templates are available when either of the headers <span class='texttt'>&lt;array&gt;</span> or
 <span class='texttt'>&lt;utility&gt;</span> are included.
 </p></div></div></div><div id='elem'><h4 ><a class='secnum' href='#elem' style='min-width:118pt'>20.5.2.7</a> Element access <a class='abbr_ref' href='tuple.elem'>[tuple.elem]</a></h4><p ><span class='indexparent'><a class='index' id='get,tuple'></a></span><span class='indexparent'><a class='index' id='tuple,get'></a></span><code class='itemdecl'>

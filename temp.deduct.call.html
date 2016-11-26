@@ -101,7 +101,9 @@ referred to by
 <span class='texttt'>P</span>
 is used for type deduction.
 A <a class='hidden_link' href='#def:forwarding_reference' id='def:forwarding_reference'><i>forwarding reference</i></a>
-is an rvalue reference to a cv-unqualified template parameter.
+is an rvalue reference to a cv-unqualified template parameter
+that does not represent a template parameter of a class template
+(during class template argument deduction (<a href='over.match.class.deduct'>[over.match.class.deduct]</a>)).
 If <span class='texttt'>P</span> is a forwarding reference and the argument is an
 lvalue, the type “lvalue reference to <span class='texttt'>A</span>” is used in place of <span class='texttt'>A</span> for type
 deduction. [&nbsp;<i>Example:</i>
@@ -113,6 +115,20 @@ int n1 = f(i);                  <span class='comment'>// calls <span class='text
 </span>int n2 = f(0);                  <span class='comment'>// calls <span class='texttt'>f&lt;int&gt;(int&amp;&amp;)</span>
 </span>int n3 = g(i);                  <span class='comment'>// error: would call <span class='texttt'>g&lt;int&gt;(const int&amp;&amp;)</span>, which
 </span>                                <span class='comment'>// would bind an rvalue reference to an lvalue
+</span>
+template &lt;class T&gt; struct A {
+  template &lt;class U&gt;
+    A(T&amp;&amp;, U&amp;&amp;, int*); <span class='comment'>// #1: <span class='texttt'>T&amp;&amp;</span> is not a forwarding reference.
+</span>                       <span class='comment'>// <span class='texttt'>U&amp;&amp;</span> is a forwarding reference.
+</span>  A(T&amp;&amp;, int*);        <span class='comment'>// #2
+</span>};
+
+template &lt;class T&gt; A(T&amp;&amp;, int*) -&gt; A&lt;T&gt;;  <span class='comment'>// #3: <span class='texttt'>T&amp;&amp;</span> is a forwarding reference.
+</span>
+int *ip;
+A a{i, 0, ip};   <span class='comment'>// error: cannot deduce from #1
+</span>A a0{0, 0, ip};  <span class='comment'>// uses #1 to deduce <span class='texttt'>A&lt;int&gt;</span> and #1 to initialize
+</span>A a2{i, ip};     <span class='comment'>// uses #3 to deduce <span class='texttt'>A&lt;int&amp;&gt;</span> and #2 to initialize
 </span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >In general, the deduction process attempts to find template argument
 values that will make the deduced
 <span class='texttt'>A</span>

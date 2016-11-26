@@ -100,7 +100,7 @@ namespace std {
 </span>  template&lt;class R, class... ArgTypes&gt; class function&lt;R(ArgTypes...)&gt;;
 
   template&lt;class R, class... ArgTypes&gt;
-    void swap(function&lt;R(ArgTypes...)&gt;&amp;, function&lt;R(ArgTypes...)&gt;&amp;);
+    void swap(function&lt;R(ArgTypes...)&gt;&amp;, function&lt;R(ArgTypes...)&gt;&amp;) noexcept;
 
   template&lt;class R, class... ArgTypes&gt;
     bool operator==(const function&lt;R(ArgTypes...)&gt;&amp;, nullptr_t) noexcept;
@@ -144,29 +144,6 @@ namespace std {
 
   <span class='comment'>// <a href='unord.hash'>[unord.hash]</a>, hash function primary template:
 </span>  template &lt;class T&gt; struct hash;
-
-  <span class='comment'>// Hash function specializations
-</span>  template &lt;&gt; struct hash&lt;bool&gt;;
-  template &lt;&gt; struct hash&lt;char&gt;;
-  template &lt;&gt; struct hash&lt;signed char&gt;;
-  template &lt;&gt; struct hash&lt;unsigned char&gt;;
-  template &lt;&gt; struct hash&lt;char16_t&gt;;
-  template &lt;&gt; struct hash&lt;char32_t&gt;;
-  template &lt;&gt; struct hash&lt;wchar_t&gt;;
-  template &lt;&gt; struct hash&lt;short&gt;;
-  template &lt;&gt; struct hash&lt;unsigned short&gt;;
-  template &lt;&gt; struct hash&lt;int&gt;;
-  template &lt;&gt; struct hash&lt;unsigned int&gt;;
-  template &lt;&gt; struct hash&lt;long&gt;;
-  template &lt;&gt; struct hash&lt;long long&gt;;
-  template &lt;&gt; struct hash&lt;unsigned long&gt;;
-  template &lt;&gt; struct hash&lt;unsigned long long&gt;;
-
-  template &lt;&gt; struct hash&lt;float&gt;;
-  template &lt;&gt; struct hash&lt;double&gt;;
-  template &lt;&gt; struct hash&lt;long double&gt;;
-
-  template&lt;class T&gt; struct hash&lt;T*&gt;;
 
   <span class='comment'>// <a href='func.default.traits'>[func.default.traits]</a>, default functor traits:
 </span>  template &lt;class T = void&gt;
@@ -404,14 +381,21 @@ template &lt;class T&gt; constexpr auto operator()(T&amp;&amp; t) const
     -&gt; decltype(-std::forward&lt;T&gt;(t));
 </code></p><div class='itemdescr'></div><div class='para' id='arithmetic.operations.negate-2'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic.operations.negate-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>-std::forward&lt;T&gt;(t)</span>.
 </p></div></div></div></div><div id='comparisons'><h3 ><a class='secnum' href='#comparisons' style='min-width:103pt'>20.14.6</a> Comparisons <a class='abbr_ref' href='comparisons'>[comparisons]</a></h3><div class='para' id='comparisons-1'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-1'>1</a></div><p >The library provides basic function object classes for all of the comparison
-operators in the language (<a href='expr.rel'>[expr.rel]</a>, <a href='expr.eq'>[expr.eq]</a>).</p></div><div class='para' id='comparisons-2'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-2'>2</a></div><p >For templates <span class='texttt'>greater</span>, <span class='texttt'>less</span>, <span class='texttt'>greater_equal</span>, and
-<span class='texttt'>less_equal</span>, the specializations for any pointer type yield a total order,
-even if the built-in operators <span class='texttt'>&lt;</span>, <span class='texttt'>&gt;</span>, <span class='texttt'>&lt;=</span>, <span class='texttt'>&gt;=</span>
-do not.
-For template specializations <span class='texttt'>greater&lt;void&gt;</span>, <span class='texttt'>less&lt;void&gt;</span>,
-<span class='texttt'>greater_equal&lt;void&gt;</span>, and <span class='texttt'>less_equal&lt;void&gt;</span>,
+operators in the language (<a href='expr.rel'>[expr.rel]</a>, <a href='expr.eq'>[expr.eq]</a>).</p></div><div class='para' id='comparisons-2'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-2'>2</a></div><p >For templates <span class='texttt'>less</span>, <span class='texttt'>greater</span>, <span class='texttt'>less_equal</span>, and
+<span class='texttt'>greater_equal</span>, the specializations for any pointer type
+yield a strict total order that is consistent among those specializations and
+is also consistent with the partial order imposed by
+the built-in operators <span class='texttt'>&lt;</span>, <span class='texttt'>&gt;</span>, <span class='texttt'>&lt;=</span>, <span class='texttt'>&gt;=</span>.
+[&nbsp;<i>Note:</i> When <span class='texttt'>a &lt; b</span> is well-defined
+for pointers <span class='texttt'>a</span> and <span class='texttt'>b</span> of type <span class='texttt'>P</span>,
+this implies <span class='texttt'>(a &lt; b) == less&lt;P&gt;(a, b)</span>,
+<span class='texttt'>(a &gt; b) == greater&lt;P&gt;(a, b)</span>, and so forth. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+For template specializations <span class='texttt'>less&lt;void&gt;</span>, <span class='texttt'>greater&lt;void&gt;</span>,
+<span class='texttt'>less_equal&lt;void&gt;</span>, and <span class='texttt'>greater_equal&lt;void&gt;</span>,
 if the call operator calls a built-in operator comparing pointers,
-the call operator yields a total order.</p></div><div id='comparisons.equal_to'><h4 ><a class='secnum' href='#comparisons.equal_to' style='min-width:118pt'>20.14.6.1</a> class template <span class='texttt'>equal_to</span> <a class='abbr_ref' href='comparisons.equal_to'>[comparisons.equal_to]</a></h4><p ><span class='indexparent'><a class='index' id='equal_to'></a></span><code class='itemdecl'>
+the call operator yields a strict total order
+that is consistent among those specializations and
+is also consistent with the partial order imposed by those built-in operators.</p></div><div id='comparisons.equal_to'><h4 ><a class='secnum' href='#comparisons.equal_to' style='min-width:118pt'>20.14.6.1</a> class template <span class='texttt'>equal_to</span> <a class='abbr_ref' href='comparisons.equal_to'>[comparisons.equal_to]</a></h4><p ><span class='indexparent'><a class='index' id='equal_to'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct equal_to {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -664,19 +648,19 @@ public:
 
    template&lt;class... Args&gt;
      auto operator()(Args&amp;&amp;...) &amp;
-       -&gt; decltype(!declval&lt;result_of_t&lt;FD&amp;(Args...)&gt;&gt;());
+       -&gt; decltype(!declval&lt;result_of_t&lt;FD&amp;(Args&amp;&amp;...)&gt;&gt;());
 
    template&lt;class... Args&gt;
      auto operator()(Args&amp;&amp;...) const&amp;
-       -&gt; decltype(!declval&lt;result_of_t&lt;FD const&amp;(Args...)&gt;&gt;());
+       -&gt; decltype(!declval&lt;result_of_t&lt;FD const&amp;(Args&amp;&amp;...)&gt;&gt;());
 
    template&lt;class... Args&gt;
      auto operator()(Args&amp;&amp;...) &amp;&amp;
-       -&gt; decltype(!declval&lt;result_of_t&lt;FD(Args...)&gt;&gt;());
+       -&gt; decltype(!declval&lt;result_of_t&lt;FD(Args&amp;&amp;...)&gt;&gt;());
 
    template&lt;class... Args&gt;
      auto operator()(Args&amp;&amp;...) const&amp;&amp;
-       -&gt; decltype(!declval&lt;result_of_t&lt;FD const(Args...)&gt;&gt;());
+       -&gt; decltype(!declval&lt;result_of_t&lt;FD const(Args&amp;&amp;...)&gt;&gt;());
 
 private:
   FD fd;
@@ -692,20 +676,20 @@ Any exception thrown by construction of <span class='texttt'>fd</span>.
 </p></div></div><p ><code class='itemdecl'>
 template&lt;class... Args&gt;
   auto operator()(Args&amp;&amp;... args) &amp;
-    -&gt; decltype(!declval&lt;result_of_t&lt;FD&amp;(Args...)&gt;&gt;());
+    -&gt; decltype(!declval&lt;result_of_t&lt;FD&amp;(Args&amp;&amp;...)&gt;&gt;());
 template&lt;class... Args&gt;
   auto operator()(Args&amp;&amp;... args) const&amp;
-    -&gt; decltype(!declval&lt;result_of_t&lt;FD const&amp;(Args...)&gt;&gt;());
+    -&gt; decltype(!declval&lt;result_of_t&lt;FD const&amp;(Args&amp;&amp;...)&gt;&gt;());
 </code></p><div class='itemdescr'></div><div class='para' id='func.not_fn-5'><div class='marginalizedparent'><a class='marginalized' href='#func.not_fn-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Equivalent to:
 <span class='texttt'>return !<i>INVOKE</i>(fd, std::forward&lt;Args&gt;(args)...);</span> (<a href='func.require'>[func.require]</a>).
 </p></div></div><p ><code class='itemdecl'>
 template&lt;class... Args&gt;
   auto operator()(Args&amp;&amp;... args) &amp;&amp;
-    -&gt; decltype(!declval&lt;result_of_t&lt;FD(Args...)&gt;&gt;());
+    -&gt; decltype(!declval&lt;result_of_t&lt;FD(Args&amp;&amp;...)&gt;&gt;());
 template&lt;class... Args&gt;
   auto operator()(Args&amp;&amp;... args) const&amp;&amp;
-    -&gt; decltype(!declval&lt;result_of_t&lt;FD const(Args...)&gt;&gt;());
+    -&gt; decltype(!declval&lt;result_of_t&lt;FD const(Args&amp;&amp;...)&gt;&gt;());
 </code></p><div class='itemdescr'></div><div class='para' id='func.not_fn-6'><div class='marginalizedparent'><a class='marginalized' href='#func.not_fn-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Equivalent to:
 <span class='texttt'>return !<i>INVOKE</i>(std::move(fd), std::forward&lt;Args&gt;(args)...);</span> (<a href='func.require'>[func.require]</a>).
@@ -907,7 +891,7 @@ namespace std {
 
   <span class='comment'>// <a href='func.wrap.func.alg'>[func.wrap.func.alg]</a>, specialized algorithms:
 </span>  template &lt;class R, class... ArgTypes&gt;
-    void swap(function&lt;R(ArgTypes...)&gt;&amp;, function&lt;R(ArgTypes...)&gt;&amp;);
+    void swap(function&lt;R(ArgTypes...)&gt;&amp;, function&lt;R(ArgTypes...)&gt;&amp;) noexcept;
 }
 </pre><div class='para' id='func.wrap.func-1'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func-1'>1</a></div><p >The <span class='texttt'>function</span> class template provides polymorphic wrappers that
 generalize the notion of a function pointer. Wrappers can store, copy,
@@ -1011,10 +995,7 @@ const type_info&amp; target_type() const noexcept;
 </p></div></div><p ><span class='indexparent'><a class='index' id='target,function'></a></span><span class='indexparent'><a class='index' id='function,target'></a></span><code class='itemdecl'>
 template&lt;class T&gt;       T* target() noexcept;
 template&lt;class T&gt; const T* target() const noexcept;
-</code></p><div class='itemdescr'></div><div class='para' id='func.wrap.func.targ-2'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func.targ-2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>T</span> shall be a type that is
-Lvalue-Callable (<a href='func.wrap.func'>[func.wrap.func]</a>) for parameter types
-<span class='texttt'>ArgTypes</span>
-and return type <span class='texttt'>R</span>.</p></div></div><div class='para' id='func.wrap.func.targ-3'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func.targ-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> If <span class='texttt'>target_type() == typeid(T)</span>
+</code></p><div class='itemdescr'></div><div class='para' id='func.wrap.func.targ-2'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func.targ-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> If <span class='texttt'>target_type() == typeid(T)</span>
 a pointer to the stored function target; otherwise a null pointer.
 </p></div></div></div><div id='func.wrap.func.nullptr'><h4 ><a class='secnum' href='#func.wrap.func.nullptr' style='min-width:133pt'>20.14.12.2.6</a> null pointer comparison operators <a class='abbr_ref' href='func.wrap.func.nullptr'>[func.wrap.func.nullptr]</a></h4><p ><span class='indexparent'><a class='index' id='operator==,function'></a></span><span class='indexparent'><a class='index' id='function,operator=='></a></span><code class='itemdecl'>
 template &lt;class R, class... ArgTypes&gt;
@@ -1030,7 +1011,7 @@ template &lt;class R, class... ArgTypes&gt;
 </code></p><div class='itemdescr'></div><div class='para' id='func.wrap.func.nullptr-2'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func.nullptr-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>(bool)f</span>.
 </p></div></div></div><div id='func.wrap.func.alg'><h4 ><a class='secnum' href='#func.wrap.func.alg' style='min-width:133pt'>20.14.12.2.7</a> specialized algorithms <a class='abbr_ref' href='func.wrap.func.alg'>[func.wrap.func.alg]</a></h4><p ><span class='indexparent'><a class='index' id='swap,function'></a></span><span class='indexparent'><a class='index' id='function,swap'></a></span><code class='itemdecl'>
 template&lt;class R, class... ArgTypes&gt;
-  void swap(function&lt;R(ArgTypes...)&gt;&amp; f1, function&lt;R(ArgTypes...)&gt;&amp; f2);
+  void swap(function&lt;R(ArgTypes...)&gt;&amp; f1, function&lt;R(ArgTypes...)&gt;&amp; f2) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='func.wrap.func.alg-1'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func.alg-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> As if by: <span class='texttt'>f1.swap(f2);</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='function_object,wrapper'></a></span></p></div></div></div><div id='func.search'><h3 ><a class='secnum' href='#func.search' style='min-width:103pt'>20.14.13</a> Searchers <a class='abbr_ref' href='func.search'>[func.search]</a></h3><div class='para' id='func.search-1'><div class='marginalizedparent'><a class='marginalized' href='#func.search-1'>1</a></div><p >This subclause provides function object types (<a href='function.objects'>[function.objects]</a>) for
 operations that search for a sequence <span class='texttt'>[pat_first, pat_last)</span> in another
@@ -1224,44 +1205,45 @@ Equivalent to:
 return boyer_moore_horspool_searcher&lt;RandomAccessIterator, Hash, BinaryPredicate&gt;(
          pat_first, pat_last, hf, pred);
 </pre></div></div></div></div></div><div id='unord.hash'><h3 ><a class='secnum' href='#unord.hash' style='min-width:103pt'>20.14.14</a> Class template <span class='texttt'>hash</span> <a class='abbr_ref' href='unord.hash'>[unord.hash]</a></h3><div class='para' id='unord.hash-1'><div class='marginalizedparent'><a class='marginalized' href='#unord.hash-1'>1</a></div><p ><span class='indexparent'><a class='index' id='hash'></a></span><span class='indexparent'><a class='index' id='hash,instantiation_restrictions'></a></span>The unordered associative containers defined in <a href='unord'>[unord]</a> use
-specializations of the class template <span class='texttt'>hash</span> as the default hash function.
-For all object types <span class='texttt'>Key</span> for which there exists a specialization <span class='texttt'>hash&lt;Key&gt;</span>,
-and for all integral and enumeration types (<a href='dcl.enum'>[dcl.enum]</a>) <span class='texttt'>Key</span>,
-the instantiation <span class='texttt'>hash&lt;Key&gt;</span> shall:</p><ul class='itemize'><li id='unord.hash-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#unord.hash-1.1'>(1.1)</a></div><p >satisfy the <span class='texttt'>Hash</span> requirements (<a href='hash.requirements'>[hash.requirements]</a>),
+specializations of the class template <span class='texttt'>hash</span> as the default hash function.</p></div><div class='para' id='unord.hash-2'><div class='marginalizedparent'><a class='marginalized' href='#unord.hash-2'>2</a></div><p >Each specialization of <span class='texttt'>hash</span> is either enabled or disabled,
+as described below.
+[&nbsp;<i>Note:</i>
+Enabled specializations meet the requirements of <span class='texttt'>Hash</span>, and
+disabled specializations do not.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+Each header that declares the template <span class='texttt'>hash</span>
+provides enabled specializations of <span class='texttt'>hash</span> for <span class='texttt'>nullptr_t</span> and
+all cv-unqualified arithmetic, enumeration, and pointer types.
+For any type <span class='texttt'>Key</span> for which neither the library nor the user provides
+an explicit or partial specialization of the class template <span class='texttt'>hash</span>,
+<span class='texttt'>hash&lt;Key&gt;</span> is disabled.
+If the library provides an explicit or partial specialization of <span class='texttt'>hash&lt;Key&gt;</span>,
+that specialization is enabled except as noted otherwise.</p></div><div class='para' id='unord.hash-3'><div class='marginalizedparent'><a class='marginalized' href='#unord.hash-3'>3</a></div><p >If <span class='texttt'>H</span> is a disabled specialization of <span class='texttt'>hash</span>,
+these values are <span class='texttt'>false</span>:
+<span class='texttt'>is_default_constructible_v&lt;H&gt;</span>,
+<span class='texttt'>is_copy_constructible_v&lt;H&gt;</span>,
+<span class='texttt'>is_move_constructible_v&lt;H&gt;</span>,
+<span class='texttt'>is_copy_assignable_v&lt;H&gt;</span>, and
+<span class='texttt'>is_move_assignable_v&lt;H&gt;</span>.
+Disabled specializations of <span class='texttt'>hash</span>
+are not function object types (<a href='function.objects'>[function.objects]</a>).
+[&nbsp;<i>Note:</i>
+This means that the specialization of <span class='texttt'>hash</span> exists, but
+any attempts to use it as a <span class='texttt'>Hash</span> will be ill-formed.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='unord.hash-4'><div class='marginalizedparent'><a class='marginalized' href='#unord.hash-4'>4</a></div><p >An enabled specialization <span class='texttt'>hash&lt;Key&gt;</span> will:
+</p><ul class='itemize'><li id='unord.hash-4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#unord.hash-4.1'>(4.1)</a></div><p >satisfy the <span class='texttt'>Hash</span> requirements (<a href='hash.requirements'>[hash.requirements]</a>),
 with <span class='texttt'>Key</span> as the function
 call argument type, the <span class='texttt'>DefaultConstructible</span> requirements (Table <a href='utility.arg.requirements#tab:defaultconstructible'>[tab:defaultconstructible]</a>),
 the <span class='texttt'>CopyAssignable</span> requirements (Table <a href='utility.arg.requirements#tab:copyassignable'>[tab:copyassignable]</a>),
-</p></li><li id='unord.hash-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#unord.hash-1.2'>(1.2)</a></div><p >be swappable (<a href='swappable.requirements'>[swappable.requirements]</a>) for lvalues,
-</p></li><li id='unord.hash-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#unord.hash-1.3'>(1.3)</a></div><p >satisfy the requirement that if <span class='texttt'>k1 == k2</span> is <span class='texttt'>true</span>, <span class='texttt'>h(k1) == h(k2)</span> is
+</p></li><li id='unord.hash-4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#unord.hash-4.2'>(4.2)</a></div><p >be swappable (<a href='swappable.requirements'>[swappable.requirements]</a>) for lvalues,
+</p></li><li id='unord.hash-4.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#unord.hash-4.3'>(4.3)</a></div><p >satisfy the requirement that if <span class='texttt'>k1 == k2</span> is <span class='texttt'>true</span>, <span class='texttt'>h(k1) == h(k2)</span> is
 also <span class='texttt'>true</span>, where <span class='texttt'>h</span> is an object of type <span class='texttt'>hash&lt;Key&gt;</span> and <span class='texttt'>k1</span> and <span class='texttt'>k2</span>
 are objects of type <span class='texttt'>Key</span>;
-</p></li><li id='unord.hash-1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#unord.hash-1.4'>(1.4)</a></div><p >satisfy the requirement that the expression <span class='texttt'>h(k)</span>, where <span class='texttt'>h</span>
+</p></li><li id='unord.hash-4.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#unord.hash-4.4'>(4.4)</a></div><p >satisfy the requirement that the expression <span class='texttt'>h(k)</span>, where <span class='texttt'>h</span>
 is an object of type <span class='texttt'>hash&lt;Key&gt;</span> and <span class='texttt'>k</span> is an object of type
 <span class='texttt'>Key</span>, shall not throw an exception unless <span class='texttt'>hash&lt;Key&gt;</span> is a
 user-defined specialization that depends on at least one user-defined type.
-</p></li></ul><p ><span class='indexparent'><a class='index' id='hash'></a></span><code class='itemdecl'>
-template &lt;&gt; struct hash&lt;bool&gt;;
-template &lt;&gt; struct hash&lt;char&gt;;
-template &lt;&gt; struct hash&lt;signed char&gt;;
-template &lt;&gt; struct hash&lt;unsigned char&gt;;
-template &lt;&gt; struct hash&lt;char16_t&gt;;
-template &lt;&gt; struct hash&lt;char32_t&gt;;
-template &lt;&gt; struct hash&lt;wchar_t&gt;;
-template &lt;&gt; struct hash&lt;short&gt;;
-template &lt;&gt; struct hash&lt;unsigned short&gt;;
-template &lt;&gt; struct hash&lt;int&gt;;
-template &lt;&gt; struct hash&lt;unsigned int&gt;;
-template &lt;&gt; struct hash&lt;long&gt;;
-template &lt;&gt; struct hash&lt;unsigned long&gt;;
-template &lt;&gt; struct hash&lt;long long&gt;;
-template &lt;&gt; struct hash&lt;unsigned long long&gt;;
-template &lt;&gt; struct hash&lt;float&gt;;
-template &lt;&gt; struct hash&lt;double&gt;;
-template &lt;&gt; struct hash&lt;long double&gt;;
-template &lt;class T&gt; struct hash&lt;T*&gt;;
-</code></p></div><div class='itemdescr'></div><div class='para' id='unord.hash-2'><div class='marginalizedparent'><a class='marginalized' href='#unord.hash-2'>2</a></div><div class='itemdescr'><p >The template specializations shall meet the requirements of class template
-<span class='texttt'>hash</span> (<a href='unord.hash'>[unord.hash]</a>).
-</p></div></div></div><div id='func.default.traits'><h3 ><a class='secnum' href='#func.default.traits' style='min-width:103pt'>20.14.15</a> Default functor traits <a class='abbr_ref' href='func.default.traits'>[func.default.traits]</a></h3><p ><span class='indexparent'><a class='index' id='default_order'></a></span></p><pre class='codeblock'>
+</p></li></ul></div></div><div id='func.default.traits'><h3 ><a class='secnum' href='#func.default.traits' style='min-width:103pt'>20.14.15</a> Default functor traits <a class='abbr_ref' href='func.default.traits'>[func.default.traits]</a></h3><p ><span class='indexparent'><a class='index' id='default_order'></a></span></p><pre class='codeblock'>
 namespace std {
   template &lt;class T = void&gt;
   struct default_order {

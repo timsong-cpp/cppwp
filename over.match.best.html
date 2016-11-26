@@ -5,7 +5,7 @@ ICS<i>1</i>(<span class='texttt'>F</span>) is neither better nor worse than ICS<
 for any function
 <span class='texttt'>G</span>,
 and, symmetrically, ICS<i>1</i>(<span class='texttt'>G</span>) is neither better nor worse than
-ICS<i>1</i>(<span class='texttt'>F</span>)<a class='footnotenum' href='#footnote-131'>131</a>;
+ICS<i>1</i>(<span class='texttt'>F</span>)<a class='footnotenum' href='#footnote-132'>132</a>;
 otherwise,
 </p></li><li id='1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.2'>(1.2)</a></div><p >let ICS<i>i</i>(<span class='texttt'>F</span>) denote the implicit conversion sequence that converts
 the <i>i</i>-th argument in the list to the type of the
@@ -68,12 +68,28 @@ A&lt;Fn&gt; a;
 Fn&amp; lf = a;             <span class='comment'>// calls #1
 </span>Fn&amp;&amp; rf = a;            <span class='comment'>// calls #2
 </span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
-or, if not that,</p></li><li id='1.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.6'>(1.6)</a></div><p ><span class='texttt'>F1</span>
+or, if not that,</p></li><li id='1.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.6'>(1.6)</a></div><p ><span class='texttt'>F1</span> is generated from a
+<i ><a href='temp.deduct.guide#nt:deduction-guide'>deduction-guide</a></i> (<a href='over.match.class.deduct'>[over.match.class.deduct]</a>)
+and <span class='texttt'>F2</span> is not
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template &lt;class T&gt; struct A {
+  A(T, int*);      <span class='comment'>// #1
+</span>  A(A&lt;T&gt;&amp;, int*);  <span class='comment'>// #2
+</span>  enum { value };
+};
+
+template &lt;class T, int N = T::value&gt; A(T&amp;&amp;, int*) -&gt; A&lt;T&gt;;  <span class='comment'>// #3
+</span>
+A a{1, 0};  <span class='comment'>// uses #1 to deduce <span class='texttt'>A&lt;int&gt;</span> and initializes with #1
+</span>A b{a, 0};  <span class='comment'>// uses #3 (not #2) to deduce <span class='texttt'>A&lt;A&lt;int&gt;&amp;&gt;</span> and initializes with #1
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+or, if not that,</p></li><li id='1.7'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.7'>(1.7)</a></div><p ><span class='texttt'>F1</span>
 is not a function template specialization and
 <span class='texttt'>F2</span>
 is a
 function template
-specialization, or, if not that,</p></li><li id='1.7'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.7'>(1.7)</a></div><p ><span class='texttt'>F1</span>
+specialization, or, if not that,</p></li><li id='1.8'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.8'>(1.8)</a></div><p ><span class='texttt'>F1</span>
 and
 <span class='texttt'>F2</span>
 are
@@ -86,7 +102,7 @@ is more specialized than the template for
 according to the partial ordering rules described in <a href='temp.func.order'>[temp.func.order]</a>.
 </p></li></ul></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >If there is exactly one viable function that is a better function
 than all other viable functions, then it is the one selected by
-overload resolution; otherwise the call is ill-formed<a class='footnotenum' href='#footnote-132'>132</a>.</p><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+overload resolution; otherwise the call is ill-formed<a class='footnotenum' href='#footnote-133'>133</a>.</p><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
 void Fcn(const int*,  short);
 void Fcn(int*, int);
 
@@ -128,10 +144,10 @@ void use() {
   f(3);                         <span class='comment'>// OK, default argument was not used for viability
 </span>  f();                          <span class='comment'>// Error: found default argument twice
 </span>}
-</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-131'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-131'>131)</a></div><p >If a function is a static member function, this
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-132'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-132'>132)</a></div><p >If a function is a static member function, this
 definition means that the first argument, the implied object argument,
 has no effect in the determination of whether the function is better
-or worse than any other function.</p></div><div class='footnote' id='footnote-132'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-132'>132)</a></div><p >The algorithm
+or worse than any other function.</p></div><div class='footnote' id='footnote-133'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-133'>133)</a></div><p >The algorithm
 for selecting the best viable function is linear in the number
 of viable
 functions.
@@ -267,11 +283,11 @@ the unique conversion sequence designated the
 <span class='indexparent'><a class='index' id='sequence,ambiguous_conversion'></a></span>For the purpose of ranking implicit conversion sequences as described
 in <a href='over.ics.rank'>[over.ics.rank]</a>, the ambiguous conversion sequence is treated
 as a user-defined conversion sequence that is indistinguishable from any
-other user-defined conversion sequence<a class='footnotenum' href='#footnote-133'>133</a>.
+other user-defined conversion sequence<a class='footnotenum' href='#footnote-134'>134</a>.
 If a function that uses the ambiguous conversion sequence is selected
 as the best viable function, the call will be ill-formed because the conversion
 of one of the arguments in the call is ambiguous.</p></div><div class='para' id='over.best.ics-11'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics-11'>11</a></div><p >The three forms of implicit conversion sequences mentioned above
-are defined in the following subclauses.</p></div><div class='footnote' id='footnote-133'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-133'>133)</a></div><p >The ambiguous conversion
+are defined in the following subclauses.</p></div><div class='footnote' id='footnote-134'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-134'>134)</a></div><p >The ambiguous conversion
 sequence is ranked with user-defined
 conversion sequences because multiple conversion sequences
 for an argument can exist only if they involve different
@@ -452,7 +468,7 @@ the prohibition on binding a non-<span class='texttt'>const</span> lvalue refere
 expression and special rules apply for converting it to a parameter type.</p></div><div class='para' id='over.ics.list-2'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-2'>2</a></div><p >If the parameter type is an aggregate class <span class='texttt'>X</span> and the initializer list has a
 single element of type <i>cv</i> <span class='texttt'>U</span>, where <span class='texttt'>U</span> is <span class='texttt'>X</span>
 or a class derived from <span class='texttt'>X</span>, the implicit conversion sequence is the one
-required to convert the element to the parameter type.</p></div><div class='para' id='over.ics.list-3'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-3'>3</a></div><p >Otherwise, if the parameter type is a character array<a class='footnotenum' href='#footnote-134'>134</a>
+required to convert the element to the parameter type.</p></div><div class='para' id='over.ics.list-3'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-3'>3</a></div><p >Otherwise, if the parameter type is a character array<a class='footnotenum' href='#footnote-135'>135</a>
 and the initializer list has a single element that is an appropriately-typed
 string literal (<a href='dcl.init.string'>[dcl.init.string]</a>), the implicit conversion
 sequence is the identity conversion.</p></div><div class='para' id='over.ics.list-4'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-4'>4</a></div><p >Otherwise, if the parameter type is <span class='texttt'>std::initializer_list&lt;X&gt;</span>
@@ -573,7 +589,7 @@ is the identity conversion. [&nbsp;<i>Example:</i>
 void f(int);
 f( { } );                   <span class='comment'>// OK: identity conversion 
 </span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
-</p></li></ul></div><div class='para' id='over.ics.list-10'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-10'>10</a></div><p >In all cases other than those enumerated above, no conversion is possible.</p></div><div class='footnote' id='footnote-134'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-134'>134)</a></div><p >Since there are no parameters of array type,
+</p></li></ul></div><div class='para' id='over.ics.list-10'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-10'>10</a></div><p >In all cases other than those enumerated above, no conversion is possible.</p></div><div class='footnote' id='footnote-135'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-135'>135)</a></div><p >Since there are no parameters of array type,
 this will only occur as the referenced type of a reference parameter.</p></div></div></div><div id='over.ics.rank'><h4 ><a class='secnum' href='#over.ics.rank' style='min-width:118pt'>13.3.3.2</a> Ranking implicit conversion sequences <a class='abbr_ref' href='over.ics.rank'>[over.ics.rank]</a></h4><div class='para' id='over.ics.rank-1'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.rank-1'>1</a></div><p ><a href='over.ics.rank'>[over.ics.rank]</a> defines a partial ordering of implicit conversion
 sequences based on the relationships
 <a class='hidden_link' href='#def:better_conversion_sequence' id='def:better_conversion_sequence'><i>better conversion sequence</i></a>

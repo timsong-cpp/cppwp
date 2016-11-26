@@ -177,6 +177,11 @@ i - j
 type, either or both may be replaced by an object of the container's
 <span class='texttt'>const_iterator</span> type referring to the same element with no change in semantics.</p></div><div class='para' id='general-8'><div class='marginalizedparent'><a class='marginalized' href='#general-8'>8</a></div><p >Unless otherwise specified, all containers defined in this clause obtain memory
 using an allocator (see <a href='allocator.requirements'>[allocator.requirements]</a>).
+[&nbsp;<i>Note:</i> In particular, containers and iterators do not store references
+to allocated elements other than through the allocator's pointer type,
+i.e., as objects of type <span class='texttt'>P</span> or
+<span class='texttt'>pointer_traits&lt;P&gt;::template rebind&lt;<i><span class='texttt'>unspecified</span></i>&gt;</span>,
+where <span class='texttt'>P</span> is <span class='texttt'>allocator_traits&lt;allocator_type&gt;::pointer</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
 Copy constructors for these container types obtain an allocator by calling
 <span class='texttt'>allocator_traits&lt;allocator_type&gt;::select_on_container_copy_construction</span>
 on the allocator belonging to the container being copied.
@@ -872,7 +877,19 @@ void swap(<i>node_handle</i>&amp; nh)
 or <span class='texttt'>alloc_ == nh.alloc_</span>.</p></div></div><div class='para' id='container.node.modifiers-2'><div class='marginalizedparent'><a class='marginalized' href='#container.node.modifiers-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>swap(ptr_, nh.ptr_)</span>. If <span class='texttt'>!alloc_</span>, or
 <span class='texttt'>!nh.alloc_</span>, or <span class='texttt'>ator_traits::propagate_on_container_swap</span>
 is <span class='texttt'>true</span> calls <span class='texttt'>swap(alloc_, nh.alloc_)</span>.
-</p></div></div></div></div><div id='associative.reqmts'><h3 ><a class='secnum' href='#associative.reqmts' style='min-width:103pt'>23.2.5</a> Associative containers <a class='abbr_ref' href='associative.reqmts'>[associative.reqmts]</a></h3><div class='para' id='associative.reqmts-1'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-1'>1</a></div><p >Associative containers provide fast retrieval of data based on keys.
+</p></div></div></div></div><div id='container.insert.return'><h3 ><a class='secnum' href='#container.insert.return' style='min-width:103pt'>23.2.5</a> Insert return type <a class='abbr_ref' href='container.insert.return'>[container.insert.return]</a></h3><div class='para' id='container.insert.return-1'><div class='marginalizedparent'><a class='marginalized' href='#container.insert.return-1'>1</a></div><p >The associative containers with unique keys and the unordered containers with unique keys
+have a member function <span class='texttt'>insert</span> that returns a nested type <span class='texttt'>insert_return_type</span>.
+That return type is a specialization of the type specified in this subclause.</p><pre class='codeblock'>
+template &lt;class Iterator, class NodeType&gt;
+struct <i>INSERT_RETURN_TYPE</i>{
+  Iterator position;
+  bool     inserted;
+  NodeType node;
+};
+</pre></div><div class='para' id='container.insert.return-2'><div class='marginalizedparent'><a class='marginalized' href='#container.insert.return-2'>2</a></div><p >The name <i><span class='texttt'>INSERT_RETURN_TYPE</span></i> is exposition only.
+<i><span class='texttt'>INSERT_RETURN_TYPE</span></i> has the template parameters,
+data members, and special members specified above.
+It has no base classes or members other than those specified.</p></div></div><div id='associative.reqmts'><h3 ><a class='secnum' href='#associative.reqmts' style='min-width:103pt'>23.2.6</a> Associative containers <a class='abbr_ref' href='associative.reqmts'>[associative.reqmts]</a></h3><div class='para' id='associative.reqmts-1'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-1'>1</a></div><p >Associative containers provide fast retrieval of data based on keys.
 The library provides four basic kinds of associative containers:
 <span class='texttt'>set</span>,
 <span class='texttt'>multiset</span>,
@@ -1007,17 +1024,6 @@ and <span class='texttt'>nh</span> denotes a non-const rvalue of type <span clas
  class template, such that the public nested types are
  the same types as the corresponding types in <span class='texttt'>X</span>. </td><td class='left'>
  see <a href='container.node'>[container.node]</a> </td><td class='left'>
- compile time </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::insert_return_type</span> </td><td class='left'>
- a class type used to describe the results of inserting a
- <span class='texttt'>node_type</span> that includes at least the following non-static
- public data members:<br/>
-   <span class='texttt'>bool inserted;</span><br/>
-   <span class='texttt'>X::iterator position;</span><br/>
-   <span class='texttt'>X::node_type node;</span><br/>
- The type shall be <span class='texttt'>MoveConstructible</span>, <span class='texttt'>MoveAssignable</span>,
- <span class='texttt'>DefaultConstructible</span>, <span class='texttt'>Destructible</span>, and
- lvalues of that type shall be swappable (<a href='swappable.requirements'>[swappable.requirements]</a>).  </td><td class='left'>
- </td><td class='left'>
  compile time </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X(c)</span><br/>
 <span class='texttt'>X u(c);</span>                         </td><td class='left'>
                                         </td><td class='left'>
@@ -1300,7 +1306,7 @@ as if that comparison object had been passed to the target container in
 its constructor.</p></div><div class='para' id='associative.reqmts-14'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-14'>14</a></div><p >The member function templates <span class='texttt'>find</span>, <span class='texttt'>count</span>, <span class='texttt'>lower_bound</span>,
 <span class='texttt'>upper_bound</span>, and <span class='texttt'>equal_range</span> shall not participate in overload
 resolution unless the <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> <span class='texttt'>Compare::is_transparent</span> is valid
-and denotes a type (<a href='temp.deduct'>[temp.deduct]</a>).</p><p ><span class='indexparent'><a class='index' id='associative_containers,exception_safety'></a></span><span class='indexparent'><a class='index' id='associative_containers,requirements'></a></span></p></div><div id='associative.reqmts.except'><h4 ><a class='secnum' href='#associative.reqmts.except' style='min-width:118pt'>23.2.5.1</a> Exception safety guarantees <a class='abbr_ref' href='associative.reqmts.except'>[associative.reqmts.except]</a></h4><div class='para' id='associative.reqmts.except-1'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts.except-1'>1</a></div><p >For associative containers, no <span class='texttt'>clear()</span> function throws an exception.
+and denotes a type (<a href='temp.deduct'>[temp.deduct]</a>).</p><p ><span class='indexparent'><a class='index' id='associative_containers,exception_safety'></a></span><span class='indexparent'><a class='index' id='associative_containers,requirements'></a></span></p></div><div id='associative.reqmts.except'><h4 ><a class='secnum' href='#associative.reqmts.except' style='min-width:118pt'>23.2.6.1</a> Exception safety guarantees <a class='abbr_ref' href='associative.reqmts.except'>[associative.reqmts.except]</a></h4><div class='para' id='associative.reqmts.except-1'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts.except-1'>1</a></div><p >For associative containers, no <span class='texttt'>clear()</span> function throws an exception.
 <span class='texttt'>erase(k)</span> does not throw an exception unless that exception is thrown
 by the container's <span class='texttt'>Compare</span> object (if any).</p></div><div class='para' id='associative.reqmts.except-2'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts.except-2'>2</a></div><p >For associative containers, if an exception is thrown by any operation from
 within an <span class='texttt'>insert</span> or <span class='texttt'>emplace</span> function inserting a single element, the
@@ -1309,7 +1315,7 @@ that exception is thrown by the
 swap of the container's <span class='texttt'>Compare</span> object (if any).</p><p ><span class='indexparent'><a class='index' id='unordered_associative_containers'></a></span>
 <span class='indexparent'><a class='index' id='associative_containers,unordered'></a></span>
 <span class='indexparent'><a class='index' id='hash_tables'></a></span>
-</p></div></div></div><div id='unord.req'><h3 ><a class='secnum' href='#unord.req' style='min-width:103pt'>23.2.6</a> Unordered associative containers <a class='abbr_ref' href='unord.req'>[unord.req]</a></h3><div class='para' id='unord.req-1'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-1'>1</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,complexity'></a></span>Unordered associative containers provide an ability for fast retrieval
+</p></div></div></div><div id='unord.req'><h3 ><a class='secnum' href='#unord.req' style='min-width:103pt'>23.2.7</a> Unordered associative containers <a class='abbr_ref' href='unord.req'>[unord.req]</a></h3><div class='para' id='unord.req-1'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-1'>1</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,complexity'></a></span>Unordered associative containers provide an ability for fast retrieval
 of data based on keys.  The worst-case complexity for most operations
 is linear, but the average case is much faster.  The library provides
 four unordered associative containers: <span class='texttt'>unordered_set</span>,
@@ -1445,18 +1451,6 @@ and <span class='texttt'>nh</span> denotes a non-const rvalue of type <span clas
  class template, such that the public nested types are
  the same types as the corresponding types in <span class='texttt'>X</span>. </td><td class='left'>
  see <a href='container.node'>[container.node]</a> </td><td class='left'>
- compile time </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>X::insert_return_type</span> </td><td class='left'>
- a class type used to describe the results of inserting a
- <span class='texttt'>node_type</span> that includes at least the following non-static
- public data members:<br/>
-   <span class='texttt'>bool inserted;</span><br/>
-   <span class='texttt'>X::iterator position;</span><br/>
-   <span class='texttt'>X::node_type node;</span><br/>
- The type shall be <span class='texttt'>MoveConstructible</span>, <span class='texttt'>MoveAssignable</span>,
- <span class='texttt'>DefaultConstructible</span>, <span class='texttt'>Destructible</span>, and
- lvalues of that type shall be swappable (<a href='swappable.requirements'>[swappable.requirements]</a>).  </td><td class='left'>
- </td><td class='left'>
  compile time </td></tr><tr class='rowsep'><td class='left'> 
 <span class='texttt'>X(n, hf, eq)</span><br/> <span class='texttt'>X a(n, hf, eq);</span>
 </td><td class='left'>   <span class='texttt'>X</span>
@@ -1629,7 +1623,7 @@ and <span class='texttt'>CopyAssignable</span>.<br/>
     inserted element.
     <span class='indexparent'><a class='index' id='unordered_associative_containers,insert'></a></span>    <span class='indexparent'><a class='index' id='insert,unordered_associative_containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a_eq.</span><br/><span class='texttt'>size()</span></span>)</span>.
 </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>a.insert(q, t)</span>
+<span class='texttt'>a.insert(p, t)</span>
 </td><td class='left'>   <span class='texttt'>iterator</span>
 </td><td class='left'>   <i>Requires:</i> If <span class='texttt'>t</span> is a non-const rvalue expression, <span class='texttt'>value_type</span> shall be
     <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>; otherwise, <span class='texttt'>value_type</span> shall be
@@ -1861,7 +1855,7 @@ a pathologically bad hash function). The behavior of a program that uses
 <span class='texttt'>operator==</span> or <span class='texttt'>operator!=</span> on unordered containers is undefined
 unless the <span class='texttt'>Hash</span> and <span class='texttt'>Pred</span> function objects respectively have
 the same behavior for both containers and the equality comparison operator
-for <span class='texttt'>Key</span> is a refinement<a class='footnotenum' href='#footnote-258'>258</a>
+for <span class='texttt'>Key</span> is a refinement<a class='footnotenum' href='#footnote-259'>259</a>
 of the partition into equivalent-key groups produced by <span class='texttt'>Pred</span>.</p></div><div class='para' id='unord.req-13'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-13'>13</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,iterators'></a></span>The iterator types <span class='texttt'>iterator</span> and <span class='texttt'>const_iterator</span> of
 an unordered associative container are of at least the forward iterator
 category.  For unordered associative containers where the key type and
@@ -1880,9 +1874,9 @@ and references to the removed element remain valid. However, accessing the
 element through such pointers and references while the element is owned by a
 <span class='texttt'>node_type</span> is undefined behavior. References and pointers to an element
 obtained while it is owned by a <span class='texttt'>node_type</span> are invalidated if the
-element is successfully inserted.</p></div><div class='footnote' id='footnote-258'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-258'>258)</a></div><p >Equality comparison is a refinement
+element is successfully inserted.</p></div><div class='footnote' id='footnote-259'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-259'>259)</a></div><p >Equality comparison is a refinement
 of partitioning if no two objects that
-compare equal fall into different partitions.</p></div><div id='unord.req.except'><h4 ><a class='secnum' href='#unord.req.except' style='min-width:118pt'>23.2.6.1</a> Exception safety guarantees <a class='abbr_ref' href='unord.req.except'>[unord.req.except]</a></h4><div class='para' id='unord.req.except-1'><div class='marginalizedparent'><a class='marginalized' href='#unord.req.except-1'>1</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,exception_safety'></a></span><span class='indexparent'><a class='index' id='unordered_associative_containers,requirements'></a></span>For unordered associative containers, no <span class='texttt'>clear()</span> function
+compare equal fall into different partitions.</p></div><div id='unord.req.except'><h4 ><a class='secnum' href='#unord.req.except' style='min-width:118pt'>23.2.7.1</a> Exception safety guarantees <a class='abbr_ref' href='unord.req.except'>[unord.req.except]</a></h4><div class='para' id='unord.req.except-1'><div class='marginalizedparent'><a class='marginalized' href='#unord.req.except-1'>1</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,exception_safety'></a></span><span class='indexparent'><a class='index' id='unordered_associative_containers,requirements'></a></span>For unordered associative containers, no <span class='texttt'>clear()</span> function
 throws an exception. <span class='texttt'>erase(k)</span> does not throw an
 exception unless that exception is thrown by the container's <span class='texttt'>Hash</span> or
 <span class='texttt'>Pred</span> object (if any).</p></div><div class='para' id='unord.req.except-2'><div class='marginalizedparent'><a class='marginalized' href='#unord.req.except-2'>2</a></div><p >For unordered associative containers, if an exception is thrown by any

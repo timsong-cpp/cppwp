@@ -285,7 +285,7 @@ template arguments but also general expressions (i.e., non-constant expressions)
 inside <span class='texttt'>sizeof</span>, <span class='texttt'>decltype</span>, and other contexts that allow non-constant
 expressions. The substitution proceeds in lexical order and stops when
 a condition that causes deduction to fail is encountered. [&nbsp;<i>Note:</i> The equivalent substitution in exception specifications is
-done only when the <i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i> is instantiated, at which point a program is ill-formed
+done only when the <i ><a href='except.spec#nt:noexcept-specifier'>noexcept-specifier</a></i> is instantiated, at which point a program is ill-formed
 if the substitution results in an invalid type or
 expression. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
 [&nbsp;<i>Example:</i>
@@ -508,7 +508,9 @@ referred to by
 <span class='texttt'>P</span>
 is used for type deduction.
 A <a class='hidden_link' href='#def:forwarding_reference' id='def:forwarding_reference'><i>forwarding reference</i></a>
-is an rvalue reference to a cv-unqualified template parameter.
+is an rvalue reference to a cv-unqualified template parameter
+that does not represent a template parameter of a class template
+(during class template argument deduction (<a href='over.match.class.deduct'>[over.match.class.deduct]</a>)).
 If <span class='texttt'>P</span> is a forwarding reference and the argument is an
 lvalue, the type “lvalue reference to <span class='texttt'>A</span>” is used in place of <span class='texttt'>A</span> for type
 deduction. [&nbsp;<i>Example:</i>
@@ -520,6 +522,20 @@ int n1 = f(i);                  <span class='comment'>// calls <span class='text
 </span>int n2 = f(0);                  <span class='comment'>// calls <span class='texttt'>f&lt;int&gt;(int&amp;&amp;)</span>
 </span>int n3 = g(i);                  <span class='comment'>// error: would call <span class='texttt'>g&lt;int&gt;(const int&amp;&amp;)</span>, which
 </span>                                <span class='comment'>// would bind an rvalue reference to an lvalue
+</span>
+template &lt;class T&gt; struct A {
+  template &lt;class U&gt;
+    A(T&amp;&amp;, U&amp;&amp;, int*); <span class='comment'>// #1: <span class='texttt'>T&amp;&amp;</span> is not a forwarding reference.
+</span>                       <span class='comment'>// <span class='texttt'>U&amp;&amp;</span> is a forwarding reference.
+</span>  A(T&amp;&amp;, int*);        <span class='comment'>// #2
+</span>};
+
+template &lt;class T&gt; A(T&amp;&amp;, int*) -&gt; A&lt;T&gt;;  <span class='comment'>// #3: <span class='texttt'>T&amp;&amp;</span> is a forwarding reference.
+</span>
+int *ip;
+A a{i, 0, ip};   <span class='comment'>// error: cannot deduce from #1
+</span>A a0{0, 0, ip};  <span class='comment'>// uses #1 to deduce <span class='texttt'>A&lt;int&gt;</span> and #1 to initialize
+</span>A a2{i, ip};     <span class='comment'>// uses #3 to deduce <span class='texttt'>A&lt;int&amp;&gt;</span> and #2 to initialize
 </span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='temp.deduct.call-4'><div class='marginalizedparent'><a class='marginalized' href='#temp.deduct.call-4'>4</a></div><p >In general, the deduction process attempts to find template argument
 values that will make the deduced
 <span class='texttt'>A</span>
@@ -756,7 +772,7 @@ the transformed template-1 as the argument template and template-2 as
 the parameter template and again using the transformed template-2 as
 the argument template and template-1 as the parameter template.</p></div><div class='para' id='temp.deduct.partial-3'><div class='marginalizedparent'><a class='marginalized' href='#temp.deduct.partial-3'>3</a></div><p >The types used to determine the ordering depend on the context in which
 the partial ordering is done:</p><ul class='itemize'><li id='temp.deduct.partial-3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#temp.deduct.partial-3.1'>(3.1)</a></div><p >In the context of a function call, the types used are those function parameter types
-for which the function call has arguments.<a class='footnotenum' href='#footnote-142'>142</a>
+for which the function call has arguments.<a class='footnotenum' href='#footnote-143'>143</a>
 </p></li><li id='temp.deduct.partial-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#temp.deduct.partial-3.2'>(3.2)</a></div><p >In the context of a call to a conversion function, the return types of
 the conversion function templates are used.
 </p></li><li id='temp.deduct.partial-3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#temp.deduct.partial-3.3'>(3.3)</a></div><p >In other contexts (<a href='temp.func.order'>[temp.func.order]</a>) the function template's function
@@ -800,9 +816,7 @@ is a cv-qualified type,
 <span class='texttt'>A</span>
 is replaced by the cv-unqualified version of
 <span class='texttt'>A</span>.
-</p></li></ul></div><div class='para' id='temp.deduct.partial-8'><div class='marginalizedparent'><a class='marginalized' href='#temp.deduct.partial-8'>8</a></div><p >If <span class='texttt'>A</span> was transformed from a function parameter pack and <span class='texttt'>P</span> is not
-a parameter pack, type deduction fails. Otherwise, using
-the resulting types
+</p></li></ul></div><div class='para' id='temp.deduct.partial-8'><div class='marginalizedparent'><a class='marginalized' href='#temp.deduct.partial-8'>8</a></div><p >Using the resulting types
 <span class='texttt'>P</span>
 and
 <span class='texttt'>A</span>,
@@ -812,6 +826,8 @@ parameter type of the argument template is compared with the type <span class='t
 the <i ><a href='dcl.decl#nt:declarator-id'>declarator-id</a></i> of the function parameter pack. Each comparison
 deduces template arguments for subsequent positions in the template parameter
 packs expanded by the function parameter pack.
+Similarly, if <span class='texttt'>A</span> was transformed from a function parameter pack,
+it is compared with each remaining parameter type of the parameter template.
 If deduction succeeds for a given type,
 the type from the argument template is considered to be at least as specialized
 as the type from the parameter template.
@@ -851,7 +867,12 @@ is at least as specialized as
 <span class='texttt'>G</span> and
 <span class='texttt'>G</span>
 is not at least as specialized as
-<span class='texttt'>F</span>.</p></div><div class='para' id='temp.deduct.partial-11'><div class='marginalizedparent'><a class='marginalized' href='#temp.deduct.partial-11'>11</a></div><p >In most cases, all template parameters must have values in order for
+<span class='texttt'>F</span>.</p></div><div class='para' id='temp.deduct.partial-11'><div class='marginalizedparent'><a class='marginalized' href='#temp.deduct.partial-11'>11</a></div><p >If, after considering the above, function template <span class='texttt'>F</span>
+is at least as specialized as function template <span class='texttt'>G</span> and vice-versa, and
+if <span class='texttt'>G</span> has a trailing parameter pack
+for which <span class='texttt'>F</span> does not have a corresponding parameter, and
+if <span class='texttt'>F</span> does not have a trailing parameter pack,
+then <span class='texttt'>F</span> is more specialized than <span class='texttt'>G</span>.</p></div><div class='para' id='temp.deduct.partial-12'><div class='marginalizedparent'><a class='marginalized' href='#temp.deduct.partial-12'>12</a></div><p >In most cases, all template parameters must have values in order for
 deduction to succeed, but for partial ordering purposes a template
 parameter may remain without a value provided it is not used in the
 types being used for partial ordering.
@@ -865,7 +886,7 @@ template &lt;class T&gt; T f(int);        <span class='comment'>// #1
 </span>void g() {
   f&lt;int&gt;(1);        <span class='comment'>// calls #1
 </span>}
-</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='temp.deduct.partial-12'><div class='marginalizedparent'><a class='marginalized' href='#temp.deduct.partial-12'>12</a></div><p >[&nbsp;<i>Note:</i> Partial ordering of function templates containing
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='temp.deduct.partial-13'><div class='marginalizedparent'><a class='marginalized' href='#temp.deduct.partial-13'>13</a></div><p >[&nbsp;<i>Note:</i> Partial ordering of function templates containing
 template parameter packs is independent of the number of deduced arguments
 for those template parameter packs. <i>&nbsp;—&nbsp;end note</i>&nbsp;] [&nbsp;<i>Example:</i></p><pre class='codeblock'>
 template&lt;class ...&gt; struct Tuple { };
@@ -877,7 +898,7 @@ g(Tuple&lt;&gt;());                   <span class='comment'>// calls #1
 </span>g(Tuple&lt;int, float&gt;());         <span class='comment'>// calls #2
 </span>g(Tuple&lt;int, float&amp;&gt;());        <span class='comment'>// calls #3
 </span>g(Tuple&lt;int&gt;());                <span class='comment'>// calls #3
-</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-142'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-142'>142)</a></div><p >Default arguments
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-143'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-143'>143)</a></div><p >Default arguments
 are not considered to be arguments in this context; they only become arguments
 after a function has been selected.</p></div></div><div id='temp.deduct.type'><h4 ><a class='secnum' href='#temp.deduct.type' style='min-width:118pt'>14.8.2.5</a> Deducing template arguments from a type <a class='abbr_ref' href='temp.deduct.type'>[temp.deduct.type]</a></h4><div class='para' id='temp.deduct.type-1'><div class='marginalizedparent'><a class='marginalized' href='#temp.deduct.type-1'>1</a></div><p >Template arguments can be deduced in several different contexts, but
 in each case a type that is specified in terms of template parameters
@@ -1288,7 +1309,7 @@ of the corresponding template parameter
 of the template named by the enclosing <i ><a href='temp.names#nt:simple-template-id'>simple-template-id</a></i>,
 deduction fails.
 If <span class='texttt'>P</span> has a form that contains <span class='texttt'>[i]</span>, and if the type of
-<span class='texttt'>i</span> is not an integral type, deduction fails.<a class='footnotenum' href='#footnote-143'>143</a>
+<span class='texttt'>i</span> is not an integral type, deduction fails.<a class='footnotenum' href='#footnote-144'>144</a>
 [&nbsp;<i>Example:</i></p><pre class='codeblock'>
 template&lt;int i&gt; class A { <span class='comment'>/* ... */</span> };
 template&lt;short s&gt; void f(A&lt;s&gt;);
@@ -1361,7 +1382,7 @@ X&lt;int&gt; x1;                      <span class='comment'>// uses primary temp
 </span>Y&lt;int&amp;, float&amp;, double&amp;&gt; y2;    <span class='comment'>// uses partial specialization; <span class='texttt'>T</span> is <span class='texttt'>int&amp;</span>, <span class='texttt'>Types</span> contains <span class='texttt'>float</span>, <span class='texttt'>double</span>
 </span>Y&lt;int, float, double&gt; y3;       <span class='comment'>// uses primary template; <span class='texttt'>Types</span> contains <span class='texttt'>int</span>, <span class='texttt'>float</span>, <span class='texttt'>double</span>
 </span>int fv = f(g);                  <span class='comment'>// OK; <span class='texttt'>Types</span> contains <span class='texttt'>int</span>, <span class='texttt'>float</span>
-</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-143'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-143'>143)</a></div><p >Although the
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-144'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-144'>144)</a></div><p >Although the
 <i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
 corresponding to a
 <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
@@ -1408,7 +1429,7 @@ the same name.
 The synthesized declarations are
 treated like any other functions in
 the remainder of overload resolution, except as explicitly noted
-in <a href='over.match.best'>[over.match.best]</a>.<a class='footnotenum' href='#footnote-144'>144</a></p><p >[&nbsp;<i>Example:</i>
+in <a href='over.match.best'>[over.match.best]</a>.<a class='footnotenum' href='#footnote-145'>145</a></p><p >[&nbsp;<i>Example:</i>
 </p><pre class='codeblock'>
 template&lt;class T&gt; T max(T a, T b) { return a&gt;b?a:b; }
 
@@ -1471,7 +1492,7 @@ The program will be ill-formed unless a specialization for
 either implicitly or explicitly generated,
 is present in some translation unit.
 <i>&nbsp;—&nbsp;end example</i>&nbsp;]
-</p></div><div class='footnote' id='footnote-144'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-144'>144)</a></div><p >The parameters of function template
+</p></div><div class='footnote' id='footnote-145'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-145'>145)</a></div><p >The parameters of function template
 specializations contain no
 template parameter types.
 The set of conversions allowed on deduced arguments is limited, because the

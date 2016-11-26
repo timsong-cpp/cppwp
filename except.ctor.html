@@ -1,12 +1,7 @@
 <!DOCTYPE html><html lang='en'><head><title>[except.ctor]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>15</a> Exception handling <a class='abbr_ref' href='./#except'>[except]</a></h1><div id='except.ctor'><h2 ><a class='secnum' style='min-width:88pt'>15.2</a> Constructors and destructors <a class='abbr_ref'>[except.ctor]</a></h2><p ><span class='indexparent'><a class='index' id='exception_handling,constructors_and_destructors'></a></span><span class='indexparent'><a class='index' id='constructor,exception_handling'></a></span><span class='indexparent'><a class='index' id='destructor,exception_handling'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='unwinding,stack'></a></span>As control passes from the point where an exception is thrown
 to a handler,
 destructors are invoked by a process, specified in this section, called
-<a class='hidden_link' href='#def:stack_unwinding' id='def:stack_unwinding'><i>stack unwinding</i></a>. If a destructor directly invoked by stack unwinding
-exits with an exception, <span class='texttt'>std::terminate</span> is called (<a href='except.terminate'>[except.terminate]</a>).
-[&nbsp;<i>Note:</i>
-Consequently, destructors should generally catch exceptions and not let them
-propagate out of the destructor.
-<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >The destructor is invoked for each automatic object of class type constructed,
+<a class='hidden_link' href='#def:stack_unwinding' id='def:stack_unwinding'><i>stack unwinding</i></a>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >The destructor is invoked for each automatic object of class type constructed,
 but not yet destroyed,
 since the try block was entered.
 If an exception is thrown during the destruction of temporaries or
@@ -37,20 +32,23 @@ causing stack unwinding,
 resulting in the destruction of the returned object,
 followed by the destruction of the local variable <span class='texttt'>a</span>.
 Finally, the returned object is constructed again at #2.
-<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >For an object of class type
-of any storage duration whose initialization or destruction is terminated by an exception,
-the destructor is invoked for each of the object's fully constructed
-subobjects,
-that is, for each subobject for which the principal
-constructor (<a href='class.base.init'>[class.base.init]</a>) has completed execution
-and the destructor has not yet begun execution,
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >If the initialization or destruction of an object
+other than by delegating constructor
+is terminated by an exception,
+the destructor is invoked for
+each of the object's direct subobjects
+and, for a complete object, virtual base class subobjects, 
+whose initialization has completed (<a href='dcl.init'>[dcl.init]</a>)
+and whose destructor has not yet begun execution,
 except that in the case of destruction, the variant members of a
 union-like class are not destroyed.
 The subobjects are destroyed in the reverse order of the completion of
 their construction. Such destruction is sequenced before entering a
 handler of the <i ><a href='except#nt:function-try-block'>function-try-block</a></i> of the constructor or destructor,
-if any.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Similarly, if the principal constructor for an object has
-completed execution and a delegating constructor for that object exits with
+if any.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >If the <i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i>
+of the <i ><a href='dcl.fct.def.general#nt:function-body'>function-body</a></i>
+of a delegating constructor
+for an object exits via
 an exception, the object's destructor is invoked.
 Such destruction is sequenced before entering a handler of the
 <i ><a href='except#nt:function-try-block'>function-try-block</a></i> of a delegating constructor for that object, if any.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >[&nbsp;<i>Note:</i>

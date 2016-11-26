@@ -34,7 +34,7 @@ ensures that only derived classes and friends can create objects using it.
 and, if the class is not abstract (<a href='class.abstract'>[class.abstract]</a>), its virtual base
 classes are called its <a class='hidden_link' href='#def:potentially_constructed_subobjects' id='def:potentially_constructed_subobjects'><i>potentially constructed subobjects</i></a>.</p></div><div id='class.ctor'><h2 ><a class='secnum' href='#class.ctor' style='min-width:88pt'>12.1</a> Constructors <a class='abbr_ref' href='class.ctor'>[class.ctor]</a></h2><p ><span class='indexparent'><a class='index' id='constructor'></a></span></p><div class='para' id='class.ctor-1'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-1'>1</a></div><p >Constructors do not have names.
 In a declaration of a constructor, the <i ><a href='dcl.decl#nt:declarator'>declarator</a></i> is a
-function declarator (<a href='dcl.fct'>[dcl.fct]</a>) of the form</p><pre class='bnf'><i ><a href='dcl.decl#nt:ptr-declarator'>ptr-declarator</a></i> <span class='terminal'>(</span> <i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i> <span class='terminal'>)</span> <i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span></pre><p >where the <i ><a href='dcl.decl#nt:ptr-declarator'>ptr-declarator</a></i> consists solely of an
+function declarator (<a href='dcl.fct'>[dcl.fct]</a>) of the form</p><pre class='bnf'><i ><a href='dcl.decl#nt:ptr-declarator'>ptr-declarator</a></i> <span class='terminal'>(</span> <i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i> <span class='terminal'>)</span> <i ><a href='except.spec#nt:noexcept-specifier'>noexcept-specifier</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span></pre><p >where the <i ><a href='dcl.decl#nt:ptr-declarator'>ptr-declarator</a></i> consists solely of an
 <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i>, an optional <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i>,
 and optional surrounding parentheses, and the <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i> has
 one of the following forms:</p><ul class='itemize'><li id='class.ctor-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.ctor-1.1'>(1.1)</a></div><p >in a <i ><a href='class.mem#nt:member-declaration'>member-declaration</a></i> that belongs to the
@@ -184,9 +184,8 @@ Explicit constructor calls do not yield lvalues, see <a href='basic.lval'>[basic
 <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.ctor-13'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-13'>13</a></div><p >[&nbsp;<i>Note:</i>
 <span class='indexparent'><a class='index' id='member_function,constructor_and'></a></span>some language constructs have special semantics when used during construction;
 see <a href='class.base.init'>[class.base.init]</a> and <a href='class.cdtor'>[class.cdtor]</a>.
-<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.ctor-14'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-14'>14</a></div><p >During the construction of a
-<span class='texttt'>const</span>
-object, if the value of the object or any of its subobjects is
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.ctor-14'><div class='marginalizedparent'><a class='marginalized' href='#class.ctor-14'>14</a></div><p >During the construction of an object,
+if the value of the object or any of its subobjects is
 accessed through a glvalue that is not obtained, directly or indirectly, from
 the constructor's
 <span class='texttt'>this</span>
@@ -208,7 +207,14 @@ void no_opt(C* cptr) {
   cout &lt;&lt; cobj.c * 100          <span class='comment'>// value of <span class='texttt'>cobj.c</span> is unspecified
 </span>       &lt;&lt; '\n';
 }
-</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div id='class.temporary'><h2 ><a class='secnum' href='#class.temporary' style='min-width:88pt'>12.2</a> Temporary objects <a class='abbr_ref' href='class.temporary'>[class.temporary]</a></h2><div class='para' id='class.temporary-1'><div class='marginalizedparent'><a class='marginalized' href='#class.temporary-1'>1</a></div><p ><span class='indexparent'><a class='index' id='object_temporary'></a></span><span class='indexparent'><a class='index' id='temporary'></a></span><span class='indexparent'><a class='index' id='optimization_of_temporary'></a></span><span class='indexparent'><a class='index' id='temporary,elimination_of'></a></span><span class='indexparent'><a class='index' id='temporary,implementation-defined_generation_of'></a></span>Temporary objects are created
+
+extern struct D d;
+struct D {
+  D(int a) : a(a), b(d.a) {}
+  int a, b;
+};
+D d = D(1);                     <span class='comment'>// value of <span class='texttt'>d.b</span> is unspecified
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div id='class.temporary'><h2 ><a class='secnum' href='#class.temporary' style='min-width:88pt'>12.2</a> Temporary objects <a class='abbr_ref' href='class.temporary'>[class.temporary]</a></h2><div class='para' id='class.temporary-1'><div class='marginalizedparent'><a class='marginalized' href='#class.temporary-1'>1</a></div><p ><span class='indexparent'><a class='index' id='object_temporary'></a></span><span class='indexparent'><a class='index' id='temporary'></a></span><span class='indexparent'><a class='index' id='optimization_of_temporary'></a></span><span class='indexparent'><a class='index' id='temporary,elimination_of'></a></span><span class='indexparent'><a class='index' id='temporary,implementation-defined_generation_of'></a></span>Temporary objects are created
 </p><ul class='itemize'><li id='class.temporary-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.temporary-1.1'>(1.1)</a></div><p >when a prvalue is materialized so that it can be used as a glvalue (<a href='conv.rval'>[conv.rval]</a>),
 </p></li><li id='class.temporary-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.temporary-1.2'>(1.2)</a></div><p >when needed by the implementation to pass or return an object of trivially-copyable type (see below),
 and
@@ -319,7 +325,7 @@ an array while the entire array is copied (<a href='expr.prim.lambda'>[expr.prim
 In either case, if the constructor has one or more default arguments,
 the destruction of every temporary created in a default argument is
 sequenced before the construction of the next array element, if any.</p></div><div class='para' id='class.temporary-6'><div class='marginalizedparent'><a class='marginalized' href='#class.temporary-6'>6</a></div><p >The third context is when a reference is bound to a
-temporary.<a class='footnotenum' href='#footnote-116'>116</a>
+temporary.<a class='footnotenum' href='#footnote-117'>117</a>
 The temporary to which the reference is bound or the temporary
 that is the complete object of a subobject to which the reference is bound
 persists for the lifetime of the reference except:</p><ul class='itemize'><li id='class.temporary-6.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.temporary-6.1'>(6.1)</a></div><p >A temporary object bound to a reference parameter in a function call (<a href='expr.call'>[expr.call]</a>)
@@ -428,7 +434,7 @@ and
 <span class='texttt'>T3</span>
 shall be destroyed before
 <span class='texttt'>obj1</span>.
-<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-116'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-116'>116)</a></div><p >The same rules apply to initialization of an
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-117'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-117'>117)</a></div><p >The same rules apply to initialization of an
   <span class='texttt'>initializer_list</span> object (<a href='dcl.init.list'>[dcl.init.list]</a>) with its
   underlying temporary array.</p></div></div><div id='class.conv'><h2 ><a class='secnum' href='#class.conv' style='min-width:88pt'>12.3</a> Conversions <a class='abbr_ref' href='class.conv'>[class.conv]</a></h2><div class='para' id='class.conv-1'><div class='marginalizedparent'><a class='marginalized' href='#class.conv-1'>1</a></div><p ><span class='indexparent'><a class='index' id='conversion,class'></a></span><span class='indexparent'><a class='index' id='conversion,user-defined'></a></span><span class='indexparent'><a class='index' id='constructor,_conversion_by'></a></span><span class='indexparent'><a class='index' id='conversion_function'></a></span><span class='indexparent'><a class='index' id='conversion,implicit'></a></span>Type conversions of class objects can be specified by constructors and
 by conversion functions.
@@ -545,7 +551,7 @@ a <i ><a href='dcl.type#nt:defining-type-specifier'>defining-type-specifier</a><
 A conversion function is never used to convert a (possibly cv-qualified) object
 to the (possibly cv-qualified) same object type (or a reference to it),
 to a (possibly cv-qualified) base class of that type (or a reference to it),
-or to (possibly cv-qualified) void.<a class='footnotenum' href='#footnote-117'>117</a></p><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+or to (possibly cv-qualified) void.<a class='footnotenum' href='#footnote-118'>118</a></p><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
 struct X {
   operator int();
   operator auto() -&gt; short;  <span class='comment'>// error: trailing return type
@@ -608,12 +614,12 @@ struct S {
 </span>  template&lt;class T&gt;
   operator auto() const { return 1.2; }  <span class='comment'>// error: conversion function template
 </span>};
-</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-117'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-117'>117)</a></div><p >These conversions are considered
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-118'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-118'>118)</a></div><p >These conversions are considered
 as standard conversions for the purposes of overload resolution (<a href='over.best.ics'>[over.best.ics]</a>, <a href='over.ics.ref'>[over.ics.ref]</a>) and therefore initialization (<a href='dcl.init'>[dcl.init]</a>) and explicit casts (<a href='expr.static.cast'>[expr.static.cast]</a>). A conversion to <span class='texttt'>void</span> does not invoke any conversion function (<a href='expr.static.cast'>[expr.static.cast]</a>).
 Even though never directly called to perform a conversion,
 such conversion functions can be declared and can potentially
 be reached through a call to a virtual conversion function in a base class.</p></div></div></div><div id='class.dtor'><h2 ><a class='secnum' href='#class.dtor' style='min-width:88pt'>12.4</a> Destructors <a class='abbr_ref' href='class.dtor'>[class.dtor]</a></h2><p ><span class='indexparent'><a class='index' id='destructor'></a></span></p><div class='para' id='class.dtor-1'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-1'>1</a></div><p >In a declaration of a destructor, the <i ><a href='dcl.decl#nt:declarator'>declarator</a></i> is a
-function declarator (<a href='dcl.fct'>[dcl.fct]</a>) of the form</p><pre class='bnf'><i ><a href='dcl.decl#nt:ptr-declarator'>ptr-declarator</a></i> <span class='terminal'>(</span> <i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i> <span class='terminal'>)</span> <i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span></pre><p >where the <i ><a href='dcl.decl#nt:ptr-declarator'>ptr-declarator</a></i> consists solely of an
+function declarator (<a href='dcl.fct'>[dcl.fct]</a>) of the form</p><pre class='bnf'><i ><a href='dcl.decl#nt:ptr-declarator'>ptr-declarator</a></i> <span class='terminal'>(</span> <i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i> <span class='terminal'>)</span> <i ><a href='except.spec#nt:noexcept-specifier'>noexcept-specifier</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span></pre><p >where the <i ><a href='dcl.decl#nt:ptr-declarator'>ptr-declarator</a></i> consists solely of an
 <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i>, an optional <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i>,
 and optional surrounding parentheses, and the <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i> has
 one of the following forms:</p><ul class='itemize'><li id='class.dtor-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.dtor-1.1'>(1.1)</a></div><p >in a <i ><a href='class.mem#nt:member-declaration'>member-declaration</a></i> that belongs to the
@@ -646,8 +652,10 @@ and
 <span class='texttt'>volatile</span>
 semantics (<a href='dcl.type.cv'>[dcl.type.cv]</a>) are not applied on an object under destruction.
 They stop being in effect when the destructor for the
-most derived object (<a href='intro.object'>[intro.object]</a>) starts.</p></div><div class='para' id='class.dtor-3'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-3'>3</a></div><p >A declaration of a destructor that does not have an <i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i>
-has the same exception specification as if had been implicitly declared (<a href='except.spec'>[except.spec]</a>).</p></div><div class='para' id='class.dtor-4'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-4'>4</a></div><p ><span class='indexparent'><a class='index' id='generated_destructor'></a></span><span class='indexparent'><a class='index' id='destructor,default'></a></span><span class='indexparent'><a class='index' id='destructor,non-trivial'></a></span>If a class has no user-declared
+most derived object (<a href='intro.object'>[intro.object]</a>) starts.</p></div><div class='para' id='class.dtor-3'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-3'>3</a></div><p >[&nbsp;<i>Note:</i>
+A declaration of a destructor that does not have a <i ><a href='except.spec#nt:noexcept-specifier'>noexcept-specifier</a></i>
+has the same exception specification as if had been implicitly declared (<a href='except.spec'>[except.spec]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='class.dtor-4'><div class='marginalizedparent'><a class='marginalized' href='#class.dtor-4'>4</a></div><p ><span class='indexparent'><a class='index' id='generated_destructor'></a></span><span class='indexparent'><a class='index' id='destructor,default'></a></span><span class='indexparent'><a class='index' id='destructor,non-trivial'></a></span>If a class has no user-declared
 destructor, a destructor is implicitly
 declared as defaulted (<a href='dcl.fct.def'>[dcl.fct.def]</a>).
 An implicitly-declared destructor is an
@@ -842,7 +850,7 @@ If the <i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i>
 is used to deallocate a class object whose static type has a virtual
 destructor, the deallocation function is the one selected at the point
 of definition of the dynamic type's virtual
-destructor (<a href='class.dtor'>[class.dtor]</a>).<a class='footnotenum' href='#footnote-118'>118</a>
+destructor (<a href='class.dtor'>[class.dtor]</a>).<a class='footnotenum' href='#footnote-119'>119</a>
 Otherwise, if the
 <i ><a href='expr.delete#nt:delete-expression'>delete-expression</a></i>
 is used to deallocate an object of class
@@ -933,9 +941,9 @@ had been
 <span class='texttt'>private</span>,
 the delete expression would have been ill-formed.
 <i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.free-8'><div class='marginalizedparent'><a class='marginalized' href='#class.free-8'>8</a></div><p >[&nbsp;<i>Note:</i>
-If a deallocation function has no explicit <i ><a href='except.spec#nt:exception-specification'>exception-specification</a></i>, it
+If a deallocation function has no explicit <i ><a href='except.spec#nt:noexcept-specifier'>noexcept-specifier</a></i>, it
 has a non-throwing exception specification (<a href='except.spec'>[except.spec]</a>).
-<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-118'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-118'>118)</a></div><p >A similar provision is not needed for
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-119'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-119'>119)</a></div><p >A similar provision is not needed for
 the array version of <span class='texttt'>operator</span> <span class='texttt'>delete</span> because <a href='expr.delete'>[expr.delete]</a>
 requires that in this situation, the static type of the object to be deleted be
 the same as its dynamic type.
@@ -1116,9 +1124,7 @@ constructor of the constructor's class using any
 it shall be the only <span class='rmfamily'></span><i> mem-initializer</i>; the constructor
 is a <a class='hidden_link' href='#def:delegating_constructor' id='def:delegating_constructor'><i>delegating constructor</i></a>, and the constructor selected by the
 <span class='rmfamily'></span><i> mem-initializer</i> is the <a class='hidden_link' href='#def:target_constructor' id='def:target_constructor'><i>target constructor</i></a>.
-The <a class='hidden_link' href='#def:principal_constructor' id='def:principal_constructor'><i>principal constructor</i></a> is the first constructor invoked in
-the construction of an object (that is, not a target constructor for that
-object's construction). The target constructor is selected by overload resolution.
+The target constructor is selected by overload resolution.
 Once the target constructor returns, the body of the delegating constructor
 is executed. If a constructor delegates to itself directly or indirectly,
 the program is ill-formed; no diagnostic is required. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
@@ -1148,13 +1154,15 @@ D::D(int a) : B2(a+1), B1(a+2), c(a+3), b(a+4)
   { <span class='comment'>/* ... */</span> }
 D d(10);
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+[&nbsp;<i>Note:</i>
 The initialization
 performed by each <i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i>
-constitutes a full-expression.
+constitutes a full-expression (<a href='intro.execution'>[intro.execution]</a>).
 Any expression in
 a
 <i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i>
 is evaluated as part of the full-expression that performs the initialization.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
 A <i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i> where the <i ><a href='class.base.init#nt:mem-initializer-id'>mem-initializer-id</a></i> denotes
 a virtual base class is ignored during execution of a constructor of any class that is
 not the most derived class.</p></div><div class='para' id='class.base.init-8'><div class='marginalizedparent'><a class='marginalized' href='#class.base.init-8'>8</a></div><p >A temporary expression bound to a reference member in a <i ><a href='class.base.init#nt:mem-initializer'>mem-initializer</a></i>
@@ -1490,9 +1498,8 @@ struct O : M {};
 struct P : N, O { using N::N; using O::O; };
 P p(0); <span class='comment'>// OK: use <span class='texttt'>M(0)</span> to initialize <span class='texttt'>N</span>'s base class,
 </span>        <span class='comment'>// use <span class='texttt'>M()</span> to initialize <span class='texttt'>O</span>'s base class
-</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.inhctor.init-3'><div class='marginalizedparent'><a class='marginalized' href='#class.inhctor.init-3'>3</a></div><p >When an object is initialized by an inheriting constructor,
-the principal constructor (<a href='class.base.init'>[class.base.init]</a>, <a href='except.ctor'>[except.ctor]</a>)
-for the object is considered to have completed execution
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='class.inhctor.init-3'><div class='marginalizedparent'><a class='marginalized' href='#class.inhctor.init-3'>3</a></div><p >When an object is initialized by an inherited constructor,
+initialization of the object is complete
 when the initialization of all subobjects is complete.</p></div></div></div><div id='class.cdtor'><h2 ><a class='secnum' href='#class.cdtor' style='min-width:88pt'>12.7</a> Construction and destruction <a class='abbr_ref' href='class.cdtor'>[class.cdtor]</a></h2><p ><span class='indexparent'><a class='index' id='construction'></a></span><span class='indexparent'><a class='index' id='destruction'></a></span></p><div class='para' id='class.cdtor-1'><div class='marginalizedparent'><a class='marginalized' href='#class.cdtor-1'>1</a></div><p ><span class='indexparent'><a class='index' id='construction,member_access'></a></span><span class='indexparent'><a class='index' id='destruction,member_access'></a></span>For an object with a non-trivial constructor, referring to any non-static member
 or base class of the object before the constructor begins execution results in
 undefined behavior. For an object with a non-trivial destructor, referring to
@@ -1789,7 +1796,7 @@ has a copy constructor whose first parameter is of type
 or
 <span class='texttt'>const</span>
 <span class='texttt'>volatile</span>
-<span class='texttt'>M&amp;</span>.<a class='footnotenum' href='#footnote-119'>119</a>
+<span class='texttt'>M&amp;</span>.<a class='footnotenum' href='#footnote-120'>120</a>
 Otherwise, the implicitly-declared copy constructor will have the form</p><pre class='codeblock'>
 X::X(X&amp;)
 </pre></div><div class='para' id='class.copy-9'><div class='marginalizedparent'><a class='marginalized' href='#class.copy-9'>9</a></div><p ><span class='indexparent'><a class='index' id='constructor,move,implicitly_declared'></a></span>If the definition of a class <span class='texttt'>X</span> does not explicitly declare
@@ -1828,7 +1835,7 @@ trivial
 if it is not user-provided and if:</p><ul class='itemize'><li id='class.copy-12.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.copy-12.1'>(12.1)</a></div><p >class
 <span class='texttt'>X</span>
 has no virtual functions (<a href='class.virtual'>[class.virtual]</a>)
-and no virtual base classes (<a href='class.mi'>[class.mi]</a>), and</p></li><li id='class.copy-12.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.copy-12.2'>(12.2)</a></div><p >class <span class='texttt'>X</span> has no non-static data members of volatile-qualified type, and</p></li><li id='class.copy-12.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.copy-12.3'>(12.3)</a></div><p >the constructor selected to copy/move each direct base class subobject is trivial, and</p></li><li id='class.copy-12.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.copy-12.4'>(12.4)</a></div><p >for each non-static data member of
+and no virtual base classes (<a href='class.mi'>[class.mi]</a>), and</p></li><li id='class.copy-12.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.copy-12.2'>(12.2)</a></div><p >the constructor selected to copy/move each direct base class subobject is trivial, and</p></li><li id='class.copy-12.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.copy-12.3'>(12.3)</a></div><p >for each non-static data member of
 <span class='texttt'>X</span>
 that is of class type (or array thereof),
 the constructor selected to copy/move that member is trivial;
@@ -1871,7 +1878,7 @@ the implicitly-defined copy/move constructor (see <a href='class.base.init'>[cla
 non-static non-template member function of class <span class='texttt'>X</span> with exactly one
 parameter of type <span class='texttt'>X</span>, <span class='texttt'>X&amp;</span>, <span class='texttt'>const</span> <span class='texttt'>X&amp;</span>,
 <span class='texttt'>volatile</span> <span class='texttt'>X&amp;</span> or <span class='texttt'>const</span> <span class='texttt'>volatile</span>
-<span class='texttt'>X&amp;</span>.<a class='footnotenum' href='#footnote-120'>120</a>
+<span class='texttt'>X&amp;</span>.<a class='footnotenum' href='#footnote-121'>121</a>
 [&nbsp;<i>Note:</i>
 An overloaded assignment operator must be declared to have only one parameter;
 see <a href='over.ass'>[over.ass]</a>.
@@ -1935,7 +1942,7 @@ each such class type has a copy assignment operator whose parameter is of type
 <span class='texttt'>volatile</span>
 <span class='texttt'>M&amp;</span>
 or
-<span class='texttt'>M</span>.<a class='footnotenum' href='#footnote-121'>121</a>
+<span class='texttt'>M</span>.<a class='footnotenum' href='#footnote-122'>122</a>
 </p></li></ul><p >Otherwise, the implicitly-declared copy
 assignment operator
 will have the form</p><pre class='codeblock'>
@@ -2008,9 +2015,8 @@ trivial
 if it is not user-provided and if:</p><ul class='itemize'><li id='class.copy-25.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.copy-25.1'>(25.1)</a></div><p >class
 <span class='texttt'>X</span>
 has no virtual functions (<a href='class.virtual'>[class.virtual]</a>)
-and no virtual base classes (<a href='class.mi'>[class.mi]</a>), and</p></li><li id='class.copy-25.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.copy-25.2'>(25.2)</a></div><p >class <span class='texttt'>X</span> has no non-static data members of volatile-qualified
-type, and</p></li><li id='class.copy-25.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.copy-25.3'>(25.3)</a></div><p >the assignment operator selected to copy/move each direct
-base class subobject is trivial, and</p></li><li id='class.copy-25.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.copy-25.4'>(25.4)</a></div><p >for each non-static data member of
+and no virtual base classes (<a href='class.mi'>[class.mi]</a>), and</p></li><li id='class.copy-25.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.copy-25.2'>(25.2)</a></div><p >the assignment operator selected to copy/move each direct
+base class subobject is trivial, and</p></li><li id='class.copy-25.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#class.copy-25.3'>(25.3)</a></div><p >for each non-static data member of
 <span class='texttt'>X</span>
 that is of class type (or array thereof),
 the assignment operator selected to copy/move that member is trivial;
@@ -2085,7 +2091,7 @@ selected constructor is an rvalue reference to the object's type,
 the destruction of that object occurs when the target would have been destroyed;
 otherwise, the destruction occurs at the later of the times when the
 two objects would have been destroyed without the
-optimization.<a class='footnotenum' href='#footnote-122'>122</a>
+optimization.<a class='footnotenum' href='#footnote-123'>123</a>
 This elision of copy/move operations, called
 <span class='indexparent'><a class='index' id='copy_elision'></a></span><span class='indexparent'><a class='index' id='elision,copy'></a></span><span class='indexparent'><a class='index' id='constructor,copy,elision'></a></span><span class='indexparent'><a class='index' id='constructor,move,elision'></a></span><a class='hidden_link' href='#def:copy_elision' id='def:copy_elision'><i>copy elision</i></a>,
 is permitted in the
@@ -2219,18 +2225,18 @@ Weird g() {
 </span>                                <span class='comment'>// second overload resolution selects <span class='texttt'>Weird(Weird&amp;)</span>
 </span>}
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
-</p></div><div class='footnote' id='footnote-119'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-119'>119)</a></div><p >This implies that the reference parameter of the
+</p></div><div class='footnote' id='footnote-120'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-120'>120)</a></div><p >This implies that the reference parameter of the
 implicitly-declared copy constructor
 cannot bind to a
 <span class='texttt'>volatile</span>
-lvalue; see <a href='diff.special'>[diff.special]</a>.</p></div><div class='footnote' id='footnote-120'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-120'>120)</a></div><p >Because a template assignment operator or an assignment
+lvalue; see <a href='diff.special'>[diff.special]</a>.</p></div><div class='footnote' id='footnote-121'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-121'>121)</a></div><p >Because a template assignment operator or an assignment
 operator taking an rvalue reference parameter is never a copy assignment
 operator, the presence of such an assignment operator does not suppress the
 implicit declaration of a copy assignment operator. Such assignment operators
 participate in overload resolution with other assignment operators, including
-copy assignment operators, and, if selected, will be used to assign an object.</p></div><div class='footnote' id='footnote-121'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-121'>121)</a></div><p >This implies that the reference parameter of the
+copy assignment operators, and, if selected, will be used to assign an object.</p></div><div class='footnote' id='footnote-122'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-122'>122)</a></div><p >This implies that the reference parameter of the
 implicitly-declared copy assignment operator cannot bind to a
 <span class='texttt'>volatile</span>
-lvalue; see <a href='diff.special'>[diff.special]</a>.</p></div><div class='footnote' id='footnote-122'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-122'>122)</a></div><p >Because only one object is destroyed instead of two,
+lvalue; see <a href='diff.special'>[diff.special]</a>.</p></div><div class='footnote' id='footnote-123'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-123'>123)</a></div><p >Because only one object is destroyed instead of two,
 and one copy/move constructor
 is not executed, there is still one object destroyed for each one constructed.</p></div></div></div></div></body></html>

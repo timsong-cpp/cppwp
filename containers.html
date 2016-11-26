@@ -198,6 +198,11 @@ i - j
 type, either or both may be replaced by an object of the container's
 <span class='texttt'>const_iterator</span> type referring to the same element with no change in semantics.</p></div><div class='para' id='container.requirements.general-8'><div class='marginalizedparent'><a class='marginalized' href='#container.requirements.general-8'>8</a></div><p >Unless otherwise specified, all containers defined in this clause obtain memory
 using an allocator (see <a href='allocator.requirements'>[allocator.requirements]</a>).
+[&nbsp;<i>Note:</i> In particular, containers and iterators do not store references
+to allocated elements other than through the allocator's pointer type,
+i.e., as objects of type <span class='texttt'>P</span> or
+<span class='texttt'>pointer_traits&lt;P&gt;::template rebind&lt;<i><span class='texttt'>unspecified</span></i>&gt;</span>,
+where <span class='texttt'>P</span> is <span class='texttt'>allocator_traits&lt;allocator_type&gt;::pointer</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
 Copy constructors for these container types obtain an allocator by calling
 <span class='texttt'>allocator_traits&lt;allocator_type&gt;::select_on_container_copy_construction</span>
 on the allocator belonging to the container being copied.
@@ -893,7 +898,19 @@ void swap(<i>node_handle</i>&amp; nh)
 or <span class='texttt'>alloc_ == nh.alloc_</span>.</p></div></div><div class='para' id='container.node.modifiers-2'><div class='marginalizedparent'><a class='marginalized' href='#container.node.modifiers-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>swap(ptr_, nh.ptr_)</span>. If <span class='texttt'>!alloc_</span>, or
 <span class='texttt'>!nh.alloc_</span>, or <span class='texttt'>ator_traits::propagate_on_container_swap</span>
 is <span class='texttt'>true</span> calls <span class='texttt'>swap(alloc_, nh.alloc_)</span>.
-</p></div></div></div></div><div id='associative.reqmts'><h3 ><a class='secnum' href='#associative.reqmts' style='min-width:103pt'>23.2.5</a> Associative containers <a class='abbr_ref' href='associative.reqmts'>[associative.reqmts]</a></h3><div class='para' id='associative.reqmts-1'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-1'>1</a></div><p >Associative containers provide fast retrieval of data based on keys.
+</p></div></div></div></div><div id='container.insert.return'><h3 ><a class='secnum' href='#container.insert.return' style='min-width:103pt'>23.2.5</a> Insert return type <a class='abbr_ref' href='container.insert.return'>[container.insert.return]</a></h3><div class='para' id='container.insert.return-1'><div class='marginalizedparent'><a class='marginalized' href='#container.insert.return-1'>1</a></div><p >The associative containers with unique keys and the unordered containers with unique keys
+have a member function <span class='texttt'>insert</span> that returns a nested type <span class='texttt'>insert_return_type</span>.
+That return type is a specialization of the type specified in this subclause.</p><pre class='codeblock'>
+template &lt;class Iterator, class NodeType&gt;
+struct <i>INSERT_RETURN_TYPE</i>{
+  Iterator position;
+  bool     inserted;
+  NodeType node;
+};
+</pre></div><div class='para' id='container.insert.return-2'><div class='marginalizedparent'><a class='marginalized' href='#container.insert.return-2'>2</a></div><p >The name <i><span class='texttt'>INSERT_RETURN_TYPE</span></i> is exposition only.
+<i><span class='texttt'>INSERT_RETURN_TYPE</span></i> has the template parameters,
+data members, and special members specified above.
+It has no base classes or members other than those specified.</p></div></div><div id='associative.reqmts'><h3 ><a class='secnum' href='#associative.reqmts' style='min-width:103pt'>23.2.6</a> Associative containers <a class='abbr_ref' href='associative.reqmts'>[associative.reqmts]</a></h3><div class='para' id='associative.reqmts-1'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-1'>1</a></div><p >Associative containers provide fast retrieval of data based on keys.
 The library provides four basic kinds of associative containers:
 <span class='texttt'>set</span>,
 <span class='texttt'>multiset</span>,
@@ -1028,17 +1045,6 @@ and <span class='texttt'>nh</span> denotes a non-const rvalue of type <span clas
  class template, such that the public nested types are
  the same types as the corresponding types in <span class='texttt'>X</span>. </td><td class='left'>
  see <a href='container.node'>[container.node]</a> </td><td class='left'>
- compile time </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::insert_return_type</span> </td><td class='left'>
- a class type used to describe the results of inserting a
- <span class='texttt'>node_type</span> that includes at least the following non-static
- public data members:<br/>
-   <span class='texttt'>bool inserted;</span><br/>
-   <span class='texttt'>X::iterator position;</span><br/>
-   <span class='texttt'>X::node_type node;</span><br/>
- The type shall be <span class='texttt'>MoveConstructible</span>, <span class='texttt'>MoveAssignable</span>,
- <span class='texttt'>DefaultConstructible</span>, <span class='texttt'>Destructible</span>, and
- lvalues of that type shall be swappable (<a href='swappable.requirements'>[swappable.requirements]</a>).  </td><td class='left'>
- </td><td class='left'>
  compile time </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X(c)</span><br/>
 <span class='texttt'>X u(c);</span>                         </td><td class='left'>
                                         </td><td class='left'>
@@ -1321,7 +1327,7 @@ as if that comparison object had been passed to the target container in
 its constructor.</p></div><div class='para' id='associative.reqmts-14'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts-14'>14</a></div><p >The member function templates <span class='texttt'>find</span>, <span class='texttt'>count</span>, <span class='texttt'>lower_bound</span>,
 <span class='texttt'>upper_bound</span>, and <span class='texttt'>equal_range</span> shall not participate in overload
 resolution unless the <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> <span class='texttt'>Compare::is_transparent</span> is valid
-and denotes a type (<a href='temp.deduct'>[temp.deduct]</a>).</p><p ><span class='indexparent'><a class='index' id='associative_containers,exception_safety'></a></span><span class='indexparent'><a class='index' id='associative_containers,requirements'></a></span></p></div><div id='associative.reqmts.except'><h4 ><a class='secnum' href='#associative.reqmts.except' style='min-width:118pt'>23.2.5.1</a> Exception safety guarantees <a class='abbr_ref' href='associative.reqmts.except'>[associative.reqmts.except]</a></h4><div class='para' id='associative.reqmts.except-1'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts.except-1'>1</a></div><p >For associative containers, no <span class='texttt'>clear()</span> function throws an exception.
+and denotes a type (<a href='temp.deduct'>[temp.deduct]</a>).</p><p ><span class='indexparent'><a class='index' id='associative_containers,exception_safety'></a></span><span class='indexparent'><a class='index' id='associative_containers,requirements'></a></span></p></div><div id='associative.reqmts.except'><h4 ><a class='secnum' href='#associative.reqmts.except' style='min-width:118pt'>23.2.6.1</a> Exception safety guarantees <a class='abbr_ref' href='associative.reqmts.except'>[associative.reqmts.except]</a></h4><div class='para' id='associative.reqmts.except-1'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts.except-1'>1</a></div><p >For associative containers, no <span class='texttt'>clear()</span> function throws an exception.
 <span class='texttt'>erase(k)</span> does not throw an exception unless that exception is thrown
 by the container's <span class='texttt'>Compare</span> object (if any).</p></div><div class='para' id='associative.reqmts.except-2'><div class='marginalizedparent'><a class='marginalized' href='#associative.reqmts.except-2'>2</a></div><p >For associative containers, if an exception is thrown by any operation from
 within an <span class='texttt'>insert</span> or <span class='texttt'>emplace</span> function inserting a single element, the
@@ -1330,7 +1336,7 @@ that exception is thrown by the
 swap of the container's <span class='texttt'>Compare</span> object (if any).</p><p ><span class='indexparent'><a class='index' id='unordered_associative_containers'></a></span>
 <span class='indexparent'><a class='index' id='associative_containers,unordered'></a></span>
 <span class='indexparent'><a class='index' id='hash_tables'></a></span>
-</p></div></div></div><div id='unord.req'><h3 ><a class='secnum' href='#unord.req' style='min-width:103pt'>23.2.6</a> Unordered associative containers <a class='abbr_ref' href='unord.req'>[unord.req]</a></h3><div class='para' id='unord.req-1'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-1'>1</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,complexity'></a></span>Unordered associative containers provide an ability for fast retrieval
+</p></div></div></div><div id='unord.req'><h3 ><a class='secnum' href='#unord.req' style='min-width:103pt'>23.2.7</a> Unordered associative containers <a class='abbr_ref' href='unord.req'>[unord.req]</a></h3><div class='para' id='unord.req-1'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-1'>1</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,complexity'></a></span>Unordered associative containers provide an ability for fast retrieval
 of data based on keys.  The worst-case complexity for most operations
 is linear, but the average case is much faster.  The library provides
 four unordered associative containers: <span class='texttt'>unordered_set</span>,
@@ -1466,18 +1472,6 @@ and <span class='texttt'>nh</span> denotes a non-const rvalue of type <span clas
  class template, such that the public nested types are
  the same types as the corresponding types in <span class='texttt'>X</span>. </td><td class='left'>
  see <a href='container.node'>[container.node]</a> </td><td class='left'>
- compile time </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>X::insert_return_type</span> </td><td class='left'>
- a class type used to describe the results of inserting a
- <span class='texttt'>node_type</span> that includes at least the following non-static
- public data members:<br/>
-   <span class='texttt'>bool inserted;</span><br/>
-   <span class='texttt'>X::iterator position;</span><br/>
-   <span class='texttt'>X::node_type node;</span><br/>
- The type shall be <span class='texttt'>MoveConstructible</span>, <span class='texttt'>MoveAssignable</span>,
- <span class='texttt'>DefaultConstructible</span>, <span class='texttt'>Destructible</span>, and
- lvalues of that type shall be swappable (<a href='swappable.requirements'>[swappable.requirements]</a>).  </td><td class='left'>
- </td><td class='left'>
  compile time </td></tr><tr class='rowsep'><td class='left'> 
 <span class='texttt'>X(n, hf, eq)</span><br/> <span class='texttt'>X a(n, hf, eq);</span>
 </td><td class='left'>   <span class='texttt'>X</span>
@@ -1650,7 +1644,7 @@ and <span class='texttt'>CopyAssignable</span>.<br/>
     inserted element.
     <span class='indexparent'><a class='index' id='unordered_associative_containers,insert'></a></span>    <span class='indexparent'><a class='index' id='insert,unordered_associative_containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a_eq.</span><br/><span class='texttt'>size()</span></span>)</span>.
 </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>a.insert(q, t)</span>
+<span class='texttt'>a.insert(p, t)</span>
 </td><td class='left'>   <span class='texttt'>iterator</span>
 </td><td class='left'>   <i>Requires:</i> If <span class='texttt'>t</span> is a non-const rvalue expression, <span class='texttt'>value_type</span> shall be
     <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>; otherwise, <span class='texttt'>value_type</span> shall be
@@ -1882,7 +1876,7 @@ a pathologically bad hash function). The behavior of a program that uses
 <span class='texttt'>operator==</span> or <span class='texttt'>operator!=</span> on unordered containers is undefined
 unless the <span class='texttt'>Hash</span> and <span class='texttt'>Pred</span> function objects respectively have
 the same behavior for both containers and the equality comparison operator
-for <span class='texttt'>Key</span> is a refinement<a class='footnotenum' href='#footnote-258'>258</a>
+for <span class='texttt'>Key</span> is a refinement<a class='footnotenum' href='#footnote-259'>259</a>
 of the partition into equivalent-key groups produced by <span class='texttt'>Pred</span>.</p></div><div class='para' id='unord.req-13'><div class='marginalizedparent'><a class='marginalized' href='#unord.req-13'>13</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,iterators'></a></span>The iterator types <span class='texttt'>iterator</span> and <span class='texttt'>const_iterator</span> of
 an unordered associative container are of at least the forward iterator
 category.  For unordered associative containers where the key type and
@@ -1901,9 +1895,9 @@ and references to the removed element remain valid. However, accessing the
 element through such pointers and references while the element is owned by a
 <span class='texttt'>node_type</span> is undefined behavior. References and pointers to an element
 obtained while it is owned by a <span class='texttt'>node_type</span> are invalidated if the
-element is successfully inserted.</p></div><div class='footnote' id='footnote-258'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-258'>258)</a></div><p >Equality comparison is a refinement
+element is successfully inserted.</p></div><div class='footnote' id='footnote-259'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-259'>259)</a></div><p >Equality comparison is a refinement
 of partitioning if no two objects that
-compare equal fall into different partitions.</p></div><div id='unord.req.except'><h4 ><a class='secnum' href='#unord.req.except' style='min-width:118pt'>23.2.6.1</a> Exception safety guarantees <a class='abbr_ref' href='unord.req.except'>[unord.req.except]</a></h4><div class='para' id='unord.req.except-1'><div class='marginalizedparent'><a class='marginalized' href='#unord.req.except-1'>1</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,exception_safety'></a></span><span class='indexparent'><a class='index' id='unordered_associative_containers,requirements'></a></span>For unordered associative containers, no <span class='texttt'>clear()</span> function
+compare equal fall into different partitions.</p></div><div id='unord.req.except'><h4 ><a class='secnum' href='#unord.req.except' style='min-width:118pt'>23.2.7.1</a> Exception safety guarantees <a class='abbr_ref' href='unord.req.except'>[unord.req.except]</a></h4><div class='para' id='unord.req.except-1'><div class='marginalizedparent'><a class='marginalized' href='#unord.req.except-1'>1</a></div><p ><span class='indexparent'><a class='index' id='unordered_associative_containers,exception_safety'></a></span><span class='indexparent'><a class='index' id='unordered_associative_containers,requirements'></a></span>For unordered associative containers, no <span class='texttt'>clear()</span> function
 throws an exception. <span class='texttt'>erase(k)</span> does not throw an
 exception unless that exception is thrown by the container's <span class='texttt'>Hash</span> or
 <span class='texttt'>Pred</span> object (if any).</p></div><div class='para' id='unord.req.except-2'><div class='marginalizedparent'><a class='marginalized' href='#unord.req.except-2'>2</a></div><p >For unordered associative containers, if an exception is thrown by any
@@ -2171,8 +2165,8 @@ takes linear time, may exit via an exception, and does not cause iterators to
 become associated with the other container.
 </p></div></div></div><div id='array.zero'><h4 ><a class='secnum' href='#array.zero' style='min-width:118pt'>23.3.7.8</a> Zero sized arrays <a class='abbr_ref' href='array.zero'>[array.zero]</a></h4><p ><span class='indexparent'><a class='index' id='array,zero_sized'></a></span></p><div class='para' id='array.zero-1'><div class='marginalizedparent'><a class='marginalized' href='#array.zero-1'>1</a></div><p ><span class='texttt'>array</span> shall provide support for the special case <span class='texttt'>N == 0</span>.</p></div><div class='para' id='array.zero-2'><div class='marginalizedparent'><a class='marginalized' href='#array.zero-2'>2</a></div><p >In the case that <span class='texttt'>N == 0</span>, <span class='texttt'>begin() == end() ==</span> unique value.
 The return value of <span class='texttt'>data()</span> is unspecified.</p></div><div class='para' id='array.zero-3'><div class='marginalizedparent'><a class='marginalized' href='#array.zero-3'>3</a></div><p >The effect of calling <span class='texttt'>front()</span> or <span class='texttt'>back()</span> for a zero-sized array is
-undefined.</p></div><div class='para' id='array.zero-4'><div class='marginalizedparent'><a class='marginalized' href='#array.zero-4'>4</a></div><p >Member function <span class='texttt'>swap()</span> shall have a <i ><a href='except.spec#nt:noexcept-specification'>noexcept-specification</a></i>
-which is equivalent to <span class='texttt'>noexcept(true)</span>.</p></div></div><div id='array.tuple'><h4 ><a class='secnum' href='#array.tuple' style='min-width:118pt'>23.3.7.9</a> Tuple interface to class template <span class='texttt'>array</span> <a class='abbr_ref' href='array.tuple'>[array.tuple]</a></h4><p ><span class='indexparent'><a class='index' id='array'></a></span><span class='indexparent'><a class='index' id='tuple'></a></span><span class='indexparent'><a class='index' id='array,tuple_interface_to'></a></span><span class='indexparent'><a class='index' id='tuple_size'></a></span><code class='itemdecl'>
+undefined.</p></div><div class='para' id='array.zero-4'><div class='marginalizedparent'><a class='marginalized' href='#array.zero-4'>4</a></div><p >Member function <span class='texttt'>swap()</span> shall have a
+non-throwing exception specification.</p></div></div><div id='array.tuple'><h4 ><a class='secnum' href='#array.tuple' style='min-width:118pt'>23.3.7.9</a> Tuple interface to class template <span class='texttt'>array</span> <a class='abbr_ref' href='array.tuple'>[array.tuple]</a></h4><p ><span class='indexparent'><a class='index' id='array'></a></span><span class='indexparent'><a class='index' id='tuple'></a></span><span class='indexparent'><a class='index' id='array,tuple_interface_to'></a></span><span class='indexparent'><a class='index' id='tuple_size'></a></span><code class='itemdecl'>
 template &lt;class T, size_t N&gt;
   struct tuple_size&lt;array&lt;T, N&gt;&gt; : integral_constant&lt;size_t, N&gt; { };
 </code></p><p ><span class='indexparent'><a class='index' id='tuple_element'></a></span><code class='itemdecl'>
@@ -2365,8 +2359,13 @@ appends <span class='texttt'>sz - size()</span> copies of <span class='texttt'>c
 <span class='texttt'>CopyInsertable</span> into <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='shrink_to_fit,deque'></a></span><span class='indexparent'><a class='index' id='deque,shrink_to_fit'></a></span><code class='itemdecl'>
 void shrink_to_fit();
-</code></p><div class='itemdescr'></div><div class='para' id='deque.capacity-5'><div class='marginalizedparent'><a class='marginalized' href='#deque.capacity-5'>5</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>T</span> shall be <span class='texttt'>MoveInsertable</span> into <span class='texttt'>*this</span>.</p></div></div><div class='para' id='deque.capacity-6'><div class='marginalizedparent'><a class='marginalized' href='#deque.capacity-6'>6</a></div><div class='itemdescr'><p ><i>Complexity:</i> Linear in the size of the sequence.</p></div></div><div class='para' id='deque.capacity-7'><div class='marginalizedparent'><a class='marginalized' href='#deque.capacity-7'>7</a></div><div class='itemdescr'><p ><i>Remarks:</i> <span class='texttt'>shrink_to_fit</span> is a non-binding request to reduce memory use
-but does not change the size of the sequence. [&nbsp;<i>Note:</i> The request is non-binding to allow latitude for implementation-specific optimizations. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</code></p><div class='itemdescr'></div><div class='para' id='deque.capacity-5'><div class='marginalizedparent'><a class='marginalized' href='#deque.capacity-5'>5</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>T</span> shall be <span class='texttt'>MoveInsertable</span> into <span class='texttt'>*this</span>.</p></div></div><div class='para' id='deque.capacity-6'><div class='marginalizedparent'><a class='marginalized' href='#deque.capacity-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>shrink_to_fit</span> is a non-binding request to reduce memory use
+but does not change the size of the sequence.
+[&nbsp;<i>Note:</i> The request is non-binding to allow latitude for
+implementation-specific optimizations. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+If an exception is thrown other than by the move constructor
+of a non-<span class='texttt'>CopyInsertable</span> <span class='texttt'>T</span> there are no effects.</p></div></div><div class='para' id='deque.capacity-7'><div class='marginalizedparent'><a class='marginalized' href='#deque.capacity-7'>7</a></div><div class='itemdescr'><p ><i>Complexity:</i> Linear in the size of the sequence.</p></div></div><div class='para' id='deque.capacity-8'><div class='marginalizedparent'><a class='marginalized' href='#deque.capacity-8'>8</a></div><div class='itemdescr'><p ><i>Remarks:</i> <span class='texttt'>shrink_to_fit</span> invalidates all the references, pointers, and iterators
+referring to the elements in the sequence.
 </p></div></div></div><div id='deque.modifiers'><h4 ><a class='secnum' href='#deque.modifiers' style='min-width:118pt'>23.3.8.4</a> <span class='texttt'>deque</span> modifiers <a class='abbr_ref' href='deque.modifiers'>[deque.modifiers]</a></h4><p ><span class='indexparent'><a class='index' id='insert,deque'></a></span><span class='indexparent'><a class='index' id='push_front,deque'></a></span><span class='indexparent'><a class='index' id='push_back,deque'></a></span><span class='indexparent'><a class='index' id='emplace,deque'></a></span><code class='itemdecl'>
 iterator insert(const_iterator position, const T&amp; x);
 iterator insert(const_iterator position, T&amp;&amp; x);
@@ -2777,7 +2776,7 @@ The exceptions are the
 <span class='texttt'>operator[]</span>
 and
 <span class='texttt'>at</span>
-member functions, which are not provided.<a class='footnotenum' href='#footnote-259'>259</a>
+member functions, which are not provided.<a class='footnotenum' href='#footnote-260'>260</a>
 Descriptions are provided here only for operations on
 <span class='texttt'>list</span>
 that are not described in one of these tables
@@ -2926,7 +2925,7 @@ namespace std {
 if the allocator satisfies the
 allocator completeness requirements <a href='allocator.requirements.completeness'>[allocator.requirements.completeness]</a>.
 <span class='texttt'>T</span> shall be complete before any member of the resulting specialization
-of <span class='texttt'>list</span> is referenced.</p></div><div class='footnote' id='footnote-259'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-259'>259)</a></div><p >These member functions
+of <span class='texttt'>list</span> is referenced.</p></div><div class='footnote' id='footnote-260'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-260'>260)</a></div><p >These member functions
 are only provided by containers whose iterators
 are random access iterators.
 </p></div></div><div id='list.cons'><h4 ><a class='secnum' href='#list.cons' style='min-width:118pt'>23.3.10.2</a> <span class='texttt'>list</span> constructors, copy, and assignment <a class='abbr_ref' href='list.cons'>[list.cons]</a></h4><p ><span class='indexparent'><a class='index' id='list,constructor'></a></span><code class='itemdecl'>
@@ -3030,7 +3029,7 @@ size of the range and the number of calls to the destructor of type
 <span class='texttt'>T</span>
 is exactly equal to the size of the range.
 </p></div></div></div><div id='list.ops'><h4 ><a class='secnum' href='#list.ops' style='min-width:118pt'>23.3.10.5</a> <span class='texttt'>list</span> operations <a class='abbr_ref' href='list.ops'>[list.ops]</a></h4><div class='para' id='list.ops-1'><div class='marginalizedparent'><a class='marginalized' href='#list.ops-1'>1</a></div><p >Since lists allow fast insertion and erasing from the middle of a list, certain
-operations are provided specifically for them.<a class='footnotenum' href='#footnote-260'>260</a></p></div><div class='para' id='list.ops-2'><div class='marginalizedparent'><a class='marginalized' href='#list.ops-2'>2</a></div><p ><span class='texttt'>list</span> provides three splice operations that destructively move elements from one list to
+operations are provided specifically for them.<a class='footnotenum' href='#footnote-261'>261</a></p></div><div class='para' id='list.ops-2'><div class='marginalizedparent'><a class='marginalized' href='#list.ops-2'>2</a></div><p ><span class='texttt'>list</span> provides three splice operations that destructively move elements from one list to
 another. The behavior of splice operations is undefined if <span class='texttt'>get_allocator() !=
 x.get_allocator()</span>.</p><p ><span class='indexparent'><a class='index' id='splice,list'></a></span><code class='itemdecl'>
 void splice(const_iterator position, list&amp; x);
@@ -3199,7 +3198,7 @@ Approximately
 <span class='math'><span class='mathalpha'>N</span> <span class="mathrm">log</span>(<span class='mathalpha'>N</span>)</span>
 comparisons, where
 <span class='texttt'>N == size()</span>.
-</p></div></div><div class='footnote' id='footnote-260'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-260'>260)</a></div><p >As specified
+</p></div></div><div class='footnote' id='footnote-261'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-261'>261)</a></div><p >As specified
 in <a href='allocator.requirements'>[allocator.requirements]</a>, the requirements in this Clause apply only to
 lists whose allocators compare equal.</p></div></div><div id='list.special'><h4 ><a class='secnum' href='#list.special' style='min-width:118pt'>23.3.10.6</a> <span class='texttt'>list</span> specialized algorithms <a class='abbr_ref' href='list.special'>[list.special]</a></h4><p ><span class='indexparent'><a class='index' id='swap,list'></a></span><span class='indexparent'><a class='index' id='list,swap'></a></span><code class='itemdecl'>
 template &lt;class T, class Allocator&gt;
@@ -3416,7 +3415,7 @@ there are no effects.</p></div></div><div class='para' id='vector.capacity-4'><d
 It does not change the size of the sequence and takes at most linear
 time in the size of the sequence.</p></div></div><div class='para' id='vector.capacity-5'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-5'>5</a></div><div class='itemdescr'><p ><i>Throws:</i>
 <span class='texttt'>length_error</span> if <span class='texttt'>n &gt;
-max_size()</span>.<a class='footnotenum' href='#footnote-261'>261</a></p></div></div><div class='para' id='vector.capacity-6'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-6'>6</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+max_size()</span>.<a class='footnotenum' href='#footnote-262'>262</a></p></div></div><div class='para' id='vector.capacity-6'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-6'>6</a></div><div class='itemdescr'><p ><i>Remarks:</i>
 Reallocation invalidates all the references, pointers, and iterators
 referring to the elements in the sequence.
 No reallocation shall take place during insertions that happen
@@ -3427,33 +3426,41 @@ greater than the value of
 <span class='texttt'>capacity()</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='shrink_to_fit,vector'></a></span><code class='itemdecl'>
 void shrink_to_fit();
-</code></p><div class='itemdescr'></div><div class='para' id='vector.capacity-7'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-7'>7</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>T</span> shall be <span class='texttt'>MoveInsertable</span> into <span class='texttt'>*this</span>.</p></div></div><div class='para' id='vector.capacity-8'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-8'>8</a></div><div class='itemdescr'><p ><i>Complexity:</i> Linear in the size of the sequence.</p></div></div><div class='para' id='vector.capacity-9'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-9'>9</a></div><div class='itemdescr'><p ><i>Remarks:</i> <span class='texttt'>shrink_to_fit</span> is a non-binding request to reduce <span class='texttt'>capacity()</span> to <span class='texttt'>size()</span>. [&nbsp;<i>Note:</i> The request is non-binding to allow latitude for implementation-specific optimizations. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
-If an exception is thrown other than by the move constructor of a non-<span class='texttt'>CopyInsertable</span> <span class='texttt'>T</span> there are no effects.
+</code></p><div class='itemdescr'></div><div class='para' id='vector.capacity-7'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-7'>7</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>T</span> shall be <span class='texttt'>MoveInsertable</span> into <span class='texttt'>*this</span>.</p></div></div><div class='para' id='vector.capacity-8'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>shrink_to_fit</span> is a non-binding request to reduce
+<span class='texttt'>capacity()</span> to <span class='texttt'>size()</span>.
+[&nbsp;<i>Note:</i> The request is non-binding to allow latitude for
+implementation-specific optimizations. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+It does not increase <span class='texttt'>capacity()</span>, but may reduce <span class='texttt'>capacity()</span>
+by causing reallocation. 
+If an exception is thrown other than by the move constructor
+of a non-<span class='texttt'>CopyInsertable</span> <span class='texttt'>T</span> there are no effects.</p></div></div><div class='para' id='vector.capacity-9'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-9'>9</a></div><div class='itemdescr'><p ><i>Complexity:</i> Linear in the size of the sequence.</p></div></div><div class='para' id='vector.capacity-10'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-10'>10</a></div><div class='itemdescr'><p ><i>Remarks:</i> Reallocation invalidates all the references, pointers, and iterators
+referring to the elements in the sequence.
+If no reallocation happens, they remain valid.
 </p></div></div><p ><span class='indexparent'><a class='index' id='swap,vector'></a></span><code class='itemdecl'>
 void swap(vector&amp; x)
   noexcept(allocator_traits&lt;Allocator&gt;::propagate_on_container_swap::value ||
            allocator_traits&lt;Allocator&gt;::is_always_equal::value);
-</code></p><div class='itemdescr'></div><div class='para' id='vector.capacity-10'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='vector.capacity-11'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Exchanges the contents and
 <span class='texttt'>capacity()</span>
 of
 <span class='texttt'>*this</span>
-with that of <span class='texttt'>x</span>.</p></div></div><div class='para' id='vector.capacity-11'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-11'>11</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+with that of <span class='texttt'>x</span>.</p></div></div><div class='para' id='vector.capacity-12'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-12'>12</a></div><div class='itemdescr'><p ><i>Complexity:</i>
 Constant time.
 </p></div></div><p ><span class='indexparent'><a class='index' id='resize,vector'></a></span><code class='itemdecl'>
 void resize(size_type sz);
-</code></p><div class='itemdescr'></div><div class='para' id='vector.capacity-12'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-12'>12</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>sz &lt; size()</span>, erases the last <span class='texttt'>size() - sz</span> elements
+</code></p><div class='itemdescr'></div><div class='para' id='vector.capacity-13'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>sz &lt; size()</span>, erases the last <span class='texttt'>size() - sz</span> elements
 from the sequence. Otherwise,
-appends <span class='texttt'>sz - size()</span> default-inserted elements to the sequence.</p></div></div><div class='para' id='vector.capacity-13'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-13'>13</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>T</span> shall be
-<span class='texttt'>MoveInsertable</span> and <span class='texttt'>DefaultInsertable</span> into <span class='texttt'>*this</span>.</p></div></div><div class='para' id='vector.capacity-14'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-14'>14</a></div><div class='itemdescr'><p ><i>Remarks:</i> If an exception is thrown other than by the move constructor of a non-<span class='texttt'>CopyInsertable</span>
+appends <span class='texttt'>sz - size()</span> default-inserted elements to the sequence.</p></div></div><div class='para' id='vector.capacity-14'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-14'>14</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>T</span> shall be
+<span class='texttt'>MoveInsertable</span> and <span class='texttt'>DefaultInsertable</span> into <span class='texttt'>*this</span>.</p></div></div><div class='para' id='vector.capacity-15'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-15'>15</a></div><div class='itemdescr'><p ><i>Remarks:</i> If an exception is thrown other than by the move constructor of a non-<span class='texttt'>CopyInsertable</span>
 <span class='texttt'>T</span> there are no effects.
 </p></div></div><p ><span class='indexparent'><a class='index' id='resize,vector'></a></span><code class='itemdecl'>
 void resize(size_type sz, const T&amp; c);
-</code></p><div class='itemdescr'></div><div class='para' id='vector.capacity-15'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>sz &lt; size()</span>, erases the last <span class='texttt'>size() - sz</span> elements
+</code></p><div class='itemdescr'></div><div class='para' id='vector.capacity-16'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>sz &lt; size()</span>, erases the last <span class='texttt'>size() - sz</span> elements
 from the sequence. Otherwise,
-appends <span class='texttt'>sz - size()</span> copies of <span class='texttt'>c</span> to the sequence.</p></div></div><div class='para' id='vector.capacity-16'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-16'>16</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>T</span> shall be
-<span class='texttt'>CopyInsertable</span> into <span class='texttt'>*this</span>.</p></div></div><div class='para' id='vector.capacity-17'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-17'>17</a></div><div class='itemdescr'><p ><i>Remarks:</i> If an exception is thrown there are no effects.
-</p></div></div><div class='footnote' id='footnote-261'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-261'>261)</a></div><p ><span class='texttt'>reserve()</span> uses <span class='texttt'>Allocator::allocate()</span> which
+appends <span class='texttt'>sz - size()</span> copies of <span class='texttt'>c</span> to the sequence.</p></div></div><div class='para' id='vector.capacity-17'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-17'>17</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>T</span> shall be
+<span class='texttt'>CopyInsertable</span> into <span class='texttt'>*this</span>.</p></div></div><div class='para' id='vector.capacity-18'><div class='marginalizedparent'><a class='marginalized' href='#vector.capacity-18'>18</a></div><div class='itemdescr'><p ><i>Remarks:</i> If an exception is thrown there are no effects.
+</p></div></div><div class='footnote' id='footnote-262'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-262'>262)</a></div><p ><span class='texttt'>reserve()</span> uses <span class='texttt'>Allocator::allocate()</span> which
 may throw an appropriate exception.</p></div></div><div id='vector.data'><h4 ><a class='secnum' href='#vector.data' style='min-width:118pt'>23.3.11.4</a> <span class='texttt'>vector</span> data <a class='abbr_ref' href='vector.data'>[vector.data]</a></h4><p ><span class='indexparent'><a class='index' id='data,vector'></a></span><code class='itemdecl'>
 T*         data() noexcept;
 const T*   data() const noexcept;
@@ -3475,6 +3482,8 @@ void push_back(const T&amp; x);
 void push_back(T&amp;&amp; x);
 </code></p><div class='itemdescr'></div><div class='para' id='vector.modifiers-1'><div class='marginalizedparent'><a class='marginalized' href='#vector.modifiers-1'>1</a></div><div class='itemdescr'><p ><i>Remarks:</i>
 Causes reallocation if the new size is greater than the old capacity.
+Reallocation invalidates all the references, pointers, and iterators
+referring to the elements in the sequence.
 If no reallocation happens, all the iterators and references before the insertion point remain valid.
 If an exception is thrown other than by
 the copy constructor, move constructor,
@@ -3641,8 +3650,7 @@ x = y;
 y = b;
 </pre></div></div><p ><code class='itemdecl'>
 template &lt;class Allocator&gt; struct hash&lt;vector&lt;bool, Allocator&gt;&gt;;
-</code></p><div class='itemdescr'></div><div class='para' id='vector.bool-7'><div class='marginalizedparent'><a class='marginalized' href='#vector.bool-7'>7</a></div><div class='itemdescr'><p >The template specialization shall meet the requirements of class template
-<span class='texttt'>hash</span> (<a href='unord.hash'>[unord.hash]</a>).
+</code></p><div class='itemdescr'></div><div class='para' id='vector.bool-7'><div class='marginalizedparent'><a class='marginalized' href='#vector.bool-7'>7</a></div><div class='itemdescr'><p >The specialization is enabled (<a href='unord.hash'>[unord.hash]</a>).
 </p></div></div></div></div><div id='associative'><h2 ><a class='secnum' href='#associative' style='min-width:88pt'>23.4</a> Associative containers <a class='abbr_ref' href='associative'>[associative]</a></h2><div id='associative.general'><h3 ><a class='secnum' href='#associative.general' style='min-width:103pt'>23.4.1</a> In general <a class='abbr_ref' href='associative.general'>[associative.general]</a></h3><div class='para' id='associative.general-1'><div class='marginalizedparent'><a class='marginalized' href='#associative.general-1'>1</a></div><p >The header <span class='texttt'>&lt;map&gt;</span> defines the class templates <span class='texttt'>map</span> and
 <span class='texttt'>multimap</span>; the header <span class='texttt'>&lt;set&gt;</span> defines the class templates
 <span class='texttt'>set</span> and <span class='texttt'>multiset</span>.</p></div></div><div id='associative.map.syn'><h3 ><a class='secnum' href='#associative.map.syn' style='min-width:103pt'>23.4.2</a> Header <span class='texttt'>&lt;map&gt;</span> synopsis <a class='abbr_ref' href='associative.map.syn'>[associative.map.syn]</a></h3><p ><span class='indexparent'><a class='index' id='map'></a></span></p><pre class='codeblock'>
@@ -3836,7 +3844,7 @@ namespace std {
 </span>    using reverse_iterator       = std::reverse_iterator&lt;iterator&gt;;
     using const_reverse_iterator = std::reverse_iterator&lt;const_iterator&gt;;
     using node_type              = <i><span class='texttt'>unspecified</span></i>;
-    using insert_return_type     = <i><span class='texttt'>unspecified</span></i>;
+    using insert_return_type     = <i>INSERT_RETURN_TYPE</i>&lt;iterator, node_type&gt;;
 
     class value_compare {
       friend class map;
@@ -4457,7 +4465,7 @@ namespace std {
 </span>    using reverse_iterator       = std::reverse_iterator&lt;iterator&gt;;
     using const_reverse_iterator = std::reverse_iterator&lt;const_iterator&gt;;
     using node_type              = <i><span class='texttt'>unspecified</span></i>;
-    using insert_return_type     = <i><span class='texttt'>unspecified</span></i>;
+    using insert_return_type     = <i>INSERT_RETURN_TYPE</i>&lt;iterator, node_type&gt;;
 
     <span class='comment'>// <a href='set.cons'>[set.cons]</a>, construct/copy/destroy:
 </span>    set() : set(Compare()) { }
@@ -4999,7 +5007,7 @@ namespace std {
 </span>    using local_iterator       = <span class='indexparent'><a class='index' id='type_of_unordered_map::local_iterator'></a></span><i>implementation-defined</i>; <span class='comment'>// see <a href='container.requirements'>[container.requirements]</a>
 </span>    using const_local_iterator = <span class='indexparent'><a class='index' id='type_of_unordered_map::const_local_iterator'></a></span><i>implementation-defined</i>; <span class='comment'>// see <a href='container.requirements'>[container.requirements]</a>
 </span>    using node_type            = <i><span class='texttt'>unspecified</span></i>;
-    using insert_return_type   = <i><span class='texttt'>unspecified</span></i>;
+    using insert_return_type   = <i>INSERT_RETURN_TYPE</i>&lt;iterator, node_type&gt;;
 
     <span class='comment'>// <a href='unord.map.cnstr'>[unord.map.cnstr]</a>, construct/copy/destroy:
 </span>    unordered_map();
@@ -5564,7 +5572,7 @@ namespace std {
 </span>    using local_iterator       = <span class='indexparent'><a class='index' id='type_of_unordered_set::local_iterator'></a></span><i>implementation-defined</i>; <span class='comment'>// see <a href='container.requirements'>[container.requirements]</a>
 </span>    using const_local_iterator = <span class='indexparent'><a class='index' id='type_of_unordered_set::const_local_iterator'></a></span><i>implementation-defined</i>; <span class='comment'>// see <a href='container.requirements'>[container.requirements]</a>
 </span>    using node_type            = <i><span class='texttt'>unspecified</span></i>;
-    using insert_return_type   = <i><span class='texttt'>unspecified</span></i>;
+    using insert_return_type   = <i>INSERT_RETURN_TYPE</i>&lt;iterator, node_type&gt;;
 
     <span class='comment'>// <a href='unord.set.cnstr'>[unord.set.cnstr]</a>, construct/copy/destroy:
 </span>    unordered_set();

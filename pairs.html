@@ -16,7 +16,7 @@ namespace std {
     T2 second;
     pair(const pair&amp;) = default;
     pair(pair&amp;&amp;) = default;
-    constexpr pair();
+    <i><span class='texttt'>EXPLICIT</span></i> constexpr pair();
     <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(const T1&amp; x, const T2&amp; y);
     template&lt;class U, class V&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(U&amp;&amp; x, V&amp;&amp; y);
     template&lt;class U, class V&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(const pair&lt;U, V&gt;&amp; p);
@@ -39,7 +39,7 @@ throws an exception.</p></div><div class='para' id='pair-2'><div class='marginal
 be a <span class='texttt'>constexpr</span> function if and only if all required element-wise
 initializations for copy and move, respectively, would satisfy the
 requirements for a <span class='texttt'>constexpr</span> function.</p><p ><span class='indexparent'><a class='index' id='pair,constructor'></a></span><code class='itemdecl'>
-constexpr pair();
+<i><span class='texttt'>EXPLICIT</span></i> constexpr pair();
 </code></p></div><div class='itemdescr'></div><div class='para' id='pair-3'><div class='marginalizedparent'><a class='marginalized' href='#pair-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Value-initializes <span class='texttt'>first</span> and <span class='texttt'>second</span>.</p></div></div><div class='para' id='pair-4'><div class='marginalizedparent'><a class='marginalized' href='#pair-4'>4</a></div><div class='itemdescr'><p ><i>Remarks:</i>
 This constructor shall not participate in overload resolution unless
@@ -47,6 +47,11 @@ This constructor shall not participate in overload resolution unless
 <span class='texttt'>is_default_constructible_v&lt;second_type&gt;</span> is <span class='texttt'>true</span>.
 [&nbsp;<i>Note:</i> This behaviour can be implemented by a constructor template
 with default template arguments. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+The constructor is explicit if and only if either <span class='texttt'>first_type</span> or
+<span class='texttt'>second_type</span> is not implicitly default-constructible.
+[&nbsp;<i>Note:</i> This behaviour can be implemented with a trait that checks
+whether a <span class='texttt'>const first_type&amp;</span> or a <span class='texttt'>const second_type&amp;</span>
+can be initialized with <span class='texttt'>{}</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
 </p></div></div><p ><span class='indexparent'><a class='index' id='pair,constructor'></a></span><code class='itemdecl'>
 <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(const T1&amp; x, const T2&amp; y);
 </code></p><div class='itemdescr'></div><div class='para' id='pair-5'><div class='marginalizedparent'><a class='marginalized' href='#pair-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
@@ -105,24 +110,28 @@ arguments for <span class='texttt'>first</span> and <span class='texttt'>second<
 <span class='texttt'>tuple</span> object, is called <a class='hidden_link' href='#def:piecewise_construction' id='def:piecewise_construction'><i>piecewise construction</i></a>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,pair'></a></span><span class='indexparent'><a class='index' id='pair,operator='></a></span><code class='itemdecl'>
 pair&amp; operator=(const pair&amp; p);
-</code></p><div class='itemdescr'></div><div class='para' id='pair-15'><div class='marginalizedparent'><a class='marginalized' href='#pair-15'>15</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>is_copy_assignable_v&lt;first_type&gt;</span> is <span class='texttt'>true</span>
+</code></p><div class='itemdescr'></div><div class='para' id='pair-15'><div class='marginalizedparent'><a class='marginalized' href='#pair-15'>15</a></div><div class='itemdescr'><p ><i>Remarks:</i> This operator shall be defined as deleted unless
+<span class='texttt'>is_copy_assignable_v&lt;first_type&gt;</span> is <span class='texttt'>true</span>
 and <span class='texttt'>is_copy_assignable_v&lt;second_type&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='pair-16'><div class='marginalizedparent'><a class='marginalized' href='#pair-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i> Assigns <span class='texttt'>p.first</span> to <span class='texttt'>first</span> and <span class='texttt'>p.second</span> to <span class='texttt'>second</span>.</p></div></div><div class='para' id='pair-17'><div class='marginalizedparent'><a class='marginalized' href='#pair-17'>17</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,pair'></a></span><span class='indexparent'><a class='index' id='pair,operator='></a></span><code class='itemdecl'>
 template&lt;class U, class V&gt; pair&amp; operator=(const pair&lt;U, V&gt;&amp; p);
-</code></p><div class='itemdescr'></div><div class='para' id='pair-18'><div class='marginalizedparent'><a class='marginalized' href='#pair-18'>18</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>is_assignable_v&lt;first_type&amp;, const U&amp;&gt;</span> is <span class='texttt'>true</span>
+</code></p><div class='itemdescr'></div><div class='para' id='pair-18'><div class='marginalizedparent'><a class='marginalized' href='#pair-18'>18</a></div><div class='itemdescr'><p ><i>Remarks:</i> This operator shall not participate in overload resolution unless
+<span class='texttt'>is_assignable_v&lt;first_type&amp;, const U&amp;&gt;</span> is <span class='texttt'>true</span>
 and <span class='texttt'>is_assignable_v&lt;second_type&amp;, const V&amp;&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='pair-19'><div class='marginalizedparent'><a class='marginalized' href='#pair-19'>19</a></div><div class='itemdescr'><p ><i>Effects:</i> Assigns <span class='texttt'>p.first</span> to <span class='texttt'>first</span> and <span class='texttt'>p.second</span> to <span class='texttt'>second</span>.</p></div></div><div class='para' id='pair-20'><div class='marginalizedparent'><a class='marginalized' href='#pair-20'>20</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,pair'></a></span><span class='indexparent'><a class='index' id='pair,operator='></a></span><code class='itemdecl'>
 pair&amp; operator=(pair&amp;&amp; p) noexcept(<i><span class='texttt'>see below</span></i>);
 </code></p><div class='itemdescr'></div><div class='para' id='pair-21'><div class='marginalizedparent'><a class='marginalized' href='#pair-21'>21</a></div><div class='itemdescr'><p ><i>Remarks:</i> The expression inside <span class='texttt'>noexcept</span> is equivalent to:</p><pre class='codeblock'>
 is_nothrow_move_assignable_v&lt;T1&gt; &amp;&amp; is_nothrow_move_assignable_v&lt;T2&gt;
-</pre></div></div><div class='para' id='pair-22'><div class='marginalizedparent'><a class='marginalized' href='#pair-22'>22</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>is_move_assignable_v&lt;first_type&gt;</span> is <span class='texttt'>true</span>
+</pre></div></div><div class='para' id='pair-22'><div class='marginalizedparent'><a class='marginalized' href='#pair-22'>22</a></div><div class='itemdescr'><p ><i>Remarks:</i> This operator shall be defined as deleted unless
+<span class='texttt'>is_move_assignable_v&lt;first_type&gt;</span> is <span class='texttt'>true</span>
 and <span class='texttt'>is_move_assignable_v&lt;second_type&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='pair-23'><div class='marginalizedparent'><a class='marginalized' href='#pair-23'>23</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Assigns to <span class='texttt'>first</span> with <span class='texttt'>std::forward&lt;first_type&gt;(p.first)</span>
 and to <span class='texttt'>second</span> with<br/> <span class='texttt'>std::forward&lt;second_type&gt;(p.second)</span>.</p></div></div><div class='para' id='pair-24'><div class='marginalizedparent'><a class='marginalized' href='#pair-24'>24</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,pair'></a></span><span class='indexparent'><a class='index' id='pair,operator='></a></span><code class='itemdecl'>
 template&lt;class U, class V&gt; pair&amp; operator=(pair&lt;U, V&gt;&amp;&amp; p);
-</code></p><div class='itemdescr'></div><div class='para' id='pair-25'><div class='marginalizedparent'><a class='marginalized' href='#pair-25'>25</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>is_assignable_v&lt;first_type&amp;, U&amp;&amp;&gt;</span> is <span class='texttt'>true</span>
-and<br/> <span class='texttt'>is_assignable_v&lt;second_type&amp;, V&amp;&amp;&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='pair-26'><div class='marginalizedparent'><a class='marginalized' href='#pair-26'>26</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='pair-25'><div class='marginalizedparent'><a class='marginalized' href='#pair-25'>25</a></div><div class='itemdescr'><p ><i>Remarks:</i> This operator shall not participate in overload resolution unless
+<span class='texttt'>is_assignable_v&lt;first_type&amp;, U&amp;&amp;&gt;</span> is <span class='texttt'>true</span>
+and <span class='texttt'>is_assignable_v&lt;second_type&amp;, V&amp;&amp;&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='pair-26'><div class='marginalizedparent'><a class='marginalized' href='#pair-26'>26</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Assigns to <span class='texttt'>first</span> with <span class='texttt'>std::forward&lt;U&gt;(p.first)</span>
 and to <span class='texttt'>second</span> with<br/> <span class='texttt'>std::forward&lt;V&gt;(p.second)</span>.</p></div></div><div class='para' id='pair-27'><div class='marginalizedparent'><a class='marginalized' href='#pair-27'>27</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='swap,pair'></a></span><span class='indexparent'><a class='index' id='pair,swap'></a></span><code class='itemdecl'>
@@ -233,7 +242,7 @@ template &lt;class T, class U&gt;
 </code>
 </p><div class='itemdescr'></div><div class='para' id='pair.astuple-6'><div class='marginalizedparent'><a class='marginalized' href='#pair.astuple-6'>6</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>T</span> and <span class='texttt'>U</span> are distinct types. Otherwise, the program is ill-formed.</p></div></div><div class='para' id='pair.astuple-7'><div class='marginalizedparent'><a class='marginalized' href='#pair.astuple-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> A reference to <span class='texttt'>p.second</span>.
 </p></div></div></div><div id='pair.piecewise'><h3 ><a class='secnum' href='#pair.piecewise' style='min-width:103pt'>20.4.5</a> Piecewise construction <a class='abbr_ref' href='pair.piecewise'>[pair.piecewise]</a></h3><p ><span class='indexparent'><a class='index' id='piecewise_construct_t'></a></span><span class='indexparent'><a class='index' id='piecewise_construct'></a></span><code class='itemdecl'>
-struct piecewise_construct_t { };
+struct piecewise_construct_t { explicit piecewise_construct_t() = default; };
 constexpr piecewise_construct_t piecewise_construct{};
 </code></p><div class='para' id='pair.piecewise-1'><div class='marginalizedparent'><a class='marginalized' href='#pair.piecewise-1'>1</a></div><p >The <span class='texttt'>struct</span> <span class='texttt'>piecewise_construct_t</span> is an empty structure type
 used as a unique type to disambiguate constructor and function overloading. Specifically,

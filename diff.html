@@ -711,10 +711,7 @@ not potentially evaluated) becomes ill-formed.</p><p ><a href='class.dtor'>[clas
 Valid C++ 2003 code may execute differently in this International Standard. In
 particular, destructors that throw exceptions will call <span class='texttt'>std::terminate()</span>
 (without calling <span class='texttt'>std::unexpected()</span>) if their exception specification is
-<span class='texttt'>noexcept</span> or <span class='texttt'>noexcept(true)</span>. For a throwing virtual destructor
-of a derived class, <span class='texttt'>std::terminate()</span> can be avoided only if the base class
-virtual destructor has an exception specification that is not <span class='texttt'>noexcept</span>
-and not <span class='texttt'>noexcept(true)</span>.</p></div><div id='cpp03.temp'><h3 ><a class='secnum' href='#cpp03.temp' style='min-width:103pt'>C.2.7</a> Clause <a href='temp'>[temp]</a>: templates <a class='abbr_ref' href='diff.cpp03.temp'>[diff.cpp03.temp]</a></h3><p ><a href='temp.param'>[temp.param]</a>
+non-throwing.</p></div><div id='cpp03.temp'><h3 ><a class='secnum' href='#cpp03.temp' style='min-width:103pt'>C.2.7</a> Clause <a href='temp'>[temp]</a>: templates <a class='abbr_ref' href='diff.cpp03.temp'>[diff.cpp03.temp]</a></h3><p ><a href='temp.param'>[temp.param]</a>
 <br/><b>Change:</b> Remove <span class='texttt'>export</span>
 <br/><b>Rationale:</b> No implementation consensus.
 <br/><b>Effect on original feature:</b>
@@ -1190,7 +1187,24 @@ void foo(void *);
 void bar(A&lt;0&gt; *p) {
   foo(p); <span class='comment'>// ill-formed; previously well-formed
 </span>}
-</pre></div><div id='cpp14.library'><h3 ><a class='secnum' href='#cpp14.library' style='min-width:103pt'>C.4.7</a> Clause <a href='library'>[library]</a>: library introduction <a class='abbr_ref' href='diff.cpp14.library'>[diff.cpp14.library]</a></h3><p ><a href='namespace.future'>[namespace.future]</a>
+</pre></div><div id='cpp14.except'><h3 ><a class='secnum' href='#cpp14.except' style='min-width:103pt'>C.4.7</a> Clause <a href='except'>[except]</a>: exception handling <a class='abbr_ref' href='diff.cpp14.except'>[diff.cpp14.except]</a></h3><p ><a href='except.spec'>[except.spec]</a>
+<br/><b>Change:</b> Remove dynamic exception specifications.
+<br/><b>Rationale:</b> Dynamic exception specifications were a deprecated feature
+that was complex and brittle in use.
+They interacted badly with the type system,
+which became a more significant issue in this International Standard
+where (non-dynamic) exception specifications are part of the function type.
+<br/><b>Effect on original feature:</b>
+A valid C++ 2014 function declaration,
+member function declaration,
+function pointer declaration,
+or function reference declaration,
+if it has a potentially throwing dynamic exception specification,
+will be rejected as ill-formed in this International Standard.
+Violating a non-throwing dynamic exception specification
+will call <span class='texttt'>terminate</span>
+rather than <span class='texttt'>unexpected</span>
+and might not perform stack unwinding prior to such a call.</p></div><div id='cpp14.library'><h3 ><a class='secnum' href='#cpp14.library' style='min-width:103pt'>C.4.8</a> Clause <a href='library'>[library]</a>: library introduction <a class='abbr_ref' href='diff.cpp14.library'>[diff.cpp14.library]</a></h3><p ><a href='namespace.future'>[namespace.future]</a>
 <br/><b>Change:</b> New reserved namespaces.
 <br/><b>Rationale:</b> Reserve namespaces for future revisions of the standard library
 that might otherwise be incompatible with existing programs.
@@ -1199,14 +1213,14 @@ The global namespaces <span class='texttt'>std</span>
 followed by an arbitrary sequence of digits
 is reserved for future standardization.
 Valid C++ 2014 code that uses such a top-level namespace,
-e.g., <span class='texttt'>std2</span>, may be invalid in this International Standard.</p></div><div id='cpp14.utilities'><h3 ><a class='secnum' href='#cpp14.utilities' style='min-width:103pt'>C.4.8</a> Clause <a href='utilities'>[utilities]</a>: General utilities library <a class='abbr_ref' href='diff.cpp14.utilities'>[diff.cpp14.utilities]</a></h3><p ><a href='func.wrap'>[func.wrap]</a>
+e.g., <span class='texttt'>std2</span>, may be invalid in this International Standard.</p></div><div id='cpp14.utilities'><h3 ><a class='secnum' href='#cpp14.utilities' style='min-width:103pt'>C.4.9</a> Clause <a href='utilities'>[utilities]</a>: General utilities library <a class='abbr_ref' href='diff.cpp14.utilities'>[diff.cpp14.utilities]</a></h3><p ><a href='func.wrap'>[func.wrap]</a>
 <br/><b>Change:</b> Constructors taking allocators removed.
 <br/><b>Rationale:</b> No implementation consensus.
 <br/><b>Effect on original feature:</b>
 Valid C++ 2014 code may fail to compile or may change meaning in this
 International Standard. Specifically, constructing a <span class='texttt'>std::function</span> with
 an allocator is ill-formed and uses-allocator construction will not pass an
-allocator to <span class='texttt'>std::function</span> constructors in this International Standard.</p></div><div id='cpp14.string'><h3 ><a class='secnum' href='#cpp14.string' style='min-width:103pt'>C.4.9</a> Clause <a href='strings'>[strings]</a>: strings library <a class='abbr_ref' href='diff.cpp14.string'>[diff.cpp14.string]</a></h3><p ><a href='basic.string'>[basic.string]</a>
+allocator to <span class='texttt'>std::function</span> constructors in this International Standard.</p></div><div id='cpp14.string'><h3 ><a class='secnum' href='#cpp14.string' style='min-width:103pt'>C.4.10</a> Clause <a href='strings'>[strings]</a>: strings library <a class='abbr_ref' href='diff.cpp14.string'>[diff.cpp14.string]</a></h3><p ><a href='basic.string'>[basic.string]</a>
 <br/><b>Change:</b> Non-const <span class='texttt'>.data()</span> member added.
 <br/><b>Rationale:</b> The lack of a non-const <span class='texttt'>.data()</span>
 differed from the similar member of <span class='texttt'>std::vector</span>.
@@ -1221,7 +1235,7 @@ int f(char *) = delete;
 int f(const char *);
 string s;
 int x = f(s.data()); <span class='comment'>// ill-formed; previously well-formed
-</span></pre></div><div id='cpp14.containers'><h3 ><a class='secnum' href='#cpp14.containers' style='min-width:103pt'>C.4.10</a> Clause <a href='containers'>[containers]</a>: containers library <a class='abbr_ref' href='diff.cpp14.containers'>[diff.cpp14.containers]</a></h3><p ><a href='associative.reqmts'>[associative.reqmts]</a>
+</span></pre></div><div id='cpp14.containers'><h3 ><a class='secnum' href='#cpp14.containers' style='min-width:103pt'>C.4.11</a> Clause <a href='containers'>[containers]</a>: containers library <a class='abbr_ref' href='diff.cpp14.containers'>[diff.cpp14.containers]</a></h3><p ><a href='associative.reqmts'>[associative.reqmts]</a>
 <br/><b>Change:</b> Requirements change:
 <br/><b>Rationale:</b> Increase portability, clarification of associative container requirements.
 <br/><b>Effect on original feature:</b>
@@ -1241,7 +1255,7 @@ int main() {
   const std::set&lt;int, compare&gt; s;
   s.find(0);
 }
-</pre></div><div id='cpp14.depr'><h3 ><a class='secnum' href='#cpp14.depr' style='min-width:103pt'>C.4.11</a> Annex <a href='depr'>[depr]</a>: compatibility features <a class='abbr_ref' href='diff.cpp14.depr'>[diff.cpp14.depr]</a></h3><p ><br/><b>Change:</b>
+</pre></div><div id='cpp14.depr'><h3 ><a class='secnum' href='#cpp14.depr' style='min-width:103pt'>C.4.12</a> Annex <a href='depr'>[depr]</a>: compatibility features <a class='abbr_ref' href='diff.cpp14.depr'>[diff.cpp14.depr]</a></h3><p ><br/><b>Change:</b>
 The class templates
 <span class='texttt'>auto_ptr</span>,
 <span class='texttt'>unary_function</span>, and

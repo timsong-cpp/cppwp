@@ -40,7 +40,7 @@ an ambiguity between a
 and an expression is resolved to a
 <i ><a href='dcl.name#nt:type-id'>type-id</a></i>,
 regardless of the form of the corresponding
-<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>.<a class='footnotenum' href='#footnote-138'>138</a>
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>.<a class='footnotenum' href='#footnote-139'>139</a>
 [&nbsp;<i>Example:</i></p><pre class='codeblock'>
 template&lt;class T&gt; void f();
 template&lt;int I&gt; void f();
@@ -143,7 +143,7 @@ template&lt;typename T, typename U = int&gt; struct S { };
 S&lt;bool&gt;* p; <span class='comment'>// the type of <span class='texttt'>p</span> is <span class='texttt'>S&lt;bool, int&gt;*</span>
 </span></pre><p >The default argument for <span class='texttt'>U</span> is instantiated to form the type <span class='texttt'>S&lt;bool, int&gt;*</span>.
 <i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >A <i ><a href='temp.names#nt:template-argument'>template-argument</a></i> followed by an ellipsis is
-a pack expansion (<a href='temp.variadic'>[temp.variadic]</a>).</p></div><div class='footnote' id='footnote-138'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-138'>138)</a></div><p >There is no such ambiguity in a default
+a pack expansion (<a href='temp.variadic'>[temp.variadic]</a>).</p></div><div class='footnote' id='footnote-139'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-139'>139)</a></div><p >There is no such ambiguity in a default
 <i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
 because the form of the
 <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
@@ -305,10 +305,11 @@ C&lt;A&gt; c;                         <span class='comment'>// <span class='text
 </span>                                <span class='comment'>// <span class='texttt'>V&lt;int*&gt;</span> within <span class='texttt'>C&lt;A&gt;</span> uses the partial specialization,
 </span>                                <span class='comment'>// so <span class='texttt'>c.z.x</span> has type <span class='texttt'>long</span>
 </span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='template-3'><div class='marginalizedparent'><a class='marginalized' href='#template-3'>3</a></div><p >A <i ><a href='temp.names#nt:template-argument'>template-argument</a></i> matches a template
-<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i> <span class='texttt'>P</span> when each of the template
-parameters in the <i ><a href='temp#nt:template-parameter-list'>template-parameter-list</a></i> of the
-<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>'s corresponding class template or alias template
-<span class='texttt'>A</span> matches the corresponding template parameter in the
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i> <span class='texttt'>P</span> when
+<span class='texttt'>P</span> is at least as specialized as the <i ><a href='temp.names#nt:template-argument'>template-argument</a></i> <span class='texttt'>A</span>.
+If <span class='texttt'>P</span> contains a parameter pack, then <span class='texttt'>A</span> also matches <span class='texttt'>P</span>
+if each of <span class='texttt'>A</span>'s template parameters
+matches the corresponding template parameter in the
 <i ><a href='temp#nt:template-parameter-list'>template-parameter-list</a></i> of <span class='texttt'>P</span>. 
 Two template parameters match if they are of the same kind (type, non-type, template),
 for non-type <i ><a href='temp.param#nt:template-parameter'>template-parameters</a></i>, their types are
@@ -322,18 +323,19 @@ parameters or template parameter packs in the <i ><a href='temp#nt:template-para
 </p><pre class='codeblock'>
 template&lt;class T&gt; class A { <span class='comment'>/* ... */</span> };
 template&lt;class T, class U = T&gt; class B { <span class='comment'>/* ... */</span> };
-template &lt;class ... Types&gt; class C { <span class='comment'>/* ... */</span> };
-
+template&lt;class ... Types&gt; class C { <span class='comment'>/* ... */</span> };
+template&lt;auto n&gt; class D { <span class='comment'>/* ... */</span> };
 template&lt;template&lt;class&gt; class P&gt; class X { <span class='comment'>/* ... */</span> };
 template&lt;template&lt;class ...&gt; class Q&gt; class Y { <span class='comment'>/* ... */</span> };
+template&lt;template&lt;int&gt; class R&gt; class Z { <span class='comment'>/* ... */</span> };
 
 X&lt;A&gt; xa;            <span class='comment'>// OK
-</span>X&lt;B&gt; xb;            <span class='comment'>// ill-formed: default arguments for the parameters of a template argument are ignored
-</span>X&lt;C&gt; xc;            <span class='comment'>// ill-formed: a template parameter pack does not match a template parameter
-</span>
-Y&lt;A&gt; ya;            <span class='comment'>// OK
+</span>X&lt;B&gt; xb;            <span class='comment'>// OK
+</span>X&lt;C&gt; xc;            <span class='comment'>// OK
+</span>Y&lt;A&gt; ya;            <span class='comment'>// OK
 </span>Y&lt;B&gt; yb;            <span class='comment'>// OK
 </span>Y&lt;C&gt; yc;            <span class='comment'>// OK
+</span>Z&lt;D&gt; zd;            <span class='comment'>// OK
 </span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p >[&nbsp;<i>Example:</i>
 </p><pre class='codeblock'>
 template &lt;class T&gt; struct eval;
@@ -352,4 +354,26 @@ eval&lt;A&lt;int&gt;&gt; eA;                <span class='comment'>// OK: matches
 </span>eval&lt;C&lt;17&gt;&gt; eC;                 <span class='comment'>// error: <span class='texttt'>C</span> does not match <span class='texttt'>TT</span> in partial specialization
 </span>eval&lt;D&lt;int, 17&gt;&gt; eD;            <span class='comment'>// error: <span class='texttt'>D</span> does not match <span class='texttt'>TT</span> in partial specialization
 </span>eval&lt;E&lt;int, float&gt;&gt; eE;         <span class='comment'>// error: <span class='texttt'>E</span> does not match <span class='texttt'>TT</span> in partial specialization
-</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></div></body></html>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='template-4'><div class='marginalizedparent'><a class='marginalized' href='#template-4'>4</a></div><p >A template <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i> <span class='texttt'>P</span> is
+at least as specialized as a template <i ><a href='temp.names#nt:template-argument'>template-argument</a></i> <span class='texttt'>A</span>
+if, given the following rewrite to two function templates,
+the function template corresponding to <span class='texttt'>P</span>
+is at least as specialized as
+the function template corresponding to <span class='texttt'>A</span>
+according to the partial ordering rules
+for function templates (<a href='temp.func.order'>[temp.func.order]</a>).
+Given an invented class template <span class='texttt'>X</span>
+with the template parameter list of <span class='texttt'>A</span> (including default arguments):</p><ul class='itemize'><li id='template-4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#template-4.1'>(4.1)</a></div><p >Each of the two function templates has the same template parameters,
+respectively, as <span class='texttt'>P</span> or <span class='texttt'>A</span>.
+</p></li><li id='template-4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#template-4.2'>(4.2)</a></div><p >Each function template has a single function parameter
+whose type is a specialization of <span class='texttt'>X</span>
+with template arguments corresponding to the template parameters
+from the respective function template where,
+for each template parameter <span class='texttt'>PP</span>
+in the template parameter list of the function template,
+a corresponding template argument <span class='texttt'>AA</span> is formed.
+If <span class='texttt'>PP</span> declares a parameter pack,
+then <span class='texttt'>AA</span> is the pack expansion <span class='texttt'>PP...</span> (<a href='temp.variadic'>[temp.variadic]</a>);
+otherwise, <span class='texttt'>AA</span> is the <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i> <span class='texttt'>PP</span>.
+</p></li></ul><p >If the rewrite produces an invalid type,
+then <span class='texttt'>P</span> is not at least as specialized as <span class='texttt'>A</span>.</p></div></div></div></div></body></html>

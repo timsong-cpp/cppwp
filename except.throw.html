@@ -64,16 +64,21 @@ type other than (possibly cv-qualified)
 <span class='texttt'>void</span> the program is ill-formed.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p ><span class='indexparent'><a class='index' id='exception_handling,memory'></a></span><span class='indexparent'><a class='index' id='exception_handling,rethrowing'></a></span><span class='indexparent'><a class='index' id='exception_handling,exception_object'></a></span>The memory for the exception object is
 allocated in an unspecified way, except as noted in <a href='basic.stc.dynamic.allocation'>[basic.stc.dynamic.allocation]</a>.
 If a handler exits by rethrowing, control is passed to another handler for
-the same exception.
-The exception object is destroyed after either
-the last remaining active handler for the exception exits by
+the same exception object.
+The points of potential destruction for the exception object are:</p><ul class='itemize'><li id='4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.1'>(4.1)</a></div><p >when an active handler for the exception exits by
 any means other than
-rethrowing, or the last object of type <span class='texttt'>std::exception_ptr</span> (<a href='propagation'>[propagation]</a>)
-that refers to the exception object is destroyed, whichever is later. In the former
-case, the destruction occurs when the handler exits, immediately after the destruction
-of the object declared in the <i ><a href='except#nt:exception-declaration'>exception-declaration</a></i> in the handler, if any.
-In the latter case, the destruction occurs before the destructor of <span class='texttt'>std::exception_ptr</span>
-returns.
+rethrowing,
+immediately after the destruction of the object (if any)
+declared in the <i ><a href='except#nt:exception-declaration'>exception-declaration</a></i> in the handler;</p></li><li id='4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.2'>(4.2)</a></div><p >when an object of type <span class='texttt'>std::exception_ptr</span> (<a href='propagation'>[propagation]</a>)
+that refers to the exception object is destroyed,
+before the destructor of <span class='texttt'>std::exception_ptr</span> returns.
+</p></li></ul><p >Among all points of potential destruction for the exception object,
+there is an unspecified last one
+where the exception object is destroyed.
+All other points happen before that last one (<a href='intro.races'>[intro.races]</a>).
+[&nbsp;<i>Note:</i>
+No other thread synchronization is implied in exception handling.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
 The implementation may then
 deallocate the memory for the exception object; any such deallocation
 is done in an unspecified way.
@@ -89,10 +94,12 @@ becomes active (<a href='except.handle'>[except.handle]</a>).
 [&nbsp;<i>Note:</i>
 An exception can have active handlers and still be considered uncaught if
 it is rethrown.
-<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p ><span class='indexparent'><a class='index' id='exception_handling,terminate_called'></a></span><span class='indexparent'><a class='index' id='terminate,called'></a></span>If the exception handling mechanism, after completing the initialization of the
-exception object but before the activation of a handler for the exception,
-calls a function that exits via an
-exception, <span class='texttt'>std::terminate</span> is called (<a href='except.terminate'>[except.terminate]</a>). [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p ><span class='indexparent'><a class='index' id='exception_handling,terminate_called'></a></span><span class='indexparent'><a class='index' id='terminate,called'></a></span>If the exception handling mechanism
+handling an uncaught exception (<a href='except.uncaught'>[except.uncaught]</a>)
+directly invokes a function that exits via an
+exception, <span class='texttt'>std::terminate</span> is called (<a href='except.terminate'>[except.terminate]</a>).
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
 struct C {
   C() { }
   C(const C&amp;) {
@@ -108,4 +115,7 @@ int main() {
 </span>                    <span class='comment'>// <span class='grammarterm'>exception-declaration</span> object is not elided (<a href='class.copy'>[class.copy]</a>)
 </span>  } catch(C) { }
 }
-</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+Consequently, destructors should generally catch exceptions and not let them propagate.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div></div></body></html>

@@ -292,6 +292,9 @@ namespace std {
                  const Allocator&amp; a = Allocator());
     basic_string(const basic_string&amp; str, size_type pos, size_type n,
                  const Allocator&amp; a = Allocator());
+    template&lt;class T&gt;
+      basic_string(const T&amp; t, size_type pos, size_type n,
+                   const Allocator&amp; a = Allocator());
     explicit basic_string(basic_string_view&lt;charT, traits&gt; sv,
                           const Allocator&amp; a = Allocator());
     basic_string(const charT* s,
@@ -364,8 +367,8 @@ namespace std {
     basic_string&amp; append(const basic_string&amp; str, size_type pos,
                          size_type n = npos);
     basic_string&amp; append(basic_string_view&lt;charT, traits&gt; sv);
-    basic_string&amp; append(basic_string_view&lt;charT, traits&gt; sv,
-                         size_type pos, size_type n = npos);
+    template&lt;class T&gt;
+      basic_string&amp; append(const T&amp; t, size_type pos, size_type n = npos);
     basic_string&amp; append(const charT* s, size_type n);
     basic_string&amp; append(const charT* s);
     basic_string&amp; append(size_type n, charT c);
@@ -381,8 +384,8 @@ namespace std {
     basic_string&amp; assign(const basic_string&amp; str, size_type pos,
                          size_type n = npos);
     basic_string&amp; assign(basic_string_view&lt;charT, traits&gt; sv);
-    basic_string&amp; assign(basic_string_view&lt;charT, traits&gt; sv,
-                         size_type pos, size_type n = npos);
+    template&lt;class T&gt;
+      basic_string&amp; assign(const T&amp; t, size_type pos, size_type n = npos);
     basic_string&amp; assign(const charT* s, size_type n);
     basic_string&amp; assign(const charT* s);
     basic_string&amp; assign(size_type n, charT c);
@@ -394,8 +397,9 @@ namespace std {
     basic_string&amp; insert(size_type pos1, const basic_string&amp; str,
                          size_type pos2, size_type n = npos);
     basic_string&amp; insert(size_type pos1, basic_string_view&lt;charT, traits&gt; sv);
-    basic_string&amp; insert(size_type pos1, basic_string_view&lt;charT, traits&gt; sv,
-                         size_type pos2, size_type n = npos);
+    template&lt;class T&gt;
+      basic_string&amp; insert(size_type pos1, const T&amp; t,
+                           size_type pos2, size_type n = npos);
     basic_string&amp; insert(size_type pos, const charT* s, size_type n);
     basic_string&amp; insert(size_type pos, const charT* s);
     basic_string&amp; insert(size_type pos, size_type n, charT c);
@@ -418,9 +422,9 @@ namespace std {
                           size_type pos2, size_type n2 = npos);
     basic_string&amp; replace(size_type pos1, size_type n1,
                           basic_string_view&lt;charT, traits&gt; sv);
-    basic_string&amp; replace(size_type pos1, size_type n1,
-                          basic_string_view&lt;charT, traits&gt; sv,
-                          size_type pos2, size_type n2 = npos);
+    template&lt;class T&gt;
+      basic_string&amp; replace(size_type pos1, size_type n1, const T&amp; t,
+                            size_type pos2, size_type n2 = npos);
     basic_string&amp; replace(size_type pos, size_type n1, const charT* s,
                           size_type n2);
     basic_string&amp; replace(size_type pos, size_type n1, const charT* s);
@@ -505,9 +509,9 @@ namespace std {
     int compare(basic_string_view&lt;charT, traits&gt; sv) const noexcept;
     int compare(size_type pos1, size_type n1,
                 basic_string_view&lt;charT, traits&gt; sv) const;
-    int compare(size_type pos1, size_type n1,
-                basic_string_view&lt;charT, traits&gt; sv,
-                size_type pos2, size_type n2 = npos) const;
+    template&lt;class T&gt;
+      int compare(size_type pos1, size_type n1, const T&amp; t,
+                  size_type pos2, size_type n2 = npos) const;
     int compare(const basic_string&amp; str) const noexcept;
     int compare(size_type pos1, size_type n1,
                 const basic_string&amp; str) const;
@@ -541,6 +545,7 @@ invalidated by the following uses of that <span class='texttt'>basic_string</spa
 <span class='texttt'>basic_string</span> as an argument.<a class='footnotenum' href='#footnote-228'>228</a></p></li><li id='string.require-4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#string.require-4.2'>(4.2)</a></div><p >Calling non-const member functions, except
 <span class='texttt'>operator[]</span>,
 <span class='texttt'>at</span>,
+<span class='texttt'>data</span>,
 <span class='texttt'>front</span>,
 <span class='texttt'>back</span>,
 <span class='texttt'>begin</span>,
@@ -608,14 +613,26 @@ points at the first element of an allocated copy of <span class='texttt'>rlen</s
 of the string controlled by <span class='texttt'>str</span> beginning at position <span class='texttt'>pos</span>              </td></tr><tr ><td class='left'>
 <span class='texttt'>size()</span>      </td><td class='justify'>   <span class='texttt'>rlen</span>                                                    </td></tr><tr ><td class='left'>
 <span class='texttt'>capacity()</span>  </td><td class='justify'>   a value at least as large as <span class='texttt'>size()</span>                     </td></tr></table></div></div></div><p ><span class='indexparent'><a class='index' id='basic_string,constructor'></a></span><code class='itemdecl'>
+template&lt;class T&gt;
+  basic_string(const T&amp; t, size_type pos, size_type n,
+               const Allocator&amp; a = Allocator());
+</code></p><div class='itemdescr'></div><div class='para' id='string.cons-7'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> Creates a variable, <span class='texttt'>sv</span>,
+as if by <span class='texttt'>basic_string_view&lt;charT, traits&gt; sv = t;</span>
+and then behaves the same as:
+</p><pre class='codeblock'>
+basic_string(sv.substr(pos, n), a);
+</pre></div></div><div class='para' id='string.cons-8'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-8'>8</a></div><div class='itemdescr'><p ><i>Remarks:</i> This constructor shall not participate in overload resolution
+unless <span class='texttt'>is_convertible_v&lt;const T&amp;, basic_string_view&lt;charT, traits&gt;&gt;</span>
+is <span class='texttt'>true</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='basic_string,constructor'></a></span><code class='itemdecl'>
 explicit basic_string(basic_string_view&lt;charT, traits&gt; sv,
                       const Allocator&amp; a = Allocator());
-</code></p><div class='itemdescr'></div><div class='para' id='string.cons-7'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> Same as <span class='texttt'>basic_string(sv.data(), sv.size(), a)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='string.cons-9'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i> Same as <span class='texttt'>basic_string(sv.data(), sv.size(), a)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='basic_string,constructor'></a></span><code class='itemdecl'>
 basic_string(const charT* s, size_type n,
              const Allocator&amp; a = Allocator());
-</code></p><div class='itemdescr'></div><div class='para' id='string.cons-8'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-8'>8</a></div><div class='itemdescr'><p ><i>Requires:</i>
-<span class='texttt'>s</span> points to an array of at least <span class='texttt'>n</span> elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.cons-9'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.cons-10'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-10'>10</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>s</span> points to an array of at least <span class='texttt'>n</span> elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.cons-11'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Constructs an object of class
 <span class='texttt'>basic_string</span>
 and determines its initial string value from the array of
@@ -631,9 +648,9 @@ is pointed at by <span class='texttt'>s</span>                                  
 <span class='texttt'>size()</span>      </td><td class='justify'>   <span class='texttt'>n</span>                                                       </td></tr><tr ><td class='left'>
 <span class='texttt'>capacity()</span>  </td><td class='justify'>   a value at least as large as <span class='texttt'>size()</span>                     </td></tr></table></div></div></div><p ><span class='indexparent'><a class='index' id='basic_string,constructor'></a></span><code class='itemdecl'>
 basic_string(const charT* s, const Allocator&amp; a = Allocator());
-</code></p><div class='itemdescr'></div><div class='para' id='string.cons-10'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-10'>10</a></div><div class='itemdescr'><p ><i>Requires:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.cons-12'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-12'>12</a></div><div class='itemdescr'><p ><i>Requires:</i>
 <span class='texttt'>s</span> points to an array of at least <span class='texttt'>traits::length(s) + 1</span> elements
-of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.cons-11'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i>
+of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.cons-13'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Constructs an object of class
 <span class='texttt'>basic_string</span>
 and determines its initial string value from the array of
@@ -650,13 +667,13 @@ as indicated in Table <a href='#tab:strings.ctr.4'>[tab:strings.ctr.4]</a>.</p><
 points at the first element of an allocated copy of the array whose first element
 is pointed at by <span class='texttt'>s</span>                                                              </td></tr><tr ><td class='left'>
 <span class='texttt'>size()</span>      </td><td class='justify'>   <span class='texttt'>traits::length(s)</span>                                       </td></tr><tr ><td class='left'>
-<span class='texttt'>capacity()</span>  </td><td class='justify'>   a value at least as large as <span class='texttt'>size()</span>                     </td></tr></table></div></div></div><div class='para' id='string.cons-12'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-12'>12</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+<span class='texttt'>capacity()</span>  </td><td class='justify'>   a value at least as large as <span class='texttt'>size()</span>                     </td></tr></table></div></div></div><div class='para' id='string.cons-14'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-14'>14</a></div><div class='itemdescr'><p ><i>Remarks:</i>
 Uses
 <span class='texttt'>traits::length()</span>.
 <span class='indexparent'><a class='index' id='length,char_traits'></a></span></p></div></div><p ><span class='indexparent'><a class='index' id='basic_string,constructor'></a></span><code class='itemdecl'>
 basic_string(size_type n, charT c, const Allocator&amp; a = Allocator());
-</code></p><div class='itemdescr'></div><div class='para' id='string.cons-13'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-13'>13</a></div><div class='itemdescr'><p ><i>Requires:</i>
-<span class='texttt'>n &lt; npos</span>.</p></div></div><div class='para' id='string.cons-14'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-14'>14</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.cons-15'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-15'>15</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>n &lt; npos</span>.</p></div></div><div class='para' id='string.cons-16'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Constructs an object of class
 <span class='texttt'>basic_string</span>
 and determines its initial string value by repeating the char-like
@@ -673,7 +690,7 @@ storing the initial value <span class='texttt'>c</span>                         
 template&lt;class InputIterator&gt;
   basic_string(InputIterator begin, InputIterator end,
                const Allocator&amp; a = Allocator());
-</code></p><div class='itemdescr'></div><div class='para' id='string.cons-15'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.cons-17'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-17'>17</a></div><div class='itemdescr'><p ><i>Effects:</i>
 If <span class='texttt'>InputIterator</span> is an integral type,
 equivalent to:
 </p><pre class='codeblock'>
@@ -683,11 +700,11 @@ as indicated in the Sequence Requirements table
 (see <a href='sequence.reqmts'>[sequence.reqmts]</a>).
 </p></div></div><p ><span class='indexparent'><a class='index' id='basic_string,constructor'></a></span><code class='itemdecl'>
 basic_string(initializer_list&lt;charT&gt; il, const Allocator&amp; a = Allocator());
-</code></p><div class='itemdescr'></div><div class='para' id='string.cons-16'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i> Same as <span class='texttt'>basic_string(il.begin(), il.end(), a)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='string.cons-18'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-18'>18</a></div><div class='itemdescr'><p ><i>Effects:</i> Same as <span class='texttt'>basic_string(il.begin(), il.end(), a)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='basic_string,constructor'></a></span><code class='itemdecl'>
 basic_string(const basic_string&amp; str, const Allocator&amp; alloc);
 basic_string(basic_string&amp;&amp; str, const Allocator&amp; alloc);
-</code></p><div class='itemdescr'></div><div class='para' id='string.cons-17'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-17'>17</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs an object of class <span class='texttt'>basic_string</span> as indicated in
+</code></p><div class='itemdescr'></div><div class='para' id='string.cons-19'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-19'>19</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs an object of class <span class='texttt'>basic_string</span> as indicated in
 Table <a href='#tab:strings.ctr.6'>[tab:strings.ctr.6]</a>. The stored allocator is constructed from
 <span class='texttt'>alloc</span>. In the second form, <span class='texttt'>str</span> is left in a valid state with an
 unspecified value.</p><div class='numberedTable' id='tab:strings.ctr.6'>Table <a href='#tab:strings.ctr.6'>56</a> — <span class='texttt'>basic_string(const basic_string&amp;, const Allocator&amp;)</span><span class='protect'></span> and
@@ -700,19 +717,19 @@ points at the first element of an allocated copy of the array whose first
 element is pointed at by the original value of <span class='texttt'>str.data()</span>. </td></tr><tr ><td class='left'>
 <span class='texttt'>size()</span>      </td><td class='justify'>   the original value of <span class='texttt'>str.size()</span>   </td></tr><tr ><td class='left'>
 <span class='texttt'>capacity()</span>  </td><td class='justify'>   a value at least as large as <span class='texttt'>size()</span>                     </td></tr><tr ><td class='left'>
-<span class='texttt'>get_allocator()</span> </td><td class='justify'>	<span class='texttt'>alloc</span> </td></tr></table></div></div></div><div class='para' id='string.cons-18'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-18'>18</a></div><div class='itemdescr'><p ><i>Throws:</i> The second form throws nothing if <span class='texttt'>alloc == str.get_allocator()</span>.
+<span class='texttt'>get_allocator()</span> </td><td class='justify'>	<span class='texttt'>alloc</span> </td></tr></table></div></div></div><div class='para' id='string.cons-20'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-20'>20</a></div><div class='itemdescr'><p ><i>Throws:</i> The second form throws nothing if <span class='texttt'>alloc == str.get_allocator()</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,operator='></a></span><code class='itemdecl'>
 basic_string&amp; operator=(const basic_string&amp; str);
-</code></p><div class='itemdescr'></div><div class='para' id='string.cons-19'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-19'>19</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.cons-21'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-21'>21</a></div><div class='itemdescr'><p ><i>Effects:</i>
 If
 <span class='texttt'>*this</span>
 and <span class='texttt'>str</span> are not the same object,
 modifies
 <span class='texttt'>*this</span>
-as shown in Table <a href='#tab:strings.op='>[tab:strings.op=]</a>.</p></div></div><div class='para' id='string.cons-20'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-20'>20</a></div><div class='itemdescr'><p >If
+as shown in Table <a href='#tab:strings.op='>[tab:strings.op=]</a>.</p></div></div><div class='para' id='string.cons-22'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-22'>22</a></div><div class='itemdescr'><p >If
 <span class='texttt'>*this</span>
 and <span class='texttt'>str</span> are the same object,
-the member has no effect.</p></div></div><div class='para' id='string.cons-21'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-21'>21</a></div><div class='itemdescr'><p ><i>Returns:</i>
+the member has no effect.</p></div></div><div class='para' id='string.cons-23'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-23'>23</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.</p><div class='numberedTable' id='tab:strings.op='>Table <a href='#tab:strings.op='>57</a> — <span class='texttt'>operator=(const basic_string&amp;)</span> effects<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Element</b></td><td colspan='1' class='center'><b>Value</b></td></tr><tr class='capsep'><td class='left'> 
 
 
@@ -725,26 +742,26 @@ element is pointed at by <span class='texttt'>str.data()</span>                 
 basic_string&amp; operator=(basic_string&amp;&amp; str)
   noexcept(allocator_traits&lt;Allocator&gt;::propagate_on_container_move_assignment::value ||
            allocator_traits&lt;Allocator&gt;::is_always_equal::value);
-</code></p><div class='itemdescr'></div><div class='para' id='string.cons-22'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-22'>22</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.cons-24'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-24'>24</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Move assigns as a sequence container (<a href='container.requirements'>[container.requirements]</a>),
-except that iterators, pointers and references may be invalidated.</p></div></div><div class='para' id='string.cons-23'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-23'>23</a></div><div class='itemdescr'><p ><i>Returns:</i>
+except that iterators, pointers and references may be invalidated.</p></div></div><div class='para' id='string.cons-25'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-25'>25</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,operator='></a></span><code class='itemdecl'>
 basic_string&amp; operator=(basic_string_view&lt;charT, traits&gt; sv);
-</code></p><div class='itemdescr'></div><div class='para' id='string.cons-24'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-24'>24</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>return assign(sv);</span>
+</code></p><div class='itemdescr'></div><div class='para' id='string.cons-26'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-26'>26</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>return assign(sv);</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,operator='></a></span><code class='itemdecl'>
 basic_string&amp; operator=(const charT* s);
-</code></p><div class='itemdescr'></div><div class='para' id='string.cons-25'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-25'>25</a></div><div class='itemdescr'><p ><i>Returns:</i>
-<span class='texttt'>*this = basic_string(s)</span>.</p></div></div><div class='para' id='string.cons-26'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-26'>26</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.cons-27'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-27'>27</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this = basic_string(s)</span>.</p></div></div><div class='para' id='string.cons-28'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-28'>28</a></div><div class='itemdescr'><p ><i>Remarks:</i>
 Uses
 <span class='indexparent'><a class='index' id='length,char_traits'></a></span><span class='texttt'>traits::length()</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,operator='></a></span><code class='itemdecl'>
 basic_string&amp; operator=(charT c);
-</code></p><div class='itemdescr'></div><div class='para' id='string.cons-27'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-27'>27</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.cons-29'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-29'>29</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this = basic_string(1, c)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,operator='></a></span><code class='itemdecl'>
 basic_string&amp; operator=(initializer_list&lt;charT&gt; il);
-</code></p><div class='itemdescr'></div><div class='para' id='string.cons-28'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-28'>28</a></div><div class='itemdescr'><p ><i>Effects:</i> As if by: <span class='texttt'>*this = basic_string(il);</span></p></div></div><div class='para' id='string.cons-29'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-29'>29</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='string.cons-30'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-30'>30</a></div><div class='itemdescr'><p ><i>Effects:</i> As if by: <span class='texttt'>*this = basic_string(il);</span></p></div></div><div class='para' id='string.cons-31'><div class='marginalizedparent'><a class='marginalized' href='#string.cons-31'>31</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div></div><div id='string.iterators'><h4 ><a class='secnum' href='#string.iterators' style='min-width:118pt'>21.3.1.3</a> <span class='texttt'>basic_string</span> iterator support <a class='abbr_ref' href='string.iterators'>[string.iterators]</a></h4><p ><span class='indexparent'><a class='index' id='begin,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,begin'></a></span><span class='indexparent'><a class='index' id='cbegin,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,cbegin'></a></span><code class='itemdecl'>
 iterator       begin() noexcept;
 const_iterator begin() const noexcept;
@@ -844,17 +861,21 @@ if
 <span class='texttt'>res_arg &gt; max_size()</span>.<a class='footnotenum' href='#footnote-229'>229</a>
 </p></div></div><p ><span class='indexparent'><a class='index' id='shrink_to_fit,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,shrink_to_fit'></a></span><code class='itemdecl'>
 void shrink_to_fit();
-</code></p><div class='itemdescr'></div><div class='para' id='string.capacity-13'><div class='marginalizedparent'><a class='marginalized' href='#string.capacity-13'>13</a></div><div class='itemdescr'><p ><i>Remarks:</i> <span class='texttt'>shrink_to_fit</span> is a non-binding request to reduce
+</code></p><div class='itemdescr'></div><div class='para' id='string.capacity-13'><div class='marginalizedparent'><a class='marginalized' href='#string.capacity-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>shrink_to_fit</span> is a non-binding request to reduce
 <span class='texttt'>capacity()</span> to <span class='texttt'>size()</span>. [&nbsp;<i>Note:</i> The request is non-binding to
 allow latitude for implementation-specific optimizations. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+It does not increase <span class='texttt'>capacity()</span>, but may reduce <span class='texttt'>capacity()</span>
+by causing reallocation.</p></div></div><div class='para' id='string.capacity-14'><div class='marginalizedparent'><a class='marginalized' href='#string.capacity-14'>14</a></div><div class='itemdescr'><p ><i>Complexity:</i> Linear in the size of the sequence.</p></div></div><div class='para' id='string.capacity-15'><div class='marginalizedparent'><a class='marginalized' href='#string.capacity-15'>15</a></div><div class='itemdescr'><p ><i>Remarks:</i> Reallocation invalidates all the references, pointers, and iterators
+referring to the elements in the sequence.
+If no reallocation happens, they remain valid.
 </p></div></div><p ><span class='indexparent'><a class='index' id='clear,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,clear'></a></span><code class='itemdecl'>
 void clear() noexcept;
-</code></p><div class='itemdescr'></div><div class='para' id='string.capacity-14'><div class='marginalizedparent'><a class='marginalized' href='#string.capacity-14'>14</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.capacity-16'><div class='marginalizedparent'><a class='marginalized' href='#string.capacity-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Behaves as if the function calls:</p><pre class='codeblock'>
 erase(begin(), end());
 </pre></div></div><p ><span class='indexparent'><a class='index' id='empty,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,empty'></a></span><code class='itemdecl'>
 bool empty() const noexcept;
-</code></p><div class='itemdescr'></div><div class='para' id='string.capacity-15'><div class='marginalizedparent'><a class='marginalized' href='#string.capacity-15'>15</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.capacity-17'><div class='marginalizedparent'><a class='marginalized' href='#string.capacity-17'>17</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>size() == 0</span>.
 </p></div></div><div class='footnote' id='footnote-229'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-229'>229)</a></div><p ><span class='texttt'>reserve()</span>
 uses
@@ -864,8 +885,8 @@ const_reference operator[](size_type pos) const;
 reference       operator[](size_type pos);
 </code></p><div class='itemdescr'></div><div class='para' id='string.access-1'><div class='marginalizedparent'><a class='marginalized' href='#string.access-1'>1</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>pos &lt;= size()</span>.</p></div></div><div class='para' id='string.access-2'><div class='marginalizedparent'><a class='marginalized' href='#string.access-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*(begin() + pos)</span> if <span class='texttt'>pos &lt; size()</span>. Otherwise,
 returns a reference to an object of type <span class='texttt'>charT</span> with value
-<span class='texttt'>charT()</span>, where modifying the object leads to
-undefined behavior.</p></div></div><div class='para' id='string.access-3'><div class='marginalizedparent'><a class='marginalized' href='#string.access-3'>3</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing.</p></div></div><div class='para' id='string.access-4'><div class='marginalizedparent'><a class='marginalized' href='#string.access-4'>4</a></div><div class='itemdescr'><p ><i>Complexity:</i> Constant time.
+<span class='texttt'>charT()</span>, where modifying the object to any value other than
+<span class='texttt'>charT()</span> leads to undefined behavior.</p></div></div><div class='para' id='string.access-3'><div class='marginalizedparent'><a class='marginalized' href='#string.access-3'>3</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing.</p></div></div><div class='para' id='string.access-4'><div class='marginalizedparent'><a class='marginalized' href='#string.access-4'>4</a></div><div class='itemdescr'><p ><i>Complexity:</i> Constant time.
 </p></div></div><p ><span class='indexparent'><a class='index' id='at,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,at'></a></span><code class='itemdecl'>
 const_reference at(size_type pos) const;
 reference       at(size_type pos);
@@ -879,13 +900,13 @@ const charT&amp; front() const;
 charT&amp; front();
 </code></p><div class='itemdescr'></div><div class='para' id='string.access-7'><div class='marginalizedparent'><a class='marginalized' href='#string.access-7'>7</a></div><div class='itemdescr'><p ><i>Requires:</i>
 <span class='texttt'>!empty()</span>.</p></div></div><div class='para' id='string.access-8'><div class='marginalizedparent'><a class='marginalized' href='#string.access-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i>
-Equivalent to <span class='texttt'>operator[](0)</span>.
+Equivalent to: <span class='texttt'>return operator[](0);</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='back,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,back'></a></span><code class='itemdecl'>
 const charT&amp; back() const;
 charT&amp; back();
 </code></p><div class='itemdescr'></div><div class='para' id='string.access-9'><div class='marginalizedparent'><a class='marginalized' href='#string.access-9'>9</a></div><div class='itemdescr'><p ><i>Requires:</i>
 <span class='texttt'>!empty()</span>.</p></div></div><div class='para' id='string.access-10'><div class='marginalizedparent'><a class='marginalized' href='#string.access-10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i>
-Equivalent to <span class='texttt'>operator[](size() - 1)</span>.
+Equivalent to: <span class='texttt'>return operator[](size() - 1);</span>
 </p></div></div></div><div id='string.modifiers'><h4 ><a class='secnum' href='#string.modifiers' style='min-width:118pt'>21.3.1.6</a> <span class='texttt'>basic_string</span> modifiers <a class='abbr_ref' href='string.modifiers'>[string.modifiers]</a></h4><div id='string.op+='><h4 ><a class='secnum' href='#string.op+=' style='min-width:133pt'>21.3.1.6.1</a> <span class='texttt'>basic_string::operator+=</span> <a class='abbr_ref' href='string.op+='>[string.op+=]</a></h4><p ><span class='indexparent'><a class='index' id='operator+=,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,operator+='></a></span><code class='itemdecl'>
 basic_string&amp;
   operator+=(const basic_string&amp; str);
@@ -928,47 +949,51 @@ basic_string&amp; append(basic_string_view&lt;charT, traits&gt; sv);
 </code></p><div class='itemdescr'></div><div class='para' id='string.append-6'><div class='marginalizedparent'><a class='marginalized' href='#string.append-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Equivalent to: <span class='texttt'>return append(sv.data(), sv.size());</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='append,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,append'></a></span><code class='itemdecl'>
-basic_string&amp; append(basic_string_view&lt;charT, traits&gt; sv,
-                     size_type pos, size_type n = npos);
+template&lt;class T&gt;
+  basic_string&amp; append(const T&amp; t, size_type pos, size_type n = npos);
 </code></p><div class='itemdescr'></div><div class='para' id='string.append-7'><div class='marginalizedparent'><a class='marginalized' href='#string.append-7'>7</a></div><div class='itemdescr'><p ><i>Throws:</i>
 <span class='texttt'>out_of_range</span>
 if
 <span class='texttt'>pos &gt; sv.size()</span>.</p></div></div><div class='para' id='string.append-8'><div class='marginalizedparent'><a class='marginalized' href='#string.append-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Creates a variable, <span class='texttt'>sv</span>, as if by <span class='texttt'>basic_string_view&lt;charT, traits&gt; sv = t</span>.
 Determines the effective length <span class='texttt'>rlen</span> of the string to append
 as the smaller of <span class='texttt'>n</span> and <span class='texttt'>sv.size() - pos</span>
-and calls <span class='texttt'>append(sv.data() + pos, rlen)</span>.</p></div></div><div class='para' id='string.append-9'><div class='marginalizedparent'><a class='marginalized' href='#string.append-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i>
+and calls <span class='texttt'>append(sv.data() + pos, rlen)</span>.</p></div></div><div class='para' id='string.append-9'><div class='marginalizedparent'><a class='marginalized' href='#string.append-9'>9</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+This function shall not participate in overload resolution
+unless <span class='texttt'>is_convertible_v&lt;const T&amp;, basic_string_view&lt;charT, traits&gt;&gt;</span>
+is <span class='texttt'>true</span> and <span class='texttt'>is_convertible_v&lt;const T&amp;, const charT*&gt;</span> is <span class='texttt'>false</span>.</p></div></div><div class='para' id='string.append-10'><div class='marginalizedparent'><a class='marginalized' href='#string.append-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='append,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,append'></a></span><code class='itemdecl'>
 basic_string&amp;
   append(const charT* s, size_type n);
-</code></p><div class='itemdescr'></div><div class='para' id='string.append-10'><div class='marginalizedparent'><a class='marginalized' href='#string.append-10'>10</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>s</span> points to an array of at least <span class='texttt'>n</span> elements
-of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.append-11'><div class='marginalizedparent'><a class='marginalized' href='#string.append-11'>11</a></div><div class='itemdescr'><p ><i>Throws:</i> <span class='texttt'>length_error</span> if <span class='texttt'>size() + n &gt; max_size()</span>.</p></div></div><div class='para' id='string.append-12'><div class='marginalizedparent'><a class='marginalized' href='#string.append-12'>12</a></div><div class='itemdescr'><p ><i>Effects:</i> The function replaces the string controlled by <span class='texttt'>*this</span>
+</code></p><div class='itemdescr'></div><div class='para' id='string.append-11'><div class='marginalizedparent'><a class='marginalized' href='#string.append-11'>11</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>s</span> points to an array of at least <span class='texttt'>n</span> elements
+of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.append-12'><div class='marginalizedparent'><a class='marginalized' href='#string.append-12'>12</a></div><div class='itemdescr'><p ><i>Throws:</i> <span class='texttt'>length_error</span> if <span class='texttt'>size() + n &gt; max_size()</span>.</p></div></div><div class='para' id='string.append-13'><div class='marginalizedparent'><a class='marginalized' href='#string.append-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i> The function replaces the string controlled by <span class='texttt'>*this</span>
 with a string of length <span class='texttt'>size() + n</span> whose first <span class='texttt'>size()</span>
 elements are a copy of the original string controlled by <span class='texttt'>*this</span>
 and whose remaining elements are a copy of the initial <span class='texttt'>n</span> elements
-of <span class='texttt'>s</span>.</p></div></div><div class='para' id='string.append-13'><div class='marginalizedparent'><a class='marginalized' href='#string.append-13'>13</a></div><div class='itemdescr'><p ><i>Returns:</i>
+of <span class='texttt'>s</span>.</p></div></div><div class='para' id='string.append-14'><div class='marginalizedparent'><a class='marginalized' href='#string.append-14'>14</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='append,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,append'></a></span><code class='itemdecl'>
 basic_string&amp; append(const charT* s);
-</code></p><div class='itemdescr'></div><div class='para' id='string.append-14'><div class='marginalizedparent'><a class='marginalized' href='#string.append-14'>14</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>s</span> points to an array of at least <span class='texttt'>traits::length(s) + 1</span>
-elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.append-15'><div class='marginalizedparent'><a class='marginalized' href='#string.append-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>append(s, traits::length(s))</span>.</p></div></div><div class='para' id='string.append-16'><div class='marginalizedparent'><a class='marginalized' href='#string.append-16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.append-15'><div class='marginalizedparent'><a class='marginalized' href='#string.append-15'>15</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>s</span> points to an array of at least <span class='texttt'>traits::length(s) + 1</span>
+elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.append-16'><div class='marginalizedparent'><a class='marginalized' href='#string.append-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>append(s, traits::length(s))</span>.</p></div></div><div class='para' id='string.append-17'><div class='marginalizedparent'><a class='marginalized' href='#string.append-17'>17</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='append,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,append'></a></span><code class='itemdecl'>
 basic_string&amp; append(size_type n, charT c);
-</code></p><div class='itemdescr'></div><div class='para' id='string.append-17'><div class='marginalizedparent'><a class='marginalized' href='#string.append-17'>17</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>append(basic_string(n, c))</span>.</p></div></div><div class='para' id='string.append-18'><div class='marginalizedparent'><a class='marginalized' href='#string.append-18'>18</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.append-18'><div class='marginalizedparent'><a class='marginalized' href='#string.append-18'>18</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>append(basic_string(n, c))</span>.</p></div></div><div class='para' id='string.append-19'><div class='marginalizedparent'><a class='marginalized' href='#string.append-19'>19</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='append,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,append'></a></span><code class='itemdecl'>
 template&lt;class InputIterator&gt;
   basic_string&amp; append(InputIterator first, InputIterator last);
-</code></p><div class='itemdescr'></div><div class='para' id='string.append-19'><div class='marginalizedparent'><a class='marginalized' href='#string.append-19'>19</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>[first, last)</span> is a valid range.</p></div></div><div class='para' id='string.append-20'><div class='marginalizedparent'><a class='marginalized' href='#string.append-20'>20</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>append(basic_string(first, last))</span>.</p></div></div><div class='para' id='string.append-21'><div class='marginalizedparent'><a class='marginalized' href='#string.append-21'>21</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.append-20'><div class='marginalizedparent'><a class='marginalized' href='#string.append-20'>20</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>[first, last)</span> is a valid range.</p></div></div><div class='para' id='string.append-21'><div class='marginalizedparent'><a class='marginalized' href='#string.append-21'>21</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>append(basic_string(first, last))</span>.</p></div></div><div class='para' id='string.append-22'><div class='marginalizedparent'><a class='marginalized' href='#string.append-22'>22</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='append,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,append'></a></span><code class='itemdecl'>
 basic_string&amp; append(initializer_list&lt;charT&gt; il);
-</code></p><div class='itemdescr'></div><div class='para' id='string.append-22'><div class='marginalizedparent'><a class='marginalized' href='#string.append-22'>22</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>append(il.begin(), il.size())</span>.</p></div></div><div class='para' id='string.append-23'><div class='marginalizedparent'><a class='marginalized' href='#string.append-23'>23</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.append-23'><div class='marginalizedparent'><a class='marginalized' href='#string.append-23'>23</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>append(il.begin(), il.size())</span>.</p></div></div><div class='para' id='string.append-24'><div class='marginalizedparent'><a class='marginalized' href='#string.append-24'>24</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='push_back,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,push_back'></a></span><code class='itemdecl'>
 void push_back(charT c);
-</code></p><div class='itemdescr'></div><div class='para' id='string.append-24'><div class='marginalizedparent'><a class='marginalized' href='#string.append-24'>24</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.append-25'><div class='marginalizedparent'><a class='marginalized' href='#string.append-25'>25</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Equivalent to
 <span class='texttt'>append(static_cast&lt;size_type&gt;(1), c)</span>.
 </p></div></div></div><div id='string.assign'><h4 ><a class='secnum' href='#string.assign' style='min-width:133pt'>21.3.1.6.3</a> <span class='texttt'>basic_string::assign</span> <a class='abbr_ref' href='string.assign'>[string.assign]</a></h4><p ><span class='indexparent'><a class='index' id='assign,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,assign'></a></span><code class='itemdecl'>
@@ -999,37 +1024,41 @@ basic_string&amp; assign(basic_string_view&lt;charT, traits&gt; sv);
 </code></p><div class='itemdescr'></div><div class='para' id='string.assign-8'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Equivalent to: <span class='texttt'>return assign(sv.data(), sv.size());</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='assign,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,assign'></a></span><code class='itemdecl'>
-basic_string&amp; assign(basic_string_view&lt;charT, traits&gt; sv, size_type pos,
-                     size_type n = npos);
+template&lt;class T&gt;
+  basic_string&amp; assign(const T&amp; t, size_type pos, size_type n = npos);
 </code></p><div class='itemdescr'></div><div class='para' id='string.assign-9'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-9'>9</a></div><div class='itemdescr'><p ><i>Throws:</i>
 <span class='texttt'>out_of_range</span>
 if
 <span class='texttt'>pos &gt; sv.size()</span>.</p></div></div><div class='para' id='string.assign-10'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Creates a variable, <span class='texttt'>sv</span>, as if by <span class='texttt'>basic_string_view&lt;charT, traits&gt; sv = t</span>.
 Determines the effective length <span class='texttt'>rlen</span> of the string to assign
 as the smaller of <span class='texttt'>n</span> and <span class='texttt'>sv.size() - pos</span>
-and calls <span class='texttt'>assign(sv.data() + pos, rlen)</span>.</p></div></div><div class='para' id='string.assign-11'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-11'>11</a></div><div class='itemdescr'><p ><i>Returns:</i>
+and calls <span class='texttt'>assign(sv.data() + pos, rlen)</span>.</p></div></div><div class='para' id='string.assign-11'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-11'>11</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+This function shall not participate in overload resolution
+unless <span class='texttt'>is_convertible_v&lt;const T&amp;, basic_string_view&lt;charT, traits&gt;&gt;</span>
+is <span class='texttt'>true</span> and <span class='texttt'>is_convertible_v&lt;const T&amp;, const charT*&gt;</span> is <span class='texttt'>false</span>.</p></div></div><div class='para' id='string.assign-12'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='assign,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,assign'></a></span><code class='itemdecl'>
 basic_string&amp; assign(const charT* s, size_type n);
-</code></p><div class='itemdescr'></div><div class='para' id='string.assign-12'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-12'>12</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>s</span> points to an array of at least <span class='texttt'>n</span> elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.assign-13'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-13'>13</a></div><div class='itemdescr'><p ><i>Throws:</i> <span class='texttt'>length_error</span> if <span class='texttt'>n &gt; max_size()</span>.</p></div></div><div class='para' id='string.assign-14'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-14'>14</a></div><div class='itemdescr'><p ><i>Effects:</i> Replaces the string controlled by <span class='texttt'>*this</span> with a string
-of length <span class='texttt'>n</span> whose elements are a copy of those pointed to by <span class='texttt'>s</span>.</p></div></div><div class='para' id='string.assign-15'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-15'>15</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.assign-13'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-13'>13</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>s</span> points to an array of at least <span class='texttt'>n</span> elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.assign-14'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-14'>14</a></div><div class='itemdescr'><p ><i>Throws:</i> <span class='texttt'>length_error</span> if <span class='texttt'>n &gt; max_size()</span>.</p></div></div><div class='para' id='string.assign-15'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> Replaces the string controlled by <span class='texttt'>*this</span> with a string
+of length <span class='texttt'>n</span> whose elements are a copy of those pointed to by <span class='texttt'>s</span>.</p></div></div><div class='para' id='string.assign-16'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='assign,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,assign'></a></span><code class='itemdecl'>
 basic_string&amp; assign(const charT* s);
-</code></p><div class='itemdescr'></div><div class='para' id='string.assign-16'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-16'>16</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>s</span> points to an array of at least <span class='texttt'>traits::length(s) + 1</span>
-elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.assign-17'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-17'>17</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>assign(s, traits::length(s))</span>.</p></div></div><div class='para' id='string.assign-18'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-18'>18</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.assign-17'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-17'>17</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>s</span> points to an array of at least <span class='texttt'>traits::length(s) + 1</span>
+elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.assign-18'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-18'>18</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>assign(s, traits::length(s))</span>.</p></div></div><div class='para' id='string.assign-19'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-19'>19</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='assign,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,assign'></a></span><code class='itemdecl'>
 basic_string&amp; assign(initializer_list&lt;charT&gt; il);
-</code></p><div class='itemdescr'></div><div class='para' id='string.assign-19'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-19'>19</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>assign(il.begin(), il.size())</span>.</p></div></div><div class='para' id='string.assign-20'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-20'>20</a></div><div class='itemdescr'><p ><span class='texttt'>*this</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='string.assign-20'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-20'>20</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>assign(il.begin(), il.size())</span>.</p></div></div><div class='para' id='string.assign-21'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-21'>21</a></div><div class='itemdescr'><p ><span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='assign,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,assign'></a></span><code class='itemdecl'>
 basic_string&amp; assign(size_type n, charT c);
-</code></p><div class='itemdescr'></div><div class='para' id='string.assign-21'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-21'>21</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>assign(basic_string(n, c))</span>.</p></div></div><div class='para' id='string.assign-22'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-22'>22</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.assign-22'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-22'>22</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>assign(basic_string(n, c))</span>.</p></div></div><div class='para' id='string.assign-23'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-23'>23</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='assign,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,assign'></a></span><code class='itemdecl'>
 template&lt;class InputIterator&gt;
   basic_string&amp; assign(InputIterator first, InputIterator last);
-</code></p><div class='itemdescr'></div><div class='para' id='string.assign-23'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-23'>23</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>assign(basic_string(first, last))</span>.</p></div></div><div class='para' id='string.assign-24'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-24'>24</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.assign-24'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-24'>24</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>assign(basic_string(first, last))</span>.</p></div></div><div class='para' id='string.assign-25'><div class='marginalizedparent'><a class='marginalized' href='#string.assign-25'>25</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div></div><div id='string.insert'><h4 ><a class='secnum' href='#string.insert' style='min-width:133pt'>21.3.1.6.4</a> <span class='texttt'>basic_string::insert</span> <a class='abbr_ref' href='string.insert'>[string.insert]</a></h4><p ><span class='indexparent'><a class='index' id='insert,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,insert'></a></span><code class='itemdecl'>
 basic_string&amp;
@@ -1056,68 +1085,73 @@ basic_string&amp; insert(size_type pos1, basic_string_view&lt;charT, traits&gt; 
 </code></p><div class='itemdescr'></div><div class='para' id='string.insert-5'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Equivalent to: <span class='texttt'>return insert(pos1, sv.data(), sv.size());</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='insert,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,insert'></a></span><code class='itemdecl'>
-basic_string&amp; insert(size_type pos1, basic_string_view&lt;charT, traits&gt; sv,
-                     size_type pos2, size_type n = npos);
+template&lt;class T&gt;
+  basic_string&amp; insert(size_type pos1, const T&amp; t,
+                       size_type pos2, size_type n = npos);
 </code></p><div class='itemdescr'></div><div class='para' id='string.insert-6'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-6'>6</a></div><div class='itemdescr'><p ><i>Throws:</i>
 <span class='texttt'>out_of_range</span>
 if
 <span class='texttt'>pos1 &gt; size()</span>
 or
 <span class='texttt'>pos2 &gt; sv.size()</span>.</p></div></div><div class='para' id='string.insert-7'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Creates a variable, <span class='texttt'>sv</span>, as if by <span class='texttt'>basic_string_view&lt;charT, traits&gt; sv = t</span>.
 Determines the effective length <span class='texttt'>rlen</span> of the string to assign
 as the smaller of <span class='texttt'>n</span> and <span class='texttt'>sv.size() - pos2</span>
-and calls <span class='texttt'>insert(pos1, sv.data() + pos2, rlen)</span>.</p></div></div><div class='para' id='string.insert-8'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>
+and calls <span class='texttt'>insert(pos1, sv.data() + pos2, rlen)</span>.</p></div></div><div class='para' id='string.insert-8'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-8'>8</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+This function shall not participate in overload resolution
+unless <span class='texttt'>is_convertible_v&lt;const T&amp;, basic_string_view&lt;charT, traits&gt;&gt;</span>
+is <span class='texttt'>true</span> and <span class='texttt'>is_convertible_v&lt;const T&amp;, const charT*&gt;</span> is <span class='texttt'>false</span>.</p></div></div><div class='para' id='string.insert-9'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='insert,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,insert'></a></span><code class='itemdecl'>
 basic_string&amp;
   insert(size_type pos, const charT* s, size_type n);
-</code></p><div class='itemdescr'></div><div class='para' id='string.insert-9'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-9'>9</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>s</span> points to an array of at least <span class='texttt'>n</span>
-elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.insert-10'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-10'>10</a></div><div class='itemdescr'><p ><i>Throws:</i> <span class='texttt'>out_of_range</span> if <span class='texttt'>pos &gt; size()</span> or <span class='texttt'>length_error</span>
-if <span class='texttt'>size() + n &gt; max_size()</span>.</p></div></div><div class='para' id='string.insert-11'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> Replaces the string controlled by <span class='texttt'>*this</span> with a string of
+</code></p><div class='itemdescr'></div><div class='para' id='string.insert-10'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-10'>10</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>s</span> points to an array of at least <span class='texttt'>n</span>
+elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.insert-11'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-11'>11</a></div><div class='itemdescr'><p ><i>Throws:</i> <span class='texttt'>out_of_range</span> if <span class='texttt'>pos &gt; size()</span> or <span class='texttt'>length_error</span>
+if <span class='texttt'>size() + n &gt; max_size()</span>.</p></div></div><div class='para' id='string.insert-12'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-12'>12</a></div><div class='itemdescr'><p ><i>Effects:</i> Replaces the string controlled by <span class='texttt'>*this</span> with a string of
 length <span class='texttt'>size() + n</span> whose first <span class='texttt'>pos</span> elements are a copy of
 the initial elements of the original string controlled by <span class='texttt'>*this</span> and
 whose next <span class='texttt'>n</span> elements are a copy of the elements in <span class='texttt'>s</span> and
 whose remaining elements are a copy of the remaining elements of the original
-string controlled by <span class='texttt'>*this</span>.</p></div></div><div class='para' id='string.insert-12'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i>
+string controlled by <span class='texttt'>*this</span>.</p></div></div><div class='para' id='string.insert-13'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-13'>13</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='insert,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,insert'></a></span><code class='itemdecl'>
 basic_string&amp;
   insert(size_type pos, const charT* s);
-</code></p><div class='itemdescr'></div><div class='para' id='string.insert-13'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-13'>13</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>s</span> points to an array of at least
-<span class='texttt'>traits::length(s) + 1</span> elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.insert-14'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-14'>14</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>return insert(pos, s, traits::length(s));</span>
+</code></p><div class='itemdescr'></div><div class='para' id='string.insert-14'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-14'>14</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>s</span> points to an array of at least
+<span class='texttt'>traits::length(s) + 1</span> elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.insert-15'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>return insert(pos, s, traits::length(s));</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='insert,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,insert'></a></span><code class='itemdecl'>
 basic_string&amp;
   insert(size_type pos, size_type n, charT c);
-</code></p><div class='itemdescr'></div><div class='para' id='string.insert-15'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>insert(pos, basic_string(n, c))</span>.</p></div></div><div class='para' id='string.insert-16'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.insert-16'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>insert(pos, basic_string(n, c))</span>.</p></div></div><div class='para' id='string.insert-17'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-17'>17</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='insert,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,insert'></a></span><code class='itemdecl'>
 iterator insert(const_iterator p, charT c);
-</code></p><div class='itemdescr'></div><div class='para' id='string.insert-17'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-17'>17</a></div><div class='itemdescr'><p ><i>Requires:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.insert-18'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-18'>18</a></div><div class='itemdescr'><p ><i>Requires:</i>
 <span class='texttt'>p</span> is a valid iterator on
-<span class='texttt'>*this</span>.</p></div></div><div class='para' id='string.insert-18'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-18'>18</a></div><div class='itemdescr'><p ><i>Effects:</i>
-Inserts a copy of <span class='texttt'>c</span> before the character referred to by <span class='texttt'>p</span>.</p></div></div><div class='para' id='string.insert-19'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-19'>19</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.</p></div></div><div class='para' id='string.insert-19'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-19'>19</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Inserts a copy of <span class='texttt'>c</span> before the character referred to by <span class='texttt'>p</span>.</p></div></div><div class='para' id='string.insert-20'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-20'>20</a></div><div class='itemdescr'><p ><i>Returns:</i>
 An iterator which refers to the copy of the inserted character.
 </p></div></div><p ><span class='indexparent'><a class='index' id='insert,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,insert'></a></span><code class='itemdecl'>
 iterator insert(const_iterator p, size_type n, charT c);
-</code></p><div class='itemdescr'></div><div class='para' id='string.insert-20'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-20'>20</a></div><div class='itemdescr'><p ><i>Requires:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.insert-21'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-21'>21</a></div><div class='itemdescr'><p ><i>Requires:</i>
 <span class='texttt'>p</span> is a valid iterator on
-<span class='texttt'>*this</span>.</p></div></div><div class='para' id='string.insert-21'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-21'>21</a></div><div class='itemdescr'><p ><i>Effects:</i>
-Inserts <span class='texttt'>n</span> copies of <span class='texttt'>c</span> before the character referred to by <span class='texttt'>p</span>.</p></div></div><div class='para' id='string.insert-22'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-22'>22</a></div><div class='itemdescr'><p ><i>Returns:</i> An iterator which refers to the copy of the first inserted character, or
+<span class='texttt'>*this</span>.</p></div></div><div class='para' id='string.insert-22'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-22'>22</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Inserts <span class='texttt'>n</span> copies of <span class='texttt'>c</span> before the character referred to by <span class='texttt'>p</span>.</p></div></div><div class='para' id='string.insert-23'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-23'>23</a></div><div class='itemdescr'><p ><i>Returns:</i> An iterator which refers to the copy of the first inserted character, or
 <span class='texttt'>p</span> if <span class='texttt'>n == 0</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='insert,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,insert'></a></span><code class='itemdecl'>
 template&lt;class InputIterator&gt;
   iterator insert(const_iterator p, InputIterator first, InputIterator last);
-</code></p><div class='itemdescr'></div><div class='para' id='string.insert-23'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-23'>23</a></div><div class='itemdescr'><p ><i>Requires:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.insert-24'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-24'>24</a></div><div class='itemdescr'><p ><i>Requires:</i>
 <span class='texttt'>p</span> is a valid iterator on
 <span class='texttt'>*this</span>.
 <span class='texttt'>[first, last)</span>
-is a valid range.</p></div></div><div class='para' id='string.insert-24'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-24'>24</a></div><div class='itemdescr'><p ><i>Effects:</i>
+is a valid range.</p></div></div><div class='para' id='string.insert-25'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-25'>25</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Equivalent to
-<span class='texttt'>insert(p - begin(), basic_string(first, last))</span>.</p></div></div><div class='para' id='string.insert-25'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-25'>25</a></div><div class='itemdescr'><p ><i>Returns:</i> An iterator which refers to the copy of the first inserted character, or
+<span class='texttt'>insert(p - begin(), basic_string(first, last))</span>.</p></div></div><div class='para' id='string.insert-26'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-26'>26</a></div><div class='itemdescr'><p ><i>Returns:</i> An iterator which refers to the copy of the first inserted character, or
 <span class='texttt'>p</span> if <span class='texttt'>first == last</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='insert,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,insert'></a></span><code class='itemdecl'>
 iterator insert(const_iterator p, initializer_list&lt;charT&gt; il);
-</code></p><div class='itemdescr'></div><div class='para' id='string.insert-26'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-26'>26</a></div><div class='itemdescr'><p ><i>Effects:</i> As if by <span class='texttt'>insert(p, il.begin(), il.end())</span>.</p></div></div><div class='para' id='string.insert-27'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-27'>27</a></div><div class='itemdescr'><p ><i>Returns:</i> An iterator which refers to the copy of the first inserted character, or
+</code></p><div class='itemdescr'></div><div class='para' id='string.insert-27'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-27'>27</a></div><div class='itemdescr'><p ><i>Effects:</i> As if by <span class='texttt'>insert(p, il.begin(), il.end())</span>.</p></div></div><div class='para' id='string.insert-28'><div class='marginalizedparent'><a class='marginalized' href='#string.insert-28'>28</a></div><div class='itemdescr'><p ><i>Returns:</i> An iterator which refers to the copy of the first inserted character, or
 <span class='texttt'>p</span> if <span class='texttt'>i1</span> is empty.
 </p></div></div></div><div id='string.erase'><h4 ><a class='secnum' href='#string.erase' style='min-width:133pt'>21.3.1.6.5</a> <span class='texttt'>basic_string::erase</span> <a class='abbr_ref' href='string.erase'>[string.erase]</a></h4><p ><span class='indexparent'><a class='index' id='erase,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,erase'></a></span><code class='itemdecl'>
 basic_string&amp; erase(size_type pos = 0, size_type n = npos);
@@ -1192,25 +1226,29 @@ basic_string&amp; replace(size_type pos1, size_type n1,
 </code></p><div class='itemdescr'></div><div class='para' id='string.replace-5'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Equivalent to: <span class='texttt'>return replace(pos1, n1, sv.data(), sv.size());</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='replace,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,replace'></a></span><code class='itemdecl'>
-basic_string&amp; replace(size_type pos1, size_type n1,
-                      basic_string_view&lt;charT, traits&gt; sv,
-                      size_type pos2, size_type n2 = npos);
+template&lt;class T&gt;
+  basic_string&amp; replace(size_type pos1, size_type n1, const T&amp; t,
+                        size_type pos2, size_type n2 = npos);
 </code></p><div class='itemdescr'></div><div class='para' id='string.replace-6'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-6'>6</a></div><div class='itemdescr'><p ><i>Throws:</i>
 <span class='texttt'>out_of_range</span>
 if
 <span class='texttt'>pos1 &gt; size()</span>
 or
 <span class='texttt'>pos2 &gt; sv.size()</span>.</p></div></div><div class='para' id='string.replace-7'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Creates a variable, <span class='texttt'>sv</span>, as if by <span class='texttt'>basic_string_view&lt;charT, traits&gt; sv = t</span>.
 Determines the effective length <span class='texttt'>rlen</span> of the string to be inserted
 as the smaller of <span class='texttt'>n2</span> and <span class='texttt'>sv.size() - pos2</span>
-and calls <span class='texttt'>replace(pos1, n1, sv.data() + pos2, rlen)</span>.</p></div></div><div class='para' id='string.replace-8'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>
+and calls <span class='texttt'>replace(pos1, n1, sv.data() + pos2, rlen)</span>.</p></div></div><div class='para' id='string.replace-8'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-8'>8</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+This function shall not participate in overload resolution
+unless <span class='texttt'>is_convertible_v&lt;const T&amp;, basic_string_view&lt;charT, traits&gt;&gt;</span>
+is <span class='texttt'>true</span> and <span class='texttt'>is_convertible_v&lt;const T&amp;, const charT*&gt;</span> is <span class='texttt'>false</span>.</p></div></div><div class='para' id='string.replace-9'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='replace,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,replace'></a></span><code class='itemdecl'>
 basic_string&amp;
   replace(size_type pos1, size_type n1, const charT* s, size_type n2);
-</code></p><div class='itemdescr'></div><div class='para' id='string.replace-9'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-9'>9</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>s</span> points to an array of at
-least <span class='texttt'>n2</span> elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.replace-10'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-10'>10</a></div><div class='itemdescr'><p ><i>Throws:</i> <span class='texttt'>out_of_range</span> if <span class='texttt'>pos1 &gt; size()</span> or <span class='texttt'>length_error</span>
-if the length of the resulting string would exceed <span class='texttt'>max_size()</span> (see below).</p></div></div><div class='para' id='string.replace-11'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> Determines the effective length <span class='texttt'>xlen</span> of the string to be
+</code></p><div class='itemdescr'></div><div class='para' id='string.replace-10'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-10'>10</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>s</span> points to an array of at
+least <span class='texttt'>n2</span> elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.replace-11'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-11'>11</a></div><div class='itemdescr'><p ><i>Throws:</i> <span class='texttt'>out_of_range</span> if <span class='texttt'>pos1 &gt; size()</span> or <span class='texttt'>length_error</span>
+if the length of the resulting string would exceed <span class='texttt'>max_size()</span> (see below).</p></div></div><div class='para' id='string.replace-12'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-12'>12</a></div><div class='itemdescr'><p ><i>Effects:</i> Determines the effective length <span class='texttt'>xlen</span> of the string to be
 removed as the smaller of <span class='texttt'>n1</span> and <span class='texttt'>size() - pos1</span>. If
 <span class='texttt'>size() - xlen &gt;= max_size() - n2</span> throws <span class='texttt'>length_error</span>. Otherwise,
 the function replaces the string controlled by *<span class='texttt'>this</span> with a string of
@@ -1219,75 +1257,69 @@ of the initial elements of the original string controlled by <span class='texttt
 whose next <span class='texttt'>n2</span> elements are a copy of the initial <span class='texttt'>n2</span> elements
 of <span class='texttt'>s</span>, and whose remaining elements are a copy of the elements of the
 original string controlled by <span class='texttt'>*this</span> beginning at position
-<span class='texttt'>pos + xlen</span>.</p></div></div><div class='para' id='string.replace-12'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>pos + xlen</span>.</p></div></div><div class='para' id='string.replace-13'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-13'>13</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='replace,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,replace'></a></span><code class='itemdecl'>
 basic_string&amp;
   replace(size_type pos, size_type n, const charT* s);
-</code></p><div class='itemdescr'></div><div class='para' id='string.replace-13'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-13'>13</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>s</span> points to an array of at least
-<span class='texttt'>traits::length(s) + 1</span> elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.replace-14'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-14'>14</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>return replace(pos, n, s, traits::length(s));</span>
+</code></p><div class='itemdescr'></div><div class='para' id='string.replace-14'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-14'>14</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>s</span> points to an array of at least
+<span class='texttt'>traits::length(s) + 1</span> elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.replace-15'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>return replace(pos, n, s, traits::length(s));</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='replace,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,replace'></a></span><code class='itemdecl'>
 basic_string&amp;
   replace(size_type pos1, size_type n1,
           size_type n2, charT c);
-</code></p><div class='itemdescr'></div><div class='para' id='string.replace-15'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>replace(pos1, n1, basic_string(n2, c))</span>.</p></div></div><div class='para' id='string.replace-16'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.replace-16'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>replace(pos1, n1, basic_string(n2, c))</span>.</p></div></div><div class='para' id='string.replace-17'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-17'>17</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='replace,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,replace'></a></span><code class='itemdecl'>
 basic_string&amp; replace(const_iterator i1, const_iterator i2, const basic_string&amp; str);
-</code></p><div class='itemdescr'></div><div class='para' id='string.replace-17'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-17'>17</a></div><div class='itemdescr'><p ><i>Requires:</i>
-<span class='texttt'>[begin(), i1)</span> and <span class='texttt'>[i1, i2)</span> are valid ranges.</p></div></div><div class='para' id='string.replace-18'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-18'>18</a></div><div class='itemdescr'><p ><i>Effects:</i>
-Calls <span class='texttt'>replace(i1 - begin(), i2 - i1, str)</span>.</p></div></div><div class='para' id='string.replace-19'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-19'>19</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.replace-18'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-18'>18</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>[begin(), i1)</span> and <span class='texttt'>[i1, i2)</span> are valid ranges.</p></div></div><div class='para' id='string.replace-19'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-19'>19</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls <span class='texttt'>replace(i1 - begin(), i2 - i1, str)</span>.</p></div></div><div class='para' id='string.replace-20'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-20'>20</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='replace,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,replace'></a></span><code class='itemdecl'>
 basic_string&amp; replace(const_iterator i1, const_iterator i2,
                       basic_string_view&lt;charT, traits&gt; sv);
-</code></p><div class='itemdescr'></div><div class='para' id='string.replace-20'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-20'>20</a></div><div class='itemdescr'><p ><i>Requires:</i>
-<span class='texttt'>[begin(), i1)</span> and <span class='texttt'>[i1, i2)</span> are valid ranges.</p></div></div><div class='para' id='string.replace-21'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-21'>21</a></div><div class='itemdescr'><p ><i>Effects:</i>
-Calls <span class='texttt'>replace(i1 - begin(), i2 - i1, sv)</span>.</p></div></div><div class='para' id='string.replace-22'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-22'>22</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.replace-21'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-21'>21</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>[begin(), i1)</span> and <span class='texttt'>[i1, i2)</span> are valid ranges.</p></div></div><div class='para' id='string.replace-22'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-22'>22</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls <span class='texttt'>replace(i1 - begin(), i2 - i1, sv)</span>.</p></div></div><div class='para' id='string.replace-23'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-23'>23</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='replace,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,replace'></a></span><code class='itemdecl'>
 basic_string&amp;
   replace(const_iterator i1, const_iterator i2, const charT* s, size_type n);
-</code></p><div class='itemdescr'></div><div class='para' id='string.replace-23'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-23'>23</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>[begin(), i1)</span> and <span class='texttt'>[i1, i2)</span> are valid ranges and
-<span class='texttt'>s</span> points to an array of at least <span class='texttt'>n</span> elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.replace-24'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-24'>24</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>replace(i1 - begin(), i2 - i1, s, n)</span>.</p></div></div><div class='para' id='string.replace-25'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-25'>25</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.replace-24'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-24'>24</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>[begin(), i1)</span> and <span class='texttt'>[i1, i2)</span> are valid ranges and
+<span class='texttt'>s</span> points to an array of at least <span class='texttt'>n</span> elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.replace-25'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-25'>25</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>replace(i1 - begin(), i2 - i1, s, n)</span>.</p></div></div><div class='para' id='string.replace-26'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-26'>26</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='replace,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,replace'></a></span><code class='itemdecl'>
 basic_string&amp; replace(const_iterator i1, const_iterator i2, const charT* s);
-</code></p><div class='itemdescr'></div><div class='para' id='string.replace-26'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-26'>26</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>[begin(), i1)</span> and <span class='texttt'>[i1, i2)</span> are valid ranges and
+</code></p><div class='itemdescr'></div><div class='para' id='string.replace-27'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-27'>27</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>[begin(), i1)</span> and <span class='texttt'>[i1, i2)</span> are valid ranges and
 <span class='texttt'>s</span> points to an array of at least <span class='texttt'>traits::length(s) + 1</span>
-elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.replace-27'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-27'>27</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>replace(i1 - begin(), i2 - i1, s, traits::length(s))</span>.</p></div></div><div class='para' id='string.replace-28'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-28'>28</a></div><div class='itemdescr'><p ><i>Returns:</i>
+elements of <span class='texttt'>charT</span>.</p></div></div><div class='para' id='string.replace-28'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-28'>28</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>replace(i1 - begin(), i2 - i1, s, traits::length(s))</span>.</p></div></div><div class='para' id='string.replace-29'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-29'>29</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='replace,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,replace'></a></span><code class='itemdecl'>
 basic_string&amp; replace(const_iterator i1, const_iterator i2, size_type n,
                       charT c);
-</code></p><div class='itemdescr'></div><div class='para' id='string.replace-29'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-29'>29</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>[begin(), i1)</span> and <span class='texttt'>[i1, i2)</span> are valid ranges.</p></div></div><div class='para' id='string.replace-30'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-30'>30</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>replace(i1 - begin(), i2 - i1, basic_string(n, c))</span>.</p></div></div><div class='para' id='string.replace-31'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-31'>31</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.replace-30'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-30'>30</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>[begin(), i1)</span> and <span class='texttt'>[i1, i2)</span> are valid ranges.</p></div></div><div class='para' id='string.replace-31'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-31'>31</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>replace(i1 - begin(), i2 - i1, basic_string(n, c))</span>.</p></div></div><div class='para' id='string.replace-32'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-32'>32</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='replace,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,replace'></a></span><code class='itemdecl'>
 template&lt;class InputIterator&gt;
   basic_string&amp; replace(const_iterator i1, const_iterator i2,
                         InputIterator j1, InputIterator j2);
-</code></p><div class='itemdescr'></div><div class='para' id='string.replace-32'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-32'>32</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>[begin(), i1)</span>, <span class='texttt'>[i1, i2)</span> and <span class='texttt'>[j1, j2)</span> are valid ranges.</p></div></div><div class='para' id='string.replace-33'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-33'>33</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>replace(i1 - begin(), i2 - i1, basic_string(j1, j2))</span>.</p></div></div><div class='para' id='string.replace-34'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-34'>34</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.replace-33'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-33'>33</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>[begin(), i1)</span>, <span class='texttt'>[i1, i2)</span> and <span class='texttt'>[j1, j2)</span> are valid ranges.</p></div></div><div class='para' id='string.replace-34'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-34'>34</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>replace(i1 - begin(), i2 - i1, basic_string(j1, j2))</span>.</p></div></div><div class='para' id='string.replace-35'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-35'>35</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='replace,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,replace'></a></span><code class='itemdecl'>
 basic_string&amp; replace(const_iterator i1, const_iterator i2,
                       initializer_list&lt;charT&gt; il);
-</code></p><div class='itemdescr'></div><div class='para' id='string.replace-35'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-35'>35</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>[begin(), i1)</span> and <span class='texttt'>[i1, i2)</span> are valid ranges.</p></div></div><div class='para' id='string.replace-36'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-36'>36</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>replace(i1 - begin(), i2 - i1, il.begin(), il.size())</span>.</p></div></div><div class='para' id='string.replace-37'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-37'>37</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.replace-36'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-36'>36</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>[begin(), i1)</span> and <span class='texttt'>[i1, i2)</span> are valid ranges.</p></div></div><div class='para' id='string.replace-37'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-37'>37</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>replace(i1 - begin(), i2 - i1, il.begin(), il.size())</span>.</p></div></div><div class='para' id='string.replace-38'><div class='marginalizedparent'><a class='marginalized' href='#string.replace-38'>38</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>*this</span>.
 </p></div></div></div><div id='string.copy'><h4 ><a class='secnum' href='#string.copy' style='min-width:133pt'>21.3.1.6.7</a> <span class='texttt'>basic_string::copy</span> <a class='abbr_ref' href='string.copy'>[string.copy]</a></h4><p ><span class='indexparent'><a class='index' id='copy,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,copy'></a></span><code class='itemdecl'>
 size_type copy(charT* s, size_type n, size_type pos = 0) const;
-</code></p><div class='itemdescr'></div><div class='para' id='string.copy-1'><div class='marginalizedparent'><a class='marginalized' href='#string.copy-1'>1</a></div><div class='itemdescr'><p ><i>Throws:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.copy-1'><div class='marginalizedparent'><a class='marginalized' href='#string.copy-1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>rlen</span> be the smaller of <span class='texttt'>n</span> and <span class='texttt'>size() - pos</span>.</p></div></div><div class='para' id='string.copy-2'><div class='marginalizedparent'><a class='marginalized' href='#string.copy-2'>2</a></div><div class='itemdescr'><p ><i>Throws:</i>
 <span class='texttt'>out_of_range</span>
 if
-<span class='texttt'>pos &gt; size()</span>.</p></div></div><div class='para' id='string.copy-2'><div class='marginalizedparent'><a class='marginalized' href='#string.copy-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
-Determines the effective length <span class='texttt'>rlen</span>
-of the string to copy as the smaller of <span class='texttt'>n</span> and
-<span class='texttt'>size() - pos</span>.
-<span class='texttt'>s</span> shall designate an array of at least <span class='texttt'>rlen</span> elements.</p><p >The function then replaces the string designated by <span class='texttt'>s</span>
-with a string of length <span class='texttt'>rlen</span> whose elements are a copy of the
-string controlled by
-<span class='texttt'>*this</span>
-beginning at position <span class='texttt'>pos</span>.</p><p >The function does not append a null object to the string designated
-by <span class='texttt'>s</span>.</p></div></div><div class='para' id='string.copy-3'><div class='marginalizedparent'><a class='marginalized' href='#string.copy-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>pos &gt; size()</span>.</p></div></div><div class='para' id='string.copy-3'><div class='marginalizedparent'><a class='marginalized' href='#string.copy-3'>3</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>[s, s + rlen)</span> is a valid range.</p></div></div><div class='para' id='string.copy-4'><div class='marginalizedparent'><a class='marginalized' href='#string.copy-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>traits::copy(s, data() + pos, rlen)</span>.
+[&nbsp;<i>Note:</i> This does not terminate <span class='texttt'>s</span> with a null object. <i>&nbsp;—&nbsp;end note</i>&nbsp;] </p></div></div><div class='para' id='string.copy-5'><div class='marginalizedparent'><a class='marginalized' href='#string.copy-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>rlen</span>.
 </p></div></div></div><div id='string.swap'><h4 ><a class='secnum' href='#string.swap' style='min-width:133pt'>21.3.1.6.8</a> <span class='texttt'>basic_string::swap</span> <a class='abbr_ref' href='string.swap'>[string.swap]</a></h4><p ><span class='indexparent'><a class='index' id='swap,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,swap'></a></span><code class='itemdecl'>
 void swap(basic_string&amp; s)
@@ -1558,45 +1590,50 @@ int compare(size_type pos1, size_type n1,
 </code></p><div class='itemdescr'></div><div class='para' id='string.compare-3'><div class='marginalizedparent'><a class='marginalized' href='#string.compare-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Equivalent to:
 </p><pre class='codeblock'>
-return basic_string_view&lt;charT, traits&gt;(data(), pos1, n1).compare(sv);
+return basic_string_view&lt;charT, traits&gt;(data(), size()).substr(pos1, n1).compare(sv);
 </pre></div></div><p ><span class='indexparent'><a class='index' id='compare,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,compare'></a></span><code class='itemdecl'>
-int compare(size_type pos1, size_type n1,
-            basic_string_view&lt;charT, traits&gt; sv,
-            size_type pos2, size_type n2 = npos) const;
+template&lt;class T&gt;
+  int compare(size_type pos1, size_type n1, const T&amp; t,
+              size_type pos2, size_type n2 = npos) const;
 </code></p><div class='itemdescr'></div><div class='para' id='string.compare-4'><div class='marginalizedparent'><a class='marginalized' href='#string.compare-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Equivalent to:
 </p><pre class='codeblock'>
-return basic_string_view&lt;charT, traits&gt;(data(), pos1, n1).compare(sv, pos2, n2);
-</pre></div></div><p ><span class='indexparent'><a class='index' id='compare,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,compare'></a></span><code class='itemdecl'>
+basic_string_view&lt;charT, traits&gt; sv = t;
+return basic_string_view&lt;charT, traits&gt;(data(), size()).substr(pos1, n1).compare(sv.substr(pos2, n2));
+</pre></div></div><div class='para' id='string.compare-5'><div class='marginalizedparent'><a class='marginalized' href='#string.compare-5'>5</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+This function shall not participate in overload resolution
+unless <span class='texttt'>is_convertible_v&lt;const T&amp;, basic_string_view&lt;charT, traits&gt;&gt;</span>
+is <span class='texttt'>true</span> and <span class='texttt'>is_convertible_v&lt;const T&amp;, const charT*&gt;</span> is <span class='texttt'>false</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='compare,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,compare'></a></span><code class='itemdecl'>
 int compare(const basic_string&amp; str) const noexcept;
-</code></p><div class='itemdescr'></div><div class='para' id='string.compare-5'><div class='marginalizedparent'><a class='marginalized' href='#string.compare-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.compare-6'><div class='marginalizedparent'><a class='marginalized' href='#string.compare-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Equivalent to:
 <span class='texttt'>return compare(basic_string_view&lt;charT, traits&gt;(str));</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='compare,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,compare'></a></span><code class='itemdecl'>
 int compare(size_type pos1, size_type n1,
             const basic_string&amp; str) const;
-</code></p><div class='itemdescr'></div><div class='para' id='string.compare-6'><div class='marginalizedparent'><a class='marginalized' href='#string.compare-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.compare-7'><div class='marginalizedparent'><a class='marginalized' href='#string.compare-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Equivalent to:
 <span class='texttt'>return compare(pos1, n1, basic_string_view&lt;charT, traits&gt;(str));</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='compare,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,compare'></a></span><code class='itemdecl'>
 int compare(size_type pos1, size_type n1,
             const basic_string&amp; str,
             size_type pos2, size_type n2 = npos) const;
-</code></p><div class='itemdescr'></div><div class='para' id='string.compare-7'><div class='marginalizedparent'><a class='marginalized' href='#string.compare-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to:
+</code></p><div class='itemdescr'></div><div class='para' id='string.compare-8'><div class='marginalizedparent'><a class='marginalized' href='#string.compare-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to:
 </p><pre class='codeblock'>
 return compare(pos1, n1, basic_string_view&lt;charT, traits&gt;(str), pos2, n2);
 </pre></div></div><p ><span class='indexparent'><a class='index' id='compare,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,compare'></a></span><code class='itemdecl'>
 int compare(const charT* s) const;
-</code></p><div class='itemdescr'></div><div class='para' id='string.compare-8'><div class='marginalizedparent'><a class='marginalized' href='#string.compare-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.compare-9'><div class='marginalizedparent'><a class='marginalized' href='#string.compare-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>compare(basic_string(s))</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='compare,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,compare'></a></span><code class='itemdecl'>
 int compare(size_type pos, size_type n1,
             const charT* s) const;
-</code></p><div class='itemdescr'></div><div class='para' id='string.compare-9'><div class='marginalizedparent'><a class='marginalized' href='#string.compare-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>basic_string(*this, pos, n1).compare(basic_string(s))</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='string.compare-10'><div class='marginalizedparent'><a class='marginalized' href='#string.compare-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>basic_string(*this, pos, n1).compare(basic_string(s))</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='compare,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,compare'></a></span><code class='itemdecl'>
 int compare(size_type pos, size_type n1,
             const charT* s, size_type n2) const;
-</code></p><div class='itemdescr'></div><div class='para' id='string.compare-10'><div class='marginalizedparent'><a class='marginalized' href='#string.compare-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>basic_string(*this, pos, n1).compare(basic_string(s, n2))</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='string.compare-11'><div class='marginalizedparent'><a class='marginalized' href='#string.compare-11'>11</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>basic_string(*this, pos, n1).compare(basic_string(s, n2))</span>.
 </p></div></div></div></div></div><div id='string.nonmembers'><h3 ><a class='secnum' href='#string.nonmembers' style='min-width:103pt'>21.3.2</a> <span class='texttt'>basic_string</span> non-member functions <a class='abbr_ref' href='string.nonmembers'>[string.nonmembers]</a></h3><p ><span class='indexparent'><a class='index' id='basic_string'></a></span></p><div id='string.op+'><h4 ><a class='secnum' href='#string.op+' style='min-width:118pt'>21.3.2.1</a> <span class='texttt'>operator+</span> <a class='abbr_ref' href='string.op+'>[string.op+]</a></h4><p ><span class='indexparent'><a class='index' id='operator+,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,operator+'></a></span><code class='itemdecl'>
 template&lt;class charT, class traits, class Allocator&gt;
   basic_string&lt;charT, traits, Allocator&gt;
@@ -1852,16 +1889,7 @@ template&lt;class charT, class traits, class Allocator&gt;
     operator&lt;&lt;(basic_ostream&lt;charT, traits&gt;&amp; os,
                const basic_string&lt;charT, traits, Allocator&gt;&amp; str);
 </code></p><div class='itemdescr'></div><div class='para' id='string.io-5'><div class='marginalizedparent'><a class='marginalized' href='#string.io-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
-Behaves as a formatted output
-function (<a href='ostream.formatted.reqmts'>[ostream.formatted.reqmts]</a>) of <span class='texttt'>os</span>. Forms a character sequence
-<span class='texttt'>seq</span>, initially consisting of the elements defined by the range
-[<span class='texttt'>str.begin(), str.end()</span>). Determines padding for <span class='texttt'>seq</span>
-as described in <a href='ostream.formatted.reqmts'>[ostream.formatted.reqmts]</a>.
-Then inserts <span class='texttt'>seq</span> as if by calling
-<span class='texttt'>os.rdbuf()-&gt;sputn(seq, n)</span>, where <span class='texttt'>n</span> is the larger
-of <span class='texttt'>os.width()</span> and <span class='texttt'>str.size()</span>;
-then calls <span class='texttt'>os.width(0)</span>.</p></div></div><div class='para' id='string.io-6'><div class='marginalizedparent'><a class='marginalized' href='#string.io-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
-<span class='texttt'>os</span>.
+Equivalent to: <span class='texttt'>return os &lt;&lt; basic_string_view&lt;charT, traits&gt;(str);</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='getline,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,getline'></a></span><code class='itemdecl'>
 template&lt;class charT, class traits, class Allocator&gt;
   basic_istream&lt;charT, traits&gt;&amp;
@@ -1873,7 +1901,7 @@ template&lt;class charT, class traits, class Allocator&gt;
     getline(basic_istream&lt;charT, traits&gt;&amp;&amp; is,
             basic_string&lt;charT, traits, Allocator&gt;&amp; str,
             charT delim);
-</code></p><div class='itemdescr'></div><div class='para' id='string.io-7'><div class='marginalizedparent'><a class='marginalized' href='#string.io-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.io-6'><div class='marginalizedparent'><a class='marginalized' href='#string.io-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Behaves as an unformatted input function (<a href='istream.unformatted'>[istream.unformatted]</a>),
 except that it does not affect the value returned by subsequent calls to
 <span class='texttt'>basic_istream&lt;&gt;::gcount()</span>.
@@ -1884,31 +1912,31 @@ object, if the sentry converts to <span class='texttt'>true</span>, calls
 and then extracts characters from <span class='texttt'>is</span> and appends them
 to <span class='texttt'>str</span> as if by calling
 <span class='texttt'>str.append(1, c)</span>
-until any of the following occurs:</p><ul class='itemize'><li id='string.io-7.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#string.io-7.1'>(7.1)</a></div><p >end-of-file occurs on the input sequence
+until any of the following occurs:</p><ul class='itemize'><li id='string.io-6.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#string.io-6.1'>(6.1)</a></div><p >end-of-file occurs on the input sequence
 (in which case, the
 <span class='texttt'>getline</span>
 function calls
 <span class='texttt'>is.setstate(ios_base::eofbit)</span>).
-</p></li><li id='string.io-7.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#string.io-7.2'>(7.2)</a></div><p ><span class='texttt'>traits::eq(c, delim)</span>
+</p></li><li id='string.io-6.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#string.io-6.2'>(6.2)</a></div><p ><span class='texttt'>traits::eq(c, delim)</span>
 for the next available input character
 <i>c</i>
 (in which case,
 <i>c</i>
 is extracted but not appended) (<a href='iostate.flags'>[iostate.flags]</a>)
-</p></li><li id='string.io-7.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#string.io-7.3'>(7.3)</a></div><p ><span class='texttt'>str.max_size()</span>
+</p></li><li id='string.io-6.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#string.io-6.3'>(6.3)</a></div><p ><span class='texttt'>str.max_size()</span>
 characters are stored
 (in which case,
 the function calls
 <span class='texttt'>is.setstate(ios_base::failbit))</span> (<a href='iostate.flags'>[iostate.flags]</a>)
-</p></li></ul></div></div><div class='para' id='string.io-8'><div class='marginalizedparent'><a class='marginalized' href='#string.io-8'>8</a></div><div class='itemdescr'><p >The conditions are tested in the order shown.
+</p></li></ul></div></div><div class='para' id='string.io-7'><div class='marginalizedparent'><a class='marginalized' href='#string.io-7'>7</a></div><div class='itemdescr'><p >The conditions are tested in the order shown.
 In any case,
 after the last character is extracted, the
 <span class='texttt'>sentry</span>
 object <span class='texttt'>k</span>
-is destroyed.</p></div></div><div class='para' id='string.io-9'><div class='marginalizedparent'><a class='marginalized' href='#string.io-9'>9</a></div><div class='itemdescr'><p >If the function extracts no characters, it calls
+is destroyed.</p></div></div><div class='para' id='string.io-8'><div class='marginalizedparent'><a class='marginalized' href='#string.io-8'>8</a></div><div class='itemdescr'><p >If the function extracts no characters, it calls
 <span class='texttt'>is.setstate(ios_base::failbit)</span>
 which may throw
-<span class='texttt'>ios_base::failure</span> (<a href='iostate.flags'>[iostate.flags]</a>).</p></div></div><div class='para' id='string.io-10'><div class='marginalizedparent'><a class='marginalized' href='#string.io-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>ios_base::failure</span> (<a href='iostate.flags'>[iostate.flags]</a>).</p></div></div><div class='para' id='string.io-9'><div class='marginalizedparent'><a class='marginalized' href='#string.io-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>is</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='getline,basic_string'></a></span><span class='indexparent'><a class='index' id='basic_string,getline'></a></span><code class='itemdecl'>
 template&lt;class charT, class traits, class Allocator&gt;
@@ -1919,7 +1947,7 @@ template&lt;class charT, class traits, class Allocator&gt;
   basic_istream&lt;charT, traits&gt;&amp;
     getline(basic_istream&lt;charT, traits&gt;&amp;&amp; is,
             basic_string&lt;charT, traits, Allocator&gt;&amp; str);
-</code></p><div class='itemdescr'></div><div class='para' id='string.io-11'><div class='marginalizedparent'><a class='marginalized' href='#string.io-11'>11</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='string.io-10'><div class='marginalizedparent'><a class='marginalized' href='#string.io-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>getline(is, str, is.widen('\n'))</span>.
 </p></div></div></div></div><div id='string.conversions'><h3 ><a class='secnum' href='#string.conversions' style='min-width:103pt'>21.3.3</a> Numeric conversions <a class='abbr_ref' href='string.conversions'>[string.conversions]</a></h3><p ><span class='indexparent'><a class='index' id='stoi'></a></span><span class='indexparent'><a class='index' id='stol'></a></span><span class='indexparent'><a class='index' id='stoul'></a></span><span class='indexparent'><a class='index' id='stoll'></a></span><span class='indexparent'><a class='index' id='stoull'></a></span><code class='itemdecl'>
 int stoi(const string&amp; str, size_t* idx = 0, int base = 10);
@@ -2037,8 +2065,10 @@ template&lt;&gt; struct hash&lt;string&gt;;
 template&lt;&gt; struct hash&lt;u16string&gt;;
 template&lt;&gt; struct hash&lt;u32string&gt;;
 template&lt;&gt; struct hash&lt;wstring&gt;;
-</code></p><div class='itemdescr'></div><div class='para' id='basic.string.hash-1'><div class='marginalizedparent'><a class='marginalized' href='#basic.string.hash-1'>1</a></div><div class='itemdescr'><p >The template specializations shall meet the requirements of class template
-<span class='texttt'>hash</span> (<a href='unord.hash'>[unord.hash]</a>).
+</code></p><div class='itemdescr'></div><div class='para' id='basic.string.hash-1'><div class='marginalizedparent'><a class='marginalized' href='#basic.string.hash-1'>1</a></div><div class='itemdescr'><p >If <span class='texttt'>S</span> is one of these string types,
+<span class='texttt'>SV</span> is the corresponding string view type, and
+<span class='texttt'>s</span> is an object of type <span class='texttt'>S</span>,
+then <span class='texttt'>hash&lt;S&gt;()(s) == hash&lt;SV&gt;()(SV(s))</span>.
 </p></div></div></div><div id='basic.string.literals'><h3 ><a class='secnum' href='#basic.string.literals' style='min-width:103pt'>21.3.5</a> Suffix for <span class='texttt'>basic_string</span> literals <a class='abbr_ref' href='basic.string.literals'>[basic.string.literals]</a></h3><p ><span class='indexparent'><a class='index' id='operator_""_s,string'></a></span><span class='indexparent'><a class='index' id='string,operator_""_s'></a></span><code class='itemdecl'>
 string operator "" s(const char* str, size_t len);
 </code></p><div class='itemdescr'></div><div class='para' id='basic.string.literals-1'><div class='marginalizedparent'><a class='marginalized' href='#basic.string.literals-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>

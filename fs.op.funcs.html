@@ -45,8 +45,9 @@ Signatures with argument <span class='texttt'>ec</span> return <span class='text
 </p></div></div></div><div id='fs.op.copy'><h4 ><a class='secnum' href='#fs.op.copy' style='min-width:118pt'>27.10.15.3</a> Copy <a class='abbr_ref' href='fs.op.copy'>[fs.op.copy]</a></h4><p ><span class='indexparent'><a class='index' id='copy,path'></a></span><code class='itemdecl'>
 void copy(const path&amp; from, const path&amp; to);
 void copy(const path&amp; from, const path&amp; to, error_code&amp; ec) noexcept;
-</code></p><div class='itemdescr'></div><div class='para' id='fs.op.copy-1'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.copy-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>copy(from, to, copy_options::none)</span>
-or <span class='texttt'>copy(from, to, copy_options::none, ec)</span>, respectively.
+</code></p><div class='itemdescr'></div><div class='para' id='fs.op.copy-1'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.copy-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to
+<span class='texttt'>copy(from, to, copy_options::none)</span> or
+<span class='texttt'>copy(from, to, copy_options::none, ec)</span>, respectively.
 </p></div></div><p ><span class='indexparent'><a class='index' id='copy,path'></a></span><code class='itemdecl'>
 void copy(const path&amp; from, const path&amp; to, copy_options options);
 void copy(const path&amp; from, const path&amp; to, copy_options options,
@@ -59,43 +60,47 @@ Before the first use of <span class='texttt'>f</span> and <span class='texttt'>t
 (options &amp; copy_options::create_symlinks) != copy_options::none ||
 (options &amp; copy_options::skip_symlinks) != copy_options::none
 </pre><p >then <span class='texttt'>auto f = symlink_status(from)</span> and if needed <span class='texttt'>auto t = symlink_status(to)</span>.
-</p></li><li id='fs.op.copy-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy-3.2'>(3.2)</a></div><p >Otherwise, <span class='texttt'>auto f = status(from)</span> and if needed <span class='texttt'>auto t = status(to)</span>.
+</p></li><li id='fs.op.copy-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy-3.2'>(3.2)</a></div><p >Otherwise, if
+</p><pre class='codeblock'>
+(options &amp; copy_options::copy_symlinks) != copy_options::none
+</pre><p >then <span class='texttt'>auto f = symlink_status(from)</span> and if needed <span class='texttt'>auto t = status(to)</span>.
+</p></li><li id='fs.op.copy-3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy-3.3'>(3.3)</a></div><p >Otherwise, <span class='texttt'>auto f = status(from)</span> and if needed <span class='texttt'>auto t = status(to)</span>.
 </p></li></ul><p >Effects are then as follows:
-</p><ul class='itemize'><li id='fs.op.copy-3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy-3.3'>(3.3)</a></div><p >An error is reported as specified in Error reporting (<a href='fs.err.report'>[fs.err.report]</a>) if:
-</p><ul class='itemize'><li id='fs.op.copy-3.3.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.3.1'>(3.3.1)</a></div><p ><span class='texttt'>!exists(f)</span>, or
-</p></li><li id='fs.op.copy-3.3.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.3.2'>(3.3.2)</a></div><p ><span class='texttt'>equivalent(from, to)</span>, or
-</p></li><li id='fs.op.copy-3.3.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.3.3'>(3.3.3)</a></div><p ><span class='texttt'>is_other(f) || is_other(t)</span>, or
-</p></li><li id='fs.op.copy-3.3.4'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.3.4'>(3.3.4)</a></div><p ><span class='texttt'>is_directory(f) &amp;&amp; is_regular_file(t)</span>.
-</p></li></ul></li><li id='fs.op.copy-3.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy-3.4'>(3.4)</a></div><p >Otherwise, if <span class='texttt'>is_symlink(f)</span>, then:
-</p><ul class='itemize'><li id='fs.op.copy-3.4.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.4.1'>(3.4.1)</a></div><p >If
+</p><ul class='itemize'><li id='fs.op.copy-3.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy-3.4'>(3.4)</a></div><p >An error is reported as specified in Error reporting (<a href='fs.err.report'>[fs.err.report]</a>) if:
+</p><ul class='itemize'><li id='fs.op.copy-3.4.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.4.1'>(3.4.1)</a></div><p ><span class='texttt'>!exists(f)</span>, or
+</p></li><li id='fs.op.copy-3.4.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.4.2'>(3.4.2)</a></div><p ><span class='texttt'>equivalent(from, to)</span>, or
+</p></li><li id='fs.op.copy-3.4.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.4.3'>(3.4.3)</a></div><p ><span class='texttt'>is_other(f) || is_other(t)</span>, or
+</p></li><li id='fs.op.copy-3.4.4'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.4.4'>(3.4.4)</a></div><p ><span class='texttt'>is_directory(f) &amp;&amp; is_regular_file(t)</span>.
+</p></li></ul></li><li id='fs.op.copy-3.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy-3.5'>(3.5)</a></div><p >Otherwise, if <span class='texttt'>is_symlink(f)</span>, then:
+</p><ul class='itemize'><li id='fs.op.copy-3.5.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.5.1'>(3.5.1)</a></div><p >If
 <span class='texttt'>(options &amp; copy_options::skip_symlinks) != copy_options::none</span>
 then return.
-</p></li><li id='fs.op.copy-3.4.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.4.2'>(3.4.2)</a></div><p >Otherwise if
+</p></li><li id='fs.op.copy-3.5.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.5.2'>(3.5.2)</a></div><p >Otherwise if
 </p><pre class='codeblock'>
 !exists(t) &amp;&amp; (options &amp; copy_options::copy_symlinks) != copy_options::none
 </pre><p >then <span class='texttt'>copy_symlink(from, to)</span>.
-</p></li><li id='fs.op.copy-3.4.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.4.3'>(3.4.3)</a></div><p >Otherwise report an error as specified in Error reporting (<a href='fs.err.report'>[fs.err.report]</a>).
-</p></li></ul></li><li id='fs.op.copy-3.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy-3.5'>(3.5)</a></div><p >Otherwise, if <span class='texttt'>is_regular_file(f)</span>, then:
-</p><ul class='itemize'><li id='fs.op.copy-3.5.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.5.1'>(3.5.1)</a></div><p >If <span class='texttt'>(options &amp; copy_options::directories_only) != copy_options::none</span>, then return.
-</p></li><li id='fs.op.copy-3.5.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.5.2'>(3.5.2)</a></div><p >Otherwise if <span class='texttt'>(options &amp; copy_options::create_symlinks) != copy_options::none</span>, then create a symbolic link to the
+</p></li><li id='fs.op.copy-3.5.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.5.3'>(3.5.3)</a></div><p >Otherwise report an error as specified in Error reporting (<a href='fs.err.report'>[fs.err.report]</a>).
+</p></li></ul></li><li id='fs.op.copy-3.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy-3.6'>(3.6)</a></div><p >Otherwise, if <span class='texttt'>is_regular_file(f)</span>, then:
+</p><ul class='itemize'><li id='fs.op.copy-3.6.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.6.1'>(3.6.1)</a></div><p >If <span class='texttt'>(options &amp; copy_options::directories_only) != copy_options::none</span>, then return.
+</p></li><li id='fs.op.copy-3.6.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.6.2'>(3.6.2)</a></div><p >Otherwise if <span class='texttt'>(options &amp; copy_options::create_symlinks) != copy_options::none</span>, then create a symbolic link to the
       source file.
-</p></li><li id='fs.op.copy-3.5.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.5.3'>(3.5.3)</a></div><p >Otherwise if <span class='texttt'>(options &amp; copy_options::create_hard_links) != copy_options::none</span>,
+</p></li><li id='fs.op.copy-3.6.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.6.3'>(3.6.3)</a></div><p >Otherwise if <span class='texttt'>(options &amp; copy_options::create_hard_links) != copy_options::none</span>,
       then create a hard link to the source file.
-</p></li><li id='fs.op.copy-3.5.4'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.5.4'>(3.5.4)</a></div><p >Otherwise if <span class='texttt'>is_directory(t)</span>, then <span class='texttt'>copy_file(from, to/from.filename(), options)</span>.
-</p></li><li id='fs.op.copy-3.5.5'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.5.5'>(3.5.5)</a></div><p >Otherwise, <span class='texttt'>copy_file(from, to, options)</span>.
-</p></li></ul></li><li id='fs.op.copy-3.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy-3.6'>(3.6)</a></div><p >Otherwise, if
+</p></li><li id='fs.op.copy-3.6.4'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.6.4'>(3.6.4)</a></div><p >Otherwise if <span class='texttt'>is_directory(t)</span>, then <span class='texttt'>copy_file(from, to/from.filename(), options)</span>.
+</p></li><li id='fs.op.copy-3.6.5'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.6.5'>(3.6.5)</a></div><p >Otherwise, <span class='texttt'>copy_file(from, to, options)</span>.
+</p></li></ul></li><li id='fs.op.copy-3.7'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy-3.7'>(3.7)</a></div><p >Otherwise, if
 </p><pre class='codeblock'>
 is_directory(f) &amp;&amp;
 ((options &amp; copy_options::recursive) != copy_options::none ||
  options == copy_options::none)
 </pre><p >then:
-</p><ul class='itemize'><li id='fs.op.copy-3.6.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.6.1'>(3.6.1)</a></div><p >If <span class='texttt'>!exists(t)</span>, then <span class='texttt'>create_directory(to, from)</span>.
-</p></li><li id='fs.op.copy-3.6.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.6.2'>(3.6.2)</a></div><p >Then, iterate over the files in <span class='texttt'>from</span>, as if by
+</p><ul class='itemize'><li id='fs.op.copy-3.7.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.7.1'>(3.7.1)</a></div><p >If <span class='texttt'>!exists(t)</span>, then <span class='texttt'>create_directory(to, from)</span>.
+</p></li><li id='fs.op.copy-3.7.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy-3.7.2'>(3.7.2)</a></div><p >Then, iterate over the files in <span class='texttt'>from</span>, as if by
 <span class='texttt'>for (const directory_entry&amp; x : directory_iterator(from))</span>, and
 for each iteration
 </p><pre class='codeblock'>
 copy(x.path(), to/x.path().filename(), options | copy_options::<i><span class='texttt'>unspecified</span></i>)
-</pre></li></ul></li><li id='fs.op.copy-3.7'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy-3.7'>(3.7)</a></div><p >Otherwise, for the signature with argument <span class='texttt'>ec</span>, <span class='texttt'>ec.clear()</span>.</p></li><li id='fs.op.copy-3.8'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy-3.8'>(3.8)</a></div><p >Otherwise, no effects.
+</pre></li></ul></li><li id='fs.op.copy-3.8'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy-3.8'>(3.8)</a></div><p >Otherwise, for the signature with argument <span class='texttt'>ec</span>, <span class='texttt'>ec.clear()</span>.</p></li><li id='fs.op.copy-3.9'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy-3.9'>(3.9)</a></div><p >Otherwise, no effects.
 </p></li></ul></div></div><div class='para' id='fs.op.copy-4'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.copy-4'>4</a></div><div class='itemdescr'><p ><i>Throws:</i> As specified in Error reporting (<a href='fs.err.report'>[fs.err.report]</a>).</p></div></div><div class='para' id='fs.op.copy-5'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.copy-5'>5</a></div><div class='itemdescr'><p ><i>Remarks:</i> For the signature with argument <span class='texttt'>ec</span>, any
 library functions called by the implementation shall have an <span class='texttt'>error_code</span> argument if applicable.</p></div></div><div class='para' id='fs.op.copy-6'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.copy-6'>6</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i> Given this directory structure:
 </p><pre class='codeblock'>
@@ -140,8 +145,10 @@ bool copy_file(const path&amp; from, const path&amp; to, copy_options options,
 As follows:
 </p><ul class='itemize'><li id='fs.op.copy_file-4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy_file-4.1'>(4.1)</a></div><p >Report a file already exists error as specified in
     Error reporting (<a href='fs.err.report'>[fs.err.report]</a>) if:
-</p><ul class='itemize'><li id='fs.op.copy_file-4.1.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy_file-4.1.1'>(4.1.1)</a></div><p ><span class='texttt'>exists(to)</span> and <span class='texttt'>equivalent(from, to)</span>, or
-</p></li><li id='fs.op.copy_file-4.1.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy_file-4.1.2'>(4.1.2)</a></div><p ><span class='texttt'>exists(to)</span> and <span class='texttt'>(options &amp; (copy_options::skip_existing | copy_options::overwrite_existing | copy_options::update_existing)) == copy_options::none</span>.
+</p><ul class='itemize'><li id='fs.op.copy_file-4.1.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy_file-4.1.1'>(4.1.1)</a></div><p ><span class='texttt'>!is_regular_file(from)</span>, or
+</p></li><li id='fs.op.copy_file-4.1.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy_file-4.1.2'>(4.1.2)</a></div><p ><span class='texttt'>exists(to)</span> and <span class='texttt'>!is_regular_file(to)</span>, or
+</p></li><li id='fs.op.copy_file-4.1.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy_file-4.1.3'>(4.1.3)</a></div><p ><span class='texttt'>exists(to)</span> and <span class='texttt'>equivalent(from, to)</span>, or
+</p></li><li id='fs.op.copy_file-4.1.4'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy_file-4.1.4'>(4.1.4)</a></div><p ><span class='texttt'>exists(to)</span> and <span class='texttt'>(options &amp; (copy_options::skip_existing | copy_options::overwrite_existing | copy_options::update_existing)) == copy_options::none</span>.
 </p></li></ul></li><li id='fs.op.copy_file-4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.copy_file-4.2'>(4.2)</a></div><p >Otherwise, copy the contents and attributes of the file <span class='texttt'>from</span>
     resolves to, to the file <span class='texttt'>to</span> resolves to, if:
 </p><ul class='itemize'><li id='fs.op.copy_file-4.2.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.copy_file-4.2.1'>(4.2.1)</a></div><p ><span class='texttt'>!exists(to)</span>, or
@@ -156,7 +163,7 @@ As follows:
 void copy_symlink(const path&amp; existing_symlink, const path&amp; new_symlink);
 void copy_symlink(const path&amp; existing_symlink, const path&amp; new_symlink,
                   error_code&amp; ec) noexcept;
-</code></p><div class='itemdescr'></div><div class='para' id='fs.op.copy_symlink-1'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.copy_symlink-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> As if by
+</code></p><div class='itemdescr'></div><div class='para' id='fs.op.copy_symlink-1'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.copy_symlink-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to
 <span class='texttt'><i>function</i>(read_symlink(existing_symlink), new_symlink)</span> or<br/>
 <span class='texttt'><i>function</i>(read_symlink(existing_symlink, ec), new_symlink, ec)</span>, respectively,
   where <span class='texttt'><i>function</i></span> is <span class='texttt'>create_symlink</span> or
@@ -246,14 +253,15 @@ void current_path(const path&amp; p, error_code&amp; ec) noexcept;
 bool equivalent(const path&amp; p1, const path&amp; p2);
 bool equivalent(const path&amp; p1, const path&amp; p2, error_code&amp; ec) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='fs.op.equivalent-1'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.equivalent-1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>s1</span> and <span class='texttt'>s2</span> be <span class='texttt'>file_status</span>s, determined
-as if by <span class='texttt'>status(p1)</span> and <span class='texttt'>status(p2)</span>, respectively.</p></div></div><div class='para' id='fs.op.equivalent-2'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.equivalent-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Determines <span class='texttt'>s1</span> and <span class='texttt'>s2</span>.</p></div></div><div class='para' id='fs.op.equivalent-3'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.equivalent-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>true</span>, if <span class='texttt'>s1 == s2</span> and <span class='texttt'>p1</span> and <span class='texttt'>p2</span> resolve to the same file
+as if by <span class='texttt'>status(p1)</span> and <span class='texttt'>status(p2)</span>, respectively.</p></div></div><div class='para' id='fs.op.equivalent-2'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.equivalent-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Determines <span class='texttt'>s1</span> and <span class='texttt'>s2</span>.
+If <span class='texttt'>(!exists(s1) &amp;&amp; !exists(s2)) || (is_other(s1) &amp;&amp; is_other(s2))</span>
+an error is reported (<a href='fs.err.report'>[fs.err.report]</a>).</p></div></div><div class='para' id='fs.op.equivalent-3'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.equivalent-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>true</span>, if <span class='texttt'>s1 == s2</span> and <span class='texttt'>p1</span> and <span class='texttt'>p2</span> resolve to the same file
   system entity, else <span class='texttt'>false</span>. The signature with argument <span class='texttt'>ec</span>
   returns <span class='texttt'>false</span> if an error occurs.</p></div></div><div class='para' id='fs.op.equivalent-4'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.equivalent-4'>4</a></div><div class='itemdescr'><p >Two paths are considered to resolve to the same file system entity if two
   candidate entities reside on the same device at the same location. This is
   determined as if by the values of the POSIX <span class='texttt'>stat</span> structure,
   obtained as if by <span class='texttt'>stat()</span> for the two paths, having equal <span class='texttt'>st_dev</span> values
-  and equal <span class='texttt'>st_ino</span> values.</p></div></div><div class='para' id='fs.op.equivalent-5'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.equivalent-5'>5</a></div><div class='itemdescr'><p ><i>Throws:</i> <span class='texttt'>filesystem_error</span> if <span class='texttt'>(!exists(s1) &amp;&amp; !exists(s2)) || (is_other(s1) &amp;&amp; is_other(s2))</span>,
-  otherwise as specified in Error reporting (<a href='fs.err.report'>[fs.err.report]</a>).
+  and equal <span class='texttt'>st_ino</span> values.</p></div></div><div class='para' id='fs.op.equivalent-5'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.equivalent-5'>5</a></div><div class='itemdescr'><p ><i>Throws:</i> As specified in Error reporting (<a href='fs.err.report'>[fs.err.report]</a>).
 </p></div></div></div><div id='fs.op.exists'><h4 ><a class='secnum' href='#fs.op.exists' style='min-width:118pt'>27.10.15.13</a> Exists <a class='abbr_ref' href='fs.op.exists'>[fs.op.exists]</a></h4><p ><span class='indexparent'><a class='index' id='exists'></a></span><code class='itemdecl'>
 bool exists(file_status s) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='fs.op.exists-1'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.exists-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>status_known(s) &amp;&amp; s.type() != file_type::not_found</span>.
@@ -309,12 +317,25 @@ bool is_directory(const path&amp; p, error_code&amp; ec) noexcept;
 </p></div></div></div><div id='fs.op.is_empty'><h4 ><a class='secnum' href='#fs.op.is_empty' style='min-width:118pt'>27.10.15.19</a> Is empty <a class='abbr_ref' href='fs.op.is_empty'>[fs.op.is_empty]</a></h4><p ><span class='indexparent'><a class='index' id='is_empty,function'></a></span><code class='itemdecl'>
 bool is_empty(const path&amp; p);
 bool is_empty(const path&amp; p, error_code&amp; ec) noexcept;
-</code></p><div class='itemdescr'></div><div class='para' id='fs.op.is_empty-1'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.is_empty-1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>s</span> be the <span class='texttt'>file_status</span>, determined
-as if by <span class='texttt'>status(p, ec)</span>.</p></div></div><div class='para' id='fs.op.is_empty-2'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.is_empty-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Determines <span class='texttt'>s</span>.</p></div></div><div class='para' id='fs.op.is_empty-3'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.is_empty-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
-</p><pre class='codeblock'>
-is_directory(s) ? directory_iterator(p) == directory_iterator() : file_size(p) == 0;
-</pre><p >The signature with argument <span class='texttt'>ec</span> returns <span class='texttt'>false</span> if
-  an error occurs.</p></div></div><div class='para' id='fs.op.is_empty-4'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.is_empty-4'>4</a></div><div class='itemdescr'><p ><i>Throws:</i> As specified in Error reporting (<a href='fs.err.report'>[fs.err.report]</a>).
+</code></p><div class='itemdescr'></div><div class='para' id='fs.op.is_empty-1'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.is_empty-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><ul class='itemize'><li id='fs.op.is_empty-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.is_empty-1.1'>(1.1)</a></div><p >Determine <span class='texttt'>file_status s</span>,
+   as if by <span class='texttt'>status(p)</span> or <span class='texttt'>status(p, ec)</span>, respectively.
+</p></li><li id='fs.op.is_empty-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.is_empty-1.2'>(1.2)</a></div><p >For the signature with argument <span class='texttt'>ec</span>,
+   return <span class='texttt'>false</span> if an error occurred.
+</p></li><li id='fs.op.is_empty-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.is_empty-1.3'>(1.3)</a></div><p >Otherwise, if <span class='texttt'>is_directory(s)</span>:
+  </p><ul class='itemize'><li id='fs.op.is_empty-1.3.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.is_empty-1.3.1'>(1.3.1)</a></div><p >Create <span class='texttt'>directory_iterator itr</span>,
+     as if by <span class='texttt'>directory_iterator(p)</span> or
+     <span class='texttt'>directory_iterator(p, ec)</span>, respectively.
+  </p></li><li id='fs.op.is_empty-1.3.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.is_empty-1.3.2'>(1.3.2)</a></div><p >For the signature with argument <span class='texttt'>ec</span>,
+     return <span class='texttt'>false</span> if an error occurred.
+  </p></li><li id='fs.op.is_empty-1.3.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.is_empty-1.3.3'>(1.3.3)</a></div><p >Otherwise, return <span class='texttt'>itr == directory_iterator()</span>.
+  </p></li></ul></li><li id='fs.op.is_empty-1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#fs.op.is_empty-1.4'>(1.4)</a></div><p >Otherwise:
+  </p><ul class='itemize'><li id='fs.op.is_empty-1.4.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.is_empty-1.4.1'>(1.4.1)</a></div><p >Determine <span class='texttt'>uintmax_t sz</span>,
+    as if by <span class='texttt'>file_size(p)</span> or <span class='texttt'>file_size(p, ec)</span>, respectively.
+  </p></li><li id='fs.op.is_empty-1.4.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.is_empty-1.4.2'>(1.4.2)</a></div><p >For the signature with argument <span class='texttt'>ec</span>,
+    return <span class='texttt'>false</span> if an error occurred.
+  </p></li><li id='fs.op.is_empty-1.4.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#fs.op.is_empty-1.4.3'>(1.4.3)</a></div><p >Otherwise, return <span class='texttt'>sz == 0</span>.
+  </p></li></ul></li></ul></div></div><div class='para' id='fs.op.is_empty-2'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.is_empty-2'>2</a></div><div class='itemdescr'><p ><i>Throws:</i> As specified in Error reporting (<a href='fs.err.report'>[fs.err.report]</a>).
 </p></div></div></div><div id='fs.op.is_fifo'><h4 ><a class='secnum' href='#fs.op.is_fifo' style='min-width:118pt'>27.10.15.20</a> Is fifo <a class='abbr_ref' href='fs.op.is_fifo'>[fs.op.is_fifo]</a></h4><p ><span class='indexparent'><a class='index' id='is_fifo'></a></span><code class='itemdecl'>
 bool is_fifo(file_status s) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='fs.op.is_fifo-1'><div class='marginalizedparent'><a class='marginalized' href='#fs.op.is_fifo-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>s.type() == file_type::fifo</span>.

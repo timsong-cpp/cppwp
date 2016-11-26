@@ -523,11 +523,13 @@ Expression          </td><td class='justify'>   Post-condition  </td></tr><tr cl
 
 
 Expression      </td><td class='justify'>   Return type </td><td class='justify'>   Return value    </td><td class='justify'>   Post-condition  </td></tr><tr class='capsep'><td class='justify'> 
-<span class='texttt'>t = rv</span>  </td><td class='justify'>   <span class='texttt'>T&amp;</span> </td><td class='justify'>   <span class='texttt'>t</span>       </td><td class='justify'>   <span class='texttt'>t</span> is equivalent
-  to the value of <span class='texttt'>rv</span> before the assignment</td></tr><tr class='rowsep'><td colspan='4' class='justify'>
+<span class='texttt'>t = rv</span>  </td><td class='justify'>   <span class='texttt'>T&amp;</span> </td><td class='justify'>   <span class='texttt'>t</span>       </td><td class='justify'>
+  If <span class='texttt'>t</span> and <span class='texttt'>rv</span> do not refer to the same object,
+  <span class='texttt'>t</span> is equivalent to the value of <span class='texttt'>rv</span> before the assignment</td></tr><tr class='rowsep'><td colspan='4' class='justify'>
   <span class='texttt'>rv</span>'s state is unspecified.
   [&nbsp;<i>Note:</i> <span class='texttt'>rv</span> must still meet the requirements of the library
-  component that is using it. The operations listed in those requirements must
+  component that is using it, whether or not <span class='texttt'>t</span> and <span class='texttt'>rv</span> refer to the same object.
+  The operations listed in those requirements must
   work as specified whether <span class='texttt'>rv</span> has been moved from or not. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</td></tr></table></div><hr><h4 ><a class='secnum' style='min-width:118pt'>17.5.3.1</a> Template argument requirements <a class='abbr_ref' href='utility.arg.requirements#tab:copyassignable'>[utility.arg.requirements]</a></h4><div class='numberedTable' id='copyassignable'>Table <a href='#copyassignable'>26</a> — <span class='texttt'>CopyAssignable</span> requirements (in addition to <span class='texttt'>MoveAssignable</span>)<br><table ><tr class='rowsep'><td class='justify'>
 
 
@@ -640,7 +642,7 @@ type (possibly <span class='texttt'>const</span>) <span class='texttt'>std::null
   <span class='texttt'>X::const_pointer</span>                </td><td class='left'>
   <span class='texttt'>static_cast&lt;X</span> <span class='texttt'>::const_pointer&gt;(x)</span> <span class='texttt'>== q</span> </td><td class='left'> </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.allocate(n)</span>   </td><td class='left'>   <span class='texttt'>X::pointer</span>  </td><td class='left'>
 Memory is allocated for <span class='texttt'>n</span> objects of type <span class='texttt'>T</span> but objects
-are not constructed. <span class='texttt'>allocate</span> may throw an appropriate exception.<a class='footnotenum' href='#footnote-176'>176</a>
+are not constructed. <span class='texttt'>allocate</span> may throw an appropriate exception.<a class='footnotenum' href='#footnote-177'>177</a>
 [&nbsp;<i>Note:</i>
 If <span class='texttt'>n == 0</span>, the return value is unspecified.
 <i>&nbsp;—&nbsp;end note</i>&nbsp;]              </td><td class='left'>  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a.allocate(n, y)</span>    </td><td class='left'>
@@ -876,7 +878,8 @@ but not pointers to non-static members.                        </td></tr><tr cla
   <span class='texttt'>T(0) &lt; T(-1)</span>;
   otherwise, <span class='texttt'>false</span>   </td><td class='left'>   </td></tr><tr class='rowsep'><td class='left'>  <span class='indexparent'><a class='index' id='is_constructible'></a></span><span class='texttt'>template &lt;class T, class... Args&gt;</span><br/>
  <span class='texttt'>struct is_constructible;</span>   </td><td class='left'>
- For a function type <span class='texttt'>T</span>,
+ For a function type <span class='texttt'>T</span> or
+ for a (possibly cv-qualified) <span class='texttt'>void</span> type <span class='texttt'>T</span>,
  <span class='texttt'>is_constructible_v&lt;T, Args...&gt;</span> is <span class='texttt'>false</span>,
  otherwise <i><span class='texttt'>see below</span></i>                </td><td class='left'>
  <span class='texttt'>T</span> and all types in the parameter pack <span class='texttt'>Args</span>
@@ -1281,13 +1284,11 @@ not possibly cv-qualified versions of the same type,
  If <span class='texttt'>B</span> is <span class='texttt'>true</span>,  the member typedef <span class='texttt'>type</span> shall equal <span class='texttt'>T</span>.
  If <span class='texttt'>B</span> is <span class='texttt'>false</span>, the member typedef <span class='texttt'>type</span> shall equal <span class='texttt'>F</span>. </td></tr><tr class='rowsep'><td class='left'>  <span class='texttt'>template &lt;class... T&gt;</span> <span class='texttt'>struct common_type;</span>
  </td><td class='left'>
- The member typedef <span class='texttt'>type</span> shall be defined or omitted as specified below.
- If it is omitted, there shall be no member <span class='texttt'>type</span>. All types in
- the parameter pack <span class='texttt'>T</span> shall be complete or (possibly <i>cv</i>) <span class='texttt'>void</span>.
- A program may specialize this trait if at least one template parameter in the
- specialization is a user-defined type. [&nbsp;<i>Note:</i> Such specializations are
- needed when only explicit conversions are desired among the template arguments.
- <i>&nbsp;—&nbsp;end note</i>&nbsp;] </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='underlying_type'></a></span><span class='texttt'>template &lt;class T&gt;</span><br/>
+ Unless this trait is specialized (as specified in Note B, below),
+ the member <span class='texttt'>type</span> shall be defined or omitted as specified in Note A, below.
+ If it is omitted, there shall be no member <span class='texttt'>type</span>.
+ Each type in the parameter pack <span class='texttt'>T</span> shall be
+ complete, <span class='texttt'>void</span>, or an array of unknown bound. </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='underlying_type'></a></span><span class='texttt'>template &lt;class T&gt;</span><br/>
  <span class='texttt'>struct underlying_type;</span>
  </td><td class='left'>
  The member typedef <span class='texttt'>type</span> shall name the underlying type
@@ -2072,7 +2073,7 @@ linear													</td></tr><tr class='rowsep'><td class='left'> <span class='t
 
 <span class='texttt'>unordered_set&lt;K, H1, E1, A&gt;</span>    </td><td class='left'> <span class='texttt'>unordered_set&lt;K, H2, E2, A&gt;</span>         </td></tr><tr class='rowsep'><td class='left'>
 
-<span class='texttt'>unordered_set&lt;K, H1, E1, A&gt;</span>    </td><td class='left'> <span class='texttt'>unordered_multiset&lt;K, H2, E2, A&gt;</span>    </td></tr></table></div><hr><h4 ><a class='secnum' style='min-width:103pt'>23.2.5</a> Associative containers <a class='abbr_ref' href='associative.reqmts#tab:containers.associative.requirements'>[associative.reqmts]</a></h4><div class='numberedTable' id='containers.associative.requirements'>Table <a href='#containers.associative.requirements'>85</a> — Associative container requirements (in addition to container)<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Assertion/note</b></td><td colspan='1' class='center'><b>Complexity</b></td></tr><tr ><td class='left'>
+<span class='texttt'>unordered_set&lt;K, H1, E1, A&gt;</span>    </td><td class='left'> <span class='texttt'>unordered_multiset&lt;K, H2, E2, A&gt;</span>    </td></tr></table></div><hr><h4 ><a class='secnum' style='min-width:103pt'>23.2.6</a> Associative containers <a class='abbr_ref' href='associative.reqmts#tab:containers.associative.requirements'>[associative.reqmts]</a></h4><div class='numberedTable' id='containers.associative.requirements'>Table <a href='#containers.associative.requirements'>85</a> — Associative container requirements (in addition to container)<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Assertion/note</b></td><td colspan='1' class='center'><b>Complexity</b></td></tr><tr ><td class='left'>
                         </td><td class='left'>                       </td><td colspan='1' class='center'><b>pre-/post-condition</b></td><td class='left'>                       </td></tr><tr class='capsep'><td class='left'> 
 <span class='texttt'>X::key_type</span>     </td><td class='left'>
  <span class='texttt'>Key</span>            </td><td class='left'>
@@ -2099,17 +2100,6 @@ linear													</td></tr><tr class='rowsep'><td class='left'> <span class='t
  class template, such that the public nested types are
  the same types as the corresponding types in <span class='texttt'>X</span>. </td><td class='left'>
  see <a href='container.node'>[container.node]</a> </td><td class='left'>
- compile time </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::insert_return_type</span> </td><td class='left'>
- a class type used to describe the results of inserting a
- <span class='texttt'>node_type</span> that includes at least the following non-static
- public data members:<br/>
-   <span class='texttt'>bool inserted;</span><br/>
-   <span class='texttt'>X::iterator position;</span><br/>
-   <span class='texttt'>X::node_type node;</span><br/>
- The type shall be <span class='texttt'>MoveConstructible</span>, <span class='texttt'>MoveAssignable</span>,
- <span class='texttt'>DefaultConstructible</span>, <span class='texttt'>Destructible</span>, and
- lvalues of that type shall be swappable (<a href='swappable.requirements'>[swappable.requirements]</a>).  </td><td class='left'>
- </td><td class='left'>
  compile time </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X(c)</span><br/>
 <span class='texttt'>X u(c);</span>                         </td><td class='left'>
                                         </td><td class='left'>
@@ -2358,7 +2348,7 @@ linear													</td></tr><tr class='rowsep'><td class='left'> <span class='t
  <span class='texttt'>pair&lt;const_iterator, const_iterator&gt;</span> for constant <span class='texttt'>a_tran</span>.     </td><td class='left'>
  equivalent to <span class='texttt'>make_pair(</span><br/>
  <span class='texttt'>a_tran.lower_bound(ke), a_tran.upper_bound(ke))</span>.    </td><td class='left'>
- logarithmic                    </td></tr></table></div><hr><h4 ><a class='secnum' style='min-width:103pt'>23.2.6</a> Unordered associative containers <a class='abbr_ref' href='unord.req#tab:HashRequirements'>[unord.req]</a></h4><div class='numberedTable' id='HashRequirements'>Table <a href='#HashRequirements'>86</a> — Unordered associative container requirements (in addition to container)<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Assertion/note pre-/post-condition</b></td><td colspan='1' class='center'><b>Complexity</b></td></tr><tr class='capsep'><td class='left'> 
+ logarithmic                    </td></tr></table></div><hr><h4 ><a class='secnum' style='min-width:103pt'>23.2.7</a> Unordered associative containers <a class='abbr_ref' href='unord.req#tab:HashRequirements'>[unord.req]</a></h4><div class='numberedTable' id='HashRequirements'>Table <a href='#HashRequirements'>86</a> — Unordered associative container requirements (in addition to container)<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Expression</b></td><td colspan='1' class='center'><b>Return type</b></td><td colspan='1' class='center'><b>Assertion/note pre-/post-condition</b></td><td colspan='1' class='center'><b>Complexity</b></td></tr><tr class='capsep'><td class='left'> 
 
 <span class='texttt'>X::key_type</span>   </td><td class='left'>
 <span class='indexparent'><a class='index' id='unordered_associative_containers,key_type'></a></span><span class='indexparent'><a class='index' id='key_type,unordered_associative_containers'></a></span>  <span class='texttt'>Key</span>         </td><td class='left'>
@@ -2404,18 +2394,6 @@ linear													</td></tr><tr class='rowsep'><td class='left'> <span class='t
  class template, such that the public nested types are
  the same types as the corresponding types in <span class='texttt'>X</span>. </td><td class='left'>
  see <a href='container.node'>[container.node]</a> </td><td class='left'>
- compile time </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>X::insert_return_type</span> </td><td class='left'>
- a class type used to describe the results of inserting a
- <span class='texttt'>node_type</span> that includes at least the following non-static
- public data members:<br/>
-   <span class='texttt'>bool inserted;</span><br/>
-   <span class='texttt'>X::iterator position;</span><br/>
-   <span class='texttt'>X::node_type node;</span><br/>
- The type shall be <span class='texttt'>MoveConstructible</span>, <span class='texttt'>MoveAssignable</span>,
- <span class='texttt'>DefaultConstructible</span>, <span class='texttt'>Destructible</span>, and
- lvalues of that type shall be swappable (<a href='swappable.requirements'>[swappable.requirements]</a>).  </td><td class='left'>
- </td><td class='left'>
  compile time </td></tr><tr class='rowsep'><td class='left'> 
 <span class='texttt'>X(n, hf, eq)</span><br/> <span class='texttt'>X a(n, hf, eq);</span>
 </td><td class='left'>   <span class='texttt'>X</span>
@@ -2588,7 +2566,7 @@ and <span class='texttt'>CopyAssignable</span>.<br/>
     inserted element.
     <span class='indexparent'><a class='index' id='unordered_associative_containers,insert'></a></span>    <span class='indexparent'><a class='index' id='insert,unordered_associative_containers'></a></span></td><td class='left'>   Average case <span class='math'>Ο(<span class='math'>1</span>)</span>, worst case <span class='math'>Ο(<span class='math'><span class='texttt'>a_eq.</span><br/><span class='texttt'>size()</span></span>)</span>.
 </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>a.insert(q, t)</span>
+<span class='texttt'>a.insert(p, t)</span>
 </td><td class='left'>   <span class='texttt'>iterator</span>
 </td><td class='left'>   <i>Requires:</i> If <span class='texttt'>t</span> is a non-const rvalue expression, <span class='texttt'>value_type</span> shall be
     <span class='texttt'>MoveInsertable</span> into <span class='texttt'>X</span>; otherwise, <span class='texttt'>value_type</span> shall be
@@ -2908,7 +2886,9 @@ the number of elements erased.
  <span class='texttt'>  return tmp += n; }</span>  </td><td class='left'>
  <span class='texttt'>a + n == n + a</span>.        </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>r -= n</span>      </td><td class='left'>
  <span class='texttt'>X&amp;</span>        </td><td class='left'>
- <span class='texttt'>return r += -n;</span>    </td><td class='left'>   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a - n</span>       </td><td class='left'>
+ <span class='texttt'>return r += -n;</span>    </td><td class='left'>
+ pre: the absolute value of <span class='texttt'>n</span> is in the range of
+ representable values of <span class='texttt'>difference_type</span>.   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>a - n</span>       </td><td class='left'>
  <span class='texttt'>X</span>          </td><td class='left'>
  <span class='texttt'>{ X tmp = a;</span><br/>
  <span class='texttt'>  return tmp -= n; }</span>  </td><td class='left'>   </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>b - a</span>       </td><td class='left'>
@@ -3053,7 +3033,7 @@ the number of elements erased.
       with initial state determined by <span class='texttt'>s</span>.
   </td><td class='left'> <span class='math'>Ο(<span class='math'><span class='mbox'>size of state</span></span>)</span>
   </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>E(q)</span><span class='indexparent'><a class='index' id='constructor,random_number_engine_requirement'></a></span><a class='footnotenum' href='#footnote-269'>269</a>
+<span class='texttt'>E(q)</span><span class='indexparent'><a class='index' id='constructor,random_number_engine_requirement'></a></span><a class='footnotenum' href='#footnote-270'>270</a>
   </td><td class='left'>
   </td><td class='left'> Creates an engine
     with an initial state
@@ -3091,7 +3071,7 @@ the number of elements erased.
   </td><td class='left'> per Table <a href='rand.req.urng#tab:UniformRandomBitGenerator'>[tab:UniformRandomBitGenerator]</a>
   </td></tr><tr class='rowsep'><td class='left'> 
 <span class='texttt'>e.discard(z)</span><span class='indexparent'><a class='index' id='discard,random_number_engine_requirement'></a></span>
-<a class='footnotenum' href='#footnote-270'>270</a>
+<a class='footnotenum' href='#footnote-271'>271</a>
   </td><td class='left'> <span class='texttt'>void</span>
   </td><td class='left'> Advances <span class='texttt'>e</span>'s state <span class='texttt'>e</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>
       to <span class='math'><span class='texttt'>e</span><sub ><span class='mathalpha'>i</span>+<span class='texttt'>z</span></sub></span>
@@ -3525,51 +3505,56 @@ Otherwise </td><td class='left'>
 <span class='texttt'>runtime_error::what()</span>	</td><td class='left'> <span class='texttt'>what_arg.c_str()</span> </td></tr><tr class='rowsep'><td class='left'> 
 <span class='texttt'>code()</span>			</td><td class='left'> <span class='texttt'>ec</span>	</td></tr><tr class='rowsep'><td class='left'> 
 <span class='texttt'>path1()</span>			</td><td class='left'> Reference to stored copy of <span class='texttt'>p1</span>	</td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>path2()</span>			</td><td class='left'> Reference to stored copy of <span class='texttt'>p2</span>	</td></tr></table></div><hr><h4 ><a class='secnum' style='min-width:118pt'>27.10.10.1</a> Enum class <span class='texttt'>file_type</span> <a class='abbr_ref' href='enum.file_type#tab:enum.file_type'>[enum.file_type]</a></h4><div class='numberedTable' id='enum.file_type'>Table <a href='#enum.file_type'>117</a> — Enum class <span class='texttt'>file_type</span><br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Constant</b></td><td colspan='1' class='center'><b>Value</b></td><td colspan='1' class='center'><b>Meaning</b></td></tr><tr class='capsep'><td class='left'> <span class='texttt'>none</span> </td><td class='right'> <span class='texttt'>0</span> </td><td class='justify'>
+<span class='texttt'>path2()</span>			</td><td class='left'> Reference to stored copy of <span class='texttt'>p2</span>	</td></tr></table></div><hr><h4 ><a class='secnum' style='min-width:118pt'>27.10.10.1</a> Enum class <span class='texttt'>file_type</span> <a class='abbr_ref' href='enum.file_type#tab:enum.file_type'>[enum.file_type]</a></h4><div class='numberedTable' id='enum.file_type'>Table <a href='#enum.file_type'>117</a> — Enum class <span class='texttt'>file_type</span><br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Constant</b></td><td colspan='1' class='center'><b>Meaning</b></td></tr><tr class='capsep'><td class='left'> <span class='texttt'>none</span> </td><td class='justify'>
 The type of the file has not been determined or an error occurred while
     trying to determine the type. </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>not_found</span> </td><td class='right'> <span class='texttt'>-1</span> </td><td class='justify'>
+<span class='texttt'>not_found</span> </td><td class='justify'>
 Pseudo-type indicating the file was not found. [&nbsp;<i>Note:</i> The file
 not being found is not considered an error while determining the
 type of a file. <i>&nbsp;—&nbsp;end note</i>&nbsp;] </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>regular</span> </td><td class='right'> <span class='texttt'>1</span> </td><td class='justify'> Regular file </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>directory</span> </td><td class='right'> <span class='texttt'>2</span> </td><td class='justify'> Directory file </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>symlink</span> </td><td class='right'> <span class='texttt'>3</span> </td><td class='justify'> Symbolic link file </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>block</span> </td><td class='right'> <span class='texttt'>4</span> </td><td class='justify'> Block special file </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>character</span> </td><td class='right'> <span class='texttt'>5</span> </td><td class='justify'> Character special file </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>fifo</span> </td><td class='right'> <span class='texttt'>6</span> </td><td class='justify'> FIFO or pipe file </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>socket</span> </td><td class='right'> <span class='texttt'>7</span> </td><td class='justify'> Socket file </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>unknown</span> </td><td class='right'> <span class='texttt'>8</span> </td><td class='justify'>
-The file does exist, but is of an operating system dependent type not
-    covered by any of the other cases or the process does not have permission to
-    query the file type </td></tr></table></div><hr><h4 ><a class='secnum' style='min-width:118pt'>27.10.10.2</a> Enum class <span class='texttt'>copy_options</span> <a class='abbr_ref' href='enum.copy_options#tab:enum.copy_options'>[enum.copy_options]</a></h4><div class='numberedTable' id='enum.copy_options'>Table <a href='#enum.copy_options'>118</a> — Enum class <span class='texttt'>copy_options</span><br><table ><tr class='rowsep'><td colspan='3' class='center'><b>Option group controlling <span class='texttt'>copy_file</span> function effects for existing target files</b></td></tr><tr class='rowsep'><td colspan='1' class='center'><b>Constant</b></td><td colspan='1' class='center'><b>Value</b></td><td colspan='1' class='center'><b>Meaning</b></td></tr><tr class='capsep'><td class='left'> 
-<span class='texttt'>none</span> </td><td class='right'> <span class='texttt'>0</span> </td><td class='justify'>
+<span class='texttt'>regular</span> </td><td class='justify'> Regular file </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>directory</span> </td><td class='justify'> Directory file </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>symlink</span> </td><td class='justify'> Symbolic link file </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>block</span> </td><td class='justify'> Block special file </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>character</span> </td><td class='justify'> Character special file </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>fifo</span> </td><td class='justify'> FIFO or pipe file </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>socket</span> </td><td class='justify'> Socket file </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'><i><span class='indexparent'><a class='index' id='additional_file_type_enumerators_for_file_systems_supporting_additional_types_of_file'></a></span>implementation-defined</i></span> </td><td class='justify'>
+Implementations that support file systems having file types
+in addition to the above <span class='texttt'>file_type</span> types
+shall supply
+<span class='indexparent'><a class='index' id='additional_file_type_enumerators_for_file_systems_supporting_additional_types_of_file'></a></span>implementation-defined
+<span class='texttt'>file_type</span> constants
+to separately identify each of those additional file types </td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>unknown</span> </td><td class='justify'>
+The file exists but the type could not be determined </td></tr></table></div><hr><h4 ><a class='secnum' style='min-width:118pt'>27.10.10.2</a> Enum class <span class='texttt'>copy_options</span> <a class='abbr_ref' href='enum.copy_options#tab:enum.copy_options'>[enum.copy_options]</a></h4><div class='numberedTable' id='enum.copy_options'>Table <a href='#enum.copy_options'>118</a> — Enum class <span class='texttt'>copy_options</span><br><table ><tr class='rowsep'><td colspan='2' class='center'><b>Option group controlling <span class='texttt'>copy_file</span> function effects for existing target files</b></td></tr><tr class='rowsep'><td colspan='1' class='center'><b>Constant</b></td><td colspan='1' class='center'><b>Meaning</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='texttt'>none</span> </td><td class='justify'>
     (Default) Error; file already exists. </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>skip_existing</span> </td><td class='right'> <span class='texttt'>1</span> </td><td class='justify'>
+<span class='texttt'>skip_existing</span> </td><td class='justify'>
     Do not overwrite existing file, do not report an error.  </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>overwrite_existing</span> </td><td class='right'> <span class='texttt'>2</span> </td><td class='justify'>
+<span class='texttt'>overwrite_existing</span> </td><td class='justify'>
     Overwrite the existing file.  </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>update_existing</span> </td><td class='right'> <span class='texttt'>4</span> </td><td class='justify'>
-    Overwrite the existing file if it is older than the replacement file.  </td></tr><tr class='capsep'><td colspan='3' class='center'><b>Option group controlling <span class='texttt'>copy</span> function effects for sub-directories</b></td></tr><tr class='rowsep'><td colspan='1' class='center'><b>Constant</b></td><td colspan='1' class='center'><b>Value</b></td><td colspan='1' class='center'><b>Meaning</b></td></tr><tr class='capsep'><td class='left'> 
-<span class='texttt'>none</span> </td><td class='right'> <span class='texttt'>0</span> </td><td class='justify'>
+<span class='texttt'>update_existing</span> </td><td class='justify'>
+    Overwrite the existing file if it is older than the replacement file.  </td></tr><tr class='capsep'><td colspan='2' class='center'><b>Option group controlling <span class='texttt'>copy</span> function effects for sub-directories</b></td></tr><tr class='rowsep'><td colspan='1' class='center'><b>Constant</b></td><td colspan='1' class='center'><b>Meaning</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='texttt'>none</span> </td><td class='justify'>
     (Default) Do not copy sub-directories.  </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>recursive</span> </td><td class='right'> <span class='texttt'>8</span> </td><td class='justify'>
-    Recursively copy sub-directories and their contents.  </td></tr><tr class='capsep'><td colspan='3' class='center'><b>Option group controlling <span class='texttt'>copy</span> function effects for symbolic links</b></td></tr><tr class='rowsep'><td colspan='1' class='center'><b>Constant</b></td><td colspan='1' class='center'><b>Value</b></td><td colspan='1' class='center'><b>Meaning</b></td></tr><tr class='capsep'><td class='left'> 
-<span class='texttt'>none</span> </td><td class='right'> <span class='texttt'>0</span> </td><td class='justify'>
+<span class='texttt'>recursive</span> </td><td class='justify'>
+    Recursively copy sub-directories and their contents.  </td></tr><tr class='capsep'><td colspan='2' class='center'><b>Option group controlling <span class='texttt'>copy</span> function effects for symbolic links</b></td></tr><tr class='rowsep'><td colspan='1' class='center'><b>Constant</b></td><td colspan='1' class='center'><b>Meaning</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='texttt'>none</span> </td><td class='justify'>
     (Default) Follow symbolic links.  </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>copy_symlinks</span> </td><td class='right'> <span class='texttt'>16</span> </td><td class='justify'>
+<span class='texttt'>copy_symlinks</span> </td><td class='justify'>
     Copy symbolic links as symbolic links rather than copying the files that
     they point to.  </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>skip_symlinks</span> </td><td class='right'> <span class='texttt'>32</span> </td><td class='justify'>
-    Ignore symbolic links.  </td></tr><tr class='capsep'><td colspan='3' class='center'><b>Option group controlling <span class='texttt'>copy</span> function effects for choosing the form of copying</b></td></tr><tr class='rowsep'><td colspan='1' class='center'><b>Constant</b></td><td colspan='1' class='center'><b>Value</b></td><td colspan='1' class='center'><b>Meaning</b></td></tr><tr class='capsep'><td class='left'> 
-<span class='texttt'>none</span> </td><td class='right'> <span class='texttt'>0</span> </td><td class='justify'>
+<span class='texttt'>skip_symlinks</span> </td><td class='justify'>
+    Ignore symbolic links.  </td></tr><tr class='capsep'><td colspan='2' class='center'><b>Option group controlling <span class='texttt'>copy</span> function effects for choosing the form of copying</b></td></tr><tr class='rowsep'><td colspan='1' class='center'><b>Constant</b></td><td colspan='1' class='center'><b>Meaning</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='texttt'>none</span> </td><td class='justify'>
     (Default) Copy content.  </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>directories_only</span> </td><td class='right'> <span class='texttt'>64</span> </td><td class='justify'>
+<span class='texttt'>directories_only</span> </td><td class='justify'>
     Copy directory structure only, do not copy non-directory files.  </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>create_symlinks</span> </td><td class='right'> <span class='texttt'>128</span> </td><td class='justify'>
+<span class='texttt'>create_symlinks</span> </td><td class='justify'>
     Make symbolic links instead of copies of files. The source path shall be
     an absolute path unless the destination path is in the current directory.  </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>create_hard_links</span> </td><td class='right'> <span class='texttt'>256</span> </td><td class='justify'>
+<span class='texttt'>create_hard_links</span> </td><td class='justify'>
     Make hard links instead of copies of files.  </td></tr></table></div><hr><h4 ><a class='secnum' style='min-width:118pt'>27.10.10.3</a> Enum class <span class='texttt'>perms</span> <a class='abbr_ref' href='enum.perms#tab:enum.perms'>[enum.perms]</a></h4><div class='numberedTable' id='enum.perms'>Table <a href='#enum.perms'>119</a> — Enum class <span class='texttt'>perms</span><br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Name</b></td><td colspan='1' class='center'><b>Value</b></td><td colspan='1' class='center'><b>POSIX</b></td><td colspan='1' class='center'><b>Definition or notes</b></td></tr><tr ><td class='left'>
 		</td><td colspan='1' class='center'><b>(octal)</b></td><td colspan='1' class='center'><b>macro</b></td><td class='justify'> </td></tr><tr class='capsep'><td class='left'> <span class='texttt'>none</span> </td><td class='right'> <span class='texttt'>0</span> </td><td class='left'> </td><td class='justify'>
   There are no permissions set for the file.  </td></tr><tr class='rowsep'><td class='left'> 
@@ -3622,14 +3607,11 @@ The file does exist, but is of an operating system dependent type not
   file's current permission bits.  </td></tr><tr class='rowsep'><td class='left'> 
 <span class='texttt'>symlink_nofollow</span> </td><td class='right'>
   <span class='texttt'>0x40000</span> </td><td class='left'>  </td><td class='justify'>
-  <span class='texttt'>permissions()</span> shall change the permissions of symbolic links. </td></tr></table></div><hr><h4 ><a class='secnum' style='min-width:118pt'>27.10.10.4</a> Enum class <span class='texttt'>directory_options</span> <a class='abbr_ref' href='enum.directory_options#tab:enum.directory_options'>[enum.directory_options]</a></h4><div class='numberedTable' id='enum.directory_options'>Table <a href='#enum.directory_options'>120</a> — Enum class <span class='texttt'>directory_options</span><br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Name</b></td><td colspan='1' class='center'><b>Value</b></td><td colspan='1' class='center'><b>Meaning</b></td></tr><tr class='capsep'><td class='left'> <span class='texttt'>none</span> </td><td class='right'>
-<span class='texttt'>0</span> </td><td class='justify'>
+  <span class='texttt'>permissions()</span> shall change the permissions of symbolic links. </td></tr></table></div><hr><h4 ><a class='secnum' style='min-width:118pt'>27.10.10.4</a> Enum class <span class='texttt'>directory_options</span> <a class='abbr_ref' href='enum.directory_options#tab:enum.directory_options'>[enum.directory_options]</a></h4><div class='numberedTable' id='enum.directory_options'>Table <a href='#enum.directory_options'>120</a> — Enum class <span class='texttt'>directory_options</span><br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Name</b></td><td colspan='1' class='center'><b>Meaning</b></td></tr><tr class='capsep'><td class='left'> <span class='texttt'>none</span> </td><td class='justify'>
 (Default) Skip directory symlinks, permission denied is an error. </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>follow_directory_symlink</span> </td><td class='right'>
-<span class='texttt'>1</span> </td><td class='justify'>
+<span class='texttt'>follow_directory_symlink</span> </td><td class='justify'>
 Follow rather than skip directory symlinks. </td></tr><tr class='rowsep'><td class='left'> 
-<span class='texttt'>skip_permission_denied</span> </td><td class='right'>
-<span class='texttt'>2</span> </td><td class='justify'>
+<span class='texttt'>skip_permission_denied</span> </td><td class='justify'>
 Skip directories that would otherwise result in permission denied. </td></tr></table></div><hr><h4 ><a class='secnum' style='min-width:118pt'>27.10.15.26</a> Permissions <a class='abbr_ref' href='fs.op.permissions#tab:fs.op.permissions'>[fs.op.permissions]</a></h4><div class='numberedTable' id='fs.op.permissions'>Table <a href='#fs.op.permissions'>121</a> — Effects of permission bits<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Bits present in <span class='texttt'>prms</span></b></td><td colspan='1' class='center'><b>Effective bits applied</b></td></tr><tr class='capsep'><td class='left'> 
 Neither <span class='texttt'>add_perms</span> nor <span class='texttt'>remove_perms</span> </td><td class='left'>
   <span class='texttt'>prms &amp; perms::mask</span> </td></tr><tr class='rowsep'><td class='left'> 
@@ -3791,7 +3773,12 @@ shall be that used by the utility grep in POSIX.
 Specifies that the grammar recognized by the regular expression engine
 shall be that used by the utility grep when given the -E
 option in POSIX.
-<span class='indexparent'><a class='index' id='egrep'></a></span><span class='indexparent'><a class='index' id='syntax_option_type,egrep'></a></span></td></tr></table></div><hr><h4 ><a class='secnum' style='min-width:103pt'>28.5.2</a> Bitmask type <span class='texttt'>regex_constants::match_flag_type</span> <a class='abbr_ref' href='re.matchflag#tab:re:matchflag'>[re.matchflag]</a></h4><div class='numberedTable' id='re:matchflag'>Table <a href='#re:matchflag'>125</a> — <span class='texttt'>regex_constants::match_flag_type</span> effects when obtaining a match against a
+<span class='indexparent'><a class='index' id='egrep'></a></span><span class='indexparent'><a class='index' id='syntax_option_type,egrep'></a></span></td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>multiline</span> </td><td class='justify'>
+Specifies that <span class='texttt'>^</span> shall match the beginning of a line and
+<span class='texttt'>&#36;</span> shall match the end of a line,
+if the <span class='texttt'>ECMAScript</span> engine is selected.
+<span class='indexparent'><a class='index' id='multiline'></a></span><span class='indexparent'><a class='index' id='syntax_option_type,multiline'></a></span></td></tr></table></div><hr><h4 ><a class='secnum' style='min-width:103pt'>28.5.2</a> Bitmask type <span class='texttt'>regex_constants::match_flag_type</span> <a class='abbr_ref' href='re.matchflag#tab:re:matchflag'>[re.matchflag]</a></h4><div class='numberedTable' id='re:matchflag'>Table <a href='#re:matchflag'>125</a> — <span class='texttt'>regex_constants::match_flag_type</span> effects when obtaining a match against a
      character container sequence <span class='texttt'>[first, last)</span>.<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Element</b></td><td colspan='1' class='center'><b>Effect(s) if set</b></td></tr><tr class='capsep'><td class='left'> 
  
 

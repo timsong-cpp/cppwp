@@ -12,9 +12,11 @@ calling a respective function on an
 object that shares the same
 shared state.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >[&nbsp;<i>Note:</i> Member functions of <span class='texttt'>future</span> do not synchronize with themselves or with
 member functions of <span class='texttt'>shared_future</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The effect of calling any member function other than the destructor, the
-move-assignment operator, or <span class='texttt'>valid</span> on a <span class='texttt'>future</span> object for which
+move-assignment operator, <span class='texttt'>share</span>, or <span class='texttt'>valid</span> on a <span class='texttt'>future</span> object for which
 <span class='texttt'>valid() == false</span>
 is undefined.
+[&nbsp;<i>Note:</i> It is valid to move from a future object for which <span class='texttt'>valid() == false</span>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
 [&nbsp;<i>Note:</i> Implementations are encouraged to detect this case and throw an object of type
 <span class='texttt'>future_error</span> with an error condition of <span class='texttt'>future_errc::no_state</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='future'></a></span></p><pre class='codeblock'>
 namespace std {
@@ -27,7 +29,7 @@ namespace std {
     ~future();
     future&amp; operator=(const future&amp; rhs) = delete;
     future&amp; operator=(future&amp;&amp;) noexcept;
-    shared_future&lt;R&gt; share();
+    shared_future&lt;R&gt; share() noexcept;
 
     <span class='comment'>// retrieving the value
 </span>    <i><span class='texttt'>see below</span></i> get();
@@ -71,15 +73,18 @@ future&amp; operator=(future&amp;&amp; rhs) noexcept;
 </p><ul class='itemize'><li id='11.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#11.1'>(11.1)</a></div><p ><span class='texttt'>valid()</span> returns the same value as <span class='texttt'>rhs.valid()</span> prior to the
 assignment.</p></li><li id='11.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#11.2'>(11.2)</a></div><p ><span class='texttt'>rhs.valid() == false</span>.
 </p></li></ul></div></div><p ><span class='indexparent'><a class='index' id='share,future'></a></span><span class='indexparent'><a class='index' id='future,share'></a></span><code class='itemdecl'>
-shared_future&lt;R&gt; share();
+shared_future&lt;R&gt; share() noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>shared_future&lt;R&gt;(std::move(*this))</span>.</p></div></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>valid() == false</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='get,future'></a></span><span class='indexparent'><a class='index' id='future,get'></a></span><code class='itemdecl'>
 R future::get();
 R&amp; future&lt;R&amp;&gt;::get();
 void future&lt;void&gt;::get();
 </code></p><div class='itemdescr'></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><div class='itemdescr'><p ><i>Note:</i> as described above, the template and its two required specializations differ only in
-the return type and return value of the member function <span class='texttt'>get</span>.</p></div></div><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>wait()</span>s until the shared state is ready, then retrieves the
-value stored in the shared state.</p></div></div><div class='para' id='16'><div class='marginalizedparent'><a class='marginalized' href='#16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i>
+the return type and return value of the member function <span class='texttt'>get</span>.</p></div></div><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><ul class='itemize'><li id='15.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#15.1'>(15.1)</a></div><p ><span class='texttt'>wait()</span>s until the shared state is ready, then retrieves the
+value stored in the shared state;
+</p></li><li id='15.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#15.2'>(15.2)</a></div><p >releases any shared state (<a href='futures.state'>[futures.state]</a>).
+</p></li></ul></div></div><div class='para' id='16'><div class='marginalizedparent'><a class='marginalized' href='#16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i>
 </p><ul class='itemize'><li id='16.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#16.1'>(16.1)</a></div><p ><span class='texttt'>future::get()</span> returns the value <span class='texttt'>v</span> stored in the object's shared state as
 <span class='texttt'>std::move(v)</span>.</p></li><li id='16.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#16.2'>(16.2)</a></div><p ><span class='texttt'>future&lt;R&amp;&gt;::get()</span> returns the reference stored as value in the object's shared state.</p></li><li id='16.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#16.3'>(16.3)</a></div><p ><span class='texttt'>future&lt;void&gt;::get()</span> returns nothing.
 </p></li></ul></div></div><div class='para' id='17'><div class='marginalizedparent'><a class='marginalized' href='#17'>17</a></div><div class='itemdescr'><p ><i>Throws:</i> the stored exception, if an exception was stored in the shared state.</p></div></div><div class='para' id='18'><div class='marginalizedparent'><a class='marginalized' href='#18'>18</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>valid() == false</span>.
