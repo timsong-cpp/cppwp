@@ -29,8 +29,39 @@ and
 Initial values can also be specified in a declarator;
 initializers are discussed in <a href='dcl.init'>[dcl.init]</a> and <a href='class.init'>[class.init]</a>.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >Each
 <i ><a href='dcl.decl#nt:init-declarator'>init-declarator</a></i>
-in a declaration is analyzed separately as if it was in a declaration by
-itself.<a class='footnotenum' href='#footnote-100'>100</a></p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Declarators have the syntax</p><pre class='bnf'><a id='nt:declarator'>declarator:</a>
+in a declaration is analyzed separately as if it was in a declaration by itself.
+[&nbsp;<i>Note:</i>
+A declaration with several declarators is usually equivalent to the corresponding
+sequence of declarations each with a single declarator. That is
+</p><pre class='codeblock'>
+T D1, D2, ... Dn;
+</pre><p >is usually equivalent to
+</p><pre class='codeblock'>
+T D1; T D2; ... T Dn;
+</pre><p >where <span class='texttt'>T</span> is a <i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i>
+and each <span class='texttt'>Di</span> is an <i ><a href='dcl.decl#nt:init-declarator'>init-declarator</a></i>.
+One exception is when a name introduced by one of the
+<i ><a href='dcl.decl#nt:declarator'>declarators</a></i> hides a type name used by the
+<span class='grammarterm'>decl-specifiers</span>, so that when the same
+<span class='grammarterm'>decl-specifiers</span> are used in a subsequent declaration,
+they do not have the same meaning, as in
+</p><pre class='codeblock'>
+struct S { ... };
+S S, T;              <span class='comment'>// declare two instances of <span class='texttt'>struct S</span>
+</span></pre><p >which is not equivalent to
+</p><pre class='codeblock'>
+struct S { ... };
+S S;
+S T;                 <span class='comment'>// error
+</span></pre><p >Another exception is when <span class='texttt'>T</span> is <span class='texttt'>auto</span> (<a href='dcl.spec.auto'>[dcl.spec.auto]</a>),
+for example:
+</p><pre class='codeblock'>
+auto i = 1, j = 2.0; <span class='comment'>// error: deduced types for <span class='texttt'>i</span> and <span class='texttt'>j</span> do not match
+</span></pre><p >as opposed to
+</p><pre class='codeblock'>
+auto i = 1;          <span class='comment'>// OK: <span class='texttt'>i</span> deduced to have type <span class='texttt'>int</span>
+</span>auto j = 2.0;        <span class='comment'>// OK: <span class='texttt'>j</span> deduced to have type <span class='texttt'>double</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Declarators have the syntax</p><pre class='bnf'><a id='nt:declarator'>declarator:</a>
     <i ><a href='dcl.decl#nt:ptr-declarator'>ptr-declarator</a></i>
     <i ><a href='dcl.decl#nt:noptr-declarator'>noptr-declarator</a></i> <i ><a href='dcl.decl#nt:parameters-and-qualifiers'>parameters-and-qualifiers</a></i> <i ><a href='dcl.decl#nt:trailing-return-type'>trailing-return-type</a></i></pre><pre class='bnf'><a id='nt:ptr-declarator'>ptr-declarator:</a>
     <i ><a href='dcl.decl#nt:noptr-declarator'>noptr-declarator</a></i>
@@ -51,32 +82,7 @@ itself.<a class='footnotenum' href='#footnote-100'>100</a></p></div><div class='
     <span class='terminal'>volatile</span></pre><pre class='bnf'><a id='nt:ref-qualifier'>ref-qualifier:</a>
     <span class='terminal'>&amp;</span>
     <span class='terminal'>&amp;&amp;</span></pre><pre class='bnf'><a id='nt:declarator-id'>declarator-id:</a>
-    <span class='terminal'>...</span><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i></pre></div><div class='footnote' id='footnote-100'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-100'>100)</a></div><p >A declaration with several declarators is usually equivalent
-to the corresponding sequence of declarations each with a single declarator.
-That is</p><p ><span class='texttt'>T  D1, D2, ... Dn;</span></p><p >is usually equivalent to</p><p ><span class='texttt'>T  D1; T D2; ... T Dn;</span></p><p >where
-<span class='texttt'>T</span>
-is a
-<i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i>
-and each
-<span class='texttt'>Di</span>
-is an
-<i ><a href='dcl.decl#nt:init-declarator'>init-declarator</a></i>.
-An exception occurs when a name introduced by one of the
-<i ><a href='dcl.decl#nt:declarator'>declarators</a></i>
-hides a type name used by the
-<span class='grammarterm'>decl-specifiers</span>,
-so that when the same
-<span class='grammarterm'>decl-specifiers</span>
-are used in a subsequent declaration, they do not have the same meaning,
-as in</p><p ><span class='texttt'>struct S  ... ;</span><br/>
-&emsp;<span class='texttt'>S S, T; <span class='textrm'>// declare two instances of <span class='texttt'>struct S</span></span></span></p><p >which is not equivalent to</p><p ><span class='texttt'>struct S  ... ;</span><br/>
-&emsp;<span class='texttt'>S S;</span><br/>
-&emsp;<span class='texttt'>S T; <span class='textrm'>// error</span></span></p><p >Another exception occurs when <span class='texttt'>T</span> is <span class='texttt'>auto</span> (<a href='dcl.spec.auto'>[dcl.spec.auto]</a>),
-for example:</p><p ><span class='texttt'>auto i = 1, j = 2.0; <span class='textrm'>// error: deduced types for <span class='texttt'>i</span> and <span class='texttt'>j</span> do not match</span></span><br/>
- as opposed to<br/>
-&emsp;<span class='texttt'>auto i = 1;    <span class='textrm'>// OK: <span class='texttt'>i</span> deduced to have type <span class='texttt'>int</span></span></span><br/>
-&emsp;<span class='texttt'>auto j = 2.0;  <span class='textrm'>// OK: <span class='texttt'>j</span> deduced to have type <span class='texttt'>double</span></span></span>
-</p></div><div id='dcl.name'><h2 ><a class='secnum' href='#dcl.name' style='min-width:88pt'>8.1</a> Type names <a class='abbr_ref' href='dcl.name'>[dcl.name]</a></h2><div class='para' id='dcl.name-1'><div class='marginalizedparent'><a class='marginalized' href='#dcl.name-1'>1</a></div><p ><span class='indexparent'><a class='index' id='type_name'></a></span>To specify type conversions explicitly,
+    <span class='terminal'>...</span><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i></pre></div><div id='dcl.name'><h2 ><a class='secnum' href='#dcl.name' style='min-width:88pt'>8.1</a> Type names <a class='abbr_ref' href='dcl.name'>[dcl.name]</a></h2><div class='para' id='dcl.name-1'><div class='marginalizedparent'><a class='marginalized' href='#dcl.name-1'>1</a></div><p ><span class='indexparent'><a class='index' id='type_name'></a></span>To specify type conversions explicitly,
 <span class='indexparent'><a class='index' id='operator,cast'></a></span>and as an argument of
 <span class='texttt'>sizeof</span>,
 <span class='texttt'>alignof</span>,
@@ -918,7 +924,7 @@ the <i ><a href='dcl.decl#nt:trailing-return-type'>trailing-return-type</a></i>,
 where the optional <span class='texttt'>noexcept</span> is present if and only if
 the exception specification is non-throwing.
 The optional <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i>
-appertains to the function type.</p></div><div class='para' id='dcl.fct-3'><div class='marginalizedparent'><a class='marginalized' href='#dcl.fct-3'>3</a></div><p ><span class='indexparent'><a class='index' id='type,function'></a></span>A type of either form is a <a class='hidden_link' href='#def:function_type' id='def:function_type'><i>function type</i></a>.<a class='footnotenum' href='#footnote-101'>101</a></p><p ><span class='indexparent'><a class='index' id='declaration,function'></a></span></p><pre class='bnf'><a id='nt:parameter-declaration-clause'>parameter-declaration-clause:</a>
+appertains to the function type.</p></div><div class='para' id='dcl.fct-3'><div class='marginalizedparent'><a class='marginalized' href='#dcl.fct-3'>3</a></div><p ><span class='indexparent'><a class='index' id='type,function'></a></span>A type of either form is a <a class='hidden_link' href='#def:function_type' id='def:function_type'><i>function type</i></a>.<a class='footnotenum' href='#footnote-100'>100</a></p><p ><span class='indexparent'><a class='index' id='declaration,function'></a></span></p><pre class='bnf'><a id='nt:parameter-declaration-clause'>parameter-declaration-clause:</a>
 <i ><a href='dcl.fct#nt:parameter-declaration-list'>parameter-declaration-list</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <span class='terminal'>...</span><span class='math'><sub ><span class='mathit'>opt</span></sub></span>
     <i ><a href='dcl.fct#nt:parameter-declaration-list'>parameter-declaration-list</a></i> <span class='terminal'>, ...</span></pre><pre class='bnf'><a id='nt:parameter-declaration-list'>parameter-declaration-list:</a>
     <i ><a href='dcl.fct#nt:parameter-declaration'>parameter-declaration</a></i>
@@ -1149,7 +1155,7 @@ comma. In this case, the ellipsis is parsed as part of the
 <i ><a href='dcl.name#nt:abstract-declarator'>abstract-declarator</a></i> if the type of the parameter either names
 a template parameter pack that has not been expanded or contains <span class='texttt'>auto</span>;
 otherwise, it is
-parsed as part of the <i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i>.<a class='footnotenum' href='#footnote-102'>102</a><span class='indexparent'><a class='index' id='declarator,function'></a></span></p></div><div class='footnote' id='footnote-101'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-101'>101)</a></div><p >As indicated by syntax, cv-qualifiers are a significant component in function return types.</p></div><div class='footnote' id='footnote-102'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-102'>102)</a></div><p >One can explicitly disambiguate the parse either by
+parsed as part of the <i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i>.<a class='footnotenum' href='#footnote-101'>101</a><span class='indexparent'><a class='index' id='declarator,function'></a></span></p></div><div class='footnote' id='footnote-100'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-100'>100)</a></div><p >As indicated by syntax, cv-qualifiers are a significant component in function return types.</p></div><div class='footnote' id='footnote-101'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-101'>101)</a></div><p >One can explicitly disambiguate the parse either by
 introducing a comma (so the ellipsis will be parsed as part of the
 <i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i>) or by introducing a name for the
 parameter (so the ellipsis will be parsed as part of the
@@ -1186,7 +1192,7 @@ it shall not occur within a
 or
 <i ><a href='dcl.name#nt:abstract-declarator'>abstract-declarator</a></i>
 of a
-<i ><a href='dcl.fct#nt:parameter-declaration'>parameter-declaration</a></i>.<a class='footnotenum' href='#footnote-103'>103</a></p></div><div class='para' id='dcl.fct.default-4'><div class='marginalizedparent'><a class='marginalized' href='#dcl.fct.default-4'>4</a></div><p >For non-template functions, default arguments can be added in later
+<i ><a href='dcl.fct#nt:parameter-declaration'>parameter-declaration</a></i>.<a class='footnotenum' href='#footnote-102'>102</a></p></div><div class='para' id='dcl.fct.default-4'><div class='marginalizedparent'><a class='marginalized' href='#dcl.fct.default-4'>4</a></div><p >For non-template functions, default arguments can be added in later
 declarations of a
 function in the same scope.
 Declarations in different
@@ -1382,7 +1388,7 @@ void m() {
   pa-&gt;f();          <span class='comment'>// OK, calls <span class='texttt'>pa-&gt;B::f(7)</span>
 </span>  pb-&gt;f();          <span class='comment'>// error: wrong number of arguments for <span class='texttt'>B::f()</span>
 </span>}
-</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]<span class='indexparent'><a class='index' id='declaration,default_argument'></a></span><span class='indexparent'><a class='index' id='declarator,meaning_of'></a></span></p></div><div class='footnote' id='footnote-103'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-103'>103)</a></div><p >This means that default
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]<span class='indexparent'><a class='index' id='declaration,default_argument'></a></span><span class='indexparent'><a class='index' id='declarator,meaning_of'></a></span></p></div><div class='footnote' id='footnote-102'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-102'>102)</a></div><p >This means that default
 arguments cannot appear,
 for example, in declarations of pointers to functions,
 references to functions, or
@@ -1442,14 +1448,14 @@ defined as if a definition of the form</p><pre class='codeblock'>
 static const char __func__[] = "<span class='grammarterm'>function-name</span>";
 </pre><p >had been provided, where <span class='grammarterm'>function-name</span> is an <span class='indexparent'><a class='index' id='string_resulting_from___func__'></a></span>implementation-defined string.
 It is unspecified whether such a variable has an address
-distinct from that of any other object in the program.<a class='footnotenum' href='#footnote-104'>104</a></p><p >[&nbsp;<i>Example:</i>
+distinct from that of any other object in the program.<a class='footnotenum' href='#footnote-103'>103</a></p><p >[&nbsp;<i>Example:</i>
 </p><pre class='codeblock'>
 struct S {
   S() : s(__func__) { }             <span class='comment'>// OK
 </span>  const char* s;
 };
 void f(const char* s = __func__);  <span class='comment'>// error: <span class='texttt'>__func__</span> is undeclared
-</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-104'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-104'>104)</a></div><p >Implementations are
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-103'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-103'>103)</a></div><p >Implementations are
 permitted to provide additional predefined variables with names that are reserved to the
 implementation (<a href='lex.name'>[lex.name]</a>). If a predefined variable is not
 odr-used (<a href='basic.def.odr'>[basic.def.odr]</a>), its string value need not be present in the program image.</p></div></div><div id='dcl.fct.def.default'><h3 ><a class='secnum' href='#dcl.fct.def.default' style='min-width:103pt'>8.4.2</a> Explicitly-defaulted functions <a class='abbr_ref' href='dcl.fct.def.default'>[dcl.fct.def.default]</a></h3><p ><span class='indexparent'><a class='index' id='definition,function,explicitly-defaulted'></a></span></p><div class='para' id='dcl.fct.def.default-1'><div class='marginalizedparent'><a class='marginalized' href='#dcl.fct.def.default-1'>1</a></div><p >A function definition of the form:</p><pre class='bnf'><i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='dcl.decl#nt:declarator'>declarator</a></i> <i ><a href='class.mem#nt:virt-specifier-seq'>virt-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <span class='terminal'> = default ;</span></pre><p >is called an <span class='grammarterm'>explicitly-defaulted</span> definition.
@@ -1680,7 +1686,7 @@ is a scalar type (<a href='basic.types'>[basic.types]</a>), the
 object
 is initialized to the value obtained by converting the integer literal <span class='texttt'>0</span>
 (zero) to
-<span class='texttt'>T</span>;<a class='footnotenum' href='#footnote-105'>105</a></p></li><li id='dcl.init-6.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#dcl.init-6.2'>(6.2)</a></div><p >if
+<span class='texttt'>T</span>;<a class='footnotenum' href='#footnote-104'>104</a></p></li><li id='dcl.init-6.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#dcl.init-6.2'>(6.2)</a></div><p >if
 <span class='texttt'>T</span>
 is a (possibly cv-qualified) non-union class type,
 each non-static data member and each
@@ -1932,7 +1938,7 @@ is invoked for the initialization.
 Such an object might have been value-initialized
 or initialized by aggregate initialization (<a href='dcl.init.aggr'>[dcl.init.aggr]</a>)
 or by an inherited constructor (<a href='class.inhctor.init'>[class.inhctor.init]</a>).
-<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-105'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-105'>105)</a></div><p >As specified in <a href='conv.ptr'>[conv.ptr]</a>, converting an integer
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-104'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-104'>104)</a></div><p >As specified in <a href='conv.ptr'>[conv.ptr]</a>, converting an integer
 literal whose value is
 <span class='texttt'>0</span>
 to a pointer type results in a null pointer value.
@@ -2020,7 +2026,7 @@ since no size was specified and there are three initializers.
 An empty initializer list
 <span class='texttt'>{}</span>
 shall not be used as the <i ><a href='dcl.init#nt:initializer-clause'>initializer-clause</a></i>
-for an array of unknown bound.<a class='footnotenum' href='#footnote-106'>106</a></p></div><div class='para' id='dcl.init.aggr-6'><div class='marginalizedparent'><a class='marginalized' href='#dcl.init.aggr-6'>6</a></div><p >[&nbsp;<i>Note:</i>
+for an array of unknown bound.<a class='footnotenum' href='#footnote-105'>105</a></p></div><div class='para' id='dcl.init.aggr-6'><div class='marginalizedparent'><a class='marginalized' href='#dcl.init.aggr-6'>6</a></div><p >[&nbsp;<i>Note:</i>
 Static data members and unnamed bit-fields are not considered
 elements of the aggregate for purposes of aggregate initialization.
 [&nbsp;<i>Example:</i></p><pre class='codeblock'>
@@ -2261,7 +2267,7 @@ the braces around the
 <i ><a href='dcl.init#nt:initializer-clause'>initializer-clause</a></i>
 for a union member can be omitted if the
 union is a member of another aggregate.
-<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-106'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-106'>106)</a></div><p >The syntax provides for empty
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-105'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-105'>105)</a></div><p >The syntax provides for empty
 <i ><a href='dcl.init#nt:initializer-list'>initializer-lists</a></i>,
 but nonetheless C++ does not have zero length arrays.</p></div></div><div id='dcl.init.string'><h3 ><a class='secnum' href='#dcl.init.string' style='min-width:103pt'>8.6.2</a> Character arrays <a class='abbr_ref' href='dcl.init.string'>[dcl.init.string]</a></h3><p ><span class='indexparent'><a class='index' id='initialization,character_array'></a></span></p><div class='para' id='dcl.init.string-1'><div class='marginalizedparent'><a class='marginalized' href='#dcl.init.string-1'>1</a></div><p >An array of narrow character type (<a href='basic.fundamental'>[basic.fundamental]</a>),
 <span class='texttt'>char16_t</span> array,
@@ -2359,7 +2365,7 @@ bit-field), and
 is a class type), where <span class='texttt'>T1</span> is not reference-related to <span class='texttt'>T2</span>, and can be converted
 to an lvalue of type “<span class='rmfamily'></span><i> cv3</i> <span class='texttt'>T3</span>”, where
 “<span class='rmfamily'></span><i> cv1</i> <span class='texttt'>T1</span>” is reference-compatible with
-“<span class='rmfamily'></span><i> cv3</i> <span class='texttt'>T3</span>”<a class='footnotenum' href='#footnote-107'>107</a>
+“<span class='rmfamily'></span><i> cv3</i> <span class='texttt'>T3</span>”<a class='footnotenum' href='#footnote-106'>106</a>
 (this conversion is selected by enumerating the applicable conversion
 functions (<a href='over.match.ref'>[over.match.ref]</a>) and choosing the best one through overload
 resolution (<a href='over.match'>[over.match]</a>)),
@@ -2478,7 +2484,7 @@ to the underlying type of the reference),
 the reference is said to <a class='hidden_link' href='#def:bind_directly' id='def:bind_directly'><i>bind directly</i></a> to the
 initializer expression.</p></div><div class='para' id='dcl.init.ref-6'><div class='marginalizedparent'><a class='marginalized' href='#dcl.init.ref-6'>6</a></div><p >[&nbsp;<i>Note:</i>
 <a href='class.temporary'>[class.temporary]</a> describes the lifetime of temporaries bound to references.
-<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-107'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-107'>107)</a></div><p >This requires a conversion
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-106'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-106'>106)</a></div><p >This requires a conversion
 function (<a href='class.conv.fct'>[class.conv.fct]</a>) returning a reference type.</p></div></div><div id='dcl.init.list'><h3 ><a class='secnum' href='#dcl.init.list' style='min-width:103pt'>8.6.4</a> List-initialization <a class='abbr_ref' href='dcl.init.list'>[dcl.init.list]</a></h3><p ><span class='indexparent'><a class='index' id='initialization,list-initialization'></a></span></p><div class='para' id='dcl.init.list-1'><div class='marginalizedparent'><a class='marginalized' href='#dcl.init.list-1'>1</a></div><p ><span class='grammarterm'>List-initialization</span> is initialization of an object or reference from a
 <i ><a href='dcl.init#nt:braced-init-list'>braced-init-list</a></i>. Such an initializer is called an <a class='hidden_link' href='#def:initializer
 list' id='def:initializer
