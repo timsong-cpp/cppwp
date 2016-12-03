@@ -34,8 +34,8 @@ class C {
   static X arr[number];
 };
 X C::arr[number];   <span class='comment'>// ill-formed:
-</span>                    <span class='comment'>// equivalent to: <span class='texttt'>::X</span> <span class='texttt'>C::arr[C::number];</span>
-</span>                    <span class='comment'>// not to: <span class='texttt'>C::X</span> <span class='texttt'>C::arr[C::number];</span>
+</span>                    <span class='comment'>// equivalent to <span class='texttt'>::X</span> <span class='texttt'>C::arr[C::number];</span>
+</span>                    <span class='comment'>// and not to <span class='texttt'>C::X</span> <span class='texttt'>C::arr[C::number];</span>
 </span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p ><span class='indexparent'><a class='index' id='operator,scope_resolution'></a></span><span class='indexparent'><a class='index' id='scope_resolution_operator'></a></span>A name prefixed by the unary scope operator <span class='texttt'>::</span> (<a href='expr.prim'>[expr.prim]</a>)
 is looked up in global scope, in the translation unit where it is used.
 The name shall be declared in global namespace scope or shall be a name
@@ -57,8 +57,7 @@ typedef int I1, I2;
 extern int* p;
 extern int* q;
 p-&gt;C::I::~I();      <span class='comment'>// <span class='texttt'>I</span> is looked up in the scope of <span class='texttt'>C</span>
-</span>q-&gt;I1::~I2();       <span class='comment'>// <span class='texttt'>I2</span> is looked up in the scope of
-</span>                    <span class='comment'>// the postfix-expression
+</span>q-&gt;I1::~I2();       <span class='comment'>// <span class='texttt'>I2</span> is looked up in the scope of the postfix-expression
 </span>
 struct A {
   ~A();
@@ -173,29 +172,23 @@ namespace AB {
 }
 
 void h(){
-  AB::g();          <span class='comment'>// <span class='texttt'>g</span> is declared directly in <span class='texttt'>AB,</span>
-</span>                    <span class='comment'>// therefore <span class='texttt'>S</span> is { <span class='texttt'>AB::g()</span> } and <span class='texttt'>AB::g()</span> is chosen
-</span>  AB::f(1);         <span class='comment'>// <span class='texttt'>f</span> is not declared directly in <span class='texttt'>AB</span> so the rules are
-</span>                    <span class='comment'>// applied recursively to <span class='texttt'>A</span> and <span class='texttt'>B;</span>
-</span>                    <span class='comment'>// namespace <span class='texttt'>Y</span> is not searched and <span class='texttt'>Y::f(float)</span>
-</span>                    <span class='comment'>// is not considered;
-</span>                    <span class='comment'>// <span class='texttt'>S</span> is { <span class='texttt'>A::f(int)</span>, <span class='texttt'>B::f(char)</span> } and overload
-</span>                    <span class='comment'>// resolution chooses <span class='texttt'>A::f(int)</span>
-</span>  AB::f('c');       <span class='comment'>// as above but resolution chooses <span class='texttt'>B::f(char)</span>
+  AB::g();          <span class='comment'>// <span class='texttt'>g</span> is declared directly in <span class='texttt'>AB</span>, therefore <span class='texttt'>S</span> is <span class='math'>{ <span class='text'><span class='texttt'>AB::g()</span></span> }</span> and <span class='texttt'>AB::g()</span> is chosen
 </span>
-  AB::x++;          <span class='comment'>// <span class='texttt'>x</span> is not declared directly in <span class='texttt'>AB</span>, and
-</span>                    <span class='comment'>// is not declared in <span class='texttt'>A</span> or <span class='texttt'>B</span> , so the rules are
-</span>                    <span class='comment'>// applied recursively to <span class='texttt'>Y</span> and <span class='texttt'>Z</span>,
-</span>                    <span class='comment'>// <span class='texttt'>S</span> is { } so the program is ill-formed
-</span>  AB::i++;          <span class='comment'>// <span class='texttt'>i</span> is not declared directly in <span class='texttt'>AB</span> so the rules are
-</span>                    <span class='comment'>// applied recursively to <span class='texttt'>A</span> and <span class='texttt'>B</span>,
-</span>                    <span class='comment'>// <span class='texttt'>S</span> is { <span class='texttt'>A::i</span> , <span class='texttt'>B::i</span> } so the use is ambiguous
-</span>                    <span class='comment'>// and the program is ill-formed
-</span>  AB::h(16.8);      <span class='comment'>// <span class='texttt'>h</span> is not declared directly in <span class='texttt'>AB</span> and
-</span>                    <span class='comment'>// not declared directly in <span class='texttt'>A</span> or <span class='texttt'>B</span> so the rules are
-</span>                    <span class='comment'>// applied recursively to <span class='texttt'>Y</span> and <span class='texttt'>Z</span>,
-</span>                    <span class='comment'>// <span class='texttt'>S</span> is { <span class='texttt'>Y::h(int)</span>, <span class='texttt'>Z::h(double)</span> } and overload
-</span>                    <span class='comment'>// resolution chooses <span class='texttt'>Z::h(double)</span>
+  AB::f(1);         <span class='comment'>// <span class='texttt'>f</span> is not declared directly in <span class='texttt'>AB</span> so the rules are applied recursively to <span class='texttt'>A</span> and <span class='texttt'>B</span>;
+</span>                    <span class='comment'>// namespace <span class='texttt'>Y</span> is not searched and <span class='texttt'>Y::f(float)</span> is not considered;
+</span>                    <span class='comment'>// <span class='texttt'>S</span> is <span class='math'>{ <span class='text'><span class='texttt'>A::f(int)</span></span>, <span class='text'><span class='texttt'>B::f(char)</span></span> }</span> and overload resolution chooses <span class='texttt'>A::f(int)</span>
+</span>
+  AB::f('c');       <span class='comment'>// as above but resolution chooses <span class='texttt'>B::f(char)</span>
+</span>
+  AB::x++;          <span class='comment'>// <span class='texttt'>x</span> is not declared directly in <span class='texttt'>AB</span>, and is not declared in <span class='texttt'>A</span> or <span class='texttt'>B</span>, so the rules
+</span>                    <span class='comment'>// are applied recursively to <span class='texttt'>Y</span> and <span class='texttt'>Z</span>, <span class='texttt'>S</span> is <span class='math'>{ }</span> so the program is ill-formed
+</span>
+  AB::i++;          <span class='comment'>// <span class='texttt'>i</span> is not declared directly in <span class='texttt'>AB</span> so the rules are applied recursively to <span class='texttt'>A</span> and <span class='texttt'>B</span>,
+</span>                    <span class='comment'>// <span class='texttt'>S</span> is <span class='math'>{ <span class='text'><span class='texttt'>A::i</span></span>, <span class='text'><span class='texttt'>B::i</span></span> }</span> so the use is ambiguous and the program is ill-formed
+</span>
+  AB::h(16.8);      <span class='comment'>// <span class='texttt'>h</span> is not declared directly in <span class='texttt'>AB</span> and not declared directly in <span class='texttt'>A</span> or <span class='texttt'>B</span> so the rules
+</span>                    <span class='comment'>// are applied recursively to <span class='texttt'>Y</span> and <span class='texttt'>Z</span>, <span class='texttt'>S</span> is <span class='math'>{ <span class='text'><span class='texttt'>Y::h(int)</span></span>, <span class='text'><span class='texttt'>Z::h(double)</span></span> }</span> and
+</span>                    <span class='comment'>// overload resolution chooses <span class='texttt'>Z::h(double)</span>
 </span>}
 </pre></div><div class='para' id='namespace.qual-4'><div class='marginalizedparent'><a class='marginalized' href='#namespace.qual-4'>4</a></div><p >The same declaration found more than once is not an ambiguity (because
 it is still a unique declaration). For example:</p><pre class='codeblock'>
@@ -217,7 +210,7 @@ namespace BC {
 }
 
 void f(){
-  BC::a++;          <span class='comment'>// OK: <span class='texttt'>S</span> is { <span class='texttt'>A::a</span>, <span class='texttt'>A::a</span> }
+  BC::a++;          <span class='comment'>// OK: <span class='texttt'>S</span> is <span class='math'>{ <span class='text'><span class='texttt'>A::a</span></span>, <span class='text'><span class='texttt'>A::a</span></span> }</span>
 </span>}
 
 namespace D {
@@ -230,7 +223,7 @@ namespace BD {
 }
 
 void g(){
-  BD::a++;          <span class='comment'>// OK: S is { <span class='texttt'> A::a</span>, <span class='texttt'> A::a</span> }
+  BD::a++;          <span class='comment'>// OK: <span class='texttt'>S</span> is <span class='math'>{ <span class='text'><span class='texttt'>A::a</span></span>, <span class='text'><span class='texttt'>A::a</span></span> }</span>
 </span>}
 </pre></div><div class='para' id='namespace.qual-5'><div class='marginalizedparent'><a class='marginalized' href='#namespace.qual-5'>5</a></div><p >Because each referenced namespace is searched at most once, the
 following is well-defined:</p><pre class='codeblock'>
@@ -248,10 +241,10 @@ namespace B {
 }
 
 void f(){
-  A::a++;           <span class='comment'>// OK: <span class='texttt'>a</span> declared directly in <span class='texttt'>A</span>, <span class='texttt'>S</span> is {<span class='texttt'>A::a</span>}
-</span>  B::a++;           <span class='comment'>// OK: both <span class='texttt'>A</span> and <span class='texttt'>B</span> searched (once), <span class='texttt'>S</span> is {<span class='texttt'>A::a</span>}
-</span>  A::b++;           <span class='comment'>// OK: both <span class='texttt'>A</span> and <span class='texttt'>B</span> searched (once), <span class='texttt'>S</span> is {<span class='texttt'>B::b</span>}
-</span>  B::b++;           <span class='comment'>// OK: <span class='texttt'>b</span> declared directly in <span class='texttt'>B</span>, <span class='texttt'>S</span> is {<span class='texttt'>B::b</span>}
+  A::a++;           <span class='comment'>// OK: <span class='texttt'>a</span> declared directly in <span class='texttt'>A</span>, <span class='texttt'>S</span> is <span class='math'>{ <span class='text'><span class='texttt'>A::a</span></span> }</span>
+</span>  B::a++;           <span class='comment'>// OK: both <span class='texttt'>A</span> and <span class='texttt'>B</span> searched (once), <span class='texttt'>S</span> is <span class='math'>{ <span class='text'><span class='texttt'>A::a</span></span> }</span>
+</span>  A::b++;           <span class='comment'>// OK: both <span class='texttt'>A</span> and <span class='texttt'>B</span> searched (once), <span class='texttt'>S</span> is <span class='math'>{ <span class='text'><span class='texttt'>B::b</span></span> }</span>
+</span>  B::b++;           <span class='comment'>// OK: <span class='texttt'>b</span> declared directly in <span class='texttt'>B</span>, <span class='texttt'>S</span> is <span class='math'>{ <span class='text'><span class='texttt'>B::b</span></span> }</span>
 </span>}
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='namespace.qual-6'><div class='marginalizedparent'><a class='marginalized' href='#namespace.qual-6'>6</a></div><p >During the lookup of a qualified namespace member name, if the lookup
 finds more than one declaration of the member, and if one declaration
@@ -274,7 +267,7 @@ namespace B {
 namespace C {
   using namespace A;
   using namespace B;
-  int i = C::x;     <span class='comment'>// OK, <span class='texttt'>A::x</span> (of type <span class='texttt'>int</span> )
+  int i = C::x;     <span class='comment'>// OK, <span class='texttt'>A::x</span> (of type <span class='texttt'>int</span>)
 </span>  int j = C::y;     <span class='comment'>// ambiguous, <span class='texttt'>A::y</span> or <span class='texttt'>B::y</span>
 </span>}
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='namespace.qual-7'><div class='marginalizedparent'><a class='marginalized' href='#namespace.qual-7'>7</a></div><p >In a declaration for a namespace member in which the
