@@ -689,12 +689,12 @@ void f(int, const int (&amp;)[2] = {})    { }   <span class='comment'>// #1
 </span>void test() {
   const int x = 17;
   auto g = [](auto a) {
-    f(x);  <span class='comment'>// OK: calls #1, does not capture <span class='texttt'>x</span>
+    f(x);                       <span class='comment'>// OK: calls #1, does not capture <span class='texttt'>x</span>
 </span>  };
 
   auto g2 = [=](auto a) {
     int selector[sizeof(a) == 1 ? 1 : 2]{};
-    f(x, selector);  <span class='comment'>// OK: is a dependent expression, so captures <span class='texttt'>x</span>
+    f(x, selector);             <span class='comment'>// OK: is a dependent expression, so captures <span class='texttt'>x</span>
 </span>  };
 }
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
@@ -721,8 +721,7 @@ void f1(int i) {
     int const M = 30;
     auto m2 = [i]{
       int x[N][M];              <span class='comment'>// OK: <span class='texttt'>N</span> and <span class='texttt'>M</span> are not odr-used
-</span>      x[0][0] = i;              <span class='comment'>// OK: <span class='texttt'>i</span> is explicitly captured by <span class='texttt'>m2</span>
-</span>                                <span class='comment'>// and implicitly captured by <span class='texttt'>m1</span>
+</span>      x[0][0] = i;              <span class='comment'>// OK: <span class='texttt'>i</span> is explicitly captured by <span class='texttt'>m2</span> and implicitly captured by <span class='texttt'>m1</span>
 </span>    };
   };
   struct s1 {
@@ -732,13 +731,10 @@ void f1(int i) {
       int j = 40;
       auto m3 = [this,m] {
         auto m4 = [&amp;,j] {       <span class='comment'>// error: <span class='texttt'>j</span> not captured by <span class='texttt'>m3</span>
-</span>          int x = n;            <span class='comment'>// error: <span class='texttt'>n</span> implicitly captured by <span class='texttt'>m4</span>
-</span>                                <span class='comment'>// but not captured by <span class='texttt'>m3</span>
-</span>          x += m;               <span class='comment'>// OK: <span class='texttt'>m</span> implicitly captured by <span class='texttt'>m4</span>
-</span>                                <span class='comment'>// and explicitly captured by <span class='texttt'>m3</span>
+</span>          int x = n;            <span class='comment'>// error: <span class='texttt'>n</span> implicitly captured by <span class='texttt'>m4</span> but not captured by <span class='texttt'>m3</span>
+</span>          x += m;               <span class='comment'>// OK: <span class='texttt'>m</span> implicitly captured by <span class='texttt'>m4</span> and explicitly captured by <span class='texttt'>m3</span>
 </span>          x += i;               <span class='comment'>// error: <span class='texttt'>i</span> is outside of the reaching scope
-</span>          x += f;               <span class='comment'>// OK: <span class='texttt'>this</span> captured implicitly by <span class='texttt'>m4</span>
-</span>                                <span class='comment'>// and explicitly by <span class='texttt'>m3</span>
+</span>          x += f;               <span class='comment'>// OK: <span class='texttt'>this</span> captured implicitly by <span class='texttt'>m4</span> and explicitly by <span class='texttt'>m3</span>
 </span>        };
       };
     }
@@ -750,13 +746,13 @@ struct s2 {
   auto f() {
     return [this] {
       return [*this] {
-          return ohseven; <span class='comment'>// OK
+          return ohseven;       <span class='comment'>// OK
 </span>      }
     }();
   }
   auto g() {
     return [] {
-      return [*this] { }; <span class='comment'>// error: <span class='texttt'>*this</span> not captured by outer <span class='grammarterm'>lambda-expression</span>
+      return [*this] { };       <span class='comment'>// error: <span class='texttt'>*this</span> not captured by outer <span class='grammarterm'>lambda-expression</span>
 </span>    }();
   }
 };
@@ -764,11 +760,11 @@ struct s2 {
 implicitly or explicitly capture any entity. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
 void f2() {
   int i = 1;
-  void g1(int = ([i]{ return i; })());        <span class='comment'>// ill-formed
-</span>  void g2(int = ([i]{ return 0; })());        <span class='comment'>// ill-formed
-</span>  void g3(int = ([=]{ return i; })());        <span class='comment'>// ill-formed
-</span>  void g4(int = ([=]{ return 0; })());        <span class='comment'>// OK
-</span>  void g5(int = ([]{ return sizeof i; })());  <span class='comment'>// OK
+  void g1(int = ([i]{ return i; })());          <span class='comment'>// ill-formed
+</span>  void g2(int = ([i]{ return 0; })());          <span class='comment'>// ill-formed
+</span>  void g3(int = ([=]{ return i; })());          <span class='comment'>// ill-formed
+</span>  void g4(int = ([=]{ return 0; })());          <span class='comment'>// OK
+</span>  void g5(int = ([]{ return sizeof i; })());    <span class='comment'>// OK
 </span>}
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='prim.lambda-16'><div class='marginalizedparent'><a class='marginalized' href='#prim.lambda-16'>16</a></div><p >An entity is <a class='hidden_link' href='#def:captured,by_copy' id='def:captured,by_copy'><i>captured by copy</i></a> if
 </p><ul class='itemize'><li id='prim.lambda-16.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#prim.lambda-16.1'>(16.1)</a></div><p >it is implicitly captured,
@@ -801,9 +797,9 @@ void f(const int*);
 void g() {
   const int N = 10;
   [=] {
-    int arr[N];             <span class='comment'>// OK: not an odr-use, refers to automatic variable
-</span>    f(&amp;N);                  <span class='comment'>// OK: causes <span class='texttt'>N</span> to be captured; <span class='texttt'>&amp;N</span> points to the
-</span>                            <span class='comment'>// corresponding member of the closure type
+    int arr[N];     <span class='comment'>// OK: not an odr-use, refers to automatic variable
+</span>    f(&amp;N);          <span class='comment'>// OK: causes <span class='texttt'>N</span> to be captured; <span class='texttt'>&amp;N</span> points to
+</span>                    <span class='comment'>// the corresponding member of the closure type
 </span>  };
 }
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='prim.lambda-18'><div class='marginalizedparent'><a class='marginalized' href='#prim.lambda-18'>18</a></div><p >An entity is <a class='hidden_link' href='#def:captured,by_reference' id='def:captured,by_reference'><i>captured by reference</i></a> if it is implicitly or explicitly
@@ -824,7 +820,7 @@ captured by an immediately enclosing <i ><a href='expr.prim.lambda#nt:lambda-exp
 non-static data member of <span class='texttt'>m1</span>'s closure type;</p></li><li id='prim.lambda-19.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#prim.lambda-19.2'>(19.2)</a></div><p >if <span class='texttt'>m1</span> captures the entity by reference,
 <span class='texttt'>m2</span> captures the same
 entity captured by <span class='texttt'>m1</span>.
-</p></li></ul><p >[&nbsp;<i>Example:</i> the nested lambda expressions and invocations below will output
+</p></li></ul><p >[&nbsp;<i>Example:</i> The nested lambda expressions and invocations below will output
 <span class='texttt'>123234</span>.
 </p><pre class='codeblock'>
 int a = 1, b = 1, c = 1;
@@ -848,8 +844,7 @@ void f3() {
   float x, &amp;r = x;
   [=] {                     <span class='comment'>// <span class='texttt'>x</span> and <span class='texttt'>r</span> are not captured (appearance in a <span class='texttt'>decltype</span> operand is not an odr-use)
 </span>    decltype(x) y1;         <span class='comment'>// <span class='texttt'>y1</span> has type <span class='texttt'>float</span>
-</span>    decltype((x)) y2 = y1;  <span class='comment'>// <span class='texttt'>y2</span> has type <span class='texttt'>float const&amp;</span> because this lambda
-</span>                            <span class='comment'>// is not <span class='texttt'>mutable</span> and <span class='texttt'>x</span> is an lvalue
+</span>    decltype((x)) y2 = y1;  <span class='comment'>// <span class='texttt'>y2</span> has type <span class='texttt'>float const&amp;</span> because this lambda is not <span class='texttt'>mutable</span> and <span class='texttt'>x</span> is an lvalue
 </span>    decltype(r) r1 = y1;    <span class='comment'>// <span class='texttt'>r1</span> has type <span class='texttt'>float&amp;</span> (transformation not considered)
 </span>    decltype((r)) r2 = y2;  <span class='comment'>// <span class='texttt'>r2</span> has type <span class='texttt'>float const&amp;</span>
 </span>  };
@@ -927,7 +922,7 @@ bool f(Args ...args) {
 
 template&lt;typename ...Args&gt;
 bool f(Args ...args) {
-  return (args + ... + args); <span class='comment'>// error: both operands contain unexpanded parameter packs
+  return (args + ... + args);   <span class='comment'>// error: both operands contain unexpanded parameter packs
 </span>}
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
 <span class='indexparent'><a class='index' id='expression,fold'></a></span></p></div></div></div><div id='post'><h2 ><a class='secnum' href='#post' style='min-width:88pt'>5.2</a> Postfix expressions <a class='abbr_ref' href='expr.post'>[expr.post]</a></h2><p ><span class='indexparent'><a class='index' id='expression,postfix'></a></span></p><div class='para' id='post-1'><div class='marginalizedparent'><a class='marginalized' href='#post-1'>1</a></div><p >Postfix expressions group left-to-right.</p><pre class='bnf'><a id='nt:postfix-expression'>postfix-expression:</a>
@@ -1520,8 +1515,8 @@ inverse of an ill-formed standard conversion sequence.
 struct B { };
 struct D : private B { };
 void f() {
-  static_cast&lt;D*&gt;((B*)0);               <span class='comment'>// Error: B is a private base of D.
-</span>  static_cast&lt;int B::*&gt;((int D::*)0);   <span class='comment'>// Error: B is a private base of D.
+  static_cast&lt;D*&gt;((B*)0);               <span class='comment'>// error: <span class='texttt'>B</span> is a private base of <span class='texttt'>D</span>
+</span>  static_cast&lt;int B::*&gt;((int D::*)0);   <span class='comment'>// error: <span class='texttt'>B</span> is a private base of <span class='texttt'>D</span>
 </span>}
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='static.cast-8'><div class='marginalizedparent'><a class='marginalized' href='#static.cast-8'>8</a></div><p >The lvalue-to-rvalue (<a href='conv.lval'>[conv.lval]</a>),
 array-to-pointer (<a href='conv.array'>[conv.array]</a>), and
@@ -2457,7 +2452,7 @@ struct I1 : A { };
 struct I2 : A { };
 struct D : I1, I2 { };
 A* foo( D* p ) {
-  return (A*)( p ); <span class='comment'>// ill-formed <span class='texttt'>static_cast</span> interpretation
+  return (A*)( p );             <span class='comment'>// ill-formed <span class='texttt'>static_cast</span> interpretation
 </span>}
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='cast-5'><div class='marginalizedparent'><a class='marginalized' href='#cast-5'>5</a></div><p ><span class='indexparent'><a class='index' id='class,cast_to_incomplete'></a></span>The operand of a cast using the cast notation can be a prvalue of type
 “pointer to incomplete class type”. The destination type of a cast
