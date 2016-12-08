@@ -507,21 +507,10 @@ at most two floating-point values
 closest to the value of the string matching the pattern.</p></div></div><div class='para' id='utility.from.chars-8'><div class='marginalizedparent'><a class='marginalized' href='#utility.from.chars-8'>8</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing.
 </p></div></div><p ><span class='textsc'>See also:</span> ISO C 7.22.1.3, ISO C 7.22.1.4.</p></div></div><div id='intseq'><h2 ><a class='secnum' href='#intseq' style='min-width:88pt'>20.3</a> Compile-time integer sequences <a class='abbr_ref' href='intseq'>[intseq]</a></h2><div id='intseq.general'><h3 ><a class='secnum' href='#intseq.general' style='min-width:103pt'>20.3.1</a> In general <a class='abbr_ref' href='intseq.general'>[intseq.general]</a></h3><div class='para' id='intseq.general-1'><div class='marginalizedparent'><a class='marginalized' href='#intseq.general-1'>1</a></div><p >The library provides a class template that can represent an integer sequence.
 When used as an argument to a function template the parameter pack defining the
-sequence can be deduced and used in a pack expansion.</p></div><div class='para' id='intseq.general-2'><div class='marginalizedparent'><a class='marginalized' href='#intseq.general-2'>2</a></div><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
-template&lt;class F, class Tuple, std::size_t... I&gt;
-  decltype(auto) apply_impl(F&amp;&amp; f, Tuple&amp;&amp; t, index_sequence&lt;I...&gt;) {
-    return std::forward&lt;F&gt;(f)(std::get&lt;I&gt;(std::forward&lt;Tuple&gt;(t))...);
-  }
-
-template&lt;class F, class Tuple&gt;
-  decltype(auto) apply(F&amp;&amp; f, Tuple&amp;&amp; t) {
-    using Indices = make_index_sequence&lt;std::tuple_size_v&lt;std::decay_t&lt;Tuple&gt;&gt;&gt;;
-    return apply_impl(std::forward&lt;F&gt;(f), std::forward&lt;Tuple&gt;(t), Indices());
-  }
-</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+sequence can be deduced and used in a pack expansion.
 [&nbsp;<i>Note:</i>
 The <span class='texttt'>index_sequence</span> alias template is provided for the common case of
-an integer sequence of type <span class='texttt'>size_t</span>.
+an integer sequence of type <span class='texttt'>size_t</span>; see also <a href='tuple.apply'>[tuple.apply]</a>.
 <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='intseq.intseq'><h3 ><a class='secnum' href='#intseq.intseq' style='min-width:103pt'>20.3.2</a> Class template <span class='texttt'>integer_sequence</span> <a class='abbr_ref' href='intseq.intseq'>[intseq.intseq]</a></h3><p ><span class='indexparent'><a class='index' id='integer_sequence'></a></span></p><pre class='codeblock'>
 namespace std {
   template&lt;class T, T... I&gt;
@@ -558,16 +547,16 @@ namespace std {
     pair(pair&amp;&amp;) = default;
     <i><span class='texttt'>EXPLICIT</span></i> constexpr pair();
     <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(const T1&amp; x, const T2&amp; y);
-    template&lt;class U, class V&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(U&amp;&amp; x, V&amp;&amp; y);
-    template&lt;class U, class V&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(const pair&lt;U, V&gt;&amp; p);
-    template&lt;class U, class V&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(pair&lt;U, V&gt;&amp;&amp; p);
+    template&lt;class U1, class U2&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(U1&amp;&amp; x, U2&amp;&amp; y);
+    template&lt;class U1, class U2&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(const pair&lt;U1, U2&gt;&amp; p);
+    template&lt;class U1, class U2&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(pair&lt;U1, U2&gt;&amp;&amp; p);
     template &lt;class... Args1, class... Args2&gt;
       pair(piecewise_construct_t, tuple&lt;Args1...&gt; first_args, tuple&lt;Args2...&gt; second_args);
 
     pair&amp; operator=(const pair&amp; p);
-    template&lt;class U, class V&gt; pair&amp; operator=(const pair&lt;U, V&gt;&amp; p);
+    template&lt;class U1, class U2&gt; pair&amp; operator=(const pair&lt;U1, U2&gt;&amp; p);
     pair&amp; operator=(pair&amp;&amp; p) noexcept(<i><span class='texttt'>see below</span></i>);
-    template&lt;class U, class V&gt; pair&amp; operator=(pair&lt;U, V&gt;&amp;&amp; p);
+    template&lt;class U1, class U2&gt; pair&amp; operator=(pair&lt;U1, U2&gt;&amp;&amp; p);
 
     void swap(pair&amp; p) noexcept(<i><span class='texttt'>see below</span></i>);
   };
@@ -602,38 +591,38 @@ The constructor is explicit if and only if
 <span class='texttt'>is_convertible_v&lt;const first_type&amp;, first_type&gt;</span> is <span class='texttt'>false</span> or
 <span class='texttt'>is_convertible_v&lt;const second_type&amp;, second_type&gt;</span> is <span class='texttt'>false</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='pair,constructor'></a></span><code class='itemdecl'>
-template&lt;class U, class V&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(U&amp;&amp; x, V&amp;&amp; y);
+template&lt;class U1, class U2&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(U1&amp;&amp; x, U2&amp;&amp; y);
 </code></p><div class='itemdescr'></div><div class='para' id='pairs.pair-7'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
 The constructor initializes <span class='texttt'>first</span> with
-<span class='texttt'>std::forward&lt;U&gt;(x)</span> and <span class='texttt'>second</span>
-with <span class='texttt'>std::forward&lt;V&gt;(y)</span>.</p></div></div><div class='para' id='pairs.pair-8'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-8'>8</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+<span class='texttt'>std::forward&lt;U1&gt;(x)</span> and <span class='texttt'>second</span>
+with <span class='texttt'>std::forward&lt;U2&gt;(y)</span>.</p></div></div><div class='para' id='pairs.pair-8'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-8'>8</a></div><div class='itemdescr'><p ><i>Remarks:</i>
 This constructor shall not participate in overload resolution unless
-<span class='texttt'>is_constructible_v&lt;first_type, U&amp;&amp;&gt;</span> is <span class='texttt'>true</span> and
-<span class='texttt'>is_constructible_v&lt;second_type, V&amp;&amp;&gt;</span> is <span class='texttt'>true</span>.
+<span class='texttt'>is_constructible_v&lt;first_type, U1&amp;&amp;&gt;</span> is <span class='texttt'>true</span> and
+<span class='texttt'>is_constructible_v&lt;second_type, U2&amp;&amp;&gt;</span> is <span class='texttt'>true</span>.
 The constructor is explicit if and only if
-<span class='texttt'>is_convertible_v&lt;U&amp;&amp;, first_type&gt;</span> is <span class='texttt'>false</span> or
-<span class='texttt'>is_convertible_v&lt;V&amp;&amp;, second_type&gt;</span> is <span class='texttt'>false</span>.
+<span class='texttt'>is_convertible_v&lt;U1&amp;&amp;, first_type&gt;</span> is <span class='texttt'>false</span> or
+<span class='texttt'>is_convertible_v&lt;U2&amp;&amp;, second_type&gt;</span> is <span class='texttt'>false</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='pair,constructor'></a></span><code class='itemdecl'>
-template&lt;class U, class V&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(const pair&lt;U, V&gt;&amp; p);
+template&lt;class U1, class U2&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(const pair&lt;U1, U2&gt;&amp; p);
 </code></p><div class='itemdescr'></div><div class='para' id='pairs.pair-9'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i>
 The constructor initializes members from the corresponding members of the argument.</p></div></div><div class='para' id='pairs.pair-10'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-10'>10</a></div><div class='itemdescr'><p ><i>Remarks:</i> This constructor shall not participate in overload resolution unless
-<span class='texttt'>is_constructible_v&lt;first_type, const U&amp;&gt;</span> is <span class='texttt'>true</span> and
-<span class='texttt'>is_constructible_v&lt;second_type, const V&amp;&gt;</span> is <span class='texttt'>true</span>.
+<span class='texttt'>is_constructible_v&lt;first_type, const U1&amp;&gt;</span> is <span class='texttt'>true</span> and
+<span class='texttt'>is_constructible_v&lt;second_type, const U2&amp;&gt;</span> is <span class='texttt'>true</span>.
 The constructor is explicit if and only if
-<span class='texttt'>is_convertible_v&lt;const U&amp;, first_type&gt;</span> is <span class='texttt'>false</span> or
-<span class='texttt'>is_convertible_v&lt;const V&amp;, second_type&gt;</span> is <span class='texttt'>false</span>.
+<span class='texttt'>is_convertible_v&lt;const U1&amp;, first_type&gt;</span> is <span class='texttt'>false</span> or
+<span class='texttt'>is_convertible_v&lt;const U2&amp;, second_type&gt;</span> is <span class='texttt'>false</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='pair,constructor'></a></span><code class='itemdecl'>
-template&lt;class U, class V&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(pair&lt;U, V&gt;&amp;&amp; p);
+template&lt;class U1, class U2&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr pair(pair&lt;U1, U2&gt;&amp;&amp; p);
 </code></p><div class='itemdescr'></div><div class='para' id='pairs.pair-11'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i>
 The constructor initializes <span class='texttt'>first</span> with
-<span class='texttt'>std::forward&lt;U&gt;(p.first)</span>
+<span class='texttt'>std::forward&lt;U1&gt;(p.first)</span>
 and <span class='texttt'>second</span> with
-<span class='texttt'>std::forward&lt;V&gt;(p.second)</span>.</p></div></div><div class='para' id='pairs.pair-12'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-12'>12</a></div><div class='itemdescr'><p ><i>Remarks:</i> This constructor shall not participate in overload resolution unless
-<span class='texttt'>is_constructible_v&lt;first_type, U&amp;&amp;&gt;</span> is <span class='texttt'>true</span> and
-<span class='texttt'>is_constructible_v&lt;second_type, V&amp;&amp;&gt;</span> is <span class='texttt'>true</span>.
+<span class='texttt'>std::forward&lt;U2&gt;(p.second)</span>.</p></div></div><div class='para' id='pairs.pair-12'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-12'>12</a></div><div class='itemdescr'><p ><i>Remarks:</i> This constructor shall not participate in overload resolution unless
+<span class='texttt'>is_constructible_v&lt;first_type, U1&amp;&amp;&gt;</span> is <span class='texttt'>true</span> and
+<span class='texttt'>is_constructible_v&lt;second_type, U2&amp;&amp;&gt;</span> is <span class='texttt'>true</span>.
 The constructor is explicit if and only if
-<span class='texttt'>is_convertible_v&lt;U&amp;&amp;, first_type&gt;</span> is <span class='texttt'>false</span> or
-<span class='texttt'>is_convertible_v&lt;V&amp;&amp;, second_type&gt;</span> is <span class='texttt'>false</span>.
+<span class='texttt'>is_convertible_v&lt;U1&amp;&amp;, first_type&gt;</span> is <span class='texttt'>false</span> or
+<span class='texttt'>is_convertible_v&lt;U2&amp;&amp;, second_type&gt;</span> is <span class='texttt'>false</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='pair,constructor'></a></span><code class='itemdecl'>
 template&lt;class... Args1, class... Args2&gt;
   pair(piecewise_construct_t, tuple&lt;Args1...&gt; first_args, tuple&lt;Args2...&gt; second_args);
@@ -652,10 +641,10 @@ pair&amp; operator=(const pair&amp; p);
 <span class='texttt'>is_copy_assignable_v&lt;first_type&gt;</span> is <span class='texttt'>true</span>
 and <span class='texttt'>is_copy_assignable_v&lt;second_type&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='pairs.pair-17'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-17'>17</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,pair'></a></span><span class='indexparent'><a class='index' id='pair,operator='></a></span><code class='itemdecl'>
-template&lt;class U, class V&gt; pair&amp; operator=(const pair&lt;U, V&gt;&amp; p);
+template&lt;class U1, class U2&gt; pair&amp; operator=(const pair&lt;U1, U2&gt;&amp; p);
 </code></p><div class='itemdescr'></div><div class='para' id='pairs.pair-18'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-18'>18</a></div><div class='itemdescr'><p ><i>Effects:</i> Assigns <span class='texttt'>p.first</span> to <span class='texttt'>first</span> and <span class='texttt'>p.second</span> to <span class='texttt'>second</span>.</p></div></div><div class='para' id='pairs.pair-19'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-19'>19</a></div><div class='itemdescr'><p ><i>Remarks:</i> This operator shall not participate in overload resolution unless
-<span class='texttt'>is_assignable_v&lt;first_type&amp;, const U&amp;&gt;</span> is <span class='texttt'>true</span>
-and <span class='texttt'>is_assignable_v&lt;second_type&amp;, const V&amp;&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='pairs.pair-20'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-20'>20</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+<span class='texttt'>is_assignable_v&lt;first_type&amp;, const U1&amp;&gt;</span> is <span class='texttt'>true</span>
+and <span class='texttt'>is_assignable_v&lt;second_type&amp;, const U2&amp;&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='pairs.pair-20'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-20'>20</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,pair'></a></span><span class='indexparent'><a class='index' id='pair,operator='></a></span><code class='itemdecl'>
 pair&amp; operator=(pair&amp;&amp; p) noexcept(<i><span class='texttt'>see below</span></i>);
 </code></p><div class='itemdescr'></div><div class='para' id='pairs.pair-21'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-21'>21</a></div><div class='itemdescr'><p ><i>Effects:</i>
@@ -667,12 +656,12 @@ and <span class='texttt'>is_move_assignable_v&lt;second_type&gt;</span> is <span
 is_nothrow_move_assignable_v&lt;T1&gt; &amp;&amp; is_nothrow_move_assignable_v&lt;T2&gt;
 </pre></div></div><div class='para' id='pairs.pair-24'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-24'>24</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,pair'></a></span><span class='indexparent'><a class='index' id='pair,operator='></a></span><code class='itemdecl'>
-template&lt;class U, class V&gt; pair&amp; operator=(pair&lt;U, V&gt;&amp;&amp; p);
+template&lt;class U1, class U2&gt; pair&amp; operator=(pair&lt;U1, U2&gt;&amp;&amp; p);
 </code></p><div class='itemdescr'></div><div class='para' id='pairs.pair-25'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-25'>25</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Assigns to <span class='texttt'>first</span> with <span class='texttt'>std::forward&lt;U&gt;(p.first)</span>
 and to <span class='texttt'>second</span> with<br/> <span class='texttt'>std::forward&lt;V&gt;(p.second)</span>.</p></div></div><div class='para' id='pairs.pair-26'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-26'>26</a></div><div class='itemdescr'><p ><i>Remarks:</i> This operator shall not participate in overload resolution unless
-<span class='texttt'>is_assignable_v&lt;first_type&amp;, U&amp;&amp;&gt;</span> is <span class='texttt'>true</span>
-and <span class='texttt'>is_assignable_v&lt;second_type&amp;, V&amp;&amp;&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='pairs.pair-27'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-27'>27</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+<span class='texttt'>is_assignable_v&lt;first_type&amp;, U1&amp;&amp;&gt;</span> is <span class='texttt'>true</span>
+and <span class='texttt'>is_assignable_v&lt;second_type&amp;, U2&amp;&amp;&gt;</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='pairs.pair-27'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-27'>27</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='swap,pair'></a></span><span class='indexparent'><a class='index' id='pair,swap'></a></span><code class='itemdecl'>
 void swap(pair&amp; p) noexcept(<i><span class='texttt'>see below</span></i>);
 </code></p><div class='itemdescr'></div><div class='para' id='pairs.pair-28'><div class='marginalizedparent'><a class='marginalized' href='#pairs.pair-28'>28</a></div><div class='itemdescr'><p ><i>Requires:</i>
@@ -1475,12 +1464,12 @@ public:
   constexpr optional(nullopt_t) noexcept;
   optional(const optional&amp;);
   optional(optional&amp;&amp;) noexcept(<i><span class='texttt'>see below</span></i>);
-  template &lt;class... Args&gt; constexpr explicit optional(in_place_t, Args &amp;&amp;...);
+  template &lt;class... Args&gt; constexpr explicit optional(in_place_t, Args&amp;&amp;...);
   template &lt;class U, class... Args&gt;
-    constexpr explicit optional(in_place_t, initializer_list&lt;U&gt;, Args &amp;&amp;...);
+    constexpr explicit optional(in_place_t, initializer_list&lt;U&gt;, Args&amp;&amp;...);
   template &lt;class U = T&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr optional(U&amp;&amp;);
   template &lt;class U&gt; <i><span class='texttt'>EXPLICIT</span></i> optional(const optional&lt;U&gt;&amp;);
-  template &lt;class U&gt; <i><span class='texttt'>EXPLICIT</span></i> optional(optional&lt;U&gt; &amp;&amp;);
+  template &lt;class U&gt; <i><span class='texttt'>EXPLICIT</span></i> optional(optional&lt;U&gt;&amp;&amp;);
 
   <span class='comment'>// <a href='optional.dtor'>[optional.dtor]</a>, destructor
 </span>  ~optional();
@@ -6747,7 +6736,9 @@ object of a function object type. In the places where one would expect to pass a
 pointer to a function to an algorithmic template (Clause <a href='algorithms'>[algorithms]</a>), the
 interface is specified to accept a function object. This not only makes
 algorithmic templates work with pointers to functions, but also enables them to
-work with arbitrary function objects.</p></div><div class='para' id='function.objects-2'><div class='marginalizedparent'><a class='marginalized' href='#function.objects-2'>2</a></div><p ><b>Header <span class='texttt'>&lt;functional&gt;</span> synopsis</b></p><p ><span class='indexparent'><a class='index' id='functional'></a></span></p><pre class='codeblock'>
+work with arbitrary function objects.</p></div><div class='footnote' id='footnote-223'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-223'>223)</a></div><p >Such a type is a function
+pointer or a class type which has a member <span class='texttt'>operator()</span> or a class type
+which has a conversion to a pointer to function.</p></div><div id='functional.syn'><h3 ><a class='secnum' href='#functional.syn' style='min-width:103pt'>20.14.1</a> Header <span class='texttt'>&lt;functional&gt;</span> synopsis <a class='abbr_ref' href='functional.syn'>[functional.syn]</a></h3><p ><span class='indexparent'><a class='index' id='functional'></a></span></p><pre class='codeblock'>
 namespace std {
   <span class='comment'>// <a href='func.invoke'>[func.invoke]</a>, invoke
 </span>  template &lt;class F, class... Args&gt; result_of_t&lt;F&amp;&amp;(Args&amp;&amp;...)&gt; invoke(F&amp;&amp; f, Args&amp;&amp;... args);
@@ -6899,19 +6890,17 @@ namespace std {
   template &lt;class T&gt; constexpr int is_placeholder_v
     = is_placeholder&lt;T&gt;::value;
 }
-</pre></div><div class='para' id='function.objects-3'><div class='marginalizedparent'><a class='marginalized' href='#function.objects-3'>3</a></div><p >[&nbsp;<i>Example:</i>
+</pre><div class='para' id='functional.syn-1'><div class='marginalizedparent'><a class='marginalized' href='#functional.syn-1'>1</a></div><p >[&nbsp;<i>Example:</i>
 If a C++ program wants to have a by-element addition of two vectors <span class='texttt'>a</span>
 and <span class='texttt'>b</span> containing <span class='texttt'>double</span> and put the result into <span class='texttt'>a</span>,
 it can do:</p><pre class='codeblock'>
 transform(a.begin(), a.end(), b.begin(), a.begin(), plus&lt;double&gt;());
-</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='function.objects-4'><div class='marginalizedparent'><a class='marginalized' href='#function.objects-4'>4</a></div><p >[&nbsp;<i>Example:</i>
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='functional.syn-2'><div class='marginalizedparent'><a class='marginalized' href='#functional.syn-2'>2</a></div><p >[&nbsp;<i>Example:</i>
 To negate every element of <span class='texttt'>a</span>:</p><pre class='codeblock'>
 transform(a.begin(), a.end(), a.begin(), negate&lt;double&gt;());
-</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-223'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-223'>223)</a></div><p >Such a type is a function
-pointer or a class type which has a member <span class='texttt'>operator()</span> or a class type
-which has a conversion to a pointer to function.</p></div><div id='func.def'><h3 ><a class='secnum' href='#func.def' style='min-width:103pt'>20.14.1</a> Definitions <a class='abbr_ref' href='func.def'>[func.def]</a></h3><div class='para' id='func.def-1'><div class='marginalizedparent'><a class='marginalized' href='#func.def-1'>1</a></div><p >The following definitions apply to this Clause:</p></div><div class='para' id='func.def-2'><div class='marginalizedparent'><a class='marginalized' href='#func.def-2'>2</a></div><p ><span class='indexparent'><a class='index' id='call_signature'></a></span>A <a class='hidden_link' href='#def:call_signature' id='def:call_signature'><i>call signature</i></a> is the name of a return type followed by a
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div id='func.def'><h3 ><a class='secnum' href='#func.def' style='min-width:103pt'>20.14.2</a> Definitions <a class='abbr_ref' href='func.def'>[func.def]</a></h3><div class='para' id='func.def-1'><div class='marginalizedparent'><a class='marginalized' href='#func.def-1'>1</a></div><p >The following definitions apply to this Clause:</p></div><div class='para' id='func.def-2'><div class='marginalizedparent'><a class='marginalized' href='#func.def-2'>2</a></div><p ><span class='indexparent'><a class='index' id='call_signature'></a></span>A <a class='hidden_link' href='#def:call_signature' id='def:call_signature'><i>call signature</i></a> is the name of a return type followed by a
 parenthesized comma-separated list of zero or more argument types.</p></div><div class='para' id='func.def-3'><div class='marginalizedparent'><a class='marginalized' href='#func.def-3'>3</a></div><p ><span class='indexparent'><a class='index' id='callable_type'></a></span>A <a class='hidden_link' href='#def:callable_type' id='def:callable_type'><i>callable type</i></a> is a function object type (<a href='function.objects'>[function.objects]</a>) or a pointer to member.</p></div><div class='para' id='func.def-4'><div class='marginalizedparent'><a class='marginalized' href='#func.def-4'>4</a></div><p ><span class='indexparent'><a class='index' id='callable_object'></a></span>A <a class='hidden_link' href='#def:callable_object' id='def:callable_object'><i>callable object</i></a> is an object of a callable type.</p></div><div class='para' id='func.def-5'><div class='marginalizedparent'><a class='marginalized' href='#func.def-5'>5</a></div><p ><span class='indexparent'><a class='index' id='call_wrapper,type'></a></span>A <a class='hidden_link' href='#def:call_wrapper_type' id='def:call_wrapper_type'><i>call wrapper type</i></a> is a type that holds a callable object
-and supports a call operation that forwards to that object.</p></div><div class='para' id='func.def-6'><div class='marginalizedparent'><a class='marginalized' href='#func.def-6'>6</a></div><p ><span class='indexparent'><a class='index' id='call_wrapper'></a></span>A <a class='hidden_link' href='#def:call_wrapper' id='def:call_wrapper'><i>call wrapper</i></a> is an object of a call wrapper type.</p></div><div class='para' id='func.def-7'><div class='marginalizedparent'><a class='marginalized' href='#func.def-7'>7</a></div><p ><span class='indexparent'><a class='index' id='target_object'></a></span>A <a class='hidden_link' href='#def:target_object' id='def:target_object'><i>target object</i></a> is the callable object held by a call wrapper.</p></div></div><div id='func.require'><h3 ><a class='secnum' href='#func.require' style='min-width:103pt'>20.14.2</a> Requirements <a class='abbr_ref' href='func.require'>[func.require]</a></h3><div class='para' id='func.require-1'><div class='marginalizedparent'><a class='marginalized' href='#func.require-1'>1</a></div><p ><span class='indexparent'><a class='index' id='invoke'></a></span>Define <span class='texttt'><i>INVOKE</i>(f, t1, t2, ..., tN)</span> as follows:</p><ul class='itemize'><li id='func.require-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#func.require-1.1'>(1.1)</a></div><p ><span class='texttt'>(t1.*f)(t2, ..., tN)</span> when <span class='texttt'>f</span> is a pointer to a
+and supports a call operation that forwards to that object.</p></div><div class='para' id='func.def-6'><div class='marginalizedparent'><a class='marginalized' href='#func.def-6'>6</a></div><p ><span class='indexparent'><a class='index' id='call_wrapper'></a></span>A <a class='hidden_link' href='#def:call_wrapper' id='def:call_wrapper'><i>call wrapper</i></a> is an object of a call wrapper type.</p></div><div class='para' id='func.def-7'><div class='marginalizedparent'><a class='marginalized' href='#func.def-7'>7</a></div><p ><span class='indexparent'><a class='index' id='target_object'></a></span>A <a class='hidden_link' href='#def:target_object' id='def:target_object'><i>target object</i></a> is the callable object held by a call wrapper.</p></div></div><div id='func.require'><h3 ><a class='secnum' href='#func.require' style='min-width:103pt'>20.14.3</a> Requirements <a class='abbr_ref' href='func.require'>[func.require]</a></h3><div class='para' id='func.require-1'><div class='marginalizedparent'><a class='marginalized' href='#func.require-1'>1</a></div><p ><span class='indexparent'><a class='index' id='invoke'></a></span>Define <span class='texttt'><i>INVOKE</i>(f, t1, t2, ..., tN)</span> as follows:</p><ul class='itemize'><li id='func.require-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#func.require-1.1'>(1.1)</a></div><p ><span class='texttt'>(t1.*f)(t2, ..., tN)</span> when <span class='texttt'>f</span> is a pointer to a
 member function of a class <span class='texttt'>T</span>
 and <span class='texttt'>is_base_of_v&lt;T, decay_t&lt;decltype(t1)&gt;&gt;</span> is <span class='texttt'>true</span>;</p></li><li id='func.require-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#func.require-1.2'>(1.2)</a></div><p ><span class='texttt'>(t1.get().*f)(t2, ..., tN)</span> when <span class='texttt'>f</span> is a pointer to a
 member function of a class <span class='texttt'>T</span>
@@ -6947,12 +6936,12 @@ operator of
 the form</p><pre class='codeblock'>
 template&lt;class... UnBoundArgs&gt;
 R operator()(UnBoundArgs&amp;&amp;... unbound_args) <i>cv-qual</i>;
-</pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='func.invoke'><h3 ><a class='secnum' href='#func.invoke' style='min-width:103pt'>20.14.3</a> Function template <span class='texttt'>invoke</span> <a class='abbr_ref' href='func.invoke'>[func.invoke]</a></h3><p ><span class='indexparent'><a class='index' id='invoke'></a></span><span class='indexparent'><a class='index' id='invoke'></a></span><code class='itemdecl'>
+</pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='func.invoke'><h3 ><a class='secnum' href='#func.invoke' style='min-width:103pt'>20.14.4</a> Function template <span class='texttt'>invoke</span> <a class='abbr_ref' href='func.invoke'>[func.invoke]</a></h3><p ><span class='indexparent'><a class='index' id='invoke'></a></span><span class='indexparent'><a class='index' id='invoke'></a></span><code class='itemdecl'>
 template &lt;class F, class... Args&gt;
   result_of_t&lt;F&amp;&amp;(Args&amp;&amp;...)&gt; invoke(F&amp;&amp; f, Args&amp;&amp;... args);
 </code></p><div class='itemdescr'></div><div class='para' id='func.invoke-1'><div class='marginalizedparent'><a class='marginalized' href='#func.invoke-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'><i>INVOKE</i>(std::forward&lt;F&gt;(f), std::forward&lt;Args&gt;(args)...)</span> (<a href='func.require'>[func.require]</a>).
-</p></div></div></div><div id='refwrap'><h3 ><a class='secnum' href='#refwrap' style='min-width:103pt'>20.14.4</a> Class template <span class='texttt'>reference_wrapper</span> <a class='abbr_ref' href='refwrap'>[refwrap]</a></h3><p ><span class='indexparent'><a class='index' id='reference_wrapper'></a></span><span class='indexparent'><a class='index' id='function_object,reference_wrapper'></a></span></p><pre class='codeblock'>
+</p></div></div></div><div id='refwrap'><h3 ><a class='secnum' href='#refwrap' style='min-width:103pt'>20.14.5</a> Class template <span class='texttt'>reference_wrapper</span> <a class='abbr_ref' href='refwrap'>[refwrap]</a></h3><p ><span class='indexparent'><a class='index' id='reference_wrapper'></a></span><span class='indexparent'><a class='index' id='function_object,reference_wrapper'></a></span></p><pre class='codeblock'>
 namespace std {
   template &lt;class T&gt; class reference_wrapper {
   public :
@@ -6978,7 +6967,7 @@ namespace std {
   };
 }
 </pre><div class='para' id='refwrap-1'><div class='marginalizedparent'><a class='marginalized' href='#refwrap-1'>1</a></div><p ><span class='texttt'>reference_wrapper&lt;T&gt;</span> is a <span class='texttt'>CopyConstructible</span> and <span class='texttt'>CopyAssignable</span> wrapper
-around a reference to an object or function of type <span class='texttt'>T</span>.</p></div><div class='para' id='refwrap-2'><div class='marginalizedparent'><a class='marginalized' href='#refwrap-2'>2</a></div><p ><span class='texttt'>reference_wrapper&lt;T&gt;</span> shall be a trivially copyable type (<a href='basic.types'>[basic.types]</a>).</p></div><div id='refwrap.const'><h4 ><a class='secnum' href='#refwrap.const' style='min-width:118pt'>20.14.4.1</a> <span class='texttt'>reference_wrapper</span> construct/copy/destroy <a class='abbr_ref' href='refwrap.const'>[refwrap.const]</a></h4><p ><span class='indexparent'><a class='index' id='reference_wrapper,constructor'></a></span><code class='itemdecl'>
+around a reference to an object or function of type <span class='texttt'>T</span>.</p></div><div class='para' id='refwrap-2'><div class='marginalizedparent'><a class='marginalized' href='#refwrap-2'>2</a></div><p ><span class='texttt'>reference_wrapper&lt;T&gt;</span> shall be a trivially copyable type (<a href='basic.types'>[basic.types]</a>).</p></div><div id='refwrap.const'><h4 ><a class='secnum' href='#refwrap.const' style='min-width:118pt'>20.14.5.1</a> <span class='texttt'>reference_wrapper</span> construct/copy/destroy <a class='abbr_ref' href='refwrap.const'>[refwrap.const]</a></h4><p ><span class='indexparent'><a class='index' id='reference_wrapper,constructor'></a></span><code class='itemdecl'>
 reference_wrapper(T&amp; t) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='refwrap.const-1'><div class='marginalizedparent'><a class='marginalized' href='#refwrap.const-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>reference_wrapper</span> object that stores a
 reference to <span class='texttt'>t</span>.
@@ -6986,21 +6975,21 @@ reference to <span class='texttt'>t</span>.
 reference_wrapper(const reference_wrapper&amp; x) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='refwrap.const-2'><div class='marginalizedparent'><a class='marginalized' href='#refwrap.const-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>reference_wrapper</span> object that
 stores a reference to <span class='texttt'>x.get()</span>.
-</p></div></div></div><div id='refwrap.assign'><h4 ><a class='secnum' href='#refwrap.assign' style='min-width:118pt'>20.14.4.2</a> <span class='texttt'>reference_wrapper</span> assignment <a class='abbr_ref' href='refwrap.assign'>[refwrap.assign]</a></h4><p ><span class='indexparent'><a class='index' id='operator=,reference_wrapper'></a></span><span class='indexparent'><a class='index' id='reference_wrapper,operator='></a></span><code class='itemdecl'>
+</p></div></div></div><div id='refwrap.assign'><h4 ><a class='secnum' href='#refwrap.assign' style='min-width:118pt'>20.14.5.2</a> <span class='texttt'>reference_wrapper</span> assignment <a class='abbr_ref' href='refwrap.assign'>[refwrap.assign]</a></h4><p ><span class='indexparent'><a class='index' id='operator=,reference_wrapper'></a></span><span class='indexparent'><a class='index' id='reference_wrapper,operator='></a></span><code class='itemdecl'>
 reference_wrapper&amp; operator=(const reference_wrapper&amp; x) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='refwrap.assign-1'><div class='marginalizedparent'><a class='marginalized' href='#refwrap.assign-1'>1</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>*this</span> stores a reference to  <span class='texttt'>x.get()</span>.
-</p></div></div></div><div id='refwrap.access'><h4 ><a class='secnum' href='#refwrap.access' style='min-width:118pt'>20.14.4.3</a> <span class='texttt'>reference_wrapper</span> access <a class='abbr_ref' href='refwrap.access'>[refwrap.access]</a></h4><p ><span class='indexparent'><a class='index' id='operator_T&,reference_wrapper'></a></span><span class='indexparent'><a class='index' id='reference_wrapper,operator_T&'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='refwrap.access'><h4 ><a class='secnum' href='#refwrap.access' style='min-width:118pt'>20.14.5.3</a> <span class='texttt'>reference_wrapper</span> access <a class='abbr_ref' href='refwrap.access'>[refwrap.access]</a></h4><p ><span class='indexparent'><a class='index' id='operator_T&,reference_wrapper'></a></span><span class='indexparent'><a class='index' id='reference_wrapper,operator_T&'></a></span><code class='itemdecl'>
 operator T&amp; () const noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='refwrap.access-1'><div class='marginalizedparent'><a class='marginalized' href='#refwrap.access-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> The stored reference.
 </p></div></div><p ><span class='indexparent'><a class='index' id='get,reference_wrapper'></a></span><span class='indexparent'><a class='index' id='reference_wrapper,get'></a></span><code class='itemdecl'>
 T&amp; get() const noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='refwrap.access-2'><div class='marginalizedparent'><a class='marginalized' href='#refwrap.access-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> The stored reference.
-</p></div></div></div><div id='refwrap.invoke'><h4 ><a class='secnum' href='#refwrap.invoke' style='min-width:118pt'>20.14.4.4</a> <span class='texttt'>reference_wrapper</span> invocation <a class='abbr_ref' href='refwrap.invoke'>[refwrap.invoke]</a></h4><p ><span class='indexparent'><a class='index' id='operator(),reference_wrapper'></a></span><span class='indexparent'><a class='index' id='reference_wrapper,operator()'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='refwrap.invoke'><h4 ><a class='secnum' href='#refwrap.invoke' style='min-width:118pt'>20.14.5.4</a> <span class='texttt'>reference_wrapper</span> invocation <a class='abbr_ref' href='refwrap.invoke'>[refwrap.invoke]</a></h4><p ><span class='indexparent'><a class='index' id='operator(),reference_wrapper'></a></span><span class='indexparent'><a class='index' id='reference_wrapper,operator()'></a></span><code class='itemdecl'>
 template &lt;class... ArgTypes&gt;
   result_of_t&lt;T&amp;(ArgTypes&amp;&amp;... )&gt;
     operator()(ArgTypes&amp;&amp;... args) const;
 </code></p><div class='itemdescr'></div><div class='para' id='refwrap.invoke-1'><div class='marginalizedparent'><a class='marginalized' href='#refwrap.invoke-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'><i>INVOKE</i>(get(), std::forward&lt;ArgTypes&gt;(args)...)</span>. (<a href='func.require'>[func.require]</a>)
-</p></div></div></div><div id='refwrap.helpers'><h4 ><a class='secnum' href='#refwrap.helpers' style='min-width:118pt'>20.14.4.5</a> <span class='texttt'>reference_wrapper</span> helper functions <a class='abbr_ref' href='refwrap.helpers'>[refwrap.helpers]</a></h4><p ><span class='indexparent'><a class='index' id='ref,reference_wrapper'></a></span><span class='indexparent'><a class='index' id='reference_wrapper,ref'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='refwrap.helpers'><h4 ><a class='secnum' href='#refwrap.helpers' style='min-width:118pt'>20.14.5.5</a> <span class='texttt'>reference_wrapper</span> helper functions <a class='abbr_ref' href='refwrap.helpers'>[refwrap.helpers]</a></h4><p ><span class='indexparent'><a class='index' id='ref,reference_wrapper'></a></span><span class='indexparent'><a class='index' id='reference_wrapper,ref'></a></span><code class='itemdecl'>
 template &lt;class T&gt; reference_wrapper&lt;T&gt; ref(T&amp; t) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='refwrap.helpers-1'><div class='marginalizedparent'><a class='marginalized' href='#refwrap.helpers-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>reference_wrapper&lt;T&gt;(t)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='ref,reference_wrapper'></a></span><span class='indexparent'><a class='index' id='reference_wrapper,ref'></a></span><code class='itemdecl'>
@@ -7012,8 +7001,8 @@ template &lt;class T&gt; reference_wrapper&lt;const T&gt; cref(const T&amp; t) n
 </p></div></div><p ><span class='indexparent'><a class='index' id='cref,reference_wrapper'></a></span><span class='indexparent'><a class='index' id='reference_wrapper,cref'></a></span><code class='itemdecl'>
 template &lt;class T&gt; reference_wrapper&lt;const T&gt; cref(reference_wrapper&lt;T&gt; t) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='refwrap.helpers-4'><div class='marginalizedparent'><a class='marginalized' href='#refwrap.helpers-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>cref(t.get())</span>.
-</p></div></div></div></div><div id='arithmetic.operations'><h3 ><a class='secnum' href='#arithmetic.operations' style='min-width:103pt'>20.14.5</a> Arithmetic operations <a class='abbr_ref' href='arithmetic.operations'>[arithmetic.operations]</a></h3><div class='para' id='arithmetic.operations-1'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic.operations-1'>1</a></div><p >The library provides basic function object classes for all of the arithmetic
-operators in the language (<a href='expr.mul'>[expr.mul]</a>, <a href='expr.add'>[expr.add]</a>).</p></div><div id='arithmetic.operations.plus'><h4 ><a class='secnum' href='#arithmetic.operations.plus' style='min-width:118pt'>20.14.5.1</a> Class template <span class='texttt'>plus</span> <a class='abbr_ref' href='arithmetic.operations.plus'>[arithmetic.operations.plus]</a></h4><p ><span class='indexparent'><a class='index' id='plus'></a></span><code class='itemdecl'>
+</p></div></div></div></div><div id='arithmetic.operations'><h3 ><a class='secnum' href='#arithmetic.operations' style='min-width:103pt'>20.14.6</a> Arithmetic operations <a class='abbr_ref' href='arithmetic.operations'>[arithmetic.operations]</a></h3><div class='para' id='arithmetic.operations-1'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic.operations-1'>1</a></div><p >The library provides basic function object classes for all of the arithmetic
+operators in the language (<a href='expr.mul'>[expr.mul]</a>, <a href='expr.add'>[expr.add]</a>).</p></div><div id='arithmetic.operations.plus'><h4 ><a class='secnum' href='#arithmetic.operations.plus' style='min-width:118pt'>20.14.6.1</a> Class template <span class='texttt'>plus</span> <a class='abbr_ref' href='arithmetic.operations.plus'>[arithmetic.operations.plus]</a></h4><p ><span class='indexparent'><a class='index' id='plus'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct plus {
   constexpr T operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -7031,7 +7020,7 @@ template &lt;&gt; struct plus&lt;void&gt; {
 template &lt;class T, class U&gt; constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
     -&gt; decltype(std::forward&lt;T&gt;(t) + std::forward&lt;U&gt;(u));
 </code></p><div class='itemdescr'></div><div class='para' id='arithmetic.operations.plus-2'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic.operations.plus-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::forward&lt;T&gt;(t) + std::forward&lt;U&gt;(u)</span>.
-</p></div></div></div><div id='arithmetic.operations.minus'><h4 ><a class='secnum' href='#arithmetic.operations.minus' style='min-width:118pt'>20.14.5.2</a> Class template <span class='texttt'>minus</span> <a class='abbr_ref' href='arithmetic.operations.minus'>[arithmetic.operations.minus]</a></h4><p ><span class='indexparent'><a class='index' id='minus'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='arithmetic.operations.minus'><h4 ><a class='secnum' href='#arithmetic.operations.minus' style='min-width:118pt'>20.14.6.2</a> Class template <span class='texttt'>minus</span> <a class='abbr_ref' href='arithmetic.operations.minus'>[arithmetic.operations.minus]</a></h4><p ><span class='indexparent'><a class='index' id='minus'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct minus {
   constexpr T operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -7049,7 +7038,7 @@ template &lt;&gt; struct minus&lt;void&gt; {
 template &lt;class T, class U&gt; constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
     -&gt; decltype(std::forward&lt;T&gt;(t) - std::forward&lt;U&gt;(u));
 </code></p><div class='itemdescr'></div><div class='para' id='arithmetic.operations.minus-2'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic.operations.minus-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::forward&lt;T&gt;(t) - std::forward&lt;U&gt;(u)</span>.
-</p></div></div></div><div id='arithmetic.operations.multiplies'><h4 ><a class='secnum' href='#arithmetic.operations.multiplies' style='min-width:118pt'>20.14.5.3</a> Class template <span class='texttt'>multiplies</span> <a class='abbr_ref' href='arithmetic.operations.multiplies'>[arithmetic.operations.multiplies]</a></h4><p ><span class='indexparent'><a class='index' id='multiplies'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='arithmetic.operations.multiplies'><h4 ><a class='secnum' href='#arithmetic.operations.multiplies' style='min-width:118pt'>20.14.6.3</a> Class template <span class='texttt'>multiplies</span> <a class='abbr_ref' href='arithmetic.operations.multiplies'>[arithmetic.operations.multiplies]</a></h4><p ><span class='indexparent'><a class='index' id='multiplies'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct multiplies {
   constexpr T operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -7067,7 +7056,7 @@ template &lt;&gt; struct multiplies&lt;void&gt; {
 template &lt;class T, class U&gt; constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
     -&gt; decltype(std::forward&lt;T&gt;(t) * std::forward&lt;U&gt;(u));
 </code></p><div class='itemdescr'></div><div class='para' id='arithmetic.operations.multiplies-2'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic.operations.multiplies-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::forward&lt;T&gt;(t) * std::forward&lt;U&gt;(u)</span>.
-</p></div></div></div><div id='arithmetic.operations.divides'><h4 ><a class='secnum' href='#arithmetic.operations.divides' style='min-width:118pt'>20.14.5.4</a> Class template <span class='texttt'>divides</span> <a class='abbr_ref' href='arithmetic.operations.divides'>[arithmetic.operations.divides]</a></h4><p ><span class='indexparent'><a class='index' id='divides'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='arithmetic.operations.divides'><h4 ><a class='secnum' href='#arithmetic.operations.divides' style='min-width:118pt'>20.14.6.4</a> Class template <span class='texttt'>divides</span> <a class='abbr_ref' href='arithmetic.operations.divides'>[arithmetic.operations.divides]</a></h4><p ><span class='indexparent'><a class='index' id='divides'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct divides {
   constexpr T operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -7085,7 +7074,7 @@ template &lt;&gt; struct divides&lt;void&gt; {
 template &lt;class T, class U&gt; constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
     -&gt; decltype(std::forward&lt;T&gt;(t) / std::forward&lt;U&gt;(u));
 </code></p><div class='itemdescr'></div><div class='para' id='arithmetic.operations.divides-2'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic.operations.divides-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::forward&lt;T&gt;(t) / std::forward&lt;U&gt;(u)</span>.
-</p></div></div></div><div id='arithmetic.operations.modulus'><h4 ><a class='secnum' href='#arithmetic.operations.modulus' style='min-width:118pt'>20.14.5.5</a> Class template <span class='texttt'>modulus</span> <a class='abbr_ref' href='arithmetic.operations.modulus'>[arithmetic.operations.modulus]</a></h4><p ><span class='indexparent'><a class='index' id='modulus'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='arithmetic.operations.modulus'><h4 ><a class='secnum' href='#arithmetic.operations.modulus' style='min-width:118pt'>20.14.6.5</a> Class template <span class='texttt'>modulus</span> <a class='abbr_ref' href='arithmetic.operations.modulus'>[arithmetic.operations.modulus]</a></h4><p ><span class='indexparent'><a class='index' id='modulus'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct modulus {
   constexpr T operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -7103,7 +7092,7 @@ template &lt;&gt; struct modulus&lt;void&gt; {
 template &lt;class T, class U&gt; constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
     -&gt; decltype(std::forward&lt;T&gt;(t) % std::forward&lt;U&gt;(u));
 </code></p><div class='itemdescr'></div><div class='para' id='arithmetic.operations.modulus-2'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic.operations.modulus-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::forward&lt;T&gt;(t) % std::forward&lt;U&gt;(u)</span>.
-</p></div></div></div><div id='arithmetic.operations.negate'><h4 ><a class='secnum' href='#arithmetic.operations.negate' style='min-width:118pt'>20.14.5.6</a> Class template <span class='texttt'>negate</span> <a class='abbr_ref' href='arithmetic.operations.negate'>[arithmetic.operations.negate]</a></h4><p ><span class='indexparent'><a class='index' id='negate'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='arithmetic.operations.negate'><h4 ><a class='secnum' href='#arithmetic.operations.negate' style='min-width:118pt'>20.14.6.6</a> Class template <span class='texttt'>negate</span> <a class='abbr_ref' href='arithmetic.operations.negate'>[arithmetic.operations.negate]</a></h4><p ><span class='indexparent'><a class='index' id='negate'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct negate {
   constexpr T operator()(const T&amp; x) const;
 };
@@ -7121,7 +7110,7 @@ template &lt;&gt; struct negate&lt;void&gt; {
 template &lt;class T&gt; constexpr auto operator()(T&amp;&amp; t) const
     -&gt; decltype(-std::forward&lt;T&gt;(t));
 </code></p><div class='itemdescr'></div><div class='para' id='arithmetic.operations.negate-2'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic.operations.negate-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>-std::forward&lt;T&gt;(t)</span>.
-</p></div></div></div></div><div id='comparisons'><h3 ><a class='secnum' href='#comparisons' style='min-width:103pt'>20.14.6</a> Comparisons <a class='abbr_ref' href='comparisons'>[comparisons]</a></h3><div class='para' id='comparisons-1'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-1'>1</a></div><p >The library provides basic function object classes for all of the comparison
+</p></div></div></div></div><div id='comparisons'><h3 ><a class='secnum' href='#comparisons' style='min-width:103pt'>20.14.7</a> Comparisons <a class='abbr_ref' href='comparisons'>[comparisons]</a></h3><div class='para' id='comparisons-1'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-1'>1</a></div><p >The library provides basic function object classes for all of the comparison
 operators in the language (<a href='expr.rel'>[expr.rel]</a>, <a href='expr.eq'>[expr.eq]</a>).</p></div><div class='para' id='comparisons-2'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-2'>2</a></div><p >For templates <span class='texttt'>less</span>, <span class='texttt'>greater</span>, <span class='texttt'>less_equal</span>, and
 <span class='texttt'>greater_equal</span>, the specializations for any pointer type
 yield a strict total order that is consistent among those specializations and
@@ -7136,7 +7125,7 @@ For template specializations <span class='texttt'>less&lt;void&gt;</span>, <span
 if the call operator calls a built-in operator comparing pointers,
 the call operator yields a strict total order
 that is consistent among those specializations and
-is also consistent with the partial order imposed by those built-in operators.</p></div><div id='comparisons.equal_to'><h4 ><a class='secnum' href='#comparisons.equal_to' style='min-width:118pt'>20.14.6.1</a> Class template <span class='texttt'>equal_to</span> <a class='abbr_ref' href='comparisons.equal_to'>[comparisons.equal_to]</a></h4><p ><span class='indexparent'><a class='index' id='equal_to'></a></span><code class='itemdecl'>
+is also consistent with the partial order imposed by those built-in operators.</p></div><div id='comparisons.equal_to'><h4 ><a class='secnum' href='#comparisons.equal_to' style='min-width:118pt'>20.14.7.1</a> Class template <span class='texttt'>equal_to</span> <a class='abbr_ref' href='comparisons.equal_to'>[comparisons.equal_to]</a></h4><p ><span class='indexparent'><a class='index' id='equal_to'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct equal_to {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -7154,7 +7143,7 @@ template &lt;&gt; struct equal_to&lt;void&gt; {
 template &lt;class T, class U&gt; constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
     -&gt; decltype(std::forward&lt;T&gt;(t) == std::forward&lt;U&gt;(u));
 </code></p><div class='itemdescr'></div><div class='para' id='comparisons.equal_to-2'><div class='marginalizedparent'><a class='marginalized' href='#comparisons.equal_to-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::forward&lt;T&gt;(t) == std::forward&lt;U&gt;(u)</span>.
-</p></div></div></div><div id='comparisons.not_equal_to'><h4 ><a class='secnum' href='#comparisons.not_equal_to' style='min-width:118pt'>20.14.6.2</a> Class template <span class='texttt'>not_equal_to</span> <a class='abbr_ref' href='comparisons.not_equal_to'>[comparisons.not_equal_to]</a></h4><p ><span class='indexparent'><a class='index' id='not_equal_to'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='comparisons.not_equal_to'><h4 ><a class='secnum' href='#comparisons.not_equal_to' style='min-width:118pt'>20.14.7.2</a> Class template <span class='texttt'>not_equal_to</span> <a class='abbr_ref' href='comparisons.not_equal_to'>[comparisons.not_equal_to]</a></h4><p ><span class='indexparent'><a class='index' id='not_equal_to'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct not_equal_to {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -7172,7 +7161,7 @@ template &lt;&gt; struct not_equal_to&lt;void&gt; {
 template &lt;class T, class U&gt; constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
     -&gt; decltype(std::forward&lt;T&gt;(t) != std::forward&lt;U&gt;(u));
 </code></p><div class='itemdescr'></div><div class='para' id='comparisons.not_equal_to-2'><div class='marginalizedparent'><a class='marginalized' href='#comparisons.not_equal_to-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::forward&lt;T&gt;(t) != std::forward&lt;U&gt;(u)</span>.
-</p></div></div></div><div id='comparisons.greater'><h4 ><a class='secnum' href='#comparisons.greater' style='min-width:118pt'>20.14.6.3</a> Class template <span class='texttt'>greater</span> <a class='abbr_ref' href='comparisons.greater'>[comparisons.greater]</a></h4><p ><span class='indexparent'><a class='index' id='greater'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='comparisons.greater'><h4 ><a class='secnum' href='#comparisons.greater' style='min-width:118pt'>20.14.7.3</a> Class template <span class='texttt'>greater</span> <a class='abbr_ref' href='comparisons.greater'>[comparisons.greater]</a></h4><p ><span class='indexparent'><a class='index' id='greater'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct greater {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -7190,7 +7179,7 @@ template &lt;&gt; struct greater&lt;void&gt; {
 template &lt;class T, class U&gt; constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
     -&gt; decltype(std::forward&lt;T&gt;(t) &gt; std::forward&lt;U&gt;(u));
 </code></p><div class='itemdescr'></div><div class='para' id='comparisons.greater-2'><div class='marginalizedparent'><a class='marginalized' href='#comparisons.greater-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::forward&lt;T&gt;(t) &gt; std::forward&lt;U&gt;(u)</span>.
-</p></div></div></div><div id='comparisons.less'><h4 ><a class='secnum' href='#comparisons.less' style='min-width:118pt'>20.14.6.4</a> Class template <span class='texttt'>less</span> <a class='abbr_ref' href='comparisons.less'>[comparisons.less]</a></h4><p ><span class='indexparent'><a class='index' id='less'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='comparisons.less'><h4 ><a class='secnum' href='#comparisons.less' style='min-width:118pt'>20.14.7.4</a> Class template <span class='texttt'>less</span> <a class='abbr_ref' href='comparisons.less'>[comparisons.less]</a></h4><p ><span class='indexparent'><a class='index' id='less'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct less {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -7208,7 +7197,7 @@ template &lt;&gt; struct less&lt;void&gt; {
 template &lt;class T, class U&gt; constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
     -&gt; decltype(std::forward&lt;T&gt;(t) &lt; std::forward&lt;U&gt;(u));
 </code></p><div class='itemdescr'></div><div class='para' id='comparisons.less-2'><div class='marginalizedparent'><a class='marginalized' href='#comparisons.less-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::forward&lt;T&gt;(t) &lt; std::forward&lt;U&gt;(u)</span>.
-</p></div></div></div><div id='comparisons.greater_equal'><h4 ><a class='secnum' href='#comparisons.greater_equal' style='min-width:118pt'>20.14.6.5</a> Class template <span class='texttt'>greater_equal</span> <a class='abbr_ref' href='comparisons.greater_equal'>[comparisons.greater_equal]</a></h4><p ><span class='indexparent'><a class='index' id='greater_equal'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='comparisons.greater_equal'><h4 ><a class='secnum' href='#comparisons.greater_equal' style='min-width:118pt'>20.14.7.5</a> Class template <span class='texttt'>greater_equal</span> <a class='abbr_ref' href='comparisons.greater_equal'>[comparisons.greater_equal]</a></h4><p ><span class='indexparent'><a class='index' id='greater_equal'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct greater_equal {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -7226,7 +7215,7 @@ template &lt;&gt; struct greater_equal&lt;void&gt; {
 template &lt;class T, class U&gt; constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
     -&gt; decltype(std::forward&lt;T&gt;(t) &gt;= std::forward&lt;U&gt;(u));
 </code></p><div class='itemdescr'></div><div class='para' id='comparisons.greater_equal-2'><div class='marginalizedparent'><a class='marginalized' href='#comparisons.greater_equal-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::forward&lt;T&gt;(t) &gt;= std::forward&lt;U&gt;(u)</span>.
-</p></div></div></div><div id='comparisons.less_equal'><h4 ><a class='secnum' href='#comparisons.less_equal' style='min-width:118pt'>20.14.6.6</a> Class template <span class='texttt'>less_equal</span> <a class='abbr_ref' href='comparisons.less_equal'>[comparisons.less_equal]</a></h4><p ><span class='indexparent'><a class='index' id='less_equal'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='comparisons.less_equal'><h4 ><a class='secnum' href='#comparisons.less_equal' style='min-width:118pt'>20.14.7.6</a> Class template <span class='texttt'>less_equal</span> <a class='abbr_ref' href='comparisons.less_equal'>[comparisons.less_equal]</a></h4><p ><span class='indexparent'><a class='index' id='less_equal'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct less_equal {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -7244,8 +7233,8 @@ template &lt;&gt; struct less_equal&lt;void&gt; {
 template &lt;class T, class U&gt; constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
     -&gt; decltype(std::forward&lt;T&gt;(t) &lt;= std::forward&lt;U&gt;(u));
 </code></p><div class='itemdescr'></div><div class='para' id='comparisons.less_equal-2'><div class='marginalizedparent'><a class='marginalized' href='#comparisons.less_equal-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::forward&lt;T&gt;(t) &lt;= std::forward&lt;U&gt;(u)</span>.
-</p></div></div></div></div><div id='logical.operations'><h3 ><a class='secnum' href='#logical.operations' style='min-width:103pt'>20.14.7</a> Logical operations <a class='abbr_ref' href='logical.operations'>[logical.operations]</a></h3><div class='para' id='logical.operations-1'><div class='marginalizedparent'><a class='marginalized' href='#logical.operations-1'>1</a></div><p >The library provides basic function object classes for all of the logical
-operators in the language (<a href='expr.log.and'>[expr.log.and]</a>, <a href='expr.log.or'>[expr.log.or]</a>, <a href='expr.unary.op'>[expr.unary.op]</a>).</p></div><div id='logical.operations.and'><h4 ><a class='secnum' href='#logical.operations.and' style='min-width:118pt'>20.14.7.1</a> Class template <span class='texttt'>logical_and</span> <a class='abbr_ref' href='logical.operations.and'>[logical.operations.and]</a></h4><p ><span class='indexparent'><a class='index' id='logical_and'></a></span><code class='itemdecl'>
+</p></div></div></div></div><div id='logical.operations'><h3 ><a class='secnum' href='#logical.operations' style='min-width:103pt'>20.14.8</a> Logical operations <a class='abbr_ref' href='logical.operations'>[logical.operations]</a></h3><div class='para' id='logical.operations-1'><div class='marginalizedparent'><a class='marginalized' href='#logical.operations-1'>1</a></div><p >The library provides basic function object classes for all of the logical
+operators in the language (<a href='expr.log.and'>[expr.log.and]</a>, <a href='expr.log.or'>[expr.log.or]</a>, <a href='expr.unary.op'>[expr.unary.op]</a>).</p></div><div id='logical.operations.and'><h4 ><a class='secnum' href='#logical.operations.and' style='min-width:118pt'>20.14.8.1</a> Class template <span class='texttt'>logical_and</span> <a class='abbr_ref' href='logical.operations.and'>[logical.operations.and]</a></h4><p ><span class='indexparent'><a class='index' id='logical_and'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct logical_and {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -7263,7 +7252,7 @@ template &lt;&gt; struct logical_and&lt;void&gt; {
 template &lt;class T, class U&gt; constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
     -&gt; decltype(std::forward&lt;T&gt;(t) &amp;&amp; std::forward&lt;U&gt;(u));
 </code></p><div class='itemdescr'></div><div class='para' id='logical.operations.and-2'><div class='marginalizedparent'><a class='marginalized' href='#logical.operations.and-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::forward&lt;T&gt;(t) &amp;&amp; std::forward&lt;U&gt;(u)</span>.
-</p></div></div></div><div id='logical.operations.or'><h4 ><a class='secnum' href='#logical.operations.or' style='min-width:118pt'>20.14.7.2</a> Class template <span class='texttt'>logical_or</span> <a class='abbr_ref' href='logical.operations.or'>[logical.operations.or]</a></h4><p ><span class='indexparent'><a class='index' id='logical_or'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='logical.operations.or'><h4 ><a class='secnum' href='#logical.operations.or' style='min-width:118pt'>20.14.8.2</a> Class template <span class='texttt'>logical_or</span> <a class='abbr_ref' href='logical.operations.or'>[logical.operations.or]</a></h4><p ><span class='indexparent'><a class='index' id='logical_or'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct logical_or {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -7281,7 +7270,7 @@ template &lt;&gt; struct logical_or&lt;void&gt; {
 template &lt;class T, class U&gt; constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
     -&gt; decltype(std::forward&lt;T&gt;(t) || std::forward&lt;U&gt;(u));
 </code></p><div class='itemdescr'></div><div class='para' id='logical.operations.or-2'><div class='marginalizedparent'><a class='marginalized' href='#logical.operations.or-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::forward&lt;T&gt;(t) || std::forward&lt;U&gt;(u)</span>.
-</p></div></div></div><div id='logical.operations.not'><h4 ><a class='secnum' href='#logical.operations.not' style='min-width:118pt'>20.14.7.3</a> Class template <span class='texttt'>logical_not</span> <a class='abbr_ref' href='logical.operations.not'>[logical.operations.not]</a></h4><p ><span class='indexparent'><a class='index' id='logical_not'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='logical.operations.not'><h4 ><a class='secnum' href='#logical.operations.not' style='min-width:118pt'>20.14.8.3</a> Class template <span class='texttt'>logical_not</span> <a class='abbr_ref' href='logical.operations.not'>[logical.operations.not]</a></h4><p ><span class='indexparent'><a class='index' id='logical_not'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct logical_not {
   constexpr bool operator()(const T&amp; x) const;
 };
@@ -7299,9 +7288,9 @@ template &lt;&gt; struct logical_not&lt;void&gt; {
 template &lt;class T&gt; constexpr auto operator()(T&amp;&amp; t) const
     -&gt; decltype(!std::forward&lt;T&gt;(t));
 </code></p><div class='itemdescr'></div><div class='para' id='logical.operations.not-2'><div class='marginalizedparent'><a class='marginalized' href='#logical.operations.not-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!std::forward&lt;T&gt;(t)</span>.
-</p></div></div></div></div><div id='bitwise.operations'><h3 ><a class='secnum' href='#bitwise.operations' style='min-width:103pt'>20.14.8</a> Bitwise operations <a class='abbr_ref' href='bitwise.operations'>[bitwise.operations]</a></h3><div class='para' id='bitwise.operations-1'><div class='marginalizedparent'><a class='marginalized' href='#bitwise.operations-1'>1</a></div><p >The library provides basic function object classes for all of the bitwise
+</p></div></div></div></div><div id='bitwise.operations'><h3 ><a class='secnum' href='#bitwise.operations' style='min-width:103pt'>20.14.9</a> Bitwise operations <a class='abbr_ref' href='bitwise.operations'>[bitwise.operations]</a></h3><div class='para' id='bitwise.operations-1'><div class='marginalizedparent'><a class='marginalized' href='#bitwise.operations-1'>1</a></div><p >The library provides basic function object classes for all of the bitwise
 operators in the language (<a href='expr.bit.and'>[expr.bit.and]</a>, <a href='expr.or'>[expr.or]</a>,
-<a href='expr.xor'>[expr.xor]</a>, <a href='expr.unary.op'>[expr.unary.op]</a>).</p></div><div id='bitwise.operations.and'><h4 ><a class='secnum' href='#bitwise.operations.and' style='min-width:118pt'>20.14.8.1</a> Class template <span class='texttt'>bit_and</span> <a class='abbr_ref' href='bitwise.operations.and'>[bitwise.operations.and]</a></h4><p ><span class='indexparent'><a class='index' id='bit_and'></a></span><code class='itemdecl'>
+<a href='expr.xor'>[expr.xor]</a>, <a href='expr.unary.op'>[expr.unary.op]</a>).</p></div><div id='bitwise.operations.and'><h4 ><a class='secnum' href='#bitwise.operations.and' style='min-width:118pt'>20.14.9.1</a> Class template <span class='texttt'>bit_and</span> <a class='abbr_ref' href='bitwise.operations.and'>[bitwise.operations.and]</a></h4><p ><span class='indexparent'><a class='index' id='bit_and'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct bit_and {
   constexpr T operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -7319,7 +7308,7 @@ template &lt;&gt; struct bit_and&lt;void&gt; {
 template &lt;class T, class U&gt; constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
     -&gt; decltype(std::forward&lt;T&gt;(t) &amp; std::forward&lt;U&gt;(u));
 </code></p><div class='itemdescr'></div><div class='para' id='bitwise.operations.and-2'><div class='marginalizedparent'><a class='marginalized' href='#bitwise.operations.and-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::forward&lt;T&gt;(t) &amp; std::forward&lt;U&gt;(u)</span>.
-</p></div></div></div><div id='bitwise.operations.or'><h4 ><a class='secnum' href='#bitwise.operations.or' style='min-width:118pt'>20.14.8.2</a> Class template <span class='texttt'>bit_or</span> <a class='abbr_ref' href='bitwise.operations.or'>[bitwise.operations.or]</a></h4><p ><span class='indexparent'><a class='index' id='bit_or'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='bitwise.operations.or'><h4 ><a class='secnum' href='#bitwise.operations.or' style='min-width:118pt'>20.14.9.2</a> Class template <span class='texttt'>bit_or</span> <a class='abbr_ref' href='bitwise.operations.or'>[bitwise.operations.or]</a></h4><p ><span class='indexparent'><a class='index' id='bit_or'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct bit_or {
   constexpr T operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -7337,7 +7326,7 @@ template &lt;&gt; struct bit_or&lt;void&gt; {
 template &lt;class T, class U&gt; constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
     -&gt; decltype(std::forward&lt;T&gt;(t) | std::forward&lt;U&gt;(u));
 </code></p><div class='itemdescr'></div><div class='para' id='bitwise.operations.or-2'><div class='marginalizedparent'><a class='marginalized' href='#bitwise.operations.or-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::forward&lt;T&gt;(t) | std::forward&lt;U&gt;(u)</span>.
-</p></div></div></div><div id='bitwise.operations.xor'><h4 ><a class='secnum' href='#bitwise.operations.xor' style='min-width:118pt'>20.14.8.3</a> Class template <span class='texttt'>bit_xor</span> <a class='abbr_ref' href='bitwise.operations.xor'>[bitwise.operations.xor]</a></h4><p ><span class='indexparent'><a class='index' id='bit_xor'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='bitwise.operations.xor'><h4 ><a class='secnum' href='#bitwise.operations.xor' style='min-width:118pt'>20.14.9.3</a> Class template <span class='texttt'>bit_xor</span> <a class='abbr_ref' href='bitwise.operations.xor'>[bitwise.operations.xor]</a></h4><p ><span class='indexparent'><a class='index' id='bit_xor'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt; struct bit_xor {
   constexpr T operator()(const T&amp; x, const T&amp; y) const;
 };
@@ -7355,7 +7344,7 @@ template &lt;&gt; struct bit_xor&lt;void&gt; {
 template &lt;class T, class U&gt; constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
     -&gt; decltype(std::forward&lt;T&gt;(t) ^ std::forward&lt;U&gt;(u));
 </code></p><div class='itemdescr'></div><div class='para' id='bitwise.operations.xor-2'><div class='marginalizedparent'><a class='marginalized' href='#bitwise.operations.xor-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::forward&lt;T&gt;(t) ^ std::forward&lt;U&gt;(u)</span>.
-</p></div></div></div><div id='bitwise.operations.not'><h4 ><a class='secnum' href='#bitwise.operations.not' style='min-width:118pt'>20.14.8.4</a> Class template <span class='texttt'>bit_not</span> <a class='abbr_ref' href='bitwise.operations.not'>[bitwise.operations.not]</a></h4><p ><code class='itemdecl'>
+</p></div></div></div><div id='bitwise.operations.not'><h4 ><a class='secnum' href='#bitwise.operations.not' style='min-width:118pt'>20.14.9.4</a> Class template <span class='texttt'>bit_not</span> <a class='abbr_ref' href='bitwise.operations.not'>[bitwise.operations.not]</a></h4><p ><code class='itemdecl'>
 template &lt;class T = void&gt; struct bit_not {
   constexpr T operator()(const T&amp; x) const;
 };
@@ -7373,7 +7362,7 @@ template &lt;&gt; struct bit_not&lt;void&gt; {
 template &lt;class T&gt; constexpr auto operator()(T&amp;&amp;) const
     -&gt; decltype(~std::forward&lt;T&gt;(t));
 </code></p><div class='itemdescr'></div><div class='para' id='bitwise.operations.not-2'><div class='marginalizedparent'><a class='marginalized' href='#bitwise.operations.not-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>~std::forward&lt;T&gt;(t)</span>.
-</p></div></div></div></div><div id='func.not_fn'><h3 ><a class='secnum' href='#func.not_fn' style='min-width:103pt'>20.14.9</a> Function template <span class='texttt'>not_fn</span> <a class='abbr_ref' href='func.not_fn'>[func.not_fn]</a></h3><p ><span class='indexparent'><a class='index' id='not_fn'></a></span><code class='itemdecl'>
+</p></div></div></div></div><div id='func.not_fn'><h3 ><a class='secnum' href='#func.not_fn' style='min-width:103pt'>20.14.10</a> Function template <span class='texttt'>not_fn</span> <a class='abbr_ref' href='func.not_fn'>[func.not_fn]</a></h3><p ><span class='indexparent'><a class='index' id='not_fn'></a></span><code class='itemdecl'>
 template &lt;class F&gt; <i><span class='texttt'>unspecified</span></i> not_fn(F&amp;&amp; f);
 </code></p><div class='itemdescr'></div><div class='para' id='func.not_fn-1'><div class='marginalizedparent'><a class='marginalized' href='#func.not_fn-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Equivalent to <span class='texttt'>return <i>call_wrapper</i>(std::forward&lt;F&gt;(f));</span>
@@ -7434,8 +7423,8 @@ template&lt;class... Args&gt;
 </code></p><div class='itemdescr'></div><div class='para' id='func.not_fn-6'><div class='marginalizedparent'><a class='marginalized' href='#func.not_fn-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Equivalent to:
 <span class='texttt'>return !<i>INVOKE</i>(std::move(fd), std::forward&lt;Args&gt;(args)...);</span> (<a href='func.require'>[func.require]</a>).
-</p></div></div></div><div id='func.bind'><h3 ><a class='secnum' href='#func.bind' style='min-width:103pt'>20.14.10</a> Function object binders <a class='abbr_ref' href='func.bind'>[func.bind]</a></h3><p ><span class='indexparent'><a class='index' id='function_object,binders'></a></span></p><div class='para' id='func.bind-1'><div class='marginalizedparent'><a class='marginalized' href='#func.bind-1'>1</a></div><p >This subclause describes a uniform mechanism for binding
-arguments of callable objects.</p></div><div id='func.bind.isbind'><h4 ><a class='secnum' href='#func.bind.isbind' style='min-width:118pt'>20.14.10.1</a> Class template <span class='texttt'>is_bind_expression</span> <a class='abbr_ref' href='func.bind.isbind'>[func.bind.isbind]</a></h4><p ><span class='indexparent'><a class='index' id='is_bind_expression'></a></span></p><pre class='codeblock'>
+</p></div></div></div><div id='func.bind'><h3 ><a class='secnum' href='#func.bind' style='min-width:103pt'>20.14.11</a> Function object binders <a class='abbr_ref' href='func.bind'>[func.bind]</a></h3><p ><span class='indexparent'><a class='index' id='function_object,binders'></a></span></p><div class='para' id='func.bind-1'><div class='marginalizedparent'><a class='marginalized' href='#func.bind-1'>1</a></div><p >This subclause describes a uniform mechanism for binding
+arguments of callable objects.</p></div><div id='func.bind.isbind'><h4 ><a class='secnum' href='#func.bind.isbind' style='min-width:118pt'>20.14.11.1</a> Class template <span class='texttt'>is_bind_expression</span> <a class='abbr_ref' href='func.bind.isbind'>[func.bind.isbind]</a></h4><p ><span class='indexparent'><a class='index' id='is_bind_expression'></a></span></p><pre class='codeblock'>
 namespace std {
   template&lt;class T&gt; struct is_bind_expression; <span class='comment'>// see below
 </span>}
@@ -7448,7 +7437,7 @@ shall provide a definition that has a base characteristic of
 otherwise it shall have a base characteristic of <span class='texttt'>false_type</span>.
 A program may specialize this template for a user-defined type <span class='texttt'>T</span>
 to have a base characteristic of <span class='texttt'>true_type</span> to indicate that
-<span class='texttt'>T</span> should be treated as a subexpression in a <span class='texttt'>bind</span> call.</p></div></div><div id='func.bind.isplace'><h4 ><a class='secnum' href='#func.bind.isplace' style='min-width:118pt'>20.14.10.2</a> Class template <span class='texttt'>is_placeholder</span> <a class='abbr_ref' href='func.bind.isplace'>[func.bind.isplace]</a></h4><p ><span class='indexparent'><a class='index' id='is_placeholder'></a></span></p><pre class='codeblock'>
+<span class='texttt'>T</span> should be treated as a subexpression in a <span class='texttt'>bind</span> call.</p></div></div><div id='func.bind.isplace'><h4 ><a class='secnum' href='#func.bind.isplace' style='min-width:118pt'>20.14.11.2</a> Class template <span class='texttt'>is_placeholder</span> <a class='abbr_ref' href='func.bind.isplace'>[func.bind.isplace]</a></h4><p ><span class='indexparent'><a class='index' id='is_placeholder'></a></span></p><pre class='codeblock'>
 namespace std {
   template&lt;class T&gt; struct is_placeholder; <span class='comment'>// see below
 </span>}
@@ -7463,7 +7452,7 @@ base characteristic of <span class='texttt'>integral_constant&lt;int, 0&gt;</spa
 may specialize this template for a user-defined type <span class='texttt'>T</span> to
 have a base characteristic of <span class='texttt'>integral_constant&lt;int, <i>N</i>&gt;</span>
 with <span class='texttt'><i>N</i> &gt; 0</span> to indicate that <span class='texttt'>T</span> should be
-treated as a placeholder type.</p></div></div><div id='func.bind.bind'><h4 ><a class='secnum' href='#func.bind.bind' style='min-width:118pt'>20.14.10.3</a> Function template <span class='texttt'>bind</span> <a class='abbr_ref' href='func.bind.bind'>[func.bind.bind]</a></h4><p ><span class='indexparent'><a class='index' id='bind'></a></span></p><div class='para' id='func.bind.bind-1'><div class='marginalizedparent'><a class='marginalized' href='#func.bind.bind-1'>1</a></div><p >In the text that follows:</p><ul class='itemize'><li id='func.bind.bind-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#func.bind.bind-1.1'>(1.1)</a></div><p ><span class='texttt'>FD</span> is the type <span class='texttt'>decay_t&lt;F&gt;</span>,
+treated as a placeholder type.</p></div></div><div id='func.bind.bind'><h4 ><a class='secnum' href='#func.bind.bind' style='min-width:118pt'>20.14.11.3</a> Function template <span class='texttt'>bind</span> <a class='abbr_ref' href='func.bind.bind'>[func.bind.bind]</a></h4><p ><span class='indexparent'><a class='index' id='bind'></a></span></p><div class='para' id='func.bind.bind-1'><div class='marginalizedparent'><a class='marginalized' href='#func.bind.bind-1'>1</a></div><p >In the text that follows:</p><ul class='itemize'><li id='func.bind.bind-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#func.bind.bind-1.1'>(1.1)</a></div><p ><span class='texttt'>FD</span> is the type <span class='texttt'>decay_t&lt;F&gt;</span>,
 </p></li><li id='func.bind.bind-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#func.bind.bind-1.2'>(1.2)</a></div><p ><span class='texttt'>fd</span> is an lvalue of type <span class='texttt'>FD</span> constructed from <span class='texttt'>std::forward&lt;F&gt;(f)</span>,
 </p></li><li id='func.bind.bind-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#func.bind.bind-1.3'>(1.3)</a></div><p ><span class='texttt'>Ti</span> is the <span class='math'><span class='mathalpha'>i</span><sup ><span class='mathalpha'>th</span></sup></span> type in the template parameter pack <span class='texttt'>BoundArgs</span>,
 </p></li><li id='func.bind.bind-1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#func.bind.bind-1.4'>(1.4)</a></div><p ><span class='texttt'>TiD</span> is the type <span class='texttt'>decay_t&lt;Ti&gt;</span>,
@@ -7534,7 +7523,7 @@ is not zero, the  argument is <span class='texttt'>std::forward&lt;Uj&gt;(uj)</s
 and its type <span class='texttt'>Vi</span>
 is <span class='texttt'>Uj&amp;&amp;</span>;</p></li><li id='func.bind.bind-10.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#func.bind.bind-10.4'>(10.4)</a></div><p >otherwise, the value is <span class='texttt'>tid</span> and its type <span class='texttt'>Vi</span>
 is <span class='texttt'>TiD <i>cv</i> &amp;</span>.
-</p></li></ul></div></div><div id='func.bind.place'><h4 ><a class='secnum' href='#func.bind.place' style='min-width:118pt'>20.14.10.4</a> Placeholders <a class='abbr_ref' href='func.bind.place'>[func.bind.place]</a></h4><p ><span class='indexparent'><a class='index' id='placeholders'></a></span><span class='indexparent'><a class='index' id='1'></a></span></p><pre class='codeblock'>
+</p></li></ul></div></div><div id='func.bind.place'><h4 ><a class='secnum' href='#func.bind.place' style='min-width:118pt'>20.14.11.4</a> Placeholders <a class='abbr_ref' href='func.bind.place'>[func.bind.place]</a></h4><p ><span class='indexparent'><a class='index' id='placeholders'></a></span><span class='indexparent'><a class='index' id='1'></a></span></p><pre class='codeblock'>
 namespace std::placeholders {
   <span class='comment'>// M is the <span class='indexparent'><a class='index' id='number_of_placeholders_for_bind_expressions'></a></span>implementation-defined number of placeholders
 </span>  <i><span class='texttt'>see below</span></i> _1;
@@ -7554,13 +7543,13 @@ constexpr <i><span class='texttt'>unspecified</span></i> _1{};
 </pre><p >If they are not, they shall be declared as:
 </p><pre class='codeblock'>
 extern <i><span class='texttt'>unspecified</span></i> _1;
-</pre></div></div></div><div id='func.memfn'><h3 ><a class='secnum' href='#func.memfn' style='min-width:103pt'>20.14.11</a> Function template <span class='texttt'>mem_fn</span> <a class='abbr_ref' href='func.memfn'>[func.memfn]</a></h3><p ><span class='indexparent'><a class='index' id='function_object,mem_fn'></a></span></p><p ><span class='indexparent'><a class='index' id='mem_fn'></a></span><code class='itemdecl'>
+</pre></div></div></div><div id='func.memfn'><h3 ><a class='secnum' href='#func.memfn' style='min-width:103pt'>20.14.12</a> Function template <span class='texttt'>mem_fn</span> <a class='abbr_ref' href='func.memfn'>[func.memfn]</a></h3><p ><span class='indexparent'><a class='index' id='function_object,mem_fn'></a></span></p><p ><span class='indexparent'><a class='index' id='mem_fn'></a></span><code class='itemdecl'>
 template&lt;class R, class T&gt; <i><span class='texttt'>unspecified</span></i> mem_fn(R T::* pm) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='func.memfn-1'><div class='marginalizedparent'><a class='marginalized' href='#func.memfn-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> A simple call wrapper (<a href='func.def'>[func.def]</a>) <span class='texttt'>fn</span>
 such that the expression <span class='texttt'>fn(t, a2, ..., aN)</span> is equivalent
 to <span class='texttt'><i>INVOKE</i>(pm, t, a2, ..., aN)</span> (<a href='func.require'>[func.require]</a>).
-</p></div></div><p ><span class='indexparent'><a class='index' id='function_object,mem_fn'></a></span></p></div><div id='func.wrap'><h3 ><a class='secnum' href='#func.wrap' style='min-width:103pt'>20.14.12</a> Polymorphic function wrappers <a class='abbr_ref' href='func.wrap'>[func.wrap]</a></h3><p ><span class='indexparent'><a class='index' id='function_object,wrapper'></a></span></p><div class='para' id='func.wrap-1'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap-1'>1</a></div><p >This subclause describes a polymorphic wrapper class that
-encapsulates arbitrary callable objects.</p></div><div id='func.wrap.badcall'><h4 ><a class='secnum' href='#func.wrap.badcall' style='min-width:118pt'>20.14.12.1</a> Class <span class='texttt'>bad_function_call</span> <a class='abbr_ref' href='func.wrap.badcall'>[func.wrap.badcall]</a></h4><p ><span class='indexparent'><a class='index' id='bad_function_call'></a></span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='function_object,mem_fn'></a></span></p></div><div id='func.wrap'><h3 ><a class='secnum' href='#func.wrap' style='min-width:103pt'>20.14.13</a> Polymorphic function wrappers <a class='abbr_ref' href='func.wrap'>[func.wrap]</a></h3><p ><span class='indexparent'><a class='index' id='function_object,wrapper'></a></span></p><div class='para' id='func.wrap-1'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap-1'>1</a></div><p >This subclause describes a polymorphic wrapper class that
+encapsulates arbitrary callable objects.</p></div><div id='func.wrap.badcall'><h4 ><a class='secnum' href='#func.wrap.badcall' style='min-width:118pt'>20.14.13.1</a> Class <span class='texttt'>bad_function_call</span> <a class='abbr_ref' href='func.wrap.badcall'>[func.wrap.badcall]</a></h4><p ><span class='indexparent'><a class='index' id='bad_function_call'></a></span>
 </p><div class='para' id='func.wrap.badcall-1'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.badcall-1'>1</a></div><p >An exception of type <span class='texttt'>bad_function_call</span> is thrown by
 <span class='texttt'>function::operator()</span> (<a href='func.wrap.func.inv'>[func.wrap.func.inv]</a>)
 when the function wrapper object has no target.</p><pre class='codeblock'>
@@ -7571,12 +7560,12 @@ namespace std {
 </span>    bad_function_call() noexcept;
   };
 }
-</pre></div><div id='func.wrap.badcall.const'><h4 ><a class='secnum' href='#func.wrap.badcall.const' style='min-width:133pt'>20.14.12.1.1</a> <span class='texttt'>bad_function_call</span> constructor <a class='abbr_ref' href='func.wrap.badcall.const'>[func.wrap.badcall.const]</a></h4><p ><span class='indexparent'><a class='index' id='bad_function_call,constructor'></a></span><span class='indexparent'><a class='index' id='what,bad_function_call'></a></span><span class='indexparent'><a class='index' id='bad_function_call,what'></a></span><code class='itemdecl'>
+</pre></div><div id='func.wrap.badcall.const'><h4 ><a class='secnum' href='#func.wrap.badcall.const' style='min-width:133pt'>20.14.13.1.1</a> <span class='texttt'>bad_function_call</span> constructor <a class='abbr_ref' href='func.wrap.badcall.const'>[func.wrap.badcall.const]</a></h4><p ><span class='indexparent'><a class='index' id='bad_function_call,constructor'></a></span><span class='indexparent'><a class='index' id='what,bad_function_call'></a></span><span class='indexparent'><a class='index' id='bad_function_call,what'></a></span><code class='itemdecl'>
 bad_function_call() noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='func.wrap.badcall.const-1'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.badcall.const-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>bad_function_call</span> object.
 </p></div></div><div class='itemdescr'></div><div class='para' id='func.wrap.badcall.const-2'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.badcall.const-2'>2</a></div><div class='itemdescr'><p ><i>Postconditions:</i>  <span class='texttt'>what()</span> returns an
 <span class='indexparent'><a class='index' id='return_value_of_bad_function_call::what'></a></span>implementation-defined <span class='textsc'>ntbs</span>.
-</p></div></div></div></div><div id='func.wrap.func'><h4 ><a class='secnum' href='#func.wrap.func' style='min-width:118pt'>20.14.12.2</a> Class template <span class='texttt'>function</span> <a class='abbr_ref' href='func.wrap.func'>[func.wrap.func]</a></h4><p ><span class='indexparent'><a class='index' id='function'></a></span>
+</p></div></div></div></div><div id='func.wrap.func'><h4 ><a class='secnum' href='#func.wrap.func' style='min-width:118pt'>20.14.13.2</a> Class template <span class='texttt'>function</span> <a class='abbr_ref' href='func.wrap.func'>[func.wrap.func]</a></h4><p ><span class='indexparent'><a class='index' id='function'></a></span>
 </p><pre class='codeblock'>
 namespace std {
   template&lt;class&gt; class function; <span class='comment'>// not defined
@@ -7646,7 +7635,7 @@ if the expression
 considered as an unevaluated operand (Clause <a href='expr'>[expr]</a>), is
 well formed (<a href='func.require'>[func.require]</a>).</p></div><div class='para' id='func.wrap.func-3'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func-3'>3</a></div><p >The <span class='texttt'>function</span> class template is a call
 wrapper (<a href='func.def'>[func.def]</a>) whose call signature (<a href='func.def'>[func.def]</a>)
-is <span class='texttt'>R(ArgTypes...)</span>.</p></div><div id='func.wrap.func.con'><h4 ><a class='secnum' href='#func.wrap.func.con' style='min-width:133pt'>20.14.12.2.1</a> <span class='texttt'>function</span> construct/copy/destroy <a class='abbr_ref' href='func.wrap.func.con'>[func.wrap.func.con]</a></h4><p ><span class='indexparent'><a class='index' id='function,constructor'></a></span><code class='itemdecl'>
+is <span class='texttt'>R(ArgTypes...)</span>.</p></div><div id='func.wrap.func.con'><h4 ><a class='secnum' href='#func.wrap.func.con' style='min-width:133pt'>20.14.13.2.1</a> <span class='texttt'>function</span> construct/copy/destroy <a class='abbr_ref' href='func.wrap.func.con'>[func.wrap.func.con]</a></h4><p ><span class='indexparent'><a class='index' id='function,constructor'></a></span><code class='itemdecl'>
 function() noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='func.wrap.func.con-1'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func.con-1'>1</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>!*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='function,constructor'></a></span><code class='itemdecl'>
@@ -7717,19 +7706,19 @@ template&lt;class F&gt; function&amp; operator=(reference_wrapper&lt;F&gt; f) no
 </p></div></div><p ><span class='indexparent'><a class='index' id='function,destructor'></a></span><code class='itemdecl'>
 ~function();
 </code></p><div class='itemdescr'></div><div class='para' id='func.wrap.func.con-24'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func.con-24'>24</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>*this != nullptr</span>, destroys the target of <span class='texttt'>this</span>.
-</p></div></div></div><div id='func.wrap.func.mod'><h4 ><a class='secnum' href='#func.wrap.func.mod' style='min-width:133pt'>20.14.12.2.2</a> <span class='texttt'>function</span> modifiers <a class='abbr_ref' href='func.wrap.func.mod'>[func.wrap.func.mod]</a></h4><p ><span class='indexparent'><a class='index' id='swap,function'></a></span><span class='indexparent'><a class='index' id='function,swap'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='func.wrap.func.mod'><h4 ><a class='secnum' href='#func.wrap.func.mod' style='min-width:133pt'>20.14.13.2.2</a> <span class='texttt'>function</span> modifiers <a class='abbr_ref' href='func.wrap.func.mod'>[func.wrap.func.mod]</a></h4><p ><span class='indexparent'><a class='index' id='swap,function'></a></span><span class='indexparent'><a class='index' id='function,swap'></a></span><code class='itemdecl'>
 void swap(function&amp; other) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='func.wrap.func.mod-1'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func.mod-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> interchanges the targets of <span class='texttt'>*this</span> and <span class='texttt'>other</span>.
-</p></div></div></div><div id='func.wrap.func.cap'><h4 ><a class='secnum' href='#func.wrap.func.cap' style='min-width:133pt'>20.14.12.2.3</a> <span class='texttt'>function</span> capacity <a class='abbr_ref' href='func.wrap.func.cap'>[func.wrap.func.cap]</a></h4><p ><span class='indexparent'><a class='index' id='operator_bool,function'></a></span><span class='indexparent'><a class='index' id='function,operator_bool'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='func.wrap.func.cap'><h4 ><a class='secnum' href='#func.wrap.func.cap' style='min-width:133pt'>20.14.13.2.3</a> <span class='texttt'>function</span> capacity <a class='abbr_ref' href='func.wrap.func.cap'>[func.wrap.func.cap]</a></h4><p ><span class='indexparent'><a class='index' id='operator_bool,function'></a></span><span class='indexparent'><a class='index' id='function,operator_bool'></a></span><code class='itemdecl'>
 explicit operator bool() const noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='func.wrap.func.cap-1'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func.cap-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>true</span> if <span class='texttt'>*this</span> has a target, otherwise <span class='texttt'>false</span>.
-</p></div></div></div><div id='func.wrap.func.inv'><h4 ><a class='secnum' href='#func.wrap.func.inv' style='min-width:133pt'>20.14.12.2.4</a> <span class='texttt'>function</span> invocation <a class='abbr_ref' href='func.wrap.func.inv'>[func.wrap.func.inv]</a></h4><p ><span class='indexparent'><a class='index' id='function,invocation'></a></span><span class='indexparent'><a class='index' id='operator(),function'></a></span><span class='indexparent'><a class='index' id='function,operator()'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='func.wrap.func.inv'><h4 ><a class='secnum' href='#func.wrap.func.inv' style='min-width:133pt'>20.14.13.2.4</a> <span class='texttt'>function</span> invocation <a class='abbr_ref' href='func.wrap.func.inv'>[func.wrap.func.inv]</a></h4><p ><span class='indexparent'><a class='index' id='function,invocation'></a></span><span class='indexparent'><a class='index' id='operator(),function'></a></span><span class='indexparent'><a class='index' id='function,operator()'></a></span><code class='itemdecl'>
 R operator()(ArgTypes... args) const;
 </code></p><div class='itemdescr'></div><div class='para' id='func.wrap.func.inv-1'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func.inv-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'><i>INVOKE</i>(f, std::forward&lt;ArgTypes&gt;(args)..., R)</span> (<a href='func.require'>[func.require]</a>),
 where <span class='texttt'>f</span> is the target object (<a href='func.def'>[func.def]</a>) of <span class='texttt'>*this</span>.</p></div></div><div class='para' id='func.wrap.func.inv-2'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func.inv-2'>2</a></div><div class='itemdescr'><p ><i>Throws:</i>
 <span class='texttt'>bad_function_call</span> if <span class='texttt'>!*this</span>; otherwise, any
 exception thrown by the wrapped callable object.
-</p></div></div></div><div id='func.wrap.func.targ'><h4 ><a class='secnum' href='#func.wrap.func.targ' style='min-width:133pt'>20.14.12.2.5</a> <span class='texttt'>function</span> target access <a class='abbr_ref' href='func.wrap.func.targ'>[func.wrap.func.targ]</a></h4><p ><span class='indexparent'><a class='index' id='target_type,function'></a></span><span class='indexparent'><a class='index' id='function,target_type'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='func.wrap.func.targ'><h4 ><a class='secnum' href='#func.wrap.func.targ' style='min-width:133pt'>20.14.13.2.5</a> <span class='texttt'>function</span> target access <a class='abbr_ref' href='func.wrap.func.targ'>[func.wrap.func.targ]</a></h4><p ><span class='indexparent'><a class='index' id='target_type,function'></a></span><span class='indexparent'><a class='index' id='function,target_type'></a></span><code class='itemdecl'>
 const type_info&amp; target_type() const noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='func.wrap.func.targ-1'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func.targ-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> If <span class='texttt'>*this</span> has a target of type <span class='texttt'>T</span>,
   <span class='texttt'>typeid(T)</span>; otherwise, <span class='texttt'>typeid(void)</span>.
@@ -7738,7 +7727,7 @@ template&lt;class T&gt;       T* target() noexcept;
 template&lt;class T&gt; const T* target() const noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='func.wrap.func.targ-2'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func.targ-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> If <span class='texttt'>target_type() == typeid(T)</span>
 a pointer to the stored function target; otherwise a null pointer.
-</p></div></div></div><div id='func.wrap.func.nullptr'><h4 ><a class='secnum' href='#func.wrap.func.nullptr' style='min-width:133pt'>20.14.12.2.6</a> null pointer comparison operators <a class='abbr_ref' href='func.wrap.func.nullptr'>[func.wrap.func.nullptr]</a></h4><p ><span class='indexparent'><a class='index' id='operator==,function'></a></span><span class='indexparent'><a class='index' id='function,operator=='></a></span><code class='itemdecl'>
+</p></div></div></div><div id='func.wrap.func.nullptr'><h4 ><a class='secnum' href='#func.wrap.func.nullptr' style='min-width:133pt'>20.14.13.2.6</a> null pointer comparison operators <a class='abbr_ref' href='func.wrap.func.nullptr'>[func.wrap.func.nullptr]</a></h4><p ><span class='indexparent'><a class='index' id='operator==,function'></a></span><span class='indexparent'><a class='index' id='function,operator=='></a></span><code class='itemdecl'>
 template &lt;class R, class... ArgTypes&gt;
   bool operator==(const function&lt;R(ArgTypes...)&gt;&amp; f, nullptr_t) noexcept;
 template &lt;class R, class... ArgTypes&gt;
@@ -7750,11 +7739,11 @@ template &lt;class R, class... ArgTypes&gt;
 template &lt;class R, class... ArgTypes&gt;
   bool operator!=(nullptr_t, const function&lt;R(ArgTypes...)&gt;&amp; f) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='func.wrap.func.nullptr-2'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func.nullptr-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>(bool)f</span>.
-</p></div></div></div><div id='func.wrap.func.alg'><h4 ><a class='secnum' href='#func.wrap.func.alg' style='min-width:133pt'>20.14.12.2.7</a> specialized algorithms <a class='abbr_ref' href='func.wrap.func.alg'>[func.wrap.func.alg]</a></h4><p ><span class='indexparent'><a class='index' id='swap,function'></a></span><span class='indexparent'><a class='index' id='function,swap'></a></span><code class='itemdecl'>
+</p></div></div></div><div id='func.wrap.func.alg'><h4 ><a class='secnum' href='#func.wrap.func.alg' style='min-width:133pt'>20.14.13.2.7</a> specialized algorithms <a class='abbr_ref' href='func.wrap.func.alg'>[func.wrap.func.alg]</a></h4><p ><span class='indexparent'><a class='index' id='swap,function'></a></span><span class='indexparent'><a class='index' id='function,swap'></a></span><code class='itemdecl'>
 template&lt;class R, class... ArgTypes&gt;
   void swap(function&lt;R(ArgTypes...)&gt;&amp; f1, function&lt;R(ArgTypes...)&gt;&amp; f2) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='func.wrap.func.alg-1'><div class='marginalizedparent'><a class='marginalized' href='#func.wrap.func.alg-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> As if by: <span class='texttt'>f1.swap(f2);</span>
-</p></div></div><p ><span class='indexparent'><a class='index' id='function_object,wrapper'></a></span></p></div></div></div><div id='func.search'><h3 ><a class='secnum' href='#func.search' style='min-width:103pt'>20.14.13</a> Searchers <a class='abbr_ref' href='func.search'>[func.search]</a></h3><div class='para' id='func.search-1'><div class='marginalizedparent'><a class='marginalized' href='#func.search-1'>1</a></div><p >This subclause provides function object types (<a href='function.objects'>[function.objects]</a>) for
+</p></div></div><p ><span class='indexparent'><a class='index' id='function_object,wrapper'></a></span></p></div></div></div><div id='func.search'><h3 ><a class='secnum' href='#func.search' style='min-width:103pt'>20.14.14</a> Searchers <a class='abbr_ref' href='func.search'>[func.search]</a></h3><div class='para' id='func.search-1'><div class='marginalizedparent'><a class='marginalized' href='#func.search-1'>1</a></div><p >This subclause provides function object types (<a href='function.objects'>[function.objects]</a>) for
 operations that search for a sequence <span class='texttt'>[pat_first, pat_last)</span> in another
 sequence <span class='texttt'>[first, last)</span> that is provided to the object's function call
 operator.  The first sequence (the pattern to be searched for) is provided to
@@ -7773,7 +7762,7 @@ Template parameters named
 specified in <a href='algorithms.general'>[algorithms.general]</a>.
 Template parameters named <span class='texttt'>Hash</span> shall meet the requirements as specified in <a href='hash.requirements'>[hash.requirements]</a>.</p></div><div class='para' id='func.search-3'><div class='marginalizedparent'><a class='marginalized' href='#func.search-3'>3</a></div><p >The Boyer-Moore searcher implements the Boyer-Moore search algorithm.
 The Boyer-Moore-Horspool searcher implements the Boyer-Moore-Horspool search algorithm.
-In general, the Boyer-Moore searcher will use more memory and give better runtime performance than Boyer-Moore-Horspool</p></div><div id='func.search.default'><h4 ><a class='secnum' href='#func.search.default' style='min-width:118pt'>20.14.13.1</a> Class template <span class='texttt'>default_searcher</span> <a class='abbr_ref' href='func.search.default'>[func.search.default]</a></h4><p ><span class='indexparent'><a class='index' id='default_searcher'></a></span></p><pre class='codeblock'>
+In general, the Boyer-Moore searcher will use more memory and give better runtime performance than Boyer-Moore-Horspool</p></div><div id='func.search.default'><h4 ><a class='secnum' href='#func.search.default' style='min-width:118pt'>20.14.14.1</a> Class template <span class='texttt'>default_searcher</span> <a class='abbr_ref' href='func.search.default'>[func.search.default]</a></h4><p ><span class='indexparent'><a class='index' id='default_searcher'></a></span></p><pre class='codeblock'>
 template &lt;class ForwardIterator1, class BinaryPredicate = equal_to&lt;&gt;&gt;
 class default_searcher {
 public:
@@ -7807,7 +7796,7 @@ Returns a pair of iterators <span class='texttt'>i</span> and <span class='textt
 </p><ul class='itemize'><li id='func.search.default-3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#func.search.default-3.1'>(3.1)</a></div><p ><span class='texttt'>i == search(first, last, pat_first_, pat_last_, pred_)</span>, and
 </p></li><li id='func.search.default-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#func.search.default-3.2'>(3.2)</a></div><p >if <span class='texttt'>i == last</span>, then <span class='texttt'>j == last</span>,
 otherwise <span class='texttt'>j == next(i, distance(pat_first_, pat_last_))</span>.
-</p></li></ul></div></div><div id='func.search.default.creation'><h4 ><a class='secnum' href='#func.search.default.creation' style='min-width:133pt'>20.14.13.1.1</a> <span class='texttt'>default_searcher</span> creation functions <a class='abbr_ref' href='func.search.default.creation'>[func.search.default.creation]</a></h4><p ><span class='indexparent'><a class='index' id='make_default_searcher'></a></span><code class='itemdecl'>
+</p></li></ul></div></div><div id='func.search.default.creation'><h4 ><a class='secnum' href='#func.search.default.creation' style='min-width:133pt'>20.14.14.1.1</a> <span class='texttt'>default_searcher</span> creation functions <a class='abbr_ref' href='func.search.default.creation'>[func.search.default.creation]</a></h4><p ><span class='indexparent'><a class='index' id='make_default_searcher'></a></span><code class='itemdecl'>
 template &lt;class ForwardIterator, class BinaryPredicate = equal_to&lt;&gt;&gt;
   default_searcher&lt;ForwardIterator, BinaryPredicate&gt;
     make_default_searcher(ForwardIterator pat_first, ForwardIterator pat_last,
@@ -7816,7 +7805,7 @@ template &lt;class ForwardIterator, class BinaryPredicate = equal_to&lt;&gt;&gt;
 Equivalent to:
 </p><pre class='codeblock'>
 return default_searcher&lt;ForwardIterator, BinaryPredicate&gt;(pat_first, pat_last, pred);
-</pre></div></div></div></div><div id='func.search.bm'><h4 ><a class='secnum' href='#func.search.bm' style='min-width:118pt'>20.14.13.2</a> Class template <span class='texttt'>boyer_moore_searcher</span> <a class='abbr_ref' href='func.search.bm'>[func.search.bm]</a></h4><p ><span class='indexparent'><a class='index' id='boyer_moore_searcher'></a></span></p><pre class='codeblock'>
+</pre></div></div></div></div><div id='func.search.bm'><h4 ><a class='secnum' href='#func.search.bm' style='min-width:118pt'>20.14.14.2</a> Class template <span class='texttt'>boyer_moore_searcher</span> <a class='abbr_ref' href='func.search.bm'>[func.search.bm]</a></h4><p ><span class='indexparent'><a class='index' id='boyer_moore_searcher'></a></span></p><pre class='codeblock'>
 template &lt;class RandomAccessIterator1,
           class Hash = hash&lt;typename iterator_traits&lt;RandomAccessIterator1&gt;::value_type&gt;,
           class BinaryPredicate = equal_to&lt;&gt;&gt;
@@ -7866,7 +7855,7 @@ the following condition holds:
 </p></li></ul><p >Returns <span class='texttt'>make_pair(first, first)</span> if <span class='texttt'>[pat_first_, pat_last_)</span> is empty,
 otherwise returns <span class='texttt'>make_pair(last, last)</span> if no such iterator is found.</p></div></div><div class='para' id='func.search.bm-8'><div class='marginalizedparent'><a class='marginalized' href='#func.search.bm-8'>8</a></div><div class='itemdescr'><p ><i>Complexity:</i>
 At most <span class='texttt'>(last - first) * (pat_last_ - pat_first_)</span> applications of the predicate.
-</p></div></div><div id='func.search.bm.creation'><h4 ><a class='secnum' href='#func.search.bm.creation' style='min-width:133pt'>20.14.13.2.1</a> <span class='texttt'>boyer_moore_searcher</span> creation functions <a class='abbr_ref' href='func.search.bm.creation'>[func.search.bm.creation]</a></h4><p ><span class='indexparent'><a class='index' id='make_boyer_moore_searcher'></a></span><code class='itemdecl'>
+</p></div></div><div id='func.search.bm.creation'><h4 ><a class='secnum' href='#func.search.bm.creation' style='min-width:133pt'>20.14.14.2.1</a> <span class='texttt'>boyer_moore_searcher</span> creation functions <a class='abbr_ref' href='func.search.bm.creation'>[func.search.bm.creation]</a></h4><p ><span class='indexparent'><a class='index' id='make_boyer_moore_searcher'></a></span><code class='itemdecl'>
 template &lt;class RandomAccessIterator,
           class Hash = hash&lt;typename iterator_traits&lt;RandomAccessIterator&gt;::value_type&gt;,
           class BinaryPredicate = equal_to&lt;&gt;&gt;
@@ -7879,7 +7868,7 @@ Equivalent to:
 </p><pre class='codeblock'>
 return boyer_moore_searcher&lt;RandomAccessIterator, Hash, BinaryPredicate&gt;(
          pat_first, pat_last, hf, pred);
-</pre></div></div></div></div><div id='func.search.bmh'><h4 ><a class='secnum' href='#func.search.bmh' style='min-width:118pt'>20.14.13.3</a> Class template <span class='texttt'>boyer_moore_horspool_searcher</span> <a class='abbr_ref' href='func.search.bmh'>[func.search.bmh]</a></h4><p ><span class='indexparent'><a class='index' id='boyer_moore_horspool_searcher'></a></span></p><pre class='codeblock'>
+</pre></div></div></div></div><div id='func.search.bmh'><h4 ><a class='secnum' href='#func.search.bmh' style='min-width:118pt'>20.14.14.3</a> Class template <span class='texttt'>boyer_moore_horspool_searcher</span> <a class='abbr_ref' href='func.search.bmh'>[func.search.bmh]</a></h4><p ><span class='indexparent'><a class='index' id='boyer_moore_horspool_searcher'></a></span></p><pre class='codeblock'>
 template &lt;class RandomAccessIterator1,
           class Hash = hash&lt;typename iterator_traits&lt;RandomAccessIterator1&gt;::value_type&gt;,
           class BinaryPredicate = equal_to&lt;&gt;&gt;
@@ -7932,7 +7921,7 @@ the following condition holds:
 </p></li></ul><p >Returns <span class='texttt'>make_pair(first, first)</span> if <span class='texttt'>[pat_first_, pat_last_)</span> is empty,
 otherwise returns <span class='texttt'>make_pair(last, last)</span> if no such iterator is found.</p></div></div><div class='para' id='func.search.bmh-8'><div class='marginalizedparent'><a class='marginalized' href='#func.search.bmh-8'>8</a></div><div class='itemdescr'><p ><i>Complexity:</i>
 At most <span class='texttt'>(last - first) * (pat_last_ - pat_first_)</span> applications of the predicate.
-</p></div></div><div id='func.search.bmh.creation'><h4 ><a class='secnum' href='#func.search.bmh.creation' style='min-width:133pt'>20.14.13.3.1</a> <span class='texttt'>boyer_moore_horspool_searcher</span> creation functions <a class='abbr_ref' href='func.search.bmh.creation'>[func.search.bmh.creation]</a></h4><p ><span class='indexparent'><a class='index' id='make_boyer_moore_horspool_searcher'></a></span><code class='itemdecl'>
+</p></div></div><div id='func.search.bmh.creation'><h4 ><a class='secnum' href='#func.search.bmh.creation' style='min-width:133pt'>20.14.14.3.1</a> <span class='texttt'>boyer_moore_horspool_searcher</span> creation functions <a class='abbr_ref' href='func.search.bmh.creation'>[func.search.bmh.creation]</a></h4><p ><span class='indexparent'><a class='index' id='make_boyer_moore_horspool_searcher'></a></span><code class='itemdecl'>
 template &lt;class RandomAccessIterator,
           class Hash = hash&lt;typename iterator_traits&lt;RandomAccessIterator&gt;::value_type&gt;,
           class BinaryPredicate = equal_to&lt;&gt;&gt;
@@ -7945,8 +7934,9 @@ Equivalent to:
 </p><pre class='codeblock'>
 return boyer_moore_horspool_searcher&lt;RandomAccessIterator, Hash, BinaryPredicate&gt;(
          pat_first, pat_last, hf, pred);
-</pre></div></div></div></div></div><div id='unord.hash'><h3 ><a class='secnum' href='#unord.hash' style='min-width:103pt'>20.14.14</a> Class template <span class='texttt'>hash</span> <a class='abbr_ref' href='unord.hash'>[unord.hash]</a></h3><div class='para' id='unord.hash-1'><div class='marginalizedparent'><a class='marginalized' href='#unord.hash-1'>1</a></div><p ><span class='indexparent'><a class='index' id='hash'></a></span><span class='indexparent'><a class='index' id='hash,instantiation_restrictions'></a></span>The unordered associative containers defined in <a href='unord'>[unord]</a> use
-specializations of the class template <span class='texttt'>hash</span> as the default hash function.</p></div><div class='para' id='unord.hash-2'><div class='marginalizedparent'><a class='marginalized' href='#unord.hash-2'>2</a></div><p >Each specialization of <span class='texttt'>hash</span> is either enabled or disabled,
+</pre></div></div></div></div></div><div id='unord.hash'><h3 ><a class='secnum' href='#unord.hash' style='min-width:103pt'>20.14.15</a> Class template <span class='texttt'>hash</span> <a class='abbr_ref' href='unord.hash'>[unord.hash]</a></h3><div class='para' id='unord.hash-1'><div class='marginalizedparent'><a class='marginalized' href='#unord.hash-1'>1</a></div><p ><span class='indexparent'><a class='index' id='hash'></a></span><span class='indexparent'><a class='index' id='hash,instantiation_restrictions'></a></span>The unordered associative containers defined in <a href='unord'>[unord]</a> use
+specializations of the class template <span class='texttt'>hash</span> (<a href='functional.syn'>[functional.syn]</a>)
+as the default hash function.</p></div><div class='para' id='unord.hash-2'><div class='marginalizedparent'><a class='marginalized' href='#unord.hash-2'>2</a></div><p >Each specialization of <span class='texttt'>hash</span> is either enabled or disabled,
 as described below.
 [&nbsp;<i>Note:</i>
 Enabled specializations meet the requirements of <span class='texttt'>Hash</span>, and
@@ -7984,7 +7974,7 @@ are objects of type <span class='texttt'>Key</span>;
 is an object of type <span class='texttt'>hash&lt;Key&gt;</span> and <span class='texttt'>k</span> is an object of type
 <span class='texttt'>Key</span>, shall not throw an exception unless <span class='texttt'>hash&lt;Key&gt;</span> is a
 user-defined specialization that depends on at least one user-defined type.
-</p></li></ul></div></div><div id='func.default.traits'><h3 ><a class='secnum' href='#func.default.traits' style='min-width:103pt'>20.14.15</a> Default functor traits <a class='abbr_ref' href='func.default.traits'>[func.default.traits]</a></h3><p ><span class='indexparent'><a class='index' id='default_order'></a></span></p><pre class='codeblock'>
+</p></li></ul></div></div><div id='func.default.traits'><h3 ><a class='secnum' href='#func.default.traits' style='min-width:103pt'>20.14.16</a> Default functor traits <a class='abbr_ref' href='func.default.traits'>[func.default.traits]</a></h3><p ><span class='indexparent'><a class='index' id='default_order'></a></span></p><pre class='codeblock'>
 namespace std {
   template &lt;class T = void&gt;
   struct default_order {

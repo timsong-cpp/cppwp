@@ -145,23 +145,22 @@ template&lt;class T&gt; auto h()
 template&lt;class T&gt; auto i(T)     <span class='comment'>// identity
 </span>  -&gt; T;
 template&lt;class T&gt; auto f(T)     <span class='comment'>// #1
-</span>  -&gt; decltype(i(h&lt;T&gt;()));       <span class='comment'>// forces completion of <span class='texttt'>A&lt;T&gt;</span> and implicitly uses
-</span>                                <span class='comment'>// <span class='texttt'>A&lt;T&gt;::~A()</span> for the temporary introduced by the
-</span>                                <span class='comment'>// use of <span class='texttt'>h()</span>. (A temporary is not introduced
-</span>                                <span class='comment'>// as a result of the use of <span class='texttt'>i()</span>.)
+</span>  -&gt; decltype(i(h&lt;T&gt;()));       <span class='comment'>// forces completion of <span class='texttt'>A&lt;T&gt;</span> and implicitly uses <span class='texttt'>A&lt;T&gt;::~A()</span>
+</span>                                <span class='comment'>// for the temporary introduced by the use of <span class='texttt'>h()</span>.
+</span>                                <span class='comment'>// (A temporary is not introduced as a result of the use of <span class='texttt'>i()</span>.)
 </span>template&lt;class T&gt; auto f(T)     <span class='comment'>// #2
 </span>  -&gt; void;
 auto g() -&gt; void {
-  f(42);                        <span class='comment'>// OK: calls #2. (#1 is not a viable candidate: type
-</span>                                <span class='comment'>// deduction fails (<a href='temp.deduct'>[temp.deduct]</a>) because <span class='texttt'>A&lt;int&gt;::~A()</span>
-</span>                                <span class='comment'>// is implicitly used in its <span class='grammarterm'>decltype-specifier</span>)
+  f(42);                        <span class='comment'>// OK: calls #2. (#1 is not a viable candidate: type deduction
+</span>                                <span class='comment'>// fails (<a href='temp.deduct'>[temp.deduct]</a>) because <span class='texttt'>A&lt;int&gt;::~A()</span> is implicitly used in its
+</span>                                <span class='comment'>// <span class='grammarterm'>decltype-specifier</span>)
 </span>}
 template&lt;class T&gt; auto q(T)
-  -&gt; decltype((h&lt;T&gt;()));        <span class='comment'>// does not force completion of <span class='texttt'>A&lt;T&gt;</span>; <span class='texttt'>A&lt;T&gt;::~A()</span> is
-</span>                                <span class='comment'>// not implicitly used within the context of this <span class='grammarterm'>decltype-specifier</span>
+  -&gt; decltype((h&lt;T&gt;()));        <span class='comment'>// does not force completion of <span class='texttt'>A&lt;T&gt;</span>; <span class='texttt'>A&lt;T&gt;::~A()</span> is not implicitly
+</span>                                <span class='comment'>// used within the context of this <span class='grammarterm'>decltype-specifier</span>
 </span>void r() {
-  q(42);                        <span class='comment'>// Error: deduction against <span class='texttt'>q</span> succeeds, so overload resolution
-</span>                                <span class='comment'>// selects the specialization “<span class='texttt'>q(T) -&gt; decltype((h&lt;T&gt;())) [with T=int]</span>”.
+  q(42);                        <span class='comment'>// Error: deduction against <span class='texttt'>q</span> succeeds, so overload resolution selects
+</span>                                <span class='comment'>// the specialization “<span class='texttt'>q(T) -&gt; decltype((h&lt;T&gt;())) [with T=int]</span>”.
 </span>                                <span class='comment'>// The return type is <span class='texttt'>A&lt;int&gt;</span>, so a temporary is introduced and its
 </span>                                <span class='comment'>// destructor is used, so the program is ill-formed.
 </span>}
