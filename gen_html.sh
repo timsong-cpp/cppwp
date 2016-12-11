@@ -4,7 +4,18 @@ git submodule foreach git pull origin
 
 # Build the standard
 cd draft/source
+git reset --hard origin/master
+
+if [ -f ../../all.patch ]
+then
+git apply ../../all.patch
+fi
 latexmk -pdf std
+
+if [ -f ../../htmlgen.patch ]
+then
+git apply ../../htmlgen.patch
+fi
 
 cd ../../cxxdraft-htmlgen
 rm -rf 14882
@@ -34,9 +45,15 @@ cp ../ranges-ts/ranges.pdf ./ranges-ts.pdf
 
 git add -A
 git commit -m 'Update'
+
+if [ "$1" != "nopush" ]
+then
 git push
+fi
 
 cd ..
+if [ "$1" != "nopush" ]
+then
 git commit -am 'Update'
 git push
-
+fi
