@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang='en'><head><title>[utility]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><div id='utility'><h2 ><a class='secnum' style='min-width:88pt'>20.2</a> Utility components <a class='abbr_ref'>[utility]</a></h2><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >This subclause contains some basic function and class templates that are used
 throughout the rest of the library.</p><p ><span class='indexparent'><a class='index' id='utility'></a></span><span class='indexparent'><a class='index' id='utility'></a></span><span class='indexparent'><a class='index' id='rel_ops'></a></span></p></div><div id='syn'><h3 ><a class='secnum' href='#syn' style='min-width:103pt'>20.2.1</a> Header <span class='texttt'>&lt;utility&gt;</span> synopsis <a class='abbr_ref' href='utility.syn'>[utility.syn]</a></h3><pre class='codeblock'>
-#include &lt;initializer_list&gt;
-
+#include &lt;initializer_list&gt;     <span class='comment'>// see <a href='initializer_list.syn'>[initializer_list.syn]</a>
+</span>
 namespace std {
   <span class='comment'>// <a href='operators'>[operators]</a>, operators
 </span>  namespace rel_ops {
@@ -18,7 +18,8 @@ namespace std {
     void swap(T (&amp;a)[N], T (&amp;b)[N]) noexcept(is_nothrow_swappable_v&lt;T&gt;);
 
   <span class='comment'>// <a href='utility.exchange'>[utility.exchange]</a>, exchange
-</span>  template &lt;class T, class U = T&gt; T exchange(T&amp; obj, U&amp;&amp; new_val);
+</span>  template &lt;class T, class U = T&gt;
+    T exchange(T&amp; obj, U&amp;&amp; new_val);
 
   <span class='comment'>// <a href='forward'>[forward]</a>, forward/move
 </span>  template &lt;class T&gt; 
@@ -29,20 +30,22 @@ namespace std {
     constexpr remove_reference_t&lt;T&gt;&amp;&amp; move(T&amp;&amp;) noexcept;
   template &lt;class T&gt;
     constexpr conditional_t&lt;
-        !is_nothrow_move_constructible_v&lt;T&gt; &amp;&amp; is_copy_constructible_v&lt;T&gt;,
-        const T&amp;, T&amp;&amp;&gt;
+        !is_nothrow_move_constructible_v&lt;T&gt; &amp;&amp; is_copy_constructible_v&lt;T&gt;, const T&amp;, T&amp;&amp;&gt;
       move_if_noexcept(T&amp; x) noexcept;
 
   <span class='comment'>// <a href='utility.as_const'>[utility.as_const]</a>, as_const
-</span>  template &lt;class T&gt; constexpr add_const_t&lt;T&gt;&amp; as_const(T&amp; t) noexcept;
-  template &lt;class T&gt; void as_const(const T&amp;&amp;) = delete;
+</span>  template &lt;class T&gt;
+    constexpr add_const_t&lt;T&gt;&amp; as_const(T&amp; t) noexcept;
+  template &lt;class T&gt;
+    void as_const(const T&amp;&amp;) = delete;
 
   <span class='comment'>// <a href='declval'>[declval]</a>, declval
 </span>  template &lt;class T&gt;
     add_rvalue_reference_t&lt;T&gt; declval() noexcept;  <span class='comment'>// as unevaluated operand
 </span><span class='indexparent'><a class='index' id='index_sequence'></a></span><span class='indexparent'><a class='index' id='make_index_sequence'></a></span><span class='indexparent'><a class='index' id='index_sequence_for'></a></span>%
   <span class='comment'>// <a href='intseq'>[intseq]</a>, Compile-time integer sequences
-</span>  template&lt;class T, T...&gt; struct integer_sequence;
+</span>  template&lt;class T, T...&gt;
+    struct integer_sequence;
   template&lt;size_t... I&gt;
     using index_sequence = integer_sequence&lt;size_t, I...&gt;;
 
@@ -54,8 +57,9 @@ namespace std {
   template&lt;class... T&gt;
     using index_sequence_for = make_index_sequence&lt;sizeof...(T)&gt;;
 
-  <span class='comment'>// <a href='pairs'>[pairs]</a>, pairs
-</span>  template &lt;class T1, class T2&gt; struct pair;
+  <span class='comment'>// <a href='pairs'>[pairs]</a>, class template <span class='texttt'>pair</span>
+</span>  template &lt;class T1, class T2&gt;
+    struct pair;
 
   <span class='comment'>// <a href='pairs.spec'>[pairs.spec]</a>, pair specialized algorithms
 </span>  template &lt;class T1, class T2&gt;
@@ -70,8 +74,10 @@ namespace std {
     constexpr bool operator&gt;=(const pair&lt;T1, T2&gt;&amp;, const pair&lt;T1, T2&gt;&amp;);
   template &lt;class T1, class T2&gt;
     constexpr bool operator&lt;=(const pair&lt;T1, T2&gt;&amp;, const pair&lt;T1, T2&gt;&amp;);
+
   template &lt;class T1, class T2&gt;
     void swap(pair&lt;T1, T2&gt;&amp; x, pair&lt;T1, T2&gt;&amp; y) noexcept(noexcept(x.swap(y)));
+
   template &lt;class T1, class T2&gt;
     constexpr <i><span class='texttt'>see below</span></i> make_pair(T1&amp;&amp;, T2&amp;&amp;);
 
@@ -84,17 +90,13 @@ namespace std {
   template &lt;class T1, class T2&gt; struct tuple_element&lt;1, pair&lt;T1, T2&gt;&gt;;
 
   template&lt;size_t I, class T1, class T2&gt;
-    constexpr tuple_element_t&lt;I, pair&lt;T1, T2&gt;&gt;&amp;
-      get(pair&lt;T1, T2&gt;&amp;) noexcept;
+    constexpr tuple_element_t&lt;I, pair&lt;T1, T2&gt;&gt;&amp; get(pair&lt;T1, T2&gt;&amp;) noexcept;
   template&lt;size_t I, class T1, class T2&gt;
-    constexpr tuple_element_t&lt;I, pair&lt;T1, T2&gt;&gt;&amp;&amp;
-      get(pair&lt;T1, T2&gt;&amp;&amp;) noexcept;
+    constexpr tuple_element_t&lt;I, pair&lt;T1, T2&gt;&gt;&amp;&amp; get(pair&lt;T1, T2&gt;&amp;&amp;) noexcept;
   template&lt;size_t I, class T1, class T2&gt;
-    constexpr const tuple_element_t&lt;I, pair&lt;T1, T2&gt;&gt;&amp;
-      get(const pair&lt;T1, T2&gt;&amp;) noexcept;
+    constexpr const tuple_element_t&lt;I, pair&lt;T1, T2&gt;&gt;&amp; get(const pair&lt;T1, T2&gt;&amp;) noexcept;
   template&lt;size_t I, class T1, class T2&gt;
-    constexpr const tuple_element_t&lt;I, pair&lt;T1, T2&gt;&gt;&amp;&amp;
-      get(const pair&lt;T1, T2&gt;&amp;&amp;) noexcept;
+    constexpr const tuple_element_t&lt;I, pair&lt;T1, T2&gt;&gt;&amp;&amp; get(const pair&lt;T1, T2&gt;&amp;&amp;) noexcept;
   template &lt;class T1, class T2&gt;
     constexpr T1&amp; get(pair&lt;T1, T2&gt;&amp; p) noexcept;
   template &lt;class T1, class T2&gt;
@@ -113,9 +115,11 @@ namespace std {
     constexpr const T2&amp;&amp; get(const pair&lt;T1, T2&gt;&amp;&amp; p) noexcept;
 
   <span class='comment'>// <a href='pair.piecewise'>[pair.piecewise]</a>, pair piecewise construction
-</span>  struct piecewise_construct_t { explicit piecewise_construct_t() = default; };
+</span>  struct piecewise_construct_t {
+    explicit piecewise_construct_t() = default;
+  };
   constexpr piecewise_construct_t piecewise_construct{};
-  template &lt;class... Types&gt; class tuple;  <span class='comment'>// defined in <span class='texttt'>&lt;tuple&gt;</span>
+  template &lt;class... Types&gt; class tuple;        <span class='comment'>// defined in <span class='texttt'>&lt;tuple&gt;</span> (<a href='tuple.syn'>[tuple.syn]</a>)
 </span>
   <span class='comment'>// in-place construction
 </span>  struct in_place_t {
@@ -126,14 +130,12 @@ namespace std {
     struct in_place_type_t {
       explicit in_place_type_t() = default;
     };
-  template &lt;class T&gt;
-    inline constexpr in_place_type_t&lt;T&gt; in_place_type{};
+  template &lt;class T&gt; inline constexpr in_place_type_t&lt;T&gt; in_place_type{};
   template &lt;size_t I&gt;
     struct in_place_index_t {
       explicit in_place_index_t() = default;
     };
-  template &lt;size_t I&gt;
-    inline constexpr in_place_index_t&lt;I&gt; in_place_index{};
+  template &lt;size_t I&gt; inline constexpr in_place_index_t&lt;I&gt; in_place_index{};
 
 <span class='indexparent'><a class='index' id='chars_format'></a></span><span class='indexparent'><a class='index' id='scientific,chars_format'></a></span><span class='indexparent'><a class='index' id='chars_format,scientific'></a></span><span class='indexparent'><a class='index' id='fixed,chars_format'></a></span><span class='indexparent'><a class='index' id='chars_format,fixed'></a></span><span class='indexparent'><a class='index' id='hex,chars_format'></a></span><span class='indexparent'><a class='index' id='chars_format,hex'></a></span><span class='indexparent'><a class='index' id='general,chars_format'></a></span><span class='indexparent'><a class='index' id='chars_format,general'></a></span>
   <span class='comment'>// floating-point format for primitive numerical conversion
@@ -158,9 +160,12 @@ namespace std {
   to_chars_result to_chars(char* first, char* last, double value);
   to_chars_result to_chars(char* first, char* last, long double value);
 
-  to_chars_result to_chars(char* first, char* last, float value, chars_format fmt);
-  to_chars_result to_chars(char* first, char* last, double value, chars_format fmt);
-  to_chars_result to_chars(char* first, char* last, long double value, chars_format fmt);
+  to_chars_result to_chars(char* first, char* last, float value,
+                           chars_format fmt);
+  to_chars_result to_chars(char* first, char* last, double value,
+                           chars_format fmt);
+  to_chars_result to_chars(char* first, char* last, long double value,
+                           chars_format fmt);
 
   to_chars_result to_chars(char* first, char* last, float value,
                            chars_format fmt, int precision);
@@ -220,7 +225,8 @@ Type <span class='texttt'>T</span> is <span class='texttt'>LessThanComparable</s
 <span class='texttt'>operator&gt;</span>, <span class='texttt'>operator&gt;=</span>, or <span class='texttt'>operator&lt;=</span>,
 and requirements and semantics are not explicitly provided,
 the requirements and semantics are as specified in this Clause.</p></div></div><div id='swap'><h3 ><a class='secnum' href='#swap' style='min-width:103pt'>20.2.3</a> <span class='texttt'>swap</span> <a class='abbr_ref' href='utility.swap'>[utility.swap]</a></h3><p ><span class='indexparent'><a class='index' id='swap'></a></span><code class='itemdecl'>
-template &lt;class T&gt; void swap(T&amp; a, T&amp; b) noexcept(<i><span class='texttt'>see below</span></i>);
+template &lt;class T&gt;
+  void swap(T&amp; a, T&amp; b) noexcept(<i><span class='texttt'>see below</span></i>);
 </code></p><div class='itemdescr'></div><div class='para' id='swap-1'><div class='marginalizedparent'><a class='marginalized' href='#swap-1'>1</a></div><div class='itemdescr'><p ><i>Remarks:</i> This function shall not participate in overload resolution
 unless <span class='texttt'>is_move_constructible_v&lt;T&gt;</span> is <span class='texttt'>true</span> and
 <span class='texttt'>is_move_assignable_v&lt;T&gt;</span> is <span class='texttt'>true</span>.
@@ -271,18 +277,19 @@ void g() {
 </span>  int i = 2;
   shared_ptr&lt;A&gt; sp2 = factory&lt;A&gt;(i, 1.414); <span class='comment'>// OK
 </span>}
-</pre></div></div><div class='para' id='forward-5'><div class='marginalizedparent'><a class='marginalized' href='#forward-5'>5</a></div><div class='itemdescr'><p >In the first call to <span class='texttt'>factory</span>,
+</pre><p >In the first call to <span class='texttt'>factory</span>,
 <span class='texttt'>A1</span> is deduced as <span class='texttt'>int</span>, so 2 is forwarded
 to <span class='texttt'>A</span>'s constructor as an rvalue.
 In the second call to <span class='texttt'>factory</span>,
 <span class='texttt'>A1</span> is deduced as <span class='texttt'>int&amp;</span>, so <span class='texttt'>i</span> is forwarded
 to <span class='texttt'>A</span>'s constructor as an lvalue. In
 both cases, <span class='texttt'>A2</span> is deduced as <span class='texttt'>double</span>, so
-1.414 is forwarded to <span class='texttt'>A</span>'s constructor as an rvalue.</p><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+1.414 is forwarded to <span class='texttt'>A</span>'s constructor as an rvalue.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]
 </p></div></div><p ><span class='indexparent'><a class='index' id='move,function'></a></span><code class='itemdecl'>
 template &lt;class T&gt; constexpr remove_reference_t&lt;T&gt;&amp;&amp; move(T&amp;&amp; t) noexcept;
-</code></p><div class='itemdescr'></div><div class='para' id='forward-6'><div class='marginalizedparent'><a class='marginalized' href='#forward-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
-<span class='texttt'>static_cast&lt;remove_reference_t&lt;T&gt;&amp;&amp;&gt;(t)</span>.</p></div></div><div class='para' id='forward-7'><div class='marginalizedparent'><a class='marginalized' href='#forward-7'>7</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i>
+</code></p><div class='itemdescr'></div><div class='para' id='forward-5'><div class='marginalizedparent'><a class='marginalized' href='#forward-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>static_cast&lt;remove_reference_t&lt;T&gt;&amp;&amp;&gt;(t)</span>.</p></div></div><div class='para' id='forward-6'><div class='marginalizedparent'><a class='marginalized' href='#forward-6'>6</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i>
 </p><pre class='codeblock'>
 template &lt;class T, class A1&gt;
 shared_ptr&lt;T&gt; factory(A1&amp;&amp; a1) {
@@ -291,16 +298,16 @@ shared_ptr&lt;T&gt; factory(A1&amp;&amp; a1) {
 
 struct A {
   A();
-  A(const A&amp;);  <span class='comment'>// copies from lvalues
-</span>  A(A&amp;&amp;);       <span class='comment'>// moves from rvalues
+  A(const A&amp;);      <span class='comment'>// copies from lvalues
+</span>  A(A&amp;&amp;);           <span class='comment'>// moves from rvalues
 </span>};
 
 void g() {
   A a;
-  shared_ptr&lt;A&gt; sp1 = factory&lt;A&gt;(a);              <span class='comment'>// “<span class='texttt'>a</span>” binds to <span class='texttt'>A(const A&amp;)</span>
-</span>  shared_ptr&lt;A&gt; sp1 = factory&lt;A&gt;(std::move(a));   <span class='comment'>// “<span class='texttt'>a</span>” binds to <span class='texttt'>A(A&amp;&amp;)</span>
+  shared_ptr&lt;A&gt; sp1 = factory&lt;A&gt;(a);                <span class='comment'>// “<span class='texttt'>a</span>” binds to <span class='texttt'>A(const A&amp;)</span>
+</span>  shared_ptr&lt;A&gt; sp1 = factory&lt;A&gt;(std::move(a));     <span class='comment'>// “<span class='texttt'>a</span>” binds to <span class='texttt'>A(A&amp;&amp;)</span>
 </span>}
-</pre></div></div><div class='para' id='forward-8'><div class='marginalizedparent'><a class='marginalized' href='#forward-8'>8</a></div><div class='itemdescr'><p >In the first call to <span class='texttt'>factory</span>,
+</pre><p >In the first call to <span class='texttt'>factory</span>,
 <span class='texttt'>A1</span> is deduced as <span class='texttt'>A&amp;</span>, so <span class='texttt'>a</span> is forwarded
 as a non-const lvalue. This binds to the constructor <span class='texttt'>A(const A&amp;)</span>,
 which copies the value from <span class='texttt'>a</span>.
@@ -308,24 +315,23 @@ In the second call to <span class='texttt'>factory</span>, because of the call
 <span class='texttt'>std::move(a)</span>,
 <span class='texttt'>A1</span> is deduced as <span class='texttt'>A</span>, so <span class='texttt'>a</span> is forwarded
 as an rvalue. This binds to the constructor <span class='texttt'>A(A&amp;&amp;)</span>,
-which moves the value from <span class='texttt'>a</span>.</p><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+which moves the value from <span class='texttt'>a</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]
 </p></div></div><p ><span class='indexparent'><a class='index' id='move_if_noexcept'></a></span><code class='itemdecl'>
 template &lt;class T&gt; constexpr conditional_t&lt;
-  !is_nothrow_move_constructible_v&lt;T&gt; &amp;&amp; is_copy_constructible_v&lt;T&gt;,
-  const T&amp;, T&amp;&amp;&gt; move_if_noexcept(T&amp; x) noexcept;
-</code></p><div class='itemdescr'></div><div class='para' id='forward-9'><div class='marginalizedparent'><a class='marginalized' href='#forward-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::move(x)</span>.
+    !is_nothrow_move_constructible_v&lt;T&gt; &amp;&amp; is_copy_constructible_v&lt;T&gt;, const T&amp;, T&amp;&amp;&gt;
+  move_if_noexcept(T&amp; x) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='forward-7'><div class='marginalizedparent'><a class='marginalized' href='#forward-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::move(x)</span>.
 </p></div></div></div><div id='as_const'><h3 ><a class='secnum' href='#as_const' style='min-width:103pt'>20.2.6</a> Function template <span class='texttt'>as_const</span> <a class='abbr_ref' href='utility.as_const'>[utility.as_const]</a></h3><p ><span class='indexparent'><a class='index' id='as_const'></a></span><code class='itemdecl'>
 template &lt;class T&gt; constexpr add_const_t&lt;T&gt;&amp; as_const(T&amp; t) noexcept;
 </code></p><div class='itemdescr'></div><div class='para' id='as_const-1'><div class='marginalizedparent'><a class='marginalized' href='#as_const-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>t</span>.
 </p></div></div></div><div id='declval'><h3 ><a class='secnum' href='#declval' style='min-width:103pt'>20.2.7</a> Function template <span class='texttt'>declval</span> <a class='abbr_ref' href='declval'>[declval]</a></h3><div class='para' id='declval-1'><div class='marginalizedparent'><a class='marginalized' href='#declval-1'>1</a></div><p >The library provides the function template <span class='texttt'>declval</span> to simplify the definition of
 expressions which occur as unevaluated operands (Clause <a href='expr'>[expr]</a>).</p><p ><span class='indexparent'><a class='index' id='declval'></a></span><code class='itemdecl'>
-template &lt;class T&gt;
-  add_rvalue_reference_t&lt;T&gt; declval() noexcept;  <span class='comment'>// as unevaluated operand
+template &lt;class T&gt; add_rvalue_reference_t&lt;T&gt; declval() noexcept;    <span class='comment'>// as unevaluated operand
 </span></code></p></div><div class='itemdescr'></div><div class='para' id='declval-2'><div class='marginalizedparent'><a class='marginalized' href='#declval-2'>2</a></div><div class='itemdescr'><p ><i>Remarks:</i> If this function is odr-used (<a href='basic.def.odr'>[basic.def.odr]</a>), the program is ill-formed.</p></div></div><div class='para' id='declval-3'><div class='marginalizedparent'><a class='marginalized' href='#declval-3'>3</a></div><div class='itemdescr'><p ><i>Remarks:</i> The template parameter <span class='texttt'>T</span> of <span class='texttt'>declval</span> may be an incomplete type.
 </p></div></div><div class='para' id='declval-4'><div class='marginalizedparent'><a class='marginalized' href='#declval-4'>4</a></div><p >[&nbsp;<i>Example:</i>
 </p><pre class='codeblock'>
-template &lt;class To, class From&gt;
-  decltype(static_cast&lt;To&gt;(declval&lt;From&gt;())) convert(From&amp;&amp;);
+template &lt;class To, class From&gt; decltype(static_cast&lt;To&gt;(declval&lt;From&gt;())) convert(From&amp;&amp;);
 </pre><p >declares a function template <span class='texttt'>convert</span> which only participates in overloading if the
 type <span class='texttt'>From</span> can be explicitly converted to type <span class='texttt'>To</span>. For another example see class
 template <span class='texttt'>common_type</span> (<a href='meta.trans.other'>[meta.trans.other]</a>).

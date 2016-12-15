@@ -27,11 +27,9 @@ template&lt;class T&gt; class Y {
     TA* a5;                     <span class='comment'>// declare pointer to <span class='texttt'>T</span>'s <span class='texttt'>A</span>
 </span>    typename T::A* a6;          <span class='comment'>// declare pointer to <span class='texttt'>T</span>'s <span class='texttt'>A</span>
 </span>    T::A* a7;                   <span class='comment'>// <span class='texttt'>T::A</span> is not a type name:
-</span>                                <span class='comment'>// multiply <span class='texttt'>T::A</span> by <span class='texttt'>a7</span>; ill-formed,
-</span>                                <span class='comment'>// no visible declaration of <span class='texttt'>a7</span>
+</span>                                <span class='comment'>// multiplication of <span class='texttt'>T::A</span> by <span class='texttt'>a7</span>; ill-formed, no visible declaration of <span class='texttt'>a7</span>
 </span>    B* a8;                      <span class='comment'>// <span class='texttt'>B</span> is not a type name:
-</span>                                <span class='comment'>// multiply <span class='texttt'>B</span> by <span class='texttt'>a8</span>; ill-formed,
-</span>                                <span class='comment'>// no visible declarations of <span class='texttt'>B</span> and <span class='texttt'>a8</span>
+</span>                                <span class='comment'>// multiplication of <span class='texttt'>B</span> by <span class='texttt'>a8</span>; ill-formed, no visible declarations of <span class='texttt'>B</span> and <span class='texttt'>a8</span>
 </span>  }
 };
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >When a <span class='rmfamily'></span><i> qualified-id</i> is intended to refer to a type
@@ -181,24 +179,20 @@ Exactly when these errors are diagnosed is a quality of implementation issue.
 int j;
 template&lt;class T&gt; class X {
   void f(T t, int i, char* p) {
-    t = i;          <span class='comment'>// diagnosed if <span class='texttt'>X::f</span> is instantiated
-</span>                    <span class='comment'>// and the assignment to <span class='texttt'>t</span> is an error
-</span>    p = i;          <span class='comment'>// may be diagnosed even if <span class='texttt'>X::f</span> is
-</span>                    <span class='comment'>// not instantiated
-</span>    p = j;          <span class='comment'>// may be diagnosed even if <span class='texttt'>X::f</span> is
-</span>                    <span class='comment'>// not instantiated
+    t = i;          <span class='comment'>// diagnosed if <span class='texttt'>X::f</span> is instantiated, and the assignment to <span class='texttt'>t</span> is an error
+</span>    p = i;          <span class='comment'>// may be diagnosed even if <span class='texttt'>X::f</span> is not instantiated
+</span>    p = j;          <span class='comment'>// may be diagnosed even if <span class='texttt'>X::f</span> is not instantiated
 </span>  }
   void g(T t) {
-    +;              <span class='comment'>// may be diagnosed even if <span class='texttt'>X::g</span> is
-</span>                    <span class='comment'>// not instantiated
+    +;              <span class='comment'>// may be diagnosed even if <span class='texttt'>X::g</span> is not instantiated
 </span>  }
 };
 
 template&lt;class... T&gt; struct A {
-  void operator++(int, T... t);                 <span class='comment'>// error: too many parameters
+  void operator++(int, T... t);                     <span class='comment'>// error: too many parameters
 </span>};
-template&lt;class... T&gt; union X : T... { };        <span class='comment'>// error: union with base class
-</span>template&lt;class... T&gt; struct A : T...,  T... { };<span class='comment'>// error: duplicate base class
+template&lt;class... T&gt; union X : T... { };            <span class='comment'>// error: union with base class
+</span>template&lt;class... T&gt; struct A : T...,  T... { };    <span class='comment'>// error: duplicate base class
 </span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >When looking for the declaration of a name used in a template definition,
 the usual lookup rules (<a href='basic.lookup.unqual'>[basic.lookup.unqual]</a>, <a href='basic.lookup.argdep'>[basic.lookup.argdep]</a>)
 are used for non-dependent names.
@@ -266,8 +260,7 @@ template&lt;class T&gt; void g(T t) {
   f(1);             <span class='comment'>// <span class='texttt'>f(char)</span>
 </span>  f(T(1));          <span class='comment'>// dependent
 </span>  f(t);             <span class='comment'>// dependent
-</span>  dd++;             <span class='comment'>// not dependent
-</span>                    <span class='comment'>// error: declaration for dd not found
+</span>  dd++;             <span class='comment'>// not dependent; error: declaration for <span class='texttt'>dd</span> not found
 </span>}
 
 enum E { e };
@@ -275,8 +268,7 @@ void f(E);
 
 double dd;
 void h() {
-  g(e);             <span class='comment'>// will cause one call of <span class='texttt'>f(char)</span> followed
-</span>                    <span class='comment'>// by two calls of <span class='texttt'>f(E)</span>
+  g(e);             <span class='comment'>// will cause one call of <span class='texttt'>f(char)</span> followed by two calls of <span class='texttt'>f(E)</span>
 </span>  g('a');           <span class='comment'>// will cause three calls of <span class='texttt'>f(char)</span>
 </span>}
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><p >[&nbsp;<i>Note:</i>
@@ -625,7 +617,7 @@ template&lt;class T&gt; struct A {
 };
 
 template&lt;class T&gt; struct A&lt;T&gt;::B::C : A&lt;T&gt; {
-  M m; <span class='comment'>// OK, <span class='texttt'>A&lt;T&gt;::M</span>
+  M m;                          <span class='comment'>// OK, <span class='texttt'>A&lt;T&gt;::M</span>
 </span>};
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
 <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='temp.dep.type-5'><div class='marginalizedparent'><a class='marginalized' href='#temp.dep.type-5'>5</a></div><p ><span class='indexparent'><a class='index' id='instantiation,member_of_the_current'></a></span>A name is a
@@ -660,14 +652,14 @@ see below. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
 </p><pre class='codeblock'>
 template &lt;class T&gt; class A {
   static const int i = 5;
-  int n1[i];        <span class='comment'>// <span class='texttt'>i</span> refers to a member of the current instantiation
-</span>  int n2[A::i];     <span class='comment'>// <span class='texttt'>A::i</span> refers to a member of the current instantiation
-</span>  int n3[A&lt;T&gt;::i];  <span class='comment'>// <span class='texttt'>A&lt;T&gt;::i</span> refers to a member of the current instantiation
+  int n1[i];                    <span class='comment'>// <span class='texttt'>i</span> refers to a member of the current instantiation
+</span>  int n2[A::i];                 <span class='comment'>// <span class='texttt'>A::i</span> refers to a member of the current instantiation
+</span>  int n3[A&lt;T&gt;::i];              <span class='comment'>// <span class='texttt'>A&lt;T&gt;::i</span> refers to a member of the current instantiation
 </span>  int f();
 };
 
 template &lt;class T&gt; int A&lt;T&gt;::f() {
-  return i;         <span class='comment'>// <span class='texttt'>i</span> refers to a member of the current instantiation
+  return i;                     <span class='comment'>// <span class='texttt'>i</span> refers to a member of the current instantiation
 </span>}
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='instantiation,dependent_member_of_the_current'></a></span>A name is a <a class='hidden_link' href='#def:dependent_member_of_the_current_instantiation' id='def:dependent_member_of_the_current_instantiation'><i>dependent member of the current instantiation</i></a> if it is a
 member of the current instantiation that, when looked up, refers to at least
@@ -702,9 +694,9 @@ required. [&nbsp;<i>Example:</i>
 template&lt;class T&gt; class A {
   typedef int type;
   void f() {
-    A&lt;T&gt;::type i;           <span class='comment'>// OK: refers to a member of the current instantiation
-</span>    typename A&lt;T&gt;::other j; <span class='comment'>// error: neither a member of the current instantiation nor
-</span>                            <span class='comment'>// a member of an unknown specialization
+    A&lt;T&gt;::type i;               <span class='comment'>// OK: refers to a member of the current instantiation
+</span>    typename A&lt;T&gt;::other j;     <span class='comment'>// error: neither a member of the current instantiation nor
+</span>                                <span class='comment'>// a member of an unknown specialization
 </span>  }
 };
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='temp.dep.type-8'><div class='marginalizedparent'><a class='marginalized' href='#temp.dep.type-8'>8</a></div><p >If, for a given set of template arguments, a specialization of a template is
@@ -726,13 +718,13 @@ struct B {
 
 template&lt;typename T&gt;
 struct C : A, T {
-  int f() { return this-&gt;m; }  <span class='comment'>// finds <span class='texttt'>A::m</span> in the template definition context
-</span>  int g() { return m; }        <span class='comment'>// finds <span class='texttt'>A::m</span> in the template definition context
+  int f() { return this-&gt;m; }   <span class='comment'>// finds <span class='texttt'>A::m</span> in the template definition context
+</span>  int g() { return m; }         <span class='comment'>// finds <span class='texttt'>A::m</span> in the template definition context
 </span>};
 
-template int C&lt;B&gt;::f();        <span class='comment'>// error: finds both <span class='texttt'>A::m</span> and <span class='texttt'>B::m</span>
-</span>template int C&lt;B&gt;::g();        <span class='comment'>// OK: transformation to class member access syntax
-</span>                               <span class='comment'>// does not occur in the template definition context; see <a href='class.mfct.non-static'>[class.mfct.non-static]</a>
+template int C&lt;B&gt;::f();         <span class='comment'>// error: finds both <span class='texttt'>A::m</span> and <span class='texttt'>B::m</span>
+</span>template int C&lt;B&gt;::g();         <span class='comment'>// OK: transformation to class member access syntax
+</span>                                <span class='comment'>// does not occur in the template definition context; see <a href='class.mfct.non-static'>[class.mfct.non-static]</a>
 </span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='temp.dep.type-9'><div class='marginalizedparent'><a class='marginalized' href='#temp.dep.type-9'>9</a></div><p >A type is dependent if it is
 </p><ul class='itemize'><li id='temp.dep.type-9.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#temp.dep.type-9.1'>(9.1)</a></div><p >a template parameter,
 </p></li><li id='temp.dep.type-9.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#temp.dep.type-9.2'>(9.2)</a></div><p >a member of an unknown specialization,
@@ -916,14 +908,12 @@ template&lt;class T&gt; class Z {
 public:
   void f() {
     g(1);           <span class='comment'>// calls <span class='texttt'>g(double)</span>
-</span>    h++;            <span class='comment'>// ill-formed: cannot increment function;
-</span>                    <span class='comment'>// this could be diagnosed either here or
-</span>                    <span class='comment'>// at the point of instantiation
+</span>    h++;            <span class='comment'>// ill-formed: cannot increment function; this could be diagnosed
+</span>                    <span class='comment'>// either here or at the point of instantiation
 </span>  }
 };
 
-void g(int);        <span class='comment'>// not in scope at the point of the template
-</span>                    <span class='comment'>// definition, not considered for the call <span class='texttt'>g(1)</span>
+void g(int);        <span class='comment'>// not in scope at the point of the template definition, not considered for the call <span class='texttt'>g(1)</span>
 </span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div id='temp.dep.res'><h3 ><a class='secnum' href='#temp.dep.res' style='min-width:103pt'>14.6.4</a> Dependent name resolution <a class='abbr_ref' href='temp.dep.res'>[temp.dep.res]</a></h3><div class='para' id='temp.dep.res-1'><div class='marginalizedparent'><a class='marginalized' href='#temp.dep.res-1'>1</a></div><p ><span class='indexparent'><a class='index' id='name,dependent'></a></span>In resolving dependent names, names from the following sources are considered:</p><ul class='itemize'><li id='temp.dep.res-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#temp.dep.res-1.1'>(1.1)</a></div><p >Declarations that are visible at the point of definition of the
 template.
 </p></li><li id='temp.dep.res-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#temp.dep.res-1.2'>(1.2)</a></div><p >Declarations from namespaces associated with the types of the
@@ -1014,9 +1004,8 @@ template&lt;typename T&gt; struct number {
 
 void g() {
   number&lt;double&gt; a(3), b(4);
-  a = gcd(a,b);     <span class='comment'>// finds <span class='texttt'>gcd</span> because <span class='texttt'>number&lt;double&gt;</span> is an
-</span>                    <span class='comment'>// associated class, making <span class='texttt'>gcd</span> visible
-</span>                    <span class='comment'>// in its namespace (global scope)
+  a = gcd(a,b);     <span class='comment'>// finds <span class='texttt'>gcd</span> because <span class='texttt'>number&lt;double&gt;</span> is an associated class,
+</span>                    <span class='comment'>// making <span class='texttt'>gcd</span> visible in its namespace (global scope)
 </span>  b = gcd(3,4);     <span class='comment'>// ill-formed; <span class='texttt'>gcd</span> is not visible
 </span>}
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='footnote' id='footnote-140'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-140'>140)</a></div><p >Friend declarations do not

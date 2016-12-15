@@ -7,8 +7,9 @@ the optional object has been initialized, and may be destroyed before the
 optional object has been destroyed. The initialization state of the contained
 object is tracked by the optional object.</p></div></div><div id='syn'><h3 ><a class='secnum' href='#syn' style='min-width:103pt'>20.6.2</a> Header <span class='texttt'>&lt;optional&gt;</span> synopsis <a class='abbr_ref' href='optional.syn'>[optional.syn]</a></h3><p ><span class='indexparent'><a class='index' id='optional'></a></span><span class='indexparent'><a class='index' id='optional'></a></span></p><pre class='codeblock'>
 namespace std {
-  <span class='comment'>// <a href='optional.optional'>[optional.optional]</a>, optional
-</span>  template &lt;class T&gt; class optional;
+  <span class='comment'>// <a href='optional.optional'>[optional.optional]</a>, class template <span class='texttt'>optional</span>
+</span>  template &lt;class T&gt;
+    class optional;
 
   <span class='comment'>// <a href='optional.nullopt'>[optional.nullopt]</a>, no-value state indicator
 </span>  struct nullopt_t{<i><span class='texttt'>see below</span></i>};
@@ -60,8 +61,11 @@ namespace std {
   template &lt;class T&gt; constexpr bool operator&gt;=(const T&amp;, const optional&lt;T&gt;&amp;);
 
   <span class='comment'>// <a href='optional.specalg'>[optional.specalg]</a>, specialized algorithms
-</span>  template &lt;class T&gt; void swap(optional&lt;T&gt;&amp;, optional&lt;T&gt;&amp;) noexcept(<i><span class='texttt'>see below</span></i>);
-  template &lt;class T&gt; constexpr optional&lt;<i><span class='texttt'>see below</span></i>&gt; make_optional(T&amp;&amp;);
+</span>  template &lt;class T&gt;
+    void swap(optional&lt;T&gt;&amp;, optional&lt;T&gt;&amp;) noexcept(<i><span class='texttt'>see below</span></i>);
+
+  template &lt;class T&gt;
+    constexpr optional&lt;<i><span class='texttt'>see below</span></i>&gt; make_optional(T&amp;&amp;);
   template &lt;class T, class... Args&gt;
     constexpr optional&lt;T&gt; make_optional(Args&amp;&amp;... args);
   template &lt;class T, class U, class... Args&gt;
@@ -74,61 +78,65 @@ namespace std {
 </pre><div class='para' id='syn-1'><div class='marginalizedparent'><a class='marginalized' href='#syn-1'>1</a></div><p >A program that necessitates the instantiation of template <span class='texttt'>optional</span> for
 a reference type, or for possibly cv-qualified types <span class='texttt'>in_place_t</span> or
 <span class='texttt'>nullopt_t</span> is ill-formed.</p></div></div><div id='optional'><h3 ><a class='secnum' href='#optional' style='min-width:103pt'>20.6.3</a> Class template <span class='texttt'>optional</span> <a class='abbr_ref' href='optional.optional'>[optional.optional]</a></h3><p ><span class='indexparent'><a class='index' id='optional'></a></span></p><pre class='codeblock'>
-template &lt;class T&gt; class optional {
-public:
-  using value_type = T;
+template &lt;class T&gt;
+  class optional {
+  public:
+    using value_type = T;
 
-  <span class='comment'>// <a href='optional.ctor'>[optional.ctor]</a>, constructors
-</span>  constexpr optional() noexcept;
-  constexpr optional(nullopt_t) noexcept;
-  optional(const optional&amp;);
-  optional(optional&amp;&amp;) noexcept(<i><span class='texttt'>see below</span></i>);
-  template &lt;class... Args&gt; constexpr explicit optional(in_place_t, Args&amp;&amp;...);
-  template &lt;class U, class... Args&gt;
-    constexpr explicit optional(in_place_t, initializer_list&lt;U&gt;, Args&amp;&amp;...);
-  template &lt;class U = T&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr optional(U&amp;&amp;);
-  template &lt;class U&gt; <i><span class='texttt'>EXPLICIT</span></i> optional(const optional&lt;U&gt;&amp;);
-  template &lt;class U&gt; <i><span class='texttt'>EXPLICIT</span></i> optional(optional&lt;U&gt;&amp;&amp;);
+    <span class='comment'>// <a href='optional.ctor'>[optional.ctor]</a>, constructors
+</span>    constexpr optional() noexcept;
+    constexpr optional(nullopt_t) noexcept;
+    optional(const optional&amp;);
+    optional(optional&amp;&amp;) noexcept(<i><span class='texttt'>see below</span></i>);
+    template &lt;class... Args&gt;
+      constexpr explicit optional(in_place_t, Args&amp;&amp;...);
+    template &lt;class U, class... Args&gt;
+      constexpr explicit optional(in_place_t, initializer_list&lt;U&gt;, Args&amp;&amp;...);
+    template &lt;class U = T&gt;
+      <i><span class='texttt'>EXPLICIT</span></i> constexpr optional(U&amp;&amp;);
+    template &lt;class U&gt;
+      <i><span class='texttt'>EXPLICIT</span></i> optional(const optional&lt;U&gt;&amp;);
+    template &lt;class U&gt;
+      <i><span class='texttt'>EXPLICIT</span></i> optional(optional&lt;U&gt;&amp;&amp;);
 
-  <span class='comment'>// <a href='optional.dtor'>[optional.dtor]</a>, destructor
-</span>  ~optional();
+    <span class='comment'>// <a href='optional.dtor'>[optional.dtor]</a>, destructor
+</span>    ~optional();
 
-  <span class='comment'>// <a href='optional.assign'>[optional.assign]</a>, assignment
-</span>  optional&amp; operator=(nullopt_t) noexcept;
-  optional&amp; operator=(const optional&amp;);
-  optional&amp; operator=(optional&amp;&amp;) noexcept(<i><span class='texttt'>see below</span></i>);
-  template &lt;class U = T&gt; optional&amp; operator=(U&amp;&amp;);
-  template &lt;class U&gt; optional&amp; operator=(const optional&lt;U&gt;&amp;);
-  template &lt;class U&gt; optional&amp; operator=(optional&lt;U&gt;&amp;&amp;);
-  template &lt;class... Args&gt; void emplace(Args&amp;&amp;...);
-  template &lt;class U, class... Args&gt;
-    void emplace(initializer_list&lt;U&gt;, Args&amp;&amp;...);
+    <span class='comment'>// <a href='optional.assign'>[optional.assign]</a>, assignment
+</span>    optional&amp; operator=(nullopt_t) noexcept;
+    optional&amp; operator=(const optional&amp;);
+    optional&amp; operator=(optional&amp;&amp;) noexcept(<i><span class='texttt'>see below</span></i>);
+    template &lt;class U = T&gt; optional&amp; operator=(U&amp;&amp;);
+    template &lt;class U&gt; optional&amp; operator=(const optional&lt;U&gt;&amp;);
+    template &lt;class U&gt; optional&amp; operator=(optional&lt;U&gt;&amp;&amp;);
+    template &lt;class... Args&gt; void emplace(Args&amp;&amp;...);
+    template &lt;class U, class... Args&gt; void emplace(initializer_list&lt;U&gt;, Args&amp;&amp;...);
 
-  <span class='comment'>// <a href='optional.swap'>[optional.swap]</a>, swap
-</span>  void swap(optional&amp;) noexcept(<i><span class='texttt'>see below</span></i>);
+    <span class='comment'>// <a href='optional.swap'>[optional.swap]</a>, swap
+</span>    void swap(optional&amp;) noexcept(<i><span class='texttt'>see below</span></i>);
 
-  <span class='comment'>// <a href='optional.observe'>[optional.observe]</a>, observers
-</span>  constexpr const T* operator-&gt;() const;
-  constexpr T* operator-&gt;();
-  constexpr const T&amp; operator*() const&amp;;
-  constexpr T&amp; operator*() &amp;;
-  constexpr T&amp;&amp; operator*() &amp;&amp;;
-  constexpr const T&amp;&amp; operator*() const&amp;&amp;;
-  constexpr explicit operator bool() const noexcept;
-  constexpr bool has_value() const noexcept;
-  constexpr const T&amp; value() const&amp;;
-  constexpr T&amp; value() &amp;;
-  constexpr T&amp;&amp; value() &amp;&amp;;
-  constexpr const T&amp;&amp; value() const&amp;&amp;;
-  template &lt;class U&gt; constexpr T value_or(U&amp;&amp;) const&amp;;
-  template &lt;class U&gt; constexpr T value_or(U&amp;&amp;) &amp;&amp;;
+    <span class='comment'>// <a href='optional.observe'>[optional.observe]</a>, observers
+</span>    constexpr const T* operator-&gt;() const;
+    constexpr T* operator-&gt;();
+    constexpr const T&amp; operator*() const&amp;;
+    constexpr T&amp; operator*() &amp;;
+    constexpr T&amp;&amp; operator*() &amp;&amp;;
+    constexpr const T&amp;&amp; operator*() const&amp;&amp;;
+    constexpr explicit operator bool() const noexcept;
+    constexpr bool has_value() const noexcept;
+    constexpr const T&amp; value() const&amp;;
+    constexpr T&amp; value() &amp;;
+    constexpr T&amp;&amp; value() &amp;&amp;;
+    constexpr const T&amp;&amp; value() const&amp;&amp;;
+    template &lt;class U&gt; constexpr T value_or(U&amp;&amp;) const&amp;;
+    template &lt;class U&gt; constexpr T value_or(U&amp;&amp;) &amp;&amp;;
 
-  <span class='comment'>// <a href='optional.mod'>[optional.mod]</a>, modifiers
-</span>  void reset() noexcept;
+    <span class='comment'>// <a href='optional.mod'>[optional.mod]</a>, modifiers
+</span>    void reset() noexcept;
 
-private:
-  T *val; <span class='comment'>// <i>exposition only</i>
-</span>};
+  private:
+    T *val; <span class='comment'>// <i>exposition only</i>
+</span>  };
 </pre><div class='para' id='optional-1'><div class='marginalizedparent'><a class='marginalized' href='#optional-1'>1</a></div><p >Any instance of <span class='texttt'>optional&lt;T&gt;</span> at any given time either contains a value or does not contain a value.
 When an instance of <span class='texttt'>optional&lt;T&gt;</span> <a class='hidden_link' href='#def:contains_a_value,optional' id='def:contains_a_value,optional'><i>contains a value</i></a>,
 it means that an object of type <span class='texttt'>T</span>, referred to as the optional object's <a class='hidden_link' href='#def:contained_value,optional' id='def:contained_value,optional'><i>contained value</i></a>,
@@ -188,8 +196,7 @@ The following constructors are conditionally specified as explicit.
 This is typically implemented by declaring two such constructors,
 of which at most one participates in overload resolution.
 <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='optional,constructor'></a></span><code class='itemdecl'>
-template &lt;class U = T&gt;
-  <i><span class='texttt'>EXPLICIT</span></i> constexpr optional(U&amp;&amp; v);
+template &lt;class U = T&gt; <i><span class='texttt'>EXPLICIT</span></i> constexpr optional(U&amp;&amp; v);
 </code></p></div><div class='itemdescr'></div><div class='para' id='ctor-19'><div class='marginalizedparent'><a class='marginalized' href='#ctor-19'>19</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Initializes the contained value as if direct-non-list-initializing
 an object of type <span class='texttt'>T</span> with the expression <span class='texttt'>std::forward&lt;U&gt;(v)</span>.</p></div></div><div class='para' id='ctor-20'><div class='marginalizedparent'><a class='marginalized' href='#ctor-20'>20</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
@@ -204,8 +211,7 @@ This constructor shall not participate in overload resolution unless
 The constructor is explicit if and only if
 <span class='texttt'>is_convertible_v&lt;U&amp;&amp;, T&gt;</span> is <span class='texttt'>false</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='optional,constructor'></a></span><code class='itemdecl'>
-template &lt;class U&gt;
-  <i><span class='texttt'>EXPLICIT</span></i> optional(const optional&lt;U&gt;&amp; rhs);
+template &lt;class U&gt; <i><span class='texttt'>EXPLICIT</span></i> optional(const optional&lt;U&gt;&amp; rhs);
 </code></p><div class='itemdescr'></div><div class='para' id='ctor-23'><div class='marginalizedparent'><a class='marginalized' href='#ctor-23'>23</a></div><div class='itemdescr'><p ><i>Effects:</i>
 If <span class='texttt'>rhs</span> contains a value,
 initializes the contained value as if direct-non-list-initializing
@@ -225,8 +231,7 @@ This constructor shall not participate in overload resolution unless
 </p></li></ul><p >The constructor is explicit if and only if
 <span class='texttt'>is_convertible_v&lt;const U&amp;, T&gt;</span> is <span class='texttt'>false</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='optional,constructor'></a></span><code class='itemdecl'>
-template &lt;class U&gt;
-  <i><span class='texttt'>EXPLICIT</span></i> optional(optional&lt;U&gt;&amp;&amp; rhs);
+template &lt;class U&gt; <i><span class='texttt'>EXPLICIT</span></i> optional(optional&lt;U&gt;&amp;&amp; rhs);
 </code></p><div class='itemdescr'></div><div class='para' id='ctor-27'><div class='marginalizedparent'><a class='marginalized' href='#ctor-27'>27</a></div><div class='itemdescr'><p ><i>Effects:</i>
 If <span class='texttt'>rhs</span> contains a value,
 initializes the contained value as if direct-non-list-initializing

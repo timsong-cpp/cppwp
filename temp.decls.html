@@ -25,19 +25,15 @@ statement (<a href='stmt.if'>[stmt.if]</a>) are considered definitions.</p></div
 explicitly specialize an alias template.</p></div><div id='temp.class'><h3 ><a class='secnum' href='#temp.class' style='min-width:103pt'>14.5.1</a> Class templates <a class='abbr_ref' href='temp.class'>[temp.class]</a></h3><div class='para' id='temp.class-1'><div class='marginalizedparent'><a class='marginalized' href='#temp.class-1'>1</a></div><p >A class
 <a class='hidden_link' href='#def:template' id='def:template'><i>template</i></a>
 defines the layout and operations
-for an unbounded set of related types.
-[&nbsp;<i>Example:</i>
-a single class template
+for an unbounded set of related types.</p></div><div class='para' id='temp.class-2'><div class='marginalizedparent'><a class='marginalized' href='#temp.class-2'>2</a></div><p >[&nbsp;<i>Example:</i>
+A single class template
 <span class='texttt'>List</span>
-might provide a common definition for
-list of
-<span class='texttt'>int</span>,
-list of
-<span class='texttt'>float</span>,
-and list of pointers to
-<span class='texttt'>Shape</span>s.
-<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p >[&nbsp;<i>Example:</i>
-An array class template might be declared like this:</p><pre class='codeblock'>
+might provide an unbounded set of class definitions:
+one class <span class='texttt'>List&lt;T&gt;</span> for every type <span class='texttt'>T</span>,
+each describing a linked list of elements of type <span class='texttt'>T</span>.
+Similarly, a class template <span class='texttt'>Array</span> describing a contiguous,
+dynamic array might be defined like this:
+</p><pre class='codeblock'>
 template&lt;class T&gt; class Array {
   T* v;
   int sz;
@@ -46,14 +42,11 @@ public:
   T&amp; operator[](int);
   T&amp; elem(int i) { return v[i]; }
 };
-</pre></div><div class='para' id='temp.class-2'><div class='marginalizedparent'><a class='marginalized' href='#temp.class-2'>2</a></div><p >The prefix
-<span class='texttt'>template</span>
-<span class='texttt'>&lt;class</span>
-<span class='texttt'>T&gt;</span>
+</pre><p >The prefix <span class='texttt'>template&lt;class T&gt;</span>
 specifies that a template is being declared and that a
 <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i>
 <span class='texttt'>T</span>
-will be used in the declaration.
+may be used in the declaration.
 In other words,
 <span class='texttt'>Array</span>
 is a parameterized type with
@@ -154,20 +147,22 @@ template&lt;class T&gt; T X&lt;T&gt;::s = 0;
 
 struct limits {
   template&lt;class T&gt;
-    static const T min;           <span class='comment'>// declaration
+    static const T min;         <span class='comment'>// declaration
 </span>};
 
 template&lt;class T&gt;
-  const T limits::min = { };      <span class='comment'>// definition
+  const T limits::min = { };    <span class='comment'>// definition
 </span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='temp.static-2'><div class='marginalizedparent'><a class='marginalized' href='#temp.static-2'>2</a></div><p >An explicit specialization of a static data member declared as an array of unknown
 bound can have a different bound from its definition, if any. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
 template &lt;class T&gt; struct A {
   static int i[];
 };
-template &lt;class T&gt; int A&lt;T&gt;::i[4];    <span class='comment'>// 4 elements
-</span>template &lt;&gt; int A&lt;int&gt;::i[] = { 1 };  <span class='comment'>// OK: 1 element
+template &lt;class T&gt; int A&lt;T&gt;::i[4];              <span class='comment'>// 4 elements
+</span>template &lt;&gt; int A&lt;int&gt;::i[] = { 1 };            <span class='comment'>// OK: 1 element
 </span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div id='temp.mem.enum'><h4 ><a class='secnum' href='#temp.mem.enum' style='min-width:118pt'>14.5.1.4</a> Enumeration members of class templates <a class='abbr_ref' href='temp.mem.enum'>[temp.mem.enum]</a></h4><div class='para' id='temp.mem.enum-1'><div class='marginalizedparent'><a class='marginalized' href='#temp.mem.enum-1'>1</a></div><p >An enumeration member of a class template may be defined outside the class
-template definition. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template definition.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
 template&lt;class T&gt; struct A {
   enum E : T;
 };
@@ -184,7 +179,8 @@ template definition shall be specified with the
 of the class template followed by the
 <i ><a href='temp.param#nt:template-parameter'>template-parameters</a></i>
 of the member template.
-[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
 template&lt;class T&gt; struct string {
   template&lt;class T2&gt; int compare(const T2&amp;);
   template&lt;class T2&gt; string(const string&lt;T2&gt;&amp; s) { <span class='texttt'>/* ... */</span> }
@@ -227,15 +223,15 @@ template &lt;class T&gt; struct AA {
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='temp.mem-4'><div class='marginalizedparent'><a class='marginalized' href='#temp.mem-4'>4</a></div><p >A specialization of
 a member function template does not override a virtual function from a
 base class.
-[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
 class B {
   virtual void f(int);
 };
 
 class D : public B {
   template &lt;class T&gt; void f(T); <span class='comment'>// does not override <span class='texttt'>B::f(int)</span>
-</span>  void f(int i) { f&lt;&gt;(i); }     <span class='comment'>// overriding function that calls
-</span>                                <span class='comment'>// the template instantiation
+</span>  void f(int i) { f&lt;&gt;(i); }     <span class='comment'>// overriding function that calls the template instantiation
 </span>};
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='temp.mem-5'><div class='marginalizedparent'><a class='marginalized' href='#temp.mem-5'>5</a></div><p >A specialization of a
 conversion function template
@@ -253,8 +249,7 @@ template &lt;&gt; A::operator char*(){ return 0; }    <span class='comment'>// s
 int main() {
   A a;
   int* ip;
-  ip = a.operator int*();       <span class='comment'>// explicit call to template operator
-</span>                                <span class='comment'>// <span class='texttt'>A::operator int*()</span>
+  ip = a.operator int*();       <span class='comment'>// explicit call to template operator <span class='texttt'>A::operator int*()</span>
 </span>}
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
 [&nbsp;<i>Note:</i>
@@ -293,9 +288,9 @@ Tuple&lt;&gt; t0;                     <span class='comment'>// <span class='text
 that accepts zero or more function arguments. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
 template&lt;class ... Types&gt; void f(Types ... args);
 
-f();                <span class='comment'>// OK: <span class='texttt'>args</span> contains no arguments
-</span>f(1);               <span class='comment'>// OK: <span class='texttt'>args</span> contains one argument: <span class='texttt'>int</span>
-</span>f(2, 1.0);          <span class='comment'>// OK: <span class='texttt'>args</span> contains two arguments: <span class='texttt'>int</span> and <span class='texttt'>double</span>
+f();                            <span class='comment'>// OK: <span class='texttt'>args</span> contains no arguments
+</span>f(1);                           <span class='comment'>// OK: <span class='texttt'>args</span> contains one argument: <span class='texttt'>int</span>
+</span>f(2, 1.0);                      <span class='comment'>// OK: <span class='texttt'>args</span> contains two arguments: <span class='texttt'>int</span> and <span class='texttt'>double</span>
 </span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='temp.variadic-3'><div class='marginalizedparent'><a class='marginalized' href='#temp.variadic-3'>3</a></div><p >A <a class='hidden_link' href='#def:parameter_pack' id='def:parameter_pack'><i>parameter pack</i></a> is either a template parameter
 pack or a function parameter pack.</p></div><div class='para' id='temp.variadic-4'><div class='marginalizedparent'><a class='marginalized' href='#temp.variadic-4'>4</a></div><p >A <a class='hidden_link' href='#def:pack_expansion' id='def:pack_expansion'><i>pack expansion</i></a>
 consists of a <a class='hidden_link' href='#def:pattern' id='def:pattern'><i>pattern</i></a> and an ellipsis, the instantiation of which
@@ -320,7 +315,8 @@ a <i ><a href='expr.prim.lambda#nt:capture'>capture</a></i>.</p></li><li id='tem
 <i ><a href='lex.name#nt:identifier'>identifier</a></i>.</p></li><li id='temp.variadic-4.12'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#temp.variadic-4.12'>(4.12)</a></div><p >In a <i ><a href='expr.prim.fold#nt:fold-expression'>fold-expression</a></i> (<a href='expr.prim.fold'>[expr.prim.fold]</a>);
 the pattern is the <i ><a href='expr.cast#nt:cast-expression'>cast-expression</a></i>
 that contains an unexpanded parameter pack.
-</p></li></ul><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+</p></li></ul><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
 template&lt;class ... Types&gt; void f(Types ... rest);
 template&lt;class ... Types&gt; void g(Types ... rest) {
   f(&amp;rest ...);     <span class='comment'>// “<span class='texttt'>&amp;rest ...</span>” is a pack expansion; “<span class='texttt'>&amp;rest</span>” is its pattern
@@ -352,19 +348,19 @@ typedef zip&lt;short, int&gt;::with&lt;unsigned short, unsigned&gt;::type T1;
     <span class='comment'>// error: different number of arguments specified for <span class='texttt'>Args1</span> and <span class='texttt'>Args2</span>
 </span>
 template&lt;class ... Args&gt;
-  void g(Args ... args) {               <span class='comment'>// OK: <span class='texttt'>Args</span> is expanded by the function parameter pack <span class='texttt'>args</span>
-</span>    f(const_cast&lt;const Args*&gt;(&amp;args)...); <span class='comment'>// OK: “<span class='texttt'>Args</span>” and “<span class='texttt'>args</span>” are expanded
-</span>    f(5 ...);                             <span class='comment'>// error: pattern does not contain any parameter packs
-</span>    f(args);                              <span class='comment'>// error: parameter pack “<span class='texttt'>args</span>” is not expanded
-</span>    f(h(args ...) + args ...);            <span class='comment'>// OK: first “<span class='texttt'>args</span>” expanded within <span class='texttt'>h</span>, second
-</span>                                          <span class='comment'>// “<span class='texttt'>args</span>” expanded within <span class='texttt'>f</span>
+  void g(Args ... args) {                   <span class='comment'>// OK: <span class='texttt'>Args</span> is expanded by the function parameter pack <span class='texttt'>args</span>
+</span>    f(const_cast&lt;const Args*&gt;(&amp;args)...);   <span class='comment'>// OK: “<span class='texttt'>Args</span>” and “<span class='texttt'>args</span>” are expanded
+</span>    f(5 ...);                               <span class='comment'>// error: pattern does not contain any parameter packs
+</span>    f(args);                                <span class='comment'>// error: parameter pack “<span class='texttt'>args</span>” is not expanded
+</span>    f(h(args ...) + args ...);              <span class='comment'>// OK: first “<span class='texttt'>args</span>” expanded within <span class='texttt'>h</span>,
+</span>                                            <span class='comment'>// second “<span class='texttt'>args</span>” expanded within <span class='texttt'>f</span>
 </span>  }
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='temp.variadic-7'><div class='marginalizedparent'><a class='marginalized' href='#temp.variadic-7'>7</a></div><p >The instantiation of a pack expansion
 that is neither a <span class='texttt'>sizeof...</span> expression
 nor a <i ><a href='expr.prim.fold#nt:fold-expression'>fold-expression</a></i>
 produces a
 list
-<span class='math'><span class='mathtt'>E</span><sub >1</sub>, <span class='mathtt'>E</span><sub >2</sub>, ..., <span class='mathtt'>E</span><sub ><span class='mathalpha'>N</span></sub></span>,
+<span class='math'><span class='mathtt'>E</span><sub >1</sub>, <span class='mathtt'>E</span><sub >2</sub>, &hellip;, <span class='mathtt'>E</span><sub ><span class='mathalpha'>N</span></sub></span>,
 where
 <span class='math'><span class='mathalpha'>N</span></span> is the number of elements in the pack expansion parameters. Each
 <span class='math'><span class='mathtt'>E</span><sub ><span class='mathalpha'>i</span></sub></span> is generated by instantiating the pattern and
@@ -842,13 +838,10 @@ template&lt;class T, int I&gt; void A&lt;T,I&gt;::f() { }
 int main() {
   A&lt;char,0&gt; a0;
   A&lt;char,2&gt; a2;
-  a0.f();                       <span class='comment'>// OK, uses definition of primary template's member
-</span>  a2.g();                       <span class='comment'>// OK, uses definition of
-</span>                                <span class='comment'>// partial specialization's member
-</span>  a2.h();                       <span class='comment'>// OK, uses definition of
-</span>                                <span class='comment'>// explicit specialization's member
-</span>  a2.f();                       <span class='comment'>// ill-formed, no definition of <span class='texttt'>f</span> for <span class='texttt'>A&lt;T,2&gt;</span>
-</span>                                <span class='comment'>// the primary template is not used here
+  a0.f();           <span class='comment'>// OK, uses definition of primary template's member
+</span>  a2.g();           <span class='comment'>// OK, uses definition of partial specialization's member
+</span>  a2.h();           <span class='comment'>// OK, uses definition of explicit specialization's member
+</span>  a2.f();           <span class='comment'>// ill-formed, no definition of <span class='texttt'>f</span> for <span class='texttt'>A&lt;T,2&gt;</span>; the primary template is not used here
 </span>}
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='temp.class.spec.mfunc-2'><div class='marginalizedparent'><a class='marginalized' href='#temp.class.spec.mfunc-2'>2</a></div><p >If a member template of a class template is partially specialized,
 the member template partial specializations are member templates of
@@ -1085,7 +1078,7 @@ void m() {
   const int* p;
   f(p);             <span class='comment'>// <span class='texttt'>f(const T*)</span> is more specialized than <span class='texttt'>f(T)</span> or <span class='texttt'>f(T*)</span>
 </span>  float x;
-  g(x);             <span class='comment'>// Ambiguous: <span class='texttt'>g(T)</span> or <span class='texttt'>g(T&amp;)</span>
+  g(x);             <span class='comment'>// ambiguous: <span class='texttt'>g(T)</span> or <span class='texttt'>g(T&amp;)</span>
 </span>  A&lt;int&gt; z;
   h(z);             <span class='comment'>// overload resolution selects <span class='texttt'>h(A&lt;T&gt;&amp;)</span>
 </span>  const A&lt;int&gt; z2;
@@ -1096,41 +1089,41 @@ for which there are explicit call arguments, some parameters are ignored (namely
 function parameter packs, parameters with default arguments, and ellipsis
 parameters).
 [&nbsp;<i>Example:</i></p><pre class='codeblock'>
-template&lt;class T&gt; void f(T);            <span class='comment'>// #1
-</span>template&lt;class T&gt; void f(T*, int=1);    <span class='comment'>// #2
-</span>template&lt;class T&gt; void g(T);            <span class='comment'>// #3
-</span>template&lt;class T&gt; void g(T*, ...);      <span class='comment'>// #4
+template&lt;class T&gt; void f(T);                            <span class='comment'>// #1
+</span>template&lt;class T&gt; void f(T*, int=1);                    <span class='comment'>// #2
+</span>template&lt;class T&gt; void g(T);                            <span class='comment'>// #3
+</span>template&lt;class T&gt; void g(T*, ...);                      <span class='comment'>// #4
 </span>
 </pre><pre class='codeblock'>
 int main() {
   int* ip;
-  f(ip);            <span class='comment'>// calls #2
-</span>  g(ip);            <span class='comment'>// calls #4
+  f(ip);                                                <span class='comment'>// calls #2
+</span>  g(ip);                                                <span class='comment'>// calls #4
 </span>}
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;][&nbsp;<i>Example:</i>
 </p><pre class='codeblock'>
 template&lt;class T, class U&gt; struct A { };
 
-template&lt;class T, class U&gt; void f(U, A&lt;U, T&gt;* p = 0); <span class='comment'>// #1
-</span>template&lt;         class U&gt; void f(U, A&lt;U, U&gt;* p = 0); <span class='comment'>// #2
-</span>template&lt;class T         &gt; void g(T, T = T());        <span class='comment'>// #3
-</span>template&lt;class T, class... U&gt; void g(T, U ...);       <span class='comment'>// #4
+template&lt;class T, class U&gt; void f(U, A&lt;U, T&gt;* p = 0);   <span class='comment'>// #1
+</span>template&lt;         class U&gt; void f(U, A&lt;U, U&gt;* p = 0);   <span class='comment'>// #2
+</span>template&lt;class T         &gt; void g(T, T = T());          <span class='comment'>// #3
+</span>template&lt;class T, class... U&gt; void g(T, U ...);         <span class='comment'>// #4
 </span>
 void h() {
-  f&lt;int&gt;(42, (A&lt;int, int&gt;*)0);                        <span class='comment'>// calls #2
-</span>  f&lt;int&gt;(42);                                         <span class='comment'>// error: ambiguous
-</span>  g(42);                                              <span class='comment'>// error: ambiguous
+  f&lt;int&gt;(42, (A&lt;int, int&gt;*)0);                          <span class='comment'>// calls #2
+</span>  f&lt;int&gt;(42);                                           <span class='comment'>// error: ambiguous
+</span>  g(42);                                                <span class='comment'>// error: ambiguous
 </span>}
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;][&nbsp;<i>Example:</i>
 </p><pre class='codeblock'>
-template&lt;class T, class... U&gt; void f(T, U...);        <span class='comment'>// #1
-</span>template&lt;class T            &gt; void f(T);              <span class='comment'>// #2
-</span>template&lt;class T, class... U&gt; void g(T*, U...);       <span class='comment'>// #3
-</span>template&lt;class T            &gt; void g(T);              <span class='comment'>// #4
+template&lt;class T, class... U&gt; void f(T, U...);          <span class='comment'>// #1
+</span>template&lt;class T            &gt; void f(T);                <span class='comment'>// #2
+</span>template&lt;class T, class... U&gt; void g(T*, U...);         <span class='comment'>// #3
+</span>template&lt;class T            &gt; void g(T);                <span class='comment'>// #4
 </span>
 void h(int i) {
-  f(&amp;i);                                              <span class='comment'>// error: ambiguous
-</span>  g(&amp;i);                                              <span class='comment'>// OK: calls #3
+  f(&amp;i);                                                <span class='comment'>// error: ambiguous
+</span>  g(&amp;i);                                                <span class='comment'>// OK: calls #3
 </span>}
 </pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div></div><div id='temp.alias'><h3 ><a class='secnum' href='#temp.alias' style='min-width:103pt'>14.5.7</a> Alias templates <a class='abbr_ref' href='temp.alias'>[temp.alias]</a></h3><div class='para' id='temp.alias-1'><div class='marginalizedparent'><a class='marginalized' href='#temp.alias-1'>1</a></div><p >A <i ><a href='temp#nt:template-declaration'>template-declaration</a></i> in which the <i ><a href='dcl.dcl#nt:declaration'>declaration</a></i> is an
 <i ><a href='dcl.dcl#nt:alias-declaration'>alias-declaration</a></i> (Clause <a href='dcl.dcl'>[dcl.dcl]</a>) declares the
@@ -1169,7 +1162,7 @@ argument substitution still applies to the <i ><a href='temp.names#nt:template-i
 </p><pre class='codeblock'>
 template&lt;typename...&gt; using void_t = void;
 template&lt;typename T&gt; void_t&lt;typename T::foo&gt; f();
-f&lt;int&gt;(); <span class='comment'>// error, <span class='texttt'>int</span> does not have a nested type <span class='texttt'>foo</span>
+f&lt;int&gt;();           <span class='comment'>// error, <span class='texttt'>int</span> does not have a nested type <span class='texttt'>foo</span>
 </span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='temp.alias-4'><div class='marginalizedparent'><a class='marginalized' href='#temp.alias-4'>4</a></div><p >The <i ><a href='dcl.name#nt:type-id'>type-id</a></i> in an alias template declaration shall not refer to
 the alias template being declared. The type produced by an alias template
 specialization shall not directly or indirectly make use of that specialization.
