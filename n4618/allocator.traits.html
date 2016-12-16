@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang='en'><head><title>[allocator.traits]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.10</a> Memory <a class='abbr_ref' href='memory#allocator.traits'>[memory]</a></h2><div id='allocator.traits'><h3 ><a class='secnum' style='min-width:103pt'>20.10.8</a> Allocator traits <a class='abbr_ref'>[allocator.traits]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The class template <span class='texttt'>allocator_traits</span> supplies a uniform interface to all
+allocator types.
+An allocator cannot be a non-class type, however, even if <span class='texttt'>allocator_traits</span>
+supplies the entire required interface. [&nbsp;<i>Note:</i> Thus, it is always possible to create
+a derived class from an allocator. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='allocator_traits'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class Alloc&gt; struct allocator_traits {
+    using allocator_type     = Alloc;
+
+    using value_type         = typename Alloc::value_type;
+
+    using pointer            = <i><span class='texttt'>see below</span></i>;
+    using const_pointer      = <i><span class='texttt'>see below</span></i>;
+    using void_pointer       = <i><span class='texttt'>see below</span></i>;
+    using const_void_pointer = <i><span class='texttt'>see below</span></i>;
+
+    using difference_type    = <i><span class='texttt'>see below</span></i>;
+    using size_type          = <i><span class='texttt'>see below</span></i>;
+
+    using propagate_on_container_copy_assignment = <i><span class='texttt'>see below</span></i>;
+    using propagate_on_container_move_assignment = <i><span class='texttt'>see below</span></i>;
+    using propagate_on_container_swap            = <i><span class='texttt'>see below</span></i>;
+    using is_always_equal                        = <i><span class='texttt'>see below</span></i>;
+
+    template &lt;class T&gt; using rebind_alloc = <i><span class='texttt'>see below</span></i>;
+    template &lt;class T&gt; using rebind_traits = allocator_traits&lt;rebind_alloc&lt;T&gt;&gt;;
+
+    static pointer allocate(Alloc&amp; a, size_type n);
+    static pointer allocate(Alloc&amp; a, size_type n, const_void_pointer hint);
+
+    static void deallocate(Alloc&amp; a, pointer p, size_type n);
+
+    template &lt;class T, class... Args&gt;
+      static void construct(Alloc&amp; a, T* p, Args&amp;&amp;... args);
+
+    template &lt;class T&gt;
+      static void destroy(Alloc&amp; a, T* p);
+
+    static size_type max_size(const Alloc&amp; a) noexcept;
+
+    static Alloc select_on_container_copy_construction(const Alloc&amp; rhs);
+  };
+}
+</pre></div><div id='types'><h4 ><a class='secnum' href='#types' style='min-width:118pt'>20.10.8.1</a> Allocator traits member types <a class='abbr_ref' href='allocator.traits.types'>[allocator.traits.types]</a></h4><p ><span class='indexparent'><a class='index' id='pointer,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,pointer'></a></span><code class='itemdecl'>
+using pointer = <i><span class='texttt'>see below</span></i>;
+</code></p><div class='itemdescr'></div><div class='para' id='types-1'><div class='marginalizedparent'><a class='marginalized' href='#types-1'>1</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::pointer</span> if
+the <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> <span class='texttt'>Alloc::pointer</span> is valid and denotes a
+type (<a href='temp.deduct'>[temp.deduct]</a>); otherwise, <span class='texttt'>value_type*</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='const_pointer,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,const_pointer'></a></span><code class='itemdecl'>
+using const_pointer = <i><span class='texttt'>see below</span></i>;
+</code></p><div class='itemdescr'></div><div class='para' id='types-2'><div class='marginalizedparent'><a class='marginalized' href='#types-2'>2</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::const_pointer</span> if
+the <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> <span class='texttt'>Alloc::const_pointer</span> is valid and denotes a
+type (<a href='temp.deduct'>[temp.deduct]</a>); otherwise,
+<span class='texttt'>pointer_traits&lt;pointer&gt;::rebind&lt;const value_type&gt;</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='void_pointer,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,void_pointer'></a></span><code class='itemdecl'>
+using void_pointer = <i><span class='texttt'>see below</span></i>;
+</code></p><div class='itemdescr'></div><div class='para' id='types-3'><div class='marginalizedparent'><a class='marginalized' href='#types-3'>3</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::void_pointer</span> if
+the <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> <span class='texttt'>Alloc::void_pointer</span> is valid and denotes a
+type (<a href='temp.deduct'>[temp.deduct]</a>); otherwise,
+<span class='texttt'>pointer_traits&lt;pointer&gt;::rebind&lt;void&gt;</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='const_void_pointer,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,const_void_pointer'></a></span><code class='itemdecl'>
+using const_void_pointer = <i><span class='texttt'>see below</span></i>;
+</code></p><div class='itemdescr'></div><div class='para' id='types-4'><div class='marginalizedparent'><a class='marginalized' href='#types-4'>4</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::const_void_pointer</span> if
+the <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> <span class='texttt'>Alloc::const_void_pointer</span> is valid and denotes a
+type (<a href='temp.deduct'>[temp.deduct]</a>); otherwise,
+<span class='texttt'>pointer_traits&lt;pointer&gt;::rebind&lt;const void&gt;</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='difference_type,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,difference_type'></a></span><code class='itemdecl'>
+using difference_type = <i><span class='texttt'>see below</span></i>;
+</code></p><div class='itemdescr'></div><div class='para' id='types-5'><div class='marginalizedparent'><a class='marginalized' href='#types-5'>5</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::difference_type</span> if
+the <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> <span class='texttt'>Alloc::difference_type</span> is valid and denotes a
+type (<a href='temp.deduct'>[temp.deduct]</a>); otherwise,
+<span class='texttt'>pointer_traits&lt;pointer&gt;::difference_type</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='size_type,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,size_type'></a></span><code class='itemdecl'>
+using size_type = <i><span class='texttt'>see below</span></i>;
+</code></p><div class='itemdescr'></div><div class='para' id='types-6'><div class='marginalizedparent'><a class='marginalized' href='#types-6'>6</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::size_type</span> if
+the <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> <span class='texttt'>Alloc::size_type</span> is valid and denotes a
+type (<a href='temp.deduct'>[temp.deduct]</a>); otherwise,
+<span class='texttt'>make_unsigned_t&lt;difference_type&gt;</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='propagate_on_container_copy_assignment,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,propagate_on_container_copy_assignment'></a></span><code class='itemdecl'>
+using propagate_on_container_copy_assignment = <i><span class='texttt'>see below</span></i>;
+</code></p><div class='itemdescr'></div><div class='para' id='types-7'><div class='marginalizedparent'><a class='marginalized' href='#types-7'>7</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::propagate_on_container_copy_assignment</span> if
+the <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> <span class='texttt'>Alloc::propagate_on_container_copy_assignment</span> is valid and denotes a
+type (<a href='temp.deduct'>[temp.deduct]</a>); otherwise
+<span class='texttt'>false_type</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='propagate_on_container_move_assignment,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,propagate_on_container_move_assignment'></a></span><code class='itemdecl'>
+using propagate_on_container_move_assignment = <i><span class='texttt'>see below</span></i>;
+</code></p><div class='itemdescr'></div><div class='para' id='types-8'><div class='marginalizedparent'><a class='marginalized' href='#types-8'>8</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::propagate_on_container_move_assignment</span> if
+the <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> <span class='texttt'>Alloc::propagate_on_container_move_assignment</span> is valid and denotes a
+type (<a href='temp.deduct'>[temp.deduct]</a>); otherwise
+<span class='texttt'>false_type</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='propagate_on_container_swap,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,propagate_on_container_swap'></a></span><code class='itemdecl'>
+using propagate_on_container_swap = <i><span class='texttt'>see below</span></i>;
+</code></p><div class='itemdescr'></div><div class='para' id='types-9'><div class='marginalizedparent'><a class='marginalized' href='#types-9'>9</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::propagate_on_container_swap</span> if
+the <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> <span class='texttt'>Alloc::propagate_on_container_swap</span> is valid and denotes a
+type (<a href='temp.deduct'>[temp.deduct]</a>); otherwise
+<span class='texttt'>false_type</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='is_always_equal,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,is_always_equal'></a></span><code class='itemdecl'>
+using is_always_equal = <i><span class='texttt'>see below</span></i>;
+</code></p><div class='itemdescr'></div><div class='para' id='types-10'><div class='marginalizedparent'><a class='marginalized' href='#types-10'>10</a></div><div class='itemdescr'><p ><i>Type:</i> <span class='texttt'>Alloc::is_always_equal</span> if
+the <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> <span class='texttt'>Alloc::is_always_equal</span>
+is valid and denotes a type (<a href='temp.deduct'>[temp.deduct]</a>);
+otherwise <span class='texttt'>is_empty&lt;Alloc&gt;::type</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='rebind_alloc,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,rebind_alloc'></a></span><code class='itemdecl'>
+template &lt;class T&gt; using rebind_alloc = <i><span class='texttt'>see below</span></i>;
+</code></p><div class='itemdescr'></div><div class='para' id='types-11'><div class='marginalizedparent'><a class='marginalized' href='#types-11'>11</a></div><div class='itemdescr'><p ><i>Alias template:</i> <span class='texttt'>Alloc::rebind&lt;T&gt;::other</span> if
+the <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> <span class='texttt'>Alloc::rebind&lt;T&gt;::other</span> is valid and denotes a
+type (<a href='temp.deduct'>[temp.deduct]</a>); otherwise,
+<span class='texttt'>Alloc&lt;T, Args&gt;</span> if <span class='texttt'>Alloc</span> is a class template instantiation
+of the form <span class='texttt'>Alloc&lt;U, Args&gt;</span>, where <span class='texttt'>Args</span> is zero or more type arguments;
+otherwise, the instantiation of <span class='texttt'>rebind_alloc</span> is ill-formed.
+</p></div></div></div><div id='members'><h4 ><a class='secnum' href='#members' style='min-width:118pt'>20.10.8.2</a> Allocator traits static member functions <a class='abbr_ref' href='allocator.traits.members'>[allocator.traits.members]</a></h4><p ><span class='indexparent'><a class='index' id='allocate,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,allocate'></a></span><code class='itemdecl'>
+static pointer allocate(Alloc&amp; a, size_type n);
+</code></p><div class='itemdescr'></div><div class='para' id='members-1'><div class='marginalizedparent'><a class='marginalized' href='#members-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>a.allocate(n)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='allocate,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,allocate'></a></span><code class='itemdecl'>
+static pointer allocate(Alloc&amp; a, size_type n, const_void_pointer hint);
+</code></p><div class='itemdescr'></div><div class='para' id='members-2'><div class='marginalizedparent'><a class='marginalized' href='#members-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>a.allocate(n, hint)</span> if that expression is well-formed; otherwise, <span class='texttt'>a.allocate(n)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='deallocate,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,deallocate'></a></span><code class='itemdecl'>
+static void deallocate(Alloc&amp; a, pointer p, size_type n);
+</code></p><div class='itemdescr'></div><div class='para' id='members-3'><div class='marginalizedparent'><a class='marginalized' href='#members-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>a.deallocate(p, n)</span>.</p></div></div><div class='para' id='members-4'><div class='marginalizedparent'><a class='marginalized' href='#members-4'>4</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing.
+</p></div></div><p ><span class='indexparent'><a class='index' id='construct,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,construct'></a></span><code class='itemdecl'>
+template &lt;class T, class... Args&gt;
+  static void construct(Alloc&amp; a, T* p, Args&amp;&amp;... args);
+</code></p><div class='itemdescr'></div><div class='para' id='members-5'><div class='marginalizedparent'><a class='marginalized' href='#members-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>a.construct(p, std::forward&lt;Args&gt;(args)...)</span>
+if that call is well-formed;
+otherwise, invokes <span class='texttt'>::new (static_cast&lt;void*&gt;(p)) T(std::forward&lt;Args&gt;(args)...)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='destroy,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,destroy'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+  static void destroy(Alloc&amp; a, T* p);
+</code></p><div class='itemdescr'></div><div class='para' id='members-6'><div class='marginalizedparent'><a class='marginalized' href='#members-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>a.destroy(p)</span> if that call is well-formed; otherwise, invokes
+<span class='texttt'>p-&gt;~T()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='max_size,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,max_size'></a></span><code class='itemdecl'>
+static size_type max_size(const Alloc&amp; a) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='members-7'><div class='marginalizedparent'><a class='marginalized' href='#members-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>a.max_size()</span> if that expression is well-formed; otherwise,
+<span class='texttt'>numeric_limits&lt;size_type&gt;::max()/sizeof(value_type)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='select_on_container_copy_construction,allocator_traits'></a></span><span class='indexparent'><a class='index' id='allocator_traits,select_on_container_copy_construction'></a></span><code class='itemdecl'>
+static Alloc select_on_container_copy_construction(const Alloc&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='members-8'><div class='marginalizedparent'><a class='marginalized' href='#members-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>rhs.select_on_container_copy_construction()</span> if that expression is
+well-formed; otherwise, <span class='texttt'>rhs</span>.
+</p></div></div></div></div></div></body></html>

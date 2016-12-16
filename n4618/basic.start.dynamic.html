@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang='en'><head><title>[basic.start.dynamic]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>3</a> Basic concepts <a class='abbr_ref' href='./#basic'>[basic]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>3.6</a> Start and termination <a class='abbr_ref' href='basic.start#dynamic'>[basic.start]</a></h2><div id='basic.start.dynamic'><h3 ><a class='secnum' style='min-width:103pt'>3.6.3</a> Dynamic initialization of non-local variables <a class='abbr_ref'>[basic.start.dynamic]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='initialization,dynamic_non-local'></a></span><span class='indexparent'><a class='index' id='start,program'></a></span><span class='indexparent'><a class='index' id='initialization,order_of'></a></span>Dynamic initialization of a non-local variable with static storage duration is
+unordered if the variable is an implicitly or explicitly instantiated
+specialization, is partially-ordered if the variable
+is an inline variable that is not an implicitly or explicitly instantiated
+specialization, and otherwise is ordered.
+[&nbsp;<i>Note:</i> An explicitly specialized non-inline static data member or
+variable template specialization has ordered initialization.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Dynamic initialization of non-local variables <span class='texttt'>V</span> and <span class='texttt'>W</span>
+with static storage duration are ordered as follows:
+</p><ul class='itemize'><li id='2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.1'>(2.1)</a></div><p >If <span class='texttt'>V</span> and <span class='texttt'>W</span> have
+ordered initialization and <span class='texttt'>V</span> is defined before <span class='texttt'>W</span> within
+a single translation unit, the initialization of <span class='texttt'>V</span> is sequenced
+before the initialization of <span class='texttt'>W</span>.</p></li><li id='2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.2'>(2.2)</a></div><p >If <span class='texttt'>V</span> has partially-ordered initialization, <span class='texttt'>W</span> does not have
+unordered initialization, and <span class='texttt'>V</span> is defined before <span class='texttt'>W</span> in
+every translation unit in which <span class='texttt'>W</span> is defined, the initialization of
+<span class='texttt'>V</span> is sequenced before the initialization of <span class='texttt'>W</span> if the
+program does not start a thread (<a href='intro.multithread'>[intro.multithread]</a>) and otherwise
+happens before the initialization of <span class='texttt'>W</span>.</p></li><li id='2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.3'>(2.3)</a></div><p >Otherwise, if a program starts a thread before either <span class='texttt'>V</span> or <span class='texttt'>W</span> is
+initialized, the initializations of <span class='texttt'>V</span> and <span class='texttt'>W</span> are unsequenced.</p></li><li id='2.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.4'>(2.4)</a></div><p >Otherwise, the initializations of <span class='texttt'>V</span> and <span class='texttt'>W</span> are indeterminately sequenced.
+</p></li></ul><p >[&nbsp;<i>Note:</i>
+This definition permits initialization of a sequence of
+ordered variables concurrently with another sequence.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p ><span class='indexparent'><a class='index' id='evaluation,unspecified_order_of'></a></span>It is <span class='indexparent'><a class='index' id='dynamic_initialization_of_static_variables_before_main'></a></span>implementation-defined whether the
+dynamic initialization of a non-local non-inline variable with static storage duration
+happens before the first statement of <span class='texttt'>main</span>. If the initialization is deferred to
+happen after the first statement of <span class='texttt'>main</span>, it happens before the
+first odr-use (<a href='basic.def.odr'>[basic.def.odr]</a>) of any non-inline function or non-inline variable
+defined in the same translation unit as the variable
+to be initialized.<a class='footnotenum' href='#footnote-36'>36</a>
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+<span class='comment'>// - File 1 -
+</span>#include "a.h"
+#include "b.h"
+B b;
+A::A(){
+  b.Use();
+}
+
+<span class='comment'>// - File 2 -
+</span>#include "a.h"
+A a;
+
+<span class='comment'>// - File 3 -
+</span>#include "a.h"
+#include "b.h"
+extern A a;
+extern B b;
+
+int main() {
+  a.Use();
+  b.Use();
+}
+</pre><p >It is <span class='indexparent'><a class='index' id='dynamic_initialization_of_static_variables_before_main'></a></span>implementation-defined
+whether either <span class='texttt'>a</span> or <span class='texttt'>b</span> is
+initialized before <span class='texttt'>main</span> is entered or whether the
+initializations are delayed until <span class='texttt'>a</span> is first odr-used in
+<span class='texttt'>main</span>. In particular, if <span class='texttt'>a</span> is initialized before
+<span class='texttt'>main</span> is entered, it is not guaranteed that <span class='texttt'>b</span> will be
+initialized before it is odr-used by the initialization of <span class='texttt'>a</span>, that
+is, before <span class='texttt'>A::A</span> is called. If, however, <span class='texttt'>a</span> is initialized
+at some point after the first statement of <span class='texttt'>main</span>, <span class='texttt'>b</span> will
+be initialized prior to its use in <span class='texttt'>A::A</span>. <i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >It is <span class='indexparent'><a class='index' id='dynamic_initialization_of_static_inline_variables_before_main'></a></span>implementation-defined
+whether the dynamic initialization of a
+non-local inline variable with static storage duration happens before the
+first statement of <span class='texttt'>main</span>. If the initialization is deferred
+to happen after the first statement of <span class='texttt'>main</span>, it happens before
+the first odr-use (<a href='basic.def.odr'>[basic.def.odr]</a>) of that variable.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >It is <span class='indexparent'><a class='index' id='dynamic_initialization_of_thread-local_variables_before_entry'></a></span>implementation-defined
+whether the dynamic initialization of a non-local non-inline variable with static
+or thread storage duration is sequenced before
+the first statement of the initial function of the thread.
+If the initialization is deferred to some point in time sequenced after
+the first statement of the initial function of the thread,
+it is sequenced before the first odr-use (<a href='basic.def.odr'>[basic.def.odr]</a>)
+of any non-inline variable with thread storage duration defined
+in the same translation unit as the variable to be initialized.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >If the initialization of a non-local variable with static or thread storage duration
+exits via
+an exception, <span class='texttt'>std::terminate</span> is called (<a href='except.terminate'>[except.terminate]</a>).<span class='indexparent'><a class='index' id='program,start'></a></span></p></div><div class='footnote' id='footnote-36'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-36'>36)</a></div><p >A non-local variable with static storage duration
+having initialization
+with side effects must be initialized even if it is not
+odr-used (<a href='basic.def.odr'>[basic.def.odr]</a>, <a href='basic.stc.static'>[basic.stc.static]</a>).</p></div></div></div></body></html>

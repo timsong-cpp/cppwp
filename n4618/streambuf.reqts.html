@@ -1,0 +1,75 @@
+<!DOCTYPE html><html lang='en'><head><title>[streambuf.reqts]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>27</a> Input/output library <a class='abbr_ref' href='./#input.output'>[input.output]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>27.6</a> Stream buffers <a class='abbr_ref' href='stream.buffers#streambuf.reqts'>[stream.buffers]</a></h2><div id='streambuf.reqts'><h3 ><a class='secnum' style='min-width:103pt'>27.6.2</a> Stream buffer requirements <a class='abbr_ref'>[streambuf.reqts]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Stream buffers can impose various constraints on the sequences they control.
+Some constraints are:
+</p><ul class='itemize'><li id='1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.1'>(1.1)</a></div><p >The controlled input sequence can be not readable.
+</p></li><li id='1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.2'>(1.2)</a></div><p >The controlled output sequence can be not writable.
+</p></li><li id='1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.3'>(1.3)</a></div><p >The controlled sequences can be associated with the contents of other
+representations for character sequences, such as external files.
+</p></li><li id='1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.4'>(1.4)</a></div><p >The controlled sequences can support operations
+<i>directly</i>
+to or from associated sequences.
+</p></li><li id='1.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.5'>(1.5)</a></div><p >The controlled sequences can impose limitations on how the program can
+read characters from a sequence,
+write characters to a sequence,
+put characters back into an input sequence, or
+alter the stream position.
+</p></li></ul></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Each sequence is characterized by three pointers which, if non-null,
+all point into the same
+<span class='texttt'>charT</span>
+array object.
+The array object represents, at any moment,
+a (sub)sequence of characters from the sequence.
+Operations performed on a sequence alter the values stored in these pointers,
+perform reads and writes directly to or from associated sequences, and
+alter “the stream position” and conversion state as needed to
+maintain this subsequence relationship.
+The three pointers are:
+</p><ul class='itemize'><li id='2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.1'>(2.1)</a></div><p >the
+<a class='hidden_link' href='#def:beginning_pointer' id='def:beginning_pointer'><i>beginning pointer</i></a>,
+or lowest element address in the array
+(called <span class='texttt'>xbeg</span> here);
+</p></li><li id='2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.2'>(2.2)</a></div><p >the
+<a class='hidden_link' href='#def:next_pointer' id='def:next_pointer'><i>next pointer</i></a>,
+or next element address that is a current
+candidate for reading or writing (called <span class='texttt'>xnext</span> here);
+</p></li><li id='2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.3'>(2.3)</a></div><p >the
+<a class='hidden_link' href='#def:end_pointer' id='def:end_pointer'><i>end pointer</i></a>,
+or first element address beyond the end of
+the array (called <span class='texttt'>xend</span> here).
+</p></li></ul></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The following semantic constraints shall always apply for any set of
+three pointers for a sequence, using the pointer names given immediately above:
+</p><ul class='itemize'><li id='3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#3.1'>(3.1)</a></div><p >If <span class='texttt'>xnext</span> is not a null pointer, then
+<span class='texttt'>xbeg</span> and <span class='texttt'>xend</span> shall also be non-null pointers
+into the same
+<span class='texttt'>charT</span>
+array, as described above; otherwise, <span class='texttt'>xbeg</span> and
+<span class='texttt'>xend</span> shall also be null.
+</p></li><li id='3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#3.2'>(3.2)</a></div><p >If <span class='texttt'>xnext</span> is not a null pointer and
+<span class='texttt'>xnext &lt; xend</span>
+for an output sequence, then a
+<a class='hidden_link' href='#def:write_position' id='def:write_position'><i>write position</i></a>
+is available.
+In this case,
+<span class='texttt'>*xnext</span>
+shall be assignable as the
+next element to write
+(to put, or to store a character value, into the sequence).
+</p></li><li id='3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#3.3'>(3.3)</a></div><p >If <span class='texttt'>xnext</span> is not a null pointer and
+<span class='texttt'>xbeg &lt; xnext</span> for an input sequence,
+then a
+<a class='hidden_link' href='#def:putback_position' id='def:putback_position'><i>putback position</i></a>
+is available.
+In this case,
+<span class='texttt'>xnext[-1]</span>
+shall have a defined value and is the next (preceding) element
+to store a character that is put back into the input sequence.
+</p></li><li id='3.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#3.4'>(3.4)</a></div><p >If <span class='texttt'>xnext</span> is not a null pointer and
+<span class='texttt'>xnext &lt; xend</span> for an input sequence,
+then a
+<a class='hidden_link' href='#def:read_position' id='def:read_position'><i>read position</i></a>
+is available.
+In this case,
+<span class='texttt'>*xnext</span>
+shall have a defined value
+and is the next element to read
+(to get, or to obtain a character value, from the sequence).
+</p></li></ul></div></div></div></body></html>

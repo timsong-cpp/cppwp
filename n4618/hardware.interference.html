@@ -1,0 +1,29 @@
+<!DOCTYPE html><html lang='en'><head><title>[hardware.interference]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>18</a> Language support library <a class='abbr_ref' href='./#language.support'>[language.support]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>18.6</a> Dynamic memory management <a class='abbr_ref' href='support.dynamic#hardware.interference'>[support.dynamic]</a></h2><div id='hardware.interference'><h3 ><a class='secnum' style='min-width:103pt'>18.6.5</a> Hardware interference size <a class='abbr_ref'>[hardware.interference]</a></h3><p ><span class='indexparent'><a class='index' id='hardware_destructive_interference_size'></a></span><code class='itemdecl'>
+constexpr size_t hardware_destructive_interference_size = <i>implementation-defined</i>;
+</code></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >This number is the minimum recommended offset
+between two concurrently-accessed objects
+to avoid additional performance degradation due to contention
+introduced by the implementation.
+It shall be at least <span class='texttt'>alignof(max_align_t)</span>.</p><p ><span class='indexparent'><a class='index' id='cats,interfering_with_canines'></a></span>[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct keep_apart {
+  alignas(hardware_destructive_interference_size) atomic&lt;int&gt; cat;
+  alignas(hardware_destructive_interference_size) atomic&lt;int&gt; dog;
+};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='hardware_constructive_interference_size'></a></span><code class='itemdecl'>
+constexpr size_t hardware_constructive_interference_size = <i>implementation-defined</i>;
+</code></p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >This number is the maximum recommended size of contiguous memory
+occupied by two objects accessed with temporal locality by concurrent threads.
+It shall be at least <span class='texttt'>alignof(max_align_t)</span>.</p><p ><span class='indexparent'><a class='index' id='dogs,obliviousness_to_interference'></a></span>[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct together {
+  atomic&lt;int&gt; dog;
+  int puppy;
+};
+struct kennel {
+  <span class='comment'>// Other data members...
+</span>  alignas(sizeof(together)) together pack;
+  <span class='comment'>// Other data members...
+</span>};
+static_assert(sizeof(together) &lt;= hardware_constructive_interference_size);
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>

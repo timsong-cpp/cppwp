@@ -1,0 +1,358 @@
+<!DOCTYPE html><html lang='en'><head><title>[re.alg]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>28</a> Regular expressions library <a class='abbr_ref' href='./#re'>[re]</a></h1><div id='re.alg'><h2 ><a class='secnum' style='min-width:88pt'>28.11</a> Regular expression algorithms <a class='abbr_ref'>[re.alg]</a></h2><div id='re.except'><h3 ><a class='secnum' href='#re.except' style='min-width:103pt'>28.11.1</a> exceptions <a class='abbr_ref' href='re.except'>[re.except]</a></h3><div class='para' id='re.except-1'><div class='marginalizedparent'><a class='marginalized' href='#re.except-1'>1</a></div><p >The algorithms described in this subclause may throw an exception
+of type <span class='texttt'>regex_error</span>. If such an exception <span class='texttt'>e</span> is thrown,
+<span class='texttt'>e.code()</span> shall return either <span class='texttt'>regex_constants::error_complexity</span>
+or <span class='texttt'>regex_constants::error_stack</span>.</p></div></div><div id='match'><h3 ><a class='secnum' href='#match' style='min-width:103pt'>28.11.2</a> <span class='texttt'>regex_match</span> <a class='abbr_ref' href='re.alg.match'>[re.alg.match]</a></h3><p ><span class='indexparent'><a class='index' id='regex_match'></a></span><code class='itemdecl'>
+template &lt;class BidirectionalIterator, class Allocator, class charT, class traits&gt;
+  bool regex_match(BidirectionalIterator first, BidirectionalIterator last,
+                   match_results&lt;BidirectionalIterator, Allocator&gt;&amp; m,
+                   const basic_regex&lt;charT, traits&gt;&amp; e,
+                   regex_constants::match_flag_type flags =
+                     regex_constants::match_default);
+</code></p><div class='itemdescr'></div><div class='para' id='match-1'><div class='marginalizedparent'><a class='marginalized' href='#match-1'>1</a></div><div class='itemdescr'><p ><i>Requires:</i>  The type <span class='texttt'>BidirectionalIterator</span> shall satisfy the requirements
+of a Bidirectional Iterator  (<a href='bidirectional.iterators'>[bidirectional.iterators]</a>).</p></div></div><div class='para' id='match-2'><div class='marginalizedparent'><a class='marginalized' href='#match-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>  Determines whether there is a match between the
+regular expression <span class='texttt'>e</span>, and all of the character
+sequence <span class='texttt'>[first, last)</span>. The parameter <span class='texttt'>flags</span> is
+used to control how the expression is matched against the character
+sequence. When determining if there is a match, only potential matches
+that match the entire character sequence are considered.
+Returns <span class='texttt'>true</span> if such a match exists, <span class='texttt'>false</span>
+otherwise.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+std::regex re("Get|GetValue");
+std::cmatch m;
+regex_search("GetValue", m, re);	<span class='comment'>// returns <span class='texttt'>true</span>, and <span class='texttt'>m[0]</span> contains <span class='texttt'>"Get"</span>
+</span>regex_match ("GetValue", m, re);	<span class='comment'>// returns <span class='texttt'>true</span>, and <span class='texttt'>m[0]</span> contains <span class='texttt'>"GetValue"</span>
+</span>regex_search("GetValues", m, re);	<span class='comment'>// returns <span class='texttt'>true</span>, and <span class='texttt'>m[0]</span> contains <span class='texttt'>"Get"</span>
+</span>regex_match ("GetValues", m, re);	<span class='comment'>// returns <span class='texttt'>false</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div class='para' id='match-3'><div class='marginalizedparent'><a class='marginalized' href='#match-3'>3</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
+<span class='texttt'>m.ready() == true</span> in all cases.
+If the function returns <span class='texttt'>false</span>, then the effect
+on parameter <span class='texttt'>m</span> is unspecified except that <span class='texttt'>m.size()</span>
+returns <span class='texttt'>0</span> and <span class='texttt'>m.empty()</span> returns <span class='texttt'>true</span>.
+Otherwise the effects on parameter <span class='texttt'>m</span> are given in
+Table <a href='#tab:re:alg:match'>[tab:re:alg:match]</a>.
+</p></div></div><div class='numberedTable' id='tab:re:alg:match'>Table <a href='#tab:re:alg:match'>135</a> — Effects of <span class='texttt'>regex_match</span> algorithm<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Element</b></td><td colspan='1' class='center'><b>Value</b></td></tr><tr class='capsep'><td class='left'> 
+ 
+
+
+
+<span class='texttt'>m.size()</span>
+</td><td class='justify'>
+<span class='texttt'>1 + e.mark_count()</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m.empty()</span>
+</td><td class='justify'>
+<span class='texttt'>false</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m.prefix().first</span>
+</td><td class='justify'>
+<span class='texttt'>first</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m.prefix().second</span>
+</td><td class='justify'>
+<span class='texttt'>first</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m.prefix().matched</span>
+</td><td class='justify'>
+<span class='texttt'>false</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m.suffix().first</span>
+</td><td class='justify'>
+<span class='texttt'>last</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m.suffix().second</span>
+</td><td class='justify'>
+<span class='texttt'>last</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m.suffix().matched</span>
+</td><td class='justify'>
+<span class='texttt'>false</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m[0].first</span>
+</td><td class='justify'>
+<span class='texttt'>first</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m[0].second</span>
+</td><td class='justify'>
+<span class='texttt'>last</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m[0].matched</span>
+</td><td class='justify'>
+<span class='texttt'>true</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m[n].first</span>
+</td><td class='justify'>
+For all integers <span class='texttt'>0 &lt; n &lt; m.size()</span>, the start of the sequence that matched
+sub-expression <span class='texttt'>n</span>. Alternatively, if sub-expression <span class='texttt'>n</span> did not participate
+in the match, then <span class='texttt'>last</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m[n].second</span>
+</td><td class='justify'>
+For all integers <span class='texttt'>0 &lt; n &lt; m.size()</span>, the end of the sequence that matched
+sub-expression <span class='texttt'>n</span>. Alternatively, if sub-expression <span class='texttt'>n</span> did not participate
+in the match, then <span class='texttt'>last</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m[n].matched</span>
+</td><td class='justify'>
+For all integers <span class='texttt'>0 &lt; n &lt; m.size()</span>, <span class='texttt'>true</span> if sub-expression <span class='texttt'>n</span> participated in
+the match, <span class='texttt'>false</span> otherwise.
+</td></tr></table></div><p ><span class='indexparent'><a class='index' id='regex_match'></a></span><code class='itemdecl'>
+template &lt;class BidirectionalIterator, class charT, class traits&gt;
+  bool regex_match(BidirectionalIterator first, BidirectionalIterator last,
+                   const basic_regex&lt;charT, traits&gt;&amp; e,
+                   regex_constants::match_flag_type flags =
+                     regex_constants::match_default);
+</code></p><div class='itemdescr'></div><div class='para' id='match-4'><div class='marginalizedparent'><a class='marginalized' href='#match-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>  Behaves “as if” by constructing an instance of
+<span class='texttt'>match_results&lt;BidirectionalIterator&gt; what</span>, and then
+returning the result of
+<span class='texttt'>regex_match(first, last, what, e, flags)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='regex_match'></a></span><code class='itemdecl'>
+template &lt;class charT, class Allocator, class traits&gt;
+  bool regex_match(const charT* str,
+                   match_results&lt;const charT*, Allocator&gt;&amp; m,
+                   const basic_regex&lt;charT, traits&gt;&amp; e,
+                   regex_constants::match_flag_type flags =
+                     regex_constants::match_default);
+</code></p><div class='itemdescr'></div><div class='para' id='match-5'><div class='marginalizedparent'><a class='marginalized' href='#match-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>regex_match(str, str + char_traits&lt;charT&gt;::length(str), m, e, flags)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='regex_match'></a></span><code class='itemdecl'>
+template &lt;class ST, class SA, class Allocator, class charT, class traits&gt;
+  bool regex_match(const basic_string&lt;charT, ST, SA&gt;&amp; s,
+                   match_results&lt;
+                     typename basic_string&lt;charT, ST, SA&gt;::const_iterator,
+                     Allocator&gt;&amp; m,
+                   const basic_regex&lt;charT, traits&gt;&amp; e,
+                   regex_constants::match_flag_type flags =
+                     regex_constants::match_default);
+</code></p><div class='itemdescr'></div><div class='para' id='match-6'><div class='marginalizedparent'><a class='marginalized' href='#match-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>regex_match(s.begin(), s.end(), m, e, flags)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='regex_match'></a></span><code class='itemdecl'>
+template &lt;class charT, class traits&gt;
+  bool regex_match(const charT* str,
+                   const basic_regex&lt;charT, traits&gt;&amp; e,
+                   regex_constants::match_flag_type flags =
+                     regex_constants::match_default);
+</code></p><div class='itemdescr'></div><div class='para' id='match-7'><div class='marginalizedparent'><a class='marginalized' href='#match-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>regex_match(str, str + char_traits&lt;charT&gt;::length(str), e, flags)</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='regex_match'></a></span><code class='itemdecl'>
+template &lt;class ST, class SA, class charT, class traits&gt;
+  bool regex_match(const basic_string&lt;charT, ST, SA&gt;&amp; s,
+                   const basic_regex&lt;charT, traits&gt;&amp; e,
+                   regex_constants::match_flag_type flags =
+                     regex_constants::match_default);
+</code></p><div class='itemdescr'></div><div class='para' id='match-8'><div class='marginalizedparent'><a class='marginalized' href='#match-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>regex_match(s.begin(), s.end(), e, flags)</span>.
+</p></div></div></div><div id='search'><h3 ><a class='secnum' href='#search' style='min-width:103pt'>28.11.3</a> <span class='texttt'>regex_search</span> <a class='abbr_ref' href='re.alg.search'>[re.alg.search]</a></h3><p ><span class='indexparent'><a class='index' id='regex_search'></a></span><code class='itemdecl'>
+template &lt;class BidirectionalIterator, class Allocator, class charT, class traits&gt;
+  bool regex_search(BidirectionalIterator first, BidirectionalIterator last,
+                    match_results&lt;BidirectionalIterator, Allocator&gt;&amp; m,
+                    const basic_regex&lt;charT, traits&gt;&amp; e,
+                    regex_constants::match_flag_type flags =
+                      regex_constants::match_default);
+</code></p><div class='itemdescr'></div><div class='para' id='search-1'><div class='marginalizedparent'><a class='marginalized' href='#search-1'>1</a></div><div class='itemdescr'><p ><i>Requires:</i> Type <span class='texttt'>BidirectionalIterator</span> shall satisfy the requirements of a Bidirectional
+Iterator (<a href='bidirectional.iterators'>[bidirectional.iterators]</a>).</p></div></div><div class='para' id='search-2'><div class='marginalizedparent'><a class='marginalized' href='#search-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Determines whether there is some sub-sequence within <span class='texttt'>[first, last)</span> that matches
+the regular expression <span class='texttt'>e</span>. The parameter <span class='texttt'>flags</span> is used to control how the
+expression is matched against the character sequence. Returns <span class='texttt'>true</span> if such a sequence
+exists, <span class='texttt'>false</span> otherwise.</p></div></div><div class='para' id='search-3'><div class='marginalizedparent'><a class='marginalized' href='#search-3'>3</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
+<span class='texttt'>m.ready() == true</span> in all cases.
+If the function returns <span class='texttt'>false</span>, then the effect
+on parameter <span class='texttt'>m</span> is unspecified except that <span class='texttt'>m.size()</span>
+returns <span class='texttt'>0</span> and <span class='texttt'>m.empty()</span> returns <span class='texttt'>true</span>.  Otherwise
+the effects on parameter <span class='texttt'>m</span> are given in Table <a href='#tab:re:alg:search'>[tab:re:alg:search]</a>.
+</p></div></div><div class='numberedTable' id='tab:re:alg:search'>Table <a href='#tab:re:alg:search'>136</a> — Effects of <span class='texttt'>regex_search</span> algorithm<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Element</b></td><td colspan='1' class='center'><b>Value</b></td></tr><tr class='capsep'><td class='left'> 
+ 
+
+
+
+<span class='texttt'>m.size()</span>
+</td><td class='justify'>
+<span class='texttt'>1 + e.mark_count()</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m.empty()</span>
+</td><td class='justify'>
+<span class='texttt'>false</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m.prefix().first</span>
+</td><td class='justify'>
+<span class='texttt'>first</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m.prefix().second</span>
+</td><td class='justify'>
+<span class='texttt'>m[0].first</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m.prefix().matched</span>
+</td><td class='justify'>
+<span class='texttt'>m.prefix().first != m.prefix().second</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m.suffix().first</span>
+</td><td class='justify'>
+<span class='texttt'>m[0].second</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m.suffix().second</span>
+</td><td class='justify'>
+<span class='texttt'>last</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m.suffix().matched</span>
+</td><td class='justify'>
+<span class='texttt'>m.suffix().first != m.suffix().second</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m[0].first</span>
+</td><td class='justify'>
+The start of the sequence of characters that matched the regular expression
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m[0].second</span>
+</td><td class='justify'>
+The end of the sequence of characters that matched the regular expression
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m[0].matched</span>
+</td><td class='justify'>
+<span class='texttt'>true</span>
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m[n].first</span>
+</td><td class='justify'>
+For all integers <span class='texttt'>0 &lt; n &lt; m.size()</span>, the start of the sequence that
+matched sub-expression <span class='texttt'>n</span>. Alternatively, if sub-expression <span class='texttt'>n</span>
+did not participate in the match, then <span class='texttt'>last</span>.
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m[n].second</span>
+</td><td class='justify'>
+For all integers <span class='texttt'>0 &lt; n &lt; m.size()</span>, the end of the sequence that matched
+sub-expression <span class='texttt'>n</span>. Alternatively, if sub-expression <span class='texttt'>n</span> did not
+participate in the match, then <span class='texttt'>last</span> .
+</td></tr><tr class='rowsep'><td class='left'> 
+<span class='texttt'>m[n].matched</span>
+</td><td class='justify'>
+For all integers <span class='texttt'>0 &lt; n &lt; m.size()</span>, <span class='texttt'>true</span> if sub-expression <span class='texttt'>n</span>
+participated in the match, <span class='texttt'>false</span> otherwise.
+</td></tr></table></div><p ><span class='indexparent'><a class='index' id='regex_search'></a></span><code class='itemdecl'>
+template &lt;class charT, class Allocator, class traits&gt;
+bool regex_search(const charT* str, match_results&lt;const charT*, Allocator&gt;&amp; m,
+                  const basic_regex&lt;charT, traits&gt;&amp; e,
+                  regex_constants::match_flag_type flags =
+                    regex_constants::match_default);
+</code></p><div class='itemdescr'></div><div class='para' id='search-4'><div class='marginalizedparent'><a class='marginalized' href='#search-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> The result of <span class='texttt'>regex_search(str,
+str + char_traits&lt;charT&gt;::length(str), m, e, flags)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='regex_search'></a></span><code class='itemdecl'>
+template &lt;class ST, class SA, class Allocator, class charT, class traits&gt;
+  bool regex_search(const basic_string&lt;charT, ST, SA&gt;&amp; s,
+                    match_results&lt;
+                      typename basic_string&lt;charT, ST, SA&gt;::const_iterator,
+                      Allocator&gt;&amp; m,
+                    const basic_regex&lt;charT, traits&gt;&amp; e,
+                    regex_constants::match_flag_type flags =
+                      regex_constants::match_default);
+</code></p><div class='itemdescr'></div><div class='para' id='search-5'><div class='marginalizedparent'><a class='marginalized' href='#search-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> The result of <span class='texttt'>regex_search(s.begin(), s.end(), m,
+e, flags)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='regex_search'></a></span><code class='itemdecl'>
+template &lt;class BidirectionalIterator, class charT, class traits&gt;
+  bool regex_search(BidirectionalIterator first, BidirectionalIterator last,
+                    const basic_regex&lt;charT, traits&gt;&amp; e,
+                    regex_constants::match_flag_type flags =
+                      regex_constants::match_default);
+</code></p><div class='itemdescr'></div><div class='para' id='search-6'><div class='marginalizedparent'><a class='marginalized' href='#search-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>  Behaves “as if” by constructing an object <span class='texttt'>what</span>
+of type <span class='texttt'>match_results&lt;BidirectionalIterator&gt;</span>, and then returning
+the result of <span class='texttt'>regex_search(first, last, what, e, flags)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='regex_search'></a></span><code class='itemdecl'>
+template &lt;class charT, class traits&gt;
+  bool regex_search(const charT* str,
+                    const basic_regex&lt;charT, traits&gt;&amp; e,
+                    regex_constants::match_flag_type flags =
+                      regex_constants::match_default);
+</code></p><div class='itemdescr'></div><div class='para' id='search-7'><div class='marginalizedparent'><a class='marginalized' href='#search-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>regex_search(str, str + char_traits&lt;charT&gt;::length(str), e, flags)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='regex_search'></a></span><code class='itemdecl'>
+template &lt;class ST, class SA, class charT, class traits&gt;
+  bool regex_search(const basic_string&lt;charT, ST, SA&gt;&amp; s,
+                    const basic_regex&lt;charT, traits&gt;&amp; e,
+                    regex_constants::match_flag_type flags =
+                      regex_constants::match_default);
+</code></p><div class='itemdescr'></div><div class='para' id='search-8'><div class='marginalizedparent'><a class='marginalized' href='#search-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>regex_search(s.begin(), s.end(), e, flags)</span>.
+</p></div></div></div><div id='replace'><h3 ><a class='secnum' href='#replace' style='min-width:103pt'>28.11.4</a> <span class='texttt'>regex_replace</span> <a class='abbr_ref' href='re.alg.replace'>[re.alg.replace]</a></h3><p ><span class='indexparent'><a class='index' id='regex_replace'></a></span><code class='itemdecl'>
+template &lt;class OutputIterator, class BidirectionalIterator,
+    class traits, class charT, class ST, class SA&gt;
+  OutputIterator
+  regex_replace(OutputIterator out,
+                BidirectionalIterator first, BidirectionalIterator last,
+                const basic_regex&lt;charT, traits&gt;&amp; e,
+                const basic_string&lt;charT, ST, SA&gt;&amp; fmt,
+                regex_constants::match_flag_type flags =
+                  regex_constants::match_default);
+template &lt;class OutputIterator, class BidirectionalIterator,
+    class traits, class charT&gt;
+  OutputIterator
+  regex_replace(OutputIterator out,
+                BidirectionalIterator first, BidirectionalIterator last,
+                const basic_regex&lt;charT, traits&gt;&amp; e,
+                const charT* fmt,
+                regex_constants::match_flag_type flags =
+                  regex_constants::match_default);
+</code></p><div class='itemdescr'></div><div class='para' id='replace-1'><div class='marginalizedparent'><a class='marginalized' href='#replace-1'>1</a></div><div class='itemdescr'><p ><span class='indexparent'><a class='index' id='format_no_copy'></a></span><span class='indexparent'><a class='index' id='format_first_only'></a></span><i>Effects:</i>
+Constructs a <span class='texttt'>regex_iterator</span> object <span class='texttt'>i</span>
+as if by
+</p><pre class='codeblock'>
+regex_iterator&lt;BidirectionalIterator, charT, traits&gt; i(first, last, e, flags)
+</pre><p >and uses <span class='texttt'>i</span> to enumerate through all
+of the matches <span class='texttt'>m</span> of type <span class='texttt'>match_results&lt;BidirectionalIterator&gt;</span>
+that occur within the sequence <span class='texttt'>[first, last)</span>.
+If no such
+matches are found and
+<span class='texttt'>!(flags &amp; regex_constants::format_no_copy)</span>, then calls
+</p><pre class='codeblock'>
+out = copy(first, last, out)
+</pre><p >If any matches are found then, for each such match:
+</p><ul class='itemize'><li id='replace-1.1'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#replace-1.1'>(1.1)</a></div><p >If <span class='texttt'>!(flags &amp; regex_constants::format_no_copy)</span>, calls
+</p><pre class='codeblock'>
+out = copy(m.prefix().first, m.prefix().second, out)
+</pre></li><li id='replace-1.2'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#replace-1.2'>(1.2)</a></div><p >Then calls
+</p><pre class='codeblock'>
+out = m.format(out, fmt, flags)
+</pre><p >for the first form of the function and
+</p><pre class='codeblock'>
+out = m.format(out, fmt, fmt + char_traits&lt;charT&gt;::length(fmt), flags)
+</pre><p >for the second.
+</p></li></ul><p >Finally, if such a match
+is found and <span class='texttt'>!(flags &amp; regex_constants::format_no_copy)</span>,
+calls
+</p><pre class='codeblock'>
+out = copy(last_m.suffix().first, last_m.suffix().second, out)
+</pre><p >where <span class='texttt'>last_m</span> is a copy of the last match
+found. If <span class='texttt'>flags &amp; regex_constants::format_first_only</span>
+is nonzero, then only the first match found is replaced.</p></div></div><div class='para' id='replace-2'><div class='marginalizedparent'><a class='marginalized' href='#replace-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>out</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='regex_replace'></a></span><code class='itemdecl'>
+template &lt;class traits, class charT, class ST, class SA, class FST, class FSA&gt;
+  basic_string&lt;charT, ST, SA&gt;
+  regex_replace(const basic_string&lt;charT, ST, SA&gt;&amp; s,
+                const basic_regex&lt;charT, traits&gt;&amp; e,
+                const basic_string&lt;charT, FST, FSA&gt;&amp; fmt,
+                regex_constants::match_flag_type flags =
+                  regex_constants::match_default);
+template &lt;class traits, class charT, class ST, class SA&gt;
+  basic_string&lt;charT, ST, SA&gt;
+  regex_replace(const basic_string&lt;charT, ST, SA&gt;&amp; s,
+                const basic_regex&lt;charT, traits&gt;&amp; e,
+                const charT* fmt,
+                regex_constants::match_flag_type flags =
+                  regex_constants::match_default);
+</code></p><div class='itemdescr'></div><div class='para' id='replace-3'><div class='marginalizedparent'><a class='marginalized' href='#replace-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>  Constructs an empty string <span class='texttt'>result</span> of
+type <span class='texttt'>basic_string&lt;charT, ST, SA&gt;</span> and calls:
+</p><pre class='codeblock'>
+regex_replace(back_inserter(result), s.begin(), s.end(), e, fmt, flags);
+</pre></div></div><div class='para' id='replace-4'><div class='marginalizedparent'><a class='marginalized' href='#replace-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>result</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='regex_replace'></a></span><code class='itemdecl'>
+template &lt;class traits, class charT, class ST, class SA&gt;
+  basic_string&lt;charT&gt;
+  regex_replace(const charT* s,
+                const basic_regex&lt;charT, traits&gt;&amp; e,
+                const basic_string&lt;charT, ST, SA&gt;&amp; fmt,
+                regex_constants::match_flag_type flags =
+                  regex_constants::match_default);
+template &lt;class traits, class charT&gt;
+  basic_string&lt;charT&gt;
+  regex_replace(const charT* s,
+                const basic_regex&lt;charT, traits&gt;&amp; e,
+                const charT* fmt,
+                regex_constants::match_flag_type flags =
+                  regex_constants::match_default);
+</code></p><div class='itemdescr'></div><div class='para' id='replace-5'><div class='marginalizedparent'><a class='marginalized' href='#replace-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>  Constructs an empty string <span class='texttt'>result</span> of
+type <span class='texttt'>basic_string&lt;charT&gt;</span> and calls:
+</p><pre class='codeblock'>
+regex_replace(back_inserter(result),
+              s, s + char_traits&lt;charT&gt;::length(s), e, fmt, flags);
+</pre></div></div><div class='para' id='replace-6'><div class='marginalizedparent'><a class='marginalized' href='#replace-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>result</span>.
+</p></div></div></div></div></div></body></html>

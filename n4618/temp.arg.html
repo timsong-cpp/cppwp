@@ -1,0 +1,379 @@
+<!DOCTYPE html><html lang='en'><head><title>[temp.arg]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>14</a> Templates <a class='abbr_ref' href='./#temp'>[temp]</a></h1><div id='temp.arg'><h2 ><a class='secnum' style='min-width:88pt'>14.3</a> Template arguments <a class='abbr_ref'>[temp.arg]</a></h2><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='argument,template'></a></span>There are three forms of
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>,
+corresponding to the three forms of
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>:
+type, non-type and template.
+The type and form of each
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+specified in a
+<i ><a href='temp.names#nt:template-id'>template-id</a></i>
+shall match the type and form specified for the corresponding
+parameter declared by the template in its
+<i ><a href='temp#nt:template-parameter-list'>template-parameter-list</a></i>.
+When the parameter declared by the template is a template
+parameter pack (<a href='temp.variadic'>[temp.variadic]</a>), it will correspond to zero or more
+<i ><a href='temp.names#nt:template-argument'>template-arguments</a></i>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T&gt; class Array {
+  T* v;
+  int sz;
+public:
+  explicit Array(int);
+  T&amp; operator[](int);
+  T&amp; elem(int i) { return v[i]; }
+};
+
+Array&lt;int&gt; v1(20);
+typedef std::complex&lt;double&gt; dcomplex;  <span class='comment'>// <span class='texttt'>std::complex</span> is a standard
+</span>                                        <span class='comment'>// library template
+</span>Array&lt;dcomplex&gt; v2(30);
+Array&lt;dcomplex&gt; v3(40);
+
+void bar() {
+  v1[3] = 7;
+  v2[3] = v3.elem(4) = dcomplex(7,8);
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >In a
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>,
+an ambiguity between a
+<i ><a href='dcl.name#nt:type-id'>type-id</a></i>
+and an expression is resolved to a
+<i ><a href='dcl.name#nt:type-id'>type-id</a></i>,
+regardless of the form of the corresponding
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>.<a class='footnotenum' href='#footnote-138'>138</a>
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T&gt; void f();
+template&lt;int I&gt; void f();
+
+void g() {
+  f&lt;int()&gt;();       <span class='comment'>// <span class='texttt'>int()</span> is a type-id: call the first <span class='texttt'>f()</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The name of a
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+shall be accessible at the point where it is used as a
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>.
+[&nbsp;<i>Note:</i>
+If the name of the
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+is accessible at the point where it is used as a
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>,
+there is no further access restriction in the resulting instantiation where the
+corresponding
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+name is used.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T&gt; class X {
+  static T t;
+};
+
+class Y {
+private:
+  struct S { <span class='comment'>/* ... */</span> };
+  X&lt;S&gt; x;           <span class='comment'>// OK: <span class='texttt'>S</span> is accessible
+</span>                    <span class='comment'>// <span class='texttt'>X&lt;Y::S&gt;</span> has a static member of type <span class='texttt'>Y::S</span>
+</span>                    <span class='comment'>// OK: even though <span class='texttt'>Y::S</span> is private
+</span>};
+
+X&lt;Y::S&gt; y;          <span class='comment'>// error: <span class='texttt'>S</span> not accessible
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+For a
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+that is a class type or a class template, the template
+definition has no special access rights to the
+members of the <i ><a href='temp.names#nt:template-argument'>template-argument</a></i>. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template &lt;template &lt;class TT&gt; class T&gt; class A {
+  typename T&lt;int&gt;::S s;
+};
+
+template &lt;class U&gt; class B {
+private:
+  struct S { <span class='comment'>/* ... */</span> };
+};
+
+A&lt;B&gt; b;             <span class='comment'>// ill-formed: <span class='texttt'>A</span> has no access to <span class='texttt'>B::S</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >When template argument packs or default
+<i ><a href='temp.names#nt:template-argument'>template-arguments</a></i>
+are used, a
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+list can be empty.
+In that case the empty
+<span class='texttt'>&lt;&gt;</span>
+brackets shall still be used as the
+<span class='grammarterm'>template-argument-list.</span>
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T = char&gt; class String;
+String&lt;&gt;* p;                    <span class='comment'>// OK: <span class='texttt'>String&lt;char&gt;</span>
+</span>String* q;                      <span class='comment'>// syntax error
+</span>template&lt;class ... Elements&gt; class Tuple;
+Tuple&lt;&gt;* t;                     <span class='comment'>// OK: <span class='texttt'>Elements</span> is empty
+</span>Tuple* u;                       <span class='comment'>// syntax error
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >An explicit destructor call (<a href='class.dtor'>[class.dtor]</a>) for an object that has a type
+that is a class template specialization may explicitly specify the
+<i ><a href='temp.names#nt:template-argument'>template-arguments</a></i>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T&gt; struct A {
+  ~A();
+};
+void f(A&lt;int&gt;* p, A&lt;int&gt;* q) {
+  p-&gt;A&lt;int&gt;::~A();              <span class='comment'>// OK: destructor call
+</span>  q-&gt;A&lt;int&gt;::~A&lt;int&gt;();         <span class='comment'>// OK: destructor call
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >If the use of a
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+gives rise to an ill-formed construct in the instantiation of a
+template specialization, the program is ill-formed.</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >When the template in a
+<i ><a href='temp.names#nt:template-id'>template-id</a></i>
+is an overloaded function template, both non-template functions in the overload
+set and function templates in the overload set for
+which the
+<i ><a href='temp.names#nt:template-argument'>template-arguments</a></i>
+do not match the
+<i ><a href='temp.param#nt:template-parameter'>template-parameters</a></i>
+are ignored.
+If none of the function templates have matching
+<i ><a href='temp.param#nt:template-parameter'>template-parameters</a></i>,
+the program is ill-formed.</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >When a <i ><a href='temp.names#nt:simple-template-id'>simple-template-id</a></i> does not name a function,
+a default <i ><a href='temp.names#nt:template-argument'>template-argument</a></i> is
+implicitly instantiated (<a href='temp.inst'>[temp.inst]</a>)
+when the value of that default argument is needed.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;typename T, typename U = int&gt; struct S { };
+S&lt;bool&gt;* p; <span class='comment'>// the type of <span class='texttt'>p</span> is <span class='texttt'>S&lt;bool, int&gt;*</span>
+</span></pre><p >The default argument for <span class='texttt'>U</span> is instantiated to form the type <span class='texttt'>S&lt;bool, int&gt;*</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >A <i ><a href='temp.names#nt:template-argument'>template-argument</a></i> followed by an ellipsis is
+a pack expansion (<a href='temp.variadic'>[temp.variadic]</a>).</p></div><div class='footnote' id='footnote-138'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-138'>138)</a></div><p >There is no such ambiguity in a default
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+because the form of the
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+determines the allowable forms of the
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>.</p></div><div id='type'><h3 ><a class='secnum' href='#type' style='min-width:103pt'>14.3.1</a> Template type arguments <a class='abbr_ref' href='temp.arg.type'>[temp.arg.type]</a></h3><div class='para' id='type-1'><div class='marginalizedparent'><a class='marginalized' href='#type-1'>1</a></div><p >A
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+for a
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+which is a type
+shall be a
+<i ><a href='dcl.name#nt:type-id'>type-id</a></i>.</p></div><div class='para' id='type-2'><div class='marginalizedparent'><a class='marginalized' href='#type-2'>2</a></div><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template &lt;class T&gt; class X { };
+template &lt;class T&gt; void f(T t) { }
+struct { } unnamed_obj;
+
+void f() {
+  struct A { };
+  enum { e1 };
+  typedef struct { } B;
+  B b;
+  X&lt;A&gt; x1;          <span class='comment'>// OK
+</span>  X&lt;A*&gt; x2;         <span class='comment'>// OK
+</span>  X&lt;B&gt; x3;          <span class='comment'>// OK
+</span>  f(e1);            <span class='comment'>// OK
+</span>  f(unnamed_obj);   <span class='comment'>// OK
+</span>  f(b);             <span class='comment'>// OK
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+A template type argument may be an incomplete type (<a href='basic.types'>[basic.types]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='nontype'><h3 ><a class='secnum' href='#nontype' style='min-width:103pt'>14.3.2</a> Template non-type arguments <a class='abbr_ref' href='temp.arg.nontype'>[temp.arg.nontype]</a></h3><div class='para' id='nontype-1'><div class='marginalizedparent'><a class='marginalized' href='#nontype-1'>1</a></div><p >If the type of a <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+contains a placeholder type (<a href='dcl.spec.auto'>[dcl.spec.auto]</a>, <a href='temp.param'>[temp.param]</a>),
+the deduced parameter type is determined
+from the type of the <i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+by placeholder type deduction (<a href='dcl.type.auto.deduct'>[dcl.type.auto.deduct]</a>).
+If a deduced parameter type is not permitted
+for a <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i> declaration (<a href='temp.param'>[temp.param]</a>),
+the program is ill-formed.</p></div><div class='para' id='nontype-2'><div class='marginalizedparent'><a class='marginalized' href='#nontype-2'>2</a></div><p >A
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+for a non-type
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+shall be
+a converted
+constant expression (<a href='expr.const'>[expr.const]</a>)
+of the type of the <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>.
+For a non-type <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i> of reference or pointer type,
+the value of the constant expression shall not refer to
+(or for a pointer type, shall not be the address of):</p><ul class='itemize'><li id='nontype-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#nontype-2.1'>(2.1)</a></div><p >a subobject (<a href='intro.object'>[intro.object]</a>),
+</p></li><li id='nontype-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#nontype-2.2'>(2.2)</a></div><p >a temporary object (<a href='class.temporary'>[class.temporary]</a>),
+</p></li><li id='nontype-2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#nontype-2.3'>(2.3)</a></div><p >a string literal (<a href='lex.string'>[lex.string]</a>),
+</p></li><li id='nontype-2.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#nontype-2.4'>(2.4)</a></div><p >the result of a <span class='texttt'>typeid</span> expression (<a href='expr.typeid'>[expr.typeid]</a>), or
+</p></li><li id='nontype-2.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#nontype-2.5'>(2.5)</a></div><p >a predefined <span class='texttt'>__func__</span> variable (<a href='dcl.fct.def.general'>[dcl.fct.def.general]</a>).
+</p></li></ul><p >[&nbsp;<i>Note:</i>
+If the <i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+represents a set of overloaded functions
+(or a pointer or member pointer to such),
+the matching function is selected from the set (<a href='over.over'>[over.over]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='nontype-3'><div class='marginalizedparent'><a class='marginalized' href='#nontype-3'>3</a></div><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;const int* pci&gt; struct X { <span class='comment'>/* ... */</span> };
+int ai[10];
+X&lt;ai&gt; xi;                       <span class='comment'>// array to pointer and qualification conversions
+</span>
+struct Y { <span class='comment'>/* ... */</span> };
+template&lt;const Y&amp; b&gt; struct Z { <span class='comment'>/* ... */</span> };
+Y y;
+Z&lt;y&gt; z;                         <span class='comment'>// no conversion, but note extra cv-qualification
+</span>
+template&lt;int (&amp;pa)[5]&gt; struct W { <span class='comment'>/* ... */</span> };
+int b[5];
+W&lt;b&gt; w;                         <span class='comment'>// no conversion
+</span>
+void f(char);
+void f(int);
+
+template&lt;void (*pf)(int)&gt; struct A { <span class='comment'>/* ... */</span> };
+
+A&lt;&amp;f&gt; a;                        <span class='comment'>// selects <span class='texttt'>f(int)</span>
+</span>
+template&lt;auto n&gt; struct B { <span class='comment'>/* ... */</span> };
+B&lt;5&gt; b1;   <span class='comment'>// OK: template parameter type is <span class='texttt'>int</span>
+</span>B&lt;'a'&gt; b2; <span class='comment'>// OK: template parameter type is <span class='texttt'>char</span>
+</span>B&lt;2.5&gt; b3; <span class='comment'>// error: template parameter type cannot be <span class='texttt'>double</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='nontype-4'><div class='marginalizedparent'><a class='marginalized' href='#nontype-4'>4</a></div><p >[&nbsp;<i>Note:</i>
+A string literal (<a href='lex.string'>[lex.string]</a>)
+is not an acceptable
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T, const char* p&gt; class X {
+  <span class='comment'>/* ... */</span>
+};
+
+X&lt;int, "Studebaker"&gt; x1;        <span class='comment'>// error: string literal as template-argument
+</span>
+const char p[] = "Vivisectionist";
+X&lt;int,p&gt; x2;                    <span class='comment'>// OK
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='nontype-5'><div class='marginalizedparent'><a class='marginalized' href='#nontype-5'>5</a></div><p >[&nbsp;<i>Note:</i>
+The address of an array element or non-static data member is not an acceptable
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;int* p&gt; class X { };
+
+int a[10];
+struct S { int m; static int s; } s;
+
+X&lt;&amp;a[2]&gt; x3;                    <span class='comment'>// error: address of array element
+</span>X&lt;&amp;s.m&gt; x4;                     <span class='comment'>// error: address of non-static member
+</span>X&lt;&amp;s.s&gt; x5;                     <span class='comment'>// OK: address of static member
+</span>X&lt;&amp;S::s&gt; x6;                    <span class='comment'>// OK: address of static member
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='nontype-6'><div class='marginalizedparent'><a class='marginalized' href='#nontype-6'>6</a></div><p >[&nbsp;<i>Note:</i>
+A temporary object
+is not an acceptable
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+when the corresponding
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+has reference type.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;const int&amp; CRI&gt; struct B { <span class='comment'>/* ... */</span> };
+
+B&lt;1&gt; b2;                        <span class='comment'>// error: temporary would be required for template argument
+</span>
+int c = 1;
+B&lt;c&gt; b1;                        <span class='comment'>// OK
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='template'><h3 ><a class='secnum' href='#template' style='min-width:103pt'>14.3.3</a> Template template arguments <a class='abbr_ref' href='temp.arg.template'>[temp.arg.template]</a></h3><div class='para' id='template-1'><div class='marginalizedparent'><a class='marginalized' href='#template-1'>1</a></div><p >A
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+for a template
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+shall be the name of a class template or an alias template, expressed as
+<i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i>.
+When the <i ><a href='temp.names#nt:template-argument'>template-argument</a></i> names a class
+template, only primary class templates are considered when matching the template template
+argument with the corresponding parameter; partial specializations are not
+considered even if their parameter lists match that of the template template
+parameter.</p></div><div class='para' id='template-2'><div class='marginalizedparent'><a class='marginalized' href='#template-2'>2</a></div><p >Any partial specializations (<a href='temp.class.spec'>[temp.class.spec]</a>) associated with the
+primary class template or primary variable template are considered when a
+specialization based on the template
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+is instantiated.
+If a specialization is not visible at the point of instantiation,
+and it would have been selected had it been visible, the program is ill-formed;
+no diagnostic is required.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T&gt; class A {     <span class='comment'>// primary template
+</span>  int x;
+};
+template&lt;class T&gt; class A&lt;T*&gt; { <span class='comment'>// partial specialization
+</span>  long x;
+};
+template&lt;template&lt;class U&gt; class V&gt; class C {
+  V&lt;int&gt;  y;
+  V&lt;int*&gt; z;
+};
+C&lt;A&gt; c;                         <span class='comment'>// <span class='texttt'>V&lt;int&gt;</span> within <span class='texttt'>C&lt;A&gt;</span> uses the primary template,
+</span>                                <span class='comment'>// so <span class='texttt'>c.y.x</span> has type <span class='texttt'>int</span>
+</span>                                <span class='comment'>// <span class='texttt'>V&lt;int*&gt;</span> within <span class='texttt'>C&lt;A&gt;</span> uses the partial specialization,
+</span>                                <span class='comment'>// so <span class='texttt'>c.z.x</span> has type <span class='texttt'>long</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='template-3'><div class='marginalizedparent'><a class='marginalized' href='#template-3'>3</a></div><p >A <i ><a href='temp.names#nt:template-argument'>template-argument</a></i> matches a template
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i> <span class='texttt'>P</span> when
+<span class='texttt'>P</span> is at least as specialized as the <i ><a href='temp.names#nt:template-argument'>template-argument</a></i> <span class='texttt'>A</span>.
+If <span class='texttt'>P</span> contains a parameter pack, then <span class='texttt'>A</span> also matches <span class='texttt'>P</span>
+if each of <span class='texttt'>A</span>'s template parameters
+matches the corresponding template parameter in the
+<i ><a href='temp#nt:template-parameter-list'>template-parameter-list</a></i> of <span class='texttt'>P</span>. 
+Two template parameters match if they are of the same kind (type, non-type, template),
+for non-type <i ><a href='temp.param#nt:template-parameter'>template-parameters</a></i>, their types are
+equivalent (<a href='temp.over.link'>[temp.over.link]</a>), and for template <i ><a href='temp.param#nt:template-parameter'>template-parameters</a></i>,
+each of their corresponding <i ><a href='temp.param#nt:template-parameter'>template-parameters</a></i> matches, recursively.
+When <span class='texttt'>P</span>'s <i ><a href='temp#nt:template-parameter-list'>template-parameter-list</a></i> contains a template parameter
+pack (<a href='temp.variadic'>[temp.variadic]</a>), the template parameter pack will match zero or more template
+parameters or template parameter packs in the <i ><a href='temp#nt:template-parameter-list'>template-parameter-list</a></i> of
+<span class='texttt'>A</span> with the same type and form as the template parameter pack in <span class='texttt'>P</span>
+(ignoring whether those template parameters are template parameter packs).</p><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;class T&gt; class A { <span class='comment'>/* ... */</span> };
+template&lt;class T, class U = T&gt; class B { <span class='comment'>/* ... */</span> };
+template&lt;class ... Types&gt; class C { <span class='comment'>/* ... */</span> };
+template&lt;auto n&gt; class D { <span class='comment'>/* ... */</span> };
+template&lt;template&lt;class&gt; class P&gt; class X { <span class='comment'>/* ... */</span> };
+template&lt;template&lt;class ...&gt; class Q&gt; class Y { <span class='comment'>/* ... */</span> };
+template&lt;template&lt;int&gt; class R&gt; class Z { <span class='comment'>/* ... */</span> };
+
+X&lt;A&gt; xa;            <span class='comment'>// OK
+</span>X&lt;B&gt; xb;            <span class='comment'>// OK
+</span>X&lt;C&gt; xc;            <span class='comment'>// OK
+</span>Y&lt;A&gt; ya;            <span class='comment'>// OK
+</span>Y&lt;B&gt; yb;            <span class='comment'>// OK
+</span>Y&lt;C&gt; yc;            <span class='comment'>// OK
+</span>Z&lt;D&gt; zd;            <span class='comment'>// OK
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template &lt;class T&gt; struct eval;
+
+template &lt;template &lt;class, class...&gt; class TT, class T1, class... Rest&gt;
+struct eval&lt;TT&lt;T1, Rest...&gt;&gt; { };
+
+template &lt;class T1&gt; struct A;
+template &lt;class T1, class T2&gt; struct B;
+template &lt;int N&gt; struct C;
+template &lt;class T1, int N&gt; struct D;
+template &lt;class T1, class T2, int N = 17&gt; struct E;
+
+eval&lt;A&lt;int&gt;&gt; eA;                <span class='comment'>// OK: matches partial specialization of <span class='texttt'>eval</span>
+</span>eval&lt;B&lt;int, float&gt;&gt; eB;         <span class='comment'>// OK: matches partial specialization of <span class='texttt'>eval</span>
+</span>eval&lt;C&lt;17&gt;&gt; eC;                 <span class='comment'>// error: <span class='texttt'>C</span> does not match <span class='texttt'>TT</span> in partial specialization
+</span>eval&lt;D&lt;int, 17&gt;&gt; eD;            <span class='comment'>// error: <span class='texttt'>D</span> does not match <span class='texttt'>TT</span> in partial specialization
+</span>eval&lt;E&lt;int, float&gt;&gt; eE;         <span class='comment'>// error: <span class='texttt'>E</span> does not match <span class='texttt'>TT</span> in partial specialization
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='template-4'><div class='marginalizedparent'><a class='marginalized' href='#template-4'>4</a></div><p >A template <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i> <span class='texttt'>P</span> is
+at least as specialized as a template <i ><a href='temp.names#nt:template-argument'>template-argument</a></i> <span class='texttt'>A</span>
+if, given the following rewrite to two function templates,
+the function template corresponding to <span class='texttt'>P</span>
+is at least as specialized as
+the function template corresponding to <span class='texttt'>A</span>
+according to the partial ordering rules
+for function templates (<a href='temp.func.order'>[temp.func.order]</a>).
+Given an invented class template <span class='texttt'>X</span>
+with the template parameter list of <span class='texttt'>A</span> (including default arguments):</p><ul class='itemize'><li id='template-4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#template-4.1'>(4.1)</a></div><p >Each of the two function templates has the same template parameters,
+respectively, as <span class='texttt'>P</span> or <span class='texttt'>A</span>.
+</p></li><li id='template-4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#template-4.2'>(4.2)</a></div><p >Each function template has a single function parameter
+whose type is a specialization of <span class='texttt'>X</span>
+with template arguments corresponding to the template parameters
+from the respective function template where,
+for each template parameter <span class='texttt'>PP</span>
+in the template parameter list of the function template,
+a corresponding template argument <span class='texttt'>AA</span> is formed.
+If <span class='texttt'>PP</span> declares a parameter pack,
+then <span class='texttt'>AA</span> is the pack expansion <span class='texttt'>PP...</span> (<a href='temp.variadic'>[temp.variadic]</a>);
+otherwise, <span class='texttt'>AA</span> is the <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i> <span class='texttt'>PP</span>.
+</p></li></ul><p >If the rewrite produces an invalid type,
+then <span class='texttt'>P</span> is not at least as specialized as <span class='texttt'>A</span>.</p></div></div></div></div></body></html>

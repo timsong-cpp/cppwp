@@ -1,0 +1,328 @@
+<!DOCTYPE html><html lang='en'><head><title>[dcl.init.aggr]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>8</a> Declarators <a class='abbr_ref' href='./#dcl.decl'>[dcl.decl]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>8.6</a> Initializers <a class='abbr_ref' href='dcl.init#aggr'>[dcl.init]</a></h2><div id='dcl.init.aggr'><h3 ><a class='secnum' style='min-width:103pt'>8.6.1</a> Aggregates <a class='abbr_ref'>[dcl.init.aggr]</a></h3><p ><span class='indexparent'><a class='index' id='aggregate'></a></span><span class='indexparent'><a class='index' id='initialization,aggregate'></a></span><span class='indexparent'><a class='index' id='aggregate_initialization'></a></span><span class='indexparent'><a class='index' id='initialization,array'></a></span><span class='indexparent'><a class='index' id='initialization,class_object'></a></span><span class='indexparent'><a class='index' id='class_object_initialization'></a></span><span class='indexparent'><a class='index' id='{},initializer_list'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >An <a class='hidden_link' href='#def:aggregate' id='def:aggregate'><i>aggregate</i></a> is an array or a class (Clause <a href='class'>[class]</a>) with
+</p><ul class='itemize'><li id='1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.1'>(1.1)</a></div><p >no user-provided, <span class='texttt'>explicit</span>, or inherited constructors (<a href='class.ctor'>[class.ctor]</a>),
+</p></li><li id='1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.2'>(1.2)</a></div><p >no private or protected non-static data members (Clause <a href='class.access'>[class.access]</a>),
+</p></li><li id='1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.3'>(1.3)</a></div><p >no virtual functions (<a href='class.virtual'>[class.virtual]</a>), and
+</p></li><li id='1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.4'>(1.4)</a></div><p >no virtual, private, or protected base classes (<a href='class.mi'>[class.mi]</a>).
+</p></li></ul><p >[&nbsp;<i>Note:</i>
+Aggregate initialization does not allow accessing
+protected and private base class' members or constructors.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='indexparent'><a class='index' id='aggregate,elements'></a></span>The <a class='hidden_link' href='#def:elements' id='def:elements'><i>elements</i></a> of an aggregate are:
+</p><ul class='itemize'><li id='2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.1'>(2.1)</a></div><p >for an array, the array elements in increasing subscript order, or
+</p></li><li id='2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.2'>(2.2)</a></div><p >for a class, the direct base classes in declaration order
+followed by the direct non-static data members in declaration order.
+</p></li></ul></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >When an aggregate is initialized by an initializer list
+as specified in <a href='dcl.init.list'>[dcl.init.list]</a>,
+the elements of the initializer list are taken as initializers
+for the elements of the aggregate, in order.
+Each element is copy-initialized
+from the corresponding <i ><a href='dcl.init#nt:initializer-clause'>initializer-clause</a></i>.
+If the <i ><a href='dcl.init#nt:initializer-clause'>initializer-clause</a></i> is an expression and
+a narrowing conversion (<a href='dcl.init.list'>[dcl.init.list]</a>) is required
+to convert the expression, the program is ill-formed.
+[&nbsp;<i>Note:</i> If an <i ><a href='dcl.init#nt:initializer-clause'>initializer-clause</a></i> is itself an initializer list,
+the element is list-initialized, which will result in a recursive application
+of the rules in this section if the element is an aggregate. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct A {
+  int x;
+  struct B {
+    int i;
+    int j;
+  } b;
+} a = { 1, { 2, 3 } };
+</pre><p >initializes
+<span class='texttt'>a.x</span>
+with 1,
+<span class='texttt'>a.b.i</span>
+with 2,
+<span class='texttt'>a.b.j</span>
+with 3.</p><pre class='codeblock'>
+struct base1 { int b1, b2 = 42; };
+struct base2 {
+  base2() {
+    b3 = 42;
+  }
+  int b3;
+};
+struct derived : base1, base2 {
+  int d;
+};
+
+derived d1{{1, 2}, {}, 4};
+derived d2{{}, {}, 4};
+</pre><p >initializes
+<span class='texttt'>d1.b1</span> with 1,
+<span class='texttt'>d1.b2</span> with 2,
+<span class='texttt'>d1.b3</span> with 42,
+<span class='texttt'>d1.d</span> with 4, and
+<span class='texttt'>d2.b1</span> with 0,
+<span class='texttt'>d2.b2</span> with 42,
+<span class='texttt'>d2.b3</span> with 42,
+<span class='texttt'>d2.d</span> with 4.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >An aggregate that is a class can also be initialized with a single
+expression not enclosed in braces, as described in <a href='dcl.init'>[dcl.init]</a>.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >An array of unknown size initialized with a
+brace-enclosed
+<i ><a href='dcl.init#nt:initializer-list'>initializer-list</a></i>
+containing
+<span class='texttt'>n</span>
+<i ><a href='dcl.init#nt:initializer-clause'>initializer-clauses</a></i>,
+where
+<span class='texttt'>n</span>
+shall be greater than zero, is defined as having
+<span class='texttt'>n</span>
+elements (<a href='dcl.array'>[dcl.array]</a>).
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+int x[] = { 1, 3, 5 };
+</pre><p >declares and initializes
+<span class='texttt'>x</span>
+as a one-dimensional array that has three elements
+since no size was specified and there are three initializers.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]
+An empty initializer list
+<span class='texttt'>{}</span>
+shall not be used as the <i ><a href='dcl.init#nt:initializer-clause'>initializer-clause</a></i>
+for an array of unknown bound.<a class='footnotenum' href='#footnote-105'>105</a></p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >[&nbsp;<i>Note:</i>
+Static data members and unnamed bit-fields are not considered
+elements of the aggregate for purposes of aggregate initialization.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct A {
+  int i;
+  static int s;
+  int j;
+  int :17;
+  int k;
+} a = { 1, 2, 3 };
+</pre><p >Here, the second initializer 2 initializes
+<span class='texttt'>a.j</span>
+and not the static data member
+<span class='texttt'>A::s</span>, and the third initializer 3 initializes <span class='texttt'>a.k</span>
+and not the unnamed bit-field before it.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >An
+<i ><a href='dcl.init#nt:initializer-list'>initializer-list</a></i>
+is ill-formed if the number of
+<i ><a href='dcl.init#nt:initializer-clause'>initializer-clauses</a></i> 
+exceeds the number of elements to initialize.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+char cv[4] = { 'a', 's', 'd', 'f', 0 };     <span class='comment'>// error
+</span></pre><p >is ill-formed.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >If there are fewer <i ><a href='dcl.init#nt:initializer-clause'>initializer-clauses</a></i> in the list than there
+are elements in the aggregate, then each element not explicitly initialized
+shall be initialized from its default member initializer (<a href='class.mem'>[class.mem]</a>) or,
+if there is no default member initializer, from an empty
+initializer list (<a href='dcl.init.list'>[dcl.init.list]</a>).
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct S { int a; const char* b; int c; int d = b[a]; };
+S ss = { 1, "asdf" };
+</pre><p >initializes
+<span class='texttt'>ss.a</span>
+with 1,
+<span class='texttt'>ss.b</span>
+with <span class='texttt'>"asdf"</span>,
+<span class='texttt'>ss.c</span>
+with the value of an expression of the form
+<span class='texttt'>int{}</span>
+(that is, <span class='texttt'>0</span>), and <span class='texttt'>ss.d</span> with the value of <span class='texttt'>ss.b[ss.a]</span>
+(that is, <span class='texttt'>'s'</span>), and in</p><pre class='codeblock'>
+struct X { int i, j, k = 42; };
+X a[] = { 1, 2, 3, 4, 5, 6 };
+X b[2] = { { 1, 2, 3 }, { 4, 5, 6 } };
+</pre><p ><span class='texttt'>a</span> and <span class='texttt'>b</span> have the same value
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >If a reference member is initialized from its default member initializer
+and a potentially-evaluated subexpression thereof is an aggregate
+initialization that would use that default member initializer,
+the program is ill-formed.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+  struct A;
+  extern A a;
+  struct A {
+    const A&amp; a1 { A{a,a} };   <span class='comment'>// OK
+</span>    const A&amp; a2 { A{} };      <span class='comment'>// error
+</span>  };
+  A a{a,a};                   <span class='comment'>// OK
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >If an aggregate class <span class='texttt'>C</span> contains a subaggregate element
+<span class='texttt'>e</span> that has no elements for purposes of aggregate initialization,
+the <i ><a href='dcl.init#nt:initializer-clause'>initializer-clause</a></i> for <span class='texttt'>e</span> shall not be
+omitted from an <i ><a href='dcl.init#nt:initializer-list'>initializer-list</a></i> for an object of type
+<span class='texttt'>C</span> unless the <i ><a href='dcl.init#nt:initializer-clause'>initializer-clauses</a></i> for all
+elements of <span class='texttt'>C</span> following <span class='texttt'>e</span> are also omitted.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct S { } s;
+struct A {
+  S s1;
+  int i1;
+  S s2;
+  int i2;
+  S s3;
+  int i3;
+} a = {
+  { },      <span class='comment'>// Required initialization
+</span>  0,
+  s,        <span class='comment'>// Required initialization
+</span>  0
+};          <span class='comment'>// Initialization not required for <span class='texttt'>A::s3</span> because <span class='texttt'>A::i3</span> is also not initialized
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><p >If an incomplete or empty
+<i ><a href='dcl.init#nt:initializer-list'>initializer-list</a></i>
+leaves a member of reference type uninitialized, the program is ill-formed.</p></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><p >When initializing a multi-dimensional array,
+the
+<i ><a href='dcl.init#nt:initializer-clause'>initializer-clauses</a></i>
+initialize the elements with the last (rightmost) index of the array
+varying the fastest (<a href='dcl.array'>[dcl.array]</a>).
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+int x[2][2] = { 3, 1, 4, 2 };
+</pre><p >initializes
+<span class='texttt'>x[0][0]</span>
+to
+<span class='texttt'>3</span>,
+<span class='texttt'>x[0][1]</span>
+to
+<span class='texttt'>1</span>,
+<span class='texttt'>x[1][0]</span>
+to
+<span class='texttt'>4</span>,
+and
+<span class='texttt'>x[1][1]</span>
+to
+<span class='texttt'>2</span>.
+On the other hand,</p><pre class='codeblock'>
+float y[4][3] = {
+  { 1 }, { 2 }, { 3 }, { 4 }
+};
+</pre><p >initializes the first column of
+<span class='texttt'>y</span>
+(regarded as a two-dimensional array)
+and leaves the rest zero.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><p >Braces can be elided in an
+<i ><a href='dcl.init#nt:initializer-list'>initializer-list</a></i>
+as follows.
+If the
+<i ><a href='dcl.init#nt:initializer-list'>initializer-list</a></i>
+begins with a left brace,
+then the succeeding comma-separated list of
+<i ><a href='dcl.init#nt:initializer-clause'>initializer-clauses</a></i>
+initializes the elements of a subaggregate;
+it is erroneous for there to be more
+<i ><a href='dcl.init#nt:initializer-clause'>initializer-clauses</a></i>
+than elements.
+If, however, the
+<i ><a href='dcl.init#nt:initializer-list'>initializer-list</a></i>
+for a subaggregate does not begin with a left brace,
+then only enough
+<i ><a href='dcl.init#nt:initializer-clause'>initializer-clauses</a></i>
+from the list are taken to initialize the elements of the subaggregate;
+any remaining
+<i ><a href='dcl.init#nt:initializer-clause'>initializer-clauses</a></i>
+are left to initialize the next element of the aggregate
+of which the current subaggregate is an element.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+float y[4][3] = {
+  { 1, 3, 5 },
+  { 2, 4, 6 },
+  { 3, 5, 7 },
+};
+</pre><p >is a completely-braced initialization:
+1, 3, and 5 initialize the first row of the array
+<span class='texttt'>y[0]</span>,
+namely
+<span class='texttt'>y[0][0]</span>,
+<span class='texttt'>y[0][1]</span>,
+and
+<span class='texttt'>y[0][2]</span>.
+Likewise the next two lines initialize
+<span class='texttt'>y[1]</span>
+and
+<span class='texttt'>y[2]</span>.
+The initializer ends early and therefore
+<span class='texttt'>y[3]</span>s
+elements are initialized as if explicitly initialized with an
+expression of the form
+<span class='texttt'>float()</span>,
+that is, are initialized with
+<span class='texttt'>0.0</span>.
+In the following example, braces in the
+<i ><a href='dcl.init#nt:initializer-list'>initializer-list</a></i>
+are elided;
+however the
+<i ><a href='dcl.init#nt:initializer-list'>initializer-list</a></i>
+has the same effect as the completely-braced
+<i ><a href='dcl.init#nt:initializer-list'>initializer-list</a></i>
+of the above example,</p><pre class='codeblock'>
+float y[4][3] = {
+  1, 3, 5, 2, 4, 6, 3, 5, 7
+};
+</pre><p >The initializer for
+<span class='texttt'>y</span>
+begins with a left brace, but the one for
+<span class='texttt'>y[0]</span>
+does not,
+therefore three elements from the list are used.
+Likewise the next three are taken successively for
+<span class='texttt'>y[1]</span>
+and
+<span class='texttt'>y[2]</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><p >All implicit type conversions (Clause <a href='conv'>[conv]</a>) are considered when
+initializing the element with an <i ><a href='expr.ass#nt:assignment-expression'>assignment-expression</a></i>.
+If the
+<i ><a href='expr.ass#nt:assignment-expression'>assignment-expression</a></i>
+can initialize an element, the element is initialized.
+Otherwise, if the element is itself a subaggregate,
+brace elision is assumed and the
+<i ><a href='expr.ass#nt:assignment-expression'>assignment-expression</a></i>
+is considered for the initialization of the first element of the subaggregate.
+[&nbsp;<i>Note:</i> As specified above, brace elision cannot apply to
+subaggregates with no elements for purposes of aggregate initialization; an
+<i ><a href='dcl.init#nt:initializer-clause'>initializer-clause</a></i> for the entire subobject is
+required.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct A {
+  int i;
+  operator int();
+};
+struct B {
+  A a1, a2;
+  int z;
+};
+A a;
+B b = { 4, a, a };
+</pre><p >Braces are elided around the
+<i ><a href='dcl.init#nt:initializer-clause'>initializer-clause</a></i>
+for
+<span class='texttt'>b.a1.i</span>.
+<span class='texttt'>b.a1.i</span>
+is initialized with 4,
+<span class='texttt'>b.a2</span>
+is initialized with
+<span class='texttt'>a</span>,
+<span class='texttt'>b.z</span>
+is initialized with whatever
+<span class='texttt'>a.operator int()</span>
+returns.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><p ><span class='indexparent'><a class='index' id='initialization,array_of_class_objects'></a></span>[&nbsp;<i>Note:</i>
+An aggregate array or an aggregate class may contain elements of a
+class type with a user-provided constructor (<a href='class.ctor'>[class.ctor]</a>).
+Initialization of these aggregate objects is described in <a href='class.expl.init'>[class.expl.init]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='16'><div class='marginalizedparent'><a class='marginalized' href='#16'>16</a></div><p >[&nbsp;<i>Note:</i>
+Whether the initialization of aggregates with static storage duration
+is static or dynamic is specified
+in <a href='basic.start.static'>[basic.start.static]</a>, <a href='basic.start.dynamic'>[basic.start.dynamic]</a>, and <a href='stmt.dcl'>[stmt.dcl]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='17'><div class='marginalizedparent'><a class='marginalized' href='#17'>17</a></div><p ><span class='indexparent'><a class='index' id='initialization,union'></a></span>When a union is initialized with a brace-enclosed initializer,
+the braces shall only contain an
+<i ><a href='dcl.init#nt:initializer-clause'>initializer-clause</a></i>
+for the first non-static data member of the union.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+union u { int a; const char* b; };
+u a = { 1 };
+u b = a;
+u c = 1;                        <span class='comment'>// error
+</span>u d = { 0, "asdf" };            <span class='comment'>// error
+</span>u e = { "asdf" };               <span class='comment'>// error
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='18'><div class='marginalizedparent'><a class='marginalized' href='#18'>18</a></div><p >[&nbsp;<i>Note:</i>
+As described above,
+the braces around the
+<i ><a href='dcl.init#nt:initializer-clause'>initializer-clause</a></i>
+for a union member can be omitted if the
+union is a member of another aggregate.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-105'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-105'>105)</a></div><p >The syntax provides for empty
+<i ><a href='dcl.init#nt:initializer-list'>initializer-lists</a></i>,
+but nonetheless C++ does not have zero length arrays.</p></div></div></div></body></html>

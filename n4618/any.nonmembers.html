@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang='en'><head><title>[any.nonmembers]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.8</a> Storage for any type <a class='abbr_ref' href='any#nonmembers'>[any]</a></h2><div id='any.nonmembers'><h3 ><a class='secnum' style='min-width:103pt'>20.8.4</a> Non-member functions <a class='abbr_ref'>[any.nonmembers]</a></h3><p ><span class='indexparent'><a class='index' id='swap,any'></a></span><code class='itemdecl'>
+void swap(any&amp; x, any&amp; y) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+As if by <span class='texttt'>x.swap(y)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='make_any'></a></span><code class='itemdecl'>
+template &lt;class T, class... Args&gt;
+  any make_any(Args&amp;&amp; ...args);
+</code></p><div class='itemdescr'></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return any(in_place_type&lt;T&gt;, std::forward&lt;Args&gt;(args)...);</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='make_any'></a></span><code class='itemdecl'>
+template &lt;class T, class U, class... Args&gt;
+  any make_any(initializer_list&lt;U&gt; il, Args&amp;&amp; ...args);
+</code></p><div class='itemdescr'></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return any(in_place_type&lt;T&gt;, il, std::forward&lt;Args&gt;(args)...);</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='any_cast'></a></span><code class='itemdecl'>
+template&lt;class ValueType&gt;
+  ValueType any_cast(const any&amp; operand);
+template&lt;class ValueType&gt;
+  ValueType any_cast(any&amp; operand);
+template&lt;class ValueType&gt;
+  ValueType any_cast(any&amp;&amp; operand);
+</code></p><div class='itemdescr'></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>is_reference_v&lt;ValueType&gt;</span> is <span class='texttt'>true</span> or <span class='texttt'>is_copy_constructible_v&lt;ValueType&gt;</span> is <span class='texttt'>true</span>.
+Otherwise the program is ill-formed.</p></div></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+For the first form, <span class='texttt'>*any_cast&lt;add_const_t&lt;remove_reference_t&lt;ValueType&gt;&gt;&gt;(&amp;operand)</span>.
+For the second and third forms, <span class='texttt'>*any_cast&lt;remove_reference_t&lt;ValueType&gt;&gt;(&amp;operand)</span>.</p></div></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><i>Throws:</i>
+<span class='texttt'>bad_any_cast</span> if <span class='texttt'>operand.type() != typeid(remove_reference_t&lt;ValueType&gt;)</span>.</p></div></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+any x(5);                                   <span class='comment'>// <span class='texttt'>x</span> holds <span class='texttt'>int</span>
+</span>assert(any_cast&lt;int&gt;(x) == 5);              <span class='comment'>// cast to value
+</span>any_cast&lt;int&amp;&gt;(x) = 10;                     <span class='comment'>// cast to reference
+</span>assert(any_cast&lt;int&gt;(x) == 10);
+
+x = "Meow";                                 <span class='comment'>// <span class='texttt'>x</span> holds <span class='texttt'>const char*</span>
+</span>assert(strcmp(any_cast&lt;const char*&gt;(x), "Meow") == 0);
+any_cast&lt;const char*&amp;&gt;(x) = "Harry";
+assert(strcmp(any_cast&lt;const char*&gt;(x), "Harry") == 0);
+
+x = string("Meow");                         <span class='comment'>// <span class='texttt'>x</span> holds <span class='texttt'>string</span>
+</span>string s, s2("Jane");
+s = move(any_cast&lt;string&amp;&gt;(x));             <span class='comment'>// move from <span class='texttt'>any</span>
+</span>assert(s == "Meow");
+any_cast&lt;string&amp;&gt;(x) = move(s2);            <span class='comment'>// move to <span class='texttt'>any</span>
+</span>assert(any_cast&lt;const string&amp;&gt;(x) == "Jane");
+
+string cat("Meow");
+const any y(cat);                           <span class='comment'>// <span class='texttt'>const y</span> holds <span class='texttt'>string</span>
+</span>assert(any_cast&lt;const string&amp;&gt;(y) == cat);
+
+any_cast&lt;string&amp;&gt;(y);                       <span class='comment'>// error; cannot
+</span>                                            <span class='comment'>// <span class='texttt'>any_cast</span> away const
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='any_cast'></a></span><code class='itemdecl'>
+template&lt;class ValueType&gt;
+  const ValueType* any_cast(const any* operand) noexcept;
+template&lt;class ValueType&gt;
+  ValueType* any_cast(any* operand) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If <span class='texttt'>operand != nullptr &amp;&amp; operand-&gt;type() == typeid(ValueType)</span>,
+a pointer to the object contained by <span class='texttt'>operand</span>;
+otherwise, <span class='texttt'>nullptr</span>.</p></div></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+bool is_string(const any&amp; operand) {
+  return any_cast&lt;string&gt;(&amp;operand) != nullptr;
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div></div></div></body></html>

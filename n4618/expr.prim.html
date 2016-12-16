@@ -1,0 +1,746 @@
+<!DOCTYPE html><html lang='en'><head><title>[expr.prim]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>5</a> Expressions <a class='abbr_ref' href='./#expr'>[expr]</a></h1><div id='expr.prim'><h2 ><a class='secnum' style='min-width:88pt'>5.1</a> Primary expressions <a class='abbr_ref'>[expr.prim]</a></h2><p ><span class='indexparent'><a class='index' id='expression,primary'></a></span></p><pre class='bnf'><a id='nt:primary-expression'>primary-expression:</a>
+    <i ><a href='lex.literal.kinds#nt:literal'>literal</a></i>
+    <span class='terminal'>this</span>
+    <span class='terminal'>(</span> <i ><a href='expr.comma#nt:expression'>expression</a></i> <span class='terminal'>)</span>
+    <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i>
+    <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i>
+    <i ><a href='expr.prim.fold#nt:fold-expression'>fold-expression</a></i></pre><div id='literal'><h3 ><a class='secnum' href='#literal' style='min-width:103pt'>5.1.1</a> Literals <a class='abbr_ref' href='expr.prim.literal'>[expr.prim.literal]</a></h3><div class='para' id='literal-1'><div class='marginalizedparent'><a class='marginalized' href='#literal-1'>1</a></div><p >A
+<span class='indexparent'><a class='index' id='literal'></a></span><span class='indexparent'><a class='index' id='constant'></a></span><i ><a href='lex.literal.kinds#nt:literal'>literal</a></i> 
+is a primary expression.
+Its type depends on its form (<a href='lex.literal'>[lex.literal]</a>).
+A string literal is an lvalue; all other literals are prvalues.</p></div></div><div id='this'><h3 ><a class='secnum' href='#this' style='min-width:103pt'>5.1.2</a> This <a class='abbr_ref' href='expr.prim.this'>[expr.prim.this]</a></h3><div class='para' id='this-1'><div class='marginalizedparent'><a class='marginalized' href='#this-1'>1</a></div><p ><span class='indexparent'><a class='index' id='this'></a></span>The keyword <span class='texttt'>this</span> names a pointer to the object for which a non-static member
+function (<a href='class.this'>[class.this]</a>) is invoked or a non-static data member's
+initializer (<a href='class.mem'>[class.mem]</a>) is evaluated.</p></div><div class='para' id='this-2'><div class='marginalizedparent'><a class='marginalized' href='#this-2'>2</a></div><p >If a declaration declares a member function or member function template of a
+class <span class='texttt'>X</span>, the expression <span class='texttt'>this</span> is a prvalue of type “pointer to
+<i ><a href='dcl.decl#nt:cv-qualifier-seq'>cv-qualifier-seq</a></i> <span class='texttt'>X</span>” between the optional
+<span class='grammarterm'>cv-qualifer-seq</span> and the end of the <i ><a href='dcl.fct.def.general#nt:function-definition'>function-definition</a></i>,
+<i ><a href='class.mem#nt:member-declarator'>member-declarator</a></i>, or <i ><a href='dcl.decl#nt:declarator'>declarator</a></i>. It shall not appear
+before the optional <i ><a href='dcl.decl#nt:cv-qualifier-seq'>cv-qualifier-seq</a></i> and it shall not appear within
+the declaration of a static member function (although its type and value category
+are defined within a static member function as they are within a non-static
+member function). [&nbsp;<i>Note:</i> This is because declaration matching does not
+occur until the complete declarator is known. <i>&nbsp;—&nbsp;end note</i>&nbsp;] Unlike the object
+expression in other contexts, <span class='texttt'>*this</span> is not required to be of complete
+type for purposes of class member access (<a href='expr.ref'>[expr.ref]</a>) outside the member
+function body. [&nbsp;<i>Note:</i> Only class members declared prior to the declaration
+are visible. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct A {
+  char g();
+  template&lt;class T&gt; auto f(T t) -&gt; decltype(t + g())
+    { return t + g(); }
+};
+template auto A::f(int t) -&gt; decltype(t + g());
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='this-3'><div class='marginalizedparent'><a class='marginalized' href='#this-3'>3</a></div><p >Otherwise, if a <i ><a href='class.mem#nt:member-declarator'>member-declarator</a></i> declares a non-static data
+member (<a href='class.mem'>[class.mem]</a>) of a class <span class='texttt'>X</span>, the expression <span class='texttt'>this</span> is
+a prvalue of type “pointer to <span class='texttt'>X</span>” within the
+optional default member initializer (<a href='class.mem'>[class.mem]</a>). It shall not appear elsewhere
+in the <i ><a href='class.mem#nt:member-declarator'>member-declarator</a></i>.</p></div><div class='para' id='this-4'><div class='marginalizedparent'><a class='marginalized' href='#this-4'>4</a></div><p >The expression <span class='texttt'>this</span> shall not appear in any other context.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+class Outer {
+  int a[sizeof(*this)];               <span class='comment'>// error: not inside a member function
+</span>  unsigned int sz = sizeof(*this);    <span class='comment'>// OK: in default member initializer
+</span>
+  void f() {
+    int b[sizeof(*this)];             <span class='comment'>// OK
+</span>
+    struct Inner {
+      int c[sizeof(*this)];           <span class='comment'>// error: not inside a member function of <span class='texttt'>Inner</span>
+</span>    };
+  }
+};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div id='paren'><h3 ><a class='secnum' href='#paren' style='min-width:103pt'>5.1.3</a> Parentheses <a class='abbr_ref' href='expr.prim.paren'>[expr.prim.paren]</a></h3><div class='para' id='paren-1'><div class='marginalizedparent'><a class='marginalized' href='#paren-1'>1</a></div><p ><span class='indexparent'><a class='index' id='expression,parenthesized'></a></span>A parenthesized expression <span class='texttt'>(E)</span>
+is a primary expression whose type, value, and value category are identical to those of <span class='texttt'>E</span>.
+The parenthesized expression can be used in exactly the same contexts as
+those where <span class='texttt'>E</span> can be used, and with the same
+meaning, except as otherwise indicated.</p></div></div><div id='id'><h3 ><a class='secnum' href='#id' style='min-width:103pt'>5.1.4</a> Names <a class='abbr_ref' href='expr.prim.id'>[expr.prim.id]</a></h3><pre class='bnf'><a id='nt:id-expression'>id-expression:</a>
+    <i ><a href='expr.prim.id.unqual#nt:unqualified-id'>unqualified-id</a></i>
+    <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i></pre><div class='para' id='id-1'><div class='marginalizedparent'><a class='marginalized' href='#id-1'>1</a></div><p ><span class='indexparent'><a class='index' id='name'></a></span><span class='indexparent'><a class='index' id='id-expression'></a></span>An <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i> is a restricted form of a
+<i ><a href='expr.prim#nt:primary-expression'>primary-expression</a></i>.
+[&nbsp;<i>Note:</i>
+An <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i> can appear after <span class='texttt'>.</span> and <span class='texttt'>-&gt;</span>
+operators (<a href='expr.ref'>[expr.ref]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='id-2'><div class='marginalizedparent'><a class='marginalized' href='#id-2'>2</a></div><p >An <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i> that denotes a non-static data member or
+non-static member function of a class can only be used:</p><ul class='itemize'><li id='id-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#id-2.1'>(2.1)</a></div><p >as part of a class member access (<a href='expr.ref'>[expr.ref]</a>) in which the
+object expression
+refers to the member's class<a class='footnotenum' href='#footnote-65'>65</a> or a class derived from
+that class, or</p></li><li id='id-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#id-2.2'>(2.2)</a></div><p >to form a pointer to member (<a href='expr.unary.op'>[expr.unary.op]</a>), or</p></li><li id='id-2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#id-2.3'>(2.3)</a></div><p >if that <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i> denotes a non-static data member
+and it appears in an unevaluated operand.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct S {
+  int m;
+};
+int i = sizeof(S::m);           <span class='comment'>// OK
+</span>int j = sizeof(S::m + 42);      <span class='comment'>// OK
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></li></ul></div><div class='footnote' id='footnote-65'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-65'>65)</a></div><p >This also applies when the object expression
+is an implicit <span class='texttt'>(*this)</span> (<a href='class.mfct.non-static'>[class.mfct.non-static]</a>).</p></div><div id='id.unqual'><h4 ><a class='secnum' href='#id.unqual' style='min-width:118pt'>5.1.4.1</a> Unqualified names <a class='abbr_ref' href='expr.prim.id.unqual'>[expr.prim.id.unqual]</a></h4><pre class='bnf'><a id='nt:unqualified-id'>unqualified-id:</a>
+    <i ><a href='lex.name#nt:identifier'>identifier</a></i>
+    <i ><a href='over.oper#nt:operator-function-id'>operator-function-id</a></i>
+    <i ><a href='class.conv.fct#nt:conversion-function-id'>conversion-function-id</a></i>
+    <i ><a href='over.literal#nt:literal-operator-id'>literal-operator-id</a></i>
+    <span class='terminal'>~</span> <i ><a href='class#nt:class-name'>class-name</a></i>
+    <span class='terminal'>~</span> <i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i>
+    <i ><a href='temp.names#nt:template-id'>template-id</a></i></pre><div class='para' id='id.unqual-1'><div class='marginalizedparent'><a class='marginalized' href='#id.unqual-1'>1</a></div><p ><span class='indexparent'><a class='index' id='identifier'></a></span>An <i ><a href='lex.name#nt:identifier'>identifier</a></i> is an <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i> provided it has
+been suitably declared (Clause <a href='dcl.dcl'>[dcl.dcl]</a>).
+[&nbsp;<i>Note:</i>
+For <i ><a href='over.oper#nt:operator-function-id'>operator-function-ids</a></i>, see <a href='over.oper'>[over.oper]</a>; for
+<i ><a href='class.conv.fct#nt:conversion-function-id'>conversion-function-ids</a></i>, see <a href='class.conv.fct'>[class.conv.fct]</a>; for
+<i ><a href='over.literal#nt:literal-operator-id'>literal-operator-ids</a></i>, see <a href='over.literal'>[over.literal]</a>; for
+<i ><a href='temp.names#nt:template-id'>template-ids</a></i>, see <a href='temp.names'>[temp.names]</a>. A <i ><a href='class#nt:class-name'>class-name</a></i>
+or <i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i>
+prefixed by <span class='texttt'>~</span> denotes a destructor; see <a href='class.dtor'>[class.dtor]</a>.
+Within the definition of a non-static member function, an
+<i ><a href='lex.name#nt:identifier'>identifier</a></i> that names a non-static member is transformed to a
+class member access expression (<a href='class.mfct.non-static'>[class.mfct.non-static]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+The type of the expression is the type of the <i ><a href='lex.name#nt:identifier'>identifier</a></i>. The
+result is the entity denoted by the identifier. The expression is an lvalue
+if the entity is a function, variable, or data member and a prvalue otherwise;
+it is a bit-field if the identifier designates a bit-field (<a href='dcl.decomp'>[dcl.decomp]</a>).</p></div></div><div id='id.qual'><h4 ><a class='secnum' href='#id.qual' style='min-width:118pt'>5.1.4.2</a> Qualified names <a class='abbr_ref' href='expr.prim.id.qual'>[expr.prim.id.qual]</a></h4><p ><span class='indexparent'><a class='index' id='operator,scope_resolution'></a></span><span class='indexparent'><a class='index' id='::'></a></span></p><pre class='bnf'><a id='nt:qualified-id'>qualified-id:</a>
+    <i ><a href='expr.prim.id.qual#nt:nested-name-specifier'>nested-name-specifier</a></i> <span class='terminal'>template</span><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='expr.prim.id.unqual#nt:unqualified-id'>unqualified-id</a></i></pre><p ><span class='indexparent'><a class='index' id='operator,scope_resolution'></a></span><span class='indexparent'><a class='index' id='name_hiding'></a></span></p><pre class='bnf'><a id='nt:nested-name-specifier'>nested-name-specifier:</a>
+    <span class='terminal'>::</span>
+    <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i> <span class='terminal'>::</span>
+    <i ><a href='namespace.def#nt:namespace-name'>namespace-name</a></i> <span class='terminal'>::</span>
+    <i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i> <span class='terminal'>::</span>
+    <i ><a href='expr.prim.id.qual#nt:nested-name-specifier'>nested-name-specifier</a></i> <i ><a href='lex.name#nt:identifier'>identifier</a></i> <span class='terminal'>::</span>
+    <i ><a href='expr.prim.id.qual#nt:nested-name-specifier'>nested-name-specifier</a></i> <span class='terminal'>template</span><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='temp.names#nt:simple-template-id'>simple-template-id</a></i> <span class='terminal'>::</span></pre><div class='para' id='id.qual-1'><div class='marginalizedparent'><a class='marginalized' href='#id.qual-1'>1</a></div><p >The type denoted by a <i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i> in a
+<i ><a href='expr.prim.id.qual#nt:nested-name-specifier'>nested-name-specifier</a></i> shall be a class or enumeration
+type.</p></div><div class='para' id='id.qual-2'><div class='marginalizedparent'><a class='marginalized' href='#id.qual-2'>2</a></div><p >A <i ><a href='expr.prim.id.qual#nt:nested-name-specifier'>nested-name-specifier</a></i> that denotes a class, optionally
+followed by the keyword <span class='texttt'>template</span> (<a href='temp.names'>[temp.names]</a>), and then
+followed by the name of a member of either that class (<a href='class.mem'>[class.mem]</a>)
+or one of its base classes (Clause <a href='class.derived'>[class.derived]</a>), is a
+<span class='indexparent'><a class='index' id='id,qualified'></a></span><i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i>; <a href='class.qual'>[class.qual]</a> describes name lookup for
+class members that appear in <span class='grammarterm'>qualified-ids</span>. The result is the
+member. The type of the result is the type of the member. The result is
+an lvalue if the member is a static member function or a data member and a
+prvalue otherwise.
+[&nbsp;<i>Note:</i>
+A class member can be referred to using a <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> at any
+point in its potential scope (<a href='basic.scope.class'>[basic.scope.class]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+Where
+<i ><a href='class#nt:class-name'>class-name</a></i> <span class='texttt'>::~</span> <i ><a href='class#nt:class-name'>class-name</a></i> is used,
+the two <i ><a href='class#nt:class-name'>class-names</a></i> shall refer to the same class; this
+notation names the destructor (<a href='class.dtor'>[class.dtor]</a>).
+The form <span class='texttt'>~</span> <i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i> also denotes the destructor,
+but it shall not be used as the <i ><a href='expr.prim.id.unqual#nt:unqualified-id'>unqualified-id</a></i> in a <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i>.
+[&nbsp;<i>Note:</i>
+a <i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i> that names a class is a
+<i ><a href='class#nt:class-name'>class-name</a></i> (<a href='class.name'>[class.name]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='id.qual-3'><div class='marginalizedparent'><a class='marginalized' href='#id.qual-3'>3</a></div><p >The <i ><a href='expr.prim.id.qual#nt:nested-name-specifier'>nested-name-specifier</a></i> <span class='texttt'>::</span> names the global namespace.
+A <i ><a href='expr.prim.id.qual#nt:nested-name-specifier'>nested-name-specifier</a></i> that names a
+namespace (<a href='basic.namespace'>[basic.namespace]</a>), optionally followed by the keyword
+<span class='texttt'>template</span> (<a href='temp.names'>[temp.names]</a>), and then followed by the name of a member
+of that namespace (or the name of a member of a namespace made visible by a
+<i ><a href='namespace.udir#nt:using-directive'>using-directive</a></i>), is a
+<span class='indexparent'><a class='index' id='id,qualified'></a></span><i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i>; <a href='namespace.qual'>[namespace.qual]</a> describes name lookup for
+namespace members that appear in <span class='grammarterm'>qualified-ids</span>. The result is
+the member. The type of the result is the type of the member. The result
+is an lvalue if the member is a function or a variable and a prvalue otherwise.</p></div><div class='para' id='id.qual-4'><div class='marginalizedparent'><a class='marginalized' href='#id.qual-4'>4</a></div><p >A <i ><a href='expr.prim.id.qual#nt:nested-name-specifier'>nested-name-specifier</a></i> that denotes an
+enumeration (<a href='dcl.enum'>[dcl.enum]</a>), followed by the name of an
+enumerator of that enumeration, is a <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i>
+that refers to the enumerator. The result is the enumerator. The type
+of the result is the type of the enumeration. The result is a prvalue.</p></div><div class='para' id='id.qual-5'><div class='marginalizedparent'><a class='marginalized' href='#id.qual-5'>5</a></div><p >In a <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i>, if the
+<i ><a href='expr.prim.id.unqual#nt:unqualified-id'>unqualified-id</a></i>
+is a
+<i ><a href='class.conv.fct#nt:conversion-function-id'>conversion-function-id</a></i>, its <i ><a href='class.conv.fct#nt:conversion-type-id'>conversion-type-id</a></i>
+shall denote the same type in both the context in which the entire
+<i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> occurs and in the context of the class denoted
+by the <i ><a href='expr.prim.id.qual#nt:nested-name-specifier'>nested-name-specifier</a></i>.</p></div></div></div><div id='lambda'><h3 ><a class='secnum' href='#lambda' style='min-width:103pt'>5.1.5</a> Lambda expressions <a class='abbr_ref' href='expr.prim.lambda'>[expr.prim.lambda]</a></h3><p ><span class='indexparent'><a class='index' id='expression,lambda'></a></span></p><div class='para' id='lambda-1'><div class='marginalizedparent'><a class='marginalized' href='#lambda-1'>1</a></div><p >Lambda expressions provide a concise way to create simple function objects.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+#include &lt;algorithm&gt;
+#include &lt;cmath&gt;
+void abssort(float* x, unsigned N) {
+  std::sort(x, x + N,
+    [](float a, float b) {
+      return std::abs(a) &lt; std::abs(b);
+    });
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><pre class='bnf'><a id='nt:lambda-expression'>lambda-expression:</a>
+    <i ><a href='expr.prim.lambda#nt:lambda-introducer'>lambda-introducer</a></i> <i ><a href='expr.prim.lambda#nt:lambda-declarator'>lambda-declarator</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i></pre><pre class='bnf'><a id='nt:lambda-introducer'>lambda-introducer:</a>
+    <span class='terminal'>[</span> <i ><a href='expr.prim.lambda#nt:lambda-capture'>lambda-capture</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <span class='terminal'>]</span></pre><pre class='bnf'><a id='nt:lambda-capture'>lambda-capture:</a>
+    <i ><a href='expr.prim.lambda#nt:capture-default'>capture-default</a></i>
+    <i ><a href='expr.prim.lambda#nt:capture-list'>capture-list</a></i>
+    <i ><a href='expr.prim.lambda#nt:capture-default'>capture-default</a></i> <span class='terminal'>,</span> <i ><a href='expr.prim.lambda#nt:capture-list'>capture-list</a></i></pre><pre class='bnf'><a id='nt:capture-default'>capture-default:</a>
+    <span class='terminal'>&amp;</span>
+    <span class='terminal'>=</span></pre><pre class='bnf'><a id='nt:capture-list'>capture-list:</a>
+    <i ><a href='expr.prim.lambda#nt:capture'>capture</a></i> <span class='terminal'>...<span class='math'><sub ><span class='mathit'>opt</span></sub></span></span>
+    <i ><a href='expr.prim.lambda#nt:capture-list'>capture-list</a></i> <span class='terminal'>,</span> <i ><a href='expr.prim.lambda#nt:capture'>capture</a></i> <span class='terminal'>...<span class='math'><sub ><span class='mathit'>opt</span></sub></span></span></pre><pre class='bnf'><a id='nt:capture'>capture:</a>
+    <i ><a href='expr.prim.lambda#nt:simple-capture'>simple-capture</a></i>
+    <i ><a href='expr.prim.lambda#nt:init-capture'>init-capture</a></i></pre><pre class='bnf'><a id='nt:simple-capture'>simple-capture:</a>
+    <i ><a href='lex.name#nt:identifier'>identifier</a></i>
+    <span class='terminal'>&amp;</span> <i ><a href='lex.name#nt:identifier'>identifier</a></i>
+    <span class='terminal'>this</span>
+    <span class='terminal'>* this</span></pre><pre class='bnf'><a id='nt:init-capture'>init-capture:</a>
+    <i ><a href='lex.name#nt:identifier'>identifier</a></i> <i ><a href='dcl.init#nt:initializer'>initializer</a></i>
+    <span class='terminal'>&amp;</span> <i ><a href='lex.name#nt:identifier'>identifier</a></i> <i ><a href='dcl.init#nt:initializer'>initializer</a></i></pre><pre class='bnf'><a id='nt:lambda-declarator'>lambda-declarator:</a>
+    <span class='terminal'>(</span> <i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i> <span class='terminal'>)</span> <i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span>
+    <i ><a href='except.spec#nt:noexcept-specifier'>noexcept-specifier</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='dcl.decl#nt:trailing-return-type'>trailing-return-type</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span></pre></div><div class='para' id='lambda-2'><div class='marginalizedparent'><a class='marginalized' href='#lambda-2'>2</a></div><p >In the <i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i> of the <i ><a href='expr.prim.lambda#nt:lambda-declarator'>lambda-declarator</a></i>,
+each <i ><a href='dcl.spec#nt:decl-specifier'>decl-specifier</a></i>
+shall either be <span class='texttt'>mutable</span> or <span class='texttt'>constexpr</span>.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+auto monoid = [](auto v) { return [=] { return v; }; };
+auto add = [](auto m1) constexpr {
+  auto ret = m1();
+  return [=](auto m2) mutable {
+    auto m1val = m1();
+    auto plus = [=](auto m2val) mutable constexpr
+                   { return m1val += m2val; };
+    ret = plus(m2());
+    return monoid(ret);
+  };
+};
+constexpr auto zero = monoid(0);
+constexpr auto one = monoid(1);
+static_assert(add(one)(zero)() == one()); <span class='comment'>// OK
+</span>
+<span class='comment'>// Since <span class='texttt'>two</span> below is not declared <span class='texttt'>constexpr</span>, an evaluation of its <span class='texttt'>constexpr</span> member function call operator
+</span><span class='comment'>// cannot perform an lvalue-to-rvalue conversion on one of its subobjects (that represents its capture)
+</span><span class='comment'>// in a constant expression.
+</span>auto two = monoid(2);
+assert(two() == 2); <span class='comment'>// OK, not a constant expression.
+</span>static_assert(add(one)(one)() == two()); <span class='comment'>// ill-formed: <span class='texttt'>two()</span> is not a constant expression
+</span>static_assert(add(one)(one)() == monoid(2)()); <span class='comment'>// OK
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='lambda-3'><div class='marginalizedparent'><a class='marginalized' href='#lambda-3'>3</a></div><p >A <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> is a prvalue
+whose result object is called the <a class='hidden_link' href='#def:closure_object' id='def:closure_object'><i>closure object</i></a>. A
+<i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> shall not appear in an unevaluated operand
+(Clause <a href='expr'>[expr]</a>), in a <i ><a href='temp.names#nt:template-argument'>template-argument</a></i>,
+in an <i ><a href='dcl.dcl#nt:alias-declaration'>alias-declaration</a></i>,
+in a typedef declaration, or in the declaration of a function or function
+template outside its function body and default arguments.
+[&nbsp;<i>Note:</i>
+The intention is to prevent lambdas from appearing in a signature.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+A closure object behaves like a function
+object (<a href='function.objects'>[function.objects]</a>).<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='lambda-4'><div class='marginalizedparent'><a class='marginalized' href='#lambda-4'>4</a></div><p >The type of the <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> (which is also the type of the
+closure object) is a unique, unnamed non-union class type
+— called the <a class='hidden_link' href='#def:closure_type' id='def:closure_type'><i>closure type</i></a> —
+whose properties are described below.
+This class type is not an aggregate type (<a href='dcl.init.aggr'>[dcl.init.aggr]</a>).
+The closure type is declared in the smallest block
+scope, class scope, or namespace scope that contains the corresponding
+<i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i>. [&nbsp;<i>Note:</i> This determines the set of namespaces and
+classes associated with the closure type (<a href='basic.lookup.argdep'>[basic.lookup.argdep]</a>). The parameter
+types of a <i ><a href='expr.prim.lambda#nt:lambda-declarator'>lambda-declarator</a></i> do not affect these associated namespaces and
+classes. <i>&nbsp;—&nbsp;end note</i>&nbsp;] An implementation may define the closure type differently from what
+is described below provided this does not alter the observable behavior of the program
+other than by changing:</p><ul class='itemize'><li id='lambda-4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#lambda-4.1'>(4.1)</a></div><p >the size and/or alignment of the closure type,</p></li><li id='lambda-4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#lambda-4.2'>(4.2)</a></div><p >whether the closure type is trivially copyable (Clause <a href='class'>[class]</a>),</p></li><li id='lambda-4.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#lambda-4.3'>(4.3)</a></div><p >whether the closure type is a standard-layout class (Clause <a href='class'>[class]</a>),
+or</p></li><li id='lambda-4.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#lambda-4.4'>(4.4)</a></div><p >whether the closure type is a POD class (Clause <a href='class'>[class]</a>).
+</p></li></ul><p >An implementation shall not add members of rvalue reference type to the closure
+type.</p></div><div class='para' id='lambda-5'><div class='marginalizedparent'><a class='marginalized' href='#lambda-5'>5</a></div><p >If a <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> does not include a
+<i ><a href='expr.prim.lambda#nt:lambda-declarator'>lambda-declarator</a></i>, it is as if the <i ><a href='expr.prim.lambda#nt:lambda-declarator'>lambda-declarator</a></i> were
+<span class='texttt'>()</span>.
+The lambda return type is <span class='texttt'>auto</span>, which is replaced by the
+type specified by the
+<i ><a href='dcl.decl#nt:trailing-return-type'>trailing-return-type</a></i> if provided and/or deduced from
+<span class='texttt'>return</span> statements as described in <a href='dcl.spec.auto'>[dcl.spec.auto]</a>.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+auto x1 = [](int i){ return i; };     <span class='comment'>// OK: return type is <span class='texttt'>int</span>
+</span>auto x2 = []{ return { 1, 2 }; };     <span class='comment'>// error: deducing return type from <span class='grammarterm'>braced-init-list</span>
+</span>int j;
+auto x3 = []()-&gt;auto&amp;&amp; { return j; }; <span class='comment'>// OK: return type is <span class='texttt'>int&amp;</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='lambda-6'><div class='marginalizedparent'><a class='marginalized' href='#lambda-6'>6</a></div><p >The closure type for a non-generic <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> has a public
+inline function call operator (<a href='over.call'>[over.call]</a>) whose parameters and return type
+are described by the <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i>'s
+<i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i> and <i ><a href='dcl.decl#nt:trailing-return-type'>trailing-return-type</a></i>
+respectively.
+For a generic lambda, the closure type has a public inline function call
+operator member template (<a href='temp.mem'>[temp.mem]</a>) whose
+<i ><a href='temp#nt:template-parameter-list'>template-parameter-list</a></i> consists of one invented type
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i> for each occurrence of <span class='texttt'>auto</span> in the
+lambda's <i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i>, in order of appearance.
+The invented type <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i> is a parameter pack if
+the corresponding <i ><a href='dcl.fct#nt:parameter-declaration'>parameter-declaration</a></i> declares a function
+parameter pack (<a href='dcl.fct'>[dcl.fct]</a>). The return type and function parameters of the
+function call operator template are derived from the
+<i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression's</a></i> <i ><a href='dcl.decl#nt:trailing-return-type'>trailing-return-type</a></i> and
+<i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i> by replacing each occurrence of
+<span class='texttt'>auto</span> in the <i ><a href='dcl.spec#nt:decl-specifier'>decl-specifiers</a></i> of the
+<i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i> with the name of the corresponding
+invented <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+  auto glambda = [](auto a, auto&amp;&amp; b) { return a &lt; b; };
+  bool b = glambda(3, 3.14);                                  <span class='comment'>// OK
+</span>  auto vglambda = [](auto printer) {
+     return [=](auto&amp;&amp; ... ts) {                              <span class='comment'>// OK: <span class='texttt'>ts</span> is a function parameter pack
+</span>         printer(std::forward&lt;decltype(ts)&gt;(ts)...);
+
+         return [=]() {
+           printer(ts ...);
+         };
+     };
+  };
+  auto p = vglambda( [](auto v1, auto v2, auto v3)
+                         { std::cout &lt;&lt; v1 &lt;&lt; v2 &lt;&lt; v3; } );
+  auto q = p(1, 'a', 3.14);                                   <span class='comment'>// OK: outputs <span class='texttt'>1a3.14</span>
+</span>  q();                                                        <span class='comment'>// OK: outputs <span class='texttt'>1a3.14</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+This function call operator or operator template is declared
+<span class='texttt'>const</span> (<a href='class.mfct.non-static'>[class.mfct.non-static]</a>) if and only if the
+<i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i>'s <i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i> is not
+followed by <span class='texttt'>mutable</span>. It is neither virtual nor declared <span class='texttt'>volatile</span>. Any
+<i ><a href='except.spec#nt:noexcept-specifier'>noexcept-specifier</a></i> specified on a <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i>
+applies to the corresponding function call operator or operator template.
+An <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i> in a <i ><a href='expr.prim.lambda#nt:lambda-declarator'>lambda-declarator</a></i> appertains
+to the type of the corresponding function call operator or operator template.
+The function call operator or any given operator template specialization
+is a constexpr function if either
+the corresponding <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression's</a></i>
+<i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i> is followed by <span class='texttt'>constexpr</span>, or
+it satisfies the requirements for a constexpr function (<a href='dcl.constexpr'>[dcl.constexpr]</a>).
+[&nbsp;<i>Note:</i> Names referenced in
+the <i ><a href='expr.prim.lambda#nt:lambda-declarator'>lambda-declarator</a></i> are looked up in the context in which the
+<i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> appears. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+auto ID = [](auto a) { return a; };
+static_assert(ID(3) == 3); <span class='comment'>// OK
+</span>
+struct NonLiteral {
+  NonLiteral(int n) : n(n) { }
+  int n;
+};
+static_assert(ID(NonLiteral{3}).n == 3); <span class='comment'>// ill-formed
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='lambda-7'><div class='marginalizedparent'><a class='marginalized' href='#lambda-7'>7</a></div><p >The closure type for a non-generic <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> with no
+<i ><a href='expr.prim.lambda#nt:lambda-capture'>lambda-capture</a></i>
+has a conversion function to pointer to
+function with C++ language linkage (<a href='dcl.link'>[dcl.link]</a>) having
+the same parameter and return types as the closure type's function call operator.
+The conversion is to “pointer to <span class='texttt'>noexcept</span> function”
+if the function call operator
+has a non-throwing exception specification.
+The value returned by this conversion function
+is the address of a function <span class='texttt'>F</span> that, when invoked,
+has the same effect as invoking the closure type's function call operator.
+<span class='texttt'>F</span> is a constexpr function
+if the function call operator is a constexpr function.
+For a generic lambda with no <i ><a href='expr.prim.lambda#nt:lambda-capture'>lambda-capture</a></i>, the closure type has a
+conversion function template to
+pointer to function. The conversion function template has the same invented
+<i ><a href='temp#nt:template-parameter-list'>template-parameter-list</a></i>, and the pointer to function has the same
+parameter types, as the function call operator template.  The return type of
+the pointer to function shall behave as if it were a
+<i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i> denoting the return type of the corresponding
+function call operator template specialization.
+[&nbsp;<i>Note:</i>
+If the generic lambda has no <i ><a href='dcl.decl#nt:trailing-return-type'>trailing-return-type</a></i> or
+the <i ><a href='dcl.decl#nt:trailing-return-type'>trailing-return-type</a></i> contains a placeholder type, return type
+deduction of the corresponding function call operator template specialization
+has to be done. The corresponding specialization is that instantiation of the
+function call operator template with the same template arguments as those
+deduced for the conversion function template.  Consider the following:
+</p><pre class='codeblock'>
+auto glambda = [](auto a) { return a; };
+int (*fp)(int) = glambda;
+</pre><p >The behavior of the conversion function of <span class='texttt'>glambda</span> above is like
+that of the following conversion function:
+</p><pre class='codeblock'>
+struct Closure {
+  template&lt;class T&gt; auto operator()(T t) const { ... }
+  template&lt;class T&gt; static auto lambda_call_operator_invoker(T a) {
+    <span class='comment'>// forwards execution to <span class='texttt'>operator()(a)</span> and therefore has
+</span>    <span class='comment'>// the same return type deduced
+</span>    ...
+  }
+  template&lt;class T&gt; using fptr_t =
+     decltype(lambda_call_operator_invoker(declval&lt;T&gt;())) (*)(T);
+
+  template&lt;class T&gt; operator fptr_t&lt;T&gt;() const
+    { return &amp;lambda_call_operator_invoker; }
+};
+</pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+void f1(int (*)(int))   { }
+void f2(char (*)(int))  { }
+
+void g(int (*)(int))    { }  <span class='comment'>// #1
+</span>void g(char (*)(char))  { }  <span class='comment'>// #2
+</span>
+void h(int (*)(int))    { }  <span class='comment'>// #3
+</span>void h(char (*)(int))   { }  <span class='comment'>// #4
+</span>
+auto glambda = [](auto a) { return a; };
+f1(glambda);  <span class='comment'>// OK
+</span>f2(glambda);  <span class='comment'>// error: ID is not convertible
+</span>g(glambda);   <span class='comment'>// error: ambiguous
+</span>h(glambda);   <span class='comment'>// OK: calls #3 since it is convertible from ID
+</span>int&amp; (*fpi)(int*) = [](auto* a) -&gt; auto&amp; { return *a; }; <span class='comment'>// OK
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p >The value returned by any given specialization of this conversion function
+template is the address of a function <span class='texttt'>F</span> that, when invoked, has the same
+effect as invoking the generic lambda's corresponding function call operator
+template specialization.
+<span class='texttt'>F</span> is a constexpr function
+if the corresponding specialization is a constexpr function.
+[&nbsp;<i>Note:</i>
+This will result in the implicit instantiation of the generic lambda's body.
+The instantiated generic lambda's return type and parameter types shall match
+the return type and parameter types of the pointer to function.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+auto GL = [](auto a) { std::cout &lt;&lt; a; return a; };
+int (*GL_int)(int) = GL;  <span class='comment'>// OK: through conversion function template
+</span>GL_int(3);                <span class='comment'>// OK: same as <span class='texttt'>GL(3)</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p >The conversion function or conversion function template is public,
+constexpr, non-virtual, non-explicit, const, and has a non-throwing exception
+specification (<a href='except.spec'>[except.spec]</a>).
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+auto Fwd = [](int (*fp)(int), auto a) { return fp(a); };
+auto C = [](auto a) { return a; };
+
+static_assert(Fwd(C,3) == 3); <span class='comment'>// OK
+</span>
+<span class='comment'>// No specialization of the function call operator template can be constexpr (due to the local static).
+</span>auto NC = [](auto a) { static int s; return a; };
+static_assert(Fwd(NC,3) == 3); <span class='comment'>// ill-formed
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='lambda-8'><div class='marginalizedparent'><a class='marginalized' href='#lambda-8'>8</a></div><p >The <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i>'s <i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i> yields the
+<i ><a href='dcl.fct.def.general#nt:function-body'>function-body</a></i> (<a href='dcl.fct.def'>[dcl.fct.def]</a>) of the function call operator, but for
+purposes of name lookup (<a href='basic.lookup'>[basic.lookup]</a>), determining the type and value of
+<span class='texttt'>this</span> (<a href='class.this'>[class.this]</a>) and transforming <i ><a href='expr.prim.id#nt:id-expression'>id-expressions</a></i>
+referring to non-static class members into class member access expressions using
+<span class='texttt'>(*this)</span> (<a href='class.mfct.non-static'>[class.mfct.non-static]</a>), the <i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i> is
+considered in the context of the <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i>. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct S1 {
+  int x, y;
+  int operator()(int);
+  void f() {
+    [=]()-&gt;int {
+      return operator()(this-&gt;x + y); <span class='comment'>// equivalent to <span class='texttt'>S1::operator()(this-&gt;x + (*this).y)</span>
+</span>                                      <span class='comment'>// <span class='texttt'>this</span> has type <span class='texttt'>S1*</span>
+</span>    };
+  }
+};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+Further, a variable <span class='texttt'>__func__</span> is implicitly defined at the beginning of
+the <i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i> of the <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i>,
+with semantics as described in <a href='dcl.fct.def.general'>[dcl.fct.def.general]</a>.</p></div><div class='para' id='lambda-9'><div class='marginalizedparent'><a class='marginalized' href='#lambda-9'>9</a></div><p >If a <i ><a href='expr.prim.lambda#nt:lambda-capture'>lambda-capture</a></i> includes a <i ><a href='expr.prim.lambda#nt:capture-default'>capture-default</a></i> that
+is <span class='texttt'>&amp;</span>, no identifier in a <i ><a href='expr.prim.lambda#nt:simple-capture'>simple-capture</a></i> of that
+<i ><a href='expr.prim.lambda#nt:lambda-capture'>lambda-capture</a></i> shall be preceded
+by <span class='texttt'>&amp;</span>. If a <i ><a href='expr.prim.lambda#nt:lambda-capture'>lambda-capture</a></i> includes a
+<i ><a href='expr.prim.lambda#nt:capture-default'>capture-default</a></i> that is <span class='texttt'>=</span>, each
+<i ><a href='expr.prim.lambda#nt:simple-capture'>simple-capture</a></i> of that <i ><a href='expr.prim.lambda#nt:lambda-capture'>lambda-capture</a></i> shall
+be of the form “<span class='texttt'>&amp;</span> <i ><a href='lex.name#nt:identifier'>identifier</a></i>” or “<span class='texttt'>* this</span>”.
+[&nbsp;<i>Note:</i> The form <span class='texttt'>[&amp;,this]</span> is redundant but accepted
+for compatibility with ISO C++ 2014. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+Ignoring appearances in
+<i ><a href='dcl.init#nt:initializer'>initializers</a></i> of <i ><a href='expr.prim.lambda#nt:init-capture'>init-captures</a></i>, an identifier or
+<span class='texttt'>this</span> shall not appear more than once in a
+<i ><a href='expr.prim.lambda#nt:lambda-capture'>lambda-capture</a></i>. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+struct S2 { void f(int i); };
+void S2::f(int i) {
+  [&amp;, i]{ };        <span class='comment'>// OK
+</span>  [&amp;, &amp;i]{ };       <span class='comment'>// error: <span class='texttt'>i</span> preceded by <span class='texttt'>&amp;</span> when <span class='texttt'>&amp;</span> is the default
+</span>  [=, *this]{ };    <span class='comment'>// OK
+</span>  [=, this]{ };     <span class='comment'>// error: <span class='texttt'>this</span> when <span class='texttt'>=</span> is the default
+</span>  [i, i]{ };        <span class='comment'>// error: <span class='texttt'>i</span> repeated
+</span>  [this, *this]{ }; <span class='comment'>// error: <span class='texttt'>this</span> appears twice
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='lambda-10'><div class='marginalizedparent'><a class='marginalized' href='#lambda-10'>10</a></div><p >A <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> whose smallest enclosing scope is a block
+scope (<a href='basic.scope.block'>[basic.scope.block]</a>) is a <a class='hidden_link' href='#def:local_lambda_expression' id='def:local_lambda_expression'><i>local lambda expression</i></a>; any other
+<i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> shall not have a <i ><a href='expr.prim.lambda#nt:capture-default'>capture-default</a></i> or
+<i ><a href='expr.prim.lambda#nt:simple-capture'>simple-capture</a></i> in its
+<i ><a href='expr.prim.lambda#nt:lambda-introducer'>lambda-introducer</a></i>. The <a class='hidden_link' href='#def:reaching_scope' id='def:reaching_scope'><i>reaching scope</i></a> of a local lambda expression
+is the set of enclosing scopes up to and including the innermost enclosing function and
+its parameters. [&nbsp;<i>Note:</i> This reaching scope includes any intervening
+<i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expressions</a></i>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='lambda-11'><div class='marginalizedparent'><a class='marginalized' href='#lambda-11'>11</a></div><p >The <i ><a href='lex.name#nt:identifier'>identifier</a></i> in a <i ><a href='expr.prim.lambda#nt:simple-capture'>simple-capture</a></i> is looked up using the
+usual rules for unqualified name lookup (<a href='basic.lookup.unqual'>[basic.lookup.unqual]</a>); each such lookup
+shall find an entity.  An entity that is designated by a
+<i ><a href='expr.prim.lambda#nt:simple-capture'>simple-capture</a></i>
+is said to be <a class='hidden_link' href='#def:explicitly_captured' id='def:explicitly_captured'><i>explicitly captured</i></a>, and shall be <span class='texttt'>*this</span>
+(when the <i ><a href='expr.prim.lambda#nt:simple-capture'>simple-capture</a></i>
+is “<span class='texttt'>this</span>” or “<span class='texttt'>* this</span>”) or
+a variable with automatic storage duration declared in
+the reaching scope of the local lambda expression.</p></div><div class='para' id='lambda-12'><div class='marginalizedparent'><a class='marginalized' href='#lambda-12'>12</a></div><p >An <i ><a href='expr.prim.lambda#nt:init-capture'>init-capture</a></i> behaves as if it declares and explicitly captures a
+variable of
+the form “<span class='texttt'>auto</span> <i ><a href='expr.prim.lambda#nt:init-capture'>init-capture</a></i> <span class='texttt'>;</span>”
+whose declarative region is the <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i>'s
+<i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i>, except that:
+</p><ul class='itemize'><li id='lambda-12.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#lambda-12.1'>(12.1)</a></div><p >if the capture is by copy (see below), the non-static data member
+declared for the capture and the variable are treated as two different ways
+of referring to the same object, which has the lifetime of the non-static
+data member, and no additional copy and destruction is performed, and
+</p></li><li id='lambda-12.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#lambda-12.2'>(12.2)</a></div><p >if the capture is by reference, the variable's lifetime ends when the
+closure object's lifetime ends.
+</p></li></ul><p >[&nbsp;<i>Note:</i>
+This enables an <i ><a href='expr.prim.lambda#nt:init-capture'>init-capture</a></i> like
+“<span class='texttt'>x = std::move(x)</span>”; the second “<span class='texttt'>x</span>” must bind to a
+declaration in the surrounding context.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+int x = 4;
+auto y = [&amp;r = x, x = x+1]()-&gt;int {
+            r += 2;
+            return x+2;
+         }();  <span class='comment'>// Updates <span class='texttt'>::x</span> to 6, and initializes <span class='texttt'>y</span> to 7.
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='lambda-13'><div class='marginalizedparent'><a class='marginalized' href='#lambda-13'>13</a></div><p >A <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> with an associated
+<i ><a href='expr.prim.lambda#nt:capture-default'>capture-default</a></i> that does not explicitly capture <span class='texttt'>*this</span> or
+a variable with automatic storage duration (this excludes any <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i>
+that has been found to refer to an <i ><a href='expr.prim.lambda#nt:init-capture'>init-capture's</a></i> associated
+<span class='indexparent'><a class='index' id='implicit_capture,definition_of'></a></span>non-static data member), is said to <a class='hidden_link' href='#def:capture,implicit' id='def:capture,implicit'><i>implicitly capture</i></a>
+the entity (i.e.,
+<span class='texttt'>*this</span> or a variable) if the <i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i>:
+</p><ul class='itemize'><li id='lambda-13.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#lambda-13.1'>(13.1)</a></div><p >odr-uses (<a href='basic.def.odr'>[basic.def.odr]</a>) the entity (in the case of a variable),
+</p></li><li id='lambda-13.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#lambda-13.2'>(13.2)</a></div><p >odr-uses (<a href='basic.def.odr'>[basic.def.odr]</a>) <span class='texttt'>this</span>
+(in the case of the object designated by <span class='texttt'>*this</span>), or
+</p></li><li id='lambda-13.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#lambda-13.3'>(13.3)</a></div><p >names the entity in a potentially-evaluated
+expression (<a href='basic.def.odr'>[basic.def.odr]</a>) where the enclosing full-expression depends on
+a generic lambda parameter declared within the reaching scope of the
+<i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i>.
+</p></li></ul><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+void f(int, const int (&amp;)[2] = {})    { }   <span class='comment'>// #1
+</span>void f(const int&amp;, const int (&amp;)[1])  { }   <span class='comment'>// #2
+</span>void test() {
+  const int x = 17;
+  auto g = [](auto a) {
+    f(x);  <span class='comment'>// OK: calls #1, does not capture <span class='texttt'>x</span>
+</span>  };
+
+  auto g2 = [=](auto a) {
+    int selector[sizeof(a) == 1 ? 1 : 2]{};
+    f(x, selector);  <span class='comment'>// OK: is a dependent expression, so captures <span class='texttt'>x</span>
+</span>  };
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+All such implicitly captured
+entities shall be declared within the reaching scope of the lambda expression.
+[&nbsp;<i>Note:</i> The implicit capture of an entity by a nested
+<i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> can cause its implicit capture by the containing
+<i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> (see below). Implicit odr-uses of <span class='texttt'>this</span> can result
+in implicit capture. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='lambda-14'><div class='marginalizedparent'><a class='marginalized' href='#lambda-14'>14</a></div><p >An entity is <a class='hidden_link' href='#def:captured' id='def:captured'><i>captured</i></a> if it is captured explicitly or implicitly. An entity
+captured by a <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> is odr-used (<a href='basic.def.odr'>[basic.def.odr]</a>) in the scope
+containing the <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i>. If <span class='texttt'>*this</span> is captured by a local
+lambda expression, its nearest enclosing function shall be a non-static member function.
+If a <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> or an instantiation of the function call
+operator template of a generic lambda odr-uses (<a href='basic.def.odr'>[basic.def.odr]</a>) <span class='texttt'>this</span> or a
+variable with automatic storage duration from its reaching scope, that
+entity shall be captured by the <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i>. If a
+<i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> captures an entity and that entity is not defined or
+captured in the immediately enclosing lambda expression or function, the program is
+ill-formed. [&nbsp;<i>Example:</i>
+<span class='indexparent'><a class='index' id='Bond,James_Bond'></a></span></p><pre class='codeblock'>
+void f1(int i) {
+  int const N = 20;
+  auto m1 = [=]{
+    int const M = 30;
+    auto m2 = [i]{
+      int x[N][M];              <span class='comment'>// OK: <span class='texttt'>N</span> and <span class='texttt'>M</span> are not odr-used
+</span>      x[0][0] = i;              <span class='comment'>// OK: <span class='texttt'>i</span> is explicitly captured by <span class='texttt'>m2</span>
+</span>                                <span class='comment'>// and implicitly captured by <span class='texttt'>m1</span>
+</span>    };
+  };
+  struct s1 {
+    int f;
+    void work(int n) {
+      int m = n*n;
+      int j = 40;
+      auto m3 = [this,m] {
+        auto m4 = [&amp;,j] {       <span class='comment'>// error: <span class='texttt'>j</span> not captured by <span class='texttt'>m3</span>
+</span>          int x = n;            <span class='comment'>// error: <span class='texttt'>n</span> implicitly captured by <span class='texttt'>m4</span>
+</span>                                <span class='comment'>// but not captured by <span class='texttt'>m3</span>
+</span>          x += m;               <span class='comment'>// OK: <span class='texttt'>m</span> implicitly captured by <span class='texttt'>m4</span>
+</span>                                <span class='comment'>// and explicitly captured by <span class='texttt'>m3</span>
+</span>          x += i;               <span class='comment'>// error: <span class='texttt'>i</span> is outside of the reaching scope
+</span>          x += f;               <span class='comment'>// OK: <span class='texttt'>this</span> captured implicitly by <span class='texttt'>m4</span>
+</span>                                <span class='comment'>// and explicitly by <span class='texttt'>m3</span>
+</span>        };
+      };
+    }
+  };
+}
+
+struct s2 {
+  double ohseven = .007;
+  auto f() {
+    return [this] {
+      return [*this] {
+          return ohseven; <span class='comment'>// OK
+</span>      }
+    }();
+  }
+  auto g() {
+    return [] {
+      return [*this] { }; <span class='comment'>// error: <span class='texttt'>*this</span> not captured by outer <span class='grammarterm'>lambda-expression</span>
+</span>    }();
+  }
+};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='lambda-15'><div class='marginalizedparent'><a class='marginalized' href='#lambda-15'>15</a></div><p >A <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> appearing in a default argument shall not
+implicitly or explicitly capture any entity. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+void f2() {
+  int i = 1;
+  void g1(int = ([i]{ return i; })());        <span class='comment'>// ill-formed
+</span>  void g2(int = ([i]{ return 0; })());        <span class='comment'>// ill-formed
+</span>  void g3(int = ([=]{ return i; })());        <span class='comment'>// ill-formed
+</span>  void g4(int = ([=]{ return 0; })());        <span class='comment'>// OK
+</span>  void g5(int = ([]{ return sizeof i; })());  <span class='comment'>// OK
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='lambda-16'><div class='marginalizedparent'><a class='marginalized' href='#lambda-16'>16</a></div><p >An entity is <a class='hidden_link' href='#def:captured,by_copy' id='def:captured,by_copy'><i>captured by copy</i></a> if
+</p><ul class='itemize'><li id='lambda-16.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#lambda-16.1'>(16.1)</a></div><p >it is implicitly captured,
+the <i ><a href='expr.prim.lambda#nt:capture-default'>capture-default</a></i> is <span class='texttt'>=</span>, and
+the captured entity is not <span class='texttt'>*this</span>, or
+</p></li><li id='lambda-16.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#lambda-16.2'>(16.2)</a></div><p >it is explicitly captured with a capture that is not of the form
+<span class='texttt'>this</span>,
+<span class='texttt'>&amp;</span> <i ><a href='lex.name#nt:identifier'>identifier</a></i>, or
+<span class='texttt'>&amp;</span> <i ><a href='lex.name#nt:identifier'>identifier</a></i> <i ><a href='dcl.init#nt:initializer'>initializer</a></i>.
+</p></li></ul><p >For each entity captured by copy, an
+unnamed non-static data member is declared in the closure type. The declaration order of
+these members is unspecified. The type of such a data member is
+the referenced type if the entity is a reference to an object,
+an lvalue reference to the referenced function type if the entity is a reference to a function, or
+the type of the corresponding captured entity otherwise.
+A member of an anonymous union shall not be captured by copy.</p></div><div class='para' id='lambda-17'><div class='marginalizedparent'><a class='marginalized' href='#lambda-17'>17</a></div><p >Every <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i> within the <i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i> of a
+<i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> that is an odr-use (<a href='basic.def.odr'>[basic.def.odr]</a>) of an
+entity captured by copy is transformed into an access to the corresponding unnamed data
+member of the closure type.
+[&nbsp;<i>Note:</i> An <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i> that is not an odr-use refers to
+the original entity, never to a member of the closure type. Furthermore, such
+an <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i> does not cause the implicit capture of the
+entity. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+If <span class='texttt'>*this</span> is captured by copy, each odr-use of <span class='texttt'>this</span> is
+transformed into a pointer to the corresponding unnamed data member of the closure type,
+cast (<a href='expr.cast'>[expr.cast]</a>) to the type of <span class='texttt'>this</span>. [&nbsp;<i>Note:</i> The cast ensures that the
+transformed expression is a prvalue. <i>&nbsp;—&nbsp;end note</i>&nbsp;] [&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+void f(const int*);
+void g() {
+  const int N = 10;
+  [=] {
+    int arr[N];             <span class='comment'>// OK: not an odr-use, refers to automatic variable
+</span>    f(&amp;N);                  <span class='comment'>// OK: causes <span class='texttt'>N</span> to be captured; <span class='texttt'>&amp;N</span> points to the
+</span>                            <span class='comment'>// corresponding member of the closure type
+</span>  };
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='lambda-18'><div class='marginalizedparent'><a class='marginalized' href='#lambda-18'>18</a></div><p >An entity is <a class='hidden_link' href='#def:captured,by_reference' id='def:captured,by_reference'><i>captured by reference</i></a> if it is implicitly or explicitly
+captured but not captured by copy. It is unspecified whether additional unnamed
+non-static data members are declared in the closure type for entities captured by
+reference.
+If declared, such non-static data members shall be of literal type.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+<span class='comment'>// The inner closure type must be a literal type regardless of how reference captures are represented.
+</span>static_assert([](int n) { return [&amp;n] { return ++n; }(); }(3) == 4);
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+A bit-field or a member of an anonymous union shall not be captured by reference.</p></div><div class='para' id='lambda-19'><div class='marginalizedparent'><a class='marginalized' href='#lambda-19'>19</a></div><p >If a <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> <span class='texttt'>m2</span> captures an entity and that entity is
+captured by an immediately enclosing <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i>
+<span class='texttt'>m1</span>, then
+<span class='texttt'>m2</span>'s capture is transformed as follows:</p><ul class='itemize'><li id='lambda-19.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#lambda-19.1'>(19.1)</a></div><p >if <span class='texttt'>m1</span> captures the entity by copy,
+<span class='texttt'>m2</span> captures the corresponding
+non-static data member of <span class='texttt'>m1</span>'s closure type;</p></li><li id='lambda-19.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#lambda-19.2'>(19.2)</a></div><p >if <span class='texttt'>m1</span> captures the entity by reference,
+<span class='texttt'>m2</span> captures the same
+entity captured by <span class='texttt'>m1</span>.
+</p></li></ul><p >[&nbsp;<i>Example:</i> the nested lambda expressions and invocations below will output
+<span class='texttt'>123234</span>.
+</p><pre class='codeblock'>
+int a = 1, b = 1, c = 1;
+auto m1 = [a, &amp;b, &amp;c]() mutable {
+  auto m2 = [a, b, &amp;c]() mutable {
+    std::cout &lt;&lt; a &lt;&lt; b &lt;&lt; c;
+    a = 4; b = 4; c = 4;
+  };
+  a = 3; b = 3; c = 3;
+  m2();
+};
+a = 2; b = 2; c = 2;
+m1();
+std::cout &lt;&lt; a &lt;&lt; b &lt;&lt; c;
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='lambda-20'><div class='marginalizedparent'><a class='marginalized' href='#lambda-20'>20</a></div><p >Every occurrence of <span class='texttt'>decltype((x))</span> where <span class='texttt'>x</span> is a possibly
+parenthesized <i ><a href='expr.prim.id#nt:id-expression'>id-expression</a></i> that names an entity of automatic storage
+duration is treated as if <span class='texttt'>x</span> were transformed into an access to a corresponding
+data member of the closure type that would have been declared if <span class='texttt'>x</span> were an odr-use of
+the denoted entity. [&nbsp;<i>Example:</i></p><pre class='codeblock'>
+void f3() {
+  float x, &amp;r = x;
+  [=] {                     <span class='comment'>// <span class='texttt'>x</span> and <span class='texttt'>r</span> are not captured (appearance in a <span class='texttt'>decltype</span> operand is not an odr-use)
+</span>    decltype(x) y1;         <span class='comment'>// <span class='texttt'>y1</span> has type <span class='texttt'>float</span>
+</span>    decltype((x)) y2 = y1;  <span class='comment'>// <span class='texttt'>y2</span> has type <span class='texttt'>float const&amp;</span> because this lambda
+</span>                            <span class='comment'>// is not <span class='texttt'>mutable</span> and <span class='texttt'>x</span> is an lvalue
+</span>    decltype(r) r1 = y1;    <span class='comment'>// <span class='texttt'>r1</span> has type <span class='texttt'>float&amp;</span> (transformation not considered)
+</span>    decltype((r)) r2 = y2;  <span class='comment'>// <span class='texttt'>r2</span> has type <span class='texttt'>float const&amp;</span>
+</span>  };
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='lambda-21'><div class='marginalizedparent'><a class='marginalized' href='#lambda-21'>21</a></div><p >The closure type associated with a <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> has no
+default constructor and a deleted copy assignment operator. It has a
+defaulted copy constructor and a defaulted move constructor (<a href='class.copy'>[class.copy]</a>).
+[&nbsp;<i>Note:</i> These special member functions are implicitly defined as
+usual, and might therefore be defined as deleted. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='lambda-22'><div class='marginalizedparent'><a class='marginalized' href='#lambda-22'>22</a></div><p >The closure type associated with a <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> has an
+implicitly-declared destructor (<a href='class.dtor'>[class.dtor]</a>).</p></div><div class='para' id='lambda-23'><div class='marginalizedparent'><a class='marginalized' href='#lambda-23'>23</a></div><p >A member of a closure type shall not be
+explicitly instantiated (<a href='temp.explicit'>[temp.explicit]</a>),
+explicitly specialized (<a href='temp.expl.spec'>[temp.expl.spec]</a>), or
+named in a <span class='texttt'>friend</span> declaration (<a href='class.friend'>[class.friend]</a>).</p></div><div class='para' id='lambda-24'><div class='marginalizedparent'><a class='marginalized' href='#lambda-24'>24</a></div><p >When the <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i> is evaluated, the entities that are
+captured by copy are used to direct-initialize each corresponding non-static data member
+of the resulting closure object, and the non-static data members corresponding to the
+<i ><a href='expr.prim.lambda#nt:init-capture'>init-captures</a></i> are initialized as indicated by the corresponding
+<i ><a href='dcl.init#nt:initializer'>initializer</a></i> (which may be copy- or direct-initialization). (For array members, the array elements are
+direct-initialized in increasing subscript order.) These initializations are performed
+in the (unspecified) order in which the non-static data members are declared. [&nbsp;<i>Note:</i>
+This ensures that the destructions will occur in the reverse order of the constructions.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='lambda-25'><div class='marginalizedparent'><a class='marginalized' href='#lambda-25'>25</a></div><p >[&nbsp;<i>Note:</i> If an entity is implicitly or explicitly captured by reference,
+invoking the function call operator of the corresponding <i ><a href='expr.prim.lambda#nt:lambda-expression'>lambda-expression</a></i>
+after the lifetime of the entity has ended is likely to result in undefined behavior.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='lambda-26'><div class='marginalizedparent'><a class='marginalized' href='#lambda-26'>26</a></div><p >A <i ><a href='expr.prim.lambda#nt:simple-capture'>simple-capture</a></i> followed by an ellipsis is a pack
+expansion (<a href='temp.variadic'>[temp.variadic]</a>). An <i ><a href='expr.prim.lambda#nt:init-capture'>init-capture</a></i> followed by an
+ellipsis is ill-formed.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;class... Args&gt;
+void f(Args... args) {
+  auto lm = [&amp;, args...] { return g(args...); };
+  lm();
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]<span class='indexparent'><a class='index' id='expression,lambda'></a></span><span class='indexparent'><a class='index' id='expression,primary'></a></span></p></div></div><div id='fold'><h3 ><a class='secnum' href='#fold' style='min-width:103pt'>5.1.6</a> Fold expressions <a class='abbr_ref' href='expr.prim.fold'>[expr.prim.fold]</a></h3><p ><span class='indexparent'><a class='index' id='expression,fold'></a></span></p><div class='para' id='fold-1'><div class='marginalizedparent'><a class='marginalized' href='#fold-1'>1</a></div><p >A fold expression performs a fold of a template parameter
+pack (<a href='temp.variadic'>[temp.variadic]</a>) over a binary operator.</p><pre class='bnf'><a id='nt:fold-expression'>fold-expression:</a>
+    <span class='terminal'>(</span> <i ><a href='expr.cast#nt:cast-expression'>cast-expression</a></i> <i ><a href='expr.prim.fold#nt:fold-operator'>fold-operator</a></i> <span class='terminal'>...</span> <span class='terminal'>)</span>
+    <span class='terminal'>(</span> <span class='terminal'>...</span> <i ><a href='expr.prim.fold#nt:fold-operator'>fold-operator</a></i> <i ><a href='expr.cast#nt:cast-expression'>cast-expression</a></i> <span class='terminal'>)</span>
+    <span class='terminal'>(</span> <i ><a href='expr.cast#nt:cast-expression'>cast-expression</a></i> <i ><a href='expr.prim.fold#nt:fold-operator'>fold-operator</a></i> <span class='terminal'>...</span> <i ><a href='expr.prim.fold#nt:fold-operator'>fold-operator</a></i> <i ><a href='expr.cast#nt:cast-expression'>cast-expression</a></i> <span class='terminal'>)</span></pre><pre class='bnf'><a id='nt:fold-operator'>fold-operator:</a> <span class='textnormal'>one of</span>
+    <span class='terminal'>+ </span>&emsp;&ensp;<span class='terminal'>- </span>&emsp;&ensp;<span class='terminal'>* </span>&emsp;&ensp;<span class='terminal'>/ </span>&emsp;&ensp;<span class='terminal'>% </span>&emsp;&ensp;<span class='terminal'>^ </span>&emsp;&ensp;<span class='terminal'>&amp; </span>&emsp;&ensp;<span class='terminal'>| </span>&emsp;&ensp;<span class='terminal'>&lt;&lt; </span>&emsp;&ensp;<span class='terminal'>&gt;&gt; </span>
+    <span class='terminal'>+=</span>&emsp;&ensp;<span class='terminal'>-=</span>&emsp;&ensp;<span class='terminal'>*=</span>&emsp;&ensp;<span class='terminal'>/=</span>&emsp;&ensp;<span class='terminal'>%=</span>&emsp;&ensp;<span class='terminal'>^=</span>&emsp;&ensp;<span class='terminal'>&amp;=</span>&emsp;&ensp;<span class='terminal'>|=</span>&emsp;&ensp;<span class='terminal'>&lt;&lt;=</span>&emsp;&ensp;<span class='terminal'>&gt;&gt;=</span>&emsp;&ensp;<span class='terminal'>=</span>
+    <span class='terminal'>==</span>&emsp;&ensp;<span class='terminal'>!=</span>&emsp;&ensp;<span class='terminal'>&lt; </span>&emsp;&ensp;<span class='terminal'>&gt; </span>&emsp;&ensp;<span class='terminal'>&lt;=</span>&emsp;&ensp;<span class='terminal'>&gt;=</span>&emsp;&ensp;<span class='terminal'>&amp;&amp;</span>&emsp;&ensp;<span class='terminal'>||</span>&emsp;&ensp;<span class='terminal'>,  </span>&emsp;&ensp;<span class='terminal'>.* </span>&emsp;&ensp;<span class='terminal'>-&gt;*</span></pre></div><div class='para' id='fold-2'><div class='marginalizedparent'><a class='marginalized' href='#fold-2'>2</a></div><p ><span class='indexparent'><a class='index' id='fold,unary'></a></span>An expression of the form
+<span class='texttt'>(...</span> <i>op</i> <span class='texttt'>e)</span>
+where <i>op</i> is a <i ><a href='expr.prim.fold#nt:fold-operator'>fold-operator</a></i>
+is called a <a class='hidden_link' href='#def:unary_left_fold' id='def:unary_left_fold'><i>unary left fold</i></a>.
+An expression of the form
+<span class='texttt'>(e</span> <i>op</i> <span class='texttt'>...)</span>
+where <i>op</i> is a <i ><a href='expr.prim.fold#nt:fold-operator'>fold-operator</a></i>
+is called a <a class='hidden_link' href='#def:unary_right_fold' id='def:unary_right_fold'><i>unary right fold</i></a>.
+Unary left folds and unary right folds
+are collectively called <a class='hidden_link' href='#def:unary_fold' id='def:unary_fold'><i>unary folds</i></a>.
+In a unary fold,
+the <i ><a href='expr.cast#nt:cast-expression'>cast-expression</a></i>
+shall contain an unexpanded parameter pack (<a href='temp.variadic'>[temp.variadic]</a>).</p></div><div class='para' id='fold-3'><div class='marginalizedparent'><a class='marginalized' href='#fold-3'>3</a></div><p ><span class='indexparent'><a class='index' id='fold,binary'></a></span>An expression of the form
+<span class='texttt'>(e1</span> <i>op1</i> <span class='texttt'>...</span> <i>op2</i> <span class='texttt'>e2)</span>
+where <i>op1</i> and <i>op2</i> are <i ><a href='expr.prim.fold#nt:fold-operator'>fold-operators</a></i>
+is called a <a class='hidden_link' href='#def:binary_fold' id='def:binary_fold'><i>binary fold</i></a>.
+In a binary fold,
+<i>op1</i> and <i>op2</i>
+shall be the same <i ><a href='expr.prim.fold#nt:fold-operator'>fold-operator</a></i>,
+and either <span class='texttt'>e1</span>
+shall contain an unexpanded parameter pack
+or <span class='texttt'>e2</span>
+shall contain an unexpanded parameter pack,
+but not both.
+If <span class='texttt'>e2</span> contains an unexpanded parameter pack,
+the expression is called a <a class='hidden_link' href='#def:binary_left_fold' id='def:binary_left_fold'><i>binary left fold</i></a>.
+If <span class='texttt'>e1</span> contains an unexpanded parameter pack,
+the expression is called a <a class='hidden_link' href='#def:binary_right_fold' id='def:binary_right_fold'><i>binary right fold</i></a>.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;typename ...Args&gt;
+bool f(Args ...args) {
+  return (true &amp;&amp; ... &amp;&amp; args); <span class='comment'>// OK
+</span>}
+
+template&lt;typename ...Args&gt;
+bool f(Args ...args) {
+  return (args + ... + args); <span class='comment'>// error: both operands contain unexpanded parameter packs
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<span class='indexparent'><a class='index' id='expression,fold'></a></span></p></div></div></div></div></body></html>

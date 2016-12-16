@@ -1,0 +1,92 @@
+<!DOCTYPE html><html lang='en'><head><title>[class.inhctor.init]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>12</a> Special member functions <a class='abbr_ref' href='./#special'>[special]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>12.6</a> Initialization <a class='abbr_ref' href='class.init#class.inhctor.init'>[class.init]</a></h2><div id='class.inhctor.init'><h3 ><a class='secnum' style='min-width:103pt'>12.6.3</a> Initialization by inherited constructor <a class='abbr_ref'>[class.inhctor.init]</a></h3><p ><span class='indexparent'><a class='index' id='initialization,by_inherited_constructor'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >When a constructor for type <span class='texttt'>B</span> is invoked
+to initialize an object of a different type <span class='texttt'>D</span>
+(that is, when the constructor was inherited (<a href='namespace.udecl'>[namespace.udecl]</a>)),
+initialization proceeds as if a defaulted default constructor
+were used to initialize the <span class='texttt'>D</span> object and
+each base class subobject from which the constructor was inherited,
+except that the <span class='texttt'>B</span> subobject is initialized
+by the invocation of the inherited constructor.
+The complete initialization is considered to be a single function call;
+in particular, the initialization of the inherited constructor's parameters
+is sequenced before the initialization of any part of the <span class='texttt'>D</span> object.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct B1 {
+  B1(int, ...) { }
+};
+
+struct B2 {
+  B2(double) { }
+};
+
+int get();
+
+struct D1 : B1 {
+  using B1::B1;  <span class='comment'>// inherits <span class='texttt'>B1(int, ...)</span>
+</span>  int x;
+  int y = get();
+};
+
+void test() {
+  D1 d(2, 3, 4); <span class='comment'>// OK: <span class='texttt'>B1</span> is initialized by calling <span class='texttt'>B1(2, 3, 4)</span>,
+</span>                 <span class='comment'>// then <span class='texttt'>d.x</span> is default-initialized (no initialization is performed),
+</span>                 <span class='comment'>// then <span class='texttt'>d.y</span> is initialized by calling <span class='texttt'>get()</span>
+</span>  D1 e;          <span class='comment'>// error: <span class='texttt'>D1</span> has a deleted default constructor
+</span>}
+
+struct D2 : B2 {
+  using B2::B2;
+  B1 b;
+};
+
+D2 f(1.0);       <span class='comment'>// error: <span class='texttt'>B1</span> has a deleted default constructor
+</span>
+struct W { W(int); };
+struct X : virtual W { using W::W; X() = delete; };
+struct Y : X { using X::X; };
+struct Z : Y, virtual W { using Y::Y; };
+Z z(0); <span class='comment'>// OK: initialization of <span class='texttt'>Y</span> does not invoke default constructor of <span class='texttt'>X</span>
+</span>
+template&lt;class T&gt; struct Log : T {
+  using T::T;    <span class='comment'>// inherits all constructors from class <span class='texttt'>T</span>
+</span>  ~Log() { std::clog &lt;&lt; "Destroying wrapper" &lt;&lt; std::endl; }
+};
+</pre><p >Class template <span class='texttt'>Log</span> wraps any class and forwards all of its constructors,
+while writing a message to the standard log
+whenever an object of class <span class='texttt'>Log</span> is destroyed.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >If the constructor was inherited from multiple base class subobjects
+of type <span class='texttt'>B</span>, the program is ill-formed.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct A { A(int); };
+struct B : A { using A::A; };
+
+struct C1 : B { using B::B; };
+struct C2 : B { using B::B; };
+
+struct D1 : C1, C2 {
+  using C1::C1;
+  using C2::C2;
+};
+
+struct V1 : virtual B { using B::B; };
+struct V2 : virtual B { using B::B; };
+
+struct D2 : V1, V2 {
+  using V1::V1;
+  using V2::V2;
+};
+
+D1 d1(0); <span class='comment'>// ill-formed: ambiguous
+</span>D2 d2(0); <span class='comment'>// OK: initializes virtual <span class='texttt'>B</span> base class, which initializes the <span class='texttt'>A</span> base class
+</span>          <span class='comment'>// then initializes the <span class='texttt'>V1</span> and <span class='texttt'>V2</span> base classes as if by a defaulted default constructor
+</span>
+struct M { M(); M(int); };
+struct N : M { using M::M; };
+struct O : M {};
+struct P : N, O { using N::N; using O::O; };
+P p(0); <span class='comment'>// OK: use <span class='texttt'>M(0)</span> to initialize <span class='texttt'>N</span>'s base class,
+</span>        <span class='comment'>// use <span class='texttt'>M()</span> to initialize <span class='texttt'>O</span>'s base class
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >When an object is initialized by an inherited constructor,
+initialization of the object is complete
+when the initialization of all subobjects is complete.</p></div></div></div></body></html>

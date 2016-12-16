@@ -1,0 +1,39 @@
+<!DOCTYPE html><html lang='en'><head><title>[ratio.arithmetic]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.16</a> Compile-time rational arithmetic <a class='abbr_ref' href='ratio#arithmetic'>[ratio]</a></h2><div id='ratio.arithmetic'><h3 ><a class='secnum' style='min-width:103pt'>20.16.4</a> Arithmetic on <span class='texttt'>ratio</span>s <a class='abbr_ref'>[ratio.arithmetic]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Each of the alias templates <span class='texttt'>ratio_add</span>, <span class='texttt'>ratio_subtract</span>, <span class='texttt'>ratio_multiply</span>,
+and <span class='texttt'>ratio_divide</span> denotes the result of an arithmetic computation on two
+<span class='texttt'>ratio</span>s <span class='texttt'>R1</span> and <span class='texttt'>R2</span>. With <span class='texttt'>X</span> and <span class='texttt'>Y</span> computed (in the
+absence of arithmetic overflow) as specified by Table <a href='#tab:ratio.arithmetic'>[tab:ratio.arithmetic]</a>, each alias
+denotes a <span class='texttt'>ratio&lt;U, V&gt;</span> such that <span class='texttt'>U</span> is the same as <span class='texttt'>ratio&lt;X, Y&gt;::num</span> and
+<span class='texttt'>V</span> is the same as <span class='texttt'>ratio&lt;X, Y&gt;::den</span>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >If it is not possible to represent <span class='texttt'>U</span> or <span class='texttt'>V</span> with <span class='texttt'>intmax_t</span>, the program is
+ill-formed. Otherwise, an implementation should yield correct values of <span class='texttt'>U</span> and
+<span class='texttt'>V</span>. If it is not possible to represent <span class='texttt'>X</span> or <span class='texttt'>Y</span> with <span class='texttt'>intmax_t</span>, the
+program is ill-formed unless the implementation yields correct values of <span class='texttt'>U</span> and
+<span class='texttt'>V</span>.</p><div class='numberedTable' id='tab:ratio.arithmetic'>Table <a href='#tab:ratio.arithmetic'>51</a> — Expressions used to perform ratio arithmetic<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Type</b></td><td colspan='1' class='center'><b>Value of <span class='texttt'>X</span></b></td><td colspan='1' class='center'><b>Value of <span class='texttt'>Y</span></b></td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>ratio_add&lt;R1, R2&gt;</span>       </td><td class='left'>
+  <span class='texttt'>R1::num * R2::den +</span>   </td><td class='left'>
+  <span class='texttt'>R1::den * R2::den</span>     </td></tr><tr ><td class='left'>
+                                </td><td class='left'>
+  <span class='texttt'>R2::num * R1::den</span>     </td><td class='left'>
+                                </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>ratio_subtract&lt;R1, R2&gt;</span>  </td><td class='left'>
+  <span class='texttt'>R1::num * R2::den -</span>   </td><td class='left'>
+  <span class='texttt'>R1::den * R2::den</span>     </td></tr><tr ><td class='left'>
+                                </td><td class='left'>
+  <span class='texttt'>R2::num * R1::den</span>     </td><td class='left'>
+                                </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>ratio_multiply&lt;R1, R2&gt;</span>  </td><td class='left'>
+  <span class='texttt'>R1::num * R2::num</span>     </td><td class='left'>
+  <span class='texttt'>R1::den * R2::den</span>     </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>ratio_divide&lt;R1, R2&gt;</span>    </td><td class='left'>
+  <span class='texttt'>R1::num * R2::den</span>     </td><td class='left'>
+  <span class='texttt'>R1::den * R2::num</span>     </td></tr></table></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+static_assert(ratio_add&lt;ratio&lt;1, 3&gt;, ratio&lt;1, 6&gt;&gt;::num == 1, "1/3+1/6 == 1/2");
+static_assert(ratio_add&lt;ratio&lt;1, 3&gt;, ratio&lt;1, 6&gt;&gt;::den == 2, "1/3+1/6 == 1/2");
+static_assert(ratio_multiply&lt;ratio&lt;1, 3&gt;, ratio&lt;3, 2&gt;&gt;::num == 1, "1/3*3/2 == 1/2");
+static_assert(ratio_multiply&lt;ratio&lt;1, 3&gt;, ratio&lt;3, 2&gt;&gt;::den == 2, "1/3*3/2 == 1/2");
+
+<span class='comment'>// The following cases may cause the program to be ill-formed under some implementations
+</span>static_assert(ratio_add&lt;ratio&lt;1, INT_MAX&gt;, ratio&lt;1, INT_MAX&gt;&gt;::num == 2,
+  "1/MAX+1/MAX == 2/MAX");
+static_assert(ratio_add&lt;ratio&lt;1, INT_MAX&gt;, ratio&lt;1, INT_MAX&gt;&gt;::den == INT_MAX,
+  "1/MAX+1/MAX == 2/MAX");
+static_assert(ratio_multiply&lt;ratio&lt;1, INT_MAX&gt;, ratio&lt;INT_MAX, 2&gt;&gt;::num == 1,
+  "1/MAX * MAX/2 == 1/2");
+static_assert(ratio_multiply&lt;ratio&lt;1, INT_MAX&gt;, ratio&lt;INT_MAX, 2&gt;&gt;::den == 2,
+  "1/MAX * MAX/2 == 1/2");
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>

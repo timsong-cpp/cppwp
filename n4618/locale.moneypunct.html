@@ -1,0 +1,237 @@
+<!DOCTYPE html><html lang='en'><head><title>[locale.moneypunct]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>22</a> Localization library <a class='abbr_ref' href='./#localization'>[localization]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>22.4</a> Standard <span class='texttt'>locale</span> categories <a class='abbr_ref' href='locale.categories#locale.moneypunct'>[locale.categories]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>22.4.6</a> The monetary category <a class='abbr_ref' href='category.monetary#locale.moneypunct'>[category.monetary]</a></h3><div id='locale.moneypunct'><h4 ><a class='secnum' style='min-width:118pt'>22.4.6.3</a> Class template <span class='texttt'>moneypunct</span> <a class='abbr_ref'>[locale.moneypunct]</a></h4><p ><span class='indexparent'><a class='index' id='moneypunct'></a></span></p><pre class='codeblock'>
+namespace std {
+  class money_base {
+  public:
+    enum part { none, space, symbol, sign, value };
+    struct pattern { char field[4]; };
+  };
+
+  template &lt;class charT, bool International = false&gt;
+  class moneypunct : public locale::facet, public money_base {
+  public:
+    using char_type   = charT;
+    using string_type = basic_string&lt;charT&gt;;
+
+    explicit moneypunct(size_t refs = 0);
+
+    charT        decimal_point() const;
+    charT        thousands_sep() const;
+    string       grouping()      const;
+    string_type  curr_symbol()   const;
+    string_type  positive_sign() const;
+    string_type  negative_sign() const;
+    int          frac_digits()   const;
+    pattern      pos_format()    const;
+    pattern      neg_format()    const;
+
+    static locale::id id;
+    static const bool intl = International;
+
+  protected:
+    ~moneypunct();
+    virtual charT        do_decimal_point() const;
+    virtual charT        do_thousands_sep() const;
+    virtual string       do_grouping()      const;
+    virtual string_type  do_curr_symbol()   const;
+    virtual string_type  do_positive_sign() const;
+    virtual string_type  do_negative_sign() const;
+    virtual int          do_frac_digits()   const;
+    virtual pattern      do_pos_format()    const;
+    virtual pattern      do_neg_format()    const;
+  };
+}
+</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The
+<span class='texttt'>moneypunct&lt;&gt;</span>
+facet defines monetary formatting parameters used by
+<span class='texttt'>money_get&lt;&gt;</span>
+and
+<span class='texttt'>money_put&lt;&gt;</span>.
+A monetary format is a sequence of four components,
+specified by a
+<span class='texttt'>pattern</span>
+value
+<span class='texttt'>p</span>,
+such that the
+<span class='texttt'>part</span>
+value
+<span class='texttt'>static_cast&lt;part&gt;(p.field[i])</span>
+determines the
+<span class='texttt'>i</span>th
+component of the format<a class='footnotenum' href='#footnote-250'>250</a>
+In the
+<span class='texttt'>field</span>
+member of a
+<span class='texttt'>pattern</span>
+object, each value
+<span class='texttt'>symbol</span>,
+<span class='texttt'>sign</span>,
+<span class='texttt'>value</span>,
+and either
+<span class='texttt'>space</span>
+or
+<span class='texttt'>none</span>
+appears exactly once.
+The value
+<span class='texttt'>none</span>,
+if present, is not first;
+the value
+<span class='texttt'>space</span>,
+if present, is neither first nor last.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Where
+<span class='texttt'>none</span>
+or
+<span class='texttt'>space</span>
+appears, white space is permitted in the format,
+except where
+<span class='texttt'>none</span>
+appears at the end, in which case no white space is permitted.
+The value
+<span class='texttt'>space</span>
+indicates that at least one space is required at that position.
+Where
+<span class='texttt'>symbol</span>
+appears, the sequence of characters returned by
+<span class='texttt'>curr_symbol()</span>
+is permitted, and can be required.
+Where
+<span class='texttt'>sign</span>
+appears, the first (if any) of the sequence of characters returned by
+<span class='texttt'>positive_sign()</span>
+or
+<span class='texttt'>negative_sign()</span>
+(respectively as the monetary value is non-negative or negative) is required.
+Any remaining characters of the sign sequence are required after all
+other format components.
+Where
+<span class='texttt'>value</span>
+appears, the absolute numeric monetary value is required.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The format of the numeric monetary value is a decimal number:</p><pre class='codeblock'>
+value ::= units [ decimal-point [ digits ]] |
+  decimal-point digits
+</pre><p >if
+<span class='texttt'>frac_digits()</span>
+returns a positive value, or</p><pre class='codeblock'>
+value ::= units
+</pre><p >otherwise.
+The symbol
+<span class='texttt'>decimal-point</span>
+indicates the character returned by
+<span class='texttt'>decimal_point()</span>.
+The other symbols are defined as follows:</p><pre class='codeblock'>
+units ::= digits [ thousands-sep units ]
+digits ::= adigit [ digits ]
+</pre><p >In the syntax specification, the symbol
+<span class='texttt'>adigit</span>
+is any of the values
+<span class='texttt'>ct.widen(c)</span>
+for
+<span class='texttt'>c</span>
+in the range
+<span class='texttt'>'0'</span>
+through
+<span class='texttt'>'9'</span>,
+inclusive, and
+<span class='texttt'>ct</span>
+is a reference of type
+<span class='texttt'>const ctype&lt;charT&gt;&amp;</span>
+obtained as described in the definitions of
+<span class='texttt'>money_get&lt;&gt;</span>
+and
+<span class='texttt'>money_put&lt;&gt;</span>.
+The symbol
+<span class='texttt'>thousands-sep</span>
+is the character returned by
+<span class='texttt'>thousands_sep()</span>.
+The space character used is the value
+<span class='texttt'>ct.widen(' ')</span>.
+White space characters are those characters
+<span class='texttt'>c</span>
+for which
+<span class='texttt'>ci.is(space,c)</span>
+returns
+<span class='texttt'>true</span>.
+The number of digits required after the decimal point (if any)
+is exactly the value returned by
+<span class='texttt'>frac_digits()</span>.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >The placement of thousands-separator characters (if any)
+is determined by the value returned by
+<span class='texttt'>grouping()</span>,
+defined identically as the member
+<span class='texttt'>numpunct&lt;&gt;::do_grouping()</span>.</p></div><div class='footnote' id='footnote-250'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-250'>250)</a></div><p >An array of
+<span class='texttt'>char</span>,
+rather than an array of
+<span class='texttt'>part</span>,
+is specified for
+<span class='texttt'>pattern::field</span>
+purely for efficiency.</p></div><div id='members'><h4 ><a class='secnum' href='#members' style='min-width:133pt'>22.4.6.3.1</a> <span class='texttt'>moneypunct</span> members <a class='abbr_ref' href='locale.moneypunct.members'>[locale.moneypunct.members]</a></h4><p ><span class='indexparent'><a class='index' id='moneypunct,decimal_point'></a></span><span class='indexparent'><a class='index' id='decimal_point,moneypunct'></a></span><span class='indexparent'><a class='index' id='moneypunct,thousands_sep'></a></span><span class='indexparent'><a class='index' id='thousands_sep,moneypunct'></a></span><span class='indexparent'><a class='index' id='moneypunct,grouping'></a></span><span class='indexparent'><a class='index' id='grouping,moneypunct'></a></span><span class='indexparent'><a class='index' id='moneypunct,curr_symbol'></a></span><span class='indexparent'><a class='index' id='curr_symbol,moneypunct'></a></span><span class='indexparent'><a class='index' id='moneypunct,positive_sign'></a></span><span class='indexparent'><a class='index' id='positive_sign,moneypunct'></a></span><span class='indexparent'><a class='index' id='moneypunct,negative_sign'></a></span><span class='indexparent'><a class='index' id='negative_sign,moneypunct'></a></span><span class='indexparent'><a class='index' id='moneypunct,frac_digits'></a></span><span class='indexparent'><a class='index' id='frac_digits,moneypunct'></a></span><span class='indexparent'><a class='index' id='moneypunct,positive_sign'></a></span><span class='indexparent'><a class='index' id='positive_sign,moneypunct'></a></span><span class='indexparent'><a class='index' id='moneypunct,negative_sign'></a></span><span class='indexparent'><a class='index' id='negative_sign,moneypunct'></a></span></p><pre class='codeblock'>
+charT        decimal_point() const;
+charT        thousands_sep() const;
+string       grouping()      const;
+string_type  curr_symbol()   const;
+string_type  positive_sign() const;
+string_type  negative_sign() const;
+int          frac_digits()   const;
+pattern      pos_format()    const;
+pattern      neg_format()    const;
+</pre><div class='para' id='members-1'><div class='marginalizedparent'><a class='marginalized' href='#members-1'>1</a></div><p >Each of these functions <span class='texttt'><i>F</i></span>
+returns the result of calling the corresponding
+virtual member function
+<span class='texttt'>do_<i>F</i>()</span>.</p></div></div><div id='virtuals'><h4 ><a class='secnum' href='#virtuals' style='min-width:133pt'>22.4.6.3.2</a> <span class='texttt'>moneypunct</span> virtual functions <a class='abbr_ref' href='locale.moneypunct.virtuals'>[locale.moneypunct.virtuals]</a></h4><p ><span class='indexparent'><a class='index' id='moneypunct,do_decimal_point'></a></span><span class='indexparent'><a class='index' id='do_decimal_point,moneypunct'></a></span><code class='itemdecl'>
+charT do_decimal_point() const;
+</code></p><div class='itemdescr'></div><div class='para' id='virtuals-1'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The radix separator to use in case
+<span class='texttt'>do_frac_digits()</span>
+is greater than zero.<a class='footnotenum' href='#footnote-251'>251</a>
+</p></div></div><p ><span class='indexparent'><a class='index' id='moneypunct,do_thousands_sep'></a></span><span class='indexparent'><a class='index' id='do_thousands_sep,moneypunct'></a></span><code class='itemdecl'>
+charT do_thousands_sep() const;
+</code></p><div class='itemdescr'></div><div class='para' id='virtuals-2'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The digit group separator to use in case
+<span class='texttt'>do_grouping()</span>
+specifies a digit grouping pattern.<a class='footnotenum' href='#footnote-252'>252</a>
+</p></div></div><p ><span class='indexparent'><a class='index' id='moneypunct,do_grouping'></a></span><span class='indexparent'><a class='index' id='do_grouping,moneypunct'></a></span><code class='itemdecl'>
+string do_grouping() const;
+</code></p><div class='itemdescr'></div><div class='para' id='virtuals-3'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A pattern defined identically as, but not necessarily equal to, the result of
+<span class='texttt'>numpunct&lt;charT&gt;::do_grouping()</span>.<a class='footnotenum' href='#footnote-253'>253</a>
+</p></div></div><p ><span class='indexparent'><a class='index' id='moneypunct,do_curr_symbol'></a></span><span class='indexparent'><a class='index' id='do_curr_symbol,moneypunct'></a></span><code class='itemdecl'>
+string_type do_curr_symbol() const;
+</code></p><div class='itemdescr'></div><div class='para' id='virtuals-4'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A string to use as the currency identifier symbol.<a class='footnotenum' href='#footnote-254'>254</a>
+</p></div></div><p ><span class='indexparent'><a class='index' id='moneypunct,do_positive_sign'></a></span><span class='indexparent'><a class='index' id='do_positive_sign,moneypunct'></a></span><span class='indexparent'><a class='index' id='moneypunct,do_negative_sign'></a></span><span class='indexparent'><a class='index' id='do_negative_sign,moneypunct'></a></span><code class='itemdecl'>
+string_type do_positive_sign() const;
+string_type do_negative_sign() const;
+</code></p><div class='itemdescr'></div><div class='para' id='virtuals-5'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>do_positive_sign()</span>
+returns the string to use to indicate a
+positive monetary value;<a class='footnotenum' href='#footnote-255'>255</a>
+<span class='texttt'>do_negative_sign()</span>
+returns the string to use to indicate a negative value.
+</p></div></div><p ><span class='indexparent'><a class='index' id='moneypunct,do_frac_digits'></a></span><span class='indexparent'><a class='index' id='do_frac_digits,moneypunct'></a></span><code class='itemdecl'>
+int do_frac_digits() const;
+</code></p><div class='itemdescr'></div><div class='para' id='virtuals-6'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The number of digits after the decimal radix separator, if any.<a class='footnotenum' href='#footnote-256'>256</a>
+</p></div></div><p ><span class='indexparent'><a class='index' id='moneypunct,do_pos_format'></a></span><span class='indexparent'><a class='index' id='do_pos_format,moneypunct'></a></span><span class='indexparent'><a class='index' id='moneypunct,do_neg_format'></a></span><span class='indexparent'><a class='index' id='do_neg_format,moneypunct'></a></span><code class='itemdecl'>
+pattern do_pos_format() const;
+pattern do_neg_format() const;
+</code></p><div class='itemdescr'></div><div class='para' id='virtuals-7'><div class='marginalizedparent'><a class='marginalized' href='#virtuals-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The specializations required in Table <a href='locale.category#tab:localization.required.specializations'>[tab:localization.required.specializations]</a> (<a href='locale.category'>[locale.category]</a>), namely
+<span class='texttt'>moneypunct&lt;char&gt;</span>,
+<span class='texttt'>moneypunct&lt;wchar_t&gt;</span>,
+<span class='texttt'>moneypunct&lt;char,true&gt;</span>,
+and
+<span class='texttt'>moneypunct&lt;wchar_t,true&gt;</span>,
+return an object of type
+<span class='texttt'>pattern</span>
+initialized to
+<span class='texttt'>{ symbol, sign, none, value }</span>.<a class='footnotenum' href='#footnote-257'>257</a>
+</p></div></div><div class='footnote' id='footnote-251'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-251'>251)</a></div><p >In common U.S. locales this is
+<span class='texttt'>'.'</span>.</p></div><div class='footnote' id='footnote-252'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-252'>252)</a></div><p >In common U.S. locales this is
+<span class='texttt'>','</span>.</p></div><div class='footnote' id='footnote-253'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-253'>253)</a></div><p >To specify grouping by 3s,
+the value is <span class='texttt'>"\003"</span>
+<i>not</i>
+<span class='texttt'>"3"</span>.</p></div><div class='footnote' id='footnote-254'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-254'>254)</a></div><p >For international
+specializations (second template parameter
+<span class='texttt'>true</span>)
+this is typically four characters long, usually three letters and a space.</p></div><div class='footnote' id='footnote-255'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-255'>255)</a></div><p >This is usually the empty string.</p></div><div class='footnote' id='footnote-256'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-256'>256)</a></div><p >In
+common U.S. locales, this is 2.</p></div><div class='footnote' id='footnote-257'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-257'>257)</a></div><p >Note that the international
+symbol returned by
+<span class='texttt'>do_curr_sym()</span>
+usually contains a space, itself;
+for example, <span class='texttt'>"USD "</span>.</p></div></div></div></div></body></html>

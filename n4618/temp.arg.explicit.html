@@ -1,0 +1,155 @@
+<!DOCTYPE html><html lang='en'><head><title>[temp.arg.explicit]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>14</a> Templates <a class='abbr_ref' href='./#temp'>[temp]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>14.8</a> Function template specializations <a class='abbr_ref' href='temp.fct.spec#temp.arg.explicit'>[temp.fct.spec]</a></h2><div id='temp.arg.explicit'><h3 ><a class='secnum' style='min-width:103pt'>14.8.1</a> Explicit template argument specification <a class='abbr_ref'>[temp.arg.explicit]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='specification,template_argument'></a></span>Template arguments can be specified when referring to a function
+template specialization by qualifying the function template
+name with the list of
+<i ><a href='temp.names#nt:template-argument'>template-arguments</a></i>
+in the same way as
+<i ><a href='temp.names#nt:template-argument'>template-arguments</a></i>
+are specified in uses of a class template specialization.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class T&gt; void sort(Array&lt;T&gt;&amp; v);
+void f(Array&lt;dcomplex&gt;&amp; cv, Array&lt;int&gt;&amp; ci) {
+  sort&lt;dcomplex&gt;(cv);           <span class='comment'>// <span class='texttt'>sort(Array&lt;dcomplex&gt;&amp;)</span>
+</span>  sort&lt;int&gt;(ci);                <span class='comment'>// <span class='texttt'>sort(Array&lt;int&gt;&amp;)</span>
+</span>}
+</pre><p >and</p><pre class='codeblock'>
+template&lt;class U, class V&gt; U convert(V v);
+
+void g(double d) {
+  int i = convert&lt;int,double&gt;(d);       <span class='comment'>// <span class='texttt'>int convert(double)</span>
+</span>  char c = convert&lt;char,double&gt;(d);     <span class='comment'>// <span class='texttt'>char convert(double)</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >A template argument list may be specified when referring to a specialization
+of a function template</p><ul class='itemize'><li id='2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.1'>(2.1)</a></div><p >when a function is called,
+</p></li><li id='2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.2'>(2.2)</a></div><p >when the address of a function is taken, when a function initializes a
+reference to function, or when a pointer to member function is formed,
+</p></li><li id='2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.3'>(2.3)</a></div><p >in an explicit specialization,
+</p></li><li id='2.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.4'>(2.4)</a></div><p >in an explicit instantiation, or
+</p></li><li id='2.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.5'>(2.5)</a></div><p >in a friend declaration.
+</p></li></ul></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >Trailing template arguments that can be deduced (<a href='temp.deduct'>[temp.deduct]</a>) or
+obtained from default
+<i ><a href='temp.names#nt:template-argument'>template-arguments</a></i>
+may be omitted from the list of explicit
+<i ><a href='temp.names#nt:template-argument'>template-arguments</a></i>.
+A trailing template parameter pack (<a href='temp.variadic'>[temp.variadic]</a>) not otherwise deduced will be
+deduced to an empty sequence of template arguments.
+If all of the template arguments can be deduced, they may all be omitted;
+in this case, the empty template argument list
+<span class='texttt'>&lt;&gt;</span>
+itself may also be omitted.
+In contexts where deduction is done and fails, or in contexts where
+deduction is not done, if a template argument list is specified and it,
+along with any default template arguments, identifies a single function
+template specialization, then the
+<i ><a href='temp.names#nt:template-id'>template-id</a></i>
+is an lvalue for the function template specialization.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class X, class Y&gt; X f(Y);
+template&lt;class X, class Y, class ... Z&gt; X g(Y);
+void h() {
+  int i = f&lt;int&gt;(5.6);          <span class='comment'>// <span class='texttt'>Y</span> is deduced to be <span class='texttt'>double</span>
+</span>  int j = f(5.6);               <span class='comment'>// ill-formed: <span class='texttt'>X</span> cannot be deduced
+</span>  f&lt;void&gt;(f&lt;int, bool&gt;);        <span class='comment'>// <span class='texttt'>Y</span> for outer <span class='texttt'>f</span> deduced to be
+</span>                                <span class='comment'>// <span class='texttt'>int (*)(bool)</span>
+</span>  f&lt;void&gt;(f&lt;int&gt;);              <span class='comment'>// ill-formed: <span class='texttt'>f&lt;int&gt;</span> does not denote a
+</span>                                <span class='comment'>// single function template specialization
+</span>  int k = g&lt;int&gt;(5.6);          <span class='comment'>// <span class='texttt'>Y</span> is deduced to be double, <span class='texttt'>Z</span> is deduced to an empty sequence
+</span>  f&lt;void&gt;(g&lt;int, bool&gt;);        <span class='comment'>// <span class='texttt'>Y</span> for outer <span class='texttt'>f</span> is deduced to be
+</span>                                <span class='comment'>// <span class='texttt'>int (*)(bool)</span>, <span class='texttt'>Z</span> is deduced to an empty sequence
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >[&nbsp;<i>Note:</i>
+An empty template argument list can be used to indicate that a given
+use refers to a specialization of a function template even when a
+non-template function (<a href='dcl.fct'>[dcl.fct]</a>) is visible that would otherwise be used.
+For example:</p><pre class='codeblock'>
+template &lt;class T&gt; int f(T);    <span class='comment'>// #1
+</span>int f(int);                     <span class='comment'>// #2
+</span>int k = f(1);                   <span class='comment'>// uses #2
+</span>int l = f&lt;&gt;(1);                 <span class='comment'>// uses #1
+</span></pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >Template arguments that are present shall be specified in the declaration
+order of their corresponding
+<i ><a href='temp.param#nt:template-parameter'>template-parameters</a></i>.
+The template argument list shall not specify more
+<i ><a href='temp.names#nt:template-argument'>template-arguments</a></i>
+than there are corresponding
+<i ><a href='temp.param#nt:template-parameter'>template-parameters</a></i>
+unless one of the <i ><a href='temp.param#nt:template-parameter'>template-parameters</a></i> is a template
+parameter pack.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+template&lt;class X, class Y, class Z&gt; X f(Y,Z);
+template&lt;class ... Args&gt; void f2();
+void g() {
+  f&lt;int,const char*,double&gt;("aa",3.0);
+  f&lt;int,const char*&gt;("aa",3.0);       <span class='comment'>// <span class='texttt'>Z</span> is deduced to be <span class='texttt'>double</span>
+</span>  f&lt;int&gt;("aa",3.0);             <span class='comment'>// <span class='texttt'>Y</span> is deduced to be <span class='texttt'>const char*</span>, and
+</span>                                <span class='comment'>// <span class='texttt'>Z</span> is deduced to be <span class='texttt'>double</span>
+</span>  f("aa",3.0);                  <span class='comment'>// error: <span class='texttt'>X</span> cannot be deduced
+</span>  f2&lt;char, short, int, long&gt;(); <span class='comment'>// OK
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >Implicit conversions (Clause <a href='conv'>[conv]</a>) will be performed on a function argument
+to convert it to the type of the corresponding function parameter if
+the parameter type contains no
+<i ><a href='temp.param#nt:template-parameter'>template-parameters</a></i>
+that participate in template argument deduction.
+[&nbsp;<i>Note:</i>
+Template parameters do not participate in template argument deduction if
+they are explicitly specified.
+For example,</p><pre class='codeblock'>
+template&lt;class T&gt; void f(T);
+
+class Complex {
+  Complex(double);
+};
+
+void g() {
+  f&lt;Complex&gt;(1);                <span class='comment'>// OK, means <span class='texttt'>f&lt;Complex&gt;(Complex(1))</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >[&nbsp;<i>Note:</i>
+Because the explicit template argument list follows the function
+template name, and because conversion member function templates and
+constructor member function templates are called without using a
+function name, there is no way to provide an explicit template
+argument list for these function templates.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+
+</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >[&nbsp;<i>Note:</i>
+For simple function names, argument dependent lookup (<a href='basic.lookup.argdep'>[basic.lookup.argdep]</a>)
+applies even when the function name is not visible within the scope of the call.
+This is because the call still has the syntactic form of a function call (<a href='basic.lookup.unqual'>[basic.lookup.unqual]</a>).
+But when a function template with explicit template arguments is used,
+the call does not have the correct syntactic form unless there is a function
+template with that name visible at the point of the call.
+If no such name is visible,
+the call is not syntactically well-formed and argument-dependent lookup
+does not apply.
+If some such name is visible,
+argument dependent lookup applies and additional function templates
+may be found in other namespaces.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+namespace A {
+  struct B { };
+  template&lt;int X&gt; void f(B);
+}
+namespace C {
+  template&lt;class T&gt; void f(T t);
+}
+void g(A::B b) {
+  f&lt;3&gt;(b);                      <span class='comment'>// ill-formed: not a function call
+</span>  A::f&lt;3&gt;(b);                   <span class='comment'>// well-formed
+</span>  C::f&lt;3&gt;(b);                   <span class='comment'>// ill-formed; argument dependent lookup
+</span>                                <span class='comment'>// applies only to unqualified names
+</span>  using C::f;
+  f&lt;3&gt;(b);                      <span class='comment'>// well-formed because <span class='texttt'>C::f</span> is visible; then
+</span>                                <span class='comment'>// <span class='texttt'>A::f</span> is found by argument dependent lookup
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >Template argument deduction can extend the sequence of template
+arguments corresponding to a template parameter pack, even when the
+sequence contains explicitly specified template arguments.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;class ... Types&gt; void f(Types ... values);
+
+void g() {
+  f&lt;int*, float*&gt;(0, 0, 0);     <span class='comment'>// <span class='texttt'>Types</span> is deduced to the sequence <span class='texttt'>int*</span>, <span class='texttt'>float*</span>, <span class='texttt'>int</span>
+</span>}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>

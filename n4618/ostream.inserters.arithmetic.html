@@ -1,0 +1,106 @@
+<!DOCTYPE html><html lang='en'><head><title>[ostream.inserters.arithmetic]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>27</a> Input/output library <a class='abbr_ref' href='./#input.output'>[input.output]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>27.7</a> Formatting and manipulators <a class='abbr_ref' href='iostream.format#ostream.inserters.arithmetic'>[iostream.format]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>27.7.3</a> Output streams <a class='abbr_ref' href='output.streams#ostream.inserters.arithmetic'>[output.streams]</a></h3><h4 ><a class='secnum' style='min-width:118pt'>27.7.3.2</a> Formatted output functions <a class='abbr_ref' href='ostream.formatted#ostream.inserters.arithmetic'>[ostream.formatted]</a></h4><div id='ostream.inserters.arithmetic'><h4 ><a class='secnum' style='min-width:133pt'>27.7.3.2.2</a> Arithmetic inserters <a class='abbr_ref'>[ostream.inserters.arithmetic]</a></h4><p ><span class='indexparent'><a class='index' id='operator<<,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,operator<<'></a></span><code class='itemdecl'>
+operator&lt;&lt;(bool val);
+operator&lt;&lt;(short val);
+operator&lt;&lt;(unsigned short val);
+operator&lt;&lt;(int val);
+operator&lt;&lt;(unsigned int val);
+operator&lt;&lt;(long val);
+operator&lt;&lt;(unsigned long val);
+operator&lt;&lt;(long long val);
+operator&lt;&lt;(unsigned long long val);
+operator&lt;&lt;(float val);
+operator&lt;&lt;(double val);
+operator&lt;&lt;(long double val);
+operator&lt;&lt;(const void* val);
+</code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+The classes
+<span class='texttt'>num_get&lt;&gt;</span>
+and
+<span class='texttt'>num_put&lt;&gt;</span>
+handle locale-dependent numeric formatting and
+parsing.
+These inserter functions use the imbued
+<span class='texttt'>locale</span>
+value to perform numeric formatting.
+When <span class='texttt'>val</span>
+is of type
+<span class='texttt'>bool</span>,
+<span class='texttt'>long</span>,
+<span class='texttt'>unsigned long</span>,
+<span class='texttt'>long long</span>, <span class='texttt'>unsigned long long</span>,
+<span class='texttt'>double</span>,
+<span class='texttt'>long double</span>,
+or
+<span class='texttt'>const void*</span>,
+the formatting conversion occurs as if it performed the following code fragment:
+</p><pre class='codeblock'>
+bool failed = use_facet&lt;
+  num_put&lt;charT, ostreambuf_iterator&lt;charT, traits&gt;&gt;
+    &gt;(getloc()).put(*this, *this, fill(), val).failed();
+</pre><p >When <span class='texttt'>val</span> is of type
+<span class='texttt'>short</span>
+the formatting conversion occurs as if it performed the following code fragment:
+</p><pre class='codeblock'>
+ios_base::fmtflags baseflags = ios_base::flags() &amp; ios_base::basefield;
+bool failed = use_facet&lt;
+  num_put&lt;charT, ostreambuf_iterator&lt;charT, traits&gt;&gt;
+    &gt;(getloc()).put(*this, *this, fill(),
+    baseflags == ios_base::oct || baseflags == ios_base::hex
+      ? static_cast&lt;long&gt;(static_cast&lt;unsigned short&gt;(val))
+      : static_cast&lt;long&gt;(val)).failed();
+</pre><p >When <span class='texttt'>val</span> is of type
+<span class='texttt'>int</span>
+the formatting conversion occurs as if it performed the following code fragment:
+</p><pre class='codeblock'>
+ios_base::fmtflags baseflags = ios_base::flags() &amp; ios_base::basefield;
+bool failed = use_facet&lt;
+  num_put&lt;charT, ostreambuf_iterator&lt;charT, traits&gt;&gt;
+    &gt;(getloc()).put(*this, *this, fill(),
+    baseflags == ios_base::oct || baseflags == ios_base::hex
+      ? static_cast&lt;long&gt;(static_cast&lt;unsigned int&gt;(val))
+      : static_cast&lt;long&gt;(val)).failed();
+</pre><p >When <span class='texttt'>val</span> is of type
+<span class='texttt'>unsigned short</span>
+or
+<span class='texttt'>unsigned int</span>
+the formatting conversion occurs as if it performed the following code fragment:
+</p><pre class='codeblock'>
+bool failed = use_facet&lt;
+  num_put&lt;charT, ostreambuf_iterator&lt;charT, traits&gt;&gt;
+    &gt;(getloc()).put(*this, *this, fill(),
+      static_cast&lt;unsigned long&gt;(val)).failed();
+</pre><p >When <span class='texttt'>val</span> is of type
+<span class='texttt'>float</span>
+the formatting conversion occurs as if it performed the following code fragment:
+</p><pre class='codeblock'>
+bool failed = use_facet&lt;
+  num_put&lt;charT, ostreambuf_iterator&lt;charT, traits&gt;&gt;
+    &gt;(getloc()).put(*this, *this, fill(),
+      static_cast&lt;double&gt;(val)).failed();
+</pre></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p >The first argument provides an object of the
+<span class='texttt'>ostreambuf_iterator&lt;&gt;</span>
+class which is an iterator for class <span class='texttt'>basic_ostream&lt;&gt;</span>.
+It bypasses
+<span class='texttt'>ostream</span>s
+and uses
+<span class='texttt'>streambuf</span>s
+directly.
+Class
+<span class='texttt'>locale</span>
+relies on these types as its
+interface to iostreams, since for flexibility it has been abstracted
+away from direct dependence on
+<span class='texttt'>ostream</span>.
+The second parameter is a reference to the base subobject of type
+<span class='texttt'>ios_base</span>.
+It provides formatting specifications such as field width, and
+a locale from which to obtain other facets.
+If
+<span class='texttt'>failed</span>
+is
+<span class='texttt'>true</span>
+then does
+<span class='texttt'>setstate(badbit)</span>,
+which may throw an exception, and returns.</p></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div></div></div></body></html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html><html lang='en'><head><title>[expr.cond]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>5</a> Expressions <a class='abbr_ref' href='./#expr'>[expr]</a></h1><div id='expr.cond'><h2 ><a class='secnum' style='min-width:88pt'>5.16</a> Conditional operator <a class='abbr_ref'>[expr.cond]</a></h2><p ><span class='indexparent'><a class='index' id='expression,conditional_operator'></a></span><span class='indexparent'><a class='index' id='operator,conditional_expression'></a></span><span class='indexparent'><a class='index' id='?:'></a></span>
+</p><pre class='bnf'><a id='nt:conditional-expression'>conditional-expression:</a>
+    <i ><a href='expr.log.or#nt:logical-or-expression'>logical-or-expression</a></i>
+    <i ><a href='expr.log.or#nt:logical-or-expression'>logical-or-expression</a></i> <span class='terminal'>?</span> <i ><a href='expr.comma#nt:expression'>expression</a></i> <span class='terminal'>:</span> <i ><a href='expr.ass#nt:assignment-expression'>assignment-expression</a></i></pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Conditional expressions group right-to-left. The first expression is
+contextually converted to <span class='texttt'>bool</span>
+(Clause <a href='conv'>[conv]</a>). It is
+evaluated and if it is <span class='texttt'>true</span>, the result of the conditional
+expression is the value of the second expression, otherwise that of the
+third expression. Only one of the second and third expressions is
+evaluated. Every
+<span class='indexparent'><a class='index' id='value_computation'></a></span>value computation and side effect associated with the
+first expression is sequenced before every value computation and side
+effect associated with the second or third expression.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >If either the second or the third operand has type <span class='texttt'>void</span>,
+one of the following shall hold:</p><ul class='itemize'><li id='2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.1'>(2.1)</a></div><p ><span class='indexparent'><a class='index' id='conditional-expression,throw-expression_in'></a></span></p><p >The second or the third operand (but not both) is a (possibly
+parenthesized) <i ><a href='expr.throw#nt:throw-expression'>throw-expression</a></i> (<a href='expr.throw'>[expr.throw]</a>); the result
+is of the type and value category of the other.
+The <i ><a href='expr.cond#nt:conditional-expression'>conditional-expression</a></i>
+is a bit-field if that operand is a bit-field.</p></li><li id='2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.2'>(2.2)</a></div><p >Both the second and the third operands have type <span class='texttt'>void</span>; the
+result is of type <span class='texttt'>void</span> and is a prvalue. [&nbsp;<i>Note:</i> This
+includes the case where both operands are <i ><a href='expr.throw#nt:throw-expression'>throw-expressions</a></i>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></li></ul></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >Otherwise, if the second and third operand are glvalue bit-fields
+of the same value category and
+of types <i>cv1</i> <span class='texttt'>T</span> and <i>cv2</i> <span class='texttt'>T</span>, respectively,
+the operands are considered to be of type <i>cv</i> <span class='texttt'>T</span>
+for the remainder of this section,
+where <i>cv</i> is the union of <i>cv1</i> and <i>cv2</i>.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Otherwise, if the second and third operand have different types and
+either has (possibly cv-qualified) class type, or if both
+are glvalues of the same value category and the same type except for
+cv-qualification, an attempt is made to
+form an implicit conversion sequence (<a href='over.best.ics'>[over.best.ics]</a>) from
+each of those operands to the type of the other.
+[&nbsp;<i>Note:</i>
+Properties such as access, whether an operand is a bit-field, or whether
+a conversion function is deleted are ignored for that determination.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+Attempts are made to form an implicit conversion sequence
+from an operand expression <span class='texttt'>E1</span> of type <span class='texttt'>T1</span>
+to a target type related to the type <span class='texttt'>T2</span>
+of the operand expression <span class='texttt'>E2</span> as follows:</p><ul class='itemize'><li id='4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.1'>(4.1)</a></div><p >If <span class='texttt'>E2</span> is an lvalue, the target type is 
+“lvalue reference to <span class='texttt'>T2</span>”, subject to the
+constraint that in the conversion the reference must bind
+directly (<a href='dcl.init.ref'>[dcl.init.ref]</a>) to an lvalue.</p></li><li id='4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.2'>(4.2)</a></div><p >If <span class='texttt'>E2</span> is an xvalue, the target type is
+“rvalue reference to <span class='texttt'>T2</span>”,
+subject to the constraint that the reference must bind directly.</p></li><li id='4.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.3'>(4.3)</a></div><p >If <span class='texttt'>E2</span> is a prvalue or if neither of the conversion sequences above can be
+formed and at least one of the operands has (possibly cv-qualified) class type:</p><ul class='itemize'><li id='4.3.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#4.3.1'>(4.3.1)</a></div><p >if <span class='texttt'>T1</span> and <span class='texttt'>T2</span> are the same class type
+(ignoring cv-qualification), or one is a base class of the other, and
+<span class='texttt'>T2</span> is at least as cv-qualified as <span class='texttt'>T1</span>,
+the target type is <span class='texttt'>T2</span>,
+    
+</p></li><li id='4.3.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#4.3.2'>(4.3.2)</a></div><p >otherwise, the target type is the type that <span class='texttt'>E2</span> would have
+after applying the
+lvalue-to-rvalue (<a href='conv.lval'>[conv.lval]</a>),
+array-to-pointer (<a href='conv.array'>[conv.array]</a>), and
+function-to-pointer (<a href='conv.func'>[conv.func]</a>)
+standard conversions.
+</p></li></ul></li></ul><p >Using this process, it is determined whether an implicit conversion
+sequence can be formed from the second operand 
+to the target type determined for the third operand, and vice versa.
+If both sequences can be formed, or one can be formed but it is the
+ambiguous conversion sequence, the program is ill-formed.
+If no conversion sequence can be formed, the operands are left unchanged
+and further checking is performed as described below.
+Otherwise, if exactly one conversion sequence can be formed,
+that conversion is applied to the chosen operand
+and the converted operand is used in place of the original operand for
+the remainder of this section.
+[&nbsp;<i>Note:</i>
+The conversion might be ill-formed even if an implicit conversion
+sequence could be formed.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >If the second and third operands are glvalues of the same value category
+and have the same type, the
+result is of that type and value category and it is a bit-field if the
+second or the third operand is a bit-field, or if both are bit-fields.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >Otherwise, the result is a prvalue. If the second and third operands do
+not have the same type, and either has (possibly cv-qualified) class
+type, overload resolution is used to determine the conversions (if any)
+to be applied to the operands (<a href='over.match.oper'>[over.match.oper]</a>, <a href='over.built'>[over.built]</a>).
+If the overload resolution fails, the program is ill-formed. Otherwise,
+the conversions thus determined are applied, and the converted operands
+are used in place of the original operands for the remainder of this
+section.</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >Lvalue-to-rvalue (<a href='conv.lval'>[conv.lval]</a>), array-to-pointer (<a href='conv.array'>[conv.array]</a>),
+and function-to-pointer (<a href='conv.func'>[conv.func]</a>) standard conversions are
+performed on the second and third operands. After those conversions, one
+of the following shall hold:</p><ul class='itemize'><li id='7.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#7.1'>(7.1)</a></div><p >The second and third operands have the same type; the result is of
+that type and the result object is initialized using the selected operand.</p></li><li id='7.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#7.2'>(7.2)</a></div><p >The second and third operands have arithmetic or enumeration type;
+the usual arithmetic conversions are performed to bring them to a common
+type, and the result is of that type.</p></li><li id='7.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#7.3'>(7.3)</a></div><p >One or both of the second and third operands have pointer type;
+pointer conversions (<a href='conv.ptr'>[conv.ptr]</a>),
+function pointer conversions (<a href='conv.fctptr'>[conv.fctptr]</a>), and
+qualification conversions (<a href='conv.qual'>[conv.qual]</a>)
+are performed to bring them to their
+composite pointer type (Clause <a href='expr'>[expr]</a>). The result is of the composite
+pointer type.</p></li><li id='7.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#7.4'>(7.4)</a></div><p >One or both of the second and third operands have pointer to member type;
+pointer to member conversions (<a href='conv.mem'>[conv.mem]</a>) and qualification
+conversions (<a href='conv.qual'>[conv.qual]</a>) are performed to bring them to their composite
+pointer type (Clause <a href='expr'>[expr]</a>). The result is of the composite pointer type.</p></li><li id='7.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#7.5'>(7.5)</a></div><p >Both the second and third operands have type <span class='texttt'>std::nullptr_t</span> or one has
+that type and the other is a null pointer constant. The result is of type
+<span class='texttt'>std::nullptr_t</span>.</p></li></ul></div></div></div></body></html>

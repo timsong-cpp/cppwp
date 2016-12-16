@@ -1,0 +1,116 @@
+<!DOCTYPE html><html lang='en'><head><title>[support.start.term]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>18</a> Language support library <a class='abbr_ref' href='./#language.support'>[language.support]</a></h1><div id='support.start.term'><h2 ><a class='secnum' style='min-width:88pt'>18.5</a> Start and termination <a class='abbr_ref'>[support.start.term]</a></h2><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='cstdlib'></a></span>[&nbsp;<i>Note:</i>
+The header <span class='texttt'>&lt;cstdlib&gt;</span> (<a href='cstdlib.syn'>[cstdlib.syn]</a>)
+declares the functions described in this subclause.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='_Exit'></a></span><code class='itemdecl'>
+[[noreturn]] void _Exit(int status) noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+This function has the semantics specified in the C standard library.</p></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The program is terminated without executing destructors for objects of automatic,
+thread, or static storage duration and without calling functions passed to
+<span class='texttt'>atexit()</span> (<a href='basic.start.term'>[basic.start.term]</a>).
+</p></div></div><p ><span class='indexparent'><a class='index' id='abort'></a></span><code class='itemdecl'>
+[[noreturn]] void abort() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+This function has the semantics specified in the C standard library.</p></div></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+The program is terminated without executing destructors for objects of
+automatic, thread, or static storage
+duration and without calling functions passed to
+<span class='texttt'>atexit()</span> (<a href='basic.start.term'>[basic.start.term]</a>).
+<span class='indexparent'><a class='index' id='atexit'></a></span></p></div></div><p ><span class='indexparent'><a class='index' id='atexit'></a></span><code class='itemdecl'>
+int atexit(<i>c-atexit-handler</i>* f) noexcept;
+int atexit(<i>atexit-handler</i>* f) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>
+The
+<span class='texttt'>atexit()</span>
+functions register the function pointed to by <span class='texttt'>f</span>
+to be called without arguments at normal program termination.
+It is unspecified whether a call to <span class='texttt'>atexit()</span> that does not
+happen before (<a href='intro.multithread'>[intro.multithread]</a>) a call to <span class='texttt'>exit()</span> will succeed.
+[&nbsp;<i>Note:</i> The <span class='texttt'>atexit()</span> functions do not introduce a data
+race (<a href='res.on.data.races'>[res.on.data.races]</a>). <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><p ><i>Implementation limits:</i>
+The implementation shall support the registration of at least 32 functions.</p></div></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The
+<span class='texttt'>atexit()</span>
+function returns zero if the registration succeeds,
+nonzero if it fails.
+</p></div></div><p ><span class='indexparent'><a class='index' id='exit'></a></span><code class='itemdecl'>
+[[noreturn]] void exit(int status);
+</code></p><div class='itemdescr'></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><ul class='itemize'><li id='9.1'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#9.1'>(9.1)</a></div><p >First, objects with thread storage duration and associated with the current thread
+are destroyed. Next, objects with static storage duration are destroyed
+and functions registered by calling
+<span class='texttt'>atexit</span>
+are called.<a class='footnotenum' href='#footnote-216'>216</a>
+See <a href='basic.start.term'>[basic.start.term]</a> for the order of destructions and calls.
+(Automatic objects are not destroyed as a result of calling
+<span class='texttt'>exit()</span>.)<a class='footnotenum' href='#footnote-217'>217</a></p><p >If control leaves a registered function called by <span class='texttt'>exit</span> because the function does
+not provide a handler for a thrown exception, <span class='texttt'>std::terminate()</span> shall be called (<a href='except.terminate'>[except.terminate]</a>).<span class='indexparent'><a class='index' id='terminate'></a></span>
+</p></li><li id='9.2'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#9.2'>(9.2)</a></div><p >Next, all open C streams (as mediated by the function
+signatures declared in
+<span class='texttt'>&lt;cstdio&gt;</span>)
+with unwritten buffered data are flushed, all open C
+streams are closed, and all files created by calling
+<span class='texttt'>tmpfile()</span>
+are removed.</p></li><li id='9.3'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#9.3'>(9.3)</a></div><p >Finally, control is returned to the host environment.
+If <span class='texttt'>status</span> is zero or
+<span class='texttt'>EXIT_SUCCESS</span>,
+an <span class='indexparent'><a class='index' id='exit_status'></a></span>implementation-defined
+form of the status
+<a class='hidden_link' href='#def:successful_termination' id='def:successful_termination'><i>successful termination</i></a>
+is returned.
+If <span class='texttt'>status</span> is
+<span class='texttt'>EXIT_FAILURE</span>,
+an <span class='indexparent'><a class='index' id='exit_status'></a></span>implementation-defined form of the status
+<a class='hidden_link' href='#def:unsuccessful_termination' id='def:unsuccessful_termination'><i>unsuccessful termination</i></a>
+is returned.
+Otherwise the status returned is <span class='indexparent'><a class='index' id='exit_status'></a></span>implementation-defined.<a class='footnotenum' href='#footnote-218'>218</a>
+</p></li></ul></div></div><p ><span class='indexparent'><a class='index' id='at_quick_exit'></a></span><code class='itemdecl'>
+int at_quick_exit(<i>c-atexit-handler</i>* f) noexcept;
+int at_quick_exit(<i>atexit-handler</i>* f) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i> The <span class='texttt'>at_quick_exit()</span> functions register the function pointed to by <span class='texttt'>f</span>
+to be called without arguments when <span class='texttt'>quick_exit</span> is called.
+It is unspecified whether a call to <span class='texttt'>at_quick_exit()</span> that does not
+happen before (<a href='intro.multithread'>[intro.multithread]</a>) all calls to <span class='texttt'>quick_exit</span> will succeed. [&nbsp;<i>Note:</i> The
+<span class='texttt'>at_quick_exit()</span> functions do not introduce a
+data race (<a href='res.on.data.races'>[res.on.data.races]</a>). <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+The order of registration may be indeterminate if <span class='texttt'>at_quick_exit</span> was called from more
+than one thread.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Note:</i> The
+<span class='texttt'>at_quick_exit</span> registrations are distinct from the <span class='texttt'>atexit</span> registrations,
+and applications may need to call both registration functions with the same argument.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><div class='itemdescr'><p ><i>Implementation limits:</i>
+The implementation shall support the registration of at least 32 functions.</p></div></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> Zero if the registration succeeds, nonzero if it fails.
+</p></div></div><p ><span class='indexparent'><a class='index' id='quick_exit'></a></span><code class='itemdecl'>
+[[noreturn]] void quick_exit(int status) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i> Functions registered by calls to <span class='texttt'>at_quick_exit</span> are called in the
+reverse order of their registration, except that a function shall be called after any
+previously registered functions that had already been called at the time it was
+registered. Objects shall not be destroyed as a result of calling <span class='texttt'>quick_exit</span>.
+If control leaves a registered function called by <span class='texttt'>quick_exit</span> because the
+function does not provide a handler for a thrown exception, <span class='texttt'>std::terminate()</span> shall
+be called.<span class='indexparent'><a class='index' id='terminate'></a></span>
+[&nbsp;<i>Note:</i>
+<span class='texttt'>at_quick_exit</span> may call a registered function from a different thread
+than the one that registered it, so registered functions should not rely on the identity
+of objects with thread storage duration.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+After calling registered functions, <span class='texttt'>quick_exit</span> shall call <span class='texttt'>_Exit(status)</span>.
+[&nbsp;<i>Note:</i>
+The standard file buffers are not flushed.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><p ><span class='textsc'>See also:</span> <a href='basic.start'>[basic.start]</a>, <a href='basic.start.term'>[basic.start.term]</a>,
+ISO C 7.22.4.</p><div class='footnote' id='footnote-216'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-216'>216)</a></div><p >A function is called for every time it is registered.</p></div><div class='footnote' id='footnote-217'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-217'>217)</a></div><p >Objects with automatic storage duration are all destroyed in a program whose
+function
+<span class='texttt'>main()</span>
+contains no automatic objects and executes the call to
+<span class='texttt'>exit()</span>.
+Control can be transferred directly to such a
+<span class='texttt'>main()</span>
+by throwing an exception that is caught in
+<span class='texttt'>main()</span>.</p></div><div class='footnote' id='footnote-218'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-218'>218)</a></div><p >The macros
+<span class='texttt'>EXIT_FAILURE</span>
+and
+<span class='texttt'>EXIT_SUCCESS</span>
+are defined in
+<span class='texttt'>&lt;cstdlib&gt;</span>.</p></div></div></div></body></html>

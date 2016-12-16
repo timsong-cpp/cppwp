@@ -1,0 +1,814 @@
+<!DOCTYPE html><html lang='en'><head><title>[class.path]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>27</a> Input/output library <a class='abbr_ref' href='./#input.output'>[input.output]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>27.10</a> File systems <a class='abbr_ref' href='filesystems#class.path'>[filesystems]</a></h2><div id='class.path'><h3 ><a class='secnum' style='min-width:103pt'>27.10.8</a> Class <span class='texttt'>path</span> <a class='abbr_ref'>[class.path]</a></h3><p ><span class='indexparent'><a class='index' id='path'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >An object of class <span class='texttt'>path</span> represents a path (<a href='fs.def.path'>[fs.def.path]</a>)
+and contains a pathname (<a href='fs.def.pathname'>[fs.def.pathname]</a>).
+Such an object is concerned only with the lexical and syntactic aspects
+of a path. The path does not necessarily exist in external storage, and the
+pathname is not necessarily valid for the current operating
+system or for a particular file system.</p><pre class='codeblock'>
+namespace std::filesystem {
+  class path {
+  public:
+    using value_type  = <i><span class='texttt'>see below</span></i>;
+    using string_type = basic_string&lt;value_type&gt;;
+    static constexpr value_type preferred_separator = <i><span class='texttt'>see below</span></i>;
+
+    <span class='comment'>// <a href='path.construct'>[path.construct]</a>, constructors and destructor
+</span>    path() noexcept;
+    path(const path&amp; p);
+    path(path&amp;&amp; p) noexcept;
+    path(string_type&amp;&amp; source);
+    template &lt;class Source&gt;
+      path(const Source&amp; source);
+    template &lt;class InputIterator&gt;
+      path(InputIterator first, InputIterator last);
+    template &lt;class Source&gt;
+      path(const Source&amp; source, const locale&amp; loc);
+    template &lt;class InputIterator&gt;
+      path(InputIterator first, InputIterator last, const locale&amp; loc);
+   ~path();
+
+    <span class='comment'>// <a href='path.assign'>[path.assign]</a>, assignments
+</span>    path&amp; operator=(const path&amp; p);
+    path&amp; operator=(path&amp;&amp; p) noexcept;
+    path&amp; operator=(string_type&amp;&amp; source);
+    path&amp; assign(string_type&amp;&amp; source);
+    template &lt;class Source&gt;
+      path&amp; operator=(const Source&amp; source);
+    template &lt;class Source&gt;
+      path&amp; assign(const Source&amp; source)
+    template &lt;class InputIterator&gt;
+      path&amp; assign(InputIterator first, InputIterator last);
+
+    <span class='comment'>// <a href='path.append'>[path.append]</a>, appends
+</span>    path&amp; operator/=(const path&amp; p);
+    template &lt;class Source&gt;
+      path&amp; operator/=(const Source&amp; source);
+    template &lt;class Source&gt;
+      path&amp; append(const Source&amp; source);
+    template &lt;class InputIterator&gt;
+      path&amp; append(InputIterator first, InputIterator last);
+
+    <span class='comment'>// <a href='path.concat'>[path.concat]</a>, concatenation
+</span>    path&amp; operator+=(const path&amp; x);
+    path&amp; operator+=(const string_type&amp; x);
+    path&amp; operator+=(basic_string_view&lt;value_type&gt; x);
+    path&amp; operator+=(const value_type* x);
+    path&amp; operator+=(value_type x);
+    template &lt;class Source&gt;
+      path&amp; operator+=(const Source&amp; x);
+    template &lt;class EcharT&gt;
+      path&amp; operator+=(EcharT x);
+    template &lt;class Source&gt;
+      path&amp; concat(const Source&amp; x);
+    template &lt;class InputIterator&gt;
+      path&amp; concat(InputIterator first, InputIterator last);
+
+    <span class='comment'>// <a href='path.modifiers'>[path.modifiers]</a>, modifiers
+</span>    void  clear() noexcept;
+    path&amp; make_preferred();
+    path&amp; remove_filename();
+    path&amp; replace_filename(const path&amp; replacement);
+    path&amp; replace_extension(const path&amp; replacement = path());
+    void  swap(path&amp; rhs) noexcept;
+
+    <span class='comment'>// <a href='path.native.obs'>[path.native.obs]</a>, native format observers
+</span>    const string_type&amp; native() const noexcept;
+    const value_type*  c_str() const noexcept;
+    operator string_type() const;
+
+    template &lt;class EcharT, class traits = char_traits&lt;EcharT&gt;,
+              class Allocator = allocator&lt;EcharT&gt;&gt;
+      basic_string&lt;EcharT, traits, Allocator&gt;
+        string(const Allocator&amp; a = Allocator()) const;
+    std::string    string() const;
+    std::wstring   wstring() const;
+    std::string    u8string() const;
+    std::u16string u16string() const;
+    std::u32string u32string() const;
+
+    <span class='comment'>// <a href='path.generic.obs'>[path.generic.obs]</a>, generic format observers
+</span>    template &lt;class EcharT, class traits = char_traits&lt;EcharT&gt;,
+              class Allocator = allocator&lt;EcharT&gt;&gt;
+      basic_string&lt;EcharT, traits, Allocator&gt;
+        generic_string(const Allocator&amp; a = Allocator()) const;
+    std::string    generic_string() const;
+    std::wstring   generic_wstring() const;
+    std::string    generic_u8string() const;
+    std::u16string generic_u16string() const;
+    std::u32string generic_u32string() const;
+
+    <span class='comment'>// <a href='path.compare'>[path.compare]</a>, compare
+</span>    int  compare(const path&amp; p) const noexcept;
+    int  compare(const string_type&amp; s) const;
+    int  compare(basic_string_view&lt;value_type&gt; s) const;
+    int  compare(const value_type* s) const;
+
+    <span class='comment'>// <a href='path.decompose'>[path.decompose]</a>, decomposition
+</span>    path root_name() const;
+    path root_directory() const;
+    path root_path() const;
+    path relative_path() const;
+    path parent_path() const;
+    path filename() const;
+    path stem() const;
+    path extension() const;
+
+    <span class='comment'>// <a href='path.query'>[path.query]</a>, query
+</span>    bool empty() const noexcept;
+    bool has_root_name() const;
+    bool has_root_directory() const;
+    bool has_root_path() const;
+    bool has_relative_path() const;
+    bool has_parent_path() const;
+    bool has_filename() const;
+    bool has_stem() const;
+    bool has_extension() const;
+    bool is_absolute() const;
+    bool is_relative() const;
+
+    <span class='comment'>// <a href='path.gen'>[path.gen]</a>, generation
+</span>    path lexically_normal() const;
+    path lexically_relative(const path&amp; base) const;
+    path lexically_proximate(const path&amp; base) const;
+
+    <span class='comment'>// <a href='path.itr'>[path.itr]</a>, iterators
+</span>    class iterator;
+    using const_iterator = iterator;
+
+    iterator begin() const;
+    iterator end() const;
+
+  private:
+    string_type pathstring; <span class='comment'>// <i>exposition only</i>
+</span>  };
+}
+</pre><p ><span class='indexparent'><a class='index' id='value_type,path'></a></span><span class='indexparent'><a class='index' id='path,value_type'></a></span></p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='texttt'>value_type</span> is a <span class='texttt'>typedef</span> for the
+operating system dependent encoded character type used to represent pathnames.</p><p ><span class='indexparent'><a class='index' id='preferred_separator,path'></a></span><span class='indexparent'><a class='index' id='path,preferred_separator'></a></span></p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The value of <span class='texttt'>preferred_separator</span>
+is the operating system dependent <i ><a href='path.generic#nt:preferred-separator'>preferred-separator</a></i> character (<a href='path.generic'>[path.generic]</a>).</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >[&nbsp;<i>Example:</i>
+For POSIX-based operating systems,
+<span class='texttt'>value_type</span> is <span class='texttt'>char</span> and
+<span class='texttt'>preferred_separator</span> is the slash character (<span class='texttt'>'/'</span>).
+For Windows-based operating systems,
+<span class='texttt'>value_type</span> is <span class='texttt'>wchar_t</span> and
+<span class='texttt'>preferred_separator</span> is the backslash character (<span class='texttt'>L'\\'</span>).
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div id='path.generic'><h4 ><a class='secnum' href='#path.generic' style='min-width:118pt'>27.10.8.1</a> Generic pathname format <a class='abbr_ref' href='path.generic'>[path.generic]</a></h4><pre class='bnf'><a id='nt:pathname'>pathname:</a>
+    <i ><a href='path.generic#nt:root-name'>root-name</a></i> <i ><a href='path.generic#nt:root-directory'>root-directory</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <i ><a href='path.generic#nt:relative-path'>relative-path</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span>
+    <i ><a href='path.generic#nt:root-directory'>root-directory</a></i> <i ><a href='path.generic#nt:relative-path'>relative-path</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span>
+    <i ><a href='path.generic#nt:relative-path'>relative-path</a></i></pre><pre class='bnf'><a id='nt:root-name'>root-name:</a>
+    <span class='textnormal'>An operating system dependent name that identifies the starting location for absolute paths.
+[&nbsp;<i>Note:</i> Many operating systems define a name
+beginning with two <span class='grammarterm'>directory-separator</span> characters
+as a <span class='grammarterm'>root-name</span> that identifies
+network or other resource locations.
+Some operating systems
+define a single letter followed by a colon
+as a drive specifier – a <span class='grammarterm'>root-name</span>
+identifying a specific device such as a disk drive.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</span></pre><pre class='bnf'><a id='nt:root-directory'>root-directory:</a>
+    <i ><a href='path.generic#nt:directory-separator'>directory-separator</a></i></pre><pre class='bnf'><a id='nt:relative-path'>relative-path:</a>
+    <i ><a href='path.generic#nt:filename'>filename</a></i>
+    <i ><a href='path.generic#nt:relative-path'>relative-path</a></i> <i ><a href='path.generic#nt:directory-separator'>directory-separator</a></i>
+    <i ><a href='path.generic#nt:relative-path'>relative-path</a></i> <i ><a href='path.generic#nt:directory-separator'>directory-separator</a></i> <i ><a href='path.generic#nt:filename'>filename</a></i></pre><pre class='bnf'><a id='nt:filename'>filename:</a>
+    <i ><a href='path.generic#nt:name'>name</a></i>
+    <i ><a href='path.generic#nt:dot'>dot</a></i>
+    <i ><a href='path.generic#nt:dot-dot'>dot-dot</a></i></pre><pre class='bnf'><a id='nt:name'>name:</a>
+    <span class='textnormal'>A sequence of characters other than <span class='grammarterm'>directory-separator</span> characters.
+[&nbsp;<i>Note:</i>
+Operating systems often place restrictions
+on the characters that may be used in a <span class='grammarterm'>filename</span>.
+For wide portability, users may wish to limit <span class='grammarterm'>filename</span>
+characters to the POSIX Portable Filename Character Set: <br/>
+<span class='texttt'>A B C D E F G H I J K L M N O P Q R S T U V W X Y Z</span> <br/>
+<span class='texttt'>a b c d e f g h i j k l m n o p q r s t u v w x y z</span> <br/>
+<span class='texttt'>0 1 2 3 4 5 6 7 8 9 . _ -</span>
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</span></pre><pre class='bnf'><a id='nt:dot'>dot:</a>
+    <span class='textnormal'>The filename consisting solely of a single period character (.).</span></pre><pre class='bnf'><a id='nt:dot-dot'>dot-dot:</a>
+    <span class='textnormal'>The filename consisting solely of two period characters (..).</span></pre><pre class='bnf'><a id='nt:directory-separator'>directory-separator:</a>
+    <i ><a href='path.generic#nt:slash'>slash</a></i>
+    <i ><a href='path.generic#nt:slash'>slash</a></i> <i ><a href='path.generic#nt:directory-separator'>directory-separator</a></i>
+    <i ><a href='path.generic#nt:preferred-separator'>preferred-separator</a></i>
+    <i ><a href='path.generic#nt:preferred-separator'>preferred-separator</a></i> <i ><a href='path.generic#nt:directory-separator'>directory-separator</a></i></pre><pre class='bnf'><a id='nt:preferred-separator'>preferred-separator:</a>
+    <span class='textnormal'>An operating system dependent directory separator character. May be a synonym for <span class='grammarterm'>slash</span>.</span></pre><pre class='bnf'><a id='nt:slash'>slash:</a>
+    <span class='textnormal'>The slash character (<span class='texttt'>/</span>).</span></pre><div class='para' id='path.generic-1'><div class='marginalizedparent'><a class='marginalized' href='#path.generic-1'>1</a></div><p >Multiple successive <i ><a href='path.generic#nt:directory-separator'>directory-separator</a></i> characters are considered to
+be the same as one <i ><a href='path.generic#nt:directory-separator'>directory-separator</a></i> character.</p></div><div class='para' id='path.generic-2'><div class='marginalizedparent'><a class='marginalized' href='#path.generic-2'>2</a></div><p >The filename <i ><a href='path.generic#nt:dot'>dot</a></i> is treated as a reference to the current directory.
+The filename <i ><a href='path.generic#nt:dot-dot'>dot-dot</a></i> is treated as a reference to the parent directory.
+What the filename <i ><a href='path.generic#nt:dot-dot'>dot-dot</a></i> refers to
+relative to <i ><a href='path.generic#nt:root-directory'>root-directory</a></i> is <span class='indexparent'><a class='index' id='meaning_of_dot-dot_in_root-directory'></a></span>implementation-defined.
+Specific filenames may have special meanings for a particular operating system.</p></div></div><div id='path.cvt'><h4 ><a class='secnum' href='#path.cvt' style='min-width:118pt'>27.10.8.2</a> <span class='texttt'>path</span> conversions <a class='abbr_ref' href='path.cvt'>[path.cvt]</a></h4><div id='path.fmt.cvt'><h4 ><a class='secnum' href='#path.fmt.cvt' style='min-width:133pt'>27.10.8.2.1</a> <span class='texttt'>path</span> argument format conversions <a class='abbr_ref' href='path.fmt.cvt'>[path.fmt.cvt]</a></h4><div class='para' id='path.fmt.cvt-1'><div class='marginalizedparent'><a class='marginalized' href='#path.fmt.cvt-1'>1</a></div><p >[&nbsp;<i>Note:</i>
+The format conversions described in this section
+are not applied on POSIX- or Windows-based operating systems
+because on these systems:
+</p><ul class='itemize'><li id='path.fmt.cvt-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#path.fmt.cvt-1.1'>(1.1)</a></div><p >The generic format is acceptable as a native path.
+</p></li><li id='path.fmt.cvt-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#path.fmt.cvt-1.2'>(1.2)</a></div><p >There is no need to distinguish between native format and generic format in function arguments.
+</p></li><li id='path.fmt.cvt-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#path.fmt.cvt-1.3'>(1.3)</a></div><p >Paths for regular files and paths for directories share the same syntax.
+</p></li></ul><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='path.fmt.cvt-2'><div class='marginalizedparent'><a class='marginalized' href='#path.fmt.cvt-2'>2</a></div><p >Function arguments that take character sequences representing
+paths may use the generic pathname format grammar (<a href='path.generic'>[path.generic]</a>) or
+the native pathname format (<a href='fs.def.native'>[fs.def.native]</a>). If and only if such
+arguments are in the generic format and the generic format is not acceptable to
+the operating system as a native path, conversion to native format shall be
+performed during the processing of the argument.</p></div><div class='para' id='path.fmt.cvt-3'><div class='marginalizedparent'><a class='marginalized' href='#path.fmt.cvt-3'>3</a></div><p >[&nbsp;<i>Note:</i>
+Some operating systems may have no unambiguous way to distinguish between native format and generic format arguments.
+This is by design as it simplifies use for operating systems that do not require
+disambiguation. An implementation for an operating system where disambiguation
+is required is permitted to distinguish between the formats.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='path.fmt.cvt-4'><div class='marginalizedparent'><a class='marginalized' href='#path.fmt.cvt-4'>4</a></div><p >If the native format requires paths for regular files to be formatted
+differently from paths for directories, the path shall be treated as a directory
+path if its last element is a <i ><a href='path.generic#nt:directory-separator'>directory-separator</a></i>,
+otherwise it shall be treated as a path to a regular file.</p></div></div><div id='path.type.cvt'><h4 ><a class='secnum' href='#path.type.cvt' style='min-width:133pt'>27.10.8.2.2</a> <span class='texttt'>path</span> type and encoding conversions <a class='abbr_ref' href='path.type.cvt'>[path.type.cvt]</a></h4><div class='para' id='path.type.cvt-1'><div class='marginalizedparent'><a class='marginalized' href='#path.type.cvt-1'>1</a></div><p >For member function arguments that take character sequences representing
+paths and for member functions returning strings, value type and encoding
+conversion is performed if the value type of the argument or return value differs from
+<span class='texttt'>path::value_type</span>.
+For the argument or return value, the method of conversion and the encoding 
+to be converted to is determined
+by its value type:
+</p><ul class='itemize'><li id='path.type.cvt-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#path.type.cvt-1.1'>(1.1)</a></div><p ><span class='texttt'>char</span>: The encoding is the native narrow encoding (<a href='fs.def.native.encode'>[fs.def.native.encode]</a>).
+The method of conversion, if any, is operating system dependent.
+[&nbsp;<i>Note:</i>
+For POSIX-based operating systems <span class='texttt'>path::value_type</span> is <span class='texttt'>char</span>
+so no conversion from <span class='texttt'>char</span> value type arguments or to <span class='texttt'>char</span>
+value type return values is performed.
+For Windows-based operating systems, the
+native narrow encoding is determined by calling a Windows API function.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+This results in behavior identical to other C and C++
+standard library functions that perform file operations using narrow character
+strings to identify paths. Changing this behavior would be surprising and error
+prone.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></li><li id='path.type.cvt-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#path.type.cvt-1.2'>(1.2)</a></div><p ><span class='texttt'>wchar_t</span>: The encoding is the native wide encoding (<a href='fs.def.native.encode'>[fs.def.native.encode]</a>).
+The method of conversion is unspecified.
+[&nbsp;<i>Note:</i>
+For Windows-based operating systems <span class='texttt'>path::value_type</span> is <span class='texttt'>wchar_t</span>
+so no conversion from <span class='texttt'>wchar_t</span> value type arguments or to <span class='texttt'>wchar_t</span>
+value type return values is performed.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></li><li id='path.type.cvt-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#path.type.cvt-1.3'>(1.3)</a></div><p ><span class='texttt'>char16_t</span>: The encoding is UTF-16. The method of conversion
+is unspecified.
+</p></li><li id='path.type.cvt-1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#path.type.cvt-1.4'>(1.4)</a></div><p ><span class='texttt'>char32_t</span>: The encoding is UTF-32. The method of conversion
+is unspecified.
+</p></li></ul></div><div class='para' id='path.type.cvt-2'><div class='marginalizedparent'><a class='marginalized' href='#path.type.cvt-2'>2</a></div><p >If the encoding being converted to has no representation for source
+characters, the resulting converted characters, if any, are unspecified.</p></div></div></div><div id='path.req'><h4 ><a class='secnum' href='#path.req' style='min-width:118pt'>27.10.8.3</a> <span class='texttt'>path</span> requirements <a class='abbr_ref' href='path.req'>[path.req]</a></h4><div class='para' id='path.req-1'><div class='marginalizedparent'><a class='marginalized' href='#path.req-1'>1</a></div><p >In addition to the requirements (<a href='fs.req'>[fs.req]</a>),
+function template parameters named <span class='texttt'>Source</span>
+shall be one of:
+</p><ul class='itemize'><li id='path.req-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#path.req-1.1'>(1.1)</a></div><p ><span class='texttt'>basic_string&lt;EcharT, traits, Allocator&gt;</span>. A function
+  argument <span class='texttt'>const Source&amp;</span> <span class='texttt'>source</span> shall have an
+  effective range <span class='texttt'>[source.begin(), source.end())</span>.
+</p></li><li id='path.req-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#path.req-1.2'>(1.2)</a></div><p ><span class='texttt'>basic_string_view&lt;EcharT, traits&gt;</span>. A function
+  argument <span class='texttt'>const Source&amp;</span> <span class='texttt'>source</span> shall have an
+  effective range <span class='texttt'>[source.begin(), source.end())</span>.
+</p></li><li id='path.req-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#path.req-1.3'>(1.3)</a></div><p >A type meeting the input iterator requirements that iterates over a NTCTS.
+  The value type shall be an encoded character type. A function argument
+  <span class='texttt'>const Source&amp;</span> <span class='texttt'>source</span> shall have an effective range
+  <span class='texttt'>[source, end)</span> where <span class='texttt'>end</span> is the first
+  iterator value with an element value equal to
+  <span class='texttt'>iterator_traits&lt;Source&gt;::value_type()</span>.
+</p></li><li id='path.req-1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#path.req-1.4'>(1.4)</a></div><p >A character array that after array-to-pointer decay results in a
+  pointer to the start of a NTCTS. The value type shall be an encoded character type. A
+  function argument <span class='texttt'>const Source&amp;</span> <span class='texttt'>source</span> shall
+  have an effective range <span class='texttt'>[source, end)</span> where
+  <span class='texttt'>end</span> is the first iterator value with an element value equal to
+  <span class='texttt'>iterator_traits&lt;decay_t&lt;Source&gt;&gt;::value_type()</span>.
+</p></li></ul></div><div class='para' id='path.req-2'><div class='marginalizedparent'><a class='marginalized' href='#path.req-2'>2</a></div><p >Functions taking template parameters named <span class='texttt'>Source</span>
+shall not participate in overload resolution unless either
+<span class='texttt'>Source</span> is a specialization of
+<span class='texttt'>basic_string</span> or <span class='texttt'>basic_string_view</span> or
+the <i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> <span class='texttt'>iterator_traits&lt;decay_t&lt;Source&gt;&gt;::value_type</span> is valid and
+denotes a possibly <span class='texttt'>const</span> encoded character type (<a href='temp.deduct'>[temp.deduct]</a>).</p></div><div class='para' id='path.req-3'><div class='marginalizedparent'><a class='marginalized' href='#path.req-3'>3</a></div><p >[&nbsp;<i>Note:</i>
+See path conversions (<a href='path.cvt'>[path.cvt]</a>)
+for how the value types above and their encodings convert to
+<span class='texttt'>path::value_type</span> and its encoding.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='path.req-4'><div class='marginalizedparent'><a class='marginalized' href='#path.req-4'>4</a></div><p >Arguments of type <span class='texttt'>Source</span>
+shall not be null pointers.</p></div></div><div id='path.member'><h4 ><a class='secnum' href='#path.member' style='min-width:118pt'>27.10.8.4</a> <span class='texttt'>path</span> members <a class='abbr_ref' href='path.member'>[path.member]</a></h4><div id='path.construct'><h4 ><a class='secnum' href='#path.construct' style='min-width:133pt'>27.10.8.4.1</a> <span class='texttt'>path</span> constructors <a class='abbr_ref' href='path.construct'>[path.construct]</a></h4><p ><span class='indexparent'><a class='index' id='path,constructor'></a></span><code class='itemdecl'>
+path() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='path.construct-1'><div class='marginalizedparent'><a class='marginalized' href='#path.construct-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs an object of class <span class='texttt'>path</span>.</p></div></div><div class='para' id='path.construct-2'><div class='marginalizedparent'><a class='marginalized' href='#path.construct-2'>2</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>empty() == true</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='path,constructor'></a></span><code class='itemdecl'>
+path(const path&amp; p);
+path(path&amp;&amp; p) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='path.construct-3'><div class='marginalizedparent'><a class='marginalized' href='#path.construct-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs an object of class <span class='texttt'>path</span> with
+<span class='texttt'>pathstring</span> having the original value of <span class='texttt'>p.pathstring</span>.
+In the second form, <span class='texttt'>p</span> is left in a valid but unspecified state.
+</p></div></div><p ><span class='indexparent'><a class='index' id='path,constructor'></a></span><code class='itemdecl'>
+path(string_type&amp;&amp; source);
+</code></p><div class='itemdescr'></div><div class='para' id='path.construct-4'><div class='marginalizedparent'><a class='marginalized' href='#path.construct-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs an object of class <span class='texttt'>path</span> with
+<span class='texttt'>pathstring</span> having the original value of <span class='texttt'>source</span>.
+<span class='texttt'>source</span> is left in a valid but unspecified state.
+</p></div></div><p ><span class='indexparent'><a class='index' id='path,constructor'></a></span><code class='itemdecl'>
+template &lt;class Source&gt;
+  path(const Source&amp; source);
+template &lt;class InputIterator&gt;
+  path(InputIterator first, InputIterator last);
+</code></p><div class='itemdescr'></div><div class='para' id='path.construct-5'><div class='marginalizedparent'><a class='marginalized' href='#path.construct-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs an object of class <span class='texttt'>path</span>, storing the effective range of <span class='texttt'>source</span> (<a href='path.req'>[path.req]</a>)
+  or the range <span class='texttt'>[first, last)</span> in <span class='texttt'>pathstring</span>,
+  converting format and encoding if required (<a href='path.cvt'>[path.cvt]</a>).
+</p></div></div><p ><span class='indexparent'><a class='index' id='path,constructor'></a></span><code class='itemdecl'>
+template &lt;class Source&gt;
+  path(const Source&amp; source, const locale&amp; loc);
+template &lt;class InputIterator&gt;
+  path(InputIterator first, InputIterator last, const locale&amp; loc);
+</code></p><div class='itemdescr'></div><div class='para' id='path.construct-6'><div class='marginalizedparent'><a class='marginalized' href='#path.construct-6'>6</a></div><div class='itemdescr'><p ><i>Requires:</i>
+The value type of <span class='texttt'>Source</span> and <span class='texttt'>InputIterator</span> is
+<span class='texttt'>char</span>.</p></div></div><div class='para' id='path.construct-7'><div class='marginalizedparent'><a class='marginalized' href='#path.construct-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs an object of class <span class='texttt'>path</span>,
+storing the effective range of <span class='texttt'>source</span>
+or the range <span class='texttt'>[first, last)</span> in <span class='texttt'>pathstring</span>,
+after converting format if required and after converting the encoding as
+follows:
+</p><ul class='itemize'><li id='path.construct-7.1'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.construct-7.1'>(7.1)</a></div><p >If <span class='texttt'>value_type</span> is <span class='texttt'>wchar_t</span>, converts to the native
+wide encoding (<a href='fs.def.native.encode'>[fs.def.native.encode]</a>) using the <span class='texttt'>codecvt&lt;wchar_t, char, mbstate_t&gt;</span>
+facet of <span class='texttt'>loc</span>.
+</p></li><li id='path.construct-7.2'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.construct-7.2'>(7.2)</a></div><p >Otherwise a conversion is performed using the
+<span class='texttt'>codecvt&lt;wchar_t, char, mbstate_t&gt;</span> facet of <span class='texttt'>loc</span>, and then a second
+conversion to the current narrow encoding.
+</p></li></ul><p >[&nbsp;<i>Example:</i>
+A string is to be read from a database
+that is encoded in ISO/IEC 8859-1, and used to create a directory:
+</p><pre class='codeblock'>
+namespace fs = std::filesystem;
+std::string latin1_string = read_latin1_data();
+codecvt_8859_1&lt;wchar_t&gt; latin1_facet;
+std::locale latin1_locale(std::locale(), latin1_facet);
+fs::create_directory(fs::path(latin1_string, latin1_locale));
+</pre><p >For POSIX-based operating systems, the path is constructed by first using
+<span class='texttt'>latin1_facet</span> to convert ISO/IEC 8859-1 encoded
+<span class='texttt'>latin1_string</span> to a wide character string in the native wide
+encoding (<a href='fs.def.native.encode'>[fs.def.native.encode]</a>). The resulting wide string is then
+converted to a narrow character
+<span class='texttt'>pathstring</span> string in the current native narrow encoding. If the
+native wide encoding is UTF-16 or UTF-32, and the current native narrow
+encoding is UTF-8, all of the characters in the ISO/IEC 8859-1 character set
+will be converted to their Unicode representation, but for other native
+narrow encodings some characters may have no representation.</p><p >For Windows-based operating systems, the path is constructed by
+using <span class='texttt'>latin1_facet</span> to convert ISO/IEC 8859-1 encoded
+<span class='texttt'>latin1_string</span> to a UTF-16 encoded wide character <span class='texttt'>pathstring</span>
+string. All of the characters in the ISO/IEC 8859-1 character set will be
+converted to their Unicode representation.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div></div><div id='path.assign'><h4 ><a class='secnum' href='#path.assign' style='min-width:133pt'>27.10.8.4.2</a> <span class='texttt'>path</span> assignments <a class='abbr_ref' href='path.assign'>[path.assign]</a></h4><p ><span class='indexparent'><a class='index' id='operator=,path'></a></span><span class='indexparent'><a class='index' id='path,operator='></a></span><code class='itemdecl'>
+path&amp; operator=(const path&amp; p);
+</code></p><div class='itemdescr'></div><div class='para' id='path.assign-1'><div class='marginalizedparent'><a class='marginalized' href='#path.assign-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>*this</span> and <span class='texttt'>p</span> are the same
+object, has no effect. Otherwise, modifies <span class='texttt'>pathstring</span> to have the
+original value of <span class='texttt'>p.pathstring</span>.</p></div></div><div class='para' id='path.assign-2'><div class='marginalizedparent'><a class='marginalized' href='#path.assign-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=,path'></a></span><span class='indexparent'><a class='index' id='path,operator='></a></span><code class='itemdecl'>
+path&amp; operator=(path&amp;&amp; p) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='path.assign-3'><div class='marginalizedparent'><a class='marginalized' href='#path.assign-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>*this</span> and <span class='texttt'>p</span> are the same
+object, has no effect. Otherwise, modifies <span class='texttt'>pathstring</span> to have the
+original value of <span class='texttt'>p.pathstring</span>. <span class='texttt'>p</span> is left in a
+valid but unspecified state.
+[&nbsp;<i>Note:</i> A valid implementation is <span class='texttt'>swap(p)</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='path.assign-4'><div class='marginalizedparent'><a class='marginalized' href='#path.assign-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=,path'></a></span><span class='indexparent'><a class='index' id='path,operator='></a></span><span class='indexparent'><a class='index' id='assign,path'></a></span><span class='indexparent'><a class='index' id='path,assign'></a></span><code class='itemdecl'>
+path&amp; operator=(string_type&amp;&amp; source);
+path&amp; assign(string_type&amp;&amp; source);
+</code></p><div class='itemdescr'></div><div class='para' id='path.assign-5'><div class='marginalizedparent'><a class='marginalized' href='#path.assign-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Modifies <span class='texttt'>pathstring</span> to have the original value of <span class='texttt'>source</span>.
+<span class='texttt'>source</span> is left in a valid but unspecified state.</p></div></div><div class='para' id='path.assign-6'><div class='marginalizedparent'><a class='marginalized' href='#path.assign-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=,path'></a></span><span class='indexparent'><a class='index' id='path,operator='></a></span><span class='indexparent'><a class='index' id='assign,path'></a></span><span class='indexparent'><a class='index' id='path,assign'></a></span><code class='itemdecl'>
+template &lt;class Source&gt;
+  path&amp; operator=(const Source&amp; source);
+template &lt;class Source&gt;
+  path&amp; assign(const Source&amp; source);
+template &lt;class InputIterator&gt;
+  path&amp; assign(InputIterator first, InputIterator last);
+</code></p><div class='itemdescr'></div><div class='para' id='path.assign-7'><div class='marginalizedparent'><a class='marginalized' href='#path.assign-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> Stores the effective range of <span class='texttt'>source</span> (<a href='path.req'>[path.req]</a>)
+or the range <span class='texttt'>[first, last)</span> in <span class='texttt'>pathstring</span>,
+converting format and encoding if required (<a href='path.cvt'>[path.cvt]</a>).</p></div></div><div class='para' id='path.assign-8'><div class='marginalizedparent'><a class='marginalized' href='#path.assign-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div></div><div id='path.append'><h4 ><a class='secnum' href='#path.append' style='min-width:133pt'>27.10.8.4.3</a> <span class='texttt'>path</span> appends <a class='abbr_ref' href='path.append'>[path.append]</a></h4><div class='para' id='path.append-1'><div class='marginalizedparent'><a class='marginalized' href='#path.append-1'>1</a></div><p >The append operations use <span class='texttt'>operator/=</span> to denote their semantic effect of appending
+<i ><a href='path.generic#nt:preferred-separator'>preferred-separator</a></i> when needed.</p><p ><span class='indexparent'><a class='index' id='operator/=,path'></a></span><span class='indexparent'><a class='index' id='path,operator/='></a></span><code class='itemdecl'>
+path&amp; operator/=(const path&amp; p);
+</code></p></div><div class='itemdescr'></div><div class='para' id='path.append-2'><div class='marginalizedparent'><a class='marginalized' href='#path.append-2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>!p.has_root_name()</span>.</p></div></div><div class='para' id='path.append-3'><div class='marginalizedparent'><a class='marginalized' href='#path.append-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Appends <span class='texttt'>path::preferred_separator</span> to <span class='texttt'>pathstring</span> unless:
+</p><ul class='itemize'><li id='path.append-3.1'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.append-3.1'>(3.1)</a></div><p >an added <i ><a href='path.generic#nt:directory-separator'>directory-separator</a></i>
+    would be redundant, or
+</p></li><li id='path.append-3.2'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.append-3.2'>(3.2)</a></div><p >an added <i ><a href='path.generic#nt:directory-separator'>directory-separator</a></i> would change a relative path into an absolute path
+    [&nbsp;<i>Note:</i> An empty path is relative.<i>&nbsp;—&nbsp;end note</i>&nbsp;], or
+</p></li><li id='path.append-3.3'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.append-3.3'>(3.3)</a></div><p ><span class='texttt'>p.empty()</span> is <span class='texttt'>true</span>, or
+</p></li><li id='path.append-3.4'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.append-3.4'>(3.4)</a></div><p ><span class='texttt'>*p.native().cbegin()</span> is a <i ><a href='path.generic#nt:directory-separator'>directory-separator</a></i>.
+</p></li></ul><p >Then appends <span class='texttt'>p.native()</span> to <span class='texttt'>pathstring</span>.</p></div></div><div class='para' id='path.append-4'><div class='marginalizedparent'><a class='marginalized' href='#path.append-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator/=,path'></a></span><span class='indexparent'><a class='index' id='path,operator/='></a></span><span class='indexparent'><a class='index' id='append,path'></a></span><span class='indexparent'><a class='index' id='path,append'></a></span><code class='itemdecl'>
+template &lt;class Source&gt;
+  path&amp; operator/=(const Source&amp; source);
+template &lt;class Source&gt;
+  path&amp; append(const Source&amp; source);
+</code></p><div class='itemdescr'></div><div class='para' id='path.append-5'><div class='marginalizedparent'><a class='marginalized' href='#path.append-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>return operator/=(path(source));</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator/=,path'></a></span><span class='indexparent'><a class='index' id='path,operator/='></a></span><span class='indexparent'><a class='index' id='append,path'></a></span><span class='indexparent'><a class='index' id='path,append'></a></span><code class='itemdecl'>
+template &lt;class InputIterator&gt;
+  path&amp; append(InputIterator first, InputIterator last);
+</code></p><div class='itemdescr'></div><div class='para' id='path.append-6'><div class='marginalizedparent'><a class='marginalized' href='#path.append-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>return operator/=(path(first, last));</span>
+</p></div></div></div><div id='path.concat'><h4 ><a class='secnum' href='#path.concat' style='min-width:133pt'>27.10.8.4.4</a> <span class='texttt'>path</span> concatenation <a class='abbr_ref' href='path.concat'>[path.concat]</a></h4><p ><span class='indexparent'><a class='index' id='operator+=,path'></a></span><span class='indexparent'><a class='index' id='path,operator+='></a></span><span class='indexparent'><a class='index' id='concat,path'></a></span><span class='indexparent'><a class='index' id='path,concat'></a></span><code class='itemdecl'>
+path&amp; operator+=(const path&amp; x);
+path&amp; operator+=(const string_type&amp; x);
+path&amp; operator+=(basic_string_view&lt;value_type&gt; x);
+path&amp; operator+=(const value_type* x);
+path&amp; operator+=(value_type x);
+template &lt;class Source&gt;
+  path&amp; operator+=(const Source&amp; x);
+template &lt;class EcharT&gt;
+  path&amp; operator+=(EcharT x);
+template &lt;class Source&gt;
+  path&amp; concat(const Source&amp; x);
+template &lt;class InputIterator&gt;
+  path&amp; concat(InputIterator first, InputIterator last);
+</code></p><div class='itemdescr'></div><div class='para' id='path.concat-1'><div class='marginalizedparent'><a class='marginalized' href='#path.concat-1'>1</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>native() == prior_native + <i>effective-argument</i></span>,
+ where <span class='texttt'>prior_native</span> is <span class='texttt'>native()</span> prior to the call to <span class='texttt'>operator+=</span>,
+ and <span class='texttt'><i>effective-argument</i></span> is:
+ </p><ul class='itemize'><li id='path.concat-1.1'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.concat-1.1'>(1.1)</a></div><p >if <span class='texttt'>x</span> is present and is <span class='texttt'>const path&amp;</span>,
+ <span class='texttt'>x.native()</span>; otherwise,
+</p></li><li id='path.concat-1.2'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.concat-1.2'>(1.2)</a></div><p >if <span class='texttt'>source</span> is present,
+ the effective range of <span class='texttt'>source</span> (<a href='path.req'>[path.req]</a>); otherwise,
+</p></li><li id='path.concat-1.3'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.concat-1.3'>(1.3)</a></div><p >if <span class='texttt'>first</span> and <span class='texttt'>last</span> are present,
+ the range <span class='texttt'>[first, last)</span>; otherwise,
+</p></li><li id='path.concat-1.4'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.concat-1.4'>(1.4)</a></div><p ><span class='texttt'>x</span>.
+</p></li></ul><p >If the value type of <span class='texttt'><i>effective-argument</i></span> would not be <span class='texttt'>path::value_type</span>,
+  the actual argument or argument range is first converted (<a href='path.type.cvt'>[path.type.cvt]</a>) so that <span class='texttt'><i>effective-argument</i></span> has value type <span class='texttt'>path::value_type</span>.</p></div></div><div class='para' id='path.concat-2'><div class='marginalizedparent'><a class='marginalized' href='#path.concat-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div></div><div id='path.modifiers'><h4 ><a class='secnum' href='#path.modifiers' style='min-width:133pt'>27.10.8.4.5</a> <span class='texttt'>path</span> modifiers <a class='abbr_ref' href='path.modifiers'>[path.modifiers]</a></h4><p ><span class='indexparent'><a class='index' id='clear,path'></a></span><span class='indexparent'><a class='index' id='path,clear'></a></span><code class='itemdecl'>
+void clear() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='path.modifiers-1'><div class='marginalizedparent'><a class='marginalized' href='#path.modifiers-1'>1</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>empty() == true</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='make_preferred,path'></a></span><span class='indexparent'><a class='index' id='path,make_preferred'></a></span><code class='itemdecl'>
+path&amp; make_preferred();
+</code></p><div class='itemdescr'></div><div class='para' id='path.modifiers-2'><div class='marginalizedparent'><a class='marginalized' href='#path.modifiers-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Each <i ><a href='path.generic#nt:directory-separator'>directory-separator</a></i>
+  is converted to <i ><a href='path.generic#nt:preferred-separator'>preferred-separator</a></i>.</p></div></div><div class='para' id='path.modifiers-3'><div class='marginalizedparent'><a class='marginalized' href='#path.modifiers-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.</p></div></div><div class='para' id='path.modifiers-4'><div class='marginalizedparent'><a class='marginalized' href='#path.modifiers-4'>4</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+path p("foo/bar");
+std::cout &lt;&lt; p &lt;&lt; '\n';
+p.make_preferred();
+std::cout &lt;&lt; p &lt;&lt; '\n';
+</pre><p >On an operating system where <i ><a href='path.generic#nt:preferred-separator'>preferred-separator</a></i> is the same as
+<i ><a href='path.generic#nt:directory-separator'>directory-separator</a></i>, the output is:
+</p><pre class='codeblock'>
+"foo/bar"
+"foo/bar"
+</pre><p >On an operating system where <i ><a href='path.generic#nt:preferred-separator'>preferred-separator</a></i> is a backslash, the
+output is:
+</p><pre class='codeblock'>
+"foo/bar"
+"foo\bar"
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='remove_filename,path'></a></span><span class='indexparent'><a class='index' id='path,remove_filename'></a></span><code class='itemdecl'>
+path&amp; remove_filename();
+</code></p><div class='itemdescr'></div><div class='para' id='path.modifiers-5'><div class='marginalizedparent'><a class='marginalized' href='#path.modifiers-5'>5</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>!has_filename()</span>.</p></div></div><div class='para' id='path.modifiers-6'><div class='marginalizedparent'><a class='marginalized' href='#path.modifiers-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.</p></div></div><div class='para' id='path.modifiers-7'><div class='marginalizedparent'><a class='marginalized' href='#path.modifiers-7'>7</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+std::cout &lt;&lt; path("/foo").remove_filename();  <span class='comment'>// outputs <span class='texttt'>"/"</span>
+</span>std::cout &lt;&lt; path("/").remove_filename();     <span class='comment'>// outputs <span class='texttt'>""</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='replace_filename,path'></a></span><span class='indexparent'><a class='index' id='path,replace_filename'></a></span><code class='itemdecl'>
+path&amp; replace_filename(const path&amp; replacement);
+</code></p><div class='itemdescr'></div><div class='para' id='path.modifiers-8'><div class='marginalizedparent'><a class='marginalized' href='#path.modifiers-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:
+</p><pre class='codeblock'>
+remove_filename();
+operator/=(replacement);
+</pre></div></div><div class='para' id='path.modifiers-9'><div class='marginalizedparent'><a class='marginalized' href='#path.modifiers-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.</p></div></div><div class='para' id='path.modifiers-10'><div class='marginalizedparent'><a class='marginalized' href='#path.modifiers-10'>10</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+std::cout &lt;&lt; path("/").replace_filename("bar");     <span class='comment'>// outputs <span class='texttt'>"bar"</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='replace_extension,path'></a></span><span class='indexparent'><a class='index' id='path,replace_extension'></a></span><code class='itemdecl'>
+path&amp; replace_extension(const path&amp; replacement = path());
+</code></p><div class='itemdescr'></div><div class='para' id='path.modifiers-11'><div class='marginalizedparent'><a class='marginalized' href='#path.modifiers-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>pathstring</span> (the stored path) is modified as follows:
+  </p><ul class='itemize'><li id='path.modifiers-11.1'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.modifiers-11.1'>(11.1)</a></div><p >Any existing <span class='texttt'>extension()(</span><a href='path.decompose'>[path.decompose]</a><span class='texttt'>)</span> is removed from the stored path,
+    then
+</p></li><li id='path.modifiers-11.2'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.modifiers-11.2'>(11.2)</a></div><p >If <span class='texttt'>replacement</span> is not empty and does not begin with a dot
+    character, a dot character is appended to the stored path, then
+</p></li><li id='path.modifiers-11.3'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.modifiers-11.3'>(11.3)</a></div><p ><span class='texttt'>replacement</span> is concatenated to the stored path.
+  </p></li></ul></div></div><div class='para' id='path.modifiers-12'><div class='marginalizedparent'><a class='marginalized' href='#path.modifiers-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='swap,path'></a></span><span class='indexparent'><a class='index' id='path,swap'></a></span><code class='itemdecl'>
+void swap(path&amp; rhs) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='path.modifiers-13'><div class='marginalizedparent'><a class='marginalized' href='#path.modifiers-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i> Swaps the contents of the two paths <span class='texttt'>pathstring</span> and
+<span class='texttt'>rhs.pathstring</span>.</p></div></div><div class='para' id='path.modifiers-14'><div class='marginalizedparent'><a class='marginalized' href='#path.modifiers-14'>14</a></div><div class='itemdescr'><p ><i>Complexity:</i> Constant time.
+</p></div></div></div><div id='path.native.obs'><h4 ><a class='secnum' href='#path.native.obs' style='min-width:133pt'>27.10.8.4.6</a> <span class='texttt'>path</span> native format observers <a class='abbr_ref' href='path.native.obs'>[path.native.obs]</a></h4><div class='para' id='path.native.obs-1'><div class='marginalizedparent'><a class='marginalized' href='#path.native.obs-1'>1</a></div><p >The string returned by all native format observers is in the native pathname format (<a href='fs.def.native'>[fs.def.native]</a>).</p><p ><span class='indexparent'><a class='index' id='native,path'></a></span><span class='indexparent'><a class='index' id='path,native'></a></span><code class='itemdecl'>
+const string_type&amp; native() const noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='path.native.obs-2'><div class='marginalizedparent'><a class='marginalized' href='#path.native.obs-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>pathstring</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='c_str,path'></a></span><span class='indexparent'><a class='index' id='path,c_str'></a></span><code class='itemdecl'>
+const value_type* c_str() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='path.native.obs-3'><div class='marginalizedparent'><a class='marginalized' href='#path.native.obs-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>pathstring.c_str()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator_string_type,path'></a></span><span class='indexparent'><a class='index' id='path,operator_string_type'></a></span><code class='itemdecl'>
+operator string_type() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.native.obs-4'><div class='marginalizedparent'><a class='marginalized' href='#path.native.obs-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>pathstring</span>.</p></div></div><div class='para' id='path.native.obs-5'><div class='marginalizedparent'><a class='marginalized' href='#path.native.obs-5'>5</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> Conversion to <span class='texttt'>string_type</span> is provided so that an
+  object of class <span class='texttt'>path</span> can be given as an argument to existing
+  standard library file stream constructors and open functions. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='string,path'></a></span><span class='indexparent'><a class='index' id='path,string'></a></span><code class='itemdecl'>
+template &lt;class EcharT, class traits = char_traits&lt;EcharT&gt;,
+          class Allocator = allocator&lt;EcharT&gt;&gt;
+  basic_string&lt;EcharT, traits, Allocator&gt;
+    string(const Allocator&amp; a = Allocator()) const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.native.obs-6'><div class='marginalizedparent'><a class='marginalized' href='#path.native.obs-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>pathstring</span>.</p></div></div><div class='para' id='path.native.obs-7'><div class='marginalizedparent'><a class='marginalized' href='#path.native.obs-7'>7</a></div><div class='itemdescr'><p ><i>Remarks:</i> All memory allocation, including for the return value, shall
+be performed by <span class='texttt'>a</span>. Conversion, if any, is specified by
+<a href='path.cvt'>[path.cvt]</a>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='string,path'></a></span><span class='indexparent'><a class='index' id='path,string'></a></span><span class='indexparent'><a class='index' id='wstring,path'></a></span><span class='indexparent'><a class='index' id='path,wstring'></a></span><span class='indexparent'><a class='index' id='u8string,path'></a></span><span class='indexparent'><a class='index' id='path,u8string'></a></span><span class='indexparent'><a class='index' id='u16string,path'></a></span><span class='indexparent'><a class='index' id='path,u16string'></a></span><span class='indexparent'><a class='index' id='u32string,path'></a></span><span class='indexparent'><a class='index' id='path,u32string'></a></span><code class='itemdecl'>
+std::string string() const;
+std::wstring wstring() const;
+std::string u8string() const;
+std::u16string u16string() const;
+std::u32string u32string() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.native.obs-8'><div class='marginalizedparent'><a class='marginalized' href='#path.native.obs-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>pathstring</span>.</p></div></div><div class='para' id='path.native.obs-9'><div class='marginalizedparent'><a class='marginalized' href='#path.native.obs-9'>9</a></div><div class='itemdescr'><p ><i>Remarks:</i> Conversion, if any, is performed as specified
+by <a href='path.cvt'>[path.cvt]</a>.
+The encoding of the string returned by <span class='texttt'>u8string()</span> is always UTF-8.
+</p></div></div></div><div id='path.generic.obs'><h4 ><a class='secnum' href='#path.generic.obs' style='min-width:133pt'>27.10.8.4.7</a> <span class='texttt'>path</span> generic format observers <a class='abbr_ref' href='path.generic.obs'>[path.generic.obs]</a></h4><div class='para' id='path.generic.obs-1'><div class='marginalizedparent'><a class='marginalized' href='#path.generic.obs-1'>1</a></div><p >Generic format observer functions return strings formatted according to the
+generic pathname format (<a href='path.generic'>[path.generic]</a>).
+The forward slash (<span class='texttt'>'/'</span>) character is used as
+the <i ><a href='path.generic#nt:directory-separator'>directory-separator</a></i> character.</p></div><div class='para' id='path.generic.obs-2'><div class='marginalizedparent'><a class='marginalized' href='#path.generic.obs-2'>2</a></div><p >[&nbsp;<i>Example:</i> On an operating system that uses backslash as
+its <i ><a href='path.generic#nt:preferred-separator'>preferred-separator</a></i>, <span class='texttt'>path("foo\\bar").generic_string()</span>
+returns <span class='texttt'>"foo/bar"</span>. <i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='generic_string,path'></a></span><span class='indexparent'><a class='index' id='path,generic_string'></a></span><code class='itemdecl'>
+template &lt;class EcharT, class traits = char_traits&lt;EcharT&gt;,
+          class Allocator = allocator&lt;EcharT&gt;&gt;
+  basic_string&lt;EcharT, traits, Allocator&gt;
+    generic_string(const Allocator&amp; a = Allocator()) const;
+</code></p></div><div class='itemdescr'></div><div class='para' id='path.generic.obs-3'><div class='marginalizedparent'><a class='marginalized' href='#path.generic.obs-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>pathstring</span>, reformatted according to the generic
+pathname format (<a href='path.generic'>[path.generic]</a>).</p></div></div><div class='para' id='path.generic.obs-4'><div class='marginalizedparent'><a class='marginalized' href='#path.generic.obs-4'>4</a></div><div class='itemdescr'><p ><i>Remarks:</i> All memory allocation, including for the return value, shall
+be performed by <span class='texttt'>a</span>. Conversion, if any, is specified by
+<a href='path.cvt'>[path.cvt]</a>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='generic_string,path'></a></span><span class='indexparent'><a class='index' id='path,generic_string'></a></span><span class='indexparent'><a class='index' id='generic_wstring,path'></a></span><span class='indexparent'><a class='index' id='path,generic_wstring'></a></span><span class='indexparent'><a class='index' id='generic_u8string,path'></a></span><span class='indexparent'><a class='index' id='path,generic_u8string'></a></span><span class='indexparent'><a class='index' id='generic_u16string,path'></a></span><span class='indexparent'><a class='index' id='path,generic_u16string'></a></span><span class='indexparent'><a class='index' id='generic_u32string,path'></a></span><span class='indexparent'><a class='index' id='path,generic_u32string'></a></span><code class='itemdecl'>
+std::string generic_string() const;
+std::wstring generic_wstring() const;
+std::string generic_u8string() const;
+std::u16string generic_u16string() const;
+std::u32string generic_u32string() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.generic.obs-5'><div class='marginalizedparent'><a class='marginalized' href='#path.generic.obs-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>pathstring</span>, reformatted according to the generic
+pathname format (<a href='path.generic'>[path.generic]</a>).</p></div></div><div class='para' id='path.generic.obs-6'><div class='marginalizedparent'><a class='marginalized' href='#path.generic.obs-6'>6</a></div><div class='itemdescr'><p ><i>Remarks:</i> Conversion, if any, is specified by <a href='path.cvt'>[path.cvt]</a>.
+The encoding of the string returned by <span class='texttt'>generic_u8string()</span> is always
+UTF-8.
+</p></div></div></div><div id='path.compare'><h4 ><a class='secnum' href='#path.compare' style='min-width:133pt'>27.10.8.4.8</a> <span class='texttt'>path</span> compare <a class='abbr_ref' href='path.compare'>[path.compare]</a></h4><p ><span class='indexparent'><a class='index' id='compare,path'></a></span><span class='indexparent'><a class='index' id='path,compare'></a></span><code class='itemdecl'>
+int compare(const path&amp; p) const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='path.compare-1'><div class='marginalizedparent'><a class='marginalized' href='#path.compare-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+ </p><ul class='itemize'><li id='path.compare-1.1'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.compare-1.1'>(1.1)</a></div><p >A value less than <span class='texttt'>0</span>,
+  if <span class='texttt'>native()</span> for the elements of <span class='texttt'>*this</span>
+  are lexicographically less than <span class='texttt'>native()</span> for the elements of <span class='texttt'>p</span>;
+  otherwise,
+</p></li><li id='path.compare-1.2'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.compare-1.2'>(1.2)</a></div><p >a value greater than <span class='texttt'>0</span>,
+  if <span class='texttt'>native()</span> for the elements of <span class='texttt'>*this</span>
+  are lexicographically greater than <span class='texttt'>native()</span> for the elements of <span class='texttt'>p</span>;
+  otherwise,
+</p></li><li id='path.compare-1.3'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.compare-1.3'>(1.3)</a></div><p ><span class='texttt'>0</span>.
+ </p></li></ul></div></div><div class='para' id='path.compare-2'><div class='marginalizedparent'><a class='marginalized' href='#path.compare-2'>2</a></div><div class='itemdescr'><p ><i>Remarks:</i> The elements are determined as if by iteration over the half-open
+range <span class='texttt'>[begin(), end())</span> for <span class='texttt'>*this</span> and <span class='texttt'>p</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='compare,path'></a></span><span class='indexparent'><a class='index' id='path,compare'></a></span><code class='itemdecl'>
+int compare(const string_type&amp; s) const
+int compare(basic_string_view&lt;value_type&gt; s) const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.compare-3'><div class='marginalizedparent'><a class='marginalized' href='#path.compare-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>compare(path(s))</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='compare,path'></a></span><span class='indexparent'><a class='index' id='path,compare'></a></span><code class='itemdecl'>
+int compare(const value_type* s) const
+</code></p><div class='itemdescr'></div><div class='para' id='path.compare-4'><div class='marginalizedparent'><a class='marginalized' href='#path.compare-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>compare(path(s))</span>.
+</p></div></div></div><div id='path.decompose'><h4 ><a class='secnum' href='#path.decompose' style='min-width:133pt'>27.10.8.4.9</a> <span class='texttt'>path</span> decomposition <a class='abbr_ref' href='path.decompose'>[path.decompose]</a></h4><p ><span class='indexparent'><a class='index' id='root_name,path'></a></span><span class='indexparent'><a class='index' id='path,root_name'></a></span><code class='itemdecl'>
+path root_name() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.decompose-1'><div class='marginalizedparent'><a class='marginalized' href='#path.decompose-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <i ><a href='path.generic#nt:root-name'>root-name</a></i>, if <span class='texttt'>pathstring</span> includes <i ><a href='path.generic#nt:root-name'>root-name</a></i>, otherwise <span class='texttt'>path()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='root_directory,path'></a></span><span class='indexparent'><a class='index' id='path,root_directory'></a></span><code class='itemdecl'>
+path root_directory() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.decompose-2'><div class='marginalizedparent'><a class='marginalized' href='#path.decompose-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <i ><a href='path.generic#nt:root-directory'>root-directory</a></i>, if <span class='texttt'>pathstring</span> includes <i ><a href='path.generic#nt:root-directory'>root-directory</a></i>, otherwise <span class='texttt'>path()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='root_path,path'></a></span><span class='indexparent'><a class='index' id='path,root_path'></a></span><code class='itemdecl'>
+path root_path() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.decompose-3'><div class='marginalizedparent'><a class='marginalized' href='#path.decompose-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>root_name() / root_directory()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='relative_path,path'></a></span><span class='indexparent'><a class='index' id='path,relative_path'></a></span><code class='itemdecl'>
+path relative_path() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.decompose-4'><div class='marginalizedparent'><a class='marginalized' href='#path.decompose-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> A <span class='texttt'>path</span> composed from <span class='texttt'>pathstring</span>, if <span class='texttt'>!empty()</span>, beginning
+with the first <i ><a href='path.generic#nt:filename'>filename</a></i> after <span class='grammarterm'>root-path</span>. Otherwise, <span class='texttt'>path()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='parent_path,path'></a></span><span class='indexparent'><a class='index' id='path,parent_path'></a></span><code class='itemdecl'>
+path parent_path() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.decompose-5'><div class='marginalizedparent'><a class='marginalized' href='#path.decompose-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>(empty() || begin() == --end()) ? path() : <i>pp</i></span>,
+where <span class='texttt'><i>pp</i></span> is constructed as if by
+  starting with an empty <span class='texttt'>path</span> and successively applying <span class='texttt'>operator/=</span> for each element in the range
+  <span class='texttt'>[begin(), --end())</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='filename,path'></a></span><span class='indexparent'><a class='index' id='path,filename'></a></span><code class='itemdecl'>
+path filename() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.decompose-6'><div class='marginalizedparent'><a class='marginalized' href='#path.decompose-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>empty() ? path() : *--end()</span>.</p></div></div><div class='para' id='path.decompose-7'><div class='marginalizedparent'><a class='marginalized' href='#path.decompose-7'>7</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+std::cout &lt;&lt; path("/foo/bar.txt").filename(); <span class='comment'>// outputs "bar.txt"
+</span>std::cout &lt;&lt; path("/").filename();            <span class='comment'>// outputs "/"
+</span>std::cout &lt;&lt; path(".").filename();            <span class='comment'>// outputs "."
+</span>std::cout &lt;&lt; path("..").filename();           <span class='comment'>// outputs ".."
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='stem,path'></a></span><span class='indexparent'><a class='index' id='path,stem'></a></span><code class='itemdecl'>
+path stem() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.decompose-8'><div class='marginalizedparent'><a class='marginalized' href='#path.decompose-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> if <span class='texttt'>filename()</span> contains a period but does not
+  consist solely of one or two periods, returns
+  the substring of <span class='texttt'>filename()</span> starting at its beginning and
+  ending with the character before the last period. Otherwise,
+  returns <span class='texttt'>filename()</span>.</p></div></div><div class='para' id='path.decompose-9'><div class='marginalizedparent'><a class='marginalized' href='#path.decompose-9'>9</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+std::cout &lt;&lt; path("/foo/bar.txt").stem(); <span class='comment'>// outputs <span class='texttt'>"bar"</span>
+</span>path p = "foo.bar.baz.tar";
+for (; !p.extension().empty(); p = p.stem())
+  std::cout &lt;&lt; p.extension() &lt;&lt; '\n';
+  <span class='comment'>// outputs: <span class='texttt'>.tar</span>
+</span>  <span class='comment'>//          <span class='texttt'>.baz</span>
+</span>  <span class='comment'>//          <span class='texttt'>.bar</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='extension,path'></a></span><span class='indexparent'><a class='index' id='path,extension'></a></span><code class='itemdecl'>
+path extension() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.decompose-10'><div class='marginalizedparent'><a class='marginalized' href='#path.decompose-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> if <span class='texttt'>filename()</span> contains a period but does not
+  consist solely of one or two periods, returns
+  the substring of <span class='texttt'>filename()</span> starting at the rightmost period
+  and for the remainder of the path. Otherwise, returns an empty <span class='texttt'>path</span> object.</p></div></div><div class='para' id='path.decompose-11'><div class='marginalizedparent'><a class='marginalized' href='#path.decompose-11'>11</a></div><div class='itemdescr'><p ><i>Remarks:</i> Implementations are permitted to define additional
+  behavior for file systems which append additional elements to extensions, such
+  as alternate data streams or partitioned dataset names.</p></div></div><div class='para' id='path.decompose-12'><div class='marginalizedparent'><a class='marginalized' href='#path.decompose-12'>12</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+std::cout &lt;&lt; path("/foo/bar.txt").extension(); <span class='comment'>// outputs ".txt"
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div class='para' id='path.decompose-13'><div class='marginalizedparent'><a class='marginalized' href='#path.decompose-13'>13</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> The period is included in the return value so that it is
+  possible to distinguish between no extension and an empty extension. Also note
+  that for a path <span class='texttt'>p</span>, <span class='texttt'>p.stem()+p.extension() == p.filename()</span>.
+  <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div><div id='path.query'><h4 ><a class='secnum' href='#path.query' style='min-width:133pt'>27.10.8.4.10</a> <span class='texttt'>path</span> query <a class='abbr_ref' href='path.query'>[path.query]</a></h4><p ><span class='indexparent'><a class='index' id='empty,path'></a></span><span class='indexparent'><a class='index' id='path,empty'></a></span><code class='itemdecl'>
+bool empty() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='path.query-1'><div class='marginalizedparent'><a class='marginalized' href='#path.query-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>pathstring.empty()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='has_root_path,path'></a></span><span class='indexparent'><a class='index' id='path,has_root_path'></a></span><code class='itemdecl'>
+bool has_root_path() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.query-2'><div class='marginalizedparent'><a class='marginalized' href='#path.query-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!root_path().empty()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='has_root_name,path'></a></span><span class='indexparent'><a class='index' id='path,has_root_name'></a></span><code class='itemdecl'>
+bool has_root_name() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.query-3'><div class='marginalizedparent'><a class='marginalized' href='#path.query-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!root_name().empty()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='has_root_directory,path'></a></span><span class='indexparent'><a class='index' id='path,has_root_directory'></a></span><code class='itemdecl'>
+bool has_root_directory() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.query-4'><div class='marginalizedparent'><a class='marginalized' href='#path.query-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!root_directory().empty()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='has_relative_path,path'></a></span><span class='indexparent'><a class='index' id='path,has_relative_path'></a></span><code class='itemdecl'>
+bool has_relative_path() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.query-5'><div class='marginalizedparent'><a class='marginalized' href='#path.query-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!relative_path().empty()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='has_parent_path,path'></a></span><span class='indexparent'><a class='index' id='path,has_parent_path'></a></span><code class='itemdecl'>
+bool has_parent_path() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.query-6'><div class='marginalizedparent'><a class='marginalized' href='#path.query-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!parent_path().empty()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='has_filename,path'></a></span><span class='indexparent'><a class='index' id='path,has_filename'></a></span><code class='itemdecl'>
+bool has_filename() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.query-7'><div class='marginalizedparent'><a class='marginalized' href='#path.query-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!filename().empty()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='has_stem,path'></a></span><span class='indexparent'><a class='index' id='path,has_stem'></a></span><code class='itemdecl'>
+bool has_stem() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.query-8'><div class='marginalizedparent'><a class='marginalized' href='#path.query-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!stem().empty()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='has_extension,path'></a></span><span class='indexparent'><a class='index' id='path,has_extension'></a></span><code class='itemdecl'>
+bool has_extension() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.query-9'><div class='marginalizedparent'><a class='marginalized' href='#path.query-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!extension().empty()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='is_absolute,path'></a></span><span class='indexparent'><a class='index' id='path,is_absolute'></a></span><code class='itemdecl'>
+bool is_absolute() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.query-10'><div class='marginalizedparent'><a class='marginalized' href='#path.query-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>true</span> if <span class='texttt'>pathstring</span>
+  contains an absolute path (<a href='fs.def.absolute.path'>[fs.def.absolute.path]</a>), else <span class='texttt'>false</span>.</p></div></div><div class='para' id='path.query-11'><div class='marginalizedparent'><a class='marginalized' href='#path.query-11'>11</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i> <span class='texttt'>path("/").is_absolute()</span> is
+      <span class='texttt'>true</span> for  POSIX-based operating systems, and <span class='texttt'>false</span> for Windows-based
+operating systems. <i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='is_relative,path'></a></span><span class='indexparent'><a class='index' id='path,is_relative'></a></span><code class='itemdecl'>
+bool is_relative() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.query-12'><div class='marginalizedparent'><a class='marginalized' href='#path.query-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!is_absolute()</span>.
+</p></div></div></div><div id='path.gen'><h4 ><a class='secnum' href='#path.gen' style='min-width:133pt'>27.10.8.4.11</a> <span class='texttt'>path</span> generation <a class='abbr_ref' href='path.gen'>[path.gen]</a></h4><p ><span class='indexparent'><a class='index' id='lexically_normal,path'></a></span><span class='indexparent'><a class='index' id='path,lexically_normal'></a></span><code class='itemdecl'>
+path lexically_normal() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.gen-1'><div class='marginalizedparent'><a class='marginalized' href='#path.gen-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span> in normal form (<a href='fs.def.normal.form'>[fs.def.normal.form]</a>).</p><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+assert(path("foo/./bar/..").lexically_normal() == "foo");
+assert(path("foo/.///bar/../").lexically_normal() == "foo/.");
+</pre><p >The above assertions will succeed.
+The second example ends with a current directory (<i ><a href='path.generic#nt:dot'>dot</a></i>) element
+appended to support operating systems
+that use different syntax for directory names and regular file names.</p><p >On Windows, the returned path's <i ><a href='path.generic#nt:directory-separator'>directory-separator</a></i> characters
+will be backslashes rather than slashes,
+but that does not affect <span class='texttt'>path</span> equality.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='lexically_relative,path'></a></span><span class='indexparent'><a class='index' id='path,lexically_relative'></a></span><code class='itemdecl'>
+path lexically_relative(const path&amp; base) const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.gen-2'><div class='marginalizedparent'><a class='marginalized' href='#path.gen-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span> made relative to <span class='texttt'>base</span>.
+Does not resolve (<a href='fs.def.pathres'>[fs.def.pathres]</a>) symlinks.
+Does not first normalize (<a href='fs.def.normal.form'>[fs.def.normal.form]</a>) <span class='texttt'>*this</span> or <span class='texttt'>base</span>.</p></div></div><div class='para' id='path.gen-3'><div class='marginalizedparent'><a class='marginalized' href='#path.gen-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Determines the first mismatched element of <span class='texttt'>*this</span> and <span class='texttt'>base</span>
+as if by:
+</p><pre class='codeblock'>
+auto [a, b] = mismatch(begin(), end(), base.begin(), base.end());
+</pre><p >Then,
+</p><ul class='itemize'><li id='path.gen-3.1'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.gen-3.1'>(3.1)</a></div><p >if <span class='texttt'>a == begin()</span> and <span class='texttt'>b == base.begin()</span>, returns <span class='texttt'>path()</span>; otherwise
+</p></li><li id='path.gen-3.2'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.gen-3.2'>(3.2)</a></div><p >if <span class='texttt'>a == end()</span> and <span class='texttt'>b == base.end()</span>, returns <span class='texttt'>path(".")</span>; otherwise
+</p></li><li id='path.gen-3.3'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.gen-3.3'>(3.3)</a></div><p >returns an object of class <span class='texttt'>path</span> that is default-constructed, followed by
+</p><ul class='itemize'><li id='path.gen-3.3.1'><div class='marginalizedparent' style='left:-12em'><a class='marginalized' href='#path.gen-3.3.1'>(3.3.1)</a></div><p >application of <span class='texttt'>operator/=(path(".."))</span>
+  for each element in <span class='texttt'>[b, base.end())</span>, and then
+</p></li><li id='path.gen-3.3.2'><div class='marginalizedparent' style='left:-12em'><a class='marginalized' href='#path.gen-3.3.2'>(3.3.2)</a></div><p >application of <span class='texttt'>operator/=</span>
+  for each element in <span class='texttt'>[a, end())</span>.
+</p></li></ul></li></ul><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+assert(path("/a/d").lexically_relative("/a/b/c") == "../../d");
+assert(path("/a/b/c").lexically_relative("/a/d") == "../b/c");
+assert(path("a/b/c").lexically_relative("a") == "b/c");
+assert(path("a/b/c").lexically_relative("a/b/c/x/y") == "../..");
+assert(path("a/b/c").lexically_relative("a/b/c") == ".");
+assert(path("a/b").lexically_relative("c/d") == "");
+</pre><p >The above assertions will succeed.
+On Windows, the returned path's <i ><a href='path.generic#nt:directory-separator'>directory-separator</a></i> characters
+will be backslashes rather than forward slashes,
+but that does not affect <span class='texttt'>path</span> equality.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p >[&nbsp;<i>Note:</i> If symlink following semantics are desired,
+  use the operational function <span class='texttt'>relative()</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p >[&nbsp;<i>Note:</i> If normalization (<a href='fs.def.normal.form'>[fs.def.normal.form]</a>) is needed
+  to ensure consistent matching of elements,
+  apply <span class='texttt'>lexically_normal()</span> to
+  <span class='texttt'>*this</span>, <span class='texttt'>base</span>, or both. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='lexically_proximate,path'></a></span><span class='indexparent'><a class='index' id='path,lexically_proximate'></a></span><code class='itemdecl'>
+path lexically_proximate(const path&amp; base) const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.gen-4'><div class='marginalizedparent'><a class='marginalized' href='#path.gen-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> If the value of <span class='texttt'>lexically_relative(base)</span> is not an empty path,
+  return it. Otherwise return <span class='texttt'>*this</span>.</p><p >[&nbsp;<i>Note:</i> If symlink following semantics are desired,
+  use the operational function <span class='texttt'>proximate()</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p >[&nbsp;<i>Note:</i> If normalization (<a href='fs.def.normal.form'>[fs.def.normal.form]</a>) is needed
+  to ensure consistent matching of elements,
+  apply <span class='texttt'>lexically_normal()</span> to
+  <span class='texttt'>*this</span>, <span class='texttt'>base</span>, or both. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div></div><div id='path.itr'><h4 ><a class='secnum' href='#path.itr' style='min-width:118pt'>27.10.8.5</a> <span class='texttt'>path</span> iterators <a class='abbr_ref' href='path.itr'>[path.itr]</a></h4><p ><span class='indexparent'><a class='index' id='path,iterator'></a></span></p><div class='para' id='path.itr-1'><div class='marginalizedparent'><a class='marginalized' href='#path.itr-1'>1</a></div><p >Path iterators iterate over the elements of <span class='texttt'>pathstring</span>
+in the generic format (<a href='path.generic'>[path.generic]</a>).</p></div><div class='para' id='path.itr-2'><div class='marginalizedparent'><a class='marginalized' href='#path.itr-2'>2</a></div><p >A <span class='texttt'>path::iterator</span> is a constant iterator satisfying all the
+requirements of a bidirectional iterator (<a href='bidirectional.iterators'>[bidirectional.iterators]</a>)
+except that,
+for dereferenceable iterators <span class='texttt'>a</span> and <span class='texttt'>b</span>
+of type <span class='texttt'>path::iterator</span>
+with <span class='texttt'>a == b</span>,
+there is no requirement that <span class='texttt'>*a</span> and <span class='texttt'>*b</span>
+are bound to the same object.
+Its <span class='texttt'>value_type</span> is <span class='texttt'>path</span>.</p></div><div class='para' id='path.itr-3'><div class='marginalizedparent'><a class='marginalized' href='#path.itr-3'>3</a></div><p >Calling any non-const member function of a <span class='texttt'>path</span> object
+invalidates all iterators referring to elements of that object.</p></div><div class='para' id='path.itr-4'><div class='marginalizedparent'><a class='marginalized' href='#path.itr-4'>4</a></div><p >For the elements of <span class='texttt'>pathstring</span> in the generic format,
+the forward traversal order is as follows:
+</p><ul class='itemize'><li id='path.itr-4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#path.itr-4.1'>(4.1)</a></div><p >The <i ><a href='path.generic#nt:root-name'>root-name</a></i> element, if present.
+</p></li><li id='path.itr-4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#path.itr-4.2'>(4.2)</a></div><p >The <i ><a href='path.generic#nt:root-directory'>root-directory</a></i> element, if present.
+[&nbsp;<i>Note:</i>
+the generic format is required to ensure lexicographical
+comparison works correctly. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></li><li id='path.itr-4.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#path.itr-4.3'>(4.3)</a></div><p >Each successive <i ><a href='path.generic#nt:filename'>filename</a></i> element, if present.
+</p></li><li id='path.itr-4.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#path.itr-4.4'>(4.4)</a></div><p ><i ><a href='path.generic#nt:dot'>dot</a></i>, if one or more trailing non-root <i ><a href='path.generic#nt:slash'>slash</a></i>
+characters are present.
+</p></li></ul></div><div class='para' id='path.itr-5'><div class='marginalizedparent'><a class='marginalized' href='#path.itr-5'>5</a></div><p >The backward traversal order is the reverse of forward traversal.</p><p ><span class='indexparent'><a class='index' id='begin,path'></a></span><span class='indexparent'><a class='index' id='path,begin'></a></span><code class='itemdecl'>
+iterator begin() const;
+</code></p></div><div class='itemdescr'></div><div class='para' id='path.itr-6'><div class='marginalizedparent'><a class='marginalized' href='#path.itr-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> An iterator for the first present element in the traversal
+list above. If no elements are present, the end iterator.
+</p></div></div><p ><span class='indexparent'><a class='index' id='end,path'></a></span><span class='indexparent'><a class='index' id='path,end'></a></span><code class='itemdecl'>
+iterator end() const;
+</code></p><div class='itemdescr'></div><div class='para' id='path.itr-7'><div class='marginalizedparent'><a class='marginalized' href='#path.itr-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> The end iterator.
+</p></div></div></div><div id='path.non-member'><h4 ><a class='secnum' href='#path.non-member' style='min-width:118pt'>27.10.8.6</a> <span class='texttt'>path</span> non-member functions <a class='abbr_ref' href='path.non-member'>[path.non-member]</a></h4><p ><span class='indexparent'><a class='index' id='swap,path'></a></span><code class='itemdecl'>
+void swap(path&amp; lhs, path&amp; rhs) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='path.non-member-1'><div class='marginalizedparent'><a class='marginalized' href='#path.non-member-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>lhs.swap(rhs);</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='hash_value,path'></a></span><code class='itemdecl'>
+size_t hash_value (const path&amp; p) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='path.non-member-2'><div class='marginalizedparent'><a class='marginalized' href='#path.non-member-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> A hash value for the path <span class='texttt'>p</span>. If
+  for two paths, <span class='texttt'>p1 == p2</span> then <span class='texttt'>hash_value(p1) == hash_value(p2)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<,path'></a></span><span class='indexparent'><a class='index' id='path,operator<'></a></span><code class='itemdecl'>
+bool operator&lt; (const path&amp; lhs, const path&amp; rhs) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='path.non-member-3'><div class='marginalizedparent'><a class='marginalized' href='#path.non-member-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>lhs.compare(rhs) &lt; 0</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<=,path'></a></span><span class='indexparent'><a class='index' id='path,operator<='></a></span><code class='itemdecl'>
+bool operator&lt;=(const path&amp; lhs, const path&amp; rhs) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='path.non-member-4'><div class='marginalizedparent'><a class='marginalized' href='#path.non-member-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(rhs &lt; lhs)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>,path'></a></span><span class='indexparent'><a class='index' id='path,operator>'></a></span><code class='itemdecl'>
+bool operator&gt; (const path&amp; lhs, const path&amp; rhs) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='path.non-member-5'><div class='marginalizedparent'><a class='marginalized' href='#path.non-member-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>rhs &lt; lhs</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>=,path'></a></span><span class='indexparent'><a class='index' id='path,operator>='></a></span><code class='itemdecl'>
+bool operator&gt;=(const path&amp; lhs, const path&amp; rhs) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='path.non-member-6'><div class='marginalizedparent'><a class='marginalized' href='#path.non-member-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(lhs &lt; rhs)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator==,path'></a></span><span class='indexparent'><a class='index' id='path,operator=='></a></span><code class='itemdecl'>
+bool operator==(const path&amp; lhs, const path&amp; rhs) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='path.non-member-7'><div class='marginalizedparent'><a class='marginalized' href='#path.non-member-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(lhs &lt; rhs) &amp;&amp; !(rhs &lt; lhs)</span>.</p><p ><span class='indexparent'><a class='index' id='path_equality'></a></span>
+</p></div></div><div class='para' id='path.non-member-8'><div class='marginalizedparent'><a class='marginalized' href='#path.non-member-8'>8</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> Path equality and path equivalence have different semantics.</p></div></div><div class='para' id='path.non-member-9'><div class='marginalizedparent'><a class='marginalized' href='#path.non-member-9'>9</a></div><div class='itemdescr'><p >Equality is determined by the <span class='texttt'>path</span> non-member <span class='texttt'>operator==</span>, which considers the two path's lexical
+  representations only. Thus <span class='texttt'>path("foo") == "bar"</span> is never <span class='texttt'>true</span>.</p></div></div><div class='para' id='path.non-member-10'><div class='marginalizedparent'><a class='marginalized' href='#path.non-member-10'>10</a></div><div class='itemdescr'><p >Equivalence is determined by the <span class='texttt'>equivalent()</span> non-member function, which determines if two paths resolve (<a href='fs.def.pathres'>[fs.def.pathres]</a>) to the same file system entity.
+  Thus <span class='texttt'>equivalent("foo", "bar")</span> will be <span class='texttt'>true</span> when both paths resolve to the same file.</p></div></div><div class='para' id='path.non-member-11'><div class='marginalizedparent'><a class='marginalized' href='#path.non-member-11'>11</a></div><div class='itemdescr'><p >Programmers wishing to determine if two paths are “the same” must decide if
+  “the same” means “the same representation” or “resolve to the same actual
+  file”, and choose the appropriate function accordingly. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator!=,path'></a></span><span class='indexparent'><a class='index' id='path,operator!='></a></span><code class='itemdecl'>
+bool operator!=(const path&amp; lhs, const path&amp; rhs) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='path.non-member-12'><div class='marginalizedparent'><a class='marginalized' href='#path.non-member-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(lhs == rhs)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator/,path'></a></span><span class='indexparent'><a class='index' id='path,operator/'></a></span><code class='itemdecl'>
+path operator/ (const path&amp; lhs, const path&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='path.non-member-13'><div class='marginalizedparent'><a class='marginalized' href='#path.non-member-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>return path(lhs) /= rhs;</span>
+</p></div></div><div id='path.io'><h4 ><a class='secnum' href='#path.io' style='min-width:133pt'>27.10.8.6.1</a> <span class='texttt'>path</span> inserter and extractor <a class='abbr_ref' href='path.io'>[path.io]</a></h4><p ><span class='indexparent'><a class='index' id='operator<<,path'></a></span><span class='indexparent'><a class='index' id='path,operator<<'></a></span><code class='itemdecl'>
+template &lt;class charT, class traits&gt;
+  basic_ostream&lt;charT, traits&gt;&amp;
+    operator&lt;&lt;(basic_ostream&lt;charT, traits&gt;&amp; os, const path&amp; p);
+</code></p><div class='itemdescr'></div><div class='para' id='path.io-1'><div class='marginalizedparent'><a class='marginalized' href='#path.io-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>os &lt;&lt; quoted(p.string&lt;charT, traits&gt;());</span>
+[&nbsp;<i>Note:</i> The <span class='texttt'>quoted</span> function is described in <a href='quoted.manip'>[quoted.manip]</a>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='path.io-2'><div class='marginalizedparent'><a class='marginalized' href='#path.io-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>os</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator>>,path'></a></span><span class='indexparent'><a class='index' id='path,operator>>'></a></span><code class='itemdecl'>
+template &lt;class charT, class traits&gt;
+  basic_istream&lt;charT, traits&gt;&amp;
+    operator&gt;&gt;(basic_istream&lt;charT, traits&gt;&amp; is, path&amp; p);
+</code></p><div class='itemdescr'></div><div class='para' id='path.io-3'><div class='marginalizedparent'><a class='marginalized' href='#path.io-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:
+</p><pre class='codeblock'>
+basic_string&lt;charT, traits&gt; tmp;
+is &gt;&gt; quoted(tmp);
+p = tmp;
+</pre></div></div><div class='para' id='path.io-4'><div class='marginalizedparent'><a class='marginalized' href='#path.io-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>is</span>.
+</p></div></div></div><div id='path.factory'><h4 ><a class='secnum' href='#path.factory' style='min-width:133pt'>27.10.8.6.2</a> <span class='texttt'>path</span> factory functions <a class='abbr_ref' href='path.factory'>[path.factory]</a></h4><p ><span class='indexparent'><a class='index' id='u8path'></a></span><code class='itemdecl'>
+template &lt;class Source&gt;
+  path u8path(const Source&amp; source);
+template &lt;class InputIterator&gt;
+  path u8path(InputIterator first, InputIterator last);
+</code></p><div class='itemdescr'></div><div class='para' id='path.factory-1'><div class='marginalizedparent'><a class='marginalized' href='#path.factory-1'>1</a></div><div class='itemdescr'><p ><i>Requires:</i> The <span class='texttt'>source</span> and <span class='texttt'>[first, last)</span>
+  sequences are UTF-8 encoded. The value type of <span class='texttt'>Source</span>
+  and <span class='texttt'>InputIterator</span> is <span class='texttt'>char</span>.</p></div></div><div class='para' id='path.factory-2'><div class='marginalizedparent'><a class='marginalized' href='#path.factory-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</p><ul class='itemize'><li id='path.factory-2.1'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.factory-2.1'>(2.1)</a></div><p >If <span class='texttt'>value_type</span> is <span class='texttt'>char</span> and the current native
+      narrow encoding (<a href='fs.def.native.encode'>[fs.def.native.encode]</a>) is UTF-8,
+      return <span class='texttt'>path(source)</span> or <span class='texttt'>path(first, last)</span>;
+      otherwise,
+</p></li><li id='path.factory-2.2'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.factory-2.2'>(2.2)</a></div><p >if <span class='texttt'>value_type</span> is <span class='texttt'>wchar_t</span> and the
+      native wide encoding is UTF-16, or
+      if <span class='texttt'>value_type</span> is <span class='texttt'>char16_t</span> or <span class='texttt'>char32_t</span>,
+      convert <span class='texttt'>source</span> or <span class='texttt'>[first, last)</span>
+      to a temporary, <span class='texttt'>tmp</span>, of type <span class='texttt'>string_type</span> and
+      return <span class='texttt'>path(tmp)</span>;
+      otherwise,
+</p></li><li id='path.factory-2.3'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#path.factory-2.3'>(2.3)</a></div><p >convert <span class='texttt'>source</span> or <span class='texttt'>[first, last)</span>
+      to a temporary, <span class='texttt'>tmp</span>, of type <span class='texttt'>u32string</span> and
+      return <span class='texttt'>path(tmp)</span>.
+</p></li></ul></div></div><div class='para' id='path.factory-3'><div class='marginalizedparent'><a class='marginalized' href='#path.factory-3'>3</a></div><div class='itemdescr'><p ><i>Remarks:</i> Argument format conversion (<a href='path.fmt.cvt'>[path.fmt.cvt]</a>) applies to the
+  arguments for these functions. How Unicode encoding conversions are performed is
+  unspecified.</p></div></div><div class='para' id='path.factory-4'><div class='marginalizedparent'><a class='marginalized' href='#path.factory-4'>4</a></div><div class='itemdescr'><p >[&nbsp;<i>Example:</i>
+A string is to be read from a database that is encoded in UTF-8, and used
+    to create a directory using the native encoding for filenames:
+</p><pre class='codeblock'>
+namespace fs = std::filesystem;
+std::string utf8_string = read_utf8_data();
+fs::create_directory(fs::u8path(utf8_string));
+</pre></div></div><div class='para' id='path.factory-5'><div class='marginalizedparent'><a class='marginalized' href='#path.factory-5'>5</a></div><div class='itemdescr'><p >For POSIX-based operating systems with the native narrow encoding set
+    to UTF-8, no encoding or type conversion occurs.</p></div></div><div class='para' id='path.factory-6'><div class='marginalizedparent'><a class='marginalized' href='#path.factory-6'>6</a></div><div class='itemdescr'><p >For POSIX-based operating systems with the native narrow encoding not
+    set to UTF-8, a conversion to UTF-32 occurs, followed by a conversion to the
+    current native narrow encoding. Some Unicode characters may have no native character
+    set representation.</p></div></div><div class='para' id='path.factory-7'><div class='marginalizedparent'><a class='marginalized' href='#path.factory-7'>7</a></div><div class='itemdescr'><p >For Windows-based operating systems a conversion from UTF-8 to
+    UTF-16 occurs.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div></div></div></div></div></body></html>

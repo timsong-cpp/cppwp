@@ -1,0 +1,347 @@
+<!DOCTYPE html><html lang='en'><head><title>[rand.eng]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>26</a> Numerics library <a class='abbr_ref' href='./#numerics'>[numerics]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>26.6</a> Random number generation <a class='abbr_ref' href='rand#eng'>[rand]</a></h2><div id='rand.eng'><h3 ><a class='secnum' style='min-width:103pt'>26.6.3</a> Random number engine class templates <a class='abbr_ref'>[rand.eng]</a></h3><p ><span class='indexparent'><a class='index' id='random_number_generation,engines'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Each type instantiated
+from a class template specified in this section <a href='rand.eng'>[rand.eng]</a>
+satisfies the requirements
+of a random number engine (<a href='rand.req.eng'>[rand.req.eng]</a>) type.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Except where specified otherwise,
+the complexity of each function
+specified in this section <a href='rand.eng'>[rand.eng]</a>
+is constant.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >Except where specified otherwise,
+no function described in this section <a href='rand.eng'>[rand.eng]</a>
+throws an exception.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Every function described in this section <a href='rand.eng'>[rand.eng]</a>
+that has a function parameter <span class='texttt'>q</span> of type <span class='texttt'>Sseq&amp;</span>
+for a template type parameter named <span class='texttt'>Sseq</span>
+that is different from type <span class='texttt'>seed_seq</span>
+throws what and when the invocation of <span class='texttt'>q.generate</span> throws.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >Descriptions are provided in this section <a href='rand.eng'>[rand.eng]</a>
+only for engine operations
+that are not described in  <span class='mbox'><a href='rand.req.eng'>[rand.req.eng]</a></span>
+or for operations where there is additional semantic information.
+In particular,
+declarations for copy constructors,
+for copy assignment operators,
+for streaming operators,
+and for equality and inequality operators
+are not shown in the synopses.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >Each template specified in this section <a href='rand.eng'>[rand.eng]</a>
+requires one or more relationships,
+involving the value(s) of its non-type template parameter(s), to hold.
+A program instantiating any of these templates
+is ill-formed
+if any such required relationship fails to hold.</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >For every random number engine and for every random number engine adaptor <span class='texttt'>X</span>
+defined in this subclause (<a href='rand.eng'>[rand.eng]</a>) and in sub-clause <a href='rand.adapt'>[rand.adapt]</a>:</p><ul class='itemize'><li id='7.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#7.1'>(7.1)</a></div><p >if the constructor
+</p><pre class='codeblock'>
+template &lt;class Sseq&gt; explicit X(Sseq&amp; q);
+</pre><p >is called with a type <span class='texttt'>Sseq</span> that does not qualify as a seed sequence, then this
+constructor shall not participate in overload resolution;</p></li><li id='7.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#7.2'>(7.2)</a></div><p >if the member function
+</p><pre class='codeblock'>
+template &lt;class Sseq&gt; void seed(Sseq&amp; q);
+</pre><p >is called with a type <span class='texttt'>Sseq</span> that does not qualify as a seed sequence, then this
+function shall not participate in overload resolution.
+</p></li></ul><p >The extent to which an implementation determines that a type cannot be a seed sequence
+is unspecified, except that as a minimum a type shall not qualify as a seed sequence
+if it is implicitly convertible to <span class='texttt'>X::result_type</span>.</p></div><div id='lcong'><h4 ><a class='secnum' href='#lcong' style='min-width:118pt'>26.6.3.1</a> Class template <span class='texttt'>linear_congruential_engine</span> <a class='abbr_ref' href='rand.eng.lcong'>[rand.eng.lcong]</a></h4><p ><span class='indexparent'><a class='index' id='linear_congruential_engine'></a></span><span class='indexparent'><a class='index' id='random_number_engine,linear_congruential_engine'></a></span></p><div class='para' id='lcong-1'><div class='marginalizedparent'><a class='marginalized' href='#lcong-1'>1</a></div><p >A <span class='texttt'>linear_congruential_engine</span> random number engine
+produces unsigned integer random numbers.
+The state<span class='indexparent'><a class='index' id='linear_congruential_engine,state'></a></span>
+<span class='indexparent'><a class='index' id='state,linear_congruential_engine'></a></span>
+<span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>
+of a <span class='texttt'>linear_congruential_engine</span> object <span class='texttt'>x</span>
+is of size <span class='math'>1</span>
+and consists of a single integer.
+The transition algorithm<span class='indexparent'><a class='index' id='linear_congruential_engine,transition_algorithm'></a></span><span class='indexparent'><a class='index' id='transition_algorithm,linear_congruential_engine'></a></span>
+is a modular linear function of the form
+<span class='math'><span class='mathsf'>TA</span>(<span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>) = (<span class='mathalpha'>a</span> · <span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span> + <span class='mathalpha'>c</span>) <span class="mathrm">mod</span> <span class='mathalpha'>m</span></span>;
+the generation algorithm<span class='indexparent'><a class='index' id='linear_congruential_engine,generation_algorithm'></a></span><span class='indexparent'><a class='index' id='generation_algorithm,linear_congruential_engine'></a></span>
+is <span class='math'> <span class='mathsf'>GA</span>(<span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>) = <span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span>+1</sub></span> </span>.</p><p ><span class='indexparent'><a class='index' id='linear_congruential_engine'></a></span></p><pre class='codeblock'>
+template&lt;class UIntType, UIntType a, UIntType c, UIntType m&gt;
+ class linear_congruential_engine{
+public:
+ <span class='comment'>// types
+</span> using result_type = UIntType;
+
+ <span class='comment'>// engine characteristics
+</span> static constexpr result_type multiplier = a;
+ static constexpr result_type increment = c;
+ static constexpr result_type modulus = m;
+ static constexpr result_type min() { return c == 0u ? 1u: 0u; }
+ static constexpr result_type max() { return m - 1u; }
+ static constexpr result_type default_seed = 1u;
+
+ <span class='comment'>// constructors and seeding functions
+</span> explicit linear_congruential_engine(result_type s = default_seed);
+ template&lt;class Sseq&gt; explicit linear_congruential_engine(Sseq&amp; q);
+ void seed(result_type s = default_seed);
+ template&lt;class Sseq&gt; void seed(Sseq&amp; q);
+
+ <span class='comment'>// generating functions
+</span> result_type operator()();
+ void discard(unsigned long long z);
+};
+</pre></div><div class='para' id='lcong-2'><div class='marginalizedparent'><a class='marginalized' href='#lcong-2'>2</a></div><p >If the template parameter
+<span class='texttt'>m</span> is <span class='math'>0</span>,
+the modulus <span class='math'><span class='mathalpha'>m</span></span>
+used throughout this section <a href='rand.eng.lcong'>[rand.eng.lcong]</a>
+<span class='indexparent'><a class='index' id='linear_congruential_engine,modulus'></a></span>
+is <span class='texttt'>numeric_limits&lt;result_type&gt;::max()</span> plus <span class='math'>1</span>.
+[&nbsp;<i>Note:</i>
+ <span class='math'><span class='mathalpha'>m</span></span> need not be representable
+ as a value of type <span class='texttt'>result_type</span>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='lcong-3'><div class='marginalizedparent'><a class='marginalized' href='#lcong-3'>3</a></div><p >If the template parameter
+<span class='texttt'>m</span> is not <span class='math'>0</span>,
+the following relations shall hold:
+  <span class='texttt'>a &lt; m</span>
+and
+  <span class='texttt'>c &lt; m</span>.</p></div><div class='para' id='lcong-4'><div class='marginalizedparent'><a class='marginalized' href='#lcong-4'>4</a></div><p >The textual representation<span class='indexparent'><a class='index' id='linear_congruential_engine,textual_representation'></a></span>
+consists of
+the value of <span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>.</p><p ><span class='indexparent'><a class='index' id='linear_congruential_engine,constructor'></a></span><code class='itemdecl'>
+explicit linear_congruential_engine(result_type s = default_seed);
+</code></p></div><div class='itemdescr'></div><div class='para' id='lcong-5'><div class='marginalizedparent'><a class='marginalized' href='#lcong-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>linear_congruential_engine</span> object.
+ If <span class='math'> <span class='mathalpha'>c</span> <span class="mathrm">mod</span> <span class='mathalpha'>m</span> </span> is <span class='math'>0</span> and <span class='math'> <span class='texttt'>s</span> <span class="mathrm">mod</span> <span class='mathalpha'>m</span> </span> is <span class='math'>0</span>,
+ sets the engine's state to <span class='math'>1</span>,
+ otherwise sets the engine's state to <span class='math'><span class='texttt'>s</span> <span class="mathrm">mod</span> <span class='mathalpha'>m</span></span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='linear_congruential_engine,constructor'></a></span><code class='itemdecl'>
+template&lt;class Sseq&gt; explicit linear_congruential_engine(Sseq&amp; q);
+</code></p><div class='itemdescr'></div><div class='para' id='lcong-6'><div class='marginalizedparent'><a class='marginalized' href='#lcong-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>linear_congruential_engine</span> object.
+ With
+ <img src='math/683121880504741354.png' class='mathinlineimg' alt='$ k = \left\lceil \frac{\log_2 m}
+                        {32}
+            \right\rceil
+ $'/>
+ and <span class='math'><span class='mathalpha'>a</span></span> an array (or equivalent)
+ of length <span class='math'><span class='mathalpha'>k</span> + 3</span>,
+ invokes <span class='texttt'>q.generate(<span class='math'><span class='mathalpha'>a</span>+0</span>, <span class='math'><span class='mathalpha'>a</span>+<span class='mathalpha'>k</span>+3</span>)</span>
+ and then computes
+ <img src='math/8705381519143027816.png' class='mathinlineimg' alt='$ S = \left(\sum_{j=0}^{k-1}a_{j+3} \cdot 2^{32j} \right) \bmod m $'/>.
+ If
+   <span class='math'> <span class='mathalpha'>c</span> <span class="mathrm">mod</span> <span class='mathalpha'>m</span> </span> is <span class='math'>0</span>
+ and
+   <span class='math'><span class='mathalpha'>S</span></span> is <span class='math'>0</span>,
+ sets the engine's state to <span class='math'>1</span>,
+ else sets the engine's state
+ to <span class='math'><span class='mathalpha'>S</span></span>.
+</p></div></div></div><div id='mers'><h4 ><a class='secnum' href='#mers' style='min-width:118pt'>26.6.3.2</a> Class template <span class='texttt'>mersenne_twister_engine</span> <a class='abbr_ref' href='rand.eng.mers'>[rand.eng.mers]</a></h4><p ><span class='indexparent'><a class='index' id='mersenne_twister_engine'></a></span><span class='indexparent'><a class='index' id='random_number_engine,mersenne_twister_engine'></a></span></p><div class='para' id='mers-1'><div class='marginalizedparent'><a class='marginalized' href='#mers-1'>1</a></div><p >A <span class='texttt'>mersenne_twister_engine</span> random number
+engine<a class='footnotenum' href='#footnote-271'>271</a>
+produces unsigned integer random numbers
+in the closed interval <span class='math'>[0,2<sup ><span class='mathalpha'>w</span></sup>-1]</span>.
+The
+<span class='indexparent'><a class='index' id='mersenne_twister_engine,state'></a></span><span class='indexparent'><a class='index' id='state,mersenne_twister_engine'></a></span>state
+<span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>
+of a <span class='texttt'>mersenne_twister_engine</span> object <span class='texttt'>x</span>
+is of size <span class='math'><span class='mathalpha'>n</span></span>
+and consists of a sequence <span class='math'><span class='mathalpha'>X</span></span>
+of <span class='math'><span class='mathalpha'>n</span></span> values of the type delivered by <span class='texttt'>x</span>;
+all subscripts applied to <span class='math'><span class='mathalpha'>X</span></span> are to be taken modulo <span class='math'><span class='mathalpha'>n</span></span>.</p></div><div class='para' id='mers-2'><div class='marginalizedparent'><a class='marginalized' href='#mers-2'>2</a></div><p >The transition algorithm<span class='indexparent'><a class='index' id='mersenne_twister_engine,transition_algorithm'></a></span><span class='indexparent'><a class='index' id='transition_algorithm,mersenne_twister_engine'></a></span>
+employs a twisted generalized feedback shift register
+defined by shift values <span class='math'><span class='mathalpha'>n</span></span> and <span class='math'><span class='mathalpha'>m</span></span>, a twist value <span class='math'><span class='mathalpha'>r</span></span>,
+and a conditional xor-mask <span class='math'><span class='mathalpha'>a</span></span>.
+To improve the uniformity of the result,
+the bits of the raw shift register are additionally <i>tempered</i>
+(i.e., scrambled)
+according to a bit-scrambling matrix
+defined by values <span class='math'><span class='mathalpha'>u</span>, <span class='mathalpha'>d</span>, <span class='mathalpha'>s</span>, <span class='mathalpha'>b</span>, <span class='mathalpha'>t</span>, <span class='mathalpha'>c</span>,</span> and <span class='math'>ℓ</span>.</p><p >The state transition is performed as follows:
+</p><ol class='enumeratea'><li id='mers-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mers-2.1'>(2.1)</a></div><p >Concatenate
+     the upper <span class='math'><span class='mathalpha'>w</span>-<span class='mathalpha'>r</span></span> bits of <span class='math'><span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span>-<span class='mathalpha'>n</span></sub></span>
+   with
+     the lower <span class='math'><span class='mathalpha'>r</span></span> bits of <span class='math'><span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span>+1-<span class='mathalpha'>n</span></sub></span>
+   to obtain an unsigned integer value <span class='math'><span class='mathalpha'>Y</span></span>.
+ </p></li><li id='mers-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mers-2.2'>(2.2)</a></div><p >With <span class='math'>α = <span class='mathalpha'>a</span> · (<span class='mathalpha'>Y</span> <span class='math'>&nbsp; <span class='mathsf'>bitand</span> &nbsp;</span> 1)</span>,
+   set <span class='math'><span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span></sub></span> to
+     <span class='math'><span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span>+<span class='mathalpha'>m</span>-<span class='mathalpha'>n</span></sub> &nbsp; <span class='math'>&nbsp; <span class='mathsf'>xor</span> &nbsp;</span> &nbsp; (<span class='mathalpha'>Y</span> <span class='math'>&nbsp; <span class='mathsf'>rshift</span> &nbsp;</span> 1) &nbsp; <span class='math'>&nbsp; <span class='mathsf'>xor</span> &nbsp;</span> &nbsp; α</span>.
+</p></li></ol><p >The sequence <span class='math'><span class='mathalpha'>X</span></span> is initialized
+with the help of an initialization multiplier <span class='math'><span class='mathalpha'>f</span></span>.</p></div><div class='para' id='mers-3'><div class='marginalizedparent'><a class='marginalized' href='#mers-3'>3</a></div><p >The generation algorithm<span class='indexparent'><a class='index' id='mersenne_twister_engine,generation_algorithm'></a></span><span class='indexparent'><a class='index' id='generation_algorithm,mersenne_twister_engine'></a></span>
+ determines the unsigned integer values <span class='math'><span class='mathalpha'>z</span><sub >1</sub>, <span class='mathalpha'>z</span><sub >2</sub>, <span class='mathalpha'>z</span><sub >3</sub>, <span class='mathalpha'>z</span><sub >4</sub></span> as follows,
+ then delivers <span class='math'><span class='mathalpha'>z</span><sub >4</sub></span> as its result:
+</p><ol class='enumeratea'><li id='mers-3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mers-3.1'>(3.1)</a></div><p >Let <span class='math'><span class='mathalpha'>z</span><sub >1</sub> = <span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span></sub> <span class='math'>&nbsp; <span class='mathsf'>xor</span> &nbsp;</span> <span class='bigl'></span>(( <span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span></sub> <span class='math'>&nbsp; <span class='mathsf'>rshift</span> &nbsp;</span> <span class='mathalpha'>u</span> ) <span class='math'>&nbsp; <span class='mathsf'>bitand</span> &nbsp;</span> <span class='mathalpha'>d</span><span class='bigr'></span>)</span>.
+ </p></li><li id='mers-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mers-3.2'>(3.2)</a></div><p >Let <span class='math'><span class='mathalpha'>z</span><sub >2</sub> = <span class='mathalpha'>z</span><sub >1</sub> <span class='math'>&nbsp; <span class='mathsf'>xor</span> &nbsp;</span> <span class='bigl'></span>( (<span class='mathalpha'>z</span><sub >1</sub> <span class='math'>&nbsp; <span class='mathsf'>lshift</span><sub ><span class='mathalpha'>w</span></sub> &nbsp;</span> &nbsp; <span class='mathalpha'>s</span>) <span class='math'>&nbsp; <span class='mathsf'>bitand</span> &nbsp;</span> <span class='mathalpha'>b</span> <span class='bigr'></span>)</span>.
+ </p></li><li id='mers-3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mers-3.3'>(3.3)</a></div><p >Let <span class='math'><span class='mathalpha'>z</span><sub >3</sub> = <span class='mathalpha'>z</span><sub >2</sub> <span class='math'>&nbsp; <span class='mathsf'>xor</span> &nbsp;</span> <span class='bigl'></span>( (<span class='mathalpha'>z</span><sub >2</sub> <span class='math'>&nbsp; <span class='mathsf'>lshift</span><sub ><span class='mathalpha'>w</span></sub> &nbsp;</span> &nbsp; <span class='mathalpha'>t</span>) <span class='math'>&nbsp; <span class='mathsf'>bitand</span> &nbsp;</span> <span class='mathalpha'>c</span> <span class='bigr'></span>)</span>.
+ </p></li><li id='mers-3.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mers-3.4'>(3.4)</a></div><p >Let <span class='math'><span class='mathalpha'>z</span><sub >4</sub> = <span class='mathalpha'>z</span><sub >3</sub> <span class='math'>&nbsp; <span class='mathsf'>xor</span> &nbsp;</span> ( <span class='mathalpha'>z</span><sub >3</sub> <span class='math'>&nbsp; <span class='mathsf'>rshift</span> &nbsp;</span> ℓ )</span>.
+</p></li></ol><p ><span class='indexparent'><a class='index' id='mersenne_twister_engine'></a></span></p><pre class='codeblock'>
+template&lt;class UIntType, size_t w, size_t n, size_t m, size_t r,
+          UIntType a, size_t u, UIntType d, size_t s,
+          UIntType b, size_t t,
+          UIntType c, size_t l, UIntType f&gt;
+ class mersenne_twister_engine{
+public:
+ <span class='comment'>// types
+</span> using result_type = UIntType;
+
+ <span class='comment'>// engine characteristics
+</span> static constexpr size_t word_size = w;
+ static constexpr size_t state_size = n;
+ static constexpr size_t shift_size = m;
+ static constexpr size_t mask_bits = r;
+ static constexpr UIntType xor_mask = a;
+ static constexpr size_t tempering_u = u;
+ static constexpr UIntType tempering_d = d;
+ static constexpr size_t tempering_s = s;
+ static constexpr UIntType tempering_b = b;
+ static constexpr size_t tempering_t = t;
+ static constexpr UIntType tempering_c = c;
+ static constexpr size_t tempering_l = l;
+ static constexpr UIntType initialization_multiplier = f;
+ static constexpr result_type min() { return 0; }
+ static constexpr result_type max() { return  <span class='math'>2<sup ><span class='mathalpha'>w</span></sup> - 1</span>; }
+ static constexpr result_type default_seed = 5489u;
+
+ <span class='comment'>// constructors and seeding functions
+</span> explicit mersenne_twister_engine(result_type value = default_seed);
+ template&lt;class Sseq&gt; explicit mersenne_twister_engine(Sseq&amp; q);
+ void seed(result_type value = default_seed);
+ template&lt;class Sseq&gt; void seed(Sseq&amp; q);
+
+ <span class='comment'>// generating functions
+</span> result_type operator()();
+ void discard(unsigned long long z);
+};
+</pre></div><div class='para' id='mers-4'><div class='marginalizedparent'><a class='marginalized' href='#mers-4'>4</a></div><p >The following relations shall hold:
+  <span class='texttt'>0 &lt; m</span>,
+  <span class='texttt'>m &lt;= n</span>,
+  <span class='texttt'>2u &lt; w</span>,
+  <span class='texttt'>r &lt;= w</span>,
+  <span class='texttt'>u &lt;= w</span>,
+  <span class='texttt'>s &lt;= w</span>,
+  <span class='texttt'>t &lt;= w</span>,
+  <span class='texttt'>l &lt;= w</span>,
+  <span class='texttt'>w &lt;= numeric_limits&lt;UIntType&gt;::digits</span>,
+  <span class='texttt'>a &lt;= (1u&lt;&lt;w) - 1u</span>,
+  <span class='texttt'>b &lt;= (1u&lt;&lt;w) - 1u</span>,
+  <span class='texttt'>c &lt;= (1u&lt;&lt;w) - 1u</span>,
+  <span class='texttt'>d &lt;= (1u&lt;&lt;w) - 1u</span>,
+and
+  <span class='texttt'>f &lt;= (1u&lt;&lt;w) - 1u</span>.</p></div><div class='para' id='mers-5'><div class='marginalizedparent'><a class='marginalized' href='#mers-5'>5</a></div><p >The textual representation<span class='indexparent'><a class='index' id='mersenne_twister_engine,textual_representation'></a></span>
+of <span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>
+consists of
+the values of
+ <span class='math'><span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span>-<span class='mathalpha'>n</span></sub>, &hellip;, <span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span>-1</sub></span>,
+in that order.</p><p ><span class='indexparent'><a class='index' id='mersenne_twister_engine,constructor'></a></span><code class='itemdecl'>
+explicit mersenne_twister_engine(result_type value = default_seed);
+</code></p></div><div class='itemdescr'></div><div class='para' id='mers-6'><div class='marginalizedparent'><a class='marginalized' href='#mers-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>mersenne_twister_engine</span> object.
+Sets <span class='math'><span class='mathalpha'>X</span><sub >-<span class='mathalpha'>n</span></sub></span> to <span class='math'><span class='texttt'>value</span> <span class="mathrm">mod</span> 2<sup ><span class='mathalpha'>w</span></sup></span>.
+ Then, iteratively for <span class='math'><span class='mathalpha'>i</span> = 1-<span class='mathalpha'>n</span>,&hellip;,-1</span>,
+ sets <span class='math'><span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span></sub></span>
+ to
+<span class='mathblock'> <span class='bigl'></span> [<span class='mathalpha'>f</span> ·
+       <span class='bigl'></span>(<span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span>-1</sub> <span class='math'>&nbsp; <span class='mathsf'>xor</span> &nbsp;</span> <span class='bigl'></span>(<span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span>-1</sub> <span class='math'>&nbsp; <span class='mathsf'>rshift</span> &nbsp;</span> (<span class='mathalpha'>w</span>-2)<span class='bigr'></span>)
+       <span class='bigr'></span>)
+       + <span class='mathalpha'>i</span> <span class="mathrm">mod</span> <span class='mathalpha'>n</span>
+ <span class='bigr'></span>] <span class="mathrm">mod</span> 2<sup ><span class='mathalpha'>w</span></sup>
+  <span class='mbox'>.</span>
+</span>
+</p></div></div><div class='para' id='mers-7'><div class='marginalizedparent'><a class='marginalized' href='#mers-7'>7</a></div><div class='itemdescr'><p ><i>Complexity:</i> <span class='math'>Ο(<span class='math'><span class='mathalpha'>n</span></span>)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='mersenne_twister_engine,constructor'></a></span><code class='itemdecl'>
+template&lt;class Sseq&gt; explicit mersenne_twister_engine(Sseq&amp; q);
+</code></p><div class='itemdescr'></div><div class='para' id='mers-8'><div class='marginalizedparent'><a class='marginalized' href='#mers-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>mersenne_twister_engine</span> object.
+ With
+ <span class='math'> <span class='mathalpha'>k</span> = <span class='left'></span>⌈ <span class='mathalpha'>w</span> / 32 <span class='right'></span>⌉ </span>
+ and <span class='math'><span class='mathalpha'>a</span></span> an array (or equivalent)
+ of length <span class='math'> <span class='mathalpha'>n</span> · <span class='mathalpha'>k</span> </span>,
+ invokes <span class='texttt'>q.generate(<span class='math'><span class='mathalpha'>a</span>+0</span>, <span class='math'><span class='mathalpha'>a</span>+<span class='mathalpha'>n</span> · <span class='mathalpha'>k</span></span>)</span>
+ and then, iteratively for <span class='math'><span class='mathalpha'>i</span> = -<span class='mathalpha'>n</span>,&hellip;,-1</span>,
+ sets <span class='math'><span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span></sub></span>
+ to <img src='math/3817896570174252073.png' class='mathinlineimg' alt='$ \left(\sum_{j=0}^{k-1}a_{k(i+n)+j} \cdot 2^{32j} \right) \bmod 2^w $'/>.
+ Finally,
+ if the most significant <span class='math'><span class='mathalpha'>w</span>-<span class='mathalpha'>r</span></span> bits of <span class='math'><span class='mathalpha'>X</span><sub >-<span class='mathalpha'>n</span></sub></span>
+ are zero,
+ and if each of the other resulting <span class='math'><span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span></sub></span> is <span class='math'>0</span>,
+ changes <span class='math'><span class='mathalpha'>X</span><sub >-<span class='mathalpha'>n</span></sub></span>
+ to <span class='math'> 2<sup ><span class='mathalpha'>w</span>-1</sup> </span>.
+</p></div></div><div class='footnote' id='footnote-271'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-271'>271)</a></div><p >The name of this engine refers, in part, to a property of its period:
+ For properly-selected values of the parameters,
+ the period is closely related to a large Mersenne prime number.</p></div></div><div id='sub'><h4 ><a class='secnum' href='#sub' style='min-width:118pt'>26.6.3.3</a> Class template <span class='texttt'>subtract_with_carry_engine</span> <a class='abbr_ref' href='rand.eng.sub'>[rand.eng.sub]</a></h4><p ><span class='indexparent'><a class='index' id='subtract_with_carry_engine'></a></span><span class='indexparent'><a class='index' id='random_number_engine,subtract_with_carry_engine'></a></span></p><div class='para' id='sub-1'><div class='marginalizedparent'><a class='marginalized' href='#sub-1'>1</a></div><p >A <span class='texttt'>subtract_with_carry_engine</span> random number engine
+produces unsigned integer random numbers.</p></div><div class='para' id='sub-2'><div class='marginalizedparent'><a class='marginalized' href='#sub-2'>2</a></div><p >The state<span class='indexparent'><a class='index' id='subtract_with_carry_engine,state'></a></span><span class='indexparent'><a class='index' id='state,subtract_with_carry_engine'></a></span>
+<span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>
+of a <span class='texttt'>subtract_with_carry_engine</span> object <span class='texttt'>x</span>
+is of size
+<span class='math'>Ο(<span class='math'><span class='mathalpha'>r</span></span>)</span>,
+and consists of
+a sequence <span class='math'><span class='mathalpha'>X</span></span> of <span class='math'><span class='mathalpha'>r</span></span> integer values <span class='math'>0 ≤ <span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span></sub> &lt; <span class='mathalpha'>m</span> &nbsp;= 2<sup ><span class='mathalpha'>w</span></sup></span>;
+all subscripts applied to <span class='math'><span class='mathalpha'>X</span></span> are to be taken modulo <span class='math'><span class='mathalpha'>r</span></span>.
+The state <span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>
+additionally consists of an integer <span class='math'><span class='mathalpha'>c</span></span>
+(known as the <i>carry</i>)<span class='indexparent'><a class='index' id='subtract_with_carry_engine,carry'></a></span><span class='indexparent'><a class='index' id='carry,subtract_with_carry_engine'></a></span>
+whose value is either <span class='math'>0</span> or <span class='math'>1</span>.</p></div><div class='para' id='sub-3'><div class='marginalizedparent'><a class='marginalized' href='#sub-3'>3</a></div><p >The state transition<span class='indexparent'><a class='index' id='subtract_with_carry_engine,transition_algorithm'></a></span><span class='indexparent'><a class='index' id='transition_algorithm,subtract_with_carry_engine'></a></span>
+is performed as follows:
+</p><ol class='enumeratea'><li id='sub-3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#sub-3.1'>(3.1)</a></div><p >Let <span class='math'> <span class='mathalpha'>Y</span> = <span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span>-<span class='mathalpha'>s</span></sub> - <span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span>-<span class='mathalpha'>r</span></sub> - <span class='mathalpha'>c</span> </span>.
+ </p></li><li id='sub-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#sub-3.2'>(3.2)</a></div><p >Set <span class='math'><span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span></sub></span> to <span class='math'> <span class='mathalpha'>y</span> = <span class='mathalpha'>Y</span> <span class="mathrm">mod</span> <span class='mathalpha'>m</span> </span>.
+   Set <span class='math'><span class='mathalpha'>c</span></span> to 1 if <span class='math'><span class='mathalpha'>Y</span> &lt; 0</span>,
+   otherwise set <span class='math'><span class='mathalpha'>c</span></span> to 0.
+</p></li></ol><p >[&nbsp;<i>Note:</i>
+ This algorithm corresponds
+ to a modular linear function
+ of the form
+ <span class='math'> <span class='mathsf'>TA</span>(<span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>) = (<span class='mathalpha'>a</span> · <span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>) <span class="mathrm">mod</span> <span class='mathalpha'>b</span> </span>,
+ where <span class='math'><span class='mathalpha'>b</span></span> is of the form
+ <span class='math'> <span class='mathalpha'>m</span><sup ><span class='mathalpha'>r</span></sup> - <span class='mathalpha'>m</span><sup ><span class='mathalpha'>s</span></sup> + 1 </span>
+ and <span class='math'> <span class='mathalpha'>a</span> = <span class='mathalpha'>b</span> - (<span class='mathalpha'>b</span>-1) / <span class='mathalpha'>m</span> </span>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='sub-4'><div class='marginalizedparent'><a class='marginalized' href='#sub-4'>4</a></div><p >The generation algorithm<span class='indexparent'><a class='index' id='subtract_with_carry_engine,generation_algorithm'></a></span><span class='indexparent'><a class='index' id='generation_algorithm,subtract_with_carry_engine'></a></span>
+is given by
+<span class='math'> <span class='mathsf'>GA</span>(<span class='texttt'>x</span><span class='math'><sub ><span class='mathalpha'>i</span></sub></span>) = <span class='mathalpha'>y</span> </span>,
+where
+ <span class='math'><span class='mathalpha'>y</span></span>
+is the value produced
+as a result
+of advancing the engine's state
+as described above.</p><p ><span class='indexparent'><a class='index' id='subtract_with_carry_engine'></a></span></p><pre class='codeblock'>
+template&lt;class UIntType, size_t w, size_t s, size_t r&gt;
+ class subtract_with_carry_engine{
+public:
+ <span class='comment'>// types
+</span> using result_type = UIntType;
+
+ <span class='comment'>// engine characteristics
+</span> static constexpr size_t word_size = w;
+ static constexpr size_t short_lag = s;
+ static constexpr size_t long_lag = r;
+ static constexpr result_type min() { return 0; }
+ static constexpr result_type max() { return <span class='math'><span class='mathalpha'>m</span> - 1</span>; }
+ static constexpr result_type default_seed = 19780503u;
+
+ <span class='comment'>// constructors and seeding functions
+</span> explicit subtract_with_carry_engine(result_type value = default_seed);
+ template&lt;class Sseq&gt; explicit subtract_with_carry_engine(Sseq&amp; q);
+ void seed(result_type value = default_seed);
+ template&lt;class Sseq&gt; void seed(Sseq&amp; q);
+
+ <span class='comment'>// generating functions
+</span> result_type operator()();
+ void discard(unsigned long long z);
+};
+</pre></div><div class='para' id='sub-5'><div class='marginalizedparent'><a class='marginalized' href='#sub-5'>5</a></div><p >The following relations shall hold:
+  <span class='texttt'>0u &lt; s</span>,
+  <span class='texttt'>s &lt; r</span>,
+  <span class='texttt'>0 &lt; w</span>,
+and
+  <span class='texttt'>w &lt;= numeric_limits&lt;UIntType&gt;::digits</span>.</p></div><div class='para' id='sub-6'><div class='marginalizedparent'><a class='marginalized' href='#sub-6'>6</a></div><p >The textual representation<span class='indexparent'><a class='index' id='subtract_with_carry_engine,textual_representation'></a></span><span class='indexparent'><a class='index' id='textual_representation,subtract_with_carry_engine'></a></span>
+consists of the values of
+ <span class='math'><span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span>-<span class='mathalpha'>r</span></sub>, &hellip;, <span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span>-1</sub></span>,
+in that order, followed by <span class='math'><span class='mathalpha'>c</span></span>.</p><p ><span class='indexparent'><a class='index' id='subtract_with_carry_engine,constructor'></a></span><code class='itemdecl'>
+explicit subtract_with_carry_engine(result_type value = default_seed);
+</code></p></div><div class='itemdescr'></div><div class='para' id='sub-7'><div class='marginalizedparent'><a class='marginalized' href='#sub-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>subtract_with_carry_engine</span> object.
+ Sets the values of
+ <span class='math'> <span class='mathalpha'>X</span><sub >-<span class='mathalpha'>r</span></sub>, &hellip;, <span class='mathalpha'>X</span><sub >-1</sub> </span>,
+ in that order, as specified below.
+ If <span class='math'><span class='mathalpha'>X</span><sub >-1</sub></span> is then <span class='math'>0</span>,
+ sets <span class='math'><span class='mathalpha'>c</span></span> to <span class='math'>1</span>;
+ otherwise sets <span class='math'><span class='mathalpha'>c</span></span> to <span class='math'>0</span>.</p><p >To set the values <span class='math'><span class='mathalpha'>X</span><sub ><span class='mathalpha'>k</span></sub></span>,
+ first construct <span class='texttt'>e</span>, a <span class='texttt'>linear_congruential_engine</span> object,
+ as if by the following definition:
+</p><pre class='codeblock'>
+linear_congruential_engine&lt;result_type,
+                          40014u,0u,2147483563u&gt; e(value == 0u ? default_seed : value);
+</pre><p >Then, to set each <span class='math'><span class='mathalpha'>X</span><sub ><span class='mathalpha'>k</span></sub></span>,
+ obtain new values <span class='math'> <span class='mathalpha'>z</span><sub >0</sub>, &hellip;, <span class='mathalpha'>z</span><sub ><span class='mathalpha'>n</span>-1</sub> </span>
+ from <span class='math'><span class='mathalpha'>n</span> = ⌈ <span class='mathalpha'>w</span>/32 ⌉ </span> successive invocations
+ of <span class='texttt'>e</span> taken modulo <span class='math'>2<sup >32</sup></span>.
+ Set <span class='math'><span class='mathalpha'>X</span><sub ><span class='mathalpha'>k</span></sub></span> to <img src='math/3587506507068034866.png' class='mathinlineimg' alt='$ \left( \sum_{j=0}^{n-1} z_j \cdot 2^{32j}\right) \bmod m$'/>.</p></div></div><div class='para' id='sub-8'><div class='marginalizedparent'><a class='marginalized' href='#sub-8'>8</a></div><div class='itemdescr'><p ><i>Complexity:</i> Exactly <span class='math'><span class='mathalpha'>n</span> · <span class='texttt'>r</span></span> invocations
+ of <span class='texttt'>e</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='subtract_with_carry_engine,constructor'></a></span><code class='itemdecl'>
+template&lt;class Sseq&gt; explicit subtract_with_carry_engine(Sseq&amp; q);
+</code></p><div class='itemdescr'></div><div class='para' id='sub-9'><div class='marginalizedparent'><a class='marginalized' href='#sub-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i> Constructs a <span class='texttt'>subtract_with_carry_engine</span> object.
+ With
+ <span class='math'> <span class='mathalpha'>k</span> = <span class='left'></span>⌈ <span class='mathalpha'>w</span> / 32 <span class='right'></span>⌉ </span>
+ and <span class='math'><span class='mathalpha'>a</span></span> an array (or equivalent)
+ of length <span class='math'> <span class='mathalpha'>r</span> · <span class='mathalpha'>k</span> </span>,
+ invokes <span class='texttt'>q.generate(<span class='math'><span class='mathalpha'>a</span>+0</span>, <span class='math'><span class='mathalpha'>a</span>+<span class='mathalpha'>r</span> · <span class='mathalpha'>k</span></span>)</span>
+ and then, iteratively for <span class='math'><span class='mathalpha'>i</span> = -<span class='mathalpha'>r</span>, &hellip;, -1</span>,
+ sets <span class='math'><span class='mathalpha'>X</span><sub ><span class='mathalpha'>i</span></sub></span>
+ to <img src='math/4642137644786841835.png' class='mathinlineimg' alt='$ \left(\sum_{j=0}^{k-1}a_{k(i+r)+j} \cdot 2^{32j} \right) \bmod m $'/>.
+ If <span class='math'><span class='mathalpha'>X</span><sub >-1</sub></span> is then <span class='math'>0</span>,
+ sets <span class='math'><span class='mathalpha'>c</span></span> to <span class='math'>1</span>;
+ otherwise sets <span class='math'><span class='mathalpha'>c</span></span> to <span class='math'>0</span>.
+</p></div></div></div></div></div></body></html>

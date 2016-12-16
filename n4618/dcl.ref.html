@@ -1,0 +1,137 @@
+<!DOCTYPE html><html lang='en'><head><title>[dcl.ref]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>8</a> Declarators <a class='abbr_ref' href='./#dcl.decl'>[dcl.decl]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>8.3</a> Meaning of declarators <a class='abbr_ref' href='dcl.meaning#dcl.ref'>[dcl.meaning]</a></h2><div id='dcl.ref'><h3 ><a class='secnum' style='min-width:103pt'>8.3.2</a> References <a class='abbr_ref'>[dcl.ref]</a></h3><p ><span class='indexparent'><a class='index' id='declarator,reference'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >In a declaration
+<span class='texttt'>T</span>
+<span class='texttt'>D</span>
+where
+<span class='texttt'>D</span>
+has either of the forms</p><pre class='bnf'><span class='terminal'>&amp;</span> <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <span class='terminal'>D1</span>
+<span class='terminal'>&amp;&amp;</span> <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i><span class='math'><sub ><span class='mathit'>opt</span></sub></span> <span class='terminal'>D1</span></pre><p >and the type of the identifier in the declaration
+<span class='texttt'>T</span>
+<span class='texttt'>D1</span>
+is “<span class='rmfamily'></span><i> derived-declarator-type-list</i>
+<span class='texttt'>T</span>”,
+then the type of the identifier of
+<span class='texttt'>D</span>
+is “<span class='rmfamily'></span><i> derived-declarator-type-list</i> reference to
+<span class='texttt'>T</span>”.
+The optional <i ><a href='dcl.attr.grammar#nt:attribute-specifier-seq'>attribute-specifier-seq</a></i> appertains to the reference type.
+Cv-qualified references are ill-formed except when the cv-qualifiers
+are introduced through the use of a
+<i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i> (<a href='dcl.typedef'>[dcl.typedef]</a>, <a href='temp.param'>[temp.param]</a>) or
+<i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i> (<a href='dcl.type.simple'>[dcl.type.simple]</a>),
+in which case the cv-qualifiers are ignored.
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+typedef int&amp; A;
+const A aref = 3;   <span class='comment'>// ill-formed; lvalue reference to non-<span class='texttt'>const</span> initialized with rvalue
+</span></pre><p >The type of
+<span class='texttt'>aref</span>
+is “lvalue reference to <span class='texttt'>int</span>”,
+not “lvalue reference to <span class='texttt'>const int</span>”.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+A reference can be thought of as a name of an object.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+<span class='indexparent'><a class='index' id='void&'></a></span>A declarator that specifies the type
+“reference to <i>cv</i> <span class='texttt'>void</span>”
+is ill-formed.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='indexparent'><a class='index' id='lvalue_reference'></a></span><span class='indexparent'><a class='index' id='rvalue_reference'></a></span>A reference type that is declared using <span class='texttt'>&amp;</span> is called an
+<a class='hidden_link' href='#def:lvalue_reference' id='def:lvalue_reference'><i>lvalue reference</i></a>, and a reference type that
+is declared using <span class='texttt'>&amp;&amp;</span> is called an
+<a class='hidden_link' href='#def:rvalue_reference' id='def:rvalue_reference'><i>rvalue reference</i></a>. Lvalue references and
+rvalue references are distinct types. Except where explicitly noted, they are
+semantically equivalent and commonly referred to as references.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p ><span class='indexparent'><a class='index' id='declaration,reference'></a></span><span class='indexparent'><a class='index' id='parameter,reference'></a></span>[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+void f(double&amp; a) { a += 3.14; }
+<span class='comment'>// ...
+</span>double d = 0;
+f(d);
+</pre><p >declares
+<span class='texttt'>a</span>
+to be a reference parameter of
+<span class='texttt'>f</span>
+so the call
+<span class='texttt'>f(d)</span>
+will add
+<span class='texttt'>3.14</span>
+to
+<span class='texttt'>d</span>.</p><pre class='codeblock'>
+int v[20];
+<span class='comment'>// ...
+</span>int&amp; g(int i) { return v[i]; }
+<span class='comment'>// ...
+</span>g(3) = 7;
+</pre><p >declares the function
+<span class='texttt'>g()</span>
+to return a reference to an integer so
+<span class='texttt'>g(3)=7</span>
+will assign
+<span class='texttt'>7</span>
+to the fourth element of the array
+<span class='texttt'>v</span>.
+For another example,</p><pre class='codeblock'>
+struct link {
+  link* next;
+};
+
+link* first;
+
+void h(link*&amp; p) {  <span class='comment'>// <span class='texttt'>p</span> is a reference to pointer
+</span>  p-&gt;next = first;
+  first = p;
+  p = 0;
+}
+
+void k() {
+   link* q = new link;
+   h(q);
+}
+</pre><p >declares
+<span class='texttt'>p</span>
+to be a reference to a pointer to
+<span class='texttt'>link</span>
+so
+<span class='texttt'>h(q)</span>
+will leave
+<span class='texttt'>q</span>
+with the value zero.
+See also <a href='dcl.init.ref'>[dcl.init.ref]</a>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >It is unspecified whether or not
+a reference requires storage (<a href='basic.stc'>[basic.stc]</a>).</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p ><span class='indexparent'><a class='index' id='restriction,reference'></a></span>There shall be no references to references,
+no arrays of references, and no pointers to references.
+<span class='indexparent'><a class='index' id='initialization,reference'></a></span>The declaration of a reference shall contain an
+<i ><a href='dcl.init#nt:initializer'>initializer</a></i>
+(<a href='dcl.init.ref'>[dcl.init.ref]</a>)
+except when the declaration contains an explicit
+<span class='texttt'>extern</span>
+specifier (<a href='dcl.stc'>[dcl.stc]</a>),
+is a class member (<a href='class.mem'>[class.mem]</a>) declaration within a class definition,
+or is the declaration of a parameter or a return type (<a href='dcl.fct'>[dcl.fct]</a>); see <a href='basic.def'>[basic.def]</a>.
+A reference shall be initialized to refer to a valid object or function.
+[&nbsp;<i>Note:</i>
+<span class='indexparent'><a class='index' id='reference,null'></a></span>in particular, a null reference cannot exist in a well-defined program,
+because the only way to create such a reference would be to bind it to
+the “object” obtained by indirection through a null pointer,
+which causes undefined behavior.
+As described in <a href='class.bit'>[class.bit]</a>, a reference cannot be bound directly
+to a bit-field.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p ><span class='indexparent'><a class='index' id='reference_collapsing'></a></span>If a <i ><a href='dcl.typedef#nt:typedef-name'>typedef-name</a></i> (<a href='dcl.typedef'>[dcl.typedef]</a>, <a href='temp.param'>[temp.param]</a>)
+or a <i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i> (<a href='dcl.type.simple'>[dcl.type.simple]</a>) denotes a type <span class='texttt'>TR</span> that
+is a reference to a type <span class='texttt'>T</span>, an attempt to create the type “lvalue reference to <i>cv</i> 
+<span class='texttt'>TR</span>” creates the type “lvalue reference to <span class='texttt'>T</span>”, while an attempt to create
+the type “rvalue reference to <i>cv</i> <span class='texttt'>TR</span>” creates the type <span class='texttt'>TR</span>.
+[&nbsp;<i>Note:</i> This rule is known as reference collapsing. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+int i;
+typedef int&amp; LRI;
+typedef int&amp;&amp; RRI;
+
+LRI&amp; r1 = i;                    <span class='comment'>// <span class='texttt'>r1</span> has the type <span class='texttt'>int&amp;</span>
+</span>const LRI&amp; r2 = i;              <span class='comment'>// <span class='texttt'>r2</span> has the type <span class='texttt'>int&amp;</span>
+</span>const LRI&amp;&amp; r3 = i;             <span class='comment'>// <span class='texttt'>r3</span> has the type <span class='texttt'>int&amp;</span>
+</span>
+RRI&amp; r4 = i;                    <span class='comment'>// <span class='texttt'>r4</span> has the type <span class='texttt'>int&amp;</span>
+</span>RRI&amp;&amp; r5 = 5;                   <span class='comment'>// <span class='texttt'>r5</span> has the type <span class='texttt'>int&amp;&amp;</span>
+</span>
+decltype(r2)&amp; r6 = i;           <span class='comment'>// <span class='texttt'>r6</span> has the type <span class='texttt'>int&amp;</span>
+</span>decltype(r2)&amp;&amp; r7 = i;          <span class='comment'>// <span class='texttt'>r7</span> has the type <span class='texttt'>int&amp;</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >[&nbsp;<i>Note:</i> Forming a reference to function type is ill-formed if the function
+type has <i ><a href='dcl.decl#nt:cv-qualifier'>cv-qualifiers</a></i> or a <i ><a href='dcl.decl#nt:ref-qualifier'>ref-qualifier</a></i>;
+see <a href='dcl.fct'>[dcl.fct]</a>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div></div></body></html>

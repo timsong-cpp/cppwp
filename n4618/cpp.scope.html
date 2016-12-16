@@ -1,0 +1,135 @@
+<!DOCTYPE html><html lang='en'><head><title>[cpp.scope]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>16</a> Preprocessing directives <a class='abbr_ref' href='./#cpp'>[cpp]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>16.3</a> Macro replacement <a class='abbr_ref' href='cpp.replace#cpp.scope'>[cpp.replace]</a></h2><div id='cpp.scope'><h3 ><a class='secnum' style='min-width:103pt'>16.3.5</a> Scope of macro definitions <a class='abbr_ref'>[cpp.scope]</a></h3><p ><span class='indexparent'><a class='index' id='macro,scope_of_definition'></a></span><span class='indexparent'><a class='index' id='scope,macro_definition'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A macro definition lasts
+(independent of block structure)
+until a corresponding
+<span class='texttt'>#undef</span>
+directive is encountered or
+(if none is encountered)
+until the end of the translation unit.
+Macro definitions have no significance after translation phase 4.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >A preprocessing directive of the form</p><pre class='bnf'><span class='terminal'># undef</span> <i ><a href='lex.name#nt:identifier'>identifier</a></i> <i ><a href='cpp#nt:new-line'>new-line</a></i>
+<span class='indexparent'><a class='index' id='#undef'></a></span></pre><p >causes the specified identifier no longer to be defined as a macro name.
+It is ignored if the specified identifier is not currently defined as
+a macro name.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >[&nbsp;<i>Example:</i>
+The simplest use of this facility is to define a “manifest constant,”
+as in
+</p><pre class='codeblock'>
+#define TABSIZE 100
+int table[TABSIZE];
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >[&nbsp;<i>Example:</i>
+The following defines a function-like
+macro whose value is the maximum of its arguments.
+It has the advantages of working for any compatible types of the arguments
+and of generating in-line code without the overhead of function calling.
+It has the disadvantages of evaluating one or the other of its arguments
+a second time
+(including
+<span class='indexparent'><a class='index' id='side_effects'></a></span>side effects)
+and generating more code than a function if invoked several times.
+It also cannot have its address taken,
+as it has none.</p><pre class='codeblock'>
+#define max(a, b) ((a) &gt; (b) ? (a) : (b))
+</pre><p >The parentheses ensure that the arguments and
+the resulting expression are bound properly.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >[&nbsp;<i>Example:</i>
+To illustrate the rules for redefinition and reexamination,
+the sequence</p><pre class='codeblock'>
+#define x       3
+#define f(a)    f(x * (a))
+#undef  x
+#define x       2
+#define g       f
+#define z       z[0]
+#define h       g(~
+#define m(a)    a(w)
+#define w       0,1
+#define t(a)    a
+#define p()     int
+#define q(x)    x
+#define r(x,y)  x ## y
+#define str(x)  # x
+
+f(y+1) + f(f(z)) % t(t(g)(0) + t)(1);
+g(x+(3,4)-w) | h 5) &amp; m
+    (f)^m(m);
+p() i[q()] = { q(1), r(2,3), r(4,), r(,5), r(,) };
+char c[2][6] = { str(hello), str() };
+</pre><p >results in</p><pre class='codeblock'>
+f(2 * (y+1)) + f(2 * (f(2 * (z[0])))) % f(2 * (0)) + t(1);
+f(2 * (2+(3,4)-0,1)) | f(2 * (~ 5)) &amp; f(2 * (0,1))^m(0,1);
+int i[] = { 1, 23, 4, 5, };
+char c[2][6] = { "hello", "" };
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >[&nbsp;<i>Example:</i>
+To illustrate the rules for creating character string literals
+and concatenating tokens,
+the sequence</p><pre class='codeblock'>
+#define str(s)      # s
+#define xstr(s)     str(s)
+#define debug(s, t) printf("x" # s "= %d, x" # t "= %s", \
+               x ## s, x ## t)
+#define INCFILE(n)  vers ## n
+#define glue(a, b)  a ## b
+#define xglue(a, b) glue(a, b)
+#define HIGHLOW     "hello"
+#define LOW         LOW ", world"
+
+debug(1, 2);
+fputs(str(strncmp("abc\0d", "abc", '\4')  <span class='comment'>// this goes away
+</span>    == 0) str(: @\n), s);
+#include xstr(INCFILE(2).h)
+glue(HIGH, LOW);
+xglue(HIGH, LOW)
+</pre><p >results in</p><pre class='codeblock'>
+printf("x" "1" "= %d, x" "2" "= %s", x1, x2);
+fputs("strncmp(\"abc\\0d\", \"abc\", '\\4') == 0" ": @\n", s);
+#include "vers2.h"    <i>(after macro replacement, before file access)</i>
+"hello";
+"hello" ", world"
+</pre><p >or, after concatenation of the character string literals,</p><pre class='codeblock'>
+printf("x1= %d, x2= %s", x1, x2);
+fputs("strncmp(\"abc\\0d\", \"abc\", '\\4') == 0: @\n", s);
+#include "vers2.h"    <i>(after macro replacement, before file access)</i>
+"hello";
+"hello, world"
+</pre><p >Space around the
+<span class='texttt'>#</span>
+and
+<span class='texttt'>##</span>
+tokens in the macro definition is optional.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >[&nbsp;<i>Example:</i>
+To illustrate the rules for placemarker preprocessing tokens, the sequence</p><pre class='codeblock'>
+#define t(x,y,z) x ## y ## z
+int j[] = { t(1,2,3), t(,4,5), t(6,,7), t(8,9,),
+  t(10,,), t(,11,), t(,,12), t(,,) };
+</pre><p >results in</p><pre class='codeblock'>
+int j[] = { 123, 45, 67, 89,
+  10, 11, 12, };
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >[&nbsp;<i>Example:</i>
+To demonstrate the redefinition rules,
+the following sequence is valid.</p><pre class='codeblock'>
+#define OBJ_LIKE      (1-1)
+#define OBJ_LIKE      <span class='texttt'>/* white space */ (1-1) /* other */</span>
+#define FUNC_LIKE(a)   ( a )
+#define FUNC_LIKE( a )(     <span class='texttt'>/* note the white space */ \</span>
+                a <span class='texttt'>/* other stuff on this line</span>
+                  <span class='texttt'>*/</span> )
+</pre><p >But the following redefinitions are invalid:</p><pre class='codeblock'>
+#define OBJ_LIKE    (0)      <span class='comment'>// different token sequence
+</span>#define OBJ_LIKE    (1 - 1)  <span class='comment'>// different white space
+</span>#define FUNC_LIKE(b) ( a )   <span class='comment'>// different parameter usage
+</span>#define FUNC_LIKE(b) ( b )   <span class='comment'>// different parameter spelling
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >[&nbsp;<i>Example:</i>
+Finally, to show the variable argument list macro facilities:</p><pre class='codeblock'>
+#define debug(...) fprintf(stderr, <span class='texttt'>__VA_ARGS__</span>)
+#define showlist(...) puts(#<span class='texttt'>__VA_ARGS__</span>)
+#define report(test, ...) ((test) ? puts(#test) : printf(<span class='texttt'>__VA_ARGS__</span>))
+debug("Flag");
+debug("X = %d\n", x);
+showlist(The first, second, and third items.);
+report(x&gt;y, "x is %d but y is %d", x, y);
+</pre><p >results in</p><pre class='codeblock'>
+fprintf(stderr, "Flag");
+fprintf(stderr, "X = %d\n", x);
+puts("The first, second, and third items.");
+((x&gt;y) ? puts("x&gt;y") : printf("x is %d but y is %d", x, y));
+  
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+<span class='indexparent'><a class='index' id='macro,replacement'></a></span></p></div></div></div></body></html>

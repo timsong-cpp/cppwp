@@ -1,0 +1,122 @@
+<!DOCTYPE html><html lang='en'><head><title>[variant.general]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.7</a> Variants <a class='abbr_ref' href='variant#general'>[variant]</a></h2><div id='variant.general'><h3 ><a class='secnum' style='min-width:103pt'>20.7.1</a> In general <a class='abbr_ref'>[variant.general]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A variant object holds and manages the lifetime of a value.
+If the <span class='texttt'>variant</span> holds a value, that value's type has to be one
+of the template argument types given to variant.
+These template arguments are called alternatives.</p><p ><span class='indexparent'><a class='index' id='variant'></a></span><b>Header <span class='texttt'>&lt;variant&gt;</span> synopsis</b></p><pre class='codeblock'>
+namespace std {
+  <span class='comment'>// <a href='variant.variant'>[variant.variant]</a>, variant
+</span>  template &lt;class... Types&gt; class variant;
+
+  <span class='comment'>// <a href='variant.helper'>[variant.helper]</a>, variant helper classes
+</span>  template &lt;class T&gt; struct variant_size; <span class='comment'>// not defined
+</span>  template &lt;class T&gt; struct variant_size&lt;const T&gt;;
+  template &lt;class T&gt; struct variant_size&lt;volatile T&gt;;
+  template &lt;class T&gt; struct variant_size&lt;const volatile T&gt;;
+  template &lt;class T&gt; constexpr size_t variant_size_v
+    = variant_size&lt;T&gt;::value;
+
+  template &lt;class... Types&gt;
+    struct variant_size&lt;variant&lt;Types...&gt;&gt;;
+
+  template &lt;size_t I, class T&gt; struct variant_alternative; <span class='comment'>// not defined
+</span>  template &lt;size_t I, class T&gt; struct variant_alternative&lt;I, const T&gt;;
+  template &lt;size_t I, class T&gt; struct variant_alternative&lt;I, volatile T&gt;;
+  template &lt;size_t I, class T&gt; struct variant_alternative&lt;I, const volatile T&gt;;
+  template &lt;size_t I, class T&gt;
+    using variant_alternative_t = typename variant_alternative&lt;I, T&gt;::type;
+
+  template &lt;size_t I, class... Types&gt;
+    struct variant_alternative&lt;I, variant&lt;Types...&gt;&gt;;
+
+  constexpr size_t variant_npos = -1;
+
+  <span class='comment'>// <a href='variant.get'>[variant.get]</a>, value access
+</span>  template &lt;class T, class... Types&gt;
+    constexpr bool holds_alternative(const variant&lt;Types...&gt;&amp;) noexcept;
+
+  template &lt;size_t I, class... Types&gt;
+    constexpr variant_alternative_t&lt;I, variant&lt;Types...&gt;&gt;&amp;
+    get(variant&lt;Types...&gt;&amp;);
+  template &lt;size_t I, class... Types&gt;
+    constexpr variant_alternative_t&lt;I, variant&lt;Types...&gt;&gt;&amp;&amp;
+    get(variant&lt;Types...&gt;&amp;&amp;);
+  template &lt;size_t I, class... Types&gt;
+    constexpr const variant_alternative_t&lt;I, variant&lt;Types...&gt;&gt;&amp;
+    get(const variant&lt;Types...&gt;&amp;);
+  template &lt;size_t I, class... Types&gt;
+    constexpr const variant_alternative_t&lt;I, variant&lt;Types...&gt;&gt;&amp;&amp;
+    get(const variant&lt;Types...&gt;&amp;&amp;);
+
+  template &lt;class T, class... Types&gt;
+    constexpr T&amp; get(variant&lt;Types...&gt;&amp;);
+  template &lt;class T, class... Types&gt;
+    constexpr T&amp;&amp; get(variant&lt;Types...&gt;&amp;&amp;);
+  template &lt;class T, class... Types&gt;
+    constexpr const T&amp; get(const variant&lt;Types...&gt;&amp;);
+  template &lt;class T, class... Types&gt;
+    constexpr const T&amp;&amp; get(const variant&lt;Types...&gt;&amp;&amp;);
+
+  template &lt;size_t I, class... Types&gt;
+    constexpr add_pointer_t&lt;variant_alternative_t&lt;I, variant&lt;Types...&gt;&gt;&gt;
+    get_if(variant&lt;Types...&gt;*) noexcept;
+  template &lt;size_t I, class... Types&gt;
+    constexpr add_pointer_t&lt;const variant_alternative_t&lt;I, variant&lt;Types...&gt;&gt;&gt;
+    get_if(const variant&lt;Types...&gt;*) noexcept;
+
+  template &lt;class T, class... Types&gt;
+    constexpr add_pointer_t&lt;T&gt; get_if(variant&lt;Types...&gt;*) noexcept;
+  template &lt;class T, class... Types&gt;
+    constexpr add_pointer_t&lt;const T&gt; get_if(const variant&lt;Types...&gt;*) noexcept;
+
+  <span class='comment'>// <a href='variant.relops'>[variant.relops]</a>, relational operators
+</span>  template &lt;class... Types&gt;
+    constexpr bool operator==(const variant&lt;Types...&gt;&amp;,
+                              const variant&lt;Types...&gt;&amp;);
+  template &lt;class... Types&gt;
+    constexpr bool operator!=(const variant&lt;Types...&gt;&amp;,
+                              const variant&lt;Types...&gt;&amp;);
+  template &lt;class... Types&gt;
+    constexpr bool operator&lt;(const variant&lt;Types...&gt;&amp;,
+                             const variant&lt;Types...&gt;&amp;);
+  template &lt;class... Types&gt;
+    constexpr bool operator&gt;(const variant&lt;Types...&gt;&amp;,
+                             const variant&lt;Types...&gt;&amp;);
+  template &lt;class... Types&gt;
+    constexpr bool operator&lt;=(const variant&lt;Types...&gt;&amp;,
+                              const variant&lt;Types...&gt;&amp;);
+  template &lt;class... Types&gt;
+    constexpr bool operator&gt;=(const variant&lt;Types...&gt;&amp;,
+                              const variant&lt;Types...&gt;&amp;);
+
+  <span class='comment'>// <a href='variant.visit'>[variant.visit]</a>, visitation
+</span>  template &lt;class Visitor, class... Variants&gt;
+  constexpr <i><span class='texttt'>see below</span></i> visit(Visitor&amp;&amp;, Variants&amp;&amp;...);
+
+  <span class='comment'>// <a href='variant.monostate'>[variant.monostate]</a>, class <span class='texttt'>monostate</span>
+</span>  struct monostate;
+
+  <span class='comment'>// <a href='variant.monostate.relops'>[variant.monostate.relops]</a>, <span class='texttt'>monostate</span> relational operators
+</span>  constexpr bool operator&lt;(monostate, monostate) noexcept;
+  constexpr bool operator&gt;(monostate, monostate) noexcept;
+  constexpr bool operator&lt;=(monostate, monostate) noexcept;
+  constexpr bool operator&gt;=(monostate, monostate) noexcept;
+  constexpr bool operator==(monostate, monostate) noexcept;
+  constexpr bool operator!=(monostate, monostate) noexcept;
+
+  <span class='comment'>// <a href='variant.specalg'>[variant.specalg]</a>, specialized algorithms
+</span>  template &lt;class... Types&gt;
+  void swap(variant&lt;Types...&gt;&amp;, variant&lt;Types...&gt;&amp;) noexcept(<i><span class='texttt'>see below</span></i>);
+
+  <span class='comment'>// <a href='variant.bad.access'>[variant.bad.access]</a>, class <span class='texttt'>bad_variant_access</span>
+</span>  class bad_variant_access;
+
+  <span class='comment'>// <a href='variant.hash'>[variant.hash]</a>, hash support
+</span>  template &lt;class T&gt; struct hash;
+  template &lt;class... Types&gt; struct hash&lt;variant&lt;Types...&gt;&gt;;
+  template &lt;&gt; struct hash&lt;monostate&gt;;
+
+  <span class='comment'>// <a href='variant.traits'>[variant.traits]</a>, allocator-related traits
+</span>  template &lt;class T, class Alloc&gt; struct uses_allocator;
+  template &lt;class... Types, class Alloc&gt;
+  struct uses_allocator&lt;variant&lt;Types...&gt;, Alloc&gt;;
+}
+</pre><p ><span class='indexparent'><a class='index' id='variant'></a></span></p></div></div></div></body></html>

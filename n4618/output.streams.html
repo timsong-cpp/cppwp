@@ -1,0 +1,655 @@
+<!DOCTYPE html><html lang='en'><head><title>[output.streams]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>27</a> Input/output library <a class='abbr_ref' href='./#input.output'>[input.output]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>27.7</a> Formatting and manipulators <a class='abbr_ref' href='iostream.format#output.streams'>[iostream.format]</a></h2><div id='output.streams'><h3 ><a class='secnum' style='min-width:103pt'>27.7.3</a> Output streams <a class='abbr_ref'>[output.streams]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The header
+<span class='texttt'>&lt;ostream&gt;</span>
+defines a type
+and several function signatures that control output to a
+stream buffer along with a function template that inserts into stream rvalues.</p></div><div id='ostream'><h4 ><a class='secnum' href='#ostream' style='min-width:118pt'>27.7.3.1</a> Class template <span class='texttt'>basic_ostream</span> <a class='abbr_ref' href='ostream'>[ostream]</a></h4><p ><span class='indexparent'><a class='index' id='basic_ostream'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class charT, class traits = char_traits&lt;charT&gt;&gt;
+  class basic_ostream
+    : virtual public basic_ios&lt;charT, traits&gt; {
+  public:
+    <span class='comment'>// types (inherited from <span class='texttt'>basic_ios</span> (<a href='ios'>[ios]</a>)):
+</span>    using char_type   = charT;
+    using int_type    = typename traits::int_type;
+    using pos_type    = typename traits::pos_type;
+    using off_type    = typename traits::off_type;
+    using traits_type = traits;
+
+    <span class='comment'>// <a href='ostream.cons'>[ostream.cons]</a>, constructor/destructor
+</span>    explicit basic_ostream(basic_streambuf&lt;char_type, traits&gt;* sb);
+    virtual ~basic_ostream();
+
+    <span class='comment'>// <a href='./ostream::sentry'>[ostream::sentry]</a>, prefix/suffix
+</span>    class sentry;
+
+    <span class='comment'>// <a href='ostream.formatted'>[ostream.formatted]</a>, formatted output
+</span>    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(
+      basic_ostream&lt;charT, traits&gt;&amp; (*pf)(basic_ostream&lt;charT, traits&gt;&amp;));
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(
+      basic_ios&lt;charT, traits&gt;&amp; (*pf)(basic_ios&lt;charT, traits&gt;&amp;));
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(
+      ios_base&amp; (*pf)(ios_base&amp;));
+
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(bool n);
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(short n);
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(unsigned short n);
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(int n);
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(unsigned int n);
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(long n);
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(unsigned long n);
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(long long n);
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(unsigned long long n);
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(float f);
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(double f);
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(long double f);
+
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(const void* p);
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(nullptr_t);
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(
+      basic_streambuf&lt;char_type, traits&gt;* sb);
+
+    <span class='comment'>// <a href='ostream.unformatted'>[ostream.unformatted]</a>, unformatted output
+</span>    basic_ostream&lt;charT, traits&gt;&amp; put(char_type c);
+    basic_ostream&lt;charT, traits&gt;&amp; write(const char_type* s, streamsize n);
+
+    basic_ostream&lt;charT, traits&gt;&amp; flush();
+
+    <span class='comment'>// <a href='ostream.seeks'>[ostream.seeks]</a>, seeks
+</span>    pos_type tellp();
+    basic_ostream&lt;charT, traits&gt;&amp; seekp(pos_type);
+    basic_ostream&lt;charT, traits&gt;&amp; seekp(off_type, ios_base::seekdir);
+
+  protected:
+    <span class='comment'>// <a href='ostream.cons'>[ostream.cons]</a>, copy/move constructor
+</span>    basic_ostream(const basic_ostream&amp; rhs) = delete;
+    basic_ostream(basic_ostream&amp;&amp; rhs);
+
+    <span class='comment'>// <a href='ostream.assign'>[ostream.assign]</a>, assign and swap
+</span>    basic_ostream&amp; operator=(const basic_ostream&amp; rhs) = delete;
+    basic_ostream&amp; operator=(basic_ostream&amp;&amp; rhs);
+    void swap(basic_ostream&amp; rhs);
+  };
+
+  <span class='comment'>// <a href='ostream.inserters.character'>[ostream.inserters.character]</a>, character inserters
+</span>  template&lt;class charT, class traits&gt;
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;charT, traits&gt;&amp;,
+                                             charT);
+  template&lt;class charT, class traits&gt;
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;charT, traits&gt;&amp;,
+                                             char);
+  template&lt;class traits&gt;
+    basic_ostream&lt;char, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;char, traits&gt;&amp;,
+                                            char);
+
+  template&lt;class traits&gt;
+    basic_ostream&lt;char, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;char, traits&gt;&amp;,
+                                            signed char);
+  template&lt;class traits&gt;
+    basic_ostream&lt;char, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;char, traits&gt;&amp;,
+                                            unsigned char);
+
+  template&lt;class charT, class traits&gt;
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;charT, traits&gt;&amp;,
+                                             const charT*);
+  template&lt;class charT, class traits&gt;
+    basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;charT, traits&gt;&amp;,
+                                             const char*);
+  template&lt;class traits&gt;
+    basic_ostream&lt;char, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;char, traits&gt;&amp;,
+                                            const char*);
+
+  template&lt;class traits&gt;
+    basic_ostream&lt;char, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;char, traits&gt;&amp;,
+                                            const signed char*);
+  template&lt;class traits&gt;
+    basic_ostream&lt;char, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;char, traits&gt;&amp;,
+                                            const unsigned char*);
+}
+</pre><div class='para' id='ostream-1'><div class='marginalizedparent'><a class='marginalized' href='#ostream-1'>1</a></div><p >The class template
+<span class='texttt'>basic_ostream</span>
+defines a number of member function
+signatures that assist in formatting and writing output to output sequences
+controlled by a stream buffer.</p></div><div class='para' id='ostream-2'><div class='marginalizedparent'><a class='marginalized' href='#ostream-2'>2</a></div><p >Two groups of member function signatures share common properties:
+the
+<a class='hidden_link' href='#def:formatted_output_functions' id='def:formatted_output_functions'><i>formatted output functions</i></a>
+(or
+<a class='hidden_link' href='#def:inserters' id='def:inserters'><i>inserters</i></a>)
+and the
+<a class='hidden_link' href='#def:unformatted_output_functions.' id='def:unformatted_output_functions.'><i>unformatted output functions.</i></a>
+Both groups of output functions generate (or
+<a class='hidden_link' href='#def:insert' id='def:insert'><i>insert</i></a>)
+output
+<a class='hidden_link' href='#def:characters' id='def:characters'><i>characters</i></a>
+by actions equivalent to calling
+<span class='texttt'>rdbuf()-&gt;sputc(int_type)</span>.
+They may use other public members of
+<span class='texttt'>basic_ostream</span>
+except that they shall not invoke any virtual members of
+<span class='texttt'>rdbuf()</span>
+except
+<span class='texttt'>overflow()</span>,
+<span class='texttt'>xsputn()</span>,
+and
+<span class='texttt'>sync()</span>.</p></div><div class='para' id='ostream-3'><div class='marginalizedparent'><a class='marginalized' href='#ostream-3'>3</a></div><p >If one of these called functions throws an exception, then unless explicitly noted otherwise
+the output function sets
+<span class='texttt'>badbit</span>
+in error state.
+If
+<span class='texttt'>badbit</span>
+is on in
+<span class='texttt'>exceptions()</span>,
+the output function
+rethrows the exception without completing its actions, otherwise
+it does not throw anything and treat as an error.</p></div><div id='ostream.cons'><h4 ><a class='secnum' href='#ostream.cons' style='min-width:133pt'>27.7.3.1.1</a> <span class='texttt'>basic_ostream</span> constructors <a class='abbr_ref' href='ostream.cons'>[ostream.cons]</a></h4><p ><span class='indexparent'><a class='index' id='basic_ostream,constructor'></a></span><code class='itemdecl'>
+explicit basic_ostream(basic_streambuf&lt;charT, traits&gt;* sb);
+</code></p><p ><span class='indexparent'><a class='index' id='init,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,init'></a></span></p><div class='itemdescr'></div><div class='para' id='ostream.cons-1'><div class='marginalizedparent'><a class='marginalized' href='#ostream.cons-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs an object of class
+<span class='texttt'>basic_ostream</span>,
+assigning initial values to the base class by calling
+<span class='texttt'>basic_ios&lt;charT, traits&gt;::init(sb)</span> (<a href='basic.ios.cons'>[basic.ios.cons]</a>).</p></div></div><div class='para' id='ostream.cons-2'><div class='marginalizedparent'><a class='marginalized' href='#ostream.cons-2'>2</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
+<span class='texttt'>rdbuf() == sb</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='basic_ostream,constructor'></a></span><code class='itemdecl'>
+basic_ostream(basic_ostream&amp;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.cons-3'><div class='marginalizedparent'><a class='marginalized' href='#ostream.cons-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Move constructs from the rvalue <span class='texttt'>rhs</span>.
+This is accomplished by default constructing the base class and calling
+<span class='texttt'>basic_ios&lt;charT, traits&gt;::move(rhs)</span> to initialize the
+base class.
+</p></div></div><p ><span class='indexparent'><a class='index' id='basic_ostream,destructor'></a></span><code class='itemdecl'>
+virtual ~basic_ostream();
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.cons-4'><div class='marginalizedparent'><a class='marginalized' href='#ostream.cons-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Destroys an object of class
+<span class='texttt'>basic_ostream</span>.</p></div></div><div class='para' id='ostream.cons-5'><div class='marginalizedparent'><a class='marginalized' href='#ostream.cons-5'>5</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Does not perform any operations on
+<span class='texttt'>rdbuf()</span>.
+</p></div></div></div><div id='ostream.assign'><h4 ><a class='secnum' href='#ostream.assign' style='min-width:133pt'>27.7.3.1.2</a> Class <span class='texttt'>basic_ostream</span> assign and swap <a class='abbr_ref' href='ostream.assign'>[ostream.assign]</a></h4><p ><span class='indexparent'><a class='index' id='operator=,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,operator='></a></span><code class='itemdecl'>
+basic_ostream&amp; operator=(basic_ostream&amp;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.assign-1'><div class='marginalizedparent'><a class='marginalized' href='#ostream.assign-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> As if by <span class='texttt'>swap(rhs)</span>.</p></div></div><div class='para' id='ostream.assign-2'><div class='marginalizedparent'><a class='marginalized' href='#ostream.assign-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='swap,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,swap'></a></span><code class='itemdecl'>
+void swap(basic_ostream&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.assign-3'><div class='marginalizedparent'><a class='marginalized' href='#ostream.assign-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>basic_ios&lt;charT, traits&gt;::swap(rhs)</span>.
+</p></div></div></div><div id='ostream::sentry'><h4 ><a class='secnum' href='#ostream::sentry' style='min-width:133pt'>27.7.3.1.3</a> Class <span class='texttt'>basic_ostream::sentry</span> <a class='abbr_ref' href='./ostream::sentry'>[ostream::sentry]</a></h4><p ><span class='indexparent'><a class='index' id='basic_ostream::sentry'></a></span><span class='indexparent'><a class='index' id='sentry,basic_ostream'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class charT, class traits = char_traits&lt;charT&gt;&gt;
+  class basic_ostream&lt;charT, traits&gt;::sentry {
+    bool ok_; <span class='comment'>// <i>exposition only</i>
+</span>  public:
+    explicit sentry(basic_ostream&lt;charT, traits&gt;&amp; os);
+    ~sentry();
+    explicit operator bool() const { return ok_; }
+
+    sentry(const sentry&amp;) = delete;
+    sentry&amp; operator=(const sentry&amp;) = delete;
+  };
+}
+</pre><div class='para' id='ostream::sentry-1'><div class='marginalizedparent'><a class='marginalized' href='#ostream::sentry-1'>1</a></div><p >The class
+<span class='texttt'>sentry</span>
+defines a class that is responsible for doing exception safe prefix and suffix
+operations.</p><p ><span class='indexparent'><a class='index' id='basic_ostream::sentry,constructor'></a></span><code class='itemdecl'>
+explicit sentry(basic_ostream&lt;charT, traits&gt;&amp; os);
+</code></p></div><div class='itemdescr'></div><div class='para' id='ostream::sentry-2'><div class='marginalizedparent'><a class='marginalized' href='#ostream::sentry-2'>2</a></div><div class='itemdescr'><p >If
+<span class='texttt'>os.good()</span>
+is nonzero, prepares for formatted or unformatted output.
+If
+<span class='texttt'>os.tie()</span>
+is not a null pointer, calls
+<span class='indexparent'><a class='index' id='flush'></a></span><span class='texttt'>os.tie()-&gt;flush()</span>.<a class='footnotenum' href='#footnote-321'>321</a></p></div></div><div class='para' id='ostream::sentry-3'><div class='marginalizedparent'><a class='marginalized' href='#ostream::sentry-3'>3</a></div><div class='itemdescr'><p >If, after any preparation is completed,
+<span class='texttt'>os.good()</span>
+is
+<span class='texttt'>true</span>,
+<span class='texttt'>ok_ == true</span>
+otherwise,
+<span class='texttt'>ok_ == false</span>.
+During preparation, the constructor may call
+<span class='texttt'>setstate(failbit)</span>
+(which may throw
+<span class='texttt'>ios_base::failure</span> (<a href='iostate.flags'>[iostate.flags]</a>))<a class='footnotenum' href='#footnote-322'>322</a>
+</p></div></div><p ><span class='indexparent'><a class='index' id='basic_ostream::sentry,destructor'></a></span><code class='itemdecl'>
+~sentry();
+</code></p><div class='itemdescr'></div><div class='para' id='ostream::sentry-4'><div class='marginalizedparent'><a class='marginalized' href='#ostream::sentry-4'>4</a></div><div class='itemdescr'><p >If
+<span class='texttt'>(os.flags() &amp; ios_base::unitbuf) &amp;&amp; !uncaught_exceptions()
+&amp;&amp; os.good()</span>
+is
+<span class='texttt'>true</span>,
+calls
+<span class='texttt'>os.rdbuf()-&gt;pubsync()</span>. If that function returns -1, sets <span class='texttt'>badbit</span> in
+<span class='texttt'>os.rdstate()</span> without propagating an exception.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator_bool,basic_ostream::sentry'></a></span><span class='indexparent'><a class='index' id='basic_ostream::sentry,operator_bool'></a></span><code class='itemdecl'>
+explicit operator bool() const;
+</code></p><div class='itemdescr'></div><div class='para' id='ostream::sentry-5'><div class='marginalizedparent'><a class='marginalized' href='#ostream::sentry-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Returns
+<span class='texttt'>ok_</span>.
+</p></div></div><div class='footnote' id='footnote-321'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-321'>321)</a></div><p >The call
+<span class='texttt'>os.tie()-&gt;flush()</span>
+does not necessarily occur if the function can determine that no
+synchronization is necessary.</p></div><div class='footnote' id='footnote-322'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-322'>322)</a></div><p >The
+<span class='texttt'>sentry</span>
+constructor and destructor
+can also perform additional
+implementation-dependent operations.</p></div></div><div id='ostream.seeks'><h4 ><a class='secnum' href='#ostream.seeks' style='min-width:133pt'>27.7.3.1.4</a> <span class='texttt'>basic_ostream</span> seek members <a class='abbr_ref' href='ostream.seeks'>[ostream.seeks]</a></h4><div class='para' id='ostream.seeks-1'><div class='marginalizedparent'><a class='marginalized' href='#ostream.seeks-1'>1</a></div><p >Each seek member function begins execution by constructing an object of class <span class='texttt'>sentry</span>.
+It returns by destroying the <span class='texttt'>sentry</span> object.</p><p ><span class='indexparent'><a class='index' id='tellp,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,tellp'></a></span><code class='itemdecl'>
+pos_type tellp();
+</code></p></div><div class='itemdescr'></div><div class='para' id='ostream.seeks-2'><div class='marginalizedparent'><a class='marginalized' href='#ostream.seeks-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+If
+<span class='texttt'>fail() != false</span>,
+returns
+<span class='texttt'>pos_type(-1)</span>
+to indicate failure.
+Otherwise, returns
+<span class='texttt'>rdbuf()-&gt;pubseekoff(0, cur, out)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='seekp,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,seekp'></a></span><code class='itemdecl'>
+basic_ostream&lt;charT, traits&gt;&amp; seekp(pos_type pos);
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.seeks-3'><div class='marginalizedparent'><a class='marginalized' href='#ostream.seeks-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+If
+<span class='texttt'>fail() != true</span>,
+executes
+<span class='texttt'>rdbuf()-&gt;pubseekpos(pos, ios_base::out)</span>.
+In case of failure, the function calls
+<span class='texttt'>setstate(failbit)</span>
+(which may throw
+<span class='texttt'>ios_base::failure</span>).</p></div></div><div class='para' id='ostream.seeks-4'><div class='marginalizedparent'><a class='marginalized' href='#ostream.seeks-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='seekp,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,seekp'></a></span><code class='itemdecl'>
+basic_ostream&lt;charT, traits&gt;&amp; seekp(off_type off, ios_base::seekdir dir);
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.seeks-5'><div class='marginalizedparent'><a class='marginalized' href='#ostream.seeks-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+If
+<span class='texttt'>fail() != true</span>,
+executes
+<span class='texttt'>rdbuf()-&gt;pubseekoff(off, dir, ios_base::out)</span>.
+In case of failure, the function calls <span class='texttt'>setstate(failbit)</span>
+(which may throw <span class='texttt'>ios_base::failure</span>).</p></div></div><div class='para' id='ostream.seeks-6'><div class='marginalizedparent'><a class='marginalized' href='#ostream.seeks-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div></div></div><div id='ostream.formatted'><h4 ><a class='secnum' href='#ostream.formatted' style='min-width:118pt'>27.7.3.2</a> Formatted output functions <a class='abbr_ref' href='ostream.formatted'>[ostream.formatted]</a></h4><div id='ostream.formatted.reqmts'><h4 ><a class='secnum' href='#ostream.formatted.reqmts' style='min-width:133pt'>27.7.3.2.1</a> Common requirements <a class='abbr_ref' href='ostream.formatted.reqmts'>[ostream.formatted.reqmts]</a></h4><div class='para' id='ostream.formatted.reqmts-1'><div class='marginalizedparent'><a class='marginalized' href='#ostream.formatted.reqmts-1'>1</a></div><p >Each formatted output function begins execution by constructing an object of class
+<span class='texttt'>sentry</span>.
+If this object returns
+<span class='texttt'>true</span>
+when converted to a value of type
+<span class='texttt'>bool</span>,
+the function endeavors
+to generate the requested output.
+If the generation fails, then the formatted output function does
+<span class='texttt'>setstate(ios_base::failbit)</span>,
+which might throw an exception.
+If an exception is thrown during output, then
+<span class='texttt'>ios::badbit</span>
+is turned on<a class='footnotenum' href='#footnote-323'>323</a>
+in
+<span class='texttt'>*this</span>'s
+error state.
+If
+<span class='texttt'>(exceptions()&amp;badbit) != 0</span>
+then the exception is rethrown.
+Whether or not an exception is thrown, the
+<span class='texttt'>sentry</span>
+object is destroyed before leaving the formatted output function.
+If no exception is thrown, the result of the formatted output function
+is
+<span class='texttt'>*this</span>.</p></div><div class='para' id='ostream.formatted.reqmts-2'><div class='marginalizedparent'><a class='marginalized' href='#ostream.formatted.reqmts-2'>2</a></div><p >The descriptions of the individual formatted output functions
+describe how they perform
+output and do not mention the
+<span class='texttt'>sentry</span>
+object.</p></div><div class='para' id='ostream.formatted.reqmts-3'><div class='marginalizedparent'><a class='marginalized' href='#ostream.formatted.reqmts-3'>3</a></div><p >If a formatted output function of a stream <span class='texttt'>os</span> determines
+padding, it does so as
+follows. Given a <span class='texttt'>charT</span> character sequence <span class='texttt'>seq</span> where
+<span class='texttt'>charT</span> is the character type of the stream, if
+the length of <span class='texttt'>seq</span> is less than <span class='texttt'>os.width()</span>, then enough copies of
+<span class='texttt'>os.fill()</span> are added to this sequence as necessary to pad to a
+width of <span class='texttt'>os.width()</span> characters. If
+<span class='texttt'>(os.flags() &amp; ios_base::adjustfield) == ios_base::left</span> is
+<span class='texttt'>true</span>, the fill characters are placed
+after the character sequence; otherwise, they are placed before the
+character sequence.</p></div><div class='footnote' id='footnote-323'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-323'>323)</a></div><p >without causing an
+<span class='texttt'>ios::failure</span>
+to be thrown.</p></div></div><div id='ostream.inserters.arithmetic'><h4 ><a class='secnum' href='#ostream.inserters.arithmetic' style='min-width:133pt'>27.7.3.2.2</a> Arithmetic inserters <a class='abbr_ref' href='ostream.inserters.arithmetic'>[ostream.inserters.arithmetic]</a></h4><p ><span class='indexparent'><a class='index' id='operator<<,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,operator<<'></a></span><code class='itemdecl'>
+operator&lt;&lt;(bool val);
+operator&lt;&lt;(short val);
+operator&lt;&lt;(unsigned short val);
+operator&lt;&lt;(int val);
+operator&lt;&lt;(unsigned int val);
+operator&lt;&lt;(long val);
+operator&lt;&lt;(unsigned long val);
+operator&lt;&lt;(long long val);
+operator&lt;&lt;(unsigned long long val);
+operator&lt;&lt;(float val);
+operator&lt;&lt;(double val);
+operator&lt;&lt;(long double val);
+operator&lt;&lt;(const void* val);
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.inserters.arithmetic-1'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters.arithmetic-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+The classes
+<span class='texttt'>num_get&lt;&gt;</span>
+and
+<span class='texttt'>num_put&lt;&gt;</span>
+handle locale-dependent numeric formatting and
+parsing.
+These inserter functions use the imbued
+<span class='texttt'>locale</span>
+value to perform numeric formatting.
+When <span class='texttt'>val</span>
+is of type
+<span class='texttt'>bool</span>,
+<span class='texttt'>long</span>,
+<span class='texttt'>unsigned long</span>,
+<span class='texttt'>long long</span>, <span class='texttt'>unsigned long long</span>,
+<span class='texttt'>double</span>,
+<span class='texttt'>long double</span>,
+or
+<span class='texttt'>const void*</span>,
+the formatting conversion occurs as if it performed the following code fragment:
+</p><pre class='codeblock'>
+bool failed = use_facet&lt;
+  num_put&lt;charT, ostreambuf_iterator&lt;charT, traits&gt;&gt;
+    &gt;(getloc()).put(*this, *this, fill(), val).failed();
+</pre><p >When <span class='texttt'>val</span> is of type
+<span class='texttt'>short</span>
+the formatting conversion occurs as if it performed the following code fragment:
+</p><pre class='codeblock'>
+ios_base::fmtflags baseflags = ios_base::flags() &amp; ios_base::basefield;
+bool failed = use_facet&lt;
+  num_put&lt;charT, ostreambuf_iterator&lt;charT, traits&gt;&gt;
+    &gt;(getloc()).put(*this, *this, fill(),
+    baseflags == ios_base::oct || baseflags == ios_base::hex
+      ? static_cast&lt;long&gt;(static_cast&lt;unsigned short&gt;(val))
+      : static_cast&lt;long&gt;(val)).failed();
+</pre><p >When <span class='texttt'>val</span> is of type
+<span class='texttt'>int</span>
+the formatting conversion occurs as if it performed the following code fragment:
+</p><pre class='codeblock'>
+ios_base::fmtflags baseflags = ios_base::flags() &amp; ios_base::basefield;
+bool failed = use_facet&lt;
+  num_put&lt;charT, ostreambuf_iterator&lt;charT, traits&gt;&gt;
+    &gt;(getloc()).put(*this, *this, fill(),
+    baseflags == ios_base::oct || baseflags == ios_base::hex
+      ? static_cast&lt;long&gt;(static_cast&lt;unsigned int&gt;(val))
+      : static_cast&lt;long&gt;(val)).failed();
+</pre><p >When <span class='texttt'>val</span> is of type
+<span class='texttt'>unsigned short</span>
+or
+<span class='texttt'>unsigned int</span>
+the formatting conversion occurs as if it performed the following code fragment:
+</p><pre class='codeblock'>
+bool failed = use_facet&lt;
+  num_put&lt;charT, ostreambuf_iterator&lt;charT, traits&gt;&gt;
+    &gt;(getloc()).put(*this, *this, fill(),
+      static_cast&lt;unsigned long&gt;(val)).failed();
+</pre><p >When <span class='texttt'>val</span> is of type
+<span class='texttt'>float</span>
+the formatting conversion occurs as if it performed the following code fragment:
+</p><pre class='codeblock'>
+bool failed = use_facet&lt;
+  num_put&lt;charT, ostreambuf_iterator&lt;charT, traits&gt;&gt;
+    &gt;(getloc()).put(*this, *this, fill(),
+      static_cast&lt;double&gt;(val)).failed();
+</pre></div></div><div class='para' id='ostream.inserters.arithmetic-2'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters.arithmetic-2'>2</a></div><div class='itemdescr'><p >The first argument provides an object of the
+<span class='texttt'>ostreambuf_iterator&lt;&gt;</span>
+class which is an iterator for class <span class='texttt'>basic_ostream&lt;&gt;</span>.
+It bypasses
+<span class='texttt'>ostream</span>s
+and uses
+<span class='texttt'>streambuf</span>s
+directly.
+Class
+<span class='texttt'>locale</span>
+relies on these types as its
+interface to iostreams, since for flexibility it has been abstracted
+away from direct dependence on
+<span class='texttt'>ostream</span>.
+The second parameter is a reference to the base subobject of type
+<span class='texttt'>ios_base</span>.
+It provides formatting specifications such as field width, and
+a locale from which to obtain other facets.
+If
+<span class='texttt'>failed</span>
+is
+<span class='texttt'>true</span>
+then does
+<span class='texttt'>setstate(badbit)</span>,
+which may throw an exception, and returns.</p></div></div><div class='para' id='ostream.inserters.arithmetic-3'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters.arithmetic-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div></div><div id='ostream.inserters'><h4 ><a class='secnum' href='#ostream.inserters' style='min-width:133pt'>27.7.3.2.3</a> <span class='texttt'>basic_ostream::operator&lt;&lt;</span> <a class='abbr_ref' href='ostream.inserters'>[ostream.inserters]</a></h4><p ><span class='indexparent'><a class='index' id='operator<<,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,operator<<'></a></span><code class='itemdecl'>
+basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;
+    (basic_ostream&lt;charT, traits&gt;&amp; (*pf)(basic_ostream&lt;charT, traits&gt;&amp;));
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.inserters-1'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+None.
+Does not behave as a formatted output function (as described
+in <a href='ostream.formatted.reqmts'>[ostream.formatted.reqmts]</a>).</p></div></div><div class='para' id='ostream.inserters-2'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>pf(*this)</span>.<a class='footnotenum' href='#footnote-324'>324</a>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<<,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,operator<<'></a></span><code class='itemdecl'>
+basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;
+    (basic_ios&lt;charT, traits&gt;&amp; (*pf)(basic_ios&lt;charT, traits&gt;&amp;));
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.inserters-3'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls
+<span class='texttt'>pf(*this)</span>.
+This inserter does not
+behave as a formatted output function (as described in <a href='ostream.formatted.reqmts'>[ostream.formatted.reqmts]</a>).</p></div></div><div class='para' id='ostream.inserters-4'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.<a class='footnotenum' href='#footnote-325'>325</a>
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<<,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,operator<<'></a></span><code class='itemdecl'>
+basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;
+    (ios_base&amp; (*pf)(ios_base&amp;));
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.inserters-5'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls
+<span class='texttt'>pf(*this)</span>.
+This inserter does not
+behave as a formatted output function (as described in <a href='ostream.formatted.reqmts'>[ostream.formatted.reqmts]</a>).</p></div></div><div class='para' id='ostream.inserters-6'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<<,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,operator<<'></a></span><code class='itemdecl'>
+basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;
+    (basic_streambuf&lt;charT, traits&gt;* sb);
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.inserters-7'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Behaves as an unformatted output function (<a href='ostream.unformatted'>[ostream.unformatted]</a>).
+After the sentry object is
+constructed, if
+<span class='texttt'>sb</span> is null calls
+<span class='texttt'>setstate(badbit)</span>
+(which may throw
+<span class='texttt'>ios_base::failure</span>).</p></div></div><div class='para' id='ostream.inserters-8'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters-8'>8</a></div><div class='itemdescr'><p >Gets characters from <span class='texttt'>sb</span>
+and inserts them in
+<span class='texttt'>*this</span>.
+Characters are read from <span class='texttt'>sb</span>
+and inserted until any of the following occurs:
+</p><ul class='itemize'><li id='ostream.inserters-8.1'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#ostream.inserters-8.1'>(8.1)</a></div><p >end-of-file occurs on the input sequence;
+</p></li><li id='ostream.inserters-8.2'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#ostream.inserters-8.2'>(8.2)</a></div><p >inserting in the output sequence fails
+(in which case the character to be inserted is not extracted);
+</p></li><li id='ostream.inserters-8.3'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#ostream.inserters-8.3'>(8.3)</a></div><p >an exception occurs while getting a character from <span class='texttt'>sb</span>.
+</p></li></ul></div></div><div class='para' id='ostream.inserters-9'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters-9'>9</a></div><div class='itemdescr'><p >If the function inserts no characters, it calls
+<span class='texttt'>setstate(failbit)</span>
+(which may throw
+<span class='texttt'>ios_base::failure</span> (<a href='iostate.flags'>[iostate.flags]</a>)).
+If an exception was thrown while extracting a character,
+the function sets
+<span class='texttt'>failbit</span>
+in error state, and if
+<span class='texttt'>failbit</span>
+is on in
+<span class='texttt'>exceptions()</span>
+the caught exception is rethrown.</p></div></div><div class='para' id='ostream.inserters-10'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<<,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,operator<<'></a></span><code class='itemdecl'>
+basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(nullptr_t);
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.inserters-11'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:
+</p><pre class='codeblock'>
+return *this &lt;&lt; s;
+</pre><p >where <span class='texttt'>s</span> is an
+<span class='indexparent'><a class='index' id='NTCTS_in_basic_ostream<charT,_traits>&_operator<<(nullptr_t)'></a></span>implementation-defined
+NTCTS (<a href='defns.ntcts'>[defns.ntcts]</a>).
+</p></div></div><div class='footnote' id='footnote-324'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-324'>324)</a></div><p >See, for example, the function signature
+<span class='indexparent'><a class='index' id='endl'></a></span><span class='texttt'>endl(basic_ostream&amp;)</span> (<a href='ostream.manip'>[ostream.manip]</a>).</p></div><div class='footnote' id='footnote-325'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-325'>325)</a></div><p >See, for example, the function signature
+<span class='indexparent'><a class='index' id='dec'></a></span><span class='texttt'>dec(ios_base&amp;)</span> (<a href='basefield.manip'>[basefield.manip]</a>).</p></div></div><div id='ostream.inserters.character'><h4 ><a class='secnum' href='#ostream.inserters.character' style='min-width:133pt'>27.7.3.2.4</a> Character inserter function templates <a class='abbr_ref' href='ostream.inserters.character'>[ostream.inserters.character]</a></h4><p ><span class='indexparent'><a class='index' id='operator<<,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,operator<<'></a></span><code class='itemdecl'>
+template&lt;class charT, class traits&gt;
+  basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;charT, traits&gt;&amp; out,
+                                           charT c);
+template&lt;class charT, class traits&gt;
+  basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;charT, traits&gt;&amp; out,
+                                           char c);
+  <span class='comment'>// specialization
+</span>template&lt;class traits&gt;
+  basic_ostream&lt;char, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;char, traits&gt;&amp; out,
+                                          char c);
+  <span class='comment'>// signed and unsigned
+</span>template&lt;class traits&gt;
+  basic_ostream&lt;char, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;char, traits&gt;&amp; out,
+                                          signed char c);
+template&lt;class traits&gt;
+  basic_ostream&lt;char, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;char, traits&gt;&amp; out,
+                                          unsigned char c);
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.inserters.character-1'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters.character-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Behaves as a formatted output function
+( <a href='ostream.formatted.reqmts'>[ostream.formatted.reqmts]</a>) of <span class='texttt'>out</span>. 
+Constructs a character sequence <span class='texttt'>seq</span>. 
+If <span class='texttt'>c</span> has type
+<span class='texttt'>char</span>
+and the character type of the stream is not
+<span class='texttt'>char</span>,
+then <span class='texttt'>seq</span> consists of
+<span class='texttt'>out.widen(c)</span>;
+otherwise <span class='texttt'>seq</span> consists of
+<span class='texttt'>c</span>. Determines padding for <span class='texttt'>seq</span> as described
+in <a href='ostream.formatted.reqmts'>[ostream.formatted.reqmts]</a>. Inserts <span class='texttt'>seq</span> into
+<span class='texttt'>out</span>. Calls <span class='texttt'>os.width(0)</span>.</p></div></div><div class='para' id='ostream.inserters.character-2'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters.character-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>out</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator<<,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,operator<<'></a></span><code class='itemdecl'>
+template&lt;class charT, class traits&gt;
+  basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;charT, traits&gt;&amp; out,
+                                           const charT* s);
+template&lt;class charT, class traits&gt;
+  basic_ostream&lt;charT, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;charT, traits&gt;&amp; out,
+                                           const char* s);
+template&lt;class traits&gt;
+  basic_ostream&lt;char, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;char, traits&gt;&amp; out,
+                                          const char* s);
+template&lt;class traits&gt;
+  basic_ostream&lt;char, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;char, traits&gt;&amp; out,
+                                          const signed char* s);
+template&lt;class traits&gt;
+  basic_ostream&lt;char, traits&gt;&amp; operator&lt;&lt;(basic_ostream&lt;char, traits&gt;&amp; out,
+                                          const unsigned char* s);
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.inserters.character-3'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters.character-3'>3</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>s</span> shall not be a null pointer.</p></div></div><div class='para' id='ostream.inserters.character-4'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters.character-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Behaves like a formatted inserter (as described in <a href='ostream.formatted.reqmts'>[ostream.formatted.reqmts]</a>) of <span class='texttt'>out</span>.
+Creates a character sequence <span class='texttt'>seq</span> of <span class='texttt'>n</span> characters
+starting at <span class='texttt'>s</span>, each widened using
+<span class='texttt'>out.widen()</span> (<a href='basic.ios.members'>[basic.ios.members]</a>),
+where <span class='texttt'>n</span> is the number that would be computed as if by:
+</p><ul class='itemize'><li id='ostream.inserters.character-4.1'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#ostream.inserters.character-4.1'>(4.1)</a></div><p ><span class='texttt'>traits::length(s)</span>
+for the overload where the first argument is of type
+<span class='texttt'>basic_ostream&lt;charT, traits&gt;&amp;</span>
+and the second is of type
+<span class='texttt'>const charT*</span>,
+and also for the overload where the first argument is of type
+<span class='texttt'>basic_ostream&lt;char, traits&gt;&amp;</span>
+and the second is of type
+<span class='texttt'>const char*</span>,
+</p></li><li id='ostream.inserters.character-4.2'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#ostream.inserters.character-4.2'>(4.2)</a></div><p ><span class='texttt'>char_traits&lt;char&gt;::length(s)</span>
+for the overload where the first argument is of type
+<span class='texttt'>basic_ostream&lt;charT, traits&gt;&amp;</span>
+and the second is of type
+<span class='texttt'>const char*</span>,
+</p></li><li id='ostream.inserters.character-4.3'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#ostream.inserters.character-4.3'>(4.3)</a></div><p ><span class='texttt'>traits::length(reinterpret_cast&lt;const char*&gt;(s))</span>
+for the other two overloads.
+</p></li></ul><p >Determines padding for <span class='texttt'>seq</span> as described
+in <a href='ostream.formatted.reqmts'>[ostream.formatted.reqmts]</a>. Inserts <span class='texttt'>seq</span> into
+<span class='texttt'>out</span>. Calls <span class='texttt'>width(0)</span>.</p></div></div><div class='para' id='ostream.inserters.character-5'><div class='marginalizedparent'><a class='marginalized' href='#ostream.inserters.character-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>out</span>.
+</p></div></div></div></div><div id='ostream.unformatted'><h4 ><a class='secnum' href='#ostream.unformatted' style='min-width:118pt'>27.7.3.3</a> Unformatted output functions <a class='abbr_ref' href='ostream.unformatted'>[ostream.unformatted]</a></h4><div class='para' id='ostream.unformatted-1'><div class='marginalizedparent'><a class='marginalized' href='#ostream.unformatted-1'>1</a></div><p >Each
+unformatted
+output function begins execution by constructing an object of class
+<span class='texttt'>sentry</span>.
+If this object returns
+<span class='texttt'>true</span>,
+while converting to a value of type
+<span class='texttt'>bool</span>,
+the function endeavors
+to generate the requested output.
+If an exception is thrown during output, then
+<span class='texttt'>ios::badbit</span>
+is turned on<a class='footnotenum' href='#footnote-326'>326</a>
+in
+<span class='texttt'>*this</span>'s
+error state.
+If
+<span class='texttt'>(exceptions() &amp; badbit) != 0</span>
+then the exception is rethrown.
+In any case, the unformatted output function ends by destroying the
+sentry object, then, if no exception was thrown, returning the value
+specified for the unformatted output function.</p><p ><span class='indexparent'><a class='index' id='put,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,put'></a></span><code class='itemdecl'>
+basic_ostream&lt;charT, traits&gt;&amp; put(char_type c);
+</code></p></div><div class='itemdescr'></div><div class='para' id='ostream.unformatted-2'><div class='marginalizedparent'><a class='marginalized' href='#ostream.unformatted-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Behaves as an unformatted output function (as described above).
+After constructing a sentry
+object, inserts
+the character <span class='texttt'>c</span>, if possible.<a class='footnotenum' href='#footnote-327'>327</a></p></div></div><div class='para' id='ostream.unformatted-3'><div class='marginalizedparent'><a class='marginalized' href='#ostream.unformatted-3'>3</a></div><div class='itemdescr'><p >Otherwise, calls
+<span class='texttt'>setstate(badbit)</span>
+(which may throw
+<span class='texttt'>ios_base::failure</span> (<a href='iostate.flags'>[iostate.flags]</a>)).</p></div></div><div class='para' id='ostream.unformatted-4'><div class='marginalizedparent'><a class='marginalized' href='#ostream.unformatted-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='write,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,write'></a></span><code class='itemdecl'>
+basic_ostream&amp; write(const char_type* s, streamsize n);
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.unformatted-5'><div class='marginalizedparent'><a class='marginalized' href='#ostream.unformatted-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Behaves as an unformatted output function (as described above).  After constructing a sentry
+object, obtains
+characters to insert from
+successive locations of an array whose first element is designated by
+<span class='texttt'>s</span>.<a class='footnotenum' href='#footnote-328'>328</a>
+Characters are inserted until either of the following occurs:
+</p><ul class='itemize'><li id='ostream.unformatted-5.1'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#ostream.unformatted-5.1'>(5.1)</a></div><p ><span class='texttt'>n</span> characters are inserted;
+</p></li><li id='ostream.unformatted-5.2'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#ostream.unformatted-5.2'>(5.2)</a></div><p >inserting in the output sequence fails
+(in which case the function calls
+<span class='texttt'>setstate(badbit)</span>,
+which may throw
+<span class='texttt'>ios_base::failure</span> (<a href='iostate.flags'>[iostate.flags]</a>)).
+</p></li></ul></div></div><div class='para' id='ostream.unformatted-6'><div class='marginalizedparent'><a class='marginalized' href='#ostream.unformatted-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='flush,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,flush'></a></span><code class='itemdecl'>
+basic_ostream&amp; flush();
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.unformatted-7'><div class='marginalizedparent'><a class='marginalized' href='#ostream.unformatted-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> Behaves as an unformatted output function (as described above).
+If
+<span class='texttt'>rdbuf()</span>
+is not a null pointer,
+constructs a sentry object. If this object returns <span class='texttt'>true</span> when converted to a value of type <span class='texttt'>bool</span> the function
+calls
+<span class='texttt'>rdbuf()-&gt;pubsync()</span>.
+If that function returns -1
+calls
+<span class='texttt'>setstate(badbit)</span>
+(which may throw
+<span class='texttt'>ios_base::failure</span> (<a href='iostate.flags'>[iostate.flags]</a>)).
+Otherwise, if the sentry object returns <span class='texttt'>false</span>, does nothing.</p></div></div><div class='para' id='ostream.unformatted-8'><div class='marginalizedparent'><a class='marginalized' href='#ostream.unformatted-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>*this</span>.
+</p></div></div><div class='footnote' id='footnote-326'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-326'>326)</a></div><p >without causing an
+<span class='texttt'>ios::failure</span>
+to be thrown.</p></div><div class='footnote' id='footnote-327'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-327'>327)</a></div><p >Note that this function is not overloaded on types
+<span class='texttt'>signed char</span>
+and
+<span class='texttt'>unsigned char</span>.</p></div><div class='footnote' id='footnote-328'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-328'>328)</a></div><p >Note that this function is not overloaded on types
+<span class='texttt'>signed char</span>
+and
+<span class='texttt'>unsigned char</span>.</p></div></div><div id='ostream.manip'><h4 ><a class='secnum' href='#ostream.manip' style='min-width:118pt'>27.7.3.4</a> Standard <span class='texttt'>basic_ostream</span> manipulators <a class='abbr_ref' href='ostream.manip'>[ostream.manip]</a></h4><p ><span class='indexparent'><a class='index' id='endl'></a></span><code class='itemdecl'>
+template &lt;class charT, class traits&gt;
+  basic_ostream&lt;charT, traits&gt;&amp; endl(basic_ostream&lt;charT, traits&gt;&amp; os);
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.manip-1'><div class='marginalizedparent'><a class='marginalized' href='#ostream.manip-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls
+<span class='texttt'>os.put(os.widen('\n'))</span>,
+then
+<span class='texttt'>os.flush()</span>.</p></div></div><div class='para' id='ostream.manip-2'><div class='marginalizedparent'><a class='marginalized' href='#ostream.manip-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>os</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='ends'></a></span><code class='itemdecl'>
+template &lt;class charT, class traits&gt;
+  basic_ostream&lt;charT, traits&gt;&amp; ends(basic_ostream&lt;charT, traits&gt;&amp; os);
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.manip-3'><div class='marginalizedparent'><a class='marginalized' href='#ostream.manip-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Inserts a null character into the output sequence:
+calls
+<span class='texttt'>os.put(charT())</span>.</p></div></div><div class='para' id='ostream.manip-4'><div class='marginalizedparent'><a class='marginalized' href='#ostream.manip-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>os</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='flush'></a></span><code class='itemdecl'>
+template &lt;class charT, class traits&gt;
+  basic_ostream&lt;charT, traits&gt;&amp; flush(basic_ostream&lt;charT, traits&gt;&amp; os);
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.manip-5'><div class='marginalizedparent'><a class='marginalized' href='#ostream.manip-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Calls
+<span class='texttt'>os.flush()</span>.</p></div></div><div class='para' id='ostream.manip-6'><div class='marginalizedparent'><a class='marginalized' href='#ostream.manip-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>os</span>.
+</p></div></div></div><div id='ostream.rvalue'><h4 ><a class='secnum' href='#ostream.rvalue' style='min-width:118pt'>27.7.3.5</a> Rvalue stream insertion <a class='abbr_ref' href='ostream.rvalue'>[ostream.rvalue]</a></h4><p ><span class='indexparent'><a class='index' id='operator<<,basic_ostream'></a></span><span class='indexparent'><a class='index' id='basic_ostream,operator<<'></a></span><code class='itemdecl'>
+template &lt;class charT, class traits, class T&gt;
+  basic_ostream&lt;charT, traits&gt;&amp;
+  operator&lt;&lt;(basic_ostream&lt;charT, traits&gt;&amp;&amp; os, const T&amp; x);
+</code></p><div class='itemdescr'></div><div class='para' id='ostream.rvalue-1'><div class='marginalizedparent'><a class='marginalized' href='#ostream.rvalue-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> As if by: <span class='texttt'>os &lt;&lt; x;</span></p></div></div><div class='para' id='ostream.rvalue-2'><div class='marginalizedparent'><a class='marginalized' href='#ostream.rvalue-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>os</span></p></div></div><div class='para' id='ostream.rvalue-3'><div class='marginalizedparent'><a class='marginalized' href='#ostream.rvalue-3'>3</a></div><div class='itemdescr'><p ><i>Remarks:</i> This function shall not participate in overload resolution
+unless the expression <span class='texttt'>os &lt;&lt; x</span> is well-formed.
+</p></div></div></div></div></div></body></html>

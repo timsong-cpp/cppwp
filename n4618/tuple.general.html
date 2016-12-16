@@ -1,0 +1,99 @@
+<!DOCTYPE html><html lang='en'><head><title>[tuple.general]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.5</a> Tuples <a class='abbr_ref' href='tuple#general'>[tuple]</a></h2><div id='tuple.general'><h3 ><a class='secnum' style='min-width:103pt'>20.5.1</a> In general <a class='abbr_ref'>[tuple.general]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='tuple'></a></span>This subclause describes the tuple library that provides a tuple type as
+the class template <span class='texttt'>tuple</span> that can be instantiated with any number
+of arguments. Each template argument specifies
+the type of an element in the <span class='texttt'>tuple</span>.  Consequently, tuples are
+heterogeneous, fixed-size collections of values. An instantiation of <span class='texttt'>tuple</span> with
+two arguments is similar to an instantiation of <span class='texttt'>pair</span> with the same two arguments.
+See <a href='pairs'>[pairs]</a>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><b>Header <span class='texttt'>&lt;tuple&gt;</span> synopsis</b></p><p ><span class='indexparent'><a class='index' id='tuple'></a></span></p><pre class='codeblock'>
+namespace std {
+  <span class='comment'>// <a href='tuple.tuple'>[tuple.tuple]</a>, class template <span class='texttt'>tuple</span>
+</span>  template &lt;class... Types&gt; class tuple;
+
+  <span class='comment'>// <a href='tuple.creation'>[tuple.creation]</a>, tuple creation functions
+</span>  constexpr <i><span class='texttt'>unspecified</span></i> ignore;
+
+  template &lt;class... Types&gt;
+    constexpr tuple&lt;<i>VTypes</i>...&gt; make_tuple(Types&amp;&amp;...);
+  template &lt;class... Types&gt;
+    constexpr tuple&lt;Types&amp;&amp;...&gt; forward_as_tuple(Types&amp;&amp;...) noexcept;
+
+  template&lt;class... Types&gt;
+    constexpr tuple&lt;Types&amp;...&gt; tie(Types&amp;...) noexcept;
+
+  template &lt;class... Tuples&gt;
+    constexpr tuple&lt;<i>Ctypes</i>...&gt; tuple_cat(Tuples&amp;&amp;...);
+
+  <span class='comment'>// <a href='tuple.apply'>[tuple.apply]</a>, calling a function with a tuple of arguments
+</span>  template &lt;class F, class Tuple&gt;
+    constexpr decltype(auto) apply(F&amp;&amp; f, Tuple&amp;&amp; t);
+
+  template &lt;class T, class Tuple&gt;
+    constexpr T make_from_tuple(Tuple&amp;&amp; t);
+
+  <span class='comment'>// <a href='tuple.helper'>[tuple.helper]</a>, tuple helper classes
+</span>  template &lt;class T&gt; class tuple_size;  <span class='comment'>// not defined
+</span>  template &lt;class T&gt; class tuple_size&lt;const T&gt;;
+  template &lt;class T&gt; class tuple_size&lt;volatile T&gt;;
+  template &lt;class T&gt; class tuple_size&lt;const volatile T&gt;;
+
+  template &lt;class... Types&gt; class tuple_size&lt;tuple&lt;Types...&gt;&gt;;
+
+  template &lt;size_t I, class T&gt; class tuple_element;    <span class='comment'>// not defined
+</span>  template &lt;size_t I, class T&gt; class tuple_element&lt;I, const T&gt;;
+  template &lt;size_t I, class T&gt; class tuple_element&lt;I, volatile T&gt;;
+  template &lt;size_t I, class T&gt; class tuple_element&lt;I, const volatile T&gt;;
+
+  template &lt;size_t I, class... Types&gt; class tuple_element&lt;I, tuple&lt;Types...&gt;&gt;;
+
+  template &lt;size_t I, class T&gt;
+    using tuple_element_t = typename tuple_element&lt;I, T&gt;::type;
+
+  <span class='comment'>// <a href='tuple.elem'>[tuple.elem]</a>, element access
+</span>  template &lt;size_t I, class... Types&gt;
+    constexpr tuple_element_t&lt;I, tuple&lt;Types...&gt;&gt;&amp;
+      get(tuple&lt;Types...&gt;&amp;) noexcept;
+  template &lt;size_t I, class... Types&gt;
+    constexpr tuple_element_t&lt;I, tuple&lt;Types...&gt;&gt;&amp;&amp;
+      get(tuple&lt;Types...&gt;&amp;&amp;) noexcept;
+  template &lt;size_t I, class... Types&gt;
+    constexpr const tuple_element_t&lt;I, tuple&lt;Types...&gt;&gt;&amp;
+      get(const tuple&lt;Types...&gt;&amp;) noexcept;
+  template &lt;size_t I, class... Types&gt;
+    constexpr const tuple_element_t&lt;I, tuple&lt;Types...&gt;&gt;&amp;&amp;
+      get(const tuple&lt;Types...&gt;&amp;&amp;) noexcept;
+  template &lt;class T, class... Types&gt;
+    constexpr T&amp; get(tuple&lt;Types...&gt;&amp; t) noexcept;
+  template &lt;class T, class... Types&gt;
+    constexpr T&amp;&amp; get(tuple&lt;Types...&gt;&amp;&amp; t) noexcept;
+  template &lt;class T, class... Types&gt;
+    constexpr const T&amp; get(const tuple&lt;Types...&gt;&amp; t) noexcept;
+  template &lt;class T, class... Types&gt;
+    constexpr const T&amp;&amp; get(const tuple&lt;Types...&gt;&amp;&amp; t) noexcept;
+
+  <span class='comment'>// <a href='tuple.rel'>[tuple.rel]</a>, relational operators
+</span>  template&lt;class... TTypes, class... UTypes&gt;
+    constexpr bool operator==(const tuple&lt;TTypes...&gt;&amp;, const tuple&lt;UTypes...&gt;&amp;);
+  template&lt;class... TTypes, class... UTypes&gt;
+    constexpr bool operator&lt;(const tuple&lt;TTypes...&gt;&amp;, const tuple&lt;UTypes...&gt;&amp;);
+  template&lt;class... TTypes, class... UTypes&gt;
+    constexpr bool operator!=(const tuple&lt;TTypes...&gt;&amp;, const tuple&lt;UTypes...&gt;&amp;);
+  template&lt;class... TTypes, class... UTypes&gt;
+    constexpr bool operator&gt;(const tuple&lt;TTypes...&gt;&amp;, const tuple&lt;UTypes...&gt;&amp;);
+  template&lt;class... TTypes, class... UTypes&gt;
+    constexpr bool operator&lt;=(const tuple&lt;TTypes...&gt;&amp;, const tuple&lt;UTypes...&gt;&amp;);
+  template&lt;class... TTypes, class... UTypes&gt;
+    constexpr bool operator&gt;=(const tuple&lt;TTypes...&gt;&amp;, const tuple&lt;UTypes...&gt;&amp;);
+
+  <span class='comment'>// <a href='tuple.traits'>[tuple.traits]</a>, allocator-related traits
+</span>  template &lt;class... Types, class Alloc&gt;
+    struct uses_allocator&lt;tuple&lt;Types...&gt;, Alloc&gt;;
+
+  <span class='comment'>// <a href='tuple.special'>[tuple.special]</a>, specialized algorithms
+</span>  template &lt;class... Types&gt;
+    void swap(tuple&lt;Types...&gt;&amp; x, tuple&lt;Types...&gt;&amp; y) noexcept(<i><span class='texttt'>see below</span></i>);
+
+  <span class='comment'>// <a href='tuple.helper'>[tuple.helper]</a>, tuple helper classes
+</span>  template &lt;class T&gt; constexpr size_t tuple_size_v
+    = tuple_size&lt;T&gt;::value;
+}
+</pre></div></div></div></body></html>

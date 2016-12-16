@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang='en'><head><title>[stmt.if]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>6</a> Statements <a class='abbr_ref' href='./#stmt.stmt'>[stmt.stmt]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>6.4</a> Selection statements <a class='abbr_ref' href='stmt.select#stmt.if'>[stmt.select]</a></h2><div id='stmt.if'><h3 ><a class='secnum' style='min-width:103pt'>6.4.1</a> The <span class='texttt'>if</span> statement <a class='abbr_ref'>[stmt.if]</a></h3><p ><span class='indexparent'><a class='index' id='statement,if'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >If the condition (<a href='stmt.select'>[stmt.select]</a>) yields <span class='texttt'>true</span> the first
+substatement is executed. If the <span class='texttt'>else</span> part of the selection
+statement is present and the condition yields <span class='texttt'>false</span>, the second
+substatement is executed. If the first substatement is reached via a
+label, the condition is not evaluated and the second substatement is
+not executed. In the second form of <span class='texttt'>if</span> statement
+(the one including <span class='texttt'>else</span>), if the first substatement is also an
+<span class='texttt'>if</span> statement then that inner <span class='texttt'>if</span> statement shall contain
+an <span class='texttt'>else</span> part.<a class='footnotenum' href='#footnote-90'>90</a></p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >If the <span class='texttt'>if</span> statement is of the form <span class='texttt'>if constexpr</span>, the value
+of the condition shall be a contextually
+converted constant expression of type <span class='texttt'>bool</span> (<a href='expr.const'>[expr.const]</a>); this
+form is called a <a class='hidden_link' href='#def:constexpr_if' id='def:constexpr_if'><i>constexpr if</i></a> statement. If the value of the
+converted condition is <span class='texttt'>false</span>, the first substatement is a
+<a class='hidden_link' href='#def:discarded_statement' id='def:discarded_statement'><i>discarded statement</i></a>, otherwise the second substatement, if
+present, is a discarded statement. During the instantation of an
+enclosing templated entity (Clause <a href='temp'>[temp]</a>), if the condition is
+not value-dependent after its instantiation, the discarded substatement
+(if any) is not instantiated.
+[&nbsp;<i>Note:</i>
+Odr-uses (<a href='basic.def.odr'>[basic.def.odr]</a>) in a discarded statement do not require
+an entity to be defined.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+A <span class='texttt'>case</span> or <span class='texttt'>default</span> label appearing within such an
+<span class='texttt'>if</span> statement shall be associated with a <span class='texttt'>switch</span>
+statement (<a href='stmt.switch'>[stmt.switch]</a>) within the same <span class='texttt'>if</span> statement.
+A label (<a href='stmt.label'>[stmt.label]</a>) declared in a substatement of a constexpr if
+statement shall only be referred to by a statement (<a href='stmt.goto'>[stmt.goto]</a>) in
+the same substatement.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template&lt;typename T, typename ... Rest&gt; void g(T&amp;&amp; p, Rest&amp;&amp; ...rs) {
+  <span class='comment'>// ... handle <span class='texttt'>p</span>
+</span>
+  if constexpr (sizeof...(rs) &gt; 0)
+    g(rs...);  <span class='comment'>// never instantiated with an empty argument list.
+</span>}
+
+extern int x;   <span class='comment'>// no definition of <span class='texttt'>x</span> required
+</span>
+int f() {
+  if constexpr (true)
+    return 0;
+  else if (x)
+    return x;
+  else
+    return -x;
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >An <span class='texttt'>if</span> statement of the form</p><pre class='bnf'><span class='terminal'>if constexpr<span class='math'><sub ><span class='mathit'>opt</span></sub></span> (</span> <i ><a href='stmt.stmt#nt:init-statement'>init-statement</a></i> <i ><a href='stmt.stmt#nt:condition'>condition</a></i> <span class='terminal'>)</span> <i ><a href='stmt.stmt#nt:statement'>statement</a></i></pre><p >is equivalent to</p><pre class='bnf'><span class='terminal'>{</span>
+&#9;<i ><a href='stmt.stmt#nt:init-statement'>init-statement</a></i>
+&#9;<span class='terminal'>if constexpr<span class='math'><sub ><span class='mathit'>opt</span></sub></span> (</span> <i ><a href='stmt.stmt#nt:condition'>condition</a></i> <span class='terminal'>)</span> <i ><a href='stmt.stmt#nt:statement'>statement</a></i>
+<span class='terminal'>}</span></pre><p >and an <span class='texttt'>if</span> statement of the form</p><pre class='bnf'><span class='terminal'>if constexpr<span class='math'><sub ><span class='mathit'>opt</span></sub></span> (</span> <i ><a href='stmt.stmt#nt:init-statement'>init-statement</a></i> <i ><a href='stmt.stmt#nt:condition'>condition</a></i> <span class='terminal'>)</span> <i ><a href='stmt.stmt#nt:statement'>statement</a></i> <span class='terminal'>else</span> <i ><a href='stmt.stmt#nt:statement'>statement</a></i></pre><p >is equivalent to</p><pre class='bnf'><span class='terminal'>{</span>
+&#9;<i ><a href='stmt.stmt#nt:init-statement'>init-statement</a></i>
+&#9;<span class='terminal'>if constexpr<span class='math'><sub ><span class='mathit'>opt</span></sub></span> (</span> <i ><a href='stmt.stmt#nt:condition'>condition</a></i> <span class='terminal'>)</span> <i ><a href='stmt.stmt#nt:statement'>statement</a></i> <span class='terminal'>else</span> <i ><a href='stmt.stmt#nt:statement'>statement</a></i>
+<span class='terminal'>}</span></pre><p >except that names declared in the <i ><a href='stmt.stmt#nt:init-statement'>init-statement</a></i> are in
+the same declarative region as those declared in the
+<i ><a href='stmt.stmt#nt:condition'>condition</a></i>.</p></div><div class='footnote' id='footnote-90'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-90'>90)</a></div><p >In other words, the <span class='texttt'>else</span> is associated with the nearest un-elsed
+<span class='texttt'>if</span>.</p></div></div></div></body></html>

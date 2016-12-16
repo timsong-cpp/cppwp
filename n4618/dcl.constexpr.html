@@ -1,0 +1,167 @@
+<!DOCTYPE html><html lang='en'><head><title>[dcl.constexpr]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>7</a> Declarations <a class='abbr_ref' href='./#dcl.dcl'>[dcl.dcl]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>7.1</a> Specifiers <a class='abbr_ref' href='dcl.spec#dcl.constexpr'>[dcl.spec]</a></h2><div id='dcl.constexpr'><h3 ><a class='secnum' style='min-width:103pt'>7.1.5</a> The <span class='texttt'>constexpr</span> specifier <a class='abbr_ref'>[dcl.constexpr]</a></h3><p ><span class='indexparent'><a class='index' id='specifier,constexpr'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The <span class='texttt'>constexpr</span> specifier shall be applied only to the definition of
+a variable or variable template or
+the declaration of a
+function or function template.
+A function or static data member declared with the <span class='texttt'>constexpr</span>
+specifier is implicitly an inline function or variable (<a href='dcl.inline'>[dcl.inline]</a>).
+If any declaration of a function or function template has
+a <span class='texttt'>constexpr</span> specifier,
+then all its declarations shall contain the <span class='texttt'>constexpr</span> specifier. [&nbsp;<i>Note:</i> An
+explicit specialization can differ from the template declaration with respect to the
+<span class='texttt'>constexpr</span> specifier. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Note:</i>
+Function parameters cannot be declared <span class='texttt'>constexpr</span>.<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+constexpr void square(int &amp;x);  <span class='comment'>// OK: declaration
+</span>constexpr int bufsz = 1024;     <span class='comment'>// OK: definition
+</span>constexpr struct pixel {        <span class='comment'>// error: <span class='texttt'>pixel</span> is a type
+</span>  int x;
+  int y;
+  constexpr pixel(int);         <span class='comment'>// OK: declaration
+</span>}; 
+constexpr pixel::pixel(int a)
+  : x(a), y(x)                  <span class='comment'>// OK: definition
+</span>  { square(x); }
+constexpr pixel small(2);       <span class='comment'>// error: <span class='texttt'>square</span> not defined, so <span class='texttt'>small(2)</span>
+</span>                                <span class='comment'>// not constant (<a href='expr.const'>[expr.const]</a>) so <span class='texttt'>constexpr</span> not satisfied
+</span>
+constexpr void square(int &amp;x) { <span class='comment'>// OK: definition
+</span>  x *= x;
+}
+constexpr pixel large(4);       <span class='comment'>// OK: <span class='texttt'>square</span> defined
+</span>int next(constexpr int x) {     <span class='comment'>// error: not for parameters
+</span>     return x + 1;
+} 
+extern constexpr int memsz;     <span class='comment'>// error: not a definition 
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >A <span class='texttt'>constexpr</span> specifier used in the declaration of a function that is not a
+constructor declares that
+function to be a <a class='hidden_link' href='#def:specifier,constexpr,function' id='def:specifier,constexpr,function'><i>constexpr function</i></a>. Similarly, a
+<span class='texttt'>constexpr</span> specifier used in 
+a constructor declaration declares that constructor to be a
+<a class='hidden_link' href='#def:specifier,constexpr,constructor' id='def:specifier,constexpr,constructor'><i>constexpr constructor</i></a>.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p ><span class='indexparent'><a class='index' id='specifier,constexpr,function'></a></span>
+<span class='indexparent'><a class='index' id='constexpr_function'></a></span>
+The definition of a <span class='texttt'>constexpr</span> function shall satisfy the following
+requirements:</p><ul class='itemize'><li id='3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#3.1'>(3.1)</a></div><p >it shall not be virtual (<a href='class.virtual'>[class.virtual]</a>);</p></li><li id='3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#3.2'>(3.2)</a></div><p >for a defaulted copy/move assignment, the class of which it is a member
+shall not have a mutable subobject that is a variant member;</p></li><li id='3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#3.3'>(3.3)</a></div><p >its return type shall be a literal type;</p></li><li id='3.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#3.4'>(3.4)</a></div><p >each of its parameter types shall be a literal type;</p></li><li id='3.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#3.5'>(3.5)</a></div><p >its <i ><a href='dcl.fct.def.general#nt:function-body'>function-body</a></i> shall be
+<span class='texttt'>= delete</span>, <span class='texttt'>= default</span>, or
+a <i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i>
+that does not contain</p><ul class='itemize'><li id='3.5.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#3.5.1'>(3.5.1)</a></div><p >an <i ><a href='dcl.asm#nt:asm-definition'>asm-definition</a></i>,
+</p></li><li id='3.5.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#3.5.2'>(3.5.2)</a></div><p >a <span class='texttt'>goto</span> statement,
+</p></li><li id='3.5.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#3.5.3'>(3.5.3)</a></div><p >an identifier label (<a href='stmt.label'>[stmt.label]</a>),
+</p></li><li id='3.5.4'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#3.5.4'>(3.5.4)</a></div><p >a <i ><a href='except#nt:try-block'>try-block</a></i>, or
+</p></li><li id='3.5.5'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#3.5.5'>(3.5.5)</a></div><p >a definition of a variable
+of non-literal type or
+of static or thread storage duration or
+for which no initialization is performed.
+</p></li></ul></li></ul><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+constexpr int square(int x) 
+  { return x * x; }             <span class='comment'>// OK
+</span>constexpr long long_max() 
+  { return 2147483647; }        <span class='comment'>// OK
+</span>constexpr int abs(int x) {
+  if (x &lt; 0)
+    x = -x;
+  return x;                     <span class='comment'>// OK
+</span>}
+constexpr int first(int n) {
+  static int value = n;         <span class='comment'>// error: variable has static storage duration
+</span>  return value;
+}
+constexpr int uninit() {
+  int a;                        <span class='comment'>// error: variable is uninitialized
+</span>  return a;
+}
+constexpr int prev(int x)
+  { return --x; }               <span class='comment'>// OK
+</span>constexpr int g(int x, int n) { <span class='comment'>// OK
+</span>  int r = 1;
+  while (--n &gt; 0) r *= x;
+  return r;
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p ><span class='indexparent'><a class='index' id='specifier,constexpr,constructor'></a></span>The definition of a <span class='texttt'>constexpr</span> constructor shall satisfy the
+following requirements:
+</p><ul class='itemize'><li id='4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.1'>(4.1)</a></div><p >the class shall not have any virtual base classes;</p></li><li id='4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.2'>(4.2)</a></div><p >for a defaulted copy/move constructor, the class shall not have a
+mutable subobject that is a variant member;</p></li><li id='4.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.3'>(4.3)</a></div><p >each of the parameter types shall be a literal type;</p></li><li id='4.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.4'>(4.4)</a></div><p >its <i ><a href='dcl.fct.def.general#nt:function-body'>function-body</a></i> shall not be a <i ><a href='except#nt:function-try-block'>function-try-block</a></i>.
+</p></li></ul><p >In addition, either its <i ><a href='dcl.fct.def.general#nt:function-body'>function-body</a></i> shall be
+<span class='texttt'>= delete</span>, or it shall satisfy the following requirements:
+</p><ul class='itemize'><li id='4.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.5'>(4.5)</a></div><p >either its <i ><a href='dcl.fct.def.general#nt:function-body'>function-body</a></i> shall be <span class='texttt'>= default</span>, or the <i ><a href='stmt.block#nt:compound-statement'>compound-statement</a></i> of its <i ><a href='dcl.fct.def.general#nt:function-body'>function-body</a></i>
+shall satisfy the requirements for a <i ><a href='dcl.fct.def.general#nt:function-body'>function-body</a></i> of a
+<span class='texttt'>constexpr</span> function;</p></li><li id='4.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.6'>(4.6)</a></div><p >every non-variant non-static data member and base class subobject
+shall be initialized (<a href='class.base.init'>[class.base.init]</a>);</p></li><li id='4.7'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.7'>(4.7)</a></div><p >if the class is a union having variant members (<a href='class.union'>[class.union]</a>), exactly one of them
+shall be initialized;</p></li><li id='4.8'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.8'>(4.8)</a></div><p >if the class is a union-like class, but is not a union, for each of its anonymous union
+members having variant members, exactly one of them shall be initialized;</p></li><li id='4.9'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.9'>(4.9)</a></div><p >for a non-delegating constructor, every constructor selected to initialize non-static
+data members and base class subobjects shall be a <span class='texttt'>constexpr</span> constructor;</p></li><li id='4.10'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.10'>(4.10)</a></div><p >for a delegating constructor, the target constructor shall be a <span class='texttt'>constexpr</span>
+constructor.
+</p></li></ul><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct Length { 
+  constexpr explicit Length(int i = 0) : val(i) { }
+private: 
+  int val; 
+}; 
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >For a <span class='texttt'>constexpr</span> function or <span class='texttt'>constexpr</span> constructor
+that is neither defaulted nor a template,
+if no argument values exist such that
+an invocation of the function or constructor could be an evaluated subexpression of a core
+constant expression (<a href='expr.const'>[expr.const]</a>), or,
+for a constructor, a constant initializer for some object (<a href='basic.start.static'>[basic.start.static]</a>),
+the program is ill-formed; no diagnostic required.
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+constexpr int f(bool b)
+  { return b ? throw 0 : 0; }               <span class='comment'>// OK
+</span>constexpr int f() { return f(true); }       <span class='comment'>// ill-formed, no diagnostic required
+</span>
+struct B {
+  constexpr B(int x) : i(0) { }             <span class='comment'>// <span class='texttt'>x</span> is unused
+</span>  int i;
+};
+
+int global;
+
+struct D : B {
+  constexpr D() : B(global) { }             <span class='comment'>// ill-formed, no diagnostic required
+</span>                                            <span class='comment'>// lvalue-to-rvalue conversion on non-constant <span class='texttt'>global</span>
+</span>};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >If the instantiated template specialization of a <span class='texttt'>constexpr</span> function
+template
+or member function of a class template
+would fail to satisfy the requirements for a <span class='texttt'>constexpr</span>
+function or <span class='texttt'>constexpr</span> constructor,
+that specialization is still a <span class='texttt'>constexpr</span> function or <span class='texttt'>constexpr</span>
+constructor, even though a call to such a function cannot appear in a constant
+expression. If no specialization of the template would satisfy the
+requirements for a <span class='texttt'>constexpr</span> function or <span class='texttt'>constexpr</span> constructor
+when considered as a non-template function or constructor, the template is
+ill-formed; no diagnostic
+required.</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >A call to a <span class='texttt'>constexpr</span> function produces the same result as a call to an equivalent
+non-<span class='texttt'>constexpr</span> function in all respects except that
+</p><ul class='itemize'><li id='7.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#7.1'>(7.1)</a></div><p >a call to a <span class='texttt'>constexpr</span>
+function can appear in a constant expression (<a href='expr.const'>[expr.const]</a>) and
+</p></li><li id='7.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#7.2'>(7.2)</a></div><p >copy elision is mandatory in a constant expression (<a href='class.copy'>[class.copy]</a>).
+</p></li></ul></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >The <span class='texttt'>constexpr</span> specifier has no
+effect on the type of a <span class='texttt'>constexpr</span> function or a <span class='texttt'>constexpr</span> constructor.  [&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+constexpr int bar(int x, int y) <span class='comment'>// OK 
+</span>    { return x + y + x*y; } 
+<span class='comment'>// ... 
+</span>int bar(int x, int y)           <span class='comment'>// error: redefinition of <span class='texttt'>bar</span>
+</span>    { return x * 2 + 3 * y; } 
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >A <span class='texttt'>constexpr</span> specifier used in an object declaration
+declares the object as <span class='texttt'>const</span>.
+Such an object
+shall have literal type and
+shall be initialized.
+In any <span class='texttt'>constexpr</span> variable declaration,
+the full-expression of the initialization
+shall be a constant expression (<a href='expr.const'>[expr.const]</a>).
+[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+struct pixel { 
+  int x, y; 
+}; 
+constexpr pixel ur = { 1294, 1024 };<span class='comment'>// OK 
+</span>constexpr pixel origin;             <span class='comment'>// error: initializer missing 
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>

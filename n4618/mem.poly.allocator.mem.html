@@ -1,0 +1,143 @@
+<!DOCTYPE html><html lang='en'><head><title>[mem.poly.allocator.mem]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.12</a> Memory resources <a class='abbr_ref' href='mem.res#mem.poly.allocator.mem'>[mem.res]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>20.12.3</a> Class template <span class='texttt'>polymorphic_allocator</span> <a class='abbr_ref' href='mem.poly.allocator.class#mem.poly.allocator.mem'>[mem.poly.allocator.class]</a></h3><div id='mem.poly.allocator.mem'><h4 ><a class='secnum' style='min-width:118pt'>20.12.3.2</a> <span class='texttt'>polymorphic_allocator</span> member functions <a class='abbr_ref'>[mem.poly.allocator.mem]</a></h4><p ><span class='indexparent'><a class='index' id='allocate,polymorphic_allocator'></a></span><span class='indexparent'><a class='index' id='polymorphic_allocator,allocate'></a></span><code class='itemdecl'>
+Tp* allocate(size_t n);
+</code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+Equivalent to
+</p><pre class='codeblock'>
+return static_cast&lt;Tp*&gt;(memory_rsrc-&gt;allocate(n * sizeof(Tp), alignof(Tp)));
+</pre></div></div><p ><span class='indexparent'><a class='index' id='deallocate,polymorphic_allocator'></a></span><span class='indexparent'><a class='index' id='polymorphic_allocator,deallocate'></a></span><code class='itemdecl'>
+void deallocate(Tp* p, size_t n);
+</code></p><div class='itemdescr'></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>p</span> was allocated from a memory resource <span class='texttt'>x</span>,
+equal to <span class='texttt'>*memory_rsrc</span>,
+using <span class='texttt'>x.allocate(n * sizeof(Tp), alignof(Tp))</span>.</p></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to <span class='texttt'>memory_rsrc-&gt;deallocate(p, n * sizeof(Tp), alignof(Tp))</span>.</p></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><i>Throws:</i>
+Nothing.
+</p></div></div><p ><span class='indexparent'><a class='index' id='construct,polymorphic_allocator'></a></span><span class='indexparent'><a class='index' id='polymorphic_allocator,construct'></a></span><code class='itemdecl'>
+template &lt;class T, class... Args&gt;
+  void construct(T* p, Args&amp;&amp;... args);
+</code></p><div class='itemdescr'></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Requires:</i>
+Uses-allocator construction of <span class='texttt'>T</span>
+with allocator <span class='texttt'>resource()</span> (see <a href='allocator.uses.construction'>[allocator.uses.construction]</a>)
+and constructor arguments <span class='texttt'>std::forward&lt;Args&gt;(args)...</span> is well-formed.
+[&nbsp;<i>Note:</i>
+Uses-allocator construction is always well formed
+for types that do not use allocators.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Construct a <span class='texttt'>T</span> object in the storage
+whose address is represented by <span class='texttt'>p</span>
+by uses-allocator construction with allocator <span class='texttt'>resource()</span>
+and constructor arguments <span class='texttt'>std::forward&lt;Args&gt;(args)...</span>.</p></div></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><p ><i>Throws:</i>
+Nothing unless the constructor for <span class='texttt'>T</span> throws.
+</p></div></div><p ><span class='indexparent'><a class='index' id='construct,polymorphic_allocator'></a></span><span class='indexparent'><a class='index' id='polymorphic_allocator,construct'></a></span><code class='itemdecl'>
+template &lt;class T1, class T2, class... Args1, class... Args2&gt;
+  void construct(pair&lt;T1,T2&gt;* p, piecewise_construct_t,
+                 tuple&lt;Args1...&gt; x, tuple&lt;Args2...&gt; y);
+</code></p><div class='itemdescr'></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i>
+This method and the <span class='texttt'>construct</span> methods that follow
+are overloads for piecewise construction of pairs (<a href='pairs.pair'>[pairs.pair]</a>).
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Let <span class='texttt'>xprime</span> be a <span class='texttt'>tuple</span> constructed from <span class='texttt'>x</span>
+according to the appropriate rule from the following list.
+[&nbsp;<i>Note:</i>
+The following description can be summarized as
+constructing a <span class='texttt'>pair&lt;T1, T2&gt;</span> object
+in the storage whose address is represented by <span class='texttt'>p</span>,
+as if by separate uses-allocator construction
+with allocator <span class='texttt'>resource()</span> (<a href='allocator.uses.construction'>[allocator.uses.construction]</a>)
+of <span class='texttt'>p-&gt;first</span> using the elements of <span class='texttt'>x</span>
+and <span class='texttt'>p-&gt;second</span> using the elements of <span class='texttt'>y</span>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p><ul class='itemize'><li id='9.1'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#9.1'>(9.1)</a></div><p >If <span class='texttt'>uses_allocator_v&lt;T1,memory_resource*&gt;</span> is <span class='texttt'>false</span>
+<br/>
+and
+<span class='texttt'>is_constructible_v&lt;T,Args1...&gt;</span> is <span class='texttt'>true</span>,
+<br/>
+then <span class='texttt'>xprime</span> is <span class='texttt'>x</span>.
+</p></li><li id='9.2'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#9.2'>(9.2)</a></div><p >Otherwise, if <span class='texttt'>uses_allocator_v&lt;T1,memory_resource*&gt;</span> is <span class='texttt'>true</span>
+<br/>
+and
+<span class='texttt'>is_constructible_v&lt;T1,allocator_arg_t,memory_resource*,Args1...&gt;</span> is <span class='texttt'>true</span>,
+<br/>
+then <span class='texttt'>xprime</span> is <span class='texttt'>tuple_cat(make_tuple(allocator_arg, resource()), std::move(x))</span>.
+</p></li><li id='9.3'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#9.3'>(9.3)</a></div><p >Otherwise, if <span class='texttt'>uses_allocator_v&lt;T1,memory_resource*&gt;</span> is <span class='texttt'>true</span>
+<br/>
+and
+<span class='texttt'>is_constructible_v&lt;T1,Args1...,memory_resource*&gt;</span> is <span class='texttt'>true</span>,
+<br/>
+then <span class='texttt'>xprime</span> is <span class='texttt'>tuple_cat(std::move(x), make_tuple(resource()))</span>.
+</p></li><li id='9.4'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#9.4'>(9.4)</a></div><p >Otherwise the program is ill formed.
+</p></li></ul><p >Let <span class='texttt'>yprime</span> be a tuple constructed from <span class='texttt'>y</span>
+according to the appropriate rule from the following list:
+</p><ul class='itemize'><li id='9.5'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#9.5'>(9.5)</a></div><p >If <span class='texttt'>uses_allocator_v&lt;T2,memory_resource*&gt;</span> is <span class='texttt'>false</span>
+<br/>
+and
+<span class='texttt'>is_constructible_v&lt;T,Args2...&gt;</span> is <span class='texttt'>true</span>,
+<br/>
+then <span class='texttt'>yprime</span> is <span class='texttt'>y</span>.
+</p></li><li id='9.6'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#9.6'>(9.6)</a></div><p >Otherwise, if <span class='texttt'>uses_allocator_v&lt;T2,memory_resource*&gt;</span> is <span class='texttt'>true</span>
+<br/>
+and
+<span class='texttt'>is_constructible_v&lt;T2,allocator_arg_t,memory_resource*,Args2...&gt;</span> is <span class='texttt'>true</span>,
+<br/>
+then <span class='texttt'>yprime</span> is <span class='texttt'>tuple_cat(make_tuple(allocator_arg, resource()), std::move(y))</span>.
+</p></li><li id='9.7'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#9.7'>(9.7)</a></div><p >Otherwise, if <span class='texttt'>uses_allocator_v&lt;T2,memory_resource*&gt;</span> is <span class='texttt'>true</span>
+<br/>
+and
+<span class='texttt'>is_constructible_v&lt;T2,Args2...,memory_resource*&gt;</span> is <span class='texttt'>true</span>,
+<br/>
+then
+<span class='texttt'>yprime</span> is <span class='texttt'>tuple_cat(std::move(y), make_tuple(resource()))</span>.
+</p></li><li id='9.8'><div class='marginalizedparent' style='left:-10em'><a class='marginalized' href='#9.8'>(9.8)</a></div><p >Otherwise the program is ill formed.
+</p></li></ul><p >Then, using <span class='texttt'>piecewise_construct</span>, <span class='texttt'>xprime</span>, and <span class='texttt'>yprime</span>
+as the constructor arguments,
+this function constructs a <span class='texttt'>pair&lt;T1, T2&gt;</span> object
+in the storage whose address is represented by <span class='texttt'>p</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='construct,polymorphic_allocator'></a></span><span class='indexparent'><a class='index' id='polymorphic_allocator,construct'></a></span><code class='itemdecl'>
+template &lt;class T1, class T2&gt;
+  void construct(pair&lt;T1,T2&gt;* p);
+</code></p><div class='itemdescr'></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:
+</p><pre class='codeblock'>
+construct(p, piecewise_construct, tuple&lt;&gt;(), tuple&lt;&gt;());
+</pre></div></div><p ><span class='indexparent'><a class='index' id='construct,polymorphic_allocator'></a></span><span class='indexparent'><a class='index' id='polymorphic_allocator,construct'></a></span><code class='itemdecl'>
+template &lt;class T1, class T2, class U, class V&gt;
+  void construct(pair&lt;T1,T2&gt;* p, U&amp;&amp; x, V&amp;&amp; y);
+</code></p><div class='itemdescr'></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:
+</p><pre class='codeblock'>
+construct(p, piecewise_construct,
+          forward_as_tuple(std::forward&lt;U&gt;(x)),
+          forward_as_tuple(std::forward&lt;V&gt;(y)));
+</pre></div></div><p ><span class='indexparent'><a class='index' id='construct,polymorphic_allocator'></a></span><span class='indexparent'><a class='index' id='polymorphic_allocator,construct'></a></span><code class='itemdecl'>
+template &lt;class T1, class T2, class U, class V&gt;
+  void construct(pair&lt;T1,T2&gt;* p, const pair&lt;U, V&gt;&amp; pr);
+</code></p><div class='itemdescr'></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:
+</p><pre class='codeblock'>
+construct(p, piecewise_construct,
+          forward_as_tuple(pr.first),
+          forward_as_tuple(pr.second));
+</pre></div></div><p ><span class='indexparent'><a class='index' id='construct,polymorphic_allocator'></a></span><span class='indexparent'><a class='index' id='polymorphic_allocator,construct'></a></span><code class='itemdecl'>
+template &lt;class T1, class T2, class U, class V&gt;
+  void construct(pair&lt;T1,T2&gt;* p, pair&lt;U, V&gt;&amp;&amp; pr);
+</code></p><div class='itemdescr'></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:
+</p><pre class='codeblock'>
+construct(p, piecewise_construct,
+          forward_as_tuple(std::forward&lt;U&gt;(pr.first)),
+          forward_as_tuple(std::forward&lt;V&gt;(pr.second)));
+</pre></div></div><p ><span class='indexparent'><a class='index' id='destroy,polymorphic_allocator'></a></span><span class='indexparent'><a class='index' id='polymorphic_allocator,destroy'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+  void destroy(T* p);
+</code></p><div class='itemdescr'></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><div class='itemdescr'><p ><i>Effects:</i>
+As if by <span class='texttt'>p-&gt;~T()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='select_on_container_copy_construction,polymorphic_allocator'></a></span><span class='indexparent'><a class='index' id='polymorphic_allocator,select_on_container_copy_construction'></a></span><code class='itemdecl'>
+polymorphic_allocator select_on_container_copy_construction() const;
+</code></p><div class='itemdescr'></div><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>polymorphic_allocator()</span>.</p></div></div><div class='para' id='16'><div class='marginalizedparent'><a class='marginalized' href='#16'>16</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i>
+The memory resource is not propagated.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='resource,polymorphic_allocator'></a></span><span class='indexparent'><a class='index' id='polymorphic_allocator,resource'></a></span><code class='itemdecl'>
+memory_resource* resource() const;
+</code></p><div class='itemdescr'></div><div class='para' id='17'><div class='marginalizedparent'><a class='marginalized' href='#17'>17</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>memory_rsrc</span>.
+</p></div></div></div></div></body></html>
