@@ -18,12 +18,14 @@ git apply ../../htmlgen.patch
 fi
 
 cd ../../cxxdraft-htmlgen
+if [ -f ../htmlgen_code.patch ]
+then
+git apply ../htmlgen_code.patch
+fi
 rm -rf 14882
 runhaskell genhtml.hs ../draft Bare
 
-rm -r ../gh-pages/math
 rm ../gh-pages/*.html ../gh-pages/draft.pdf
-cp -r 14882/math ../gh-pages/
 find 14882/ -maxdepth 1 -type f -execdir cp '{}' ../../gh-pages/'{}'.html \;
 rm -r 14882
 
