@@ -18,6 +18,7 @@ git apply ../../htmlgen.patch
 fi
 
 cd ../../cxxdraft-htmlgen
+git reset --hard origin/master
 if [ -f ../htmlgen_code.patch ]
 then
 git apply ../htmlgen_code.patch
