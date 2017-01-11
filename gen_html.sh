@@ -42,6 +42,7 @@ latexmk -pdf ranges
 cd ../gh-pages
 mv 14882.css.html 14882.css
 mv index.html.html index.html
+mv icon.png.html icon.png
 cp ../draft/source/std.pdf ./draft.pdf
 cp ../networking-ts/src/ts.pdf ./networking-ts.pdf
 cp ../ranges-ts/ranges.pdf ./ranges-ts.pdf

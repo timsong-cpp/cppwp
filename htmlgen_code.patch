@@ -1,7 +1,7 @@
-From ef408d47d2b0e6f25e3b556cec741655c0018ed8 Mon Sep 17 00:00:00 2001
+From f6d3a19e638a466655018f506228a550efb5d7e6 Mon Sep 17 00:00:00 2001
 From: timsong-cpp <rs2740@gmail.com>
-Date: Thu, 5 Jan 2017 09:14:23 -0500
-Subject: [PATCH] Fix path for my box
+Date: Wed, 11 Jan 2017 09:20:43 -0500
+Subject: [PATCH] Fix paths for my box
 
 ---
  Render.hs       | 2 +-
@@ -9,18 +9,18 @@ Subject: [PATCH] Fix path for my box
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/Render.hs b/Render.hs
-index 66000ab..eea87b2 100644
+index e2d0cee..8dbe38b 100644
 --- a/Render.hs
 +++ b/Render.hs
-@@ -535,7 +535,7 @@ memodRenderMath :: String -> Bool -> Text
- memodRenderMath = memo2 $ \s inline -> unsafePerformIO $ do
- 	let args = ["--inline" | inline] ++ [s]
- 	formula <- Text.replace " focusable=\"false\"" "" . Text.pack .
--		readProcess "/usr/lib/node_modules/mathjax-node/bin/tex2html" args ""
-+		readProcess "/usr/local/lib/node_modules/mathjax-node/bin/tex2html" args ""
+@@ -557,7 +557,7 @@ memodRenderMath = memo2 $ \s inline -> unsafePerformIO $ do
+ 	let args = ["--inline" | inline] ++ ["--", cleanup s]
+ 	formula <- Text.replace " focusable=\"false\"" "" 
+ 		. rmTrailingNewline -- Prevents artifacts in [rand.adapt.ibits]#4
+-		. Text.pack . readProcess "/usr/lib/node_modules/mathjax-node/bin/tex2html" args ""
++		. Text.pack . readProcess "/usr/local/lib/node_modules/mathjax-node/bin/tex2html" args ""
  	return $ if inline then formula else "</p><p style='text-align:center'>" ++ formula ++ "</p><p>"
- 
- renderTable :: LaTeX -> [Row [Element]] -> RenderContext -> Text
+ 	where
+ 		cleanup = Text.unpack . Text.replace "\\discretionary{}{}" "" . Text.pack
 diff --git a/SectionPages.hs b/SectionPages.hs
 index 3638623..5ea049b 100644
 --- a/SectionPages.hs
