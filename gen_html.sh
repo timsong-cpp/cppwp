@@ -1,6 +1,6 @@
 #! /bin/sh
 
-git submodule foreach git pull origin
+git submodule foreach 'git pull origin || :'
 
 # Build the standard
 cd draft/source
