@@ -2138,7 +2138,7 @@ index f962862..77423fc 100644
 2.7.4
 
 
-From 3faaefb31c20bf153a5c28a9df4597f948640843 Mon Sep 17 00:00:00 2001
+From d3273f497e2cc1f8260ba3cfe6c04116a51a7799 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Wed, 1 Feb 2017 03:24:29 +0100
 Subject: [PATCH 20/20] Add and use new link macros.
@@ -2147,35 +2147,35 @@ Subject: [PATCH 20/20] Add and use new link macros.
  source/access.tex       |  22 +-
  source/algorithms.tex   |  60 ++---
  source/atomics.tex      |   8 +-
- source/basic.tex        | 484 +++++++++++++++++++-------------------
- source/classes.tex      | 174 +++++++-------
+ source/basic.tex        | 486 ++++++++++++++++++-------------------
+ source/classes.tex      | 188 +++++++--------
  source/containers.tex   | 165 ++++++-------
- source/conversions.tex  |  78 +++----
- source/declarations.tex | 180 +++++++--------
+ source/conversions.tex  |  78 +++---
+ source/declarations.tex | 190 ++++++++-------
  source/declarators.tex  | 161 ++++++-------
  source/derived.tex      |  31 +--
  source/diagnostics.tex  |  12 +-
  source/exceptions.tex   |  94 ++++----
- source/expressions.tex  | 602 ++++++++++++++++++++++++------------------------
+ source/expressions.tex  | 622 ++++++++++++++++++++++++------------------------
  source/future.tex       |   2 +-
  source/intro.tex        | 124 +++++-----
- source/iostreams.tex    |   6 +-
+ source/iostreams.tex    |  39 +--
  source/iterators.tex    |  38 +--
  source/lex.tex          |  74 +++---
- source/lib-intro.tex    | 169 +++++++-------
+ source/lib-intro.tex    | 169 ++++++-------
  source/locales.tex      |  17 +-
  source/macros.tex       |  38 +++
- source/numerics.tex     | 127 +++++-----
+ source/numerics.tex     | 129 +++++-----
  source/overloading.tex  | 102 ++++----
  source/preprocessor.tex |  22 +-
  source/regex.tex        |  28 +--
- source/special.tex      | 232 ++++++++++---------
- source/statements.tex   |  78 +++----
+ source/special.tex      | 232 +++++++++---------
+ source/statements.tex   |  78 +++---
  source/strings.tex      |  41 ++--
- source/support.tex      |  87 +++----
- source/templates.tex    | 194 ++++++++--------
- source/utilities.tex    | 257 +++++++++++----------
- 31 files changed, 1894 insertions(+), 1813 deletions(-)
+ source/support.tex      |  92 +++----
+ source/templates.tex    | 214 ++++++++---------
+ source/utilities.tex    | 257 ++++++++++----------
+ 31 files changed, 1948 insertions(+), 1865 deletions(-)
 
 diff --git a/source/access.tex b/source/access.tex
 index 77ccc72..a8c93e0 100644
@@ -2514,7 +2514,7 @@ index 5be09da..67d72de 100644
  \pnum
  \returns \tcode{y}.
 diff --git a/source/basic.tex b/source/basic.tex
-index 2ac5850..aa43bdc 100644
+index 2ac5850..92b9c3a 100644
 --- a/source/basic.tex
 +++ b/source/basic.tex
 @@ -42,7 +42,7 @@ A \defn{name} is a use of an \grammarterm{identifier}~(\ref{lex.name}),
@@ -3303,6 +3303,15 @@ index 2ac5850..aa43bdc 100644
  \impldef{linkage of \tcode{main}}. A program that defines \tcode{main} as
  deleted or that declares \tcode{main} to be
  \tcode{inline}, \tcode{static}, or \tcode{constexpr} is ill-formed.
+@@ -2496,7 +2498,7 @@ namespaces. \end{example}
+ \indextext{termination!program}%
+ Terminating the program
+ without leaving the current block (e.g., by calling the function
+-\tcode{std::exit(int)} (\ref{support.start.term})) does not destroy any
++\linkx{\tcode{std::exit(int)}}{exit}{\ref{support.start.term}}) does not destroy any
+ objects with automatic storage duration~(\ref{class.dtor}). If
+ \tcode{std::exit} is called to end a program during the destruction of
+ an object with static or thread storage duration, the program has undefined
 @@ -2536,7 +2538,7 @@ types. \begin{note} Such a class may have a non-trivial destructor. \end{note}
  \item
  if each full-expression (including implicit conversions) that appears in
@@ -3857,7 +3866,7 @@ index 2ac5850..aa43bdc 100644
  in the library~(\ref{meta.trans.other}) can be used to obtain aligned storage.
  \end{note}
 diff --git a/source/classes.tex b/source/classes.tex
-index bb44252..910c06f 100644
+index bb44252..3ff48ea 100644
 --- a/source/classes.tex
 +++ b/source/classes.tex
 @@ -64,7 +64,7 @@ be \tcode{final}. \end{note}
@@ -4059,6 +4068,19 @@ index bb44252..910c06f 100644
  of struct type \tcode{T1}, it is permitted to read a non-static
  data member \tcode{m} of another union member of struct type \tcode{T2}
  provided \tcode{m} is part of the common initial sequence of \tcode{T1} and \tcode{T2};
+@@ -801,9 +802,9 @@ pointer-interconvertible~(\ref{basic.compound}, \ref{expr.static.cast}).
+ \pnum
+ \indextext{member function!inline}%
+ \indextext{definition!member function}%
+-A member function may be defined~(\ref{dcl.fct.def}) in its class
+-definition, in which case it is an \term{inline} member
+-function~(\ref{dcl.fct.spec}), or it may be defined outside of its class
++A member function may be \link{defined}{\ref{dcl.fct.def}} in its class
++definition, in which case it is an \deflinkx{inline}{inline function}{\ref{dcl.inline}} member
++function, or it may be defined outside of its class
+ definition if it has already been declared but not defined in its class
+ definition. A member function definition that appears outside of the
+ class definition shall appear in a namespace scope enclosing the class
 @@ -820,7 +821,7 @@ declaration in the class definition or its definition outside of the
  class definition declares the function as \tcode{inline} or \tcode{constexpr}.
  \begin{note}
@@ -4245,6 +4267,15 @@ index bb44252..910c06f 100644
  \end{note}
  
  \pnum
+@@ -1282,7 +1282,7 @@ non-local variables~(\ref{basic.start.static}, \ref{basic.start.dynamic},
+ 
+ \pnum
+ A static data member shall not be
+-\tcode{mutable}~(\ref{dcl.stc}).
++\linkx{\tcode{mutable}}{mutable}{\ref{dcl.stc}}.
+ 
+ \rSec2[class.bit]{Bit-fields}%
+ \indextext{bit-field}
 @@ -1302,10 +1302,10 @@ attribute is not part of the type of the class member. The
  \grammarterm{constant-expression} shall be an integral constant expression
  with a value greater than or equal to zero. The
@@ -4307,7 +4338,7 @@ index bb44252..910c06f 100644
  As a consequence, all non-static data members of a
  union object have the same address.
  \end{note}
-@@ -1536,7 +1536,7 @@ union object have the same address.
+@@ -1536,21 +1536,21 @@ union object have the same address.
  \indextext{destructor!\idxcode{union}}%
  A union can have member functions (including constructors and destructors),
  \indextext{restriction!\idxcode{union}}%
@@ -4316,8 +4347,9 @@ index bb44252..910c06f 100644
  base classes. A union shall not be used as a base class.
  \indextext{restriction!\idxcode{union}}%
  If a union contains a non-static data member of
-@@ -1544,13 +1544,13 @@ reference type the program is ill-formed.
- \begin{note} Absent default member initializers~(\ref{class.mem}),
+ reference type the program is ill-formed.
+-\begin{note} Absent default member initializers~(\ref{class.mem}),
++\begin{note} Absent \deflink{default member initializers}{\ref{class.mem}},
  if any non-static data member of a union has a non-trivial
  default constructor~(\ref{class.ctor}),
 -copy constructor~(\ref{class.copy}),
@@ -4353,6 +4385,17 @@ index bb44252..910c06f 100644
  that nominates a union member,
  it may begin the lifetime of that union member,
  as described below.
+@@ -1598,8 +1598,8 @@ and empty otherwise.
+ Otherwise, $S(\mathtt{E})$ is empty.
+ \end{itemize}
+ In an assignment expression of the form \tcode{E1 = E2}
+-that uses either the built-in assignment operator~(\ref{expr.ass})
+-or a trivial assignment operator~(\ref{class.copy}),
++that uses either the \link{built-in assignment operator}{\ref{expr.ass}}
++or a \link{trivial assignment operator}{\ref{class.copy}},
+ for each element \tcode{X} of $S($\tcode{E1}$)$,
+ if modification of \tcode{X} would have undefined behavior under~\ref{basic.life},
+ an object of the type of \tcode{X} is implicitly created
 @@ -1609,8 +1609,8 @@ the beginning of its lifetime is sequenced after
  the value computation of the left and right operands
  and before the assignment.
@@ -5113,7 +5156,7 @@ index 5fed124..b865f94 100644
  \end{note}%
  \indextext{conversion!standard|)}
 diff --git a/source/declarations.tex b/source/declarations.tex
-index dc08938..3b9154d 100644
+index dc08938..4e0f3f9 100644
 --- a/source/declarations.tex
 +++ b/source/declarations.tex
 @@ -122,7 +122,7 @@ is \impldef{meaning of attribute declaration}.
@@ -5402,6 +5445,19 @@ index dc08938..3b9154d 100644
  and no result object is provided for the prvalue.
  The type of the prvalue may be incomplete.
  \begin{note}
+@@ -1481,9 +1476,9 @@ void r() {
+ An \grammarterm{attribute-specifier-seq} shall not appear in an \grammarterm{elaborated-type-specifier}
+ unless the latter is the sole constituent of a declaration.
+ If an \grammarterm{elaborated-type-specifier} is the sole constituent of a
+-declaration, the declaration is ill-formed unless it is an explicit
+-specialization~(\ref{temp.expl.spec}), an explicit
+-instantiation~(\ref{temp.explicit}) or it has one of the following
++declaration, the declaration is ill-formed unless it is an \link{explicit
++specialization}{\ref{temp.expl.spec}}, an \link{explicit
++instantiation}{\ref{temp.explicit}} or it has one of the following
+ forms:
+ 
+ \begin{ncsimplebnf}
 @@ -1533,11 +1528,11 @@ the form of \grammarterm{elaborated-type-specifier} that declares a
  as referring to the definition of the class. Thus, in any
  \grammarterm{elaborated-type-specifier}, the \tcode{enum} keyword
@@ -5428,15 +5484,17 @@ index dc08938..3b9154d 100644
  
  \pnum
  The placeholder type can appear with a function declarator in the
-@@ -1587,7 +1582,7 @@ auto glambda = [](int i, auto a) { return i; };     // OK: a generic lambda
+@@ -1587,8 +1582,8 @@ auto glambda = [](int i, auto a) { return i; };     // OK: a generic lambda
  \pnum
  The type of a variable declared using \tcode{auto} or \tcode{decltype(auto)} is
  deduced from its initializer. This use is allowed when declaring variables in a
 -block~(\ref{stmt.block}), in
+-namespace scope~(\ref{basic.scope.namespace}), and in an
 +\link{block}{\ref{stmt.block}}, in
- namespace scope~(\ref{basic.scope.namespace}), and in an
++\link{namespace scope}{\ref{basic.scope.namespace}}, and in an
  \grammarterm{init-statement} (Clause~\ref{stmt.stmt}).
  \tcode{auto} or \tcode{decltype(auto)} shall appear as one of the
+ \grammarterm{decl-specifier}{s} in the
 @@ -1618,8 +1613,8 @@ auto h();                       // OK: \tcode{h}'s return type will be deduced w
  
  \pnum
@@ -5479,6 +5537,15 @@ index dc08938..3b9154d 100644
  where \tcode{P} is a
  function template parameter type and
  the corresponding argument is \tcode{e}.
+@@ -1993,7 +1988,7 @@ type. \begin{example}
+ \end{note}
+ If an \grammarterm{opaque-enum-declaration} contains
+ a \grammarterm{nested-name-specifier},
+-the declaration shall be an explicit specialization~(\ref{temp.expl.spec}).
++the declaration shall be an \link{explicit specialization}{\ref{temp.expl.spec}}.
+ 
+ \pnum
+ \indextext{constant!enumeration}%
 @@ -2081,8 +2076,9 @@ follows:
  \begin{itemize}
  \item If an
@@ -6645,7 +6712,7 @@ index ec24d03..e9afaeb 100644
  returns the number of uncaught exceptions in the current thread.%
  \indextext{exception handling|)}
 diff --git a/source/expressions.tex b/source/expressions.tex
-index a500eff..d85a388 100644
+index a500eff..2d658d6 100644
 --- a/source/expressions.tex
 +++ b/source/expressions.tex
 @@ -28,14 +28,14 @@ effects.
@@ -7064,6 +7131,26 @@ index a500eff..d85a388 100644
  ellipsis is ill-formed.
  \begin{example}
  \begin{codeblock}
+@@ -1346,7 +1346,7 @@ Unary left folds and unary right folds
+ are collectively called \defnx{unary folds}{unary fold}.
+ In a unary fold,
+ the \grammarterm{cast-expression}
+-shall contain an unexpanded parameter pack~(\ref{temp.variadic}).
++shall contain an \deflinkx{unexpanded parameter pack}{parameter pack!unexpanded}{\ref{temp.variadic}}.
+ 
+ \pnum
+ \indextext{fold!binary}%
+@@ -1473,8 +1473,8 @@ constitute the arguments to the function. The postfix expression shall
+ have function type or function pointer type.
+ For a call to a non-member function or to a static member function,
+ the postfix expression shall be either an lvalue that refers to a
+-function (in which case the function-to-pointer standard
+-conversion~(\ref{conv.func}) is suppressed on the postfix expression),
++function (in which case the \link{function-to-pointer standard
++conversion}{\ref{conv.func}} is suppressed on the postfix expression),
+ or it shall have function pointer type. Calling a function through an
+ expression whose function type is different
+ from the function type of the called function's
 @@ -1482,9 +1482,9 @@ definition results in undefined behavior~(\ref{dcl.link}). For a call to a non-s
  member function,
  the postfix expression shall be an
@@ -7109,6 +7196,18 @@ index a500eff..d85a388 100644
  the type of the function call expression is \tcode{void}; otherwise, the
  type of the function call expression is the return type of the
  statically chosen function (i.e., ignoring the \tcode{virtual} keyword),
+@@ -1533,9 +1533,9 @@ When a function is called, each parameter~(\ref{dcl.fct}) shall be
+ initialized~(\ref{dcl.init},~\ref{class.copy},~\ref{class.ctor}) with
+ its corresponding argument.
+ If the function is a non-static member
+-function, the \tcode{this} parameter of the function~(\ref{class.this})
++function, the \link{\tcode{this} parameter}{\ref{class.this}} of the function
+ shall be initialized with a pointer to the object of the call, converted
+-as if by an explicit type conversion~(\ref{expr.cast}).
++as if by an \link{explicit type conversion}{\ref{expr.cast}}.
+ \begin{note}
+ There is no access or ambiguity checking on this conversion; the access
+ checking and disambiguation are done as part of the (possibly implicit)
 @@ -1614,7 +1614,7 @@ but it is unspecified whether the value of \tcode{j} is 1 or 2.
  
  \pnum
@@ -7148,8 +7247,10 @@ index a500eff..d85a388 100644
 +\link{lvalue-to-rvalue}{\ref{conv.lval}}, \link{array-to-pointer}{\ref{conv.array}},
 +and \link{function-to-pointer}{\ref{conv.func}} standard conversions are
  performed on the argument expression.
- An argument that has type \cv{}~\tcode{std::nullptr_t} is converted
- to type \tcode{void*}~(\ref{conv.ptr}).
+-An argument that has type \cv{}~\tcode{std::nullptr_t} is converted
+-to type \tcode{void*}~(\ref{conv.ptr}).
++An argument that has type \cv{}~\tcode{std::nullptr_t} is \link{converted}{\ref{conv.ptr}}
++to type \tcode{void*}.
  After these conversions, if the
  argument does not have arithmetic, enumeration, pointer, pointer to
  member, or class type, the program is ill-formed. Passing a potentially-evaluated
@@ -7352,9 +7453,14 @@ index a500eff..d85a388 100644
  if \cvqual{cv2} is the
  same cv-qualification as, or greater cv-qualification than,
  \cvqual{cv1}. If \tcode{B} is a virtual base class of \tcode{D}
-@@ -2208,18 +2208,18 @@ reference to \cvqual{cv2} \tcode{T2}'' if ``\cvqual{cv2} \tcode{T2}'' is
- reference-compatible with ``\cvqual{cv1}
- \tcode{T1}''~(\ref{dcl.init.ref}). If the value is not a bit-field,
+@@ -2205,21 +2205,21 @@ static_cast<D&>(br);            // produces lvalue to the original \tcode{d} obj
+ An lvalue
+ of type ``\cvqual{cv1} \tcode{T1}'' can be cast to type ``rvalue
+ reference to \cvqual{cv2} \tcode{T2}'' if ``\cvqual{cv2} \tcode{T2}'' is
+-reference-compatible with ``\cvqual{cv1}
+-\tcode{T1}''~(\ref{dcl.init.ref}). If the value is not a bit-field,
++\deflink{reference-compatible}{\ref{dcl.init.ref}} with ``\cvqual{cv1}
++\tcode{T1}''. If the value is not a bit-field,
  the result refers to the object or the specified base class subobject
 -thereof; otherwise, the lvalue-to-rvalue conversion~(\ref{conv.lval})
 +thereof; otherwise, the \link{lvalue-to-rvalue conversion}{\ref{conv.lval}}
@@ -8082,6 +8188,15 @@ index a500eff..d85a388 100644
  The exception is reactivated with the existing exception object;
  no new exception object is created.
  The exception is no longer considered to be caught.
+@@ -4683,7 +4692,7 @@ If no exception is presently being handled,
+ evaluating a
+ \grammarterm{throw-expression}
+ with no operand calls
+-\tcode{std\colcol{}terminate()}~(\ref{except.terminate}).
++\link{\tcode{std\colcol{}terminate()}}{\ref{except.terminate}}.
+ 
+ \rSec1[expr.ass]{Assignment and compound assignment operators}%
+ \indextext{expression!assignment and compound assignment}
 @@ -4823,7 +4832,7 @@ The comma operator groups left-to-right.
  
  A pair of expressions separated by a comma is evaluated left-to-right;
@@ -8669,10 +8784,149 @@ index 9a2cc4c..ea697c2 100644
  \begin{note}
  General-purpose implementations are encouraged to provide these guarantees.
 diff --git a/source/iostreams.tex b/source/iostreams.tex
-index c857f85..cc58b9c 100644
+index c857f85..ef8e8a6 100644
 --- a/source/iostreams.tex
 +++ b/source/iostreams.tex
-@@ -2226,7 +2226,7 @@ otherwise
+@@ -431,7 +431,7 @@ follows the same semantics as mixing such operations on
+ as specified in the C standard library.
+ 
+ \pnum
+-Concurrent access to a synchronized~(\ref{ios.members.static}) standard iostream object's formatted and unformatted input~(\ref{istream}) and output~(\ref{ostream}) functions or a standard C stream by multiple threads shall not result in a data race~(\ref{intro.multithread}). \begin{note} Users must still synchronize concurrent use of these objects and streams by multiple threads if they wish to avoid interleaved characters. \end{note}
++Concurrent access to a synchronized~(\ref{ios.members.static}) standard iostream object's formatted and unformatted \link{input}{\ref{istream}} and \link{output}{\ref{ostream}} functions or a standard C stream by multiple threads shall not result in a \deflink{data race}{\ref{intro.multithread}}. \begin{note} Users must still synchronize concurrent use of these objects and streams by multiple threads if they wish to avoid interleaved characters. \end{note}
+ 
+ \xref~ISO C 7.21.2.
+ 
+@@ -452,7 +452,7 @@ associated with the object
+ declared in
+ \indextext{\idxhdr{cstdio}}%
+ \indexlibrary{\idxhdr{cstdio}}%
+-\tcode{<cstdio>}~(\ref{cstdio.syn}).
++\link{\tcode{<cstdio>}}{\ref{cstdio.syn}}.
+ 
+ \pnum
+ After the object
+@@ -462,7 +462,7 @@ is initialized,
+ returns
+ \tcode{\&cout}.
+ Its state is otherwise the same as required for
+-\tcode{basic_ios<char>::init}~(\ref{basic.ios.cons}).
++\linkx{\tcode{basic_ios<char>::init}}{basic_ios!init}{\ref{basic.ios.cons}}.
+ \end{itemdescr}
+ 
+ \indexlibrary{\idxcode{cout}}%
+@@ -480,7 +480,7 @@ associated with the object
+ declared in
+ \indextext{\idxhdr{cstdio}}%
+ \indexlibrary{\idxhdr{cstdio}}%
+-\tcode{<cstdio>}~(\ref{cstdio.syn}).
++\link{\tcode{<cstdio>}}{\ref{cstdio.syn}}.
+ \end{itemdescr}
+ 
+ \indexlibrary{\idxcode{cerr}}%
+@@ -498,7 +498,7 @@ associated with the object
+ declared in
+ \indextext{\idxhdr{cstdio}}%
+ \indexlibrary{\idxhdr{cstdio}}%
+-\tcode{<cstdio>}~(\ref{cstdio.syn}).
++\link{\tcode{<cstdio>}}{\ref{cstdio.syn}}.
+ 
+ \pnum
+ After the object
+@@ -507,7 +507,7 @@ is initialized,
+ \tcode{cerr.flags() \& unitbuf}
+ is nonzero and \tcode{cerr.tie()} returns \tcode{\&cout}.
+ Its state is otherwise the same as required for
+-\tcode{basic_ios<char>::init}~(\ref{basic.ios.cons}).
++\linkx{\tcode{basic_ios<char>::init}}{basic_ios!init}{\ref{basic.ios.cons}}.
+ \end{itemdescr}
+ 
+ \indexlibrary{\idxcode{clog}}%
+@@ -525,7 +525,7 @@ associated with the object
+ declared in
+ \indextext{\idxhdr{cstdio}}%
+ \indexlibrary{\idxhdr{cstdio}}%
+-\tcode{<cstdio>}~(\ref{cstdio.syn}).
++\link{\tcode{<cstdio>}}{\ref{cstdio.syn}}.
+ \end{itemdescr}
+ 
+ \rSec2[wide.stream.objects]{Wide stream objects}
+@@ -545,7 +545,7 @@ associated with the object
+ declared in
+ \indextext{\idxhdr{cstdio}}%
+ \indexlibrary{\idxhdr{cstdio}}%
+-\tcode{<cstdio>}~(\ref{cstdio.syn}).
++\link{\tcode{<cstdio>}}{\ref{cstdio.syn}}.
+ 
+ \pnum
+ After the object
+@@ -555,7 +555,7 @@ is initialized,
+ returns
+ \tcode{\&wcout}.
+ Its state is otherwise the same as required for
+-\tcode{basic_ios<wchar_t>::init}~(\ref{basic.ios.cons}).
++\linkx{\tcode{basic_ios<wchar_t>::init}}{basic_ios!init}{\ref{basic.ios.cons}}.
+ \end{itemdescr}
+ 
+ \indexlibrary{\idxcode{wcout}}%
+@@ -573,7 +573,7 @@ associated with the object
+ declared in
+ \indextext{\idxhdr{cstdio}}%
+ \indexlibrary{\idxhdr{cstdio}}%
+-\tcode{<cstdio>}~(\ref{cstdio.syn}).
++\link{\tcode{<cstdio>}}{\ref{cstdio.syn}}.
+ \end{itemdescr}
+ 
+ \indexlibrary{\idxcode{wcerr}}%
+@@ -591,7 +591,7 @@ associated with the object
+ declared in
+ \indextext{\idxhdr{cstdio}}%
+ \indexlibrary{\idxhdr{cstdio}}%
+-\tcode{<cstdio>}~(\ref{cstdio.syn}).
++\link{\tcode{<cstdio>}}{\ref{cstdio.syn}}.
+ 
+ \pnum
+ After the object
+@@ -600,7 +600,7 @@ is initialized,
+ \tcode{wcerr.flags() \& unitbuf}
+ is nonzero and \tcode{wcerr.tie()} returns \tcode{\&wcout}.
+ Its state is otherwise the same as required for
+-\tcode{basic_ios<wchar_t>::init}~(\ref{basic.ios.cons}).
++\linkx{\tcode{basic_ios<wchar_t>::init}}{basic_ios!init}{\ref{basic.ios.cons}}.
+ \end{itemdescr}
+ 
+ \indexlibrary{\idxcode{wclog}}%
+@@ -618,7 +618,7 @@ associated with the object
+ declared in
+ \indextext{\idxhdr{cstdio}}%
+ \indexlibrary{\idxhdr{cstdio}}%
+-\tcode{<cstdio>}~(\ref{cstdio.syn}).
++\link{\tcode{<cstdio>}}{\ref{cstdio.syn}}.
+ \end{itemdescr}
+ 
+ \rSec1[iostreams.base]{Iostreams base classes}
+@@ -1125,7 +1125,7 @@ ensures the construction of the eight objects declared in
+ \tcode{<io\-stream>}~(\ref{iostream.objects}) that associate file
+ stream buffers with the standard C streams
+ provided for by the functions declared in
+-\tcode{<cstdio>}~(\ref{cstdio.syn}).
++\link{\tcode{<cstdio>}}{\ref{cstdio.syn}}.
+ 
+ \pnum
+ For the sake of exposition, the maintained data is presented here as:
+@@ -1861,10 +1861,11 @@ The destructor does not destroy
+ \tcode{rdbuf()}.
+ \end{itemdescr}
+ 
+-\indexlibrarymember{init}{basic_ios}%
++\begin{indexed}{\indexlibrarymember{init}{basic_ios}}
+ \begin{itemdecl}
+ void init(basic_streambuf<charT, traits>* sb);
+ \end{itemdecl}
++\end{indexed}
+ 
+ \begin{itemdescr}
+ \pnum
+@@ -2226,7 +2227,7 @@ otherwise
  If \tcode{((state | (rdbuf() ? goodbit : badbit)) \& exceptions()) == 0},
  returns.
  Otherwise, the function throws an object of class
@@ -8681,7 +8935,7 @@ index c857f85..cc58b9c 100644
  constructed with
  \impldef{argument values to construct \tcode{basic_ios::failure}}
  argument values.%
-@@ -2243,7 +2243,7 @@ void setstate(iostate state);
+@@ -2243,7 +2244,7 @@ void setstate(iostate state);
  Calls
  \tcode{clear(rdstate() | state)}
  (which may throw
@@ -8690,7 +8944,7 @@ index c857f85..cc58b9c 100644
  \end{itemdescr}
  
  \indexlibrarymember{good}{basic_ios}%
-@@ -5199,7 +5199,7 @@ characters and discards them.
+@@ -5199,7 +5200,7 @@ characters and discards them.
  Characters are extracted until any of the following occurs:
  \begin{itemize}
  \item
@@ -8699,6 +8953,15 @@ index c857f85..cc58b9c 100644
  and
  \tcode{n} characters have been extracted so far
  \item
+@@ -8681,7 +8682,7 @@ and
+ are declared, in
+ \indextext{\idxhdr{cstdio}}%
+ \indexlibrary{\idxhdr{cstdio}}%
+-\tcode{<cstdio>}~(\ref{cstdio.syn}).}
++\link{\tcode{<cstdio>}}{\ref{cstdio.syn}}.}
+ 
+ \pnum
+ If the repositioning operation fails, calls
 diff --git a/source/iterators.tex b/source/iterators.tex
 index 0f2a6fc..bda37d3 100644
 --- a/source/iterators.tex
@@ -9695,7 +9958,7 @@ index 9590258..c96d440 100644
 +
 +\newenvironment{indexed}[1]{}{}
 diff --git a/source/numerics.tex b/source/numerics.tex
-index 77423fc..ad7ea49 100644
+index 77423fc..0646964 100644
 --- a/source/numerics.tex
 +++ b/source/numerics.tex
 @@ -117,7 +117,7 @@ storage and use the copy constructor to initialize each element.
@@ -10113,7 +10376,12 @@ index 77423fc..ad7ea49 100644
  or \tcode{binary_op(val, acc)} shall be writable to the \tcode{result} output iterator.
  In the ranges
  \crange{first}{last}
-@@ -10314,7 +10318,7 @@ a three-dimensional hypotenuse function~(\ref{c.math.hypot3}) and
+@@ -10310,11 +10314,11 @@ namespace std {
+ The contents and meaning of the header \tcode{<cmath>}
+ are the same as the C standard library header \tcode{<math.h>},
+ with the addition of 
+-a three-dimensional hypotenuse function~(\ref{c.math.hypot3}) and
++a \link{three-dimensional hypotenuse}{\ref{c.math.hypot3}} function and
  the mathematical special functions described in \ref{sf.cmath}.
  \begin{note}
  Several functions have additional overloads in this International Standard,
@@ -11873,7 +12141,7 @@ index 9dfebee..4b0f390 100644
  \end{note}
  
 diff --git a/source/support.tex b/source/support.tex
-index beaeaed..f3c7f6c 100644
+index beaeaed..f1b5779 100644
 --- a/source/support.tex
 +++ b/source/support.tex
 @@ -231,7 +231,7 @@ and except as noted in
@@ -11951,6 +12219,15 @@ index beaeaed..f3c7f6c 100644
  
  \begin{itemdescr}
  \pnum
+@@ -1423,7 +1424,7 @@ the C standard library header \tcode{<stdint.h>}.
+ \pnum
+ \indextext{\idxhdr{cstdlib}}%
+ \begin{note}
+-The header \tcode{<cstdlib>}~(\ref{cstdlib.syn})
++The header \link{\tcode{<cstdlib>}}{\ref{cstdlib.syn}}
+ declares the functions described in this subclause.
+ \end{note}
+ 
 @@ -1478,7 +1479,8 @@ The
  functions register the function pointed to by \tcode{f}
  to be called without arguments at normal program termination.
@@ -11961,7 +12238,20 @@ index beaeaed..f3c7f6c 100644
  \begin{note} The \tcode{atexit()} functions do not introduce a data
  race~(\ref{res.on.data.races}). \end{note}
  
-@@ -1512,7 +1514,7 @@ are called.\footnote{A function is called for every time it is registered.}
+@@ -1494,10 +1496,11 @@ function returns zero if the registration succeeds,
+ nonzero if it fails.
+ \end{itemdescr}
+ 
+-\indexlibrary{\idxcode{exit}}%
++\begin{indexed}{\indexlibrary{\idxcode{exit}}}
+ \begin{itemdecl}
+ [[noreturn]] void exit(int status);
+ \end{itemdecl}
++\end{indexed}
+ 
+ \begin{itemdescr}
+ \pnum
+@@ -1512,7 +1515,7 @@ are called.\footnote{A function is called for every time it is registered.}
  See~\ref{basic.start.term} for the order of destructions and calls.
  (Automatic objects are not destroyed as a result of calling
  \tcode{exit()}.)\footnote{Objects with automatic storage duration are all destroyed in a program whose
@@ -11970,7 +12260,7 @@ index beaeaed..f3c7f6c 100644
  contains no automatic objects and executes the call to
  \tcode{exit()}.
  Control can be transferred directly to such a
-@@ -1566,7 +1568,8 @@ int at_quick_exit(@\placeholder{atexit-handler}@* f) noexcept;
+@@ -1566,7 +1569,8 @@ int at_quick_exit(@\placeholder{atexit-handler}@* f) noexcept;
  \effects The \tcode{at_quick_exit()} functions register the function pointed to by \tcode{f}
  to be called without arguments when \tcode{quick_exit} is called.
  It is unspecified whether a call to \tcode{at_quick_exit()} that does not
@@ -11980,7 +12270,7 @@ index beaeaed..f3c7f6c 100644
  \tcode{at_quick_exit()} functions do not introduce a
  data race~(\ref{res.on.data.races}). \end{note}
  \begin{note}
-@@ -2314,8 +2317,8 @@ versions of \tcode{operator delete}, the C standard library function
+@@ -2314,8 +2318,8 @@ versions of \tcode{operator delete}, the C standard library function
  introduce a data race~(\ref{res.on.data.races}).
  Calls to these functions that allocate or deallocate a particular unit
  of storage shall occur in a single total order, and each such deallocation call
@@ -11991,7 +12281,7 @@ index beaeaed..f3c7f6c 100644
  
  \rSec2[alloc.errors]{Storage allocation errors}
  
-@@ -2378,7 +2381,8 @@ An \impldef{return value of \tcode{bad_alloc::what}} \ntbs.
+@@ -2378,7 +2382,8 @@ An \impldef{return value of \tcode{bad_alloc::what}} \ntbs.
  
  \pnum
  \remarks
@@ -12001,7 +12291,7 @@ index beaeaed..f3c7f6c 100644
  suitable for conversion and display as a
  \tcode{wstring}~(\ref{string.classes}, \ref{locale.codecvt}).
  \end{itemdescr}
-@@ -2424,7 +2428,8 @@ An \impldef{return value of \tcode{bad_array_new_length::what}} \ntbs.
+@@ -2424,7 +2429,8 @@ An \impldef{return value of \tcode{bad_array_new_length::what}} \ntbs.
  
  \pnum
  \remarks
@@ -12011,7 +12301,7 @@ index beaeaed..f3c7f6c 100644
  suitable for conversion and display as a
  \tcode{wstring}~(\ref{string.classes}, \ref{locale.codecvt}).
  \end{itemdescr}
-@@ -2743,7 +2748,8 @@ An \impldef{return value of \tcode{type_info::name()}} \ntbs.
+@@ -2743,7 +2749,8 @@ An \impldef{return value of \tcode{type_info::name()}} \ntbs.
  
  \pnum
  \remarks
@@ -12021,7 +12311,7 @@ index beaeaed..f3c7f6c 100644
  suitable for conversion and display as a
  \tcode{wstring}~(\ref{string.classes}, \ref{locale.codecvt})
  \end{itemdescr}
-@@ -2810,7 +2816,8 @@ An \impldef{return value of \tcode{bad_cast::what}} \ntbs.
+@@ -2810,7 +2817,8 @@ An \impldef{return value of \tcode{bad_cast::what}} \ntbs.
  
  \pnum
  \remarks
@@ -12031,7 +12321,7 @@ index beaeaed..f3c7f6c 100644
  suitable for conversion and display as a
  \tcode{wstring}~(\ref{string.classes}, \ref{locale.codecvt})
  \end{itemdescr}
-@@ -2877,7 +2884,8 @@ An \impldef{return value of \tcode{bad_typeid::what}} \ntbs.
+@@ -2877,7 +2885,8 @@ An \impldef{return value of \tcode{bad_typeid::what}} \ntbs.
  
  \pnum
  \remarks
@@ -12041,7 +12331,7 @@ index beaeaed..f3c7f6c 100644
  suitable for conversion and display as a
  \tcode{wstring}~(\ref{string.classes}, \ref{locale.codecvt})
  \end{itemdescr}
-@@ -3006,7 +3014,8 @@ An \impldef{return value of \tcode{exception::what}} \ntbs.
+@@ -3006,7 +3015,8 @@ An \impldef{return value of \tcode{exception::what}} \ntbs.
  
  \pnum
  \remarks
@@ -12051,7 +12341,7 @@ index beaeaed..f3c7f6c 100644
  suitable for conversion and display as a
  \tcode{wstring}~(\ref{string.classes}, \ref{locale.codecvt}).
  The return value remains valid until the exception object from which
-@@ -3075,7 +3084,8 @@ An \impldef{return value of \tcode{bad_exception::what}} \ntbs.
+@@ -3075,7 +3085,8 @@ An \impldef{return value of \tcode{bad_exception::what}} \ntbs.
  
  \pnum
  \remarks
@@ -12061,7 +12351,7 @@ index beaeaed..f3c7f6c 100644
  suitable for conversion and display as a
  \tcode{wstring}~(\ref{string.classes}, \ref{locale.codecvt}).
  \end{itemdescr}
-@@ -3179,21 +3189,22 @@ int uncaught_exceptions() noexcept;
+@@ -3179,21 +3190,22 @@ int uncaught_exceptions() noexcept;
  \begin{itemdescr}
  \pnum
  \returns
@@ -12088,7 +12378,7 @@ index beaeaed..f3c7f6c 100644
  
  \begin{itemdescr}
  \pnum
-@@ -3201,7 +3212,7 @@ The type \tcode{exception_ptr} can be used to refer to an exception object.
+@@ -3201,7 +3213,7 @@ The type \tcode{exception_ptr} can be used to refer to an exception object.
  
  \pnum
  \tcode{exception_ptr} shall satisfy the requirements of
@@ -12097,7 +12387,7 @@ index beaeaed..f3c7f6c 100644
  
  \pnum
  Two non-null values of type \tcode{exception_ptr} are equivalent and compare equal if and
-@@ -3238,8 +3249,9 @@ exception_ptr current_exception() noexcept;
+@@ -3238,8 +3250,9 @@ exception_ptr current_exception() noexcept;
  
  \begin{itemdescr}
  \pnum
@@ -12109,7 +12399,7 @@ index beaeaed..f3c7f6c 100644
  handled exception, or a null \tcode{exception_ptr} object if no exception is being
  handled. The referenced object shall remain valid at least as long as there is an
  \tcode{exception_ptr} object that refers to it.
-@@ -3569,20 +3581,15 @@ function.
+@@ -3569,20 +3582,15 @@ function.
  
  \indextext{\idxhdr{cstdarg}}%
  \indexlibrary{\idxhdr{cstdarg}}%
@@ -12136,7 +12426,7 @@ index beaeaed..f3c7f6c 100644
  
  \pnum
 diff --git a/source/templates.tex b/source/templates.tex
-index 6a8e8ac..6707528 100644
+index 6a8e8ac..f38b5d9 100644
 --- a/source/templates.tex
 +++ b/source/templates.tex
 @@ -109,17 +109,17 @@ no declarator is permitted.
@@ -12297,6 +12587,17 @@ index 6a8e8ac..6707528 100644
  \tcode{decltype($e$)}
  denotes a unique dependent type. Two such \grammarterm{decltype-specifier}{s}
  refer to the same type only if their \grammarterm{expression}{s} are
+@@ -1345,8 +1344,8 @@ each default argument or \grammarterm{noexcept-specifier} is a separate
+ definition which is unrelated to
+ the function template definition or to any other default arguments or
+ \grammarterm{noexcept-specifier}{s}.
+-For the purpose of instantiation, the substatements of a constexpr if
+-statement~(\ref{stmt.if}) are considered definitions.
++For the purpose of instantiation, the substatements of a
++\deflink{constexpr if}{\ref{stmt.if}} statement are considered definitions.
+ 
+ \pnum
+ Because an \grammarterm{alias-declaration} cannot declare a
 @@ -1706,8 +1705,8 @@ conversion function template
  in a base class.
  
@@ -12444,6 +12745,15 @@ index 6a8e8ac..6707528 100644
  thereof) synthesize a unique type, value, or class template
  respectively and substitute it for each occurrence of that parameter
  in the function type of the template.
+@@ -3173,7 +3173,7 @@ The program is ill-formed, no diagnostic required, if:
+ \begin{itemize}
+ \item
+ no valid specialization can be generated for a template
+-or a substatement of a constexpr if statement~(\ref{stmt.if}) within a template
++or a substatement of a \deflink{constexpr if}{\ref{stmt.if}} statement within a template
+ and the template is not instantiated, or
+ \item
+ every valid specialization of a variadic template requires an empty template
 @@ -3204,7 +3204,7 @@ was a pack expansion and the corresponding pack is empty, or
  \item an instantiation uses a default argument or default template argument
  that had not been defined at the point at which the template was defined, or
@@ -12502,6 +12812,15 @@ index 6a8e8ac..6707528 100644
  
  \item
  the \grammarterm{unqualified-id}
+@@ -3640,7 +3640,7 @@ explicitly depend on the
+ 
+ \pnum
+ In the definition of a class or class template,
+-the scope of a dependent base class~(\ref{temp.dep.type})
++the scope of a \deflinkx{dependent base class}{base class!dependent}{\ref{temp.dep.type}}
+ is not examined during unqualified
+ name lookup either at the point of definition of the
+ class template or member or during an instantiation of
 @@ -3709,7 +3709,7 @@ if it is
  \item
  in the definition of a class template, a nested class of a class template,
@@ -12584,7 +12903,16 @@ index 6a8e8ac..6707528 100644
  
  \item
  an \grammarterm{identifier} associated by name lookup with one or more
-@@ -4040,7 +4040,7 @@ is type-dependent,
+@@ -4033,14 +4033,14 @@ declarations of member functions of the current instantiation declared
+ with a return type that contains a placeholder type,
+ 
+ \item
+-an \grammarterm{identifier} associated by name lookup with a decomposition
+-declaration~(\ref{dcl.decomp}) whose \grammarterm{brace-or-equal-initializer}
++an \grammarterm{identifier} associated by name lookup with a \link{decomposition
++declaration}{\ref{dcl.decomp}} whose \grammarterm{brace-or-equal-initializer}
+ is type-dependent,
+ 
  \item
  the
  \grammarterm{identifier}
@@ -12669,6 +12997,28 @@ index 6a8e8ac..6707528 100644
  can be determined without instantiating a class template definition,
  it is unspecified whether that instantiation actually takes place.
  \begin{example}
+@@ -4733,8 +4733,8 @@ a declaration of the specialization is implicitly instantiated~(\ref{temp.over})
+ An implementation shall not implicitly instantiate a function template,
+ a variable template,
+ a member template, a non-virtual member function, a member class, a
+-static data member of a class template, or a substatement of a constexpr if
+-statement (\ref{stmt.if}), unless such instantiation is required.
++static data member of a class template, or a substatement of a
++\deflink{constexpr if}{\ref{stmt.if}} statement, unless such instantiation is required.
+ It is unspecified whether or not an implementation implicitly instantiates a
+ virtual member function of a class template if the virtual member function would
+ not otherwise be instantiated.
+@@ -4948,8 +4948,8 @@ of that entity unless the explicit instantiation is preceded by an explicit
+ specialization of the entity with the same template arguments.
+ If the
+ \grammarterm{declaration}
+-of the explicit instantiation names an implicitly-declared special member
+-function (Clause~\ref{special}), the program is ill-formed.
++of the explicit instantiation names an implicitly-declared \link{special member
++function}{Clause~\ref{special}}, the program is ill-formed.
+ 
+ \pnum
+ For a given set of template arguments, if an explicit
 @@ -5031,7 +5031,7 @@ explicit instantiation declarations have the
  effect of suppressing the implicit instantiation of the entity to which they
  refer. \begin{note} The intent is that an inline function that is the
