@@ -10,12 +10,18 @@ if [ -f ../../all.patch ]
 then
 git apply ../../all.patch
 fi
+latexmk -c
 latexmk -pdf std
+
+cp std.pdf std_orig.pdf
 
 if [ -f ../../htmlgen.patch ]
 then
 git apply ../../htmlgen.patch
 fi
+
+latexmk -c
+latexmk -pdf std
 
 cd ../../cxxdraft-htmlgen
 git reset --hard origin/master
@@ -43,7 +49,7 @@ cd ../gh-pages
 mv 14882.css.html 14882.css
 mv index.html.html index.html
 mv icon.png.html icon.png
-cp ../draft/source/std.pdf ./draft.pdf
+cp ../draft/source/std_orig.pdf ./draft.pdf
 cp ../networking-ts/src/ts.pdf ./networking-ts.pdf
 cp ../ranges-ts/ranges.pdf ./ranges-ts.pdf
 
