@@ -1,0 +1,1210 @@
+<!DOCTYPE html><html lang='en'><head><title>[temp.deduct]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>17</a> Templates <a class='abbr_ref' href='./#temp'>[temp]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>17.8</a> Function template specializations <a class='abbr_ref' href='temp.fct.spec#temp.deduct'>[temp.fct.spec]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>17.8.2</a> Template argument deduction <a class='abbr_ref'>[temp.deduct]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L5785'>#</a></div><p >When a
+function template
+specialization is referenced, all of the
+template arguments shall have values.
+The values can be
+explicitly specified or, in some cases, be deduced from the use
+or obtained from default
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i><span class='textit'>s</span>.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+void f(Array&lt;dcomplex&gt;&amp; cv, Array&lt;int&gt;&amp; ci) {
+  sort(cv);                     <span class='comment'>// calls <span class='tcode_in_codeblock'>sort(Array&lt;dcomplex&gt;&amp;)</span>
+</span>  sort(ci);                     <span class='comment'>// calls <span class='tcode_in_codeblock'>sort(Array&lt;int&gt;&amp;)</span>
+</span>}</pre><p >and</p><pre class='codeblock'>
+void g(double d) {
+  int i = convert&lt;int&gt;(d);      <span class='comment'>// calls <span class='tcode_in_codeblock'>convert&lt;int,double&gt;(double)</span>
+</span>  int c = convert&lt;char&gt;(d);     <span class='comment'>// calls <span class='tcode_in_codeblock'>convert&lt;char,double&gt;(double)</span>
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L5813'>#</a></div><p >When an explicit template argument list is specified, the template
+arguments must be compatible with the template parameter list and must
+result in a valid function type as described below; otherwise type
+deduction fails.  Specifically, the following steps are performed when
+evaluating an explicitly specified template argument list with respect
+to a given function template:</p><ul class='itemize'><li id='2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.1'>(2.1)</a></div><p >The specified template arguments must match the template parameters in
+kind (i.e., type, non-type, template). There
+must not be more arguments than there are parameters
+unless at least one parameter is a template parameter pack, and there shall be
+an argument for each non-pack parameter.
+Otherwise, type deduction fails.</p></li><li id='2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.2'>(2.2)</a></div><p >Non-type arguments must match the types of the corresponding non-type
+template parameters, or must be convertible to the types of the
+corresponding non-type parameters as specified in <a href='temp.arg.nontype'>[temp.arg.nontype]</a>, otherwise type deduction fails.</p></li><li id='2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.3'>(2.3)</a></div><p >The specified template argument values are substituted for the
+corresponding template parameters as specified below.
+</p></li></ul></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L5837'>#</a></div><p >After this substitution is performed, the function parameter type
+adjustments described in <a href='dcl.fct'>[dcl.fct]</a> are performed.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+A parameter type of “<span class='texttt'>void (const int, int[5])</span>” becomes
+“<span class='texttt'>void(*)(int,int*)</span>”.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+A top-level qualifier in a function parameter declaration does not affect
+the function type but still affects the type of the function parameter
+variable within the function.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+template &lt;class T&gt; void f(T t);
+template &lt;class X&gt; void g(const X x);
+template &lt;class Z&gt; void h(Z, Z*);
+
+int main() {
+  <span class='comment'>// #1: function type is <span class='tcode_in_codeblock'>f(int)</span>, <span class='tcode_in_codeblock'>t</span> is non <span class='tcode_in_codeblock'>const</span>
+</span>  f&lt;int&gt;(1);
+
+  <span class='comment'>// #2: function type is <span class='tcode_in_codeblock'>f(int)</span>, <span class='tcode_in_codeblock'>t</span> is <span class='tcode_in_codeblock'>const</span>
+</span>  f&lt;const int&gt;(1);
+
+  <span class='comment'>// #3: function type is <span class='tcode_in_codeblock'>g(int)</span>, <span class='tcode_in_codeblock'>x</span> is <span class='tcode_in_codeblock'>const</span>
+</span>  g&lt;int&gt;(1);
+
+  <span class='comment'>// #4: function type is <span class='tcode_in_codeblock'>g(int)</span>, <span class='tcode_in_codeblock'>x</span> is <span class='tcode_in_codeblock'>const</span>
+</span>  g&lt;const int&gt;(1);
+
+  <span class='comment'>// #5: function type is <span class='tcode_in_codeblock'>h(int, const int*)</span>
+</span>  h&lt;const int&gt;(1,0);
+}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L5875'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+<span class='texttt'>f&lt;int&gt;(1)</span> and <span class='texttt'>f&lt;const int&gt;(1)</span> call distinct functions
+even though both of the functions called have the same function type.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L5881'>#</a></div><p >The resulting substituted and adjusted function type is used as
+the type of the function template for template argument
+deduction.  If a template argument has not been deduced and its
+corresponding template parameter has a default argument, the
+template argument is determined by substituting the template
+arguments determined for preceding template parameters into the
+default argument. If the substitution results in an invalid type,
+as described above, type deduction fails.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template &lt;class T, class U = double&gt;
+void f(T t = 0, U u = 0);
+
+void g() {
+  f(1, 'c');        <span class='comment'>// <span class='tcode_in_codeblock'>f&lt;int,char&gt;(1,'c')</span>
+</span>  f(1);             <span class='comment'>// <span class='tcode_in_codeblock'>f&lt;int,double&gt;(1,0)</span>
+</span>  f();              <span class='comment'>// error: <span class='tcode_in_codeblock'>T</span> cannot be deduced
+</span>  f&lt;int&gt;();         <span class='comment'>// <span class='tcode_in_codeblock'>f&lt;int,double&gt;(0,0)</span>
+</span>  f&lt;int,char&gt;();    <span class='comment'>// <span class='tcode_in_codeblock'>f&lt;int,char&gt;(0,0)</span>
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p><p >When all template arguments have been deduced or obtained from
+default template arguments, all uses of template parameters in
+the template parameter list of the template and the function type
+are replaced with the corresponding deduced
+or default argument values. If the substitution results in an
+invalid type, as described above, type deduction fails.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L5912'>#</a></div><p >At certain points in the template argument deduction process it is necessary
+to take a function type that makes use of template parameters and replace those
+template parameters with the corresponding template arguments. This is done at
+the beginning of template argument deduction when any explicitly specified
+template arguments are substituted into the function type, and again at the end
+of template argument deduction when any template arguments that were deduced or
+obtained from default arguments are substituted.</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L5921'>#</a></div><p >The substitution occurs in all types and expressions that are used in the function
+type and in template parameter declarations. The expressions include not only
+constant expressions such as those that appear in array bounds or as nontype
+template arguments but also general expressions (i.e., non-constant expressions)
+inside <span class='texttt'>sizeof</span>, <span class='texttt'>decltype</span>, and other contexts that allow non-constant
+expressions. The substitution proceeds in lexical order and stops when
+a condition that causes deduction to fail is encountered. [<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span>  The equivalent substitution in exception specifications is
+done only when the <i ><a href='except.spec#nt:noexcept-specifier'>noexcept-specifier</a></i> is instantiated, at which point a program is ill-formed
+if the substitution results in an invalid type or
+expression. <span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template &lt;class T&gt; struct A { using X = typename T::X; };
+template &lt;class T&gt; typename T::X f(typename A&lt;T&gt;::X);
+template &lt;class T&gt; void f(...) { }
+template &lt;class T&gt; auto g(typename A&lt;T&gt;::X) -&gt; typename T::X;
+template &lt;class T&gt; void g(...) { }
+
+void h() {
+  f&lt;int&gt;(0);        <span class='comment'>// OK, substituting return type causes deduction to fail
+</span>  g&lt;int&gt;(0);        <span class='comment'>// error, substituting parameter type instantiates <span class='tcode_in_codeblock'>A&lt;int&gt;</span>
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L5947'>#</a></div><p >If a substitution results in an invalid type or expression, type deduction fails. An
+invalid type or expression is one that would be ill-formed, with a diagnostic
+required, if written using the substituted arguments. [<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span>  If no
+diagnostic is required, the program is still ill-formed. Access checking is done
+as part of the substitution
+process. <span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>]  Only invalid types and expressions in the immediate
+context of the function type and its template parameter types can result in a deduction
+failure. [<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span>  The substitution into types and expressions can result
+in effects such as the instantiation of class template specializations and/or
+function template specializations, the generation of implicitly-defined functions,
+etc. Such effects are not in the “immediate context” and can result in the
+program being ill-formed.<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] </p><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+struct X { };
+struct Y {
+  Y(X){}
+};
+
+template &lt;class T&gt; auto f(T t1, T t2) -&gt; decltype(t1 + t2);     <span class='comment'>// #1
+</span>X f(Y, Y);          <span class='comment'>// #2
+</span>
+X x1, x2;
+X x3 = f(x1, x2);   <span class='comment'>// deduction fails on #1 (cannot add <span class='tcode_in_codeblock'>X+X</span>), calls #2</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span>  Type deduction may fail for
+the following reasons:</p><ul class='itemize'><li id='8.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#8.1'>(8.1)</a></div><p >Attempting to instantiate a pack expansion containing multiple parameter packs of differing lengths.
+</p></li><li id='8.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#8.2'>(8.2)</a></div><p >Attempting to create an array with an element type that is <span class='texttt'>void</span>, a
+function type, a reference type, or an abstract class type, or attempting
+to create an array with a size that is zero or negative.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+template &lt;class T&gt; int f(T[5]);
+int I = f&lt;int&gt;(0);
+int j = f&lt;void&gt;(0);             <span class='comment'>// invalid array
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+</p></li><li id='8.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#8.3'>(8.3)</a></div><p >Attempting to use a type that is not a class or enumeration type in a qualified name.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+template &lt;class T&gt; int f(typename T::B*);
+int i = f&lt;int&gt;(0);</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+</p></li><li id='8.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#8.4'>(8.4)</a></div><p >Attempting to use a type in a <i ><a href='expr.prim.id.qual#nt:nested-name-specifier'>nested-name-specifier</a></i> of a
+<i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i> when
+that type does not contain the specified member, or
+</p><ul class='itemize'><li id='8.4.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#8.4.1'>(8.4.1)</a></div><p >the specified member is not a type where a type is required, or
+</p></li><li id='8.4.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#8.4.2'>(8.4.2)</a></div><p >the specified member is not a template where a template is required, or
+</p></li><li id='8.4.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#8.4.3'>(8.4.3)</a></div><p >the specified member is not a non-type where a non-type is required.
+</p></li></ul><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+template &lt;int I&gt; struct X { };
+template &lt;template &lt;class T&gt; class&gt; struct Z { };
+template &lt;class T&gt; void f(typename T::Y*){}
+template &lt;class T&gt; void g(X&lt;T::N&gt;*){}
+template &lt;class T&gt; void h(Z&lt;T::template TT&gt;*){}
+struct A {};
+struct B { int Y; };
+struct C {
+  typedef int N;
+};
+struct D {
+  typedef int TT;
+};
+
+int main() {
+  <span class='comment'>// Deduction fails in each of these cases:
+</span>  f&lt;A&gt;(0);          <span class='comment'>// <span class='tcode_in_codeblock'>A</span> does not contain a member <span class='tcode_in_codeblock'>Y</span>
+</span>  f&lt;B&gt;(0);          <span class='comment'>// The <span class='tcode_in_codeblock'>Y</span> member of <span class='tcode_in_codeblock'>B</span> is not a type
+</span>  g&lt;C&gt;(0);          <span class='comment'>// The <span class='tcode_in_codeblock'>N</span> member of <span class='tcode_in_codeblock'>C</span> is not a non-type
+</span>  h&lt;D&gt;(0);          <span class='comment'>// The <span class='tcode_in_codeblock'>TT</span> member of <span class='tcode_in_codeblock'>D</span> is not a template
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+</p></li><li id='8.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#8.5'>(8.5)</a></div><p >Attempting to create a pointer to reference type.
+</p></li><li id='8.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#8.6'>(8.6)</a></div><p >Attempting to create a reference to <span class='texttt'>void</span>.
+</p></li><li id='8.7'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#8.7'>(8.7)</a></div><p >Attempting to create “pointer to member of <span class='texttt'>T</span>” when <span class='texttt'>T</span> is not a
+class type.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+template &lt;class T&gt; int f(int T::*);
+int i = f&lt;int&gt;(0);</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+</p></li><li id='8.8'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#8.8'>(8.8)</a></div><p >Attempting to give an invalid type to a non-type template parameter.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template &lt;class T, T&gt; struct S {};
+template &lt;class T&gt; int f(S&lt;T, T()&gt;*);
+struct X {};
+int i0 = f&lt;X&gt;(0);</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></li><li id='8.9'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#8.9'>(8.9)</a></div><p >Attempting to perform an invalid conversion in either a template
+argument expression, or an expression used in the function
+declaration.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+template &lt;class T, T*&gt; int f(int);
+int i2 = f&lt;int,1&gt;(0);           <span class='comment'>// can't conv <span class='tcode_in_codeblock'>1</span> to <span class='tcode_in_codeblock'>int*</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></li><li id='8.10'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#8.10'>(8.10)</a></div><p >Attempting to create a function type in which a parameter has a type
+of <span class='texttt'>void</span>, or in which the return type is a function type
+or array type.</p></li><li id='8.11'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#8.11'>(8.11)</a></div><p >Attempting to create a function type in which a parameter type or the return type is an
+<a href='class.abstract'>abstract class type</a>.
+</p></li></ul><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6087'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+In the following example,
+assuming a <span class='texttt'>signed char</span>
+cannot represent the value 1000,
+a <a href='dcl.init.list#def:narrowing_conversion'>narrowing conversion</a>
+would be required
+to convert the <i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+of type <span class='texttt'>int</span> to <span class='texttt'>signed char</span>,
+therefore substitution fails for the
+second template (<a href='temp.arg.nontype'>[temp.arg.nontype]</a>).</p><pre class='codeblock'>
+template &lt;int&gt; int f(int);
+template &lt;signed char&gt; int f(int);
+int i1 = f&lt;1000&gt;(0);            <span class='comment'>// OK
+</span>int i2 = f&lt;1&gt;(0);               <span class='comment'>// ambiguous; not narrowing
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div id='call'><h4 ><a class='secnum' href='#call' style='min-width:118pt'>17.8.2.1</a> Deducing template arguments from a function call <a class='abbr_ref' href='temp.deduct.call'>[temp.deduct.call]</a></h4><div class='para' id='call-1'><div class='marginalizedparent'><a class='marginalized' href='#call-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6109'>#</a></div><p >Template argument deduction is done by comparing each function
+template parameter type (call it
+<span class='texttt'>P</span>)
+that contains <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i><span class='textit'>s</span> that participate in template argument deduction
+with the type of the corresponding argument of the call (call it
+<span class='texttt'>A</span>)
+as described below.
+If removing references and cv-qualifiers from <span class='texttt'>P</span> gives
+<span class='texttt'>std&#x200b;::&#x200b;initializer_&shy;list&lt;P<span class='math'>'</span>&gt;</span>
+or <span class='texttt'>P<span class='math'>'</span>[N]</span>
+for some <span class='texttt'>P<span class='math'>'</span></span> and <span class='texttt'>N</span> and the
+argument is a non-empty initializer list (<a href='dcl.init.list'>[dcl.init.list]</a>), then deduction is
+performed instead for each element of the initializer list, taking
+<span class='texttt'>P<span class='math'>'</span></span> as a function template parameter type and the initializer
+element as its argument,
+and in the <span class='texttt'>P<span class='math'>'</span>[N]</span> case, if <span class='texttt'>N</span> is a non-type template parameter,
+<span class='texttt'>N</span> is deduced from the length of the initializer list.
+Otherwise, an initializer list argument causes the
+parameter to be considered a non-deduced context (<a href='temp.deduct.type'>[temp.deduct.type]</a>).
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;class T&gt; void f(std::initializer_list&lt;T&gt;);
+f({1,2,3});                     <span class='comment'>// <span class='tcode_in_codeblock'>T</span> deduced to <span class='tcode_in_codeblock'>int</span>
+</span>f({1,"asdf"});                  <span class='comment'>// error: <span class='tcode_in_codeblock'>T</span> deduced to both <span class='tcode_in_codeblock'>int</span> and <span class='tcode_in_codeblock'>const char*</span>
+</span>
+template&lt;class T&gt; void g(T);
+g({1,2,3});                     <span class='comment'>// error: no argument deduced for <span class='tcode_in_codeblock'>T</span>
+</span>
+template&lt;class T, int N&gt; void h(T const(&amp;)[N]);
+h({1,2,3});                     <span class='comment'>// <span class='tcode_in_codeblock'>T</span> deduced to <span class='tcode_in_codeblock'>int</span>, <span class='tcode_in_codeblock'>N</span> deduced to <span class='tcode_in_codeblock'>3</span>
+</span>
+template&lt;class T&gt; void j(T const(&amp;)[3]);
+j({42});                        <span class='comment'>// <span class='tcode_in_codeblock'>T</span> deduced to <span class='tcode_in_codeblock'>int</span>, array bound not considered
+</span>
+struct Aggr { int i; int j; };
+template&lt;int N&gt; void k(Aggr const(&amp;)[N]);
+k({1,2,3});                     <span class='comment'>// error: deduction fails, no conversion from <span class='tcode_in_codeblock'>int</span> to <span class='tcode_in_codeblock'>Aggr</span>
+</span>k({{1},{2},{3}});               <span class='comment'>// OK, <span class='tcode_in_codeblock'>N</span> deduced to <span class='tcode_in_codeblock'>3</span>
+</span>
+template&lt;int M, int N&gt; void m(int const(&amp;)[M][N]);
+m({{1,2},{3,4}});               <span class='comment'>// <span class='tcode_in_codeblock'>M</span> and <span class='tcode_in_codeblock'>N</span> both deduced to <span class='tcode_in_codeblock'>2</span>
+</span>
+template&lt;class T, int N&gt; void n(T const(&amp;)[N], T);
+n({{1},{2},{3}},Aggr());        <span class='comment'>// OK, <span class='tcode_in_codeblock'>T</span> is <span class='tcode_in_codeblock'>Aggr</span>, <span class='tcode_in_codeblock'>N</span> is <span class='tcode_in_codeblock'>3</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+For a function parameter pack that occurs at the end
+of the <i ><a href='dcl.fct#nt:parameter-declaration-list'>parameter-declaration-list</a></i>,
+deduction is performed for each remaining argument of the call,
+taking the type <span class='texttt'>P</span>
+of the <i ><a href='dcl.decl#nt:declarator-id'>declarator-id</a></i> of the function parameter pack
+as the corresponding function template parameter type.
+Each deduction deduces template arguments for subsequent positions in
+the template parameter packs expanded by the function parameter pack.
+When a function parameter pack appears in a non-deduced
+context (<a href='temp.deduct.type'>[temp.deduct.type]</a>), the type of that parameter pack is
+never deduced.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;class ... Types&gt; void f(Types&amp; ...);
+template&lt;class T1, class ... Types&gt; void g(T1, Types ...);
+template&lt;class T1, class ... Types&gt; void g1(Types ..., T1);
+
+void h(int x, float&amp; y) {
+  const int z = x;
+  f(x, y, z);                   <span class='comment'>// <span class='tcode_in_codeblock'>Types</span> is deduced to <span class='tcode_in_codeblock'>int</span>, <span class='tcode_in_codeblock'>float</span>, <span class='tcode_in_codeblock'>const int</span>
+</span>  g(x, y, z);                   <span class='comment'>// <span class='tcode_in_codeblock'>T1</span> is deduced to <span class='tcode_in_codeblock'>int</span>; <span class='tcode_in_codeblock'>Types</span> is deduced to <span class='tcode_in_codeblock'>float</span>, <span class='tcode_in_codeblock'>int</span>
+</span>  g1(x, y, z);                  <span class='comment'>// error: <span class='tcode_in_codeblock'>Types</span> is not deduced
+</span>  g1&lt;int, int, int&gt;(x, y, z);   <span class='comment'>// OK, no deduction occurs
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='call-2'><div class='marginalizedparent'><a class='marginalized' href='#call-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6183'>#</a></div><p >If
+<span class='texttt'>P</span>
+is not a reference type:</p><ul class='itemize'><li id='call-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#call-2.1'>(2.1)</a></div><p >If
+<span class='texttt'>A</span>
+is an array type, the pointer type produced by the <a href='conv.array'>array-to-pointer
+standard conversion</a> is used in place of
+<span class='texttt'>A</span>
+for type deduction;
+otherwise,
+</p></li><li id='call-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#call-2.2'>(2.2)</a></div><p >If
+<span class='texttt'>A</span>
+is a function type, the pointer type produced by the
+<a href='conv.func'>function-to-pointer standard conversion</a> is used in place
+of
+<span class='texttt'>A</span>
+for type
+deduction; otherwise,
+</p></li><li id='call-2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#call-2.3'>(2.3)</a></div><p >If
+<span class='texttt'>A</span>
+is a cv-qualified type, the top-level cv-qualifiers of
+<span class='texttt'>A</span>'s
+type are ignored for type deduction.
+</p></li></ul></div><div class='para' id='call-3'><div class='marginalizedparent'><a class='marginalized' href='#call-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6214'>#</a></div><p ><span class='indexparent'><a class='index' id=':reference,forwarding'></a></span>If
+<span class='texttt'>P</span>
+is a cv-qualified type, the top-level cv-qualifiers of
+<span class='texttt'>P</span>'s
+type are ignored for type deduction.
+If
+<span class='texttt'>P</span>
+is a reference type, the type
+referred to by
+<span class='texttt'>P</span>
+is used for type deduction. [<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;class T&gt; int f(const T&amp;);
+int n1 = f(5);                  <span class='comment'>// calls <span class='tcode_in_codeblock'>f&lt;int&gt;(const int&amp;)</span>
+</span>const int i = 0;
+int n2 = f(i);                  <span class='comment'>// calls <span class='tcode_in_codeblock'>f&lt;int&gt;(const int&amp;)</span>
+</span>template &lt;class T&gt; int g(volatile T&amp;);
+int n3 = g(i);                  <span class='comment'>// calls <span class='tcode_in_codeblock'>g&lt;const int&gt;(const volatile int&amp;)</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] A <a class='hidden_link' href='#def:forwarding_reference' id='def:forwarding_reference'><i >forwarding reference</i></a>
+is an rvalue reference to a cv-unqualified template parameter
+that does not represent a template parameter of a class template
+(during class template argument deduction (<a href='over.match.class.deduct'>[over.match.class.deduct]</a>)).
+If <span class='texttt'>P</span> is a forwarding reference and the argument is an
+lvalue, the type “lvalue reference to <span class='texttt'>A</span>” is used in place of <span class='texttt'>A</span> for type
+deduction. [<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template &lt;class T&gt; int f(T&amp;&amp; heisenreference);
+template &lt;class T&gt; int g(const T&amp;&amp;);
+int i;
+int n1 = f(i);                  <span class='comment'>// calls <span class='tcode_in_codeblock'>f&lt;int&amp;&gt;(int&amp;)</span>
+</span>int n2 = f(0);                  <span class='comment'>// calls <span class='tcode_in_codeblock'>f&lt;int&gt;(int&amp;&amp;)</span>
+</span>int n3 = g(i);                  <span class='comment'>// error: would call <span class='tcode_in_codeblock'>g&lt;int&gt;(const int&amp;&amp;)</span>, which
+</span>                                <span class='comment'>// would bind an rvalue reference to an lvalue
+</span>
+template &lt;class T&gt; struct A {
+  template &lt;class U&gt;
+    A(T&amp;&amp;, U&amp;&amp;, int*);          <span class='comment'>// #1: <span class='tcode_in_codeblock'>T&amp;&amp;</span> is not a forwarding reference.
+</span>                                <span class='comment'>// <span class='tcode_in_codeblock'>U&amp;&amp;</span> is a forwarding reference.
+</span>  A(T&amp;&amp;, int*);                 <span class='comment'>// #2
+</span>};
+
+template &lt;class T&gt; A(T&amp;&amp;, int*) -&gt; A&lt;T&gt;;    <span class='comment'>// #3: <span class='tcode_in_codeblock'>T&amp;&amp;</span> is a forwarding reference.
+</span>
+int *ip;
+A a{i, 0, ip};                  <span class='comment'>// error: cannot deduce from #1
+</span>A a0{0, 0, ip};                 <span class='comment'>// uses #1 to deduce <span class='tcode_in_codeblock'>A&lt;int&gt;</span> and #1 to initialize
+</span>A a2{i, ip};                    <span class='comment'>// uses #3 to deduce <span class='tcode_in_codeblock'>A&lt;int&amp;&gt;</span> and #2 to initialize
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='call-4'><div class='marginalizedparent'><a class='marginalized' href='#call-4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6268'>#</a></div><p >In general, the deduction process attempts to find template argument
+values that will make the deduced
+<span class='texttt'>A</span>
+identical to
+<span class='texttt'>A</span>
+(after
+the type
+<span class='texttt'>A</span>
+is transformed as described above).
+However, there are
+three cases that allow a difference:</p><ul class='itemize'><li id='call-4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#call-4.1'>(4.1)</a></div><p >If the original
+<span class='texttt'>P</span>
+is a reference type, the deduced
+<span class='texttt'>A</span>
+(i.e.,
+the type referred to by the reference) can be more cv-qualified than
+the transformed <span class='texttt'>A</span>.
+</p></li><li id='call-4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#call-4.2'>(4.2)</a></div><p >The transformed <span class='texttt'>A</span>
+can be another pointer or pointer to member type that can be converted
+to the deduced
+<span class='texttt'>A</span>
+via a <a href='conv.fctptr'>function pointer conversion</a> and/or
+<a href='conv.qual'>qualification conversion</a>.</p></li><li id='call-4.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#call-4.3'>(4.3)</a></div><p >If
+<span class='texttt'>P</span>
+is a class and
+<span class='texttt'>P</span>
+has the form
+<i ><a href='temp.names#nt:simple-template-id'>simple-template-id</a></i>,
+then
+the transformed <span class='texttt'>A</span>
+can be a derived class of the
+deduced
+<span class='texttt'>A</span>.
+Likewise, if
+<span class='texttt'>P</span>
+is a pointer to a class of the form
+<i ><a href='temp.names#nt:simple-template-id'>simple-template-id</a></i>,
+the transformed <span class='texttt'>A</span>
+can be a pointer to a
+derived class pointed to by the deduced
+<span class='texttt'>A</span>.
+</p></li></ul></div><div class='para' id='call-5'><div class='marginalizedparent'><a class='marginalized' href='#call-5'>5</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6320'>#</a></div><p >These alternatives are considered only if type deduction would
+otherwise fail.
+If they yield more than one possible deduced
+<span class='texttt'>A</span>,
+the type deduction fails.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+If a
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+is not used in any of the function parameters of a function template,
+or is used only in a non-deduced context, its corresponding
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+cannot be deduced from a function call and the
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+must be explicitly specified.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='call-6'><div class='marginalizedparent'><a class='marginalized' href='#call-6'>6</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6337'>#</a></div><p >When
+<span class='texttt'>P</span>
+is a function type, function pointer type, or pointer to member
+function type:
+</p><ul class='itemize'><li id='call-6.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#call-6.1'>(6.1)</a></div><p >If the argument is an overload set containing one or more function templates,
+the parameter is treated as a non-deduced context.
+</p></li><li id='call-6.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#call-6.2'>(6.2)</a></div><p >If the argument is an overload set (not containing function templates), trial
+argument deduction is attempted using each of the members of the set. If
+deduction succeeds for only one of the overload set members, that member is
+used as the argument value for the deduction. If deduction succeeds for more than
+one member of the overload set the parameter is treated as a non-deduced context.
+</p></li></ul></div><div class='para' id='call-7'><div class='marginalizedparent'><a class='marginalized' href='#call-7'>7</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6354'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+<span class='comment'>// Only one function of an overload set matches the call so the function parameter is a deduced context.
+</span>template &lt;class T&gt; int f(T (*p)(T));
+int g(int);
+int g(char);
+int i = f(g);       <span class='comment'>// calls <span class='tcode_in_codeblock'>f(int (*)(int))</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='call-8'><div class='marginalizedparent'><a class='marginalized' href='#call-8'>8</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6365'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+<span class='comment'>// Ambiguous deduction causes the second function parameter to be a non-deduced context.
+</span>template &lt;class T&gt; int f(T, T (*p)(T));
+int g(int);
+char g(char);
+int i = f(1, g);    <span class='comment'>// calls <span class='tcode_in_codeblock'>f(int, int (*)(int))</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='call-9'><div class='marginalizedparent'><a class='marginalized' href='#call-9'>9</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6376'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+<span class='comment'>// The overload set contains a template, causing the second function parameter to be a non-deduced context.
+</span>template &lt;class T&gt; int f(T, T (*p)(T));
+char g(char);
+template &lt;class T&gt; T g(T);
+int i = f(1, g);    <span class='comment'>// calls <span class='tcode_in_codeblock'>f(int, int (*)(int))</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='call-10'><div class='marginalizedparent'><a class='marginalized' href='#call-10'>10</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6387'>#</a></div><p >If deduction succeeds for all parameters that contain
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i><span class='textit'>s</span> that participate in template argument
+deduction, and all template arguments are explicitly specified, deduced,
+or obtained from default template arguments, remaining parameters are then
+compared with the corresponding arguments. For each remaining parameter
+<span class='texttt'>P</span> with a type that was non-dependent before substitution of any
+explicitly-specified template arguments, if the corresponding argument
+<span class='texttt'>A</span> cannot be implicitly converted to <span class='texttt'>P</span>, deduction fails.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+Parameters with dependent types in which no <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i><span class='textit'>s</span>
+participate in template argument deduction, and parameters that became
+non-dependent due to substitution of explicitly-specified template arguments,
+will be checked during overload resolution.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+  template &lt;class T&gt; struct Z {
+    typedef typename T::x xx;
+  };
+  template &lt;class T&gt; typename Z&lt;T&gt;::xx f(void *, T);    <span class='comment'>// #1
+</span>  template &lt;class T&gt; void f(int, T);                    <span class='comment'>// #2
+</span>  struct A {} a;
+  int main() {
+    f(1, a);        <span class='comment'>// OK, deduction fails for #1 because there is no conversion from <span class='tcode_in_codeblock'>int</span> to <span class='tcode_in_codeblock'>void*</span>
+</span>  }</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div></div><div id='funcaddr'><h4 ><a class='secnum' href='#funcaddr' style='min-width:118pt'>17.8.2.2</a> Deducing template arguments taking the address of a function template <a class='abbr_ref' href='temp.deduct.funcaddr'>[temp.deduct.funcaddr]</a></h4><div class='para' id='funcaddr-1'><div class='marginalizedparent'><a class='marginalized' href='#funcaddr-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6418'>#</a></div><p >Template arguments can be deduced from the type specified when taking
+the address of an <a href='over.over'>overloaded function</a>.
+The function template's function type and the specified type
+are used as the types of
+<span class='texttt'>P</span>
+and
+<span class='texttt'>A</span>,
+and the deduction is done as
+described in <a href='temp.deduct.type'>[temp.deduct.type]</a>.</p></div><div class='para' id='funcaddr-2'><div class='marginalizedparent'><a class='marginalized' href='#funcaddr-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6429'>#</a></div><p >A <a href='dcl.spec.auto#def:placeholder_type'>placeholder type</a> in the return type of a
+function template is a non-deduced context. If template argument
+deduction succeeds for such a function, the return type is determined
+from instantiation of the function body.</p></div></div><div id='conv'><h4 ><a class='secnum' href='#conv' style='min-width:118pt'>17.8.2.3</a> Deducing conversion function template arguments <a class='abbr_ref' href='temp.deduct.conv'>[temp.deduct.conv]</a></h4><div class='para' id='conv-1'><div class='marginalizedparent'><a class='marginalized' href='#conv-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6437'>#</a></div><p >Template argument deduction is done by comparing the return type of
+the
+conversion function template
+(call it
+<span class='texttt'>P</span>)
+with the type that is
+required as the result of the conversion (call it
+<span class='texttt'>A</span>; see <a href='dcl.init'>[dcl.init]</a>, <a href='over.match.conv'>[over.match.conv]</a>, and <a href='over.match.ref'>[over.match.ref]</a>
+for the determination of that type)
+as described in <a href='temp.deduct.type'>[temp.deduct.type]</a>.</p></div><div class='para' id='conv-2'><div class='marginalizedparent'><a class='marginalized' href='#conv-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6449'>#</a></div><p >If <span class='texttt'>P</span> is a reference type, the type referred to by <span class='texttt'>P</span> is used in place
+of <span class='texttt'>P</span> for type deduction and for any further references to or transformations of
+<span class='texttt'>P</span> in the remainder of this section.</p></div><div class='para' id='conv-3'><div class='marginalizedparent'><a class='marginalized' href='#conv-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6454'>#</a></div><p >If
+<span class='texttt'>A</span>
+is not a reference type:</p><ul class='itemize'><li id='conv-3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#conv-3.1'>(3.1)</a></div><p >If
+<span class='texttt'>P</span>
+is an array type, the pointer type produced by the
+<a href='conv.array'>array-to-pointer standard conversion</a> is used in place of
+<span class='texttt'>P</span>
+for type
+deduction; otherwise,
+</p></li><li id='conv-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#conv-3.2'>(3.2)</a></div><p >If
+<span class='texttt'>P</span>
+is a function type, the pointer type produced by the
+<a href='conv.func'>function-to-pointer standard conversion</a> is used in place of
+<span class='texttt'>P</span>
+for
+type deduction; otherwise,
+</p></li><li id='conv-3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#conv-3.3'>(3.3)</a></div><p >If
+<span class='texttt'>P</span>
+is a cv-qualified type, the top-level cv-qualifiers of
+<span class='texttt'>P</span>'s
+type are ignored for type deduction.
+</p></li></ul></div><div class='para' id='conv-4'><div class='marginalizedparent'><a class='marginalized' href='#conv-4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6484'>#</a></div><p >If
+<span class='texttt'>A</span>
+is a cv-qualified type, the top-level cv-qualifiers of
+<span class='texttt'>A</span>'s
+type are ignored for type deduction.
+If
+<span class='texttt'>A</span>
+is a
+reference type, the type referred to by
+<span class='texttt'>A</span>
+is used for type deduction.</p></div><div class='para' id='conv-5'><div class='marginalizedparent'><a class='marginalized' href='#conv-5'>5</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6497'>#</a></div><p >In general, the deduction process attempts to find template argument
+values that will make the deduced
+<span class='texttt'>A</span>
+identical to
+<span class='texttt'>A</span>.
+However, there are four cases that allow a difference:</p><ul class='itemize'><li id='conv-5.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#conv-5.1'>(5.1)</a></div><p >If the original <span class='texttt'>A</span> is a reference type,
+<span class='texttt'>A</span> can be more cv-qualified than the deduced <span class='texttt'>A</span>
+(i.e., the type referred to by the reference)
+</p></li><li id='conv-5.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#conv-5.2'>(5.2)</a></div><p >If the original <span class='texttt'>A</span> is a function pointer type,
+<span class='texttt'>A</span> can be “pointer to function”
+even if the deduced <span class='texttt'>A</span> is “pointer to noexcept function”.
+</p></li><li id='conv-5.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#conv-5.3'>(5.3)</a></div><p >If the original <span class='texttt'>A</span> is a pointer to member function type,
+<span class='texttt'>A</span> can be “pointer to member of type function”
+even if the deduced <span class='texttt'>A</span> is “pointer to member of type noexcept function”.
+</p></li><li id='conv-5.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#conv-5.4'>(5.4)</a></div><p >The deduced <span class='texttt'>A</span>
+can be another pointer or pointer to member type that
+can be converted to <span class='texttt'>A</span> via a qualification conversion.
+</p></li></ul></div><div class='para' id='conv-6'><div class='marginalizedparent'><a class='marginalized' href='#conv-6'>6</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6524'>#</a></div><p >These alternatives are considered only if type deduction would
+otherwise fail.
+If they yield more than one possible deduced
+<span class='texttt'>A</span>,
+the type deduction fails.</p></div><div class='para' id='conv-7'><div class='marginalizedparent'><a class='marginalized' href='#conv-7'>7</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6531'>#</a></div><p >When the deduction process requires a qualification conversion for a
+pointer or pointer to member type as described above, the following
+process is used to determine the deduced template argument values:</p><p >If
+<span class='texttt'>A</span>
+is a type
+<span class='indented'>
+<span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-main-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">c</span></span><span class="mjx-mi"><span class="mjx-char MJXc-TeX-main-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">v</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mn"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.372em; padding-bottom: 0.372em;">1</span></span><span class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.144em; padding-bottom: 0.519em;">,</span></span><span class="mjx-mn"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.372em; padding-bottom: 0.372em;">0</span></span></span></span></span></span></span></span></span> “pointer to <span class='math'>&hellip;</span>” <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-main-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">c</span></span><span class="mjx-mi"><span class="mjx-char MJXc-TeX-main-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">v</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mn"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.372em; padding-bottom: 0.372em;">1</span></span><span class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.144em; padding-bottom: 0.519em;">,</span></span><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">n</span></span><span class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.298em; padding-bottom: 0.446em;">−</span></span><span class="mjx-mn"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.372em; padding-bottom: 0.372em;">1</span></span></span></span></span></span></span></span></span> “pointer to”
+<span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-main-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">c</span></span><span class="mjx-mi"><span class="mjx-char MJXc-TeX-main-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">v</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mn"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.372em; padding-bottom: 0.372em;">1</span></span><span class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.144em; padding-bottom: 0.519em;">,</span></span><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">n</span></span></span></span></span></span></span></span></span> <span class='texttt'>T1</span>
+</span>
+and
+<span class='texttt'>P</span>
+is a type
+<span class='indented'>
+<span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-main-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">c</span></span><span class="mjx-mi"><span class="mjx-char MJXc-TeX-main-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">v</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mn"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.372em; padding-bottom: 0.372em;">2</span></span><span class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.144em; padding-bottom: 0.519em;">,</span></span><span class="mjx-mn"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.372em; padding-bottom: 0.372em;">0</span></span></span></span></span></span></span></span></span> “pointer to <span class='math'>&hellip;</span>” <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-main-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">c</span></span><span class="mjx-mi"><span class="mjx-char MJXc-TeX-main-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">v</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mn"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.372em; padding-bottom: 0.372em;">2</span></span><span class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.144em; padding-bottom: 0.519em;">,</span></span><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">n</span></span><span class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.298em; padding-bottom: 0.446em;">−</span></span><span class="mjx-mn"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.372em; padding-bottom: 0.372em;">1</span></span></span></span></span></span></span></span></span> “pointer to”
+<span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-main-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">c</span></span><span class="mjx-mi"><span class="mjx-char MJXc-TeX-main-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">v</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mn"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.372em; padding-bottom: 0.372em;">2</span></span><span class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.144em; padding-bottom: 0.519em;">,</span></span><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">n</span></span></span></span></span></span></span></span></span> <span class='texttt'>T2</span>,
+</span>
+then the cv-unqualified
+<span class='texttt'>T1</span>
+and
+<span class='texttt'>T2</span>
+are used as the types of
+<span class='texttt'>A</span>
+and
+<span class='texttt'>P</span>
+respectively for type deduction.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+struct A {
+  template &lt;class T&gt; operator T***();
+};
+A a;
+const int * const * const * p1 = a;     <span class='comment'>// <span class='tcode_in_codeblock'>T</span> is deduced as <span class='tcode_in_codeblock'>int</span>, not <span class='tcode_in_codeblock'>const int</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div></div><div id='partial'><h4 ><a class='secnum' href='#partial' style='min-width:118pt'>17.8.2.4</a> Deducing template arguments during partial ordering <a class='abbr_ref' href='temp.deduct.partial'>[temp.deduct.partial]</a></h4><div class='para' id='partial-1'><div class='marginalizedparent'><a class='marginalized' href='#partial-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6571'>#</a></div><p >Template argument deduction is done by comparing certain types associated with
+the two function templates being compared.</p></div><div class='para' id='partial-2'><div class='marginalizedparent'><a class='marginalized' href='#partial-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6575'>#</a></div><p >Two sets of types are used to determine the partial ordering.  For each of
+the templates involved there is the original function type and the
+transformed function type.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+The creation of the transformed type is described in <a href='temp.func.order'>[temp.func.order]</a>.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+The deduction process uses the
+transformed type as the argument template and the original type of the
+other template as the parameter template.  This process is done twice
+for each type involved in the partial ordering comparison: once using
+the transformed template-1 as the argument template and template-2 as
+the parameter template and again using the transformed template-2 as
+the argument template and template-1 as the parameter template.</p></div><div class='para' id='partial-3'><div class='marginalizedparent'><a class='marginalized' href='#partial-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6590'>#</a></div><p >The types used to determine the ordering depend on the context in which
+the partial ordering is done:</p><ul class='itemize'><li id='partial-3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#partial-3.1'>(3.1)</a></div><p >In the context of a function call, the types used are those function parameter types
+for which the function call has arguments.<a class='footnotenum' href='#footnote-141'>141</a>
+</p></li><li id='partial-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#partial-3.2'>(3.2)</a></div><p >In the context of a call to a conversion function, the return types of
+the conversion function templates are used.
+</p></li><li id='partial-3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#partial-3.3'>(3.3)</a></div><p >In <a href='temp.func.order'>other contexts</a> the function template's function
+type is used.
+</p></li></ul></div><div class='para' id='partial-4'><div class='marginalizedparent'><a class='marginalized' href='#partial-4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6608'>#</a></div><p >Each type nominated above from the parameter template and the corresponding type from the
+argument template are used as the types of
+<span class='texttt'>P</span>
+and
+<span class='texttt'>A</span>.
+If a particular <span class='texttt'>P</span> contains no <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i><span class='textit'>s</span>
+that participate in template argument deduction, that <span class='texttt'>P</span> is not
+used to determine the ordering.</p></div><div class='para' id='partial-5'><div class='marginalizedparent'><a class='marginalized' href='#partial-5'>5</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6618'>#</a></div><p >Before the partial ordering is done, certain transformations are performed
+on the types used for partial ordering:</p><ul class='itemize'><li id='partial-5.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#partial-5.1'>(5.1)</a></div><p >If
+<span class='texttt'>P</span>
+is a reference type,
+<span class='texttt'>P</span>
+is replaced by the type referred to.
+</p></li><li id='partial-5.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#partial-5.2'>(5.2)</a></div><p >If
+<span class='texttt'>A</span>
+is a reference type,
+<span class='texttt'>A</span>
+is replaced by the type referred to.
+</p></li></ul></div><div class='para' id='partial-6'><div class='marginalizedparent'><a class='marginalized' href='#partial-6'>6</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6637'>#</a></div><p >If both
+<span class='texttt'>P</span>
+and
+<span class='texttt'>A</span>
+were reference types (before being replaced with the type referred to
+above), determine which of the two types (if any) is more cv-qualified
+than the other; otherwise the types are considered to be equally
+cv-qualified for partial ordering purposes. The result of this
+determination will be used below.</p></div><div class='para' id='partial-7'><div class='marginalizedparent'><a class='marginalized' href='#partial-7'>7</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6648'>#</a></div><p >Remove any top-level cv-qualifiers:
+</p><ul class='itemize'><li id='partial-7.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#partial-7.1'>(7.1)</a></div><p >If
+<span class='texttt'>P</span>
+is a cv-qualified type,
+<span class='texttt'>P</span>
+is replaced by the cv-unqualified version of
+<span class='texttt'>P</span>.
+</p></li><li id='partial-7.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#partial-7.2'>(7.2)</a></div><p >If
+<span class='texttt'>A</span>
+is a cv-qualified type,
+<span class='texttt'>A</span>
+is replaced by the cv-unqualified version of
+<span class='texttt'>A</span>.
+</p></li></ul></div><div class='para' id='partial-8'><div class='marginalizedparent'><a class='marginalized' href='#partial-8'>8</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6667'>#</a></div><p >Using the resulting types
+<span class='texttt'>P</span>
+and
+<span class='texttt'>A</span>,
+the deduction is then done as described in <a href='temp.deduct.type'>[temp.deduct.type]</a>.
+If <span class='texttt'>P</span> is a function parameter pack, the type <span class='texttt'>A</span> of each remaining
+parameter type of the argument template is compared with the type <span class='texttt'>P</span> of
+the <i ><a href='dcl.decl#nt:declarator-id'>declarator-id</a></i> of the function parameter pack. Each comparison
+deduces template arguments for subsequent positions in the template parameter
+packs expanded by the function parameter pack.
+Similarly, if <span class='texttt'>A</span> was transformed from a function parameter pack,
+it is compared with each remaining parameter type of the parameter template.
+If deduction succeeds for a given type,
+the type from the argument template is considered to be at least as specialized
+as the type from the parameter template.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;class... Args&gt;           void f(Args... args);         <span class='comment'>// #1
+</span>template&lt;class T1, class... Args&gt; void f(T1 a1, Args... args);  <span class='comment'>// #2
+</span>template&lt;class T1, class T2&gt;      void f(T1 a1, T2 a2);         <span class='comment'>// #3
+</span>
+f();                <span class='comment'>// calls #1
+</span>f(1, 2, 3);         <span class='comment'>// calls #2
+</span>f(1, 2);            <span class='comment'>// calls #3; non-variadic template #3 is more specialized
+</span>                    <span class='comment'>// than the variadic templates #1 and #2
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='partial-9'><div class='marginalizedparent'><a class='marginalized' href='#partial-9'>9</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6696'>#</a></div><p >If, for a given type, deduction succeeds in both directions (i.e., the
+types are identical after the transformations above)
+and both <span class='texttt'>P</span> and <span class='texttt'>A</span> were reference types (before being replaced with the
+type referred to above):</p><ul class='itemize'><li id='partial-9.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#partial-9.1'>(9.1)</a></div><p >if the type from the argument template was an lvalue reference and the type
+from the parameter template was not,
+the parameter type is not considered to be
+at least as specialized as the argument type; otherwise,</p></li><li id='partial-9.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#partial-9.2'>(9.2)</a></div><p >if the type from
+the argument template is more cv-qualified than the type from the
+parameter template (as described above),
+the parameter type is not considered to be
+at least as specialized as the argument type.
+</p></li></ul></div><div class='para' id='partial-10'><div class='marginalizedparent'><a class='marginalized' href='#partial-10'>10</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6715'>#</a></div><p >Function template <span class='texttt'>F</span>
+is <span class='textit'>at least as specialized as</span>
+function template <span class='texttt'>G</span> if,
+for each pair of types used to determine the ordering,
+the type from <span class='texttt'>F</span>
+is at least as specialized as
+the type from <span class='texttt'>G</span>.
+<span class='texttt'>F</span>
+is <a class='hidden_link' href='#def:more_specialized,function_template' id='def:more_specialized,function_template'><i >more specialized than</i></a>
+<span class='texttt'>G</span> if
+<span class='texttt'>F</span>
+is at least as specialized as
+<span class='texttt'>G</span> and
+<span class='texttt'>G</span>
+is not at least as specialized as
+<span class='texttt'>F</span>.</p></div><div class='para' id='partial-11'><div class='marginalizedparent'><a class='marginalized' href='#partial-11'>11</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6734'>#</a></div><p >If, after considering the above, function template <span class='texttt'>F</span>
+is at least as specialized as function template <span class='texttt'>G</span> and vice-versa, and
+if <span class='texttt'>G</span> has a trailing parameter pack
+for which <span class='texttt'>F</span> does not have a corresponding parameter, and
+if <span class='texttt'>F</span> does not have a trailing parameter pack,
+then <span class='texttt'>F</span> is more specialized than <span class='texttt'>G</span>.</p></div><div class='para' id='partial-12'><div class='marginalizedparent'><a class='marginalized' href='#partial-12'>12</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6742'>#</a></div><p >In most cases, all template parameters must have values in order for
+deduction to succeed, but for partial ordering purposes a template
+parameter may remain without a value provided it is not used in the
+types being used for partial ordering.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+A template parameter used in a non-deduced context is considered used.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template &lt;class T&gt; T f(int);            <span class='comment'>// #1
+</span>template &lt;class T, class U&gt; T f(U);     <span class='comment'>// #2
+</span>void g() {
+  f&lt;int&gt;(1);                            <span class='comment'>// calls #1
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='partial-13'><div class='marginalizedparent'><a class='marginalized' href='#partial-13'>13</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6760'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+Partial ordering of function templates containing
+template parameter packs is independent of the number of deduced arguments
+for those template parameter packs.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;class ...&gt; struct Tuple { };
+template&lt;class ... Types&gt; void g(Tuple&lt;Types ...&gt;);                 <span class='comment'>// #1
+</span>template&lt;class T1, class ... Types&gt; void g(Tuple&lt;T1, Types ...&gt;);   <span class='comment'>// #2
+</span>template&lt;class T1, class ... Types&gt; void g(Tuple&lt;T1, Types&amp; ...&gt;);  <span class='comment'>// #3
+</span>
+g(Tuple&lt;&gt;());                   <span class='comment'>// calls #1
+</span>g(Tuple&lt;int, float&gt;());         <span class='comment'>// calls #2
+</span>g(Tuple&lt;int, float&amp;&gt;());        <span class='comment'>// calls #3
+</span>g(Tuple&lt;int&gt;());                <span class='comment'>// calls #3
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='footnote' id='footnote-141'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-141'>141)</a></div><p >Default arguments
+are not considered to be arguments in this context; they only become arguments
+after a function has been selected.</p></div></div><div id='type'><h4 ><a class='secnum' href='#type' style='min-width:118pt'>17.8.2.5</a> Deducing template arguments from a type <a class='abbr_ref' href='temp.deduct.type'>[temp.deduct.type]</a></h4><div class='para' id='type-1'><div class='marginalizedparent'><a class='marginalized' href='#type-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6782'>#</a></div><p >Template arguments can be deduced in several different contexts, but
+in each case a type that is specified in terms of template parameters
+(call it
+<span class='texttt'>P</span>)
+is compared with an actual type (call it
+<span class='texttt'>A</span>),
+and an attempt is made to find template argument values (a type for a type
+parameter, a value for a non-type parameter, or a template for a
+template parameter) that will make
+<span class='texttt'>P</span>,
+after substitution of the deduced values (call it the deduced
+<span class='texttt'>A</span>),
+compatible with
+<span class='texttt'>A</span>.</p></div><div class='para' id='type-2'><div class='marginalizedparent'><a class='marginalized' href='#type-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6798'>#</a></div><p >In some cases, the deduction is done using a single set of types
+<span class='texttt'>P</span>
+and
+<span class='texttt'>A</span>,
+in other cases, there will be a set of corresponding types
+<span class='texttt'>P</span>
+and
+<span class='texttt'>A</span>.
+Type deduction is done
+independently for each
+<span class='texttt'>P/A</span>
+pair, and the deduced template
+argument values are then combined.
+If type deduction cannot be done
+for any
+<span class='texttt'>P/A</span>
+pair, or if for any pair the deduction leads to more than
+one possible set of deduced values, or if different pairs yield
+different deduced values, or if any template argument remains neither
+deduced nor explicitly specified, template argument deduction fails.
+The type of a type parameter
+is only deduced from an array bound
+if it is not otherwise deduced.</p></div><div class='para' id='type-3'><div class='marginalizedparent'><a class='marginalized' href='#type-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6823'>#</a></div><p >A given type
+<span class='texttt'>P</span>
+can be composed from a number of other
+types, templates, and non-type values:</p><ul class='itemize'><li id='type-3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#type-3.1'>(3.1)</a></div><p >A function type includes the types of each of the function parameters
+and the return type.
+</p></li><li id='type-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#type-3.2'>(3.2)</a></div><p >A pointer to member type includes the type of the class object pointed to
+and the type of the member pointed to.
+</p></li><li id='type-3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#type-3.3'>(3.3)</a></div><p >A type that is a specialization of a class template (e.g.,
+<span class='texttt'>A&lt;int&gt;</span>)
+includes the types, templates, and non-type values referenced by the
+template argument list of the specialization.
+</p></li><li id='type-3.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#type-3.4'>(3.4)</a></div><p >An array type includes the array element type and the value of the
+array bound.
+</p></li></ul></div><div class='para' id='type-4'><div class='marginalizedparent'><a class='marginalized' href='#type-4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6846'>#</a></div><p >In most cases, the types, templates, and non-type values that are used
+to compose
+<span class='texttt'>P</span>
+participate in template argument deduction.
+That is,
+they may be used to determine the value of a template argument, and
+the value so determined must be consistent with the values determined
+elsewhere.
+In certain contexts, however, the value does not
+participate in type deduction, but instead uses the values of template
+arguments that were either deduced elsewhere or explicitly specified.
+If a template parameter is used only in non-deduced contexts and is not
+explicitly specified, template argument deduction fails.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+Under <a href='temp.deduct.call'>[temp.deduct.call]</a> and <a href='temp.deduct.partial'>[temp.deduct.partial]</a>,
+if <span class='texttt'>P</span> contains no <i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i><span class='textit'>s</span> that appear
+in deduced contexts, no deduction is done, so <span class='texttt'>P</span> and <span class='texttt'>A</span>
+need not have the same form.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='type-5'><div class='marginalizedparent'><a class='marginalized' href='#type-5'>5</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6867'>#</a></div><p >The non-deduced contexts are:</p><p ><span class='indexparent'><a class='index' id=':context,non-deduced'></a></span></p><ul class='itemize'><li id='type-5.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#type-5.1'>(5.1)</a></div><p >The
+<i ><a href='expr.prim.id.qual#nt:nested-name-specifier'>nested-name-specifier</a></i>
+of a type that was specified using a
+<i ><a href='expr.prim.id.qual#nt:qualified-id'>qualified-id</a></i>.
+</p></li><li id='type-5.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#type-5.2'>(5.2)</a></div><p >The <i ><a href='expr.comma#nt:expression'>expression</a></i> of a <i ><a href='dcl.type.simple#nt:decltype-specifier'>decltype-specifier</a></i>.
+</p></li><li id='type-5.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#type-5.3'>(5.3)</a></div><p >A non-type template argument or an array bound in which a subexpression
+references a template parameter.
+</p></li><li id='type-5.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#type-5.4'>(5.4)</a></div><p >A template parameter used in the parameter type of a function parameter that
+has a default argument that is being used in the call for which argument
+deduction is being done.
+</p></li><li id='type-5.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#type-5.5'>(5.5)</a></div><p >A function parameter for which argument deduction cannot be done because the
+associated function argument is a function, or a set of overloaded
+functions (<a href='over.over'>[over.over]</a>), and one or more of the following apply:
+</p><ul class='itemize'><li id='type-5.5.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#type-5.5.1'>(5.5.1)</a></div><p >more than one function matches the function parameter type (resulting in
+an ambiguous deduction), or
+</p></li><li id='type-5.5.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#type-5.5.2'>(5.5.2)</a></div><p >no function matches the function parameter type, or
+</p></li><li id='type-5.5.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#type-5.5.3'>(5.5.3)</a></div><p >the set of functions supplied as an argument contains one or more function templates.
+</p></li></ul></li><li id='type-5.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#type-5.6'>(5.6)</a></div><p >A function parameter for which the associated argument is an initializer
+list (<a href='dcl.init.list'>[dcl.init.list]</a>) but the parameter does not have
+a type for which deduction from an initializer list is specified (<a href='temp.deduct.call'>[temp.deduct.call]</a>).
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;class T&gt; void g(T);
+g({1,2,3});                 <span class='comment'>// error: no argument deduced for <span class='tcode_in_codeblock'>T</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+</p></li><li id='type-5.7'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#type-5.7'>(5.7)</a></div><p >A function parameter pack that does not occur at the end of the
+<i ><a href='dcl.fct#nt:parameter-declaration-list'>parameter-declaration-list</a></i>.
+</p></li></ul></div><div class='para' id='type-6'><div class='marginalizedparent'><a class='marginalized' href='#type-6'>6</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6912'>#</a></div><p >When a type name is specified in a way that includes a non-deduced
+context, all of the types that comprise that type name are also
+non-deduced.
+However, a compound type can include both deduced and non-deduced types.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+If a type is specified as
+<span class='texttt'>A&lt;T&gt;&#x200b;::&#x200b;B&lt;T2&gt;</span>,
+both
+<span class='texttt'>T</span>
+and
+<span class='texttt'>T2</span>
+are non-deduced.
+Likewise, if a type is specified as
+<span class='texttt'>A&lt;I+J&gt;&#x200b;::&#x200b;X&lt;T&gt;</span>,
+<span class='texttt'>I</span>,
+<span class='texttt'>J</span>,
+and
+<span class='texttt'>T</span>
+are non-deduced.
+If a type is specified as
+<span class='texttt'>void</span>
+<span class='texttt'>f(typename</span>
+<span class='texttt'>A&lt;T&gt;&#x200b;::&#x200b;B,</span>
+<span class='texttt'>A&lt;T&gt;)</span>,
+the
+<span class='texttt'>T</span>
+in
+<span class='texttt'>A&lt;T&gt;&#x200b;::&#x200b;B</span>
+is non-deduced but
+the
+<span class='texttt'>T</span>
+in
+<span class='texttt'>A&lt;T&gt;</span>
+is deduced.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='type-7'><div class='marginalizedparent'><a class='marginalized' href='#type-7'>7</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L6949'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+Here is an example in which different parameter/argument pairs produce
+inconsistent template argument deductions:</p><pre class='codeblock'>
+template&lt;class T&gt; void f(T x, T y) { <span class='tcode_in_codeblock'>/* ...&nbsp;*/</span> }
+struct A { <span class='tcode_in_codeblock'>/* ...&nbsp;*/</span> };
+struct B : A { <span class='tcode_in_codeblock'>/* ...&nbsp;*/</span> };
+void g(A a, B b) {
+  f(a,b);           <span class='comment'>// error: <span class='tcode_in_codeblock'>T</span> could be <span class='tcode_in_codeblock'>A</span> or <span class='tcode_in_codeblock'>B</span>
+</span>  f(b,a);           <span class='comment'>// error: <span class='tcode_in_codeblock'>T</span> could be <span class='tcode_in_codeblock'>A</span> or <span class='tcode_in_codeblock'>B</span>
+</span>  f(a,a);           <span class='comment'>// OK: <span class='tcode_in_codeblock'>T</span> is <span class='tcode_in_codeblock'>A</span>
+</span>  f(b,b);           <span class='comment'>// OK: <span class='tcode_in_codeblock'>T</span> is <span class='tcode_in_codeblock'>B</span>
+</span>}</pre><p >Here is an example where two template arguments are deduced from a
+single function parameter/argument pair.
+This can lead to conflicts
+that cause type deduction to fail:</p><pre class='codeblock'>
+template &lt;class T, class U&gt; void f(  T (*)( T, U, U )  );
+
+int g1( int, float, float);
+char g2( int, float, float);
+int g3( int, char, float);
+
+void r() {
+  f(g1);            <span class='comment'>// OK: <span class='tcode_in_codeblock'>T</span> is <span class='tcode_in_codeblock'>int</span> and <span class='tcode_in_codeblock'>U</span> is <span class='tcode_in_codeblock'>float</span>
+</span>  f(g2);            <span class='comment'>// error: <span class='tcode_in_codeblock'>T</span> could be <span class='tcode_in_codeblock'>char</span> or <span class='tcode_in_codeblock'>int</span>
+</span>  f(g3);            <span class='comment'>// error: <span class='tcode_in_codeblock'>U</span> could be <span class='tcode_in_codeblock'>char</span> or <span class='tcode_in_codeblock'>float</span>
+</span>}</pre><p >Here is an example where a qualification conversion applies between the
+argument type on the function call and the deduced template argument type:</p><pre class='codeblock'>
+template&lt;class T&gt; void f(const T*) { }
+int* p;
+void s() {
+  f(p);             <span class='comment'>// <span class='tcode_in_codeblock'>f(const int*)</span>
+</span>}</pre><p >Here is an example where the template argument is used to instantiate
+a derived class type of the corresponding function parameter type:</p><pre class='codeblock'>
+template &lt;class T&gt; struct B { };
+template &lt;class T&gt; struct D : public B&lt;T&gt; {};
+struct D2 : public B&lt;int&gt; {};
+template &lt;class T&gt; void f(B&lt;T&gt;&amp;){}
+void t() {
+  D&lt;int&gt; d;
+  D2     d2;
+  f(d);             <span class='comment'>// calls <span class='tcode_in_codeblock'>f(B&lt;int&gt;&amp;)</span>
+</span>  f(d2);            <span class='comment'>// calls <span class='tcode_in_codeblock'>f(B&lt;int&gt;&amp;)</span>
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='type-8'><div class='marginalizedparent'><a class='marginalized' href='#type-8'>8</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7013'>#</a></div><p >A template type argument
+<span class='texttt'>T</span>,
+a template template argument
+<span class='texttt'>TT</span>
+or a template non-type argument
+<span class='texttt'>i</span>
+can be deduced if
+<span class='texttt'>P</span>
+and
+<span class='texttt'>A</span>
+have one of the following forms:</p><pre class='codeblock'>
+T
+<span class='grammarterm'>cv-list</span> T
+T*
+T&amp;
+T&amp;&amp;
+T[<span class='grammarterm'>integer-constant</span>]
+<i ><a href='temp.names#nt:template-name'>template-name</a></i>&lt;T&gt;  <span class='textrm'>(where <span class='tcode_in_codeblock'><i ><a href='temp.names#nt:template-name'>template-name</a></i></span> refers to a class template)</span>
+<span class='textit'>type</span>(T)
+T()
+T(T)
+T <span class='textit'>type</span>::*
+<span class='textit'>type</span> T::*
+T T::*
+T (<span class='textit'>type</span>::*)()
+<span class='textit'>type</span> (T::*)()
+<span class='textit'>type</span> (<span class='textit'>type</span>::*)(T)
+<span class='textit'>type</span> (T::*)(T)
+T (<span class='textit'>type</span>::*)(T)
+T (T::*)()
+T (T::*)(T)
+<span class='textit'>type</span>[i]
+<i ><a href='temp.names#nt:template-name'>template-name</a></i>&lt;i&gt;  <span class='textrm'>(where <span class='tcode_in_codeblock'><i ><a href='temp.names#nt:template-name'>template-name</a></i></span> refers to a class template)</span>
+TT&lt;T&gt;
+TT&lt;i&gt;
+TT&lt;&gt;</pre><p >where
+<span class='texttt'>(T)</span>
+represents
+a parameter-type-list (<a href='dcl.fct'>[dcl.fct]</a>)
+where at least one parameter type contains a
+<span class='texttt'>T</span>,
+and
+<span class='texttt'>()</span>
+represents
+a parameter-type-list
+where no parameter type contains a
+<span class='texttt'>T</span>.
+Similarly,
+<span class='texttt'>&lt;T&gt;</span>
+represents template argument lists where at least one argument contains a
+<span class='texttt'>T</span>,
+<span class='texttt'>&lt;i&gt;</span>
+represents template argument lists where at least one argument contains an
+<span class='texttt'>i</span>
+and
+<span class='texttt'>&lt;&gt;</span>
+represents template argument lists where no argument contains a
+<span class='texttt'>T</span>
+or an
+<span class='texttt'>i</span>.</p></div><div class='para' id='type-9'><div class='marginalizedparent'><a class='marginalized' href='#type-9'>9</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7080'>#</a></div><p >If <span class='texttt'>P</span> has a form that contains <span class='texttt'>&lt;T&gt;</span>
+or <span class='texttt'>&lt;i&gt;</span>, then each argument <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.372em; padding-bottom: 0.225em;">P</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> of the
+respective template argument list of <span class='texttt'>P</span> is compared with the
+corresponding argument <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.446em; padding-bottom: 0.225em;">A</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> of the corresponding
+template argument list of <span class='texttt'>A</span>. If the template argument list
+of <span class='texttt'>P</span> contains a pack expansion that is not the last
+template argument, the entire template argument list is a non-deduced
+context. If <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.372em; padding-bottom: 0.225em;">P</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> is a pack expansion, then the pattern
+of <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.372em; padding-bottom: 0.225em;">P</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> is compared with each remaining argument in the
+template argument list of <span class='texttt'>A</span>. Each comparison deduces
+template arguments for subsequent positions in the template parameter
+packs expanded by <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.372em; padding-bottom: 0.225em;">P</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span>.
+During <a href='temp.deduct.partial'>partial ordering</a>, if <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.446em; padding-bottom: 0.225em;">A</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> was
+originally a pack expansion:</p><ul class='itemize'><li id='type-9.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#type-9.1'>(9.1)</a></div><p >if <span class='texttt'>P</span> does not contain a template argument corresponding to
+<span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.446em; padding-bottom: 0.225em;">A</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> then <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.446em; padding-bottom: 0.225em;">A</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> is ignored;</p></li><li id='type-9.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#type-9.2'>(9.2)</a></div><p >otherwise, if <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.372em; padding-bottom: 0.225em;">P</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> is not a pack expansion, template argument
+deduction fails.
+</p></li></ul><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;class T1, class... Z&gt; class S;                               <span class='comment'>// #1
+</span>template&lt;class T1, class... Z&gt; class S&lt;T1, const Z&amp;...&gt; { };          <span class='comment'>// #2
+</span>template&lt;class T1, class T2&gt;   class S&lt;T1, const T2&amp;&gt; { };            <span class='comment'>// #3
+</span>S&lt;int, const int&amp;&gt; s;         <span class='comment'>// both #2 and #3 match; #3 is more specialized
+</span>
+template&lt;class T, class... U&gt;            struct A { };                <span class='comment'>// #1
+</span>template&lt;class T1, class T2, class... U&gt; struct A&lt;T1, T2*, U...&gt; { }; <span class='comment'>// #2
+</span>template&lt;class T1, class T2&gt;             struct A&lt;T1, T2&gt; { };        <span class='comment'>// #3
+</span>template struct A&lt;int, int*&gt;; <span class='comment'>// selects #2
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='type-10'><div class='marginalizedparent'><a class='marginalized' href='#type-10'>10</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7117'>#</a></div><p >Similarly, if <span class='texttt'>P</span> has a form that contains
+<span class='texttt'>(T)</span>, then each parameter type <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.372em; padding-bottom: 0.225em;">P</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span>
+of the respective parameter-type-list (<a href='dcl.fct'>[dcl.fct]</a>) of
+<span class='texttt'>P</span> is compared with the corresponding parameter type
+<span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.446em; padding-bottom: 0.225em;">A</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> of the corresponding parameter-type-list
+of <span class='texttt'>A</span>.
+If <span class='texttt'>P</span> and <span class='texttt'>A</span> are function types that originated from deduction when
+taking the address of a function template (<a href='temp.deduct.funcaddr'>[temp.deduct.funcaddr]</a>) or when
+deducing template arguments from a function declaration (<a href='temp.deduct.decl'>[temp.deduct.decl]</a>)
+and <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.372em; padding-bottom: 0.225em;">P</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> and <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.446em; padding-bottom: 0.225em;">A</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> are parameters of the top-level
+parameter-type-list of <span class='texttt'>P</span> and <span class='texttt'>A</span>, respectively,
+<span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.372em; padding-bottom: 0.225em;">P</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> is adjusted if it is a forwarding reference (<a href='temp.deduct.call'>[temp.deduct.call]</a>)
+and <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.446em; padding-bottom: 0.225em;">A</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> is an lvalue reference, in which case the type of
+<span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.372em; padding-bottom: 0.225em;">P</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> is changed to be the template parameter type (i.e., <span class='texttt'>T&amp;&amp;</span> is
+changed to simply <span class='texttt'>T</span>). [<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span>  As a result, when <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.372em; padding-bottom: 0.225em;">P</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> is <span class='texttt'>T&amp;&amp;</span>
+and <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.446em; padding-bottom: 0.225em;">A</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> is <span class='texttt'>X&amp;</span>, the adjusted <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.372em; padding-bottom: 0.225em;">P</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> will be <span class='texttt'>T</span>,
+causing <span class='texttt'>T</span> to be deduced as <span class='texttt'>X&amp;</span>. <span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template &lt;class T&gt; void f(T&amp;&amp;);
+template &lt;&gt; void f(int&amp;) { }    <span class='comment'>// #1
+</span>template &lt;&gt; void f(int&amp;&amp;) { }   <span class='comment'>// #2
+</span>void g(int i) {
+  f(i);                         <span class='comment'>// calls <span class='tcode_in_codeblock'>f&lt;int&amp;&gt;(int&amp;)</span>, i.e., #1
+</span>  f(0);                         <span class='comment'>// calls <span class='tcode_in_codeblock'>f&lt;int&gt;(int&amp;&amp;)</span>, i.e., #2
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p><p >If the <i ><a href='dcl.fct#nt:parameter-declaration'>parameter-declaration</a></i>
+corresponding to <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.372em; padding-bottom: 0.225em;">P</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> is a function parameter pack,
+then the type of its <i ><a href='dcl.decl#nt:declarator-id'>declarator-id</a></i> is compared with
+each remaining parameter type in the parameter-type-list
+of <span class='texttt'>A</span>. Each comparison deduces template arguments for
+subsequent positions in the template parameter packs expanded by the
+function parameter pack.
+During <a href='temp.deduct.partial'>partial ordering</a>, if <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.446em; padding-bottom: 0.225em;">A</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> was
+originally a function parameter pack:</p><ul class='itemize'><li id='type-10.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#type-10.1'>(10.1)</a></div><p >if <span class='texttt'>P</span> does not contain a function parameter type corresponding to
+<span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.446em; padding-bottom: 0.225em;">A</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> then <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.446em; padding-bottom: 0.225em;">A</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> is ignored;</p></li><li id='type-10.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#type-10.2'>(10.2)</a></div><p >otherwise, if <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-texatom"><span class="mjx-mrow"><span class="mjx-mtext"><span class="mjx-char MJXc-TeX-type-R" style="padding-top: 0.372em; padding-bottom: 0.225em;">P</span></span></span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.446em; padding-bottom: 0.298em;">i</span></span></span></span></span></span></span> is not a function parameter pack, template
+argument deduction fails.
+</p></li></ul><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;class T, class... U&gt; void f(T*, U...) { }  <span class='comment'>// #1
+</span>template&lt;class T&gt;             void f(T) { }         <span class='comment'>// #2
+</span>template void f(int*);                              <span class='comment'>// selects #1
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='type-11'><div class='marginalizedparent'><a class='marginalized' href='#type-11'>11</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7172'>#</a></div><p >These forms can be used in the same way as
+<span class='texttt'>T</span>
+is for further composition of types.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+X&lt;int&gt; (*)(char[6])</pre><p >is of the form</p><pre class='codeblock'>
+<i ><a href='temp.names#nt:template-name'>template-name</a></i>&lt;T&gt; (*)(<span class='textit'>type</span>[i])</pre><p >which is a variant of</p><pre class='codeblock'>
+<span class='textit'>type</span> (*)(T)</pre><p >where type is
+<span class='texttt'>X&lt;int&gt;</span>
+and
+<span class='texttt'>T</span>
+is
+<span class='texttt'>char[6]</span>.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='type-12'><div class='marginalizedparent'><a class='marginalized' href='#type-12'>12</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7202'>#</a></div><p >Template arguments cannot be deduced from function arguments involving
+constructs other than the ones specified above.</p></div><div class='para' id='type-13'><div class='marginalizedparent'><a class='marginalized' href='#type-13'>13</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7206'>#</a></div><p >When the value of the argument
+corresponding to a non-type template parameter <span class='texttt'>P</span>
+that is declared with a dependent type
+is deduced from an expression,
+the template parameters in the type of <span class='texttt'>P</span>
+are deduced from the type of the value.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;long n&gt; struct A { };
+
+template&lt;typename T&gt; struct C;
+template&lt;typename T, T n&gt; struct C&lt;A&lt;n&gt;&gt; {
+  using Q = T;
+};
+
+using R = long;
+using R = C&lt;A&lt;2&gt;&gt;::Q;           <span class='comment'>// OK; <span class='tcode_in_codeblock'>T</span> was deduced to <span class='tcode_in_codeblock'>long</span> from the
+</span>                                <span class='comment'>// template argument value in the type <span class='tcode_in_codeblock'>A&lt;2&gt;</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+The type of <span class='texttt'>N</span> in the type <span class='texttt'>T[N]</span> is <span class='texttt'>std&#x200b;::&#x200b;size_&shy;t</span>.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;typename T&gt; struct S;
+template&lt;typename T, T n&gt; struct S&lt;int[n]&gt; {
+  using Q = T;
+};
+
+using V = decltype(sizeof 0);
+using V = S&lt;int[42]&gt;::Q;        <span class='comment'>// OK; <span class='tcode_in_codeblock'>T</span> was deduced to <span class='tcode_in_codeblock'>std&#x200b;::&#x200b;size_&shy;t</span> from the type <span class='tcode_in_codeblock'>int[42]</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='type-14'><div class='marginalizedparent'><a class='marginalized' href='#type-14'>14</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7240'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;class T, T i&gt; void f(int (&amp;a)[i]);
+int v[10];
+void g() {
+  f(v);                         <span class='comment'>// OK: <span class='tcode_in_codeblock'>T</span> is <span class='tcode_in_codeblock'>std&#x200b;::&#x200b;size_&shy;t</span>
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='type-15'><div class='marginalizedparent'><a class='marginalized' href='#type-15'>15</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7251'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+Except for reference and pointer types, a major array bound is not part of a
+function parameter type and cannot be deduced from an argument:
+</p><pre class='codeblock'>
+template&lt;int i&gt; void f1(int a[10][i]);
+template&lt;int i&gt; void f2(int a[i][20]);
+template&lt;int i&gt; void f3(int (&amp;a)[i][20]);
+
+void g() {
+  int v[10][20];
+  f1(v);                        <span class='comment'>// OK: <span class='tcode_in_codeblock'>i</span> deduced to be <span class='tcode_in_codeblock'>20</span>
+</span>  f1&lt;20&gt;(v);                    <span class='comment'>// OK
+</span>  f2(v);                        <span class='comment'>// error: cannot deduce template-argument <span class='tcode_in_codeblock'>i</span>
+</span>  f2&lt;10&gt;(v);                    <span class='comment'>// OK
+</span>  f3(v);                        <span class='comment'>// OK: <span class='tcode_in_codeblock'>i</span> deduced to be <span class='tcode_in_codeblock'>10</span>
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='type-16'><div class='marginalizedparent'><a class='marginalized' href='#type-16'>16</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7271'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+If, in the declaration of a function template with a non-type
+template parameter, the non-type template parameter
+is used in a subexpression in the function parameter list,
+the expression is a non-deduced context as specified above.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template &lt;int i&gt; class A { <span class='tcode_in_codeblock'>/* ...&nbsp;*/</span> };
+template &lt;int i&gt; void g(A&lt;i+1&gt;);
+template &lt;int i&gt; void f(A&lt;i&gt;, A&lt;i+1&gt;);
+void k() {
+  A&lt;1&gt; a1;
+  A&lt;2&gt; a2;
+  g(a1);                        <span class='comment'>// error: deduction fails for expression <span class='tcode_in_codeblock'>i+1</span>
+</span>  g&lt;0&gt;(a1);                     <span class='comment'>// OK
+</span>  f(a1, a2);                    <span class='comment'>// OK
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='type-17'><div class='marginalizedparent'><a class='marginalized' href='#type-17'>17</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7293'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+Template parameters do not participate in template argument deduction if
+they are used only in non-deduced contexts.
+For example,</p><pre class='codeblock'>
+template&lt;int i, typename T&gt;
+T deduce(typename A&lt;T&gt;::X x,    <span class='comment'>// <span class='tcode_in_codeblock'>T</span> is not deduced here
+</span>         T t,                   <span class='comment'>// but <span class='tcode_in_codeblock'>T</span> is deduced here
+</span>         typename B&lt;i&gt;::Y y);   <span class='comment'>// <span class='tcode_in_codeblock'>i</span> is not deduced here
+</span>A&lt;int&gt; a;
+B&lt;77&gt;  b;
+
+int    x = deduce&lt;77&gt;(a.xm, 62, b.ym);
+<span class='comment'>// <span class='tcode_in_codeblock'>T</span> is deduced to be <span class='tcode_in_codeblock'>int</span>, <span class='tcode_in_codeblock'>a.xm</span> must be convertible to <span class='tcode_in_codeblock'>A&lt;int&gt;&#x200b;::&#x200b;X</span>
+</span><span class='comment'>// <span class='tcode_in_codeblock'>i</span> is explicitly specified to be <span class='tcode_in_codeblock'>77</span>, <span class='tcode_in_codeblock'>b.ym</span> must be convertible to <span class='tcode_in_codeblock'>B&lt;77&gt;&#x200b;::&#x200b;Y</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='type-18'><div class='marginalizedparent'><a class='marginalized' href='#type-18'>18</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7313'>#</a></div><p >If <span class='texttt'>P</span> has a form that contains <span class='texttt'>&lt;i&gt;</span>, and
+if the type of <span class='texttt'>i</span> differs from the type
+of the corresponding template parameter
+of the template named by the enclosing <i ><a href='temp.names#nt:simple-template-id'>simple-template-id</a></i>,
+deduction fails.
+If <span class='texttt'>P</span> has a form that contains <span class='texttt'>[i]</span>, and if the type of
+<span class='texttt'>i</span> is not an integral type, deduction fails.<a class='footnotenum' href='#footnote-142'>142</a>
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+template&lt;int i&gt; class A { <span class='tcode_in_codeblock'>/* ...&nbsp;*/</span> };
+template&lt;short s&gt; void f(A&lt;s&gt;);
+void k1() {
+  A&lt;1&gt; a;
+  f(a);             <span class='comment'>// error: deduction fails for conversion from <span class='tcode_in_codeblock'>int</span> to <span class='tcode_in_codeblock'>short</span>
+</span>  f&lt;1&gt;(a);          <span class='comment'>// OK
+</span>}
+
+template&lt;const short cs&gt; class B { };
+template&lt;short s&gt; void g(B&lt;s&gt;);
+void k2() {
+  B&lt;1&gt; b;
+  g(b);             <span class='comment'>// OK: cv-qualifiers are ignored on template parameter types
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='type-19'><div class='marginalizedparent'><a class='marginalized' href='#type-19'>19</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7349'>#</a></div><p >A
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+can be deduced from a function, pointer to function, or pointer to
+member function type.</p><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+template&lt;class T&gt; void f(void(*)(T,int));
+template&lt;class T&gt; void foo(T,int);
+void g(int,int);
+void g(char,int);
+
+void h(int,int,int);
+void h(char,int);
+int m() {
+  f(&amp;g);            <span class='comment'>// error: ambiguous
+</span>  f(&amp;h);            <span class='comment'>// OK: void <span class='tcode_in_codeblock'>h(char,int)</span> is a unique match
+</span>  f(&amp;foo);          <span class='comment'>// error: type deduction fails because <span class='tcode_in_codeblock'>foo</span> is a template
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='type-20'><div class='marginalizedparent'><a class='marginalized' href='#type-20'>20</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7373'>#</a></div><p >A template
+<i ><a href='temp.param#nt:type-parameter'>type-parameter</a></i>
+cannot be deduced from the type of a function default argument.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+template &lt;class T&gt; void f(T = 5, T = 7);
+void g() {
+  f(1);             <span class='comment'>// OK: call <span class='tcode_in_codeblock'>f&lt;int&gt;(1,7)</span>
+</span>  f();              <span class='comment'>// error: cannot deduce <span class='tcode_in_codeblock'>T</span>
+</span>  f&lt;int&gt;();         <span class='comment'>// OK: call <span class='tcode_in_codeblock'>f&lt;int&gt;(5,7)</span>
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='type-21'><div class='marginalizedparent'><a class='marginalized' href='#type-21'>21</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7389'>#</a></div><p >The
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+corresponding to a template
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+is deduced from the type of the
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+of a class template specialization used in the argument list of a function call.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+template &lt;template &lt;class T&gt; class X&gt; struct A { };
+template &lt;template &lt;class T&gt; class X&gt; void f(A&lt;X&gt;) { }
+template&lt;class T&gt; struct B { };
+A&lt;B&gt; ab;
+f(ab);              <span class='comment'>// calls <span class='tcode_in_codeblock'>f(A&lt;B&gt;)</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='type-22'><div class='marginalizedparent'><a class='marginalized' href='#type-22'>22</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7408'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+Template argument deduction involving parameter
+packs (<a href='temp.variadic'>[temp.variadic]</a>) can deduce zero or more arguments for
+each parameter pack.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;class&gt; struct X { };
+template&lt;class R, class ... ArgTypes&gt; struct X&lt;R(int, ArgTypes ...)&gt; { };
+template&lt;class ... Types&gt; struct Y { };
+template&lt;class T, class ... Types&gt; struct Y&lt;T, Types&amp; ...&gt; { };
+
+template&lt;class ... Types&gt; int f(void (*)(Types ...));
+void g(int, float);
+
+X&lt;int&gt; x1;                      <span class='comment'>// uses primary template
+</span>X&lt;int(int, float, double)&gt; x2;  <span class='comment'>// uses partial specialization; <span class='tcode_in_codeblock'>ArgTypes</span> contains <span class='tcode_in_codeblock'>float</span>, <span class='tcode_in_codeblock'>double</span>
+</span>X&lt;int(float, int)&gt; x3;          <span class='comment'>// uses primary template
+</span>Y&lt;&gt; y1;                         <span class='comment'>// use primary template; <span class='tcode_in_codeblock'>Types</span> is empty
+</span>Y&lt;int&amp;, float&amp;, double&amp;&gt; y2;    <span class='comment'>// uses partial specialization; <span class='tcode_in_codeblock'>T</span> is <span class='tcode_in_codeblock'>int&amp;</span>, <span class='tcode_in_codeblock'>Types</span> contains <span class='tcode_in_codeblock'>float</span>, <span class='tcode_in_codeblock'>double</span>
+</span>Y&lt;int, float, double&gt; y3;       <span class='comment'>// uses primary template; <span class='tcode_in_codeblock'>Types</span> contains <span class='tcode_in_codeblock'>int</span>, <span class='tcode_in_codeblock'>float</span>, <span class='tcode_in_codeblock'>double</span>
+</span>int fv = f(g);                  <span class='comment'>// OK; <span class='tcode_in_codeblock'>Types</span> contains <span class='tcode_in_codeblock'>int</span>, <span class='tcode_in_codeblock'>float</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='footnote' id='footnote-142'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-142'>142)</a></div><p >Although the
+<i ><a href='temp.names#nt:template-argument'>template-argument</a></i>
+corresponding to a
+<i ><a href='temp.param#nt:template-parameter'>template-parameter</a></i>
+of type
+<span class='texttt'>bool</span>
+may be deduced from an array bound, the resulting value will always be
+<span class='texttt'>true</span>
+because the array bound will be nonzero.</p></div></div><div id='decl'><h4 ><a class='secnum' href='#decl' style='min-width:118pt'>17.8.2.6</a> Deducing template arguments from a function declaration <a class='abbr_ref' href='temp.deduct.decl'>[temp.deduct.decl]</a></h4><div class='para' id='decl-1'><div class='marginalizedparent'><a class='marginalized' href='#decl-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7436'>#</a></div><p >In a declaration whose <i ><a href='dcl.decl#nt:declarator-id'>declarator-id</a></i> refers to a specialization
+of a function template, template argument deduction is performed to identify
+the specialization to which the declaration refers. Specifically, this is done
+for <a href='temp.explicit'>explicit instantiations</a>, <a href='temp.expl.spec'>explicit specializations</a>,
+and certain <a href='temp.friend'>friend declarations</a>. This is also done to
+determine whether a deallocation function template specialization matches a placement
+<span class='texttt'>operator new</span> (<a href='basic.stc.dynamic.deallocation'>[basic.stc.dynamic.deallocation]</a>, <a href='expr.new'>[expr.new]</a>).
+In all these cases, <span class='texttt'>P</span> is the type of the function template being considered
+as a potential match and <span class='texttt'>A</span> is either the function type from the
+declaration
+or the type of the deallocation function that would match the placement
+<span class='texttt'>operator new</span> as described in <a href='expr.new'>[expr.new]</a>. The
+deduction is done as described in <a href='temp.deduct.type'>[temp.deduct.type]</a>.</p></div><div class='para' id='decl-2'><div class='marginalizedparent'><a class='marginalized' href='#decl-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L7451'>#</a></div><p >If, for the set of function templates so considered, there is either no match or
+more than one match after partial ordering has been considered (<a href='temp.func.order'>[temp.func.order]</a>),
+deduction fails and, in the declaration cases, the
+program is ill-formed.</p></div></div></div></body></html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang='en'><head><title>[except.nested]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>21</a> Language support library <a class='abbr_ref' href='./#language.support'>[language.support]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>21.8</a> Exception handling <a class='abbr_ref' href='support.exception#except.nested'>[support.exception]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>21.8.7</a> <span class='texttt'>nested_&shy;exception</span> <a class='abbr_ref'>[except.nested]</a></h3><p ><span class='indexparent'><a class='index' id='lib:nested_exception'></a></span></p><pre class='codeblock'>
+namespace std {
+  class nested_exception {
+  public:
+    nested_exception() noexcept;
+    nested_exception(const nested_exception&amp;) noexcept = default;
+    nested_exception&amp; operator=(const nested_exception&amp;) noexcept = default;
+    virtual ~nested_exception() = default;
+
+    <span class='comment'>// access functions
+</span>    [[noreturn]] void rethrow_nested() const;
+    exception_ptr nested_ptr() const noexcept;
+  };
+
+  template&lt;class T&gt; [[noreturn]] void throw_with_nested(T&amp;&amp; t);
+  template &lt;class E&gt; void rethrow_if_nested(const E&amp; e);
+}</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/support.tex#L3504'>#</a></div><p >The class <span class='texttt'>nested_&shy;exception</span> is designed for use as a mixin through
+multiple inheritance. It captures the currently handled exception and stores it
+for later use.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/support.tex#L3509'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span>  <span class='texttt'>nested_&shy;exception</span> has a virtual destructor to make it a
+polymorphic class. Its presence can be tested for with <span class='texttt'>dynamic_&shy;cast</span>.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] </p><p ><span class='indexparent'><a class='index' id='lib:nested_exception,constructor'></a></span></p></div><p ><code class='itemdecl'>nested_exception() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/support.tex#L3520'>#</a></div><p ><span class='textit'>Effects:</span> The constructor calls <span class='texttt'>current_&shy;exception()</span> and stores the returned value.
+</p></div></div><p ><span class='indexparent'><a class='index' id='lib:rethrow_nested,nested_exception'></a></span><span class='indexparent'><a class='index' id='lib:nested_exception,rethrow_nested'></a></span></p><p ><code class='itemdecl'>[[noreturn]] void rethrow_nested() const;
+</code></p><div class='itemdescr'></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/support.tex#L3530'>#</a></div><p ><span class='textit'>Effects:</span> If <span class='texttt'>nested_&shy;ptr()</span> returns a null pointer, the function calls <span class='texttt'>std&#x200b;::&#x200b;terminate()</span>.
+Otherwise, it throws the stored exception captured by <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='lib:nested_ptr,nested_exception'></a></span><span class='indexparent'><a class='index' id='lib:nested_exception,nested_ptr'></a></span></p><p ><code class='itemdecl'>exception_ptr nested_ptr() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/support.tex#L3541'>#</a></div><p ><span class='textit'>Returns:</span> The stored exception captured by this <span class='texttt'>nested_&shy;exception</span> object.
+</p></div></div><p ><span class='indexparent'><a class='index' id='lib:throw_with_nested,nested_exception'></a></span><span class='indexparent'><a class='index' id='lib:nested_exception,throw_with_nested'></a></span></p><p ><code class='itemdecl'>template &lt;class T&gt; [[noreturn]] void throw_with_nested(T&amp;&amp; t);
+</code></p><div class='itemdescr'></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/support.tex#L3551'>#</a></div><p >Let <span class='texttt'>U</span> be <span class='texttt'>decay_&shy;t&lt;T&gt;</span>.</p></div></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/support.tex#L3554'>#</a></div><p ><span class='textit'>Requires:</span> <span class='texttt'>U</span> shall be <span class='texttt'>CopyConstructible</span>.</p></div></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/support.tex#L3557'>#</a></div><p ><span class='textit'>Throws:</span> 
+If <span class='texttt'>is_&shy;class_&shy;v&lt;U&gt; &amp;&amp; !is_&shy;final_&shy;v&lt;U&gt; &amp;&amp; !is_&shy;base_&shy;of_&shy;v&lt;nested_&shy;exception, U&gt;</span>
+is <span class='texttt'>true</span>,
+an exception of unspecified type that is publicly derived from both
+<span class='texttt'>U</span> and <span class='texttt'>nested_&shy;exception</span>
+and constructed from <span class='texttt'>std&#x200b;::&#x200b;forward&lt;T&gt;(t)</span>, otherwise
+<span class='texttt'>std&#x200b;::&#x200b;forward&lt;T&gt;(t)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='lib:rethrow_if_nested,nested_exception'></a></span><span class='indexparent'><a class='index' id='lib:nested_exception,rethrow_if_nested'></a></span></p><p ><code class='itemdecl'>template &lt;class E&gt; void rethrow_if_nested(const E&amp; e);
+</code></p><div class='itemdescr'></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/support.tex#L3573'>#</a></div><p ><span class='textit'>Effects:</span> 
+If <span class='texttt'>E</span> is not a polymorphic class type, or
+if <span class='texttt'>nested_&shy;exception</span> is an inaccessible or ambiguous base class of <span class='texttt'>E</span>,
+there is no effect.
+Otherwise, performs:
+</p><pre class='codeblock'>
+if (auto p = dynamic_cast&lt;const nested_exception*&gt;(addressof(e)))
+  p-&gt;rethrow_nested();</pre></div></div></div></body></html>

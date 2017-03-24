@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang='en'><head><title>[diff.basic]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='annexnum' style='min-width:73pt'>Annex C&emsp;(informative)</a> Compatibility <a class='abbr_ref' href='./#diff'>[diff]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>C.1</a> C++ and ISO C <a class='abbr_ref' href='diff.iso#diff.basic'>[diff.iso]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>C.1.2</a> Clause <a href='basic'>[basic]</a>: basic concepts <a class='abbr_ref'>[diff.basic]</a></h3><p ><a href='basic.def'>[basic.def]</a>
+<br/><b>Change:</b> C++ does not have “tentative definitions” as in C.<br/>
+E.g., at file scope,</p><pre class='codeblock'>
+int i;
+int i;</pre><p >is valid in C, invalid in C++.
+This makes it impossible to define
+mutually referential file-local static objects, if initializers are
+restricted to the syntactic forms of C.
+For example,</p><pre class='codeblock'>
+struct X { int i; struct X* next; };
+
+static struct X a;
+static struct X b = { 0, &amp;a };
+static struct X a = { 1, &amp;b };</pre><p ><br/><b>Rationale:</b> 
+This avoids having different initialization rules for
+fundamental types and user-defined types.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+In C++, the initializer for one of a set of
+mutually-referential file-local static objects must invoke a function
+call to achieve the initialization.
+<br/><b>How widely used:</b> 
+Seldom.</p><p ><a href='basic.scope'>[basic.scope]</a>
+<br/><b>Change:</b> A <span class='texttt'>struct</span> is a scope in C++, not in C.
+<br/><b>Rationale:</b> 
+Class scope is crucial to C++, and a struct is a class.
+<br/><b>Effect on original feature:</b> 
+Change to semantics of well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+<br/><b>How widely used:</b> 
+C programs use <span class='texttt'>struct</span> extremely frequently, but the
+change is only noticeable when <span class='texttt'>struct</span>, enumeration, or enumerator
+names are referred to outside the <span class='texttt'>struct</span>.
+The latter is probably rare.</p><p ><a href='basic.link'>[basic.link]</a> [also <a href='dcl.type'>[dcl.type]</a>]
+<br/><b>Change:</b> A name of file scope that is explicitly declared <span class='texttt'>const</span>, and not explicitly
+declared <span class='texttt'>extern</span>, has internal linkage, while in C it would have external linkage.
+<br/><b>Rationale:</b> 
+Because <span class='texttt'>const</span> objects may be used as values during translation in
+C++, this feature urges programmers to provide an explicit initializer
+for each <span class='texttt'>const</span> object.
+This feature allows the user to put <span class='texttt'>const</span> objects in source files that are included
+in more than one translation unit.
+<br/><b>Effect on original feature:</b> 
+Change to semantics of well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+<br/><b>How widely used:</b> 
+Seldom.</p><p ><a href='basic.start.main'>[basic.start.main]</a>
+<br/><b>Change:</b> The <span class='texttt'>main</span> function cannot be called recursively and cannot have its address taken.
+<br/><b>Rationale:</b> 
+The <span class='texttt'>main</span> function may require special actions.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Trivial: create an intermediary function such as
+<span class='texttt'>mymain(argc, argv)</span>.
+<br/><b>How widely used:</b> 
+Seldom.</p><p ><a href='basic.types'>[basic.types]</a>
+<br/><b>Change:</b> C allows “compatible types” in several places, C++ does not.<br/>
+For example,
+otherwise-identical <span class='texttt'>struct</span> types with different tag names
+are “compatible” in C but are distinctly different types
+in C++.
+<br/><b>Rationale:</b> 
+Stricter type checking is essential for C++.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+The “typesafe linkage” mechanism will find many, but not all,
+of such problems.
+Those problems not found by typesafe linkage will continue to
+function properly,
+according to the “layout compatibility rules” of this
+International Standard.
+<br/><b>How widely used:</b> 
+Common.</p></div></body></html>

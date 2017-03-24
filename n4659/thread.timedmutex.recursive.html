@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang='en'><head><title>[thread.timedmutex.recursive]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>33</a> Thread support library <a class='abbr_ref' href='./#thread'>[thread]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>33.4</a> Mutual exclusion <a class='abbr_ref' href='thread.mutex#thread.timedmutex.recursive'>[thread.mutex]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>33.4.3</a> Mutex requirements <a class='abbr_ref' href='thread.mutex.requirements#thread.timedmutex.recursive'>[thread.mutex.requirements]</a></h3><h4 ><a class='secnum' style='min-width:118pt'>33.4.3.3</a> Timed mutex types <a class='abbr_ref' href='thread.timedmutex.requirements#thread.timedmutex.recursive'>[thread.timedmutex.requirements]</a></h4><h4 ><a class='secnum' style='min-width:133pt'>33.4.3.3.2</a> Class <span class='texttt'>recursive_&shy;timed_&shy;mutex</span> <a class='abbr_ref'>[thread.timedmutex.recursive]</a></h4><p ><span class='indexparent'><a class='index' id='lib:recursive_timed_mutex'></a></span></p><pre class='codeblock'>
+namespace std {
+  class recursive_timed_mutex {
+  public:
+    recursive_timed_mutex();
+    ~recursive_timed_mutex();
+
+    recursive_timed_mutex(const recursive_timed_mutex&amp;) = delete;
+    recursive_timed_mutex&amp; operator=(const recursive_timed_mutex&amp;) = delete;
+
+    void lock();  <span class='comment'>// blocking
+</span>    bool try_lock() noexcept;
+    template &lt;class Rep, class Period&gt;
+      bool try_lock_for(const chrono::duration&lt;Rep, Period&gt;&amp; rel_time);
+    template &lt;class Clock, class Duration&gt;
+      bool try_lock_until(const chrono::time_point&lt;Clock, Duration&gt;&amp; abs_time);
+    void unlock();
+
+    using native_handle_type = <span class='textit'>implementation-defined</span>; <span class='comment'>// See <a href='thread.req.native'>[thread.req.native]</a>
+</span>    native_handle_type native_handle();                <span class='comment'>// See <a href='thread.req.native'>[thread.req.native]</a>
+</span>  };
+}</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/threads.tex#L1291'>#</a></div><p >The class <span class='texttt'>recursive_&shy;timed_&shy;mutex</span> provides a recursive mutex with exclusive
+ownership semantics. If one thread owns a <span class='texttt'>recursive_&shy;timed_&shy;mutex</span> object,
+attempts by another thread to acquire ownership of that object will fail (for
+<span class='texttt'>try_&shy;lock()</span>) or block (for <span class='texttt'>lock()</span>, <span class='texttt'>try_&shy;lock_&shy;for()</span>, and
+<span class='texttt'>try_&shy;lock_&shy;until()</span>) until the owning thread has completely released
+ownership or the call to <span class='texttt'>try_&shy;lock_&shy;for()</span> or <span class='texttt'>try_&shy;lock_&shy;until()</span>
+times out (having failed to obtain ownership).</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/threads.tex#L1300'>#</a></div><p >The class <span class='texttt'>recursive_&shy;timed_&shy;mutex</span> shall satisfy all of the <a href='thread.timedmutex.requirements'>timed mutex
+requirements</a>. It shall be a standard-layout
+class (Clause <a href='class'>[class]</a>).</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/threads.tex#L1305'>#</a></div><p >A thread that owns a <span class='texttt'>recursive_&shy;timed_&shy;mutex</span> object may acquire additional
+levels of ownership by calling <span class='texttt'>lock()</span>, <span class='texttt'>try_&shy;lock()</span>,
+<span class='texttt'>try_&shy;lock_&shy;for()</span>, or <span class='texttt'>try_&shy;lock_&shy;until()</span> on that object. It is
+unspecified how many levels of ownership may be acquired by a single thread. If
+a thread has already acquired the maximum level of ownership for a
+<span class='texttt'>recursive_&shy;timed_&shy;mutex</span> object, additional calls to <span class='texttt'>try_&shy;lock()</span>,
+<span class='texttt'>try_&shy;lock_&shy;for()</span>, or <span class='texttt'>try_&shy;lock_&shy;until()</span> shall fail, and additional
+calls to <span class='texttt'>lock()</span> shall throw an exception of type <span class='texttt'>system_&shy;error</span>. A
+thread shall call <span class='texttt'>unlock()</span> once for each level of ownership acquired by
+calls to <span class='texttt'>lock()</span>, <span class='texttt'>try_&shy;lock()</span>, <span class='texttt'>try_&shy;lock_&shy;for()</span>, and
+<span class='texttt'>try_&shy;lock_&shy;until()</span>. Only when all levels of ownership have been released
+may ownership of the object be acquired by another thread.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/threads.tex#L1319'>#</a></div><p >The behavior of a program is undefined if:</p><ul class='itemize'><li id='4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.1'>(4.1)</a></div><p >it destroys a <span class='texttt'>recursive_&shy;timed_&shy;mutex</span> object owned by any thread, or
+</p></li><li id='4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.2'>(4.2)</a></div><p >a thread terminates while owning a <span class='texttt'>recursive_&shy;timed_&shy;mutex</span> object.
+</p></li></ul></div></div></body></html>

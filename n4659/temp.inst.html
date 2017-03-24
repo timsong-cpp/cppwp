@@ -1,0 +1,236 @@
+<!DOCTYPE html><html lang='en'><head><title>[temp.inst]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>17</a> Templates <a class='abbr_ref' href='./#temp'>[temp]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>17.7</a> Template instantiation and specialization <a class='abbr_ref' href='temp.spec#temp.inst'>[temp.spec]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>17.7.1</a> Implicit instantiation <a class='abbr_ref'>[temp.inst]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L4557'>#</a></div><p ><span class='indexparent'><a class='index' id=':instantiation,template_implicit'></a></span>Unless a class template specialization has been <a href='temp.explicit'>explicitly
+instantiated</a> or <a href='temp.expl.spec'>explicitly
+specialized</a>,
+the class template specialization is implicitly instantiated when the
+specialization is referenced in a context that requires a completely-defined
+object type or when the completeness of the class type affects the semantics
+of the program.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+In particular, if the semantics of an expression depend on the member or
+base class lists of a class template specialization, the class template
+specialization is implicitly generated. For instance, deleting a pointer
+to class type depends on whether or not the class declares a destructor,
+and a conversion between pointers to class type depends on the
+inheritance relationship between the two classes involved.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;class T&gt; class B { <span class='tcode_in_codeblock'>/* ...&nbsp;*/</span> };
+template&lt;class T&gt; class D : public B&lt;T&gt; { <span class='tcode_in_codeblock'>/* ...&nbsp;*/</span> };
+
+void f(void*);
+void f(B&lt;int&gt;*);
+
+void g(D&lt;int&gt;* p, D&lt;char&gt;* pp, D&lt;double&gt;* ppp) {
+  f(p);             <span class='comment'>// instantiation of <span class='tcode_in_codeblock'>D&lt;int&gt;</span> required: call <span class='tcode_in_codeblock'>f(B&lt;int&gt;*)</span>
+</span>  B&lt;char&gt;* q = pp;  <span class='comment'>// instantiation of <span class='tcode_in_codeblock'>D&lt;char&gt;</span> required: convert <span class='tcode_in_codeblock'>D&lt;char&gt;*</span> to <span class='tcode_in_codeblock'>B&lt;char&gt;*</span>
+</span>  delete ppp;       <span class='comment'>// instantiation of <span class='tcode_in_codeblock'>D&lt;double&gt;</span> required
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+If a class template has been declared, but not defined,
+at the <a href='temp.point'>point of instantiation</a>,
+the instantiation yields an incomplete class type (<a href='basic.types'>[basic.types]</a>).
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;class T&gt; class X;
+X&lt;char&gt; ch;         <span class='comment'>// error: incomplete type <span class='tcode_in_codeblock'>X&lt;char&gt;</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+Within a template declaration,
+a <a href='class.local'>local class</a> or enumeration and the members of
+a local class are never considered to be entities that can be separately
+instantiated (this includes their default arguments,
+<i ><a href='except.spec#nt:noexcept-specifier'>noexcept-specifier</a></i><span class='textit'>s</span>, and non-static data member
+initializers, if any). As a result, the dependent names are looked up, the
+semantic constraints are checked, and any templates used are instantiated as
+part of the instantiation of the entity within which the local class or
+enumeration is declared.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L4610'>#</a></div><p >The implicit instantiation of a class template specialization causes
+the implicit instantiation of the declarations, but not of the definitions,
+default arguments, or <i ><a href='except.spec#nt:noexcept-specifier'>noexcept-specifier</a></i><span class='textit'>s</span> of the
+class member functions,
+member classes,
+scoped member enumerations,
+static data members,
+member templates, and
+friends; and
+it causes the implicit instantiation of the definitions of
+unscoped member enumerations and member anonymous unions.
+However, for the purpose of determining whether an instantiated redeclaration
+is valid according to <a href='basic.def.odr'>[basic.def.odr]</a> and <a href='class.mem'>[class.mem]</a>,
+a declaration that corresponds to a definition in the template
+is considered to be a definition.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;class T, class U&gt;
+struct Outer {
+  template&lt;class X, class Y&gt; struct Inner;
+  template&lt;class Y&gt; struct Inner&lt;T, Y&gt;;         <span class='comment'>// #1a
+</span>  template&lt;class Y&gt; struct Inner&lt;T, Y&gt; { };     <span class='comment'>// #1b; OK: valid redeclaration of #1a
+</span>  template&lt;class Y&gt; struct Inner&lt;U, Y&gt; { };     <span class='comment'>// #2
+</span>};
+
+Outer&lt;int, int&gt; outer;                          <span class='comment'>// error at #2
+</span></pre><p ><span class='texttt'>Outer&lt;int, int&gt;&#x200b;::&#x200b;Inner&lt;int, Y&gt;</span> is redeclared at #1b. (It is not defined
+but noted as being associated with a definition in <span class='texttt'>Outer&lt;T, U&gt;</span>.) #2
+is also a redeclaration of #1a. It is noted as associated with a definition,
+so it is an invalid redeclaration of the same partial specialization.</p><pre class='codeblock'>
+template&lt;typename T&gt; struct Friendly {
+  template&lt;typename U&gt; friend int f(U) { return sizeof(T); }
+};
+Friendly&lt;char&gt; fc;
+Friendly&lt;float&gt; ff;                             <span class='comment'>// ill-formed: produces second definition of <span class='tcode_in_codeblock'>f(U)</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L4653'>#</a></div><p >Unless a member of a class template or a member template has been explicitly
+instantiated or explicitly specialized,
+the specialization of the member is implicitly instantiated when the
+specialization is referenced in a context that requires the member definition
+to exist;
+in particular, the initialization (and any associated side effects) of a
+static data member does not occur unless the static data member is itself used
+in a way that requires the definition of the static data member to exist.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L4663'>#</a></div><p >Unless a function template specialization has been explicitly instantiated or
+explicitly specialized,
+the function template specialization is implicitly instantiated when the
+specialization is referenced in a context that requires a function definition
+to exist.
+A function whose declaration was instantiated from a friend function definition is
+implicitly instantiated when it is referenced in a context that
+requires a function definition to exist.
+Unless a call is to a function template explicit specialization or
+to a member function of an explicitly specialized class template,
+a default argument for a function template or a member function of a
+class template is implicitly instantiated when the function is
+called in a context that requires the value of the default argument.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L4678'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;class T&gt; struct Z {
+  void f();
+  void g();
+};
+
+void h() {
+  Z&lt;int&gt; a;         <span class='comment'>// instantiation of class <span class='tcode_in_codeblock'>Z&lt;int&gt;</span> required
+</span>  Z&lt;char&gt;* p;       <span class='comment'>// instantiation of class <span class='tcode_in_codeblock'>Z&lt;char&gt;</span> not required
+</span>  Z&lt;double&gt;* q;     <span class='comment'>// instantiation of class <span class='tcode_in_codeblock'>Z&lt;double&gt;</span> not required
+</span>
+  a.f();            <span class='comment'>// instantiation of <span class='tcode_in_codeblock'>Z&lt;int&gt;&#x200b;::&#x200b;f()</span> required
+</span>  p-&gt;g();           <span class='comment'>// instantiation of class <span class='tcode_in_codeblock'>Z&lt;char&gt;</span> required, and
+</span>                    <span class='comment'>// instantiation of <span class='tcode_in_codeblock'>Z&lt;char&gt;&#x200b;::&#x200b;g()</span> required
+</span>}</pre><p >Nothing in this example requires
+<span class='texttt'>class</span>
+<span class='texttt'>Z&lt;double&gt;</span>,
+<span class='texttt'>Z&lt;int&gt;&#x200b;::&#x200b;g()</span>,
+or
+<span class='texttt'>Z&lt;char&gt;&#x200b;::&#x200b;f()</span>
+to be implicitly instantiated.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L4706'>#</a></div><p >Unless a variable template specialization has been explicitly instantiated or
+explicitly specialized, the variable template specialization is implicitly
+instantiated when the specialization is used. A default template argument for a
+variable template is implicitly instantiated when the variable template is
+referenced in a context that requires the value of the default argument.</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L4713'>#</a></div><p >If the function selected by <a href='over.match'>overload resolution</a>
+can be determined without instantiating a class template definition,
+it is unspecified whether that instantiation actually takes place.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+template &lt;class T&gt; struct S {
+  operator int();
+};
+
+void f(int);
+void f(S&lt;int&gt;&amp;);
+void f(S&lt;float&gt;);
+
+void g(S&lt;int&gt;&amp; sr) {
+  f(sr);            <span class='comment'>// instantiation of <span class='tcode_in_codeblock'>S&lt;int&gt;</span> allowed but not required
+</span>                    <span class='comment'>// instantiation of <span class='tcode_in_codeblock'>S&lt;float&gt;</span> allowed but not required
+</span>};</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L4735'>#</a></div><p >If a function template or a member function template specialization is used in
+a way that involves overload resolution,
+a declaration of the specialization is implicitly instantiated (<a href='temp.over'>[temp.over]</a>).</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L4740'>#</a></div><p >An implementation shall not implicitly instantiate a function template,
+a variable template,
+a member template, a non-virtual member function, a member class, a
+static data member of a class template, or a substatement of a
+<a href='stmt.if#def:constexpr_if'>constexpr if</a> statement, unless such instantiation is required.
+It is unspecified whether or not an implementation implicitly instantiates a
+virtual member function of a class template if the virtual member function would
+not otherwise be instantiated.
+The use of a template specialization in a default argument
+shall not cause the template to be implicitly instantiated except that a
+class template may be instantiated where its complete type is needed to determine
+the correctness of the default argument.
+The use of a default argument in a
+function call causes specializations in the default argument to be implicitly
+instantiated.</p></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L4757'>#</a></div><p >Implicitly instantiated class, function, and variable template specializations
+are placed in the namespace where the template is defined.
+Implicitly instantiated specializations for members of a class template are
+placed in the namespace where the enclosing class template is defined.
+Implicitly instantiated member templates are placed in the namespace where the
+enclosing class or class template is defined.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+namespace N {
+  template&lt;class T&gt; class List {
+  public:
+    T* get();
+  };
+}
+
+template&lt;class K, class V&gt; class Map {
+public:
+  N::List&lt;V&gt; lt;
+  V get(K);
+};
+
+void g(Map&lt;const char*,int&gt;&amp; m) {
+  int i = m.get("Nicholas");
+}</pre><p >a call of
+<span class='texttt'>lt.get()</span>
+from
+<span class='texttt'>Map&lt;const char*,int&gt;&#x200b;::&#x200b;get()</span>
+would place
+<span class='texttt'>List&lt;int&gt;&#x200b;::&#x200b;get()</span>
+in the namespace
+<span class='texttt'>N</span>
+rather than in the global namespace.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L4796'>#</a></div><p >If a function template
+<span class='texttt'>f</span>
+is called in a way that requires a default argument to be used,
+the dependent names are looked up, the semantics constraints are checked,
+and the instantiation of any template used in the default argument
+is done as if the default argument had been
+an initializer used in a function template specialization with the same scope,
+the same template parameters and the same access as that of the function template
+<span class='texttt'>f</span>
+used at that point, except that the scope in which a closure type is
+declared (<a href='expr.prim.lambda.closure'>[expr.prim.lambda.closure]</a>) – and therefore its associated namespaces –
+remain as determined from the context of the definition for the default
+argument.
+This analysis is called
+<a class='hidden_link' href='#def:default_argument_instantiation' id='def:default_argument_instantiation'><i >default argument instantiation</i></a>.
+The instantiated default argument is then used as the argument of
+<span class='texttt'>f</span>.</p></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L4815'>#</a></div><p >Each default argument is instantiated independently.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+template&lt;class T&gt; void f(T x, T y = ydef(T()), T z = zdef(T()));
+
+class  A { };
+
+A zdef(A);
+
+void g(A a, A b, A c) {
+  f(a, b, c);       <span class='comment'>// no default argument instantiation
+</span>  f(a, b);          <span class='comment'>// default argument <span class='tcode_in_codeblock'>z = zdef(T())</span> instantiated
+</span>  f(a);             <span class='comment'>// ill-formed; <span class='tcode_in_codeblock'>ydef</span> is not declared
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L4834'>#</a></div><p >The <i ><a href='except.spec#nt:noexcept-specifier'>noexcept-specifier</a></i> of a function template specialization
+is not instantiated along with the function declaration; it is instantiated
+when needed (<a href='except.spec'>[except.spec]</a>). If such an
+<i ><a href='except.spec#nt:noexcept-specifier'>noexcept-specifier</a></i> is needed but has not yet been
+instantiated, the dependent names are looked up, the semantics constraints are
+checked, and the instantiation of any template used in the
+<i ><a href='except.spec#nt:noexcept-specifier'>noexcept-specifier</a></i> is done as if it were being done as part
+of instantiating the declaration of the specialization at that point.</p></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L4844'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+<a href='temp.point'>[temp.point]</a> defines the point of instantiation of a template specialization.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L4849'>#</a></div><p >There is an <span class='indexparent'><a class='index' id=':maximum_depth_of_recursive_template_instantiations'></a></span>implementation-defined quantity
+that specifies the limit on the total depth of recursive instantiations (<a href='implimits'>[implimits]</a>),
+which could involve more than one template.
+The result of an infinite recursion in instantiation is undefined.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+template&lt;class T&gt; class X {
+  X&lt;T&gt;* p;          <span class='comment'>// OK
+</span>  X&lt;T*&gt; a;          <span class='comment'>// implicit generation of <span class='tcode_in_codeblock'>X&lt;T&gt;</span> requires
+</span>                    <span class='comment'>// the implicit instantiation of <span class='tcode_in_codeblock'>X&lt;T*&gt;</span> which requires
+</span>                    <span class='comment'>// the implicit instantiation of <span class='tcode_in_codeblock'>X&lt;T**&gt;</span> which &hellip;
+</span>};</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div></div></body></html>

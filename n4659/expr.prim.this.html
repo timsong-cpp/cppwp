@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang='en'><head><title>[expr.prim.this]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>8</a> Expressions <a class='abbr_ref' href='./#expr'>[expr]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>8.1</a> Primary expressions <a class='abbr_ref' href='expr.prim#this'>[expr.prim]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>8.1.2</a> This <a class='abbr_ref'>[expr.prim.this]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/expressions.tex#L363'>#</a></div><p ><span class='indexparent'><a class='index' id=':this'></a></span>The keyword <a href='class.this'><span class='texttt'>this</span></a> names a pointer to the object for which a non-static member
+function is invoked or a non-static data member's
+initializer (<a href='class.mem'>[class.mem]</a>) is evaluated.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/expressions.tex#L369'>#</a></div><p >If a declaration declares a member function or member function template of a
+class <span class='texttt'>X</span>, the expression <span class='texttt'>this</span> is a prvalue of type “pointer to
+<i ><a href='dcl.decl#nt:cv-qualifier-seq'>cv-qualifier-seq</a></i> <span class='texttt'>X</span>” between the optional
+<i ><a href='dcl.decl#nt:cv-qualifier-seq'>cv-qualifier-seq</a></i> and the end of the <i ><a href='dcl.fct.def.general#nt:function-definition'>function-definition</a></i>,
+<i ><a href='class.mem#nt:member-declarator'>member-declarator</a></i>, or <i ><a href='dcl.decl#nt:declarator'>declarator</a></i>. It shall not appear
+before the optional <i ><a href='dcl.decl#nt:cv-qualifier-seq'>cv-qualifier-seq</a></i> and it shall not appear within
+the declaration of a static member function (although its type and value category
+are defined within a static member function as they are within a non-static
+member function). [<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span>  This is because declaration matching does not
+occur until the complete declarator is known. <span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>]  Unlike the object
+expression in other contexts, <span class='texttt'>*this</span> is not required to be of complete
+type for purposes of <a href='expr.ref'>class member access</a> outside the member
+function body. [<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span>  Only class members declared prior to the declaration
+are visible. <span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+struct A {
+  char g();
+  template&lt;class T&gt; auto f(T t) -&gt; decltype(t + g())
+    { return t + g(); }
+};
+template auto A::f(int t) -&gt; decltype(t + g());</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/expressions.tex#L395'>#</a></div><p >Otherwise, if a <i ><a href='class.mem#nt:member-declarator'>member-declarator</a></i> declares a non-static <a href='class.mem'>data
+member</a> of a class <span class='texttt'>X</span>, the expression <span class='texttt'>this</span> is
+a prvalue of type “pointer to <span class='texttt'>X</span>” within the
+optional <a href='class.mem#def:default_member_initializer'>default member initializer</a>. It shall not appear elsewhere
+in the <i ><a href='class.mem#nt:member-declarator'>member-declarator</a></i>.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/expressions.tex#L402'>#</a></div><p >The expression <span class='texttt'>this</span> shall not appear in any other context.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+class Outer {
+  int a[sizeof(*this)];               <span class='comment'>// error: not inside a member function
+</span>  unsigned int sz = sizeof(*this);    <span class='comment'>// OK: in default member initializer
+</span>
+  void f() {
+    int b[sizeof(*this)];             <span class='comment'>// OK
+</span>
+    struct Inner {
+      int c[sizeof(*this)];           <span class='comment'>// error: not inside a member function of <span class='tcode_in_codeblock'>Inner</span>
+</span>    };
+  }
+};</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div></div></body></html>

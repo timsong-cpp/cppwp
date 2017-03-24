@@ -1,0 +1,135 @@
+<!DOCTYPE html><html lang='en'><head><title>[istreambuf.iterator]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>27</a> Iterators library <a class='abbr_ref' href='./#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>27.6</a> Stream iterators <a class='abbr_ref' href='stream.iterators#istreambuf.iterator'>[stream.iterators]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>27.6.3</a> Class template <span class='texttt'>istreambuf_&shy;iterator</span> <a class='abbr_ref'>[istreambuf.iterator]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/iterators.tex#L2953'>#</a></div><p >The
+class template
+<span class='texttt'>istreambuf_&shy;iterator</span>
+defines an <a href='input.iterators'>input iterator</a> that
+reads successive
+<span class='textit'>characters</span>
+from the streambuf for which it was constructed.
+<span class='texttt'>operator*</span>
+provides access to the current input character, if any.
+Each time
+<span class='texttt'>operator++</span>
+is evaluated, the iterator advances to the next input character.
+If the end of stream is reached (<span class='texttt'>streambuf_&shy;type&#x200b;::&#x200b;sgetc()</span> returns
+<span class='texttt'>traits&#x200b;::&#x200b;eof()</span>),
+the iterator becomes equal to the
+<span class='textit'>end-of-stream</span>
+iterator value.
+The default constructor
+<span class='texttt'>istreambuf_&shy;iterator()</span>
+and the constructor
+<span class='texttt'>istreambuf_&shy;iterator(0)</span>
+both construct an end-of-stream iterator object suitable for use
+as an end-of-range.
+All specializations of <span class='texttt'>istreambuf_&shy;iterator</span> shall have a trivial copy
+constructor, a <span class='texttt'>constexpr</span> default constructor, and a trivial destructor.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/iterators.tex#L2980'>#</a></div><p >The result of
+<span class='texttt'>operator*()</span>
+on an end-of-stream iterator is undefined.
+<span class='indexparent'><a class='index' id=':behavior,undefined'></a></span>For any other iterator value a
+<span class='texttt'>char_&shy;type</span>
+value is returned.
+It is impossible to assign a character via an input iterator.</p><p ><span class='indexparent'><a class='index' id='lib:istreambuf_iterator'></a></span></p><pre class='codeblock'>
+namespace std {
+  template&lt;class charT, class traits = char_traits&lt;charT&gt;&gt;
+  class istreambuf_iterator {
+  public:
+    using iterator_category = input_iterator_tag;
+    using value_type        = charT;
+    using difference_type   = typename traits::off_type;
+    using pointer           = <span class='textit'><span class='texttt'>unspecified</span></span>;
+    using reference         = charT;
+    using char_type         = charT;
+    using traits_type       = traits;
+    using int_type          = typename traits::int_type;
+    using streambuf_type    = basic_streambuf&lt;charT,traits&gt;;
+    using istream_type      = basic_istream&lt;charT,traits&gt;;
+
+    class proxy;                          <span class='comment'>// <span class='textit'>exposition only</span>
+</span>
+    constexpr istreambuf_iterator() noexcept;
+    istreambuf_iterator(const istreambuf_iterator&amp;) noexcept = default;
+    ~istreambuf_iterator() = default;
+    istreambuf_iterator(istream_type&amp; s) noexcept;
+    istreambuf_iterator(streambuf_type* s) noexcept;
+    istreambuf_iterator(const proxy&amp; p) noexcept;
+    charT operator*() const;
+    istreambuf_iterator&amp; operator++();
+    proxy operator++(int);
+    bool equal(const istreambuf_iterator&amp; b) const;
+  private:
+    streambuf_type* sbuf_;                <span class='comment'>// <span class='textit'>exposition only</span>
+</span>  };
+
+  template &lt;class charT, class traits&gt;
+    bool operator==(const istreambuf_iterator&lt;charT,traits&gt;&amp; a,
+            const istreambuf_iterator&lt;charT,traits&gt;&amp; b);
+  template &lt;class charT, class traits&gt;
+    bool operator!=(const istreambuf_iterator&lt;charT,traits&gt;&amp; a,
+            const istreambuf_iterator&lt;charT,traits&gt;&amp; b);
+}</pre></div><div id='proxy'><h4 ><a class='secnum' href='#proxy' style='min-width:118pt'>27.6.3.1</a> Class template <span class='texttt'>istreambuf_&shy;iterator&#x200b;::&#x200b;proxy</span> <a class='abbr_ref' href='istreambuf.iterator.proxy'>[istreambuf.iterator.proxy]</a></h4><p ><span class='indexparent'><a class='index' id='lib:proxy,istreambuf_iterator'></a></span></p><pre class='codeblock'>
+namespace std {
+  template &lt;class charT, class traits = char_traits&lt;charT&gt;&gt;
+  class istreambuf_iterator&lt;charT, traits&gt;::proxy { <span class='comment'>// <span class='textit'>exposition only</span>
+</span>    charT keep_;
+    basic_streambuf&lt;charT,traits&gt;* sbuf_;
+    proxy(charT c, basic_streambuf&lt;charT,traits&gt;* sbuf)
+      : keep_(c), sbuf_(sbuf) { }
+  public:
+    charT operator*() { return keep_; }
+  };
+}</pre><div class='para' id='proxy-1'><div class='marginalizedparent'><a class='marginalized' href='#proxy-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/iterators.tex#L3049'>#</a></div><p >Class
+<span class='texttt'>istreambuf_&shy;iterator&lt;charT,traits&gt;&#x200b;::&#x200b;proxy</span>
+is for exposition only.
+An implementation is permitted to provide equivalent functionality without
+providing a class with this name.
+Class
+<span class='texttt'>istreambuf_&shy;iterator&lt;charT, traits&gt;&#x200b;::&#x200b;proxy</span>
+provides a temporary
+placeholder as the return value of the post-increment operator
+(<span class='texttt'>operator++</span>).
+It keeps the character pointed to by the previous value
+of the iterator for some possible future access to get the character.</p></div></div><div id='cons'><h4 ><a class='secnum' href='#cons' style='min-width:118pt'>27.6.3.2</a> <span class='texttt'>istreambuf_&shy;iterator</span> constructors <a class='abbr_ref' href='istreambuf.iterator.cons'>[istreambuf.iterator.cons]</a></h4><div class='para' id='cons-1'><div class='marginalizedparent'><a class='marginalized' href='#cons-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/iterators.tex#L3065'>#</a></div><p >For each <span class='texttt'>istreambuf_&shy;iterator</span> constructor in this section,
+an end-of-stream iterator is constructed if and only if
+the exposition-only member <span class='texttt'>sbuf_&shy;</span> is initialized with a null pointer value.</p><p ><span class='indexparent'><a class='index' id='lib:istreambuf_iterator,constructor'></a></span></p></div><p ><code class='itemdecl'>constexpr istreambuf_iterator() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='cons-2'><div class='marginalizedparent'><a class='marginalized' href='#cons-2'>2</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/iterators.tex#L3077'>#</a></div><p ><span class='textit'>Effects:</span> 
+Initializes <span class='texttt'>sbuf_&shy;</span> with <span class='texttt'>nullptr</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='lib:istreambuf_iterator,constructor_'></a></span></p><p ><code class='itemdecl'>istreambuf_iterator(istream_type&amp; s) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='cons-3'><div class='marginalizedparent'><a class='marginalized' href='#cons-3'>3</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/iterators.tex#L3089'>#</a></div><p ><span class='textit'>Effects:</span> 
+Initializes <span class='texttt'>sbuf_&shy;</span> with <span class='texttt'>s.rdbuf()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='lib:istreambuf_iterator,constructor__'></a></span></p><p ><code class='itemdecl'>istreambuf_iterator(streambuf_type* s) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='cons-4'><div class='marginalizedparent'><a class='marginalized' href='#cons-4'>4</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/iterators.tex#L3101'>#</a></div><p ><span class='textit'>Effects:</span> 
+Initializes <span class='texttt'>sbuf_&shy;</span> with <span class='texttt'>s</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='lib:istreambuf_iterator,constructor___'></a></span></p><p ><code class='itemdecl'>istreambuf_iterator(const proxy&amp; p) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='cons-5'><div class='marginalizedparent'><a class='marginalized' href='#cons-5'>5</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/iterators.tex#L3113'>#</a></div><p ><span class='textit'>Effects:</span> 
+Initializes <span class='texttt'>sbuf_&shy;</span> with <span class='texttt'>p.sbuf_&shy;</span>.
+</p></div></div></div><div id='ops'><h4 ><a class='secnum' href='#ops' style='min-width:118pt'>27.6.3.3</a> <span class='texttt'>istreambuf_&shy;iterator</span> operations <a class='abbr_ref' href='istreambuf.iterator.ops'>[istreambuf.iterator.ops]</a></h4><p ><span class='indexparent'><a class='index' id='lib:operator*,istreambuf_iterator'></a></span><span class='indexparent'><a class='index' id='lib:istreambuf_iterator,operator*'></a></span></p><p ><code class='itemdecl'>charT operator*() const
+</code></p><div class='itemdescr'></div><div class='para' id='ops-1'><div class='marginalizedparent'><a class='marginalized' href='#ops-1'>1</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/iterators.tex#L3126'>#</a></div><p ><span class='textit'>Returns:</span> 
+The character obtained via the
+<span class='texttt'>streambuf</span>
+member
+<span class='texttt'>sbuf_&shy;-&gt;sgetc()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='lib:operator++,istreambuf_iterator'></a></span><span class='indexparent'><a class='index' id='lib:istreambuf_iterator,operator++'></a></span></p><p ><code class='itemdecl'>istreambuf_iterator&amp; operator++();
+</code></p><div class='itemdescr'></div><div class='para' id='ops-2'><div class='marginalizedparent'><a class='marginalized' href='#ops-2'>2</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/iterators.tex#L3140'>#</a></div><p ><span class='textit'>Effects:</span> 
+As if by <span class='texttt'>sbuf_&shy;-&gt;sbumpc()</span>.</p></div></div><div class='para' id='ops-3'><div class='marginalizedparent'><a class='marginalized' href='#ops-3'>3</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/iterators.tex#L3144'>#</a></div><p ><span class='textit'>Returns:</span> 
+<span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='lib:operator++,istreambuf_iterator_'></a></span><span class='indexparent'><a class='index' id='lib:istreambuf_iterator,operator++_'></a></span></p><p ><code class='itemdecl'>proxy operator++(int);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-4'><div class='marginalizedparent'><a class='marginalized' href='#ops-4'>4</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/iterators.tex#L3155'>#</a></div><p ><span class='textit'>Returns:</span> 
+<span class='texttt'>proxy(sbuf_&shy;-&gt;sbumpc(), sbuf_&shy;)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='lib:equal,istreambuf_iterator'></a></span><span class='indexparent'><a class='index' id='lib:istreambuf_iterator,equal'></a></span></p><p ><code class='itemdecl'>bool equal(const istreambuf_iterator&amp; b) const;
+</code></p><div class='itemdescr'></div><div class='para' id='ops-5'><div class='marginalizedparent'><a class='marginalized' href='#ops-5'>5</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/iterators.tex#L3166'>#</a></div><p ><span class='textit'>Returns:</span> 
+<span class='texttt'>true</span>
+if and only if both iterators are at end-of-stream,
+or neither is at end-of-stream, regardless of what
+<span class='texttt'>streambuf</span>
+object they use.
+</p></div></div><p ><span class='indexparent'><a class='index' id='lib:operator==,istreambuf_iterator'></a></span><span class='indexparent'><a class='index' id='lib:istreambuf_iterator,operator=='></a></span></p><p ><code class='itemdecl'>template &lt;class charT, class traits&gt;
+  bool operator==(const istreambuf_iterator&lt;charT,traits&gt;&amp; a,
+                  const istreambuf_iterator&lt;charT,traits&gt;&amp; b);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-6'><div class='marginalizedparent'><a class='marginalized' href='#ops-6'>6</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/iterators.tex#L3183'>#</a></div><p ><span class='textit'>Returns:</span> 
+<span class='texttt'>a.equal(b)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='lib:operator!=,istreambuf_iterator'></a></span><span class='indexparent'><a class='index' id='lib:istreambuf_iterator,operator!='></a></span></p><p ><code class='itemdecl'>template &lt;class charT, class traits&gt;
+  bool operator!=(const istreambuf_iterator&lt;charT,traits&gt;&amp; a,
+                  const istreambuf_iterator&lt;charT,traits&gt;&amp; b);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-7'><div class='marginalizedparent'><a class='marginalized' href='#ops-7'>7</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/iterators.tex#L3196'>#</a></div><p ><span class='textit'>Returns:</span> 
+<span class='texttt'>!a.equal(b)</span>.
+</p></div></div></div></div></body></html>

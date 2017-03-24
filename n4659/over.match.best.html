@@ -1,0 +1,868 @@
+<!DOCTYPE html><html lang='en'><head><title>[over.match.best]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>16</a> Overloading <a class='abbr_ref' href='./#over'>[over]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>16.3</a> Overload resolution <a class='abbr_ref' href='over.match#best'>[over.match]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>16.3.3</a> Best viable function <a class='abbr_ref'>[over.match.best]</a></h3><p ><span class='indexparent'><a class='index' id=':overloading,resolution,best_viable_function'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L1564'>#</a></div><p ><span class='indexparent'><a class='index' id=':conversion,overload_resolution_and'></a></span>Define ICS<span class='textit'>i</span>(<span class='texttt'>F</span>) as follows:
+</p><ul class='itemize'><li id='1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.1'>(1.1)</a></div><p >If
+<span class='texttt'>F</span>
+is a static member function, ICS<span class='textit'>1</span>(<span class='texttt'>F</span>) is defined such that
+ICS<span class='textit'>1</span>(<span class='texttt'>F</span>) is neither better nor worse than ICS<span class='textit'>1</span>(<span class='texttt'>G</span>)
+for any function
+<span class='texttt'>G</span>,
+and, symmetrically, ICS<span class='textit'>1</span>(<span class='texttt'>G</span>) is neither better nor worse than
+ICS<span class='textit'>1</span>(<span class='texttt'>F</span>);<a class='footnotenum' href='#footnote-131'>131</a>
+otherwise,
+</p></li><li id='1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.2'>(1.2)</a></div><p >let ICS<span class='textit'>i</span>(<span class='texttt'>F</span>) denote the implicit conversion sequence that converts
+the <span class='textit'>i</span>-th argument in the list to the type of the
+<span class='textit'>i</span>-th
+parameter
+of viable function
+<span class='texttt'>F</span>.
+<a href='over.best.ics'>[over.best.ics]</a> defines the implicit conversion sequences and <a href='over.ics.rank'>[over.ics.rank]</a>
+defines what it means for one implicit conversion sequence to be
+a better conversion sequence or worse conversion sequence than
+another.
+</p></li></ul><p >Given these definitions, a viable function
+<span class='texttt'>F1</span>
+is defined
+to be a
+<a class='hidden_link' href='#def:better' id='def:better'><i>better</i></a>
+function than another viable function
+<span class='texttt'>F2</span>
+if
+for all arguments
+<span class='textit'>i</span>,
+ICS<span class='textit'>i</span>(<span class='texttt'>F1</span>) is not a worse conversion
+sequence than ICS<span class='textit'>i</span>(<span class='texttt'>F2</span>), and then
+</p><ul class='itemize'><li id='1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.3'>(1.3)</a></div><p >for some argument
+<span class='textit'>j</span>,
+ICS<span class='textit'>j</span>(<span class='texttt'>F1</span>) is a better conversion
+sequence than ICS<span class='textit'>j</span>(<span class='texttt'>F2</span>), or, if not that,</p></li><li id='1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.4'>(1.4)</a></div><p >the context is an initialization by user-defined conversion
+(see <a href='dcl.init'>[dcl.init]</a>,
+<a href='over.match.conv'>[over.match.conv]</a>, and <a href='over.match.ref'>[over.match.ref]</a>)
+and the standard conversion sequence from the return type of
+<span class='texttt'>F1</span>
+to the destination type (i.e., the type of the entity being initialized)
+is a better conversion sequence than the standard conversion sequence
+from the return type of
+<span class='texttt'>F2</span>
+to the destination type
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+struct A {
+  A();
+  operator int();
+  operator double();
+} a;
+int i = a;          <span class='comment'>// <span class='tcode_in_codeblock'>a.operator int()</span> followed by no conversion is better than
+</span>                    <span class='comment'>// <span class='tcode_in_codeblock'>a.operator double()</span> followed by a conversion to <span class='tcode_in_codeblock'>int</span>
+</span>float x = a;        <span class='comment'>// ambiguous: both possibilities require conversions,
+</span>                    <span class='comment'>// and neither is better than the other
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+or, if not that,</p></li><li id='1.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.5'>(1.5)</a></div><p >the context is an initialization by conversion function for <a href='over.match.ref'>direct
+reference binding</a> of a reference to function type, the
+return type of <span class='texttt'>F1</span> is the same kind of reference (i.e. lvalue or rvalue)
+as the reference being initialized, and the return type of <span class='texttt'>F2</span> is not
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template &lt;class T&gt; struct A {
+  operator T&amp;();    <span class='comment'>// #1
+</span>  operator T&amp;&amp;();   <span class='comment'>// #2
+</span>};
+typedef int Fn();
+A&lt;Fn&gt; a;
+Fn&amp; lf = a;         <span class='comment'>// calls #1
+</span>Fn&amp;&amp; rf = a;        <span class='comment'>// calls #2
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+or, if not that,</p></li><li id='1.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.6'>(1.6)</a></div><p ><span class='texttt'>F1</span>
+is not a function template specialization and
+<span class='texttt'>F2</span>
+is a
+function template
+specialization, or, if not that,</p></li><li id='1.7'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.7'>(1.7)</a></div><p ><span class='texttt'>F1</span>
+and
+<span class='texttt'>F2</span>
+are
+function template specializations,
+and the function template
+for
+<span class='texttt'>F1</span>
+is more specialized than the template for
+<span class='texttt'>F2</span>
+according to the partial ordering rules described in <a href='temp.func.order'>[temp.func.order]</a>,
+or, if not that,</p></li><li id='1.8'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.8'>(1.8)</a></div><p ><span class='texttt'>F1</span> is generated from a
+<i ><a href='temp.deduct.guide#nt:deduction-guide'>deduction-guide</a></i> (<a href='over.match.class.deduct'>[over.match.class.deduct]</a>)
+and <span class='texttt'>F2</span> is not, or, if not that,</p></li><li id='1.9'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.9'>(1.9)</a></div><p ><span class='texttt'>F1</span> is the copy deduction candidate (<a href='over.match.class.deduct'>[over.match.class.deduct]</a>)
+and <span class='texttt'>F2</span> is not, or, if not that,</p></li><li id='1.10'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.10'>(1.10)</a></div><p ><span class='texttt'>F1</span> is generated from a non-template constructor
+and <span class='texttt'>F2</span> is generated from a constructor template.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template &lt;class T&gt; struct A {
+  using value_type = T;
+  A(value_type);    <span class='comment'>// #1
+</span>  A(const A&amp;);      <span class='comment'>// #2
+</span>  A(T, T, int);     <span class='comment'>// #3
+</span>  template&lt;class U&gt;
+    A(int, T, U);   <span class='comment'>// #4
+</span>  <span class='comment'>// #5 is the copy deduction candidate, <span class='tcode_in_codeblock'>A(A)</span>
+</span>};
+
+A x(1, 2, 3);       <span class='comment'>// uses #3, generated from a non-template constructor
+</span>
+template &lt;class T&gt;
+A(T) -&gt; A&lt;T&gt;;       <span class='comment'>// #6, less specialized than #5
+</span>
+A a(42);            <span class='comment'>// uses #6 to deduce <span class='tcode_in_codeblock'>A&lt;int&gt;</span> and #1 to initialize
+</span>A b = a;            <span class='comment'>// uses #5 to deduce <span class='tcode_in_codeblock'>A&lt;int&gt;</span> and #2 to initialize
+</span>
+template &lt;class T&gt;
+A(A&lt;T&gt;) -&gt; A&lt;A&lt;T&gt;&gt;; <span class='comment'>// #7, as specialized as #5
+</span>
+A b2 = a;           <span class='comment'>// uses #7 to deduce <span class='tcode_in_codeblock'>A&lt;A&lt;int&gt;&gt;</span> and #1 to initialize
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+</p></li></ul></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L1719'>#</a></div><p >If there is exactly one viable function that is a better function
+than all other viable functions, then it is the one selected by
+overload resolution; otherwise the call is ill-formed.<a class='footnotenum' href='#footnote-132'>132</a>
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+void Fcn(const int*,  short);
+void Fcn(int*, int);
+
+int i;
+short s = 0;
+
+void f() {
+  Fcn(&amp;i, s);       <span class='comment'>// is ambiguous because <span class='tcode_in_codeblock'>&amp;i</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>int*</span> is better than <span class='tcode_in_codeblock'>&amp;i</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>const int*</span>
+</span>                    <span class='comment'>// but <span class='tcode_in_codeblock'>s</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>short</span> is also better than <span class='tcode_in_codeblock'>s</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>int</span>
+</span>
+  Fcn(&amp;i, 1L);      <span class='comment'>// calls <span class='tcode_in_codeblock'>Fcn(int*, int)</span>, because <span class='tcode_in_codeblock'>&amp;i</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>int*</span> is better than <span class='tcode_in_codeblock'>&amp;i</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>const int*</span>
+</span>                    <span class='comment'>// and <span class='tcode_in_codeblock'>1L</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>short</span> and <span class='tcode_in_codeblock'>1L</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>int</span> are indistinguishable
+</span>
+  Fcn(&amp;i, 'c');     <span class='comment'>// calls <span class='tcode_in_codeblock'>Fcn(int*, int)</span>, because <span class='tcode_in_codeblock'>&amp;i</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>int*</span> is better than <span class='tcode_in_codeblock'>&amp;i</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>const int*</span>
+</span>                    <span class='comment'>// and <span class='tcode_in_codeblock'>c</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>int</span> is better than <span class='tcode_in_codeblock'>c</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>short</span>
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L1778'>#</a></div><p >If the best viable function resolves to a function for
+which multiple declarations were found, and if at least
+two of these declarations — or the declarations they
+refer to in the case of
+<i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i><span class='textit'>s</span>
+— specify a default argument that made the function
+viable, the program is ill-formed.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+namespace A {
+  extern "C" void f(int = 5);
+}
+namespace B {
+  extern "C" void f(int = 5);
+}
+
+using A::f;
+using B::f;
+
+void use() {
+  f(3);             <span class='comment'>// OK, default argument was not used for viability
+</span>  f();              <span class='comment'>// Error: found default argument twice
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='footnote' id='footnote-131'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-131'>131)</a></div><p >If a function is a static member function, this
+definition means that the first argument, the implied object argument,
+has no effect in the determination of whether the function is better
+or worse than any other function.</p></div><div class='footnote' id='footnote-132'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-132'>132)</a></div><p >The algorithm
+for selecting the best viable function is linear in the number
+of viable
+functions.
+Run a simple tournament to find a function
+<span class='texttt'>W</span>
+that is not
+worse than any
+opponent it faced.
+Although another function
+<span class='texttt'>F</span>
+that
+<span class='texttt'>W</span>
+did not face
+might be at least as good as
+<span class='texttt'>W</span>,
+<span class='texttt'>F</span>
+cannot be the best function because at some point in the
+tournament
+<span class='texttt'>F</span>
+encountered another function
+<span class='texttt'>G</span>
+such that
+<span class='texttt'>F</span>
+was not better than
+<span class='texttt'>G</span>.
+Hence,
+<span class='texttt'>W</span>
+is either
+the best function or there is no best function.
+So, make a second pass over
+the viable
+functions to verify that
+<span class='texttt'>W</span>
+is better than all other functions.</p></div><div id='over.best.ics'><h4 ><a class='secnum' href='#over.best.ics' style='min-width:118pt'>16.3.3.1</a> Implicit conversion sequences <a class='abbr_ref' href='over.best.ics'>[over.best.ics]</a></h4><p ><span class='indexparent'><a class='index' id=':overloading,resolution,implicit_conversions_and'></a></span></p><div class='para' id='over.best.ics-1'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L1808'>#</a></div><p >An
+<a class='hidden_link' href='#def:implicit_conversion_sequence' id='def:implicit_conversion_sequence'><i>implicit conversion sequence</i></a>
+<span class='indexparent'><a class='index' id=':sequence,implicit_conversion'></a></span>is a sequence of conversions used
+to convert an argument in a function call to the type of the
+corresponding parameter of the function being called.
+The
+sequence of conversions is an implicit conversion as defined in
+Clause <a href='conv'>[conv]</a>, which means it is governed by the rules for
+initialization of an object or reference by a single
+expression (<a href='dcl.init'>[dcl.init]</a>, <a href='dcl.init.ref'>[dcl.init.ref]</a>).</p></div><div class='para' id='over.best.ics-2'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L1821'>#</a></div><p >Implicit conversion sequences are concerned only with the type,
+cv-qualification, and value category of the argument and how these
+are converted to match the corresponding properties of the
+parameter.
+Other properties, such as the lifetime, storage class,
+alignment, accessibility of the argument, whether the argument is a bit-field,
+and whether a function is <a href='dcl.fct.def.delete'>deleted</a>, are ignored.
+So, although an implicit
+conversion sequence can be defined for a given argument-parameter
+pair, the conversion from the argument to the parameter might still
+be ill-formed in the final analysis.</p></div><div class='para' id='over.best.ics-3'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L1834'>#</a></div><p >A
+well-formed implicit conversion
+sequence is one of the following forms:</p><ul class='itemize'><li id='over.best.ics-3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.best.ics-3.1'>(3.1)</a></div><p >a
+<a href='over.ics.scs'>standard conversion sequence</a>,
+</p></li><li id='over.best.ics-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.best.ics-3.2'>(3.2)</a></div><p >a
+<a href='over.ics.user'>user-defined conversion sequence</a>, or
+</p></li><li id='over.best.ics-3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.best.ics-3.3'>(3.3)</a></div><p >an
+<a href='over.ics.ellipsis'>ellipsis conversion sequence</a>.
+</p></li></ul></div><div class='para' id='over.best.ics-4'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics-4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L1851'>#</a></div><p >However, if the target is
+</p><ul class='itemize'><li id='over.best.ics-4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.best.ics-4.1'>(4.1)</a></div><p >the first parameter of a constructor or
+</p></li><li id='over.best.ics-4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.best.ics-4.2'>(4.2)</a></div><p >the implicit object parameter of a user-defined conversion function
+</p></li></ul><p >and the constructor or user-defined conversion function is a candidate by
+</p><ul class='itemize'><li id='over.best.ics-4.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.best.ics-4.3'>(4.3)</a></div><p ><a href='over.match.ctor'>[over.match.ctor]</a>, when the argument is the temporary in the second
+step of a class copy-initialization,
+</p></li><li id='over.best.ics-4.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.best.ics-4.4'>(4.4)</a></div><p ><a href='over.match.copy'>[over.match.copy]</a>, <a href='over.match.conv'>[over.match.conv]</a>, or <a href='over.match.ref'>[over.match.ref]</a>
+(in all cases), or
+</p></li><li id='over.best.ics-4.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.best.ics-4.5'>(4.5)</a></div><p >the second phase of <a href='over.match.list'>[over.match.list]</a>
+when the initializer list has exactly one element that
+is itself an initializer list, and
+the target is the first parameter of a constructor of class <span class='texttt'>X</span>, and
+the conversion is to <span class='texttt'>X</span> or reference to <span class='textit'>cv</span> <span class='texttt'>X</span>,
+</p></li></ul><p >user-defined conversion sequences are not considered.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+These rules prevent more than one user-defined conversion from being
+applied during overload resolution, thereby avoiding infinite recursion.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+  struct Y { Y(int); };
+  struct A { operator int(); };
+  Y y1 = A();       <span class='comment'>// error: <span class='tcode_in_codeblock'>A&#x200b;::&#x200b;operator int()</span> is not a candidate
+</span>
+  struct X { };
+  struct B { operator X(); };
+  B b;
+  X x({b});         <span class='comment'>// error: <span class='tcode_in_codeblock'>B&#x200b;::&#x200b;operator X()</span> is not a candidate
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='over.best.ics-5'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics-5'>5</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L1887'>#</a></div><p >For the case where the parameter type is a reference, see <a href='over.ics.ref'>[over.ics.ref]</a>.</p></div><div class='para' id='over.best.ics-6'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics-6'>6</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L1890'>#</a></div><p >When the parameter type is not a reference, the implicit conversion
+sequence models a copy-initialization of the parameter from the argument
+expression.
+The implicit conversion sequence is the one required to convert the
+argument expression to a prvalue of the type of
+the parameter.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+When the parameter has a class type, this is a conceptual conversion
+defined for the purposes of Clause <a href='over'>[over]</a>; the actual initialization is
+defined in terms of constructors and is not a conversion.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+Any difference in top-level cv-qualification is
+subsumed by the initialization itself and does not constitute a conversion.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+A parameter of type
+<span class='texttt'>A</span>
+can be initialized from an argument of type
+<span class='texttt'>const A</span>.
+The implicit conversion sequence for that case is the identity sequence; it
+contains no “conversion” from
+<span class='texttt'>const A</span>
+to
+<span class='texttt'>A</span>.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+When the parameter has a class type and the argument expression has the
+same type, the implicit conversion sequence is an identity conversion.
+When the parameter has a class type and the argument expression has a
+derived class type, the implicit conversion sequence is a
+derived-to-base
+<span class='indexparent'><a class='index' id=':conversion,derived-to-base'></a></span>Conversion from the derived class to the base class.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+There is no such standard conversion; this derived-to-base Conversion exists
+only in the description of implicit conversion sequences.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+A derived-to-base Conversion has Conversion rank (<a href='over.ics.scs'>[over.ics.scs]</a>).</p></div><div class='para' id='over.best.ics-7'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics-7'>7</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L1928'>#</a></div><p >In all contexts, when converting to the implicit object parameter
+or when converting to the left operand of an assignment operation
+only standard conversion sequences are allowed.</p></div><div class='para' id='over.best.ics-8'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics-8'>8</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L1933'>#</a></div><p >If no conversions are required to match an argument to a
+parameter type, the implicit conversion sequence is the standard
+conversion sequence consisting of the identity conversion (<a href='over.ics.scs'>[over.ics.scs]</a>).</p></div><div class='para' id='over.best.ics-9'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics-9'>9</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L1938'>#</a></div><p >If no sequence of conversions can be found to convert an argument
+to a parameter type, an implicit conversion sequence cannot be formed.</p></div><div class='para' id='over.best.ics-10'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics-10'>10</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L1942'>#</a></div><p >If several different sequences of conversions exist that each
+convert the argument to the parameter type, the implicit
+conversion sequence associated with the parameter is defined to be
+the unique conversion sequence designated the
+<a class='hidden_link' href='#def:ambiguous_conversion_sequence' id='def:ambiguous_conversion_sequence'><i>ambiguous conversion sequence</i></a>.
+<span class='indexparent'><a class='index' id=':sequence,ambiguous_conversion'></a></span>For the purpose of ranking implicit conversion sequences as described
+in <a href='over.ics.rank'>[over.ics.rank]</a>, the ambiguous conversion sequence is treated
+as a user-defined conversion sequence that is indistinguishable from any
+other user-defined conversion sequence.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+This rule prevents a function from becoming non-viable because of an ambiguous
+conversion sequence for one of its parameters.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+class B;
+class A { A (B&amp;);};
+class B { operator A (); };
+class C { C (B&amp;); };
+void f(A) { }
+void f(C) { }
+B b;
+f(b);               <span class='comment'>// ill-formed: ambiguous because there is a conversion <span class='tcode_in_codeblock'>b</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>C</span> (via constructor)
+</span>                    <span class='comment'>// and an (ambiguous) conversion <span class='tcode_in_codeblock'>b</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>A</span> (via constructor or conversion function)
+</span>void f(B) { }
+f(b);               <span class='comment'>// OK, unambiguous
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+If a function that uses the ambiguous conversion sequence is selected
+as the best viable function, the call will be ill-formed because the conversion
+of one of the arguments in the call is ambiguous.</p></div><div class='para' id='over.best.ics-11'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics-11'>11</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L1976'>#</a></div><p >The three forms of implicit conversion sequences mentioned above
+are defined in the following subclauses.</p></div><div id='over.ics.scs'><h4 ><a class='secnum' href='#over.ics.scs' style='min-width:133pt'>16.3.3.1.1</a> Standard conversion sequences <a class='abbr_ref' href='over.ics.scs'>[over.ics.scs]</a></h4><div class='para' id='over.ics.scs-1'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.scs-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L1982'>#</a></div><p >Table <a href='#tab:over.conversions'>13</a>
+summarizes the conversions defined in Clause <a href='conv'>[conv]</a> and
+partitions them into four disjoint categories: Lvalue Transformation,
+Qualification Adjustment, Promotion, and Conversion.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+These categories are orthogonal with respect to value category,
+cv-qualification, and data representation: the Lvalue Transformations
+do not change the cv-qualification or data
+representation of the type; the Qualification Adjustments do not
+change the value category or data representation of the type; and
+the Promotions and Conversions do not change the
+value category or cv-qualification of the type.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='over.ics.scs-2'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.scs-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L1997'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+As described in Clause <a href='conv'>[conv]</a>,
+a standard conversion sequence is either the Identity conversion
+by itself (that is, no conversion) or consists of one to three
+conversions from the other
+four categories.
+If there are two or more conversions in the sequence, the
+conversions are applied in the canonical order:
+<b>Lvalue Transformation</b>,
+<b>Promotion</b>
+or
+<b>Conversion</b>,
+<b>Qualification Adjustment</b>.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='over.ics.scs-3'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.scs-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2013'>#</a></div><p ><span class='indexparent'><a class='index' id=':conversion_rank'></a></span>Each conversion in Table <a href='#tab:over.conversions'>13</a>
+also has an associated rank (Exact
+Match, Promotion, or Conversion).
+These are used
+to <a href='over.ics.rank'>rank standard conversion sequences</a>.
+The rank of a conversion sequence is determined by considering the
+rank of each conversion in the sequence and the rank of any <a href='over.ics.ref'>reference
+binding</a>.
+If any of those has Conversion rank, the
+sequence has Conversion rank; otherwise, if any of those has Promotion rank,
+the sequence has Promotion rank; otherwise, the sequence has Exact
+Match rank.</p><div class='numberedTable' id='tab:over.conversions'>Table <a href='#tab:over.conversions'>13</a> — Conversions<br><table ><tr class='rowsep'><td class='left'>
+
+<b>Conversion</b>            </td><td class='border center'>   <b>Category</b>          </td><td class='border center'>   <b>Rank</b>  </td><td class='border center'>   <b>Subclause</b> </td></tr><tr class='capsep'><td class='left'> 
+No conversions required         </td><td class='border center'>   Identity                    </td><td class='border center'>                   </td><td class='border center'>                       </td></tr><tr ><td class='left cline'> 
+Lvalue-to-rvalue conversion     </td><td class='border center cline'>                               </td><td class='border center'>                   </td><td class='border center cline'>   <a href='conv.lval'>[conv.lval]</a>     </td></tr><tr ><td class='left cline'> 
+Array-to-pointer conversion     </td><td class='border center'>   Lvalue Transformation       </td><td class='border center'>                   </td><td class='border center cline'>   <a href='conv.array'>[conv.array]</a>    </td></tr><tr ><td class='left cline'> 
+Function-to-pointer conversion  </td><td class='border center'>                               </td><td class='border center'>   <span style='position: relative; top: -1.5ex'>Exact Match</span></td><td class='border center cline'>   <a href='conv.func'>[conv.func]</a>     </td></tr><tr ><td class='left cline'> 
+Qualification conversions       </td><td class='border center cline'>                               </td><td class='border center'>                   </td><td class='border center cline'>   <a href='conv.qual'>[conv.qual]</a>     </td></tr><tr ><td class='left cline'> 
+Function pointer conversion     </td><td class='border center'> <span style='position: relative; top: -1.5ex'>Qualification Adjustment</span> </td><td class='border center'>                   </td><td class='border center cline'>   <a href='conv.fctptr'>[conv.fctptr]</a>   </td></tr><tr class='rowsep'><td class='left'> 
+Integral promotions             </td><td class='border center'>                               </td><td class='border center'>                   </td><td class='border center'>   <a href='conv.prom'>[conv.prom]</a>     </td></tr><tr ><td class='left cline'> 
+Floating-point promotion        </td><td class='border center'>   <span style='position: relative; top: -1.5ex'>Promotion</span>              </td><td class='border center'>   <span style='position: relative; top: -1.5ex'>Promotion</span>  </td><td class='border center cline'>   <a href='conv.fpprom'>[conv.fpprom]</a>   </td></tr><tr class='rowsep'><td class='left'> 
+Integral conversions            </td><td class='border center'>                               </td><td class='border center'>                   </td><td class='border center'>   <a href='conv.integral'>[conv.integral]</a> </td></tr><tr ><td class='left cline'> 
+Floating-point conversions      </td><td class='border center'>                               </td><td class='border center'>                   </td><td class='border center cline'>   <a href='conv.double'>[conv.double]</a>   </td></tr><tr ><td class='left cline'> 
+Floating-integral conversions   </td><td class='border center'>                               </td><td class='border center'>                   </td><td class='border center cline'>   <a href='conv.fpint'>[conv.fpint]</a>    </td></tr><tr ><td class='left cline'> 
+Pointer conversions             </td><td class='border center'>   <span style='position: relative; top: -1.5ex'>Conversion</span>             </td><td class='border center'>   <span style='position: relative; top: -1.5ex'>Conversion</span> </td><td class='border center cline'>   <a href='conv.ptr'>[conv.ptr]</a>      </td></tr><tr ><td class='left cline'> 
+Pointer to member conversions   </td><td class='border center'>                               </td><td class='border center'>                   </td><td class='border center cline'>   <a href='conv.mem'>[conv.mem]</a>      </td></tr><tr ><td class='left cline'> 
+Boolean conversions             </td><td class='border center'>                               </td><td class='border center'>                   </td><td class='border center cline'>   <a href='conv.bool'>[conv.bool]</a>     </td></tr></table></div></div></div><div id='over.ics.user'><h4 ><a class='secnum' href='#over.ics.user' style='min-width:133pt'>16.3.3.1.2</a> User-defined conversion sequences <a class='abbr_ref' href='over.ics.user'>[over.ics.user]</a></h4><div class='para' id='over.ics.user-1'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.user-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2049'>#</a></div><p >A user-defined conversion sequence consists of an initial
+standard conversion sequence followed by a user-defined
+conversion (<a href='class.conv'>[class.conv]</a>) followed by a second standard
+conversion sequence.
+If the user-defined conversion is <a href='class.conv.ctor'>specified
+by a constructor</a>, the initial standard
+conversion sequence converts the source type to the type required
+by the argument of the constructor.
+If the user-defined
+conversion is specified by a <a href='class.conv.fct'>conversion function</a>, the
+initial standard conversion sequence
+converts the source type to the implicit object parameter of the
+conversion function.</p></div><div class='para' id='over.ics.user-2'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.user-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2064'>#</a></div><p >The second standard conversion sequence converts the result of
+the user-defined conversion to the target type for the sequence.
+Since an implicit conversion sequence is an initialization, the
+special rules for initialization by user-defined conversion apply
+when selecting the best user-defined conversion for a
+user-defined conversion sequence (see <a href='over.match.best'>[over.match.best]</a> and <a href='over.best.ics'>[over.best.ics]</a>).</p></div><div class='para' id='over.ics.user-3'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.user-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2072'>#</a></div><p >If the user-defined conversion is specified by a
+specialization of a conversion function template,
+the second standard conversion sequence shall have exact match rank.</p></div><div class='para' id='over.ics.user-4'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.user-4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2077'>#</a></div><p >A conversion of an expression of class type
+to the same class type is given Exact Match rank, and
+a conversion of an expression of class type
+to a base class of that type is given Conversion rank,
+in spite of the
+fact that a constructor (i.e., a user-defined conversion
+function) is called for those cases.</p></div></div><div id='over.ics.ellipsis'><h4 ><a class='secnum' href='#over.ics.ellipsis' style='min-width:133pt'>16.3.3.1.3</a> Ellipsis conversion sequences <a class='abbr_ref' href='over.ics.ellipsis'>[over.ics.ellipsis]</a></h4><div class='para' id='over.ics.ellipsis-1'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.ellipsis-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2088'>#</a></div><p ><span class='indexparent'><a class='index' id=':ellipsis,conversion_sequence'></a></span>An ellipsis conversion sequence occurs when an argument in a
+function call is matched with the ellipsis parameter
+specification of the function called (see <a href='expr.call'>[expr.call]</a>).</p></div></div><div id='over.ics.ref'><h4 ><a class='secnum' href='#over.ics.ref' style='min-width:133pt'>16.3.3.1.4</a> Reference binding <a class='abbr_ref' href='over.ics.ref'>[over.ics.ref]</a></h4><div class='para' id='over.ics.ref-1'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.ref-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2096'>#</a></div><p >When a parameter of reference type <a href='dcl.init.ref'>binds directly</a> to an
+argument expression, the implicit conversion sequence is the identity conversion,
+unless the argument expression has a type that is a derived class of the parameter
+type, in which case the implicit conversion sequence is a derived-to-base
+Conversion (<a href='over.best.ics'>[over.best.ics]</a>).
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+struct A {};
+struct B : public A {} b;
+int f(A&amp;);
+int f(B&amp;);
+int i = f(b);       <span class='comment'>// calls <span class='tcode_in_codeblock'>f(B&amp;)</span>, an exact match, rather than <span class='tcode_in_codeblock'>f(A&amp;)</span>, a conversion
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+If the parameter binds directly to the result of
+applying a conversion function to the argument expression, the implicit
+conversion sequence is a <a href='over.ics.user'>user-defined conversion sequence</a>,
+with the second standard conversion sequence either an identity conversion or,
+if the conversion function returns an entity of a type that is a derived class
+of the parameter type, a derived-to-base Conversion.</p></div><div class='para' id='over.ics.ref-2'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.ref-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2119'>#</a></div><p >When a parameter of reference type is not bound directly to an argument
+expression, the conversion sequence is the one required to convert the argument
+expression to the referenced type according to <a href='over.best.ics'>[over.best.ics]</a>.
+Conceptually, this conversion sequence corresponds to copy-initializing a
+temporary of the referenced type with the argument expression.
+Any difference
+in top-level cv-qualification is subsumed by the initialization itself and
+does not constitute a conversion.</p></div><div class='para' id='over.ics.ref-3'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.ref-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2129'>#</a></div><p >Except for an implicit object parameter, for which see <a href='over.match.funcs'>[over.match.funcs]</a>, a
+standard conversion sequence cannot be formed if it requires
+binding an lvalue reference
+other than a reference to a non-volatile <span class='texttt'>const</span> type
+to an rvalue
+or binding an rvalue reference to an lvalue other than a function lvalue.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+This means, for example, that a candidate function cannot be a viable
+function if it has a non-<span class='texttt'>const</span> lvalue reference parameter (other than
+the implicit object parameter) and the corresponding argument
+would require a temporary to be created to initialize the lvalue
+reference (see <a href='dcl.init.ref'>[dcl.init.ref]</a>).
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='over.ics.ref-4'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.ref-4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2144'>#</a></div><p >Other restrictions on binding a reference to a particular argument
+that are not based on the types of the reference and the argument
+do not affect the formation of a standard conversion
+sequence, however.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+A function with an “lvalue reference to <span class='texttt'>int</span>” parameter can
+be a viable candidate even if the corresponding argument is an
+<span class='texttt'>int</span>
+bit-field.
+The formation of implicit conversion sequences
+treats the
+<span class='texttt'>int</span>
+bit-field as an
+<span class='texttt'>int</span>
+lvalue and finds an exact
+match with the parameter.
+If the function is selected by overload
+resolution, the call will nonetheless be ill-formed because of
+the prohibition on binding a non-<span class='texttt'>const</span> lvalue reference to a bit-field (<a href='dcl.init.ref'>[dcl.init.ref]</a>).
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div></div><div id='over.ics.list'><h4 ><a class='secnum' href='#over.ics.list' style='min-width:133pt'>16.3.3.1.5</a> List-initialization sequence <a class='abbr_ref' href='over.ics.list'>[over.ics.list]</a></h4><div class='para' id='over.ics.list-1'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2168'>#</a></div><p >When an argument is an initializer list (<a href='dcl.init.list'>[dcl.init.list]</a>), it is not an expression and special rules apply for converting it to a parameter type.</p></div><div class='para' id='over.ics.list-2'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2172'>#</a></div><p >If the parameter type is an aggregate class <span class='texttt'>X</span> and the initializer list has a
+single element of type <span class='textit'>cv</span> <span class='texttt'>U</span>, where <span class='texttt'>U</span> is <span class='texttt'>X</span>
+or a class derived from <span class='texttt'>X</span>, the implicit conversion sequence is the one
+required to convert the element to the parameter type.</p></div><div class='para' id='over.ics.list-3'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2178'>#</a></div><p >Otherwise, if the parameter type is a character array<a class='footnotenum' href='#footnote-133'>133</a>
+and the initializer list has a single element that is an appropriately-typed
+string literal (<a href='dcl.init.string'>[dcl.init.string]</a>), the implicit conversion
+sequence is the identity conversion.</p></div><div class='para' id='over.ics.list-4'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2186'>#</a></div><p >Otherwise, if the parameter type is <span class='texttt'>std&#x200b;::&#x200b;initializer_&shy;list&lt;X&gt;</span>
+and all the elements
+of the initializer list can be implicitly converted to <span class='texttt'>X</span>, the implicit
+conversion sequence is the worst conversion necessary to convert an element of
+the list to <span class='texttt'>X</span>, or if the initializer list has no elements, the identity
+conversion. This conversion can be a user-defined conversion even in
+the context of a call to an initializer-list constructor. [<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+void f(std::initializer_list&lt;int&gt;);
+f( {} );                <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(initializer_&shy;list&lt;int&gt;)</span> identity conversion
+</span>f( {1,2,3} );           <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(initializer_&shy;list&lt;int&gt;)</span> identity conversion
+</span>f( {'a','b'} );         <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(initializer_&shy;list&lt;int&gt;)</span> integral promotion
+</span>f( {1.0} );             <span class='comment'>// error: narrowing
+</span>
+struct A {
+  A(std::initializer_list&lt;double&gt;);             <span class='comment'>// #1
+</span>  A(std::initializer_list&lt;complex&lt;double&gt;&gt;);    <span class='comment'>// #2
+</span>  A(std::initializer_list&lt;std::string&gt;);        <span class='comment'>// #3
+</span>};
+A a{ 1.0,2.0 };         <span class='comment'>// OK, uses #1
+</span>
+void g(A);
+g({ "foo", "bar" });    <span class='comment'>// OK, uses #3
+</span>
+typedef int IA[3];
+void h(const IA&amp;);
+h({ 1, 2, 3 });         <span class='comment'>// OK: identity conversion
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='over.ics.list-5'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-5'>5</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2217'>#</a></div><p >Otherwise, if the parameter type is “array of <span class='texttt'>N</span> <span class='texttt'>X</span>”,
+if there exists an implicit conversion sequence for each element of the array
+from the corresponding element of the initializer list (or from <span class='texttt'>{}</span>
+if there is no such element), the implicit conversion sequence is
+the worst such implicit conversion sequence.</p></div><div class='para' id='over.ics.list-6'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-6'>6</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2224'>#</a></div><p >Otherwise, if the parameter is a non-aggregate class <span class='texttt'>X</span> and overload
+resolution per <a href='over.match.list'>[over.match.list]</a> chooses a single best constructor <span class='texttt'>C</span> of
+<span class='texttt'>X</span> to perform the initialization of an object of type <span class='texttt'>X</span> from the
+argument initializer list:
+</p><ul class='itemize'><li id='over.ics.list-6.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.ics.list-6.1'>(6.1)</a></div><p >If <span class='texttt'>C</span> is not an initializer-list constructor
+and the initializer list has a single element of type <span class='textit'>cv</span> <span class='texttt'>U</span>,
+where <span class='texttt'>U</span> is <span class='texttt'>X</span> or a class derived from <span class='texttt'>X</span>,
+the implicit conversion sequence has Exact Match rank if <span class='texttt'>U</span> is <span class='texttt'>X</span>,
+or Conversion rank if <span class='texttt'>U</span> is derived from <span class='texttt'>X</span>.
+</p></li><li id='over.ics.list-6.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.ics.list-6.2'>(6.2)</a></div><p >Otherwise, the implicit conversion sequence is a user-defined
+conversion sequence with the second standard conversion sequence an
+identity conversion.
+</p></li></ul><p >If multiple constructors are viable but none is better than
+the others, the implicit conversion sequence is the ambiguous conversion
+sequence. User-defined conversions are allowed for conversion of the initializer
+list elements to the constructor parameter types except as noted
+in <a href='over.best.ics'>[over.best.ics]</a>.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+struct A {
+  A(std::initializer_list&lt;int&gt;);
+};
+void f(A);
+f( {'a', 'b'} );        <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(A(std&#x200b;::&#x200b;initializer_&shy;list&lt;int&gt;))</span> user-defined conversion
+</span>
+struct B {
+  B(int, double);
+};
+void g(B);
+g( {'a', 'b'} );        <span class='comment'>// OK: <span class='tcode_in_codeblock'>g(B(int, double))</span> user-defined conversion
+</span>g( {1.0, 1.0} );        <span class='comment'>// error: narrowing
+</span>
+void f(B);
+f( {'a', 'b'} );        <span class='comment'>// error: ambiguous <span class='tcode_in_codeblock'>f(A)</span> or <span class='tcode_in_codeblock'>f(B)</span>
+</span>
+struct C {
+  C(std::string);
+};
+void h(C);
+h({"foo"});             <span class='comment'>// OK: <span class='tcode_in_codeblock'>h(C(std&#x200b;::&#x200b;string("foo")))</span>
+</span>
+struct D {
+  D(A, C);
+};
+void i(D);
+i({ {1,2}, {"bar"} });  <span class='comment'>// OK: <span class='tcode_in_codeblock'>i(D(A(std&#x200b;::&#x200b;initializer_&shy;list&lt;int&gt;{1,2}), C(std&#x200b;::&#x200b;string("bar"))))</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='over.ics.list-7'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-7'>7</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2278'>#</a></div><p >Otherwise, if the parameter has an aggregate type which can be initialized from
+the initializer list according to the rules for <a href='dcl.init.aggr'>aggregate
+initialization</a>, the implicit conversion sequence is a
+user-defined conversion sequence with the second standard conversion
+sequence an identity conversion. [<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+struct A {
+  int m1;
+  double m2;
+};
+
+void f(A);
+f( {'a', 'b'} );        <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(A(int,double))</span> user-defined conversion
+</span>f( {1.0} );             <span class='comment'>// error: narrowing
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='over.ics.list-8'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-8'>8</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2296'>#</a></div><p >Otherwise, if the parameter is a reference, see <a href='over.ics.ref'>[over.ics.ref]</a>. [<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+The rules in this section will apply for initializing the underlying temporary
+for the reference. <span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>]  [<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+struct A {
+  int m1;
+  double m2;
+};
+
+void f(const A&amp;);
+f( {'a', 'b'} );        <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(A(int,double))</span> user-defined conversion
+</span>f( {1.0} );             <span class='comment'>// error: narrowing
+</span>
+void g(const double &amp;);
+g({1});                 <span class='comment'>// same conversion as <span class='tcode_in_codeblock'>int</span> to <span class='tcode_in_codeblock'>double</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='over.ics.list-9'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-9'>9</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2315'>#</a></div><p >Otherwise, if the parameter type is not a class:</p><ul class='itemize'><li id='over.ics.list-9.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.ics.list-9.1'>(9.1)</a></div><p >if the initializer list has one element that is not itself an initializer list,
+the implicit conversion sequence is the one required to convert the element to
+the parameter type; [<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+void f(int);
+f( {'a'} );             <span class='comment'>// OK: same conversion as <span class='tcode_in_codeblock'>char</span> to <span class='tcode_in_codeblock'>int</span>
+</span>f( {1.0} );             <span class='comment'>// error: narrowing
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></li><li id='over.ics.list-9.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.ics.list-9.2'>(9.2)</a></div><p >if the initializer list has no elements, the implicit conversion sequence
+is the identity conversion. [<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+void f(int);
+f( { } );               <span class='comment'>// OK: identity conversion
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+</p></li></ul></div><div class='para' id='over.ics.list-10'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-10'>10</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2338'>#</a></div><p >In all cases other than those enumerated above, no conversion is possible.</p></div><div class='footnote' id='footnote-133'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-133'>133)</a></div><p >Since there are no parameters of array type,
+this will only occur as the referenced type of a reference parameter.</p></div></div></div><div id='over.ics.rank'><h4 ><a class='secnum' href='#over.ics.rank' style='min-width:118pt'>16.3.3.2</a> Ranking implicit conversion sequences <a class='abbr_ref' href='over.ics.rank'>[over.ics.rank]</a></h4><div class='para' id='over.ics.rank-1'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.rank-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2343'>#</a></div><p >This subclause defines a partial ordering of implicit conversion
+sequences based on the relationships
+<a class='hidden_link' href='#def:better_conversion_sequence' id='def:better_conversion_sequence'><i>better conversion sequence</i></a>
+and
+<a class='hidden_link' href='#def:better_conversion' id='def:better_conversion'><i>better conversion</i></a>.
+If an implicit conversion sequence S1 is
+defined by these rules to be a better conversion sequence than
+S2, then it is also the case that S2 is a
+<a class='hidden_link' href='#def:worse_conversion_sequence' id='def:worse_conversion_sequence'><i>worse conversion sequence</i></a>
+than S1.
+If conversion sequence S1 is neither better
+than nor worse than conversion sequence S2, S1 and S2 are said to
+be
+<a class='hidden_link' href='#def:indistinguishable_conversion_sequences' id='def:indistinguishable_conversion_sequences'><i>indistinguishable conversion sequences</i></a>.</p></div><div class='para' id='over.ics.rank-2'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.rank-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2359'>#</a></div><p >When comparing the basic forms of implicit conversion sequences
+(as defined in <a href='over.best.ics'>[over.best.ics]</a>)</p><ul class='itemize'><li id='over.ics.rank-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.ics.rank-2.1'>(2.1)</a></div><p >a <a href='over.ics.scs'>standard conversion sequence</a> is a better
+conversion sequence than a user-defined conversion sequence
+or an ellipsis conversion sequence, and
+</p></li><li id='over.ics.rank-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.ics.rank-2.2'>(2.2)</a></div><p >a <a href='over.ics.user'>user-defined conversion sequence</a> is a
+better conversion sequence than an <a href='over.ics.ellipsis'>ellipsis conversion
+sequence</a>.
+</p></li></ul></div><div class='para' id='over.ics.rank-3'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.rank-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2374'>#</a></div><p >Two implicit conversion sequences of the same form are
+indistinguishable conversion sequences unless one of the
+following rules applies:</p><ul class='itemize'><li id='over.ics.rank-3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.ics.rank-3.1'>(3.1)</a></div><p >List-initialization sequence <span class='texttt'>L1</span> is a better conversion sequence than
+list-initialization sequence <span class='texttt'>L2</span> if</p><ul class='itemize'><li id='over.ics.rank-3.1.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#over.ics.rank-3.1.1'>(3.1.1)</a></div><p ><span class='texttt'>L1</span> converts to <span class='texttt'>std&#x200b;::&#x200b;initializer_&shy;list&lt;X&gt;</span> for some <span class='texttt'>X</span> and
+<span class='texttt'>L2</span> does not, or, if not that,</p></li><li id='over.ics.rank-3.1.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#over.ics.rank-3.1.2'>(3.1.2)</a></div><p ><span class='texttt'>L1</span> converts to type “array of <span class='texttt'>N1</span> <span class='texttt'>T</span>”, <span class='texttt'>L2</span> converts to
+type “array of <span class='texttt'>N2</span> <span class='texttt'>T</span>”, and <span class='texttt'>N1</span> is smaller than <span class='texttt'>N2</span>,
+</p></li></ul><p >even if one of the other rules in this paragraph would otherwise apply.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+  void f1(int);                                 <span class='comment'>// #1
+</span>  void f1(std::initializer_list&lt;long&gt;);         <span class='comment'>// #2
+</span>  void g1() { f1({42}); }                       <span class='comment'>// chooses #2
+</span>
+  void f2(std::pair&lt;const char*, const char*&gt;); <span class='comment'>// #3
+</span>  void f2(std::initializer_list&lt;std::string&gt;);  <span class='comment'>// #4
+</span>  void g2() { f2({"foo","bar"}); }              <span class='comment'>// chooses #4
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></li><li id='over.ics.rank-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.ics.rank-3.2'>(3.2)</a></div><p >Standard conversion sequence
+<span class='texttt'>S1</span>
+is a better conversion
+sequence than standard conversion sequence
+<span class='texttt'>S2</span>
+if</p><ul class='itemize'><li id='over.ics.rank-3.2.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#over.ics.rank-3.2.1'>(3.2.1)</a></div><p ><span class='indexparent'><a class='index' id=':subsequence_rule,overloading'></a></span><span class='texttt'>S1</span>
+is a proper subsequence of
+<span class='texttt'>S2</span>
+(comparing the conversion sequences in the canonical form defined
+by <a href='over.ics.scs'>[over.ics.scs]</a>, excluding any Lvalue Transformation;
+the identity conversion sequence is considered to be a
+subsequence of any non-identity conversion sequence)
+or, if not that,
+</p></li><li id='over.ics.rank-3.2.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#over.ics.rank-3.2.2'>(3.2.2)</a></div><p >the rank of
+<span class='texttt'>S1</span>
+is better than the rank of
+<span class='texttt'>S2</span>,
+or
+<span class='texttt'>S1</span>
+and
+<span class='texttt'>S2</span>
+have the same rank and are distinguishable by the rules
+in the paragraph below,
+or, if not that,</p></li><li id='over.ics.rank-3.2.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#over.ics.rank-3.2.3'>(3.2.3)</a></div><p ><span class='texttt'>S1</span> and <span class='texttt'>S2</span> are reference bindings (<a href='dcl.init.ref'>[dcl.init.ref]</a>) and
+neither refers to an implicit object parameter of a non-static member function
+declared without a <i ><a href='dcl.decl#nt:ref-qualifier'>ref-qualifier</a></i>,
+and <span class='texttt'>S1</span> binds an rvalue reference to an
+rvalue and <span class='texttt'>S2</span> binds an lvalue reference
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+int i;
+int f1();
+int&amp;&amp; f2();
+int g(const int&amp;);
+int g(const int&amp;&amp;);
+int j = g(i);                   <span class='comment'>// calls <span class='tcode_in_codeblock'>g(const int&amp;)</span>
+</span>int k = g(f1());                <span class='comment'>// calls <span class='tcode_in_codeblock'>g(const int&amp;&amp;)</span>
+</span>int l = g(f2());                <span class='comment'>// calls <span class='tcode_in_codeblock'>g(const int&amp;&amp;)</span>
+</span>
+struct A {
+  A&amp; operator&lt;&lt;(int);
+  void p() &amp;;
+  void p() &amp;&amp;;
+};
+A&amp; operator&lt;&lt;(A&amp;&amp;, char);
+A() &lt;&lt; 1;                       <span class='comment'>// calls <span class='tcode_in_codeblock'>A&#x200b;::&#x200b;operator&lt;&lt;(int)</span>
+</span>A() &lt;&lt; 'c';                     <span class='comment'>// calls <span class='tcode_in_codeblock'>operator&lt;&lt;(A&amp;&amp;, char)</span>
+</span>A a;
+a &lt;&lt; 1;                         <span class='comment'>// calls <span class='tcode_in_codeblock'>A&#x200b;::&#x200b;operator&lt;&lt;(int)</span>
+</span>a &lt;&lt; 'c';                       <span class='comment'>// calls <span class='tcode_in_codeblock'>A&#x200b;::&#x200b;operator&lt;&lt;(int)</span>
+</span>A().p();                        <span class='comment'>// calls <span class='tcode_in_codeblock'>A&#x200b;::&#x200b;p()&amp;&amp;</span>
+</span>a.p();                          <span class='comment'>// calls <span class='tcode_in_codeblock'>A&#x200b;::&#x200b;p()&amp;</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+or, if not that,</p></li><li id='over.ics.rank-3.2.4'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#over.ics.rank-3.2.4'>(3.2.4)</a></div><p ><span class='texttt'>S1</span> and <span class='texttt'>S2</span> are reference bindings (<a href='dcl.init.ref'>[dcl.init.ref]</a>) and
+<span class='texttt'>S1</span> binds an lvalue reference to a function lvalue and <span class='texttt'>S2</span> binds
+an rvalue reference to a function lvalue
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+int f(void(&amp;)());               <span class='comment'>// #1
+</span>int f(void(&amp;&amp;)());              <span class='comment'>// #2
+</span>void g();
+int i1 = f(g);                  <span class='comment'>// calls #1
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+or, if not that,</p></li><li id='over.ics.rank-3.2.5'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#over.ics.rank-3.2.5'>(3.2.5)</a></div><p ><span class='texttt'>S1</span>
+and
+<span class='texttt'>S2</span>
+differ only in their qualification conversion and yield similar types
+<span class='texttt'>T1</span>
+and
+<span class='texttt'>T2</span> (<a href='conv.qual'>[conv.qual]</a>), respectively, and the cv-qualification signature of type
+<span class='texttt'>T1</span>
+is a proper subset of the cv-qualification signature of type
+<span class='texttt'>T2</span>
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+int f(const volatile int *);
+int f(const int *);
+int i;
+int j = f(&amp;i);                  <span class='comment'>// calls <span class='tcode_in_codeblock'>f(const int*)</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+or, if not that,</p></li><li id='over.ics.rank-3.2.6'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#over.ics.rank-3.2.6'>(3.2.6)</a></div><p ><span class='texttt'>S1</span>
+and
+<span class='texttt'>S2</span>
+are reference bindings (<a href='dcl.init.ref'>[dcl.init.ref]</a>), and the types to which the references
+refer are the same type except for top-level cv-qualifiers, and the type to
+which the reference initialized by
+<span class='texttt'>S2</span>
+refers is more cv-qualified than the type to which the reference initialized by
+<span class='texttt'>S1</span>
+refers.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+int f(const int &amp;);
+int f(int &amp;);
+int g(const int &amp;);
+int g(int);
+
+int i;
+int j = f(i);                   <span class='comment'>// calls <span class='tcode_in_codeblock'>f(int &amp;)</span>
+</span>int k = g(i);                   <span class='comment'>// ambiguous
+</span>
+struct X {
+  void f() const;
+  void f();
+};
+void g(const X&amp; a, X b) {
+  a.f();                        <span class='comment'>// calls <span class='tcode_in_codeblock'>X&#x200b;::&#x200b;f() const</span>
+</span>  b.f();                        <span class='comment'>// calls <span class='tcode_in_codeblock'>X&#x200b;::&#x200b;f()</span>
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] 
+</p></li></ul></li><li id='over.ics.rank-3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.ics.rank-3.3'>(3.3)</a></div><p >User-defined conversion sequence
+<span class='texttt'>U1</span>
+is a better conversion sequence than another user-defined conversion
+sequence
+<span class='texttt'>U2</span>
+if they contain the same user-defined conversion function or
+constructor or they initialize the same class in an aggregate
+initialization and in either case the second standard conversion
+sequence of
+<span class='texttt'>U1</span>
+is better than
+the second standard conversion sequence of
+<span class='texttt'>U2</span>.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+struct A {
+  operator short();
+} a;
+int f(int);
+int f(float);
+int i = f(a);                   <span class='comment'>// calls <span class='tcode_in_codeblock'>f(int)</span>, because <span class='tcode_in_codeblock'>short</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>int</span> is
+</span>                                <span class='comment'>// better than <span class='tcode_in_codeblock'>short</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>float</span>.
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></li></ul></div><div class='para' id='over.ics.rank-4'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.rank-4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/overloading.tex#L2569'>#</a></div><p >Standard conversion sequences are ordered by their ranks: an Exact Match is a
+better conversion than a Promotion, which is a better conversion than
+a Conversion.
+Two conversion sequences with the same rank are indistinguishable unless
+one of the following rules applies:</p><ul class='itemize'><li id='over.ics.rank-4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.ics.rank-4.1'>(4.1)</a></div><p >A conversion that does not convert a pointer,
+a pointer to member, or <span class='texttt'>std&#x200b;::&#x200b;nullptr_&shy;t</span>
+to
+<span class='texttt'>bool</span>
+is better than one that does.</p></li><li id='over.ics.rank-4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.ics.rank-4.2'>(4.2)</a></div><p >A conversion that promotes an enumeration whose underlying type is fixed to its underlying
+type is better than one that promotes to the promoted underlying type, if the two are
+different.</p></li><li id='over.ics.rank-4.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.ics.rank-4.3'>(4.3)</a></div><p >If class
+<span class='texttt'>B</span>
+is derived directly or indirectly from class
+<span class='texttt'>A</span>,
+conversion of
+<span class='texttt'>B*</span>
+to
+<span class='texttt'>A*</span>
+is better than conversion of
+<span class='texttt'>B*</span>
+to
+<span class='texttt'>void*</span>,
+and conversion of
+<span class='texttt'>A*</span>
+to
+<span class='texttt'>void*</span>
+is better than conversion
+of
+<span class='texttt'>B*</span>
+to
+<span class='texttt'>void*</span>.
+</p></li><li id='over.ics.rank-4.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#over.ics.rank-4.4'>(4.4)</a></div><p >If class
+<span class='texttt'>B</span>
+is derived directly or indirectly from class
+<span class='texttt'>A</span>
+and class
+<span class='texttt'>C</span>
+is derived directly or indirectly from
+<span class='texttt'>B</span>,</p><ul class='itemize'><li id='over.ics.rank-4.4.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#over.ics.rank-4.4.1'>(4.4.1)</a></div><p >conversion of
+<span class='texttt'>C*</span>
+to
+<span class='texttt'>B*</span>
+is better than conversion of
+<span class='texttt'>C*</span>
+to
+<span class='texttt'>A*</span>,
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+struct A {};
+struct B : public A {};
+struct C : public B {};
+C* pc;
+int f(A*);
+int f(B*);
+int i = f(pc);                  <span class='comment'>// calls <span class='tcode_in_codeblock'>f(B*)</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></li><li id='over.ics.rank-4.4.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#over.ics.rank-4.4.2'>(4.4.2)</a></div><p >binding of an expression of type
+<span class='texttt'>C</span>
+to a reference to type
+<span class='texttt'>B</span>
+is better than binding an expression of type
+<span class='texttt'>C</span>
+to a reference to type
+<span class='texttt'>A</span>,
+</p></li><li id='over.ics.rank-4.4.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#over.ics.rank-4.4.3'>(4.4.3)</a></div><p >conversion of
+<span class='texttt'>A&#x200b;::&#x200b;*</span>
+to
+<span class='texttt'>B&#x200b;::&#x200b;*</span>
+is better than conversion of
+<span class='texttt'>A&#x200b;::&#x200b;*</span>
+to
+<span class='texttt'>C&#x200b;::&#x200b;*</span>,
+</p></li><li id='over.ics.rank-4.4.4'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#over.ics.rank-4.4.4'>(4.4.4)</a></div><p >conversion of
+<span class='texttt'>C</span>
+to
+<span class='texttt'>B</span>
+is better than conversion of
+<span class='texttt'>C</span>
+to
+<span class='texttt'>A</span>,
+</p></li><li id='over.ics.rank-4.4.5'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#over.ics.rank-4.4.5'>(4.4.5)</a></div><p >conversion of
+<span class='texttt'>B*</span>
+to
+<span class='texttt'>A*</span>
+is better than conversion of
+<span class='texttt'>C*</span>
+to
+<span class='texttt'>A*</span>,
+</p></li><li id='over.ics.rank-4.4.6'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#over.ics.rank-4.4.6'>(4.4.6)</a></div><p >binding of an expression of type
+<span class='texttt'>B</span>
+to a reference to type
+<span class='texttt'>A</span>
+is better than binding an expression of type
+<span class='texttt'>C</span>
+to a
+reference to type
+<span class='texttt'>A</span>,
+</p></li><li id='over.ics.rank-4.4.7'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#over.ics.rank-4.4.7'>(4.4.7)</a></div><p >conversion of
+<span class='texttt'>B&#x200b;::&#x200b;*</span>
+to
+<span class='texttt'>C&#x200b;::&#x200b;*</span>
+is better than conversion
+of
+<span class='texttt'>A&#x200b;::&#x200b;*</span>
+to
+<span class='texttt'>C&#x200b;::&#x200b;*</span>,
+and
+</p></li><li id='over.ics.rank-4.4.8'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#over.ics.rank-4.4.8'>(4.4.8)</a></div><p >conversion of
+<span class='texttt'>B</span>
+to
+<span class='texttt'>A</span>
+is better than conversion of
+<span class='texttt'>C</span>
+to
+<span class='texttt'>A</span>.
+</p></li></ul><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+Compared conversion sequences will have different source types only in the
+context of comparing the second standard conversion sequence of an
+initialization by user-defined conversion (see <a href='over.match.best'>[over.match.best]</a>); in
+all other contexts, the source types will be the same and the target
+types will be different.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+</p></li></ul></div></div></div></body></html>

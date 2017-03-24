@@ -1,0 +1,1365 @@
+<!DOCTYPE html><html lang='en'><head><title>[diff]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='annexnum' style='min-width:73pt'>Annex C&emsp;(informative)</a> Compatibility <a class='abbr_ref' href='./#diff'>[diff]</a></h1><div id='iso'><h2 ><a class='secnum' href='#iso' style='min-width:88pt'>C.1</a> C++ and ISO C <a class='abbr_ref' href='diff.iso'>[diff.iso]</a></h2><div class='para' id='iso-1'><div class='marginalizedparent'><a class='marginalized' href='#iso-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L6'>#</a></div><p ><span class='indexparent'><a class='index' id=':summary,compatibility_with_ISO_C'></a></span>This subclause lists the differences between C++ and
+ISO C, by the chapters of this document.</p></div><div id='lex'><h3 ><a class='secnum' href='#lex' style='min-width:103pt'>C.1.1</a> Clause <a href='lex'>[lex]</a>: lexical conventions <a class='abbr_ref' href='diff.lex'>[diff.lex]</a></h3><p ><a href='lex.key'>[lex.key]</a>
+<br/><b>Change:</b> New Keywords<br/>
+New keywords are added to C++;
+see <a href='lex.key'>[lex.key]</a>.
+<br/><b>Rationale:</b> 
+These keywords were added in order to implement the new
+semantics of C++.
+<br/><b>Effect on original feature:</b> 
+Change to semantics of well-defined feature.
+Any ISO C programs that used any of these keywords as identifiers
+are not valid C++ programs.
+<br/><b>Difficulty of converting:</b> 
+Syntactic transformation.
+Converting one specific program is easy.
+Converting a large collection
+of related programs takes more work.
+<br/><b>How widely used:</b> 
+Common.</p><p ><a href='lex.ccon'>[lex.ccon]</a>
+<br/><b>Change:</b> Type of character literal is changed from <span class='texttt'>int</span> to <span class='texttt'>char</span>.
+<br/><b>Rationale:</b> 
+This is needed for improved overloaded function argument type
+matching.
+For example:</p><pre class='codeblock'>
+int function( int i );
+int function( char c );
+
+function( 'x' );</pre><p >It is preferable that this call match the second version of
+function rather than the first.
+<br/><b>Effect on original feature:</b> 
+Change to semantics of well-defined feature.
+ISO C programs which depend on</p><pre class='codeblock'>
+sizeof('x') == sizeof(int)</pre><p >will not work the same as C++ programs.
+<br/><b>Difficulty of converting:</b> 
+Simple.
+<br/><b>How widely used:</b> 
+Programs which depend upon <span class='texttt'>sizeof('x')</span> are probably rare.</p><p >Subclause <a href='lex.string'>[lex.string]</a>:
+<br/><b>Change:</b> String literals made const.<br/>
+The type of a string literal is changed
+from “array of <span class='texttt'>char</span>”
+to “array of <span class='texttt'>const char</span>”.
+The type of a <span class='texttt'>char16_&shy;t</span> string literal is changed
+from “array of <span class='textit'>some-integer-type</span>”
+to “array of <span class='texttt'>const char16_&shy;t</span>”.
+The type of a <span class='texttt'>char32_&shy;t</span> string literal is changed
+from “array of <span class='textit'>some-integer-type</span>”
+to “array of <span class='texttt'>const char32_&shy;t</span>”.
+The type of a wide string literal is changed
+from “array of <span class='texttt'>wchar_&shy;t</span>”
+to “array of <span class='texttt'>const wchar_&shy;t</span>”.
+<br/><b>Rationale:</b> 
+This avoids calling an inappropriate overloaded function,
+which might expect to be able to modify its argument.
+<br/><b>Effect on original feature:</b> 
+Change to semantics of well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Syntactic transformation. The fix is to add a cast:</p><pre class='codeblock'>
+char* p = "abc";                <span class='comment'>// valid in C, invalid in C++
+</span>void f(char*) {
+  char* p = (char*)"abc";       <span class='comment'>// OK: cast added
+</span>  f(p);
+  f((char*)"def");              <span class='comment'>// OK: cast added
+</span>}</pre><p ><br/><b>How widely used:</b> 
+Programs that have a legitimate reason to treat string literals
+as pointers to potentially modifiable memory are probably rare.</p></div><div id='basic'><h3 ><a class='secnum' href='#basic' style='min-width:103pt'>C.1.2</a> Clause <a href='basic'>[basic]</a>: basic concepts <a class='abbr_ref' href='diff.basic'>[diff.basic]</a></h3><p ><a href='basic.def'>[basic.def]</a>
+<br/><b>Change:</b> C++ does not have “tentative definitions” as in C.<br/>
+E.g., at file scope,</p><pre class='codeblock'>
+int i;
+int i;</pre><p >is valid in C, invalid in C++.
+This makes it impossible to define
+mutually referential file-local static objects, if initializers are
+restricted to the syntactic forms of C.
+For example,</p><pre class='codeblock'>
+struct X { int i; struct X* next; };
+
+static struct X a;
+static struct X b = { 0, &amp;a };
+static struct X a = { 1, &amp;b };</pre><p ><br/><b>Rationale:</b> 
+This avoids having different initialization rules for
+fundamental types and user-defined types.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+In C++, the initializer for one of a set of
+mutually-referential file-local static objects must invoke a function
+call to achieve the initialization.
+<br/><b>How widely used:</b> 
+Seldom.</p><p ><a href='basic.scope'>[basic.scope]</a>
+<br/><b>Change:</b> A <span class='texttt'>struct</span> is a scope in C++, not in C.
+<br/><b>Rationale:</b> 
+Class scope is crucial to C++, and a struct is a class.
+<br/><b>Effect on original feature:</b> 
+Change to semantics of well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+<br/><b>How widely used:</b> 
+C programs use <span class='texttt'>struct</span> extremely frequently, but the
+change is only noticeable when <span class='texttt'>struct</span>, enumeration, or enumerator
+names are referred to outside the <span class='texttt'>struct</span>.
+The latter is probably rare.</p><p ><a href='basic.link'>[basic.link]</a> [also <a href='dcl.type'>[dcl.type]</a>]
+<br/><b>Change:</b> A name of file scope that is explicitly declared <span class='texttt'>const</span>, and not explicitly
+declared <span class='texttt'>extern</span>, has internal linkage, while in C it would have external linkage.
+<br/><b>Rationale:</b> 
+Because <span class='texttt'>const</span> objects may be used as values during translation in
+C++, this feature urges programmers to provide an explicit initializer
+for each <span class='texttt'>const</span> object.
+This feature allows the user to put <span class='texttt'>const</span> objects in source files that are included
+in more than one translation unit.
+<br/><b>Effect on original feature:</b> 
+Change to semantics of well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+<br/><b>How widely used:</b> 
+Seldom.</p><p ><a href='basic.start.main'>[basic.start.main]</a>
+<br/><b>Change:</b> The <span class='texttt'>main</span> function cannot be called recursively and cannot have its address taken.
+<br/><b>Rationale:</b> 
+The <span class='texttt'>main</span> function may require special actions.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Trivial: create an intermediary function such as
+<span class='texttt'>mymain(argc, argv)</span>.
+<br/><b>How widely used:</b> 
+Seldom.</p><p ><a href='basic.types'>[basic.types]</a>
+<br/><b>Change:</b> C allows “compatible types” in several places, C++ does not.<br/>
+For example,
+otherwise-identical <span class='texttt'>struct</span> types with different tag names
+are “compatible” in C but are distinctly different types
+in C++.
+<br/><b>Rationale:</b> 
+Stricter type checking is essential for C++.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+The “typesafe linkage” mechanism will find many, but not all,
+of such problems.
+Those problems not found by typesafe linkage will continue to
+function properly,
+according to the “layout compatibility rules” of this
+International Standard.
+<br/><b>How widely used:</b> 
+Common.</p></div><div id='conv'><h3 ><a class='secnum' href='#conv' style='min-width:103pt'>C.1.3</a> Clause <a href='conv'>[conv]</a>: standard conversions <a class='abbr_ref' href='diff.conv'>[diff.conv]</a></h3><p ><a href='conv.ptr'>[conv.ptr]</a>
+<br/><b>Change:</b> Converting <span class='texttt'>void*</span> to a pointer-to-object type requires casting.</p><pre class='codeblock'>
+char a[10];
+void* b=a;
+void foo() {
+  char* c=b;
+}</pre><p >ISO C will accept this usage of pointer to void being assigned
+to a pointer to object type.
+C++ will not.
+<br/><b>Rationale:</b> 
+C++ tries harder than C to enforce compile-time type safety.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Could be automated.
+Violations will be diagnosed by the C++ translator.
+The
+fix is to add a  cast.
+For example:</p><pre class='codeblock'>
+char* c = (char*) b;</pre><p ><br/><b>How widely used:</b> 
+This is fairly widely used but it is good
+programming practice to add the cast when assigning pointer-to-void to pointer-to-object.
+Some ISO C translators will give a warning
+if the cast is not used.</p></div><div id='expr'><h3 ><a class='secnum' href='#expr' style='min-width:103pt'>C.1.4</a> Clause <a href='expr'>[expr]</a>: expressions <a class='abbr_ref' href='diff.expr'>[diff.expr]</a></h3><p ><a href='expr.call'>[expr.call]</a>
+<br/><b>Change:</b> Implicit declaration of functions is not allowed.
+<br/><b>Rationale:</b> 
+The type-safe nature of C++.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+Note: the original feature was labeled as “obsolescent” in ISO C.
+<br/><b>Difficulty of converting:</b> 
+Syntactic transformation.
+Facilities for producing explicit function declarations are fairly
+widespread commercially.
+<br/><b>How widely used:</b> 
+Common.</p><p ><a href='expr.post.incr'>[expr.post.incr]</a>, <a href='expr.pre.incr'>[expr.pre.incr]</a>
+<br/><b>Change:</b> 
+Decrement operator is not allowed with <span class='texttt'>bool</span> operand.
+<br/><b>Rationale:</b> Feature with surprising semantics.
+<br/><b>Effect on original feature:</b> A valid ISO C expression utilizing the decrement operator on
+a <span class='texttt'>bool</span> lvalue (for instance, via the C typedef in <span class='texttt'>&lt;stdbool.h&gt;</span>)
+is ill-formed in this International Standard.</p><p ><a href='expr.sizeof'>[expr.sizeof]</a>, <a href='expr.cast'>[expr.cast]</a>
+<br/><b>Change:</b> Types must be defined in declarations, not in expressions.<br/>
+In C, a sizeof expression or cast expression may define a new type.
+For example,
+</p><pre class='codeblock'>
+p = (void*)(struct x {int i;} *)0;</pre><p >defines a new type, struct <span class='texttt'>x</span>.
+<br/><b>Rationale:</b> 
+This prohibition helps to clarify the location of
+definitions in the source code.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Syntactic transformation.
+<br/><b>How widely used:</b> 
+Seldom.</p><p ><a href='expr.cond'>[expr.cond]</a>, <a href='expr.ass'>[expr.ass]</a>, <a href='expr.comma'>[expr.comma]</a>
+<span class='indexparent'><a class='index' id=':conversion,lvalue-to-rvalue'></a></span><span class='indexparent'><a class='index' id=':rvalue,lvalue_conversion_to'></a></span><span class='indexparent'><a class='index' id=':lvalue'></a></span><br/><b>Change:</b> The result of a conditional expression, an assignment expression, or a comma expression may be an lvalue.
+<br/><b>Rationale:</b> 
+C++ is an object-oriented language, placing relatively
+more emphasis on lvalues.  For example, functions may
+return lvalues.
+<br/><b>Effect on original feature:</b> 
+Change to semantics of well-defined feature.  Some C
+expressions that implicitly rely on lvalue-to-rvalue
+conversions will yield different results.  For example,</p><pre class='codeblock'>
+char arr[100];
+sizeof(0, arr)</pre><p >yields
+<span class='texttt'>100</span>
+in C++ and
+<span class='texttt'>sizeof(char*)</span>
+in C.
+<br/><b>Difficulty of converting:</b> 
+Programs must add explicit casts to the appropriate rvalue.
+<br/><b>How widely used:</b> 
+Rare.</p></div><div id='stat'><h3 ><a class='secnum' href='#stat' style='min-width:103pt'>C.1.5</a> Clause <a href='stmt.stmt'>[stmt.stmt]</a>: statements <a class='abbr_ref' href='diff.stat'>[diff.stat]</a></h3><p ><a href='stmt.switch'>[stmt.switch]</a>, <a href='stmt.goto'>[stmt.goto]</a>
+<br/><b>Change:</b> It is now invalid to jump past a declaration with explicit or implicit initializer (except across entire block not entered).
+<br/><b>Rationale:</b> 
+Constructors used in initializers may allocate
+resources which need to be de-allocated upon leaving the
+block.
+Allowing jump past initializers would require
+complicated runtime determination of allocation.
+Furthermore, any use of the uninitialized object could be a
+disaster.
+With this simple compile-time rule, C++ assures that
+if an initialized variable is in scope, then it has assuredly been
+initialized.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+<br/><b>How widely used:</b> 
+Seldom.</p><p ><a href='stmt.return'>[stmt.return]</a>
+<br/><b>Change:</b> It is now invalid to return (explicitly or implicitly) from a function which is
+declared to return a value without actually returning a value.
+<br/><b>Rationale:</b> 
+The caller and callee may assume fairly elaborate
+return-value mechanisms for the return of class objects.
+If
+some flow paths execute a return without specifying any value,
+the implementation must embody many more complications.
+Besides,
+promising to return a value of a given type, and then not returning
+such a value, has always been recognized to be a questionable
+practice, tolerated only because very-old C had no distinction between
+void  functions and  int  functions.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+Add an appropriate return value to the source code, such as zero.
+<br/><b>How widely used:</b> 
+Seldom.
+For several years, many existing C implementations have produced warnings in
+this case.</p></div><div id='dcl'><h3 ><a class='secnum' href='#dcl' style='min-width:103pt'>C.1.6</a> Clause <a href='dcl.dcl'>[dcl.dcl]</a>: declarations <a class='abbr_ref' href='diff.dcl'>[diff.dcl]</a></h3><p ><a href='dcl.stc'>[dcl.stc]</a>
+<br/><b>Change:</b> In C++, the <span class='texttt'>static</span> or <span class='texttt'>extern</span> specifiers can only be applied to names of objects or functions.<br/>
+Using these specifiers with type declarations is illegal in C++.
+In C, these specifiers are ignored when used on type declarations.</p><p >Example:</p><pre class='codeblock'>
+static struct S {               <span class='comment'>// valid C, invalid in C++
+</span>  int i;
+};</pre><p ><br/><b>Rationale:</b> 
+Storage class specifiers don't have any meaning when associated
+with a type.
+In C++, class members can be declared with the <span class='texttt'>static</span> storage
+class specifier.
+Allowing storage class specifiers on type
+declarations could render the code confusing for users.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Syntactic transformation.
+<br/><b>How widely used:</b> 
+Seldom.</p><p ><a href='dcl.stc'>[dcl.stc]</a>
+<br/><b>Change:</b> In C++, <span class='texttt'>register</span> is not a storage class specifier.
+<br/><b>Rationale:</b> 
+The storage class specifier had no effect in C++.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Syntactic transformation.
+<br/><b>How widely used:</b> 
+Common.</p><p ><a href='dcl.typedef'>[dcl.typedef]</a>
+<br/><b>Change:</b> A C++ typedef name must be different from any class type name declared
+in the same scope (except if the typedef is a synonym of the class name with the
+same name). In C, a typedef name and a struct tag name declared in the same scope
+can have the same name (because they have different name spaces).</p><p >Example:
+</p><pre class='codeblock'>
+typedef struct name1 { <span class='tcode_in_codeblock'>/* ...&nbsp;*/</span> } name1;         <span class='comment'>// valid C and C++
+</span>struct name { <span class='tcode_in_codeblock'>/* ...&nbsp;*/</span> };
+typedef int name;               <span class='comment'>// valid C, invalid C++
+</span></pre><p ><br/><b>Rationale:</b> 
+For ease of use, C++ doesn't require that a type name be prefixed
+with the keywords <span class='texttt'>class</span>, <span class='texttt'>struct</span> or <span class='texttt'>union</span> when used in object
+declarations or type casts.</p><p >Example:
+</p><pre class='codeblock'>
+class name { <span class='tcode_in_codeblock'>/* ...&nbsp;*/</span> };
+name i;                         <span class='comment'>// <span class='tcode_in_codeblock'>i</span> has type <span class='tcode_in_codeblock'>class name</span>
+</span></pre><p ><br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+One of the 2 types has to be renamed.
+<br/><b>How widely used:</b> 
+Seldom.</p><p ><a href='dcl.type'>[dcl.type]</a> [see also <a href='basic.link'>[basic.link]</a>]
+<br/><b>Change:</b> <span class='texttt'>const</span> objects must be initialized in C++ but can be left uninitialized in C.
+<br/><b>Rationale:</b> 
+A const object cannot be assigned to so it must be initialized
+to hold a useful value.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+<br/><b>How widely used:</b> 
+Seldom.</p><p ><a href='dcl.type'>[dcl.type]</a>
+<br/><b>Change:</b> Banning implicit <span class='texttt'>int</span>.</p><p >In C++ a
+<i ><a href='dcl.spec#nt:decl-specifier-seq'>decl-specifier-seq</a></i>
+must contain a
+<i ><a href='dcl.type#nt:type-specifier'>type-specifier</a></i>, unless
+it is followed by a declarator for a constructor, a destructor, or a
+conversion function.
+In the following example, the
+left-hand column presents valid C;
+the right-hand column presents
+equivalent C++ :</p><pre class='codeblock'>
+void f(const parm);            void f(const int parm);
+const n = 3;                   const int n = 3;
+main()                         int main()
+    <span class='tcode_in_codeblock'>/* ...&nbsp;*/</span>                      <span class='tcode_in_codeblock'>/* ...&nbsp;*/</span></pre><p ><br/><b>Rationale:</b> 
+In C++, implicit int creates several opportunities for
+ambiguity between expressions involving function-like
+casts and declarations.
+Explicit declaration is increasingly considered
+to be proper style.
+Liaison with WG14 (C) indicated support for (at least)
+deprecating implicit int in the next revision of C.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Syntactic transformation.
+Could be automated.
+<br/><b>How widely used:</b> 
+Common.</p><p ><a href='dcl.spec.auto'>[dcl.spec.auto]</a>
+<br/><b>Change:</b> 
+The keyword <span class='texttt'>auto</span> cannot be used as a storage class specifier.</p><pre class='codeblock'>
+void f() {
+  auto int x;     <span class='comment'>// valid C, invalid C++
+</span>}</pre><p ><br/><b>Rationale:</b> Allowing the use of <span class='texttt'>auto</span> to deduce the type
+of a variable from its initializer results in undesired interpretations of
+<span class='texttt'>auto</span> as a storage class specifier in certain contexts.
+<br/><b>Effect on original feature:</b> Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> Syntactic transformation.
+<br/><b>How widely used:</b> Rare.</p><p ><a href='dcl.enum'>[dcl.enum]</a>
+<br/><b>Change:</b> C++ objects of enumeration type can only be assigned values of the same enumeration type.
+In C, objects of enumeration type can be assigned values of any integral type.</p><p >Example:
+</p><pre class='codeblock'>
+enum color { red, blue, green };
+enum color c = 1;               <span class='comment'>// valid C, invalid C++
+</span></pre><p ><br/><b>Rationale:</b> 
+The type-safe nature of C++.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Syntactic transformation.
+(The type error produced by the assignment can be automatically
+corrected by applying an explicit cast.)
+<br/><b>How widely used:</b> 
+Common.</p><p ><a href='dcl.enum'>[dcl.enum]</a>
+<br/><b>Change:</b> In C++, the type of an enumerator is its enumeration. In C, the type of an enumerator is <span class='texttt'>int</span>.</p><p >Example:</p><pre class='codeblock'>
+enum e { A };
+sizeof(A) == sizeof(int)        <span class='comment'>// in C
+</span>sizeof(A) == sizeof(e)          <span class='comment'>// in C++
+</span>/* and sizeof(int) is not necessarily equal to sizeof(e) */</pre><p ><br/><b>Rationale:</b> 
+In C++, an enumeration is a distinct type.
+<br/><b>Effect on original feature:</b> 
+Change to semantics of well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+<br/><b>How widely used:</b> 
+Seldom.
+The only time this affects existing C code is when the size of an
+enumerator is taken.
+Taking the size of an enumerator is not a
+common C coding practice.</p></div><div id='decl'><h3 ><a class='secnum' href='#decl' style='min-width:103pt'>C.1.7</a> Clause <a href='dcl.decl'>[dcl.decl]</a>: declarators <a class='abbr_ref' href='diff.decl'>[diff.decl]</a></h3><p ><a href='dcl.fct'>[dcl.fct]</a>
+<br/><b>Change:</b> In C++, a function declared with an empty parameter list takes no arguments.
+In C, an empty parameter list means that the number and type of the function arguments are unknown.</p><p >Example:</p><pre class='codeblock'>
+int f();            <span class='comment'>// means   <span class='tcode_in_codeblock'>int f(void)</span> in C++
+</span>                    <span class='comment'>// <span class='tcode_in_codeblock'>int f(</span> unknown <span class='tcode_in_codeblock'>)</span> in C
+</span></pre><p ><br/><b>Rationale:</b> 
+This is to avoid erroneous function calls (i.e., function calls
+with the wrong number or type of arguments).
+<br/><b>Effect on original feature:</b> 
+Change to semantics of well-defined feature.
+This feature was marked as “obsolescent” in C.
+<br/><b>Difficulty of converting:</b> 
+Syntactic transformation.
+The function declarations using C incomplete declaration style must
+be completed to become full prototype declarations.
+A program may need to be updated further if different calls to the
+same (non-prototype) function have different numbers of arguments or
+if the type of corresponding arguments differed.
+<br/><b>How widely used:</b> 
+Common.</p><p ><a href='dcl.fct'>[dcl.fct]</a> [see <a href='expr.sizeof'>[expr.sizeof]</a>]
+<br/><b>Change:</b> In C++, types may not be defined in return or parameter types.
+In C, these type definitions are allowed.</p><p >Example:</p><pre class='codeblock'>
+void f( struct S { int a; } arg ) {}    <span class='comment'>// valid C, invalid C++
+</span>enum E { A, B, C } f() {}               <span class='comment'>// valid C, invalid C++
+</span></pre><p ><br/><b>Rationale:</b> 
+When comparing types in different translation units, C++ relies
+on name equivalence when C relies on structural equivalence.
+Regarding parameter types: since the type defined in a parameter list
+would be in the scope of the function, the only legal calls in C++
+would be from within the function itself.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+The type definitions must be moved to file scope, or in header files.
+<br/><b>How widely used:</b> 
+Seldom.
+This style of type definition is seen as poor coding style.</p><p ><a href='dcl.fct.def'>[dcl.fct.def]</a>
+<br/><b>Change:</b> In C++, the syntax for function definition excludes the “old-style” C function.
+In C, “old-style” syntax is allowed, but deprecated as “obsolescent”.
+<br/><b>Rationale:</b> 
+Prototypes are essential to type safety.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Syntactic transformation.
+<br/><b>How widely used:</b> 
+Common in old programs, but already known to be obsolescent.</p><p ><a href='dcl.init.string'>[dcl.init.string]</a>
+<br/><b>Change:</b> In C++, when initializing an array of character with a string, the number of
+characters in the string (including the terminating <span class='texttt'>'\0'</span>) must not exceed the
+number of elements in the array. In C, an array can be initialized with a string even if
+the array is not large enough to contain the string-terminating <span class='texttt'>'\0'</span>.</p><p >Example:</p><pre class='codeblock'>
+char array[4] = "abcd";         <span class='comment'>// valid C, invalid C++
+</span></pre><p ><br/><b>Rationale:</b> 
+When these non-terminated arrays are manipulated by standard
+string functions, there is potential for major catastrophe.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+The arrays must be declared one element bigger to contain the
+string terminating <span class='texttt'>'\0'</span>.
+<br/><b>How widely used:</b> 
+Seldom.
+This style of array initialization is seen as poor coding style.</p></div><div id='class'><h3 ><a class='secnum' href='#class' style='min-width:103pt'>C.1.8</a> Clause <a href='class'>[class]</a>: classes <a class='abbr_ref' href='diff.class'>[diff.class]</a></h3><p ><a href='class.name'>[class.name]</a> [see also <a href='dcl.typedef'>[dcl.typedef]</a>]
+<br/><b>Change:</b> In C++, a class declaration introduces the class name into the scope where it is
+declared and hides any object, function or other declaration of that name in an enclosing
+scope. In C, an inner scope declaration of a struct tag name never hides the name of an
+object or function in an outer scope.</p><p >Example:</p><pre class='codeblock'>
+int x[99];
+void f() {
+  struct x { int a; };
+  sizeof(x);  /* size of the array in C */
+  /* size of the struct in <span class='textit'><span class='textrm'>C++</span></span> */
+}</pre><p ><br/><b>Rationale:</b> 
+This is one of the few incompatibilities between C and C++ that
+can be attributed to the new C++ name space definition where a
+name can be declared as a type and as a non-type in a single scope
+causing the non-type name to hide the type name and requiring that
+the keywords <span class='texttt'>class</span>, <span class='texttt'>struct</span>, <span class='texttt'>union</span> or <span class='texttt'>enum</span> be used to refer to the type name.
+This new name space definition provides important notational
+conveniences to C++ programmers and helps making the use of the
+user-defined types as similar as possible to the use of fundamental
+types.
+The advantages of the new name space definition were judged to
+outweigh by far the incompatibility with C described above.
+<br/><b>Effect on original feature:</b> 
+Change to semantics of well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+If the hidden name that needs to be accessed is at global scope,
+the <span class='texttt'>&#x200b;::&#x200b;</span> C++ operator can be used.
+If the hidden name is at block scope, either the type or the struct
+tag has to be renamed.
+<br/><b>How widely used:</b> 
+Seldom.</p><p ><a href='class.bit'>[class.bit]</a>
+<br/><b>Change:</b> 
+<span class='indexparent'><a class='index' id=':bit-field,implementation-defined_sign_of'></a></span>Bit-fields of type plain <span class='texttt'>int</span> are signed.
+<br/><b>Rationale:</b> 
+Leaving the choice of signedness to implementations could lead to
+inconsistent definitions of template specializations. For consistency,
+the implementation freedom was eliminated for non-dependent types,
+too.
+<br/><b>Effect on original feature:</b> 
+The choice is implementation-defined in C, but not so in C++.
+<br/><b>Difficulty of converting:</b> 
+Syntactic transformation.
+<br/><b>How widely used:</b> 
+Seldom.</p><p ><a href='class.nest'>[class.nest]</a>
+<br/><b>Change:</b> In C++, the name of a nested class is local to its enclosing class. In C
+the name of the nested class belongs to the same scope as the name of the outermost enclosing class.</p><p >Example:</p><pre class='codeblock'>
+struct X {
+  struct Y { <span class='tcode_in_codeblock'>/* ...&nbsp;*/</span> } y;
+};
+struct Y yy;                    <span class='comment'>// valid C, invalid C++
+</span></pre><p ><br/><b>Rationale:</b> 
+C++ classes have member functions which require that classes
+establish scopes.
+The C rule would leave classes as an incomplete scope mechanism
+which would prevent C++ programmers from maintaining locality
+within a class.
+A coherent set of scope rules for C++ based on the C rule would
+be very complicated and C++ programmers would be unable to predict
+reliably the meanings of nontrivial examples involving nested or
+local functions.
+<br/><b>Effect on original feature:</b> 
+Change to semantics of well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+To make the struct type name visible in the scope of the enclosing
+struct, the struct tag could be declared in the scope of the
+enclosing struct, before the enclosing struct is defined.
+Example:</p><pre class='codeblock'>
+struct Y;                       <span class='comment'>// <span class='tcode_in_codeblock'>struct Y</span> and <span class='tcode_in_codeblock'>struct X</span> are at the same scope
+</span>struct X {
+  struct Y { <span class='tcode_in_codeblock'>/* ...&nbsp;*/</span> } y;
+};</pre><p >All the definitions of C struct types enclosed in other struct
+definitions and accessed outside the scope of the enclosing
+struct could be exported to the scope of the enclosing struct.
+Note: this is a consequence of the difference in scope rules,
+which is documented in <a href='basic.scope'>[basic.scope]</a>.
+<br/><b>How widely used:</b> 
+Seldom.</p><p ><a href='class.nested.type'>[class.nested.type]</a>
+<br/><b>Change:</b> In C++, a typedef name may not be redeclared in a class definition after being used in that definition.</p><p >Example:</p><pre class='codeblock'>
+typedef int I;
+struct S {
+  I i;
+  int I;                  <span class='comment'>// valid C, invalid C++
+</span>};</pre><p ><br/><b>Rationale:</b> 
+When classes become complicated, allowing such a redefinition
+after the type has been used can create confusion for C++
+programmers as to what the meaning of <span class='texttt'>I</span> really is.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+Either the type or the struct member has to be renamed.
+<br/><b>How widely used:</b> 
+Seldom.</p></div><div id='special'><h3 ><a class='secnum' href='#special' style='min-width:103pt'>C.1.9</a> Clause <a href='special'>[special]</a>: special member functions <a class='abbr_ref' href='diff.special'>[diff.special]</a></h3><p ><a href='class.copy'>[class.copy]</a>
+<br/><b>Change:</b> Copying volatile objects.</p><p >The implicitly-declared copy constructor and
+implicitly-declared copy assignment operator
+cannot make a copy of a volatile lvalue.
+For example, the following is valid in ISO C:</p><pre class='codeblock'>
+struct X { int i; };
+volatile struct X x1 = {0};
+struct X x2 = x1;               <span class='comment'>// invalid C++
+</span>struct X x3;
+x3 = x1;                        <span class='comment'>// also invalid C++
+</span></pre><p ><br/><b>Rationale:</b> 
+Several alternatives were debated at length.
+Changing the parameter to
+<span class='texttt'>volatile</span>
+<span class='texttt'>const</span>
+<span class='texttt'>X&amp;</span>
+would greatly complicate the generation of
+efficient code for class objects.
+Discussion of
+providing two alternative signatures for these
+implicitly-defined operations raised
+unanswered concerns about creating
+ambiguities and complicating
+the rules that specify the formation of
+these operators according to the bases and
+members.
+<br/><b>Effect on original feature:</b> 
+Deletion of semantically well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+If volatile semantics are required for the copy,
+a user-declared constructor or assignment must
+be provided.
+If non-volatile semantics are required,
+an explicit
+<span class='texttt'>const_&shy;cast</span>
+can be used.
+<br/><b>How widely used:</b> 
+Seldom.</p></div><div id='cpp'><h3 ><a class='secnum' href='#cpp' style='min-width:103pt'>C.1.10</a> Clause <a href='cpp'>[cpp]</a>: preprocessing directives <a class='abbr_ref' href='diff.cpp'>[diff.cpp]</a></h3><p ><a href='cpp.predefined'>[cpp.predefined]</a>
+<br/><b>Change:</b> Whether <span class='texttt'>__STDC__</span> is defined and if so, what its value is, are
+<span class='indexparent'><a class='index' id=':definition_and_meaning_of___STDC__'></a></span>implementation-defined.
+<br/><b>Rationale:</b> 
+C++ is not identical to ISO C.
+Mandating that <span class='texttt'>__STDC__</span>
+be defined would require that translators make an incorrect claim.
+Each implementation must choose the behavior that will be most
+useful to its marketplace.
+<br/><b>Effect on original feature:</b> 
+Change to semantics of well-defined feature.
+<br/><b>Difficulty of converting:</b> 
+Semantic transformation.
+<br/><b>How widely used:</b> 
+Programs and headers that reference <span class='texttt'>__STDC__</span> are
+quite common.</p></div></div><div id='cpp03'><h2 ><a class='secnum' href='#cpp03' style='min-width:88pt'>C.2</a> C++ and ISO C++ 2003 <a class='abbr_ref' href='diff.cpp03'>[diff.cpp03]</a></h2><div class='para' id='cpp03-1'><div class='marginalizedparent'><a class='marginalized' href='#cpp03-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L823'>#</a></div><p ><span class='indexparent'><a class='index' id=':summary,compatibility_with_ISO_C++~2003'></a></span>This subclause lists the differences between C++ and
+ISO C++ 2003 (ISO/IEC 14882:2003, <span class='textit'>Programming Languages — C++</span>),
+by the chapters of this document.</p></div><div id='cpp03.lex'><h3 ><a class='secnum' href='#cpp03.lex' style='min-width:103pt'>C.2.1</a> Clause <a href='lex'>[lex]</a>: lexical conventions <a class='abbr_ref' href='diff.cpp03.lex'>[diff.cpp03.lex]</a></h3><p ><a href='lex.pptoken'>[lex.pptoken]</a>
+<br/><b>Change:</b> New kinds of string literals.
+<br/><b>Rationale:</b> Required for new features.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code may fail to compile or produce different results in
+this International Standard. Specifically, macros named <span class='texttt'>R</span>, <span class='texttt'>u8</span>,
+<span class='texttt'>u8R</span>, <span class='texttt'>u</span>, <span class='texttt'>uR</span>, <span class='texttt'>U</span>, <span class='texttt'>UR</span>, or <span class='texttt'>LR</span> will
+not be expanded when adjacent to a string literal but will be interpreted as
+part of the string literal. For example,</p><pre class='codeblock'>
+#define u8 "abc"
+const char* s = u8"def";        <span class='comment'>// Previously <span class='tcode_in_codeblock'>"abcdef"</span>, now <span class='tcode_in_codeblock'>"def"</span>
+</span></pre><p ><a href='lex.pptoken'>[lex.pptoken]</a>
+<br/><b>Change:</b> User-defined literal string support.
+<br/><b>Rationale:</b> Required for new features.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code may fail to compile or produce different results in
+this International Standard, as the following example illustrates.</p><pre class='codeblock'>
+#define _x "there"
+"hello"_x         <span class='comment'>// #1
+</span></pre><p >Previously, #1 would have consisted of two separate preprocessing tokens and
+the macro <span class='texttt'>_&shy;x</span> would have been expanded. In this International Standard,
+#1 consists of a single preprocessing token, so the macro is not expanded.</p><p ><a href='lex.key'>[lex.key]</a>
+<br/><b>Change:</b> New keywords.
+<br/><b>Rationale:</b> Required for new features.
+<br/><b>Effect on original feature:</b> 
+Added to Table <a href='lex.key#tab:keywords'>5</a>, the following identifiers are new keywords:
+<span class='texttt'>alignas</span>,
+<span class='texttt'>alignof</span>,
+<span class='texttt'>char16_&shy;t</span>,
+<span class='texttt'>char32_&shy;t</span>,
+<span class='texttt'>constexpr</span>,
+<span class='texttt'>decltype</span>,
+<span class='texttt'>noexcept</span>,
+<span class='texttt'>nullptr</span>,
+<span class='texttt'>static_&shy;assert</span>,
+and
+<span class='texttt'>thread_&shy;local</span>.
+Valid C++ 2003 code using these identifiers is invalid in this International
+Standard.</p><p ><a href='lex.icon'>[lex.icon]</a>
+<br/><b>Change:</b> Type of integer literals.
+<br/><b>Rationale:</b> C99 compatibility.
+<br/><b>Effect on original feature:</b> 
+Certain integer literals larger than can be represented by <span class='texttt'>long</span> could
+change from an unsigned integer type to <span class='texttt'>signed long long</span>.</p></div><div id='cpp03.conv'><h3 ><a class='secnum' href='#cpp03.conv' style='min-width:103pt'>C.2.2</a> Clause <a href='conv'>[conv]</a>: standard conversions <a class='abbr_ref' href='diff.cpp03.conv'>[diff.cpp03.conv]</a></h3><p ><a href='conv.ptr'>[conv.ptr]</a>
+<br/><b>Change:</b> Only literals are integer null pointer constants.
+<br/><b>Rationale:</b> Removing surprising interactions with templates and constant
+expressions.
+<br/><b>Effect on original feature:</b> Valid C++ 2003 code may fail to compile or produce different results in
+this International Standard, as the following example illustrates:</p><pre class='codeblock'>
+void f(void *);  <span class='comment'>// #1
+</span>void f(...);     <span class='comment'>// #2
+</span>template&lt;int N&gt; void g() {
+  f(0*N);        <span class='comment'>// calls #2; used to call #1
+</span>}</pre></div><div id='cpp03.expr'><h3 ><a class='secnum' href='#cpp03.expr' style='min-width:103pt'>C.2.3</a> Clause <a href='expr'>[expr]</a>: expressions <a class='abbr_ref' href='diff.cpp03.expr'>[diff.cpp03.expr]</a></h3><p ><a href='expr.mul'>[expr.mul]</a>
+<br/><b>Change:</b> Specify rounding for results of integer <span class='texttt'>/</span> and <span class='texttt'>%</span>.
+<br/><b>Rationale:</b> Increase portability, C99 compatibility.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code that uses integer division rounds the result toward 0 or
+toward negative infinity, whereas this International Standard always rounds
+the result toward 0.</p><p ><a href='expr.log.and'>[expr.log.and]</a>
+<br/><b>Change:</b> <span class='texttt'>&amp;&amp;</span> is valid in a <i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i>.
+<br/><b>Rationale:</b> Required for new features.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code may fail to compile or produce different results in
+this International Standard, as the following example illustrates:</p><pre class='codeblock'>
+bool b1 = new int &amp;&amp; false;           <span class='comment'>// previously <span class='tcode_in_codeblock'>false</span>, now ill-formed
+</span>struct S { operator int(); };
+bool b2 = &amp;S::operator int &amp;&amp; false;  <span class='comment'>// previously <span class='tcode_in_codeblock'>false</span>, now ill-formed
+</span></pre></div><div id='cpp03.dcl.dcl'><h3 ><a class='secnum' href='#cpp03.dcl.dcl' style='min-width:103pt'>C.2.4</a> Clause <a href='dcl.dcl'>[dcl.dcl]</a>: declarations <a class='abbr_ref' href='diff.cpp03.dcl.dcl'>[diff.cpp03.dcl.dcl]</a></h3><p ><a href='dcl.spec'>[dcl.spec]</a>
+<br/><b>Change:</b> Remove <span class='texttt'>auto</span> as a storage class specifier.
+<br/><b>Rationale:</b> New feature.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code that uses the keyword <span class='texttt'>auto</span> as a storage class
+specifier may be invalid in this International Standard. In this International
+Standard, <span class='texttt'>auto</span> indicates that the type of a variable is to be deduced
+from its initializer expression.</p></div><div id='cpp03.dcl.decl'><h3 ><a class='secnum' href='#cpp03.dcl.decl' style='min-width:103pt'>C.2.5</a> Clause <a href='dcl.decl'>[dcl.decl]</a>: declarators <a class='abbr_ref' href='diff.cpp03.dcl.decl'>[diff.cpp03.dcl.decl]</a></h3><p ><a href='dcl.init.list'>[dcl.init.list]</a>
+<br/><b>Change:</b> Narrowing restrictions in aggregate initializers.
+<br/><b>Rationale:</b> Catches bugs.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code may fail to compile in this International Standard. For
+example, the following code is valid in C++ 2003 but invalid in this
+International Standard because <span class='texttt'>double</span> to <span class='texttt'>int</span> is a narrowing
+conversion:</p><pre class='codeblock'>
+int x[] = { 2.0 };</pre></div><div id='cpp03.special'><h3 ><a class='secnum' href='#cpp03.special' style='min-width:103pt'>C.2.6</a> Clause <a href='special'>[special]</a>: special member functions <a class='abbr_ref' href='diff.cpp03.special'>[diff.cpp03.special]</a></h3><p ><a href='class.ctor'>[class.ctor]</a>, <a href='class.dtor'>[class.dtor]</a>, <a href='class.copy'>[class.copy]</a>
+<br/><b>Change:</b> Implicitly-declared special member functions are defined as deleted
+when the implicit definition would have been ill-formed.
+<br/><b>Rationale:</b> Improves template argument deduction failure.
+<br/><b>Effect on original feature:</b> 
+A valid C++ 2003 program that uses one of these special member functions in a
+context where the definition is not required (e.g., in an expression that is
+not potentially evaluated) becomes ill-formed.</p><p ><a href='class.dtor'>[class.dtor]</a> (destructors)
+<br/><b>Change:</b> User-declared destructors have an implicit exception specification.
+<br/><b>Rationale:</b> Clarification of destructor requirements.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code may execute differently in this International Standard. In
+particular, destructors that throw exceptions will call <span class='texttt'>std&#x200b;::&#x200b;terminate</span>
+(without calling <span class='texttt'>std&#x200b;::&#x200b;unexpected</span>) if their exception specification is
+non-throwing.</p></div><div id='cpp03.temp'><h3 ><a class='secnum' href='#cpp03.temp' style='min-width:103pt'>C.2.7</a> Clause <a href='temp'>[temp]</a>: templates <a class='abbr_ref' href='diff.cpp03.temp'>[diff.cpp03.temp]</a></h3><p ><a href='temp.param'>[temp.param]</a>
+<br/><b>Change:</b> Remove <span class='texttt'>export</span>.
+<br/><b>Rationale:</b> No implementation consensus.
+<br/><b>Effect on original feature:</b> 
+A valid C++ 2003 declaration containing <span class='texttt'>export</span> is ill-formed in this
+International Standard.</p><p ><a href='temp.arg'>[temp.arg]</a>
+<br/><b>Change:</b> Remove whitespace requirement for nested closing template right angle
+brackets.
+<br/><b>Rationale:</b> Considered a persistent but minor annoyance. Template aliases
+representing non-class types would exacerbate whitespace issues.
+<br/><b>Effect on original feature:</b> 
+Change to semantics of well-defined expression. A valid C++ 2003 expression
+containing a right angle bracket (“<span class='texttt'>&gt;</span>”) followed immediately by
+another right angle bracket may now be treated as closing two templates.
+For example, the following code is valid in C++ 2003 because “<span class='texttt'>&gt;&gt;</span>”
+is a right-shift operator, but invalid in this International Standard because
+“<span class='texttt'>&gt;&gt;</span>” closes two templates.</p><pre class='codeblock'>
+template &lt;class T&gt; struct X { };
+template &lt;int N&gt; struct Y { };
+X&lt; Y&lt; 1 &gt;&gt; 2 &gt; &gt; x;</pre><p ><a href='temp.dep.candidate'>[temp.dep.candidate]</a>
+<br/><b>Change:</b> Allow dependent calls of functions with internal linkage.
+<br/><b>Rationale:</b> Overly constrained, simplify overload resolution rules.
+<br/><b>Effect on original feature:</b> 
+A valid C++ 2003 program could get a different result than this
+International Standard.</p></div><div id='cpp03.library'><h3 ><a class='secnum' href='#cpp03.library' style='min-width:103pt'>C.2.8</a> Clause <a href='library'>[library]</a>: library introduction <a class='abbr_ref' href='diff.cpp03.library'>[diff.cpp03.library]</a></h3><p ><a href='library'>[library]</a> – <a href='thread'>[thread]</a>
+<br/><b>Change:</b> New reserved identifiers.
+<br/><b>Rationale:</b> Required by new features.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code that uses any identifiers added to the C++ standard
+library by this International Standard may fail to compile or produce different
+results in this International Standard. A comprehensive list of identifiers used
+by the C++ standard library can be found in the Index of Library Names in this
+International Standard.</p><p ><a href='headers'>[headers]</a>
+<br/><b>Change:</b> New headers.
+<br/><b>Rationale:</b> New functionality.
+<br/><b>Effect on original feature:</b> 
+The following C++ headers are new:
+<span class='texttt'>&lt;array&gt;</span>,
+<span class='texttt'>&lt;atomic&gt;</span>,
+<span class='texttt'>&lt;chrono&gt;</span>,
+<span class='texttt'>&lt;codecvt&gt;</span>,
+<span class='texttt'>&lt;condition_&shy;variable&gt;</span>,
+<span class='texttt'>&lt;forward_&shy;list&gt;</span>,
+<span class='texttt'>&lt;future&gt;</span>,
+<span class='texttt'>&lt;initializer_&shy;list&gt;</span>,
+<span class='texttt'>&lt;mutex&gt;</span>,
+<span class='texttt'>&lt;random&gt;</span>,
+<span class='texttt'>&lt;ratio&gt;</span>,
+<span class='texttt'>&lt;regex&gt;</span>,
+<span class='texttt'>&lt;scoped_&shy;allocator&gt;</span>,
+<span class='texttt'>&lt;system_&shy;error&gt;</span>,
+<span class='texttt'>&lt;thread&gt;</span>,
+<span class='texttt'>&lt;tuple&gt;</span>,
+<span class='texttt'>&lt;typeindex&gt;</span>,
+<span class='texttt'>&lt;type_&shy;traits&gt;</span>,<br/>
+<span class='texttt'>&lt;unordered_&shy;map&gt;</span>,
+and
+<span class='texttt'>&lt;unordered_&shy;set&gt;</span>.
+In addition the following C compatibility headers are new:
+<span class='texttt'>&lt;ccomplex&gt;</span>,
+<span class='texttt'>&lt;cfenv&gt;</span>,
+<span class='texttt'>&lt;cinttypes&gt;</span>,
+<span class='texttt'>&lt;cstdalign&gt;</span>,
+<span class='texttt'>&lt;cstdbool&gt;</span>,
+<span class='texttt'>&lt;cstdint&gt;</span>,
+<span class='texttt'>&lt;ctgmath&gt;</span>,
+and
+<span class='texttt'>&lt;cuchar&gt;</span>.
+Valid C++ 2003 code that <span class='texttt'>#include</span>s headers with these names may be
+invalid in this International Standard.</p><p ><a href='swappable.requirements'>[swappable.requirements]</a>
+<br/><b>Effect on original feature:</b> Function <span class='texttt'>swap</span> moved to a different header
+<br/><b>Rationale:</b> Remove dependency on <span class='texttt'>&lt;algorithm&gt;</span> for <span class='texttt'>swap</span>.
+<br/><b>Effect on original feature:</b> Valid C++ 2003 code that has been compiled expecting swap to be in
+<span class='texttt'>&lt;algorithm&gt;</span> may have to instead include <span class='texttt'>&lt;utility&gt;</span>.</p><p ><a href='namespace.posix'>[namespace.posix]</a>
+<br/><b>Change:</b> New reserved namespace.
+<br/><b>Rationale:</b> New functionality.
+<br/><b>Effect on original feature:</b> 
+The global namespace <span class='texttt'>posix</span> is now reserved for standardization. Valid
+C++ 2003 code that uses a top-level namespace <span class='texttt'>posix</span> may be invalid in
+this International Standard.</p><p ><a href='res.on.macro.definitions'>[res.on.macro.definitions]</a>
+<br/><b>Change:</b> Additional restrictions on macro names.
+<br/><b>Rationale:</b> Avoid hard to diagnose or non-portable constructs.
+<br/><b>Effect on original feature:</b> 
+Names of attribute identifiers may not be used as macro names. Valid C++
+2003 code that defines <span class='texttt'>override</span>, <span class='texttt'>final</span>,
+<span class='texttt'>carries_&shy;dependency</span>, or <span class='texttt'>noreturn</span> as macros is invalid in this
+International Standard.</p></div><div id='cpp03.language.support'><h3 ><a class='secnum' href='#cpp03.language.support' style='min-width:103pt'>C.2.9</a> Clause <a href='language.support'>[language.support]</a>:
+language support library <a class='abbr_ref' href='diff.cpp03.language.support'>[diff.cpp03.language.support]</a></h3><p ><a href='new.delete.single'>[new.delete.single]</a>
+<br/><b>Change:</b> Linking <span class='texttt'>new</span> and <span class='texttt'>delete</span> operators.
+<br/><b>Rationale:</b> The two throwing single-object signatures of <span class='texttt'>operator new</span> and
+<span class='texttt'>operator delete</span> are now specified to form the base functionality for
+the other operators. This clarifies that replacing just these two signatures
+changes others, even if they are not explicitly changed.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code that replaces global <span class='texttt'>new</span> or <span class='texttt'>delete</span>
+operators may execute differently in this International Standard. For
+example, the following program should write <span class='texttt'>"custom deallocation"</span> twice,
+once for the single-object delete and once for the array delete.</p><pre class='codeblock'>
+#include &lt;cstdio&gt;
+#include &lt;cstdlib&gt;
+#include &lt;new&gt;
+
+void* operator new(std::size_t size) throw(std::bad_alloc) {
+  return std::malloc(size);
+}
+
+void operator delete(void* ptr) throw() {
+  std::puts("custom deallocation");
+  std::free(ptr);
+}
+
+int main() {
+  int* i = new int;
+  delete i;                     <span class='comment'>// single-object delete
+</span>  int* a = new int[3];
+  delete [] a;                  <span class='comment'>// array delete
+</span>}</pre><p ><a href='new.delete.single'>[new.delete.single]</a>
+<br/><b>Change:</b> <span class='texttt'>operator new</span> may throw exceptions other than
+<span class='texttt'>std&#x200b;::&#x200b;bad_&shy;alloc</span>.
+<br/><b>Rationale:</b> Consistent application of <span class='texttt'>noexcept</span>.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code that assumes that global <span class='texttt'>operator new</span> only
+throws <span class='texttt'>std&#x200b;::&#x200b;bad_&shy;alloc</span> may execute differently in this International
+Standard.</p></div><div id='cpp03.diagnostics'><h3 ><a class='secnum' href='#cpp03.diagnostics' style='min-width:103pt'>C.2.10</a> Clause <a href='diagnostics'>[diagnostics]</a>: diagnostics library <a class='abbr_ref' href='diff.cpp03.diagnostics'>[diff.cpp03.diagnostics]</a></h3><p ><a href='errno'>[errno]</a>
+<br/><b>Change:</b> Thread-local error numbers.
+<br/><b>Rationale:</b> Support for new thread facilities.
+<br/><b>Effect on original feature:</b> Valid but implementation-specific C++ 2003 code that relies on
+<span class='texttt'>errno</span> being the same across threads may change behavior in this
+International Standard.</p></div><div id='cpp03.utilities'><h3 ><a class='secnum' href='#cpp03.utilities' style='min-width:103pt'>C.2.11</a> Clause <a href='utilities'>[utilities]</a>: general utilities library <a class='abbr_ref' href='diff.cpp03.utilities'>[diff.cpp03.utilities]</a></h3><p ><a href='util.dynamic.safety'>[util.dynamic.safety]</a>
+<br/><b>Change:</b> Minimal support for garbage-collected regions.
+<br/><b>Rationale:</b> Required by new feature.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code, compiled without traceable pointer support,
+that interacts with newer C++ code using regions declared reachable may
+have different runtime behavior.</p><p ><a href='refwrap'>[refwrap]</a>, <a href='arithmetic.operations'>[arithmetic.operations]</a>, <a href='comparisons'>[comparisons]</a>,
+<a href='logical.operations'>[logical.operations]</a>, <a href='bitwise.operations'>[bitwise.operations]</a>, <a href='depr.negators'>[depr.negators]</a>
+<br/><b>Change:</b> Standard function object types no longer derived from
+<span class='texttt'>std&#x200b;::&#x200b;unary_&shy;function</span> or <span class='texttt'>std&#x200b;::&#x200b;binary_&shy;function</span>.
+<br/><b>Rationale:</b> Superseded by new feature; <span class='texttt'>unary_&shy;function</span> and
+<span class='texttt'>binary_&shy;function</span> are no longer defined.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code that depends on function object types being derived from
+<span class='texttt'>unary_&shy;function</span> or <span class='texttt'>binary_&shy;function</span> may fail to compile
+in this International Standard.</p></div><div id='cpp03.strings'><h3 ><a class='secnum' href='#cpp03.strings' style='min-width:103pt'>C.2.12</a> Clause <a href='strings'>[strings]</a>: strings library <a class='abbr_ref' href='diff.cpp03.strings'>[diff.cpp03.strings]</a></h3><p ><a href='string.classes'>[string.classes]</a>
+<br/><b>Change:</b> <span class='texttt'>basic_&shy;string</span> requirements no longer allow reference-counted
+strings.
+<br/><b>Rationale:</b> Invalidation is subtly different with reference-counted strings.
+This change regularizes behavior for this International Standard.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code may execute differently in this International Standard.</p><p ><a href='string.require'>[string.require]</a>
+<br/><b>Change:</b> Loosen <span class='texttt'>basic_&shy;string</span> invalidation rules.
+<br/><b>Rationale:</b> Allow small-string optimization.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code may execute differently in this International Standard.
+Some <span class='texttt'>const</span> member functions, such as <span class='texttt'>data</span> and <span class='texttt'>c_&shy;str</span>,
+no longer invalidate iterators.</p></div><div id='cpp03.containers'><h3 ><a class='secnum' href='#cpp03.containers' style='min-width:103pt'>C.2.13</a> Clause <a href='containers'>[containers]</a>: containers library <a class='abbr_ref' href='diff.cpp03.containers'>[diff.cpp03.containers]</a></h3><p ><a href='container.requirements'>[container.requirements]</a>
+<br/><b>Change:</b> Complexity of <span class='texttt'>size()</span> member functions now constant.
+<br/><b>Rationale:</b> Lack of specification of complexity of <span class='texttt'>size()</span> resulted in
+divergent implementations with inconsistent performance characteristics.
+<br/><b>Effect on original feature:</b> 
+Some container implementations that conform to C++ 2003 may not conform to the
+specified <span class='texttt'>size()</span> requirements in this International Standard. Adjusting
+containers such as <span class='texttt'>std&#x200b;::&#x200b;list</span> to the stricter requirements may require
+incompatible changes.</p><p ><a href='container.requirements'>[container.requirements]</a>
+<br/><b>Change:</b> Requirements change: relaxation.
+<br/><b>Rationale:</b> Clarification.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code that attempts to meet the specified container requirements
+may now be over-specified. Code that attempted to be portable across containers
+may need to be adjusted as follows:
+</p><ul class='itemize'><li ><p >not all containers provide <span class='texttt'>size()</span>; use <span class='texttt'>empty()</span> instead
+of <span class='texttt'>size() == 0</span>;
+</p></li><li ><p >not all containers are empty after construction (<span class='texttt'>array</span>);
+</p></li><li ><p >not all containers have constant complexity for <span class='texttt'>swap()</span> (<span class='texttt'>array</span>).
+</p></li></ul><p ><a href='container.requirements'>[container.requirements]</a>
+<br/><b>Change:</b> Requirements change: default constructible.
+<br/><b>Rationale:</b> Clarification of container requirements.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code that attempts to explicitly instantiate a container using
+a user-defined type with no default constructor may fail to compile.</p><p ><a href='sequence.reqmts'>[sequence.reqmts]</a>, <a href='associative.reqmts'>[associative.reqmts]</a>
+<br/><b>Change:</b> Signature changes: from <span class='texttt'>void</span> return types.
+<br/><b>Rationale:</b> Old signature threw away useful information that may be expensive
+to recalculate.
+<br/><b>Effect on original feature:</b> 
+The following member functions have changed:
+</p><ul class='itemize'><li ><p ><span class='texttt'>erase(iter)</span> for <span class='texttt'>set</span>, <span class='texttt'>multiset</span>, <span class='texttt'>map</span>, <span class='texttt'>multimap</span>
+</p></li><li ><p ><span class='texttt'>erase(begin, end)</span> for <span class='texttt'>set</span>, <span class='texttt'>multiset</span>, <span class='texttt'>map</span>, <span class='texttt'>multimap</span>
+</p></li><li ><p ><span class='texttt'>insert(pos, num, val)</span> for <span class='texttt'>vector</span>, <span class='texttt'>deque</span>, <span class='texttt'>list</span>, <span class='texttt'>forward_&shy;list</span>
+</p></li><li ><p ><span class='texttt'>insert(pos, beg, end)</span> for <span class='texttt'>vector</span>, <span class='texttt'>deque</span>, <span class='texttt'>list</span>, <span class='texttt'>forward_&shy;list</span>
+</p></li></ul><p >Valid C++ 2003 code that relies on these functions returning <span class='texttt'>void</span>
+(e.g., code that creates a pointer to member function that points to one
+of these functions) will fail to compile with this International Standard.</p><p ><a href='sequence.reqmts'>[sequence.reqmts]</a>, <a href='associative.reqmts'>[associative.reqmts]</a>
+<br/><b>Change:</b> Signature changes: from <span class='texttt'>iterator</span> to <span class='texttt'>const_&shy;iterator</span>
+parameters.
+<br/><b>Rationale:</b> Overspecification.
+<br/><b>Effect on original feature:</b> 
+The signatures of the following member functions changed from taking an
+<span class='texttt'>iterator</span> to taking a <span class='texttt'>const_&shy;iterator</span>:</p><ul class='itemize'><li ><p ><span class='texttt'>insert(iter, val)</span> for <span class='texttt'>vector</span>, <span class='texttt'>deque</span>, <span class='texttt'>list</span>,
+<span class='texttt'>set</span>, <span class='texttt'>multiset</span>, <span class='texttt'>map</span>, <span class='texttt'>multimap</span>
+</p></li><li ><p ><span class='texttt'>insert(pos, beg, end)</span> for <span class='texttt'>vector</span>, <span class='texttt'>deque</span>, <span class='texttt'>list</span>,
+<span class='texttt'>forward_&shy;list</span>
+</p></li><li ><p ><span class='texttt'>erase(begin, end)</span> for <span class='texttt'>set</span>, <span class='texttt'>multiset</span>, <span class='texttt'>map</span>, <span class='texttt'>multimap</span>
+</p></li><li ><p >all forms of <span class='texttt'>list&#x200b;::&#x200b;splice</span>
+</p></li><li ><p >all forms of <span class='texttt'>list&#x200b;::&#x200b;merge</span>
+</p></li></ul><p >Valid C++ 2003 code that uses these functions may fail to compile with this
+International Standard.</p><p ><a href='sequence.reqmts'>[sequence.reqmts]</a>, <a href='associative.reqmts'>[associative.reqmts]</a>
+<br/><b>Change:</b> Signature changes: <span class='texttt'>resize</span>.
+<br/><b>Rationale:</b> Performance, compatibility with move semantics.
+<br/><b>Effect on original feature:</b> 
+For <span class='texttt'>vector</span>, <span class='texttt'>deque</span>, and <span class='texttt'>list</span>
+the fill value passed to <span class='texttt'>resize</span> is now passed by reference instead of
+by value, and an additional overload of <span class='texttt'>resize</span> has been added. Valid
+C++ 2003 code that uses this function may fail to compile with this International
+Standard.</p></div><div id='cpp03.algorithms'><h3 ><a class='secnum' href='#cpp03.algorithms' style='min-width:103pt'>C.2.14</a> Clause <a href='algorithms'>[algorithms]</a>: algorithms library <a class='abbr_ref' href='diff.cpp03.algorithms'>[diff.cpp03.algorithms]</a></h3><p ><a href='algorithms.general'>[algorithms.general]</a>
+<br/><b>Change:</b> Result state of inputs after application of some algorithms.
+<br/><b>Rationale:</b> Required by new feature.
+<br/><b>Effect on original feature:</b> 
+A valid C++ 2003 program may detect that an object with a valid but
+unspecified state has a different valid but unspecified state with this
+International Standard. For example, <span class='texttt'>std&#x200b;::&#x200b;remove</span> and
+<span class='texttt'>std&#x200b;::&#x200b;remove_&shy;if</span> may leave the tail of the input sequence with a
+different set of values than previously.</p></div><div id='cpp03.numerics'><h3 ><a class='secnum' href='#cpp03.numerics' style='min-width:103pt'>C.2.15</a> Clause <a href='numerics'>[numerics]</a>: numerics library <a class='abbr_ref' href='diff.cpp03.numerics'>[diff.cpp03.numerics]</a></h3><p ><a href='complex.numbers'>[complex.numbers]</a>
+<br/><b>Change:</b> Specified representation of complex numbers.
+<br/><b>Rationale:</b> Compatibility with C99.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code that uses implementation-specific knowledge about the
+binary representation of the required template specializations of
+<span class='texttt'>std&#x200b;::&#x200b;complex</span> may not be compatible with this International Standard.</p></div><div id='cpp03.input.output'><h3 ><a class='secnum' href='#cpp03.input.output' style='min-width:103pt'>C.2.16</a> Clause <a href='input.output'>[input.output]</a>: input/output library <a class='abbr_ref' href='diff.cpp03.input.output'>[diff.cpp03.input.output]</a></h3><p ><a href='./istream::sentry'>[istream::sentry]</a>,
+<a href='./ostream::sentry'>[ostream::sentry]</a>,
+<a href='iostate.flags'>[iostate.flags]</a>
+<br/><b>Change:</b> Specify use of <span class='texttt'>explicit</span> in existing boolean conversion functions.
+<br/><b>Rationale:</b> Clarify intentions, avoid workarounds.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code that relies on implicit boolean conversions will fail to
+compile with this International Standard. Such conversions occur in the
+following conditions:</p><ul class='itemize'><li ><p >passing a value to a function that takes an argument of type <span class='texttt'>bool</span>;
+</p></li><li ><p >using <span class='texttt'>operator==</span> to compare to <span class='texttt'>false</span> or <span class='texttt'>true</span>;
+</p></li><li ><p >returning a value from a function with a return type of <span class='texttt'>bool</span>;
+</p></li><li ><p >initializing members of type <span class='texttt'>bool</span> via aggregate initialization;
+</p></li><li ><p >initializing a <span class='texttt'>const bool&amp;</span> which would bind to a temporary.
+</p></li></ul><p ><a href='./ios::failure'>[ios::failure]</a>
+<br/><b>Change:</b> Change base class of <span class='texttt'>std&#x200b;::&#x200b;ios_&shy;base&#x200b;::&#x200b;failure</span>.
+<br/><b>Rationale:</b> More detailed error messages.
+<br/><b>Effect on original feature:</b> 
+<span class='texttt'>std&#x200b;::&#x200b;ios_&shy;base&#x200b;::&#x200b;failure</span> is no longer derived directly from
+<span class='texttt'>std&#x200b;::&#x200b;exception</span>, but is now derived from <span class='texttt'>std&#x200b;::&#x200b;system_&shy;error</span>,
+which in turn is derived from <span class='texttt'>std&#x200b;::&#x200b;runtime_&shy;error</span>. Valid C++ 2003 code
+that assumes that <span class='texttt'>std&#x200b;::&#x200b;ios_&shy;base&#x200b;::&#x200b;failure</span> is derived directly from
+<span class='texttt'>std&#x200b;::&#x200b;exception</span> may execute differently in this International Standard.</p><p ><a href='ios.base'>[ios.base]</a>
+<br/><b>Change:</b> Flag types in <span class='texttt'>std&#x200b;::&#x200b;ios_&shy;base</span> are now bitmasks with values
+defined as constexpr static members.
+<br/><b>Rationale:</b> Required for new features.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2003 code that relies on <span class='texttt'>std&#x200b;::&#x200b;ios_&shy;base</span> flag types being
+represented as <span class='texttt'>std&#x200b;::&#x200b;bitset</span> or as an integer type may fail to compile
+with this International Standard. For example:</p><pre class='codeblock'>
+#include &lt;iostream&gt;
+
+int main() {
+  int flag = std::ios_base::hex;
+  std::cout.setf(flag);         <span class='comment'>// error: <span class='tcode_in_codeblock'>setf</span> does not take argument of type <span class='tcode_in_codeblock'>int</span>
+</span>}</pre></div></div><div id='cpp11'><h2 ><a class='secnum' href='#cpp11' style='min-width:88pt'>C.3</a> C++ and ISO C++ 2011 <a class='abbr_ref' href='diff.cpp11'>[diff.cpp11]</a></h2><div class='para' id='cpp11-1'><div class='marginalizedparent'><a class='marginalized' href='#cpp11-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1330'>#</a></div><p ><span class='indexparent'><a class='index' id=':summary,compatibility_with_ISO_C++~2011'></a></span>This subclause lists the differences between C++ and
+ISO C++ 2011 (ISO/IEC 14882:2011, <span class='textit'>Programming Languages — C++</span>),
+by the chapters of this document.</p></div><div id='cpp11.lex'><h3 ><a class='secnum' href='#cpp11.lex' style='min-width:103pt'>C.3.1</a> Clause <a href='lex'>[lex]</a>: lexical conventions <a class='abbr_ref' href='diff.cpp11.lex'>[diff.cpp11.lex]</a></h3><p ><a href='lex.ppnumber'>[lex.ppnumber]</a>
+<br/><b>Change:</b> <i ><a href='lex.ppnumber#nt:pp-number'>pp-number</a></i> can contain one or more single quotes.
+<br/><b>Rationale:</b> Necessary to enable single quotes as digit separators.
+<br/><b>Effect on original feature:</b> Valid C++ 2011 code may fail to compile or may change meaning in this
+International Standard. For example, the following code is valid both in C++ 2011 and in
+this International Standard, but the macro invocation produces different outcomes
+because the single quotes delimit a character literal in C++ 2011, whereas they are digit
+separators in this International Standard:</p><pre class='codeblock'>
+#define M(x, ...) __VA_ARGS__
+int x[2] = { M(1'2,3'4, 5) };
+<span class='comment'>// <span class='tcode_in_codeblock'>int x[2] = { 5 };&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> — C++ 2011
+</span><span class='comment'>// <span class='tcode_in_codeblock'>int x[2] = { 3'4, 5 };</span> — this International Standard
+</span></pre></div><div id='cpp11.basic'><h3 ><a class='secnum' href='#cpp11.basic' style='min-width:103pt'>C.3.2</a> Clause <a href='basic'>[basic]</a>: basic concepts <a class='abbr_ref' href='diff.cpp11.basic'>[diff.cpp11.basic]</a></h3><p ><a href='basic.stc.dynamic.deallocation'>[basic.stc.dynamic.deallocation]</a>
+<br/><b>Change:</b> New usual (non-placement) deallocator.
+<br/><b>Rationale:</b> Required for sized deallocation.
+<br/><b>Effect on original feature:</b> Valid C++ 2011 code could declare a global placement allocation function and
+deallocation function as follows:</p><pre class='codeblock'>
+void* operator new(std::size_t, std::size_t);
+void operator delete(void*, std::size_t) noexcept;</pre><p >In this International Standard, however, the declaration of <span class='texttt'>operator delete</span>
+might match a predefined usual (non-placement)
+<span class='texttt'>operator delete</span> (<a href='basic.stc.dynamic'>[basic.stc.dynamic]</a>). If so, the
+program is ill-formed, as it was for class member allocation functions and
+deallocation functions (<a href='expr.new'>[expr.new]</a>).</p></div><div id='cpp11.expr'><h3 ><a class='secnum' href='#cpp11.expr' style='min-width:103pt'>C.3.3</a> Clause <a href='expr'>[expr]</a>: expressions <a class='abbr_ref' href='diff.cpp11.expr'>[diff.cpp11.expr]</a></h3><p ><a href='expr.cond'>[expr.cond]</a>
+<br/><b>Change:</b> A conditional expression with a throw expression as its second or third
+operand keeps the type and value category of the other operand.
+<br/><b>Rationale:</b> Formerly mandated conversions (<a href='conv.lval'>lvalue-to-rvalue</a>,
+<a href='conv.array'>array-to-pointer</a>, and <a href='conv.func'>function-to-pointer</a>
+standard conversions), especially the creation of the temporary due to
+lvalue-to-rvalue conversion, were considered gratuitous and surprising.
+<br/><b>Effect on original feature:</b> Valid C++ 2011 code that relies on the conversions may behave differently
+in this International Standard:</p><pre class='codeblock'>
+struct S {
+  int x = 1;
+  void mf() { x = 2; }
+};
+int f(bool cond) {
+  S s;
+  (cond ? s : throw 0).mf();
+  return s.x;
+}</pre><p >In C++ 2011, <span class='texttt'>f(true)</span> returns <span class='texttt'>1</span>. In this International Standard,
+it returns <span class='texttt'>2</span>.</p><pre class='codeblock'>
+sizeof(true ? "" : throw 0)</pre><p >In C++ 2011, the expression yields <span class='texttt'>sizeof(const char*)</span>. In this
+International Standard, it yields <span class='texttt'>sizeof(const char[1])</span>.</p></div><div id='cpp11.dcl.dcl'><h3 ><a class='secnum' href='#cpp11.dcl.dcl' style='min-width:103pt'>C.3.4</a> Clause <a href='dcl.dcl'>[dcl.dcl]</a>: declarations <a class='abbr_ref' href='diff.cpp11.dcl.dcl'>[diff.cpp11.dcl.dcl]</a></h3><p ><a href='dcl.constexpr'>[dcl.constexpr]</a>
+<br/><b>Change:</b> <span class='texttt'>constexpr</span> non-static member functions are not implicitly
+<span class='texttt'>const</span> member functions.
+<br/><b>Rationale:</b> Necessary to allow <span class='texttt'>constexpr</span> member functions to mutate
+the object.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2011 code may fail to compile in this International Standard.
+For example, the following code is valid in C++ 2011
+but invalid in this International Standard because it declares the same member
+function twice with different return types:</p><pre class='codeblock'>
+struct S {
+  constexpr const int &amp;f();
+  int &amp;f();
+};</pre></div><div id='cpp11.dcl.decl'><h3 ><a class='secnum' href='#cpp11.dcl.decl' style='min-width:103pt'>C.3.5</a> Clause <a href='dcl.decl'>[dcl.decl]</a>: declarators <a class='abbr_ref' href='diff.cpp11.dcl.decl'>[diff.cpp11.dcl.decl]</a></h3><p ><a href='dcl.init.aggr'>[dcl.init.aggr]</a>
+<br/><b>Change:</b> Classes with default member initializers can be aggregates.
+<br/><b>Rationale:</b> Necessary to allow default member initializers to be used
+by aggregate initialization.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2011 code may fail to compile or may change meaning in this International Standard.
+</p><pre class='codeblock'>
+struct S { <span class='comment'>// Aggregate in C++ 2014 onwards.
+</span>  int m = 1;
+};
+struct X {
+  operator int();
+  operator S();
+};
+X a{};
+S b{a};  <span class='comment'>// uses copy constructor in C++ 2011,
+</span>         <span class='comment'>// performs aggregate initialization in this International Standard
+</span></pre></div><div id='cpp11.library'><h3 ><a class='secnum' href='#cpp11.library' style='min-width:103pt'>C.3.6</a> Clause <a href='library'>[library]</a>: library introduction <a class='abbr_ref' href='diff.cpp11.library'>[diff.cpp11.library]</a></h3><p ><a href='headers'>[headers]</a>
+<br/><b>Change:</b> New header.
+<br/><b>Rationale:</b> New functionality.
+<br/><b>Effect on original feature:</b> 
+The C++ header <span class='texttt'>&lt;shared_&shy;mutex&gt;</span> is new.
+Valid C++ 2011 code that <span class='texttt'>#include</span>s a header with that name may be
+invalid in this International Standard.</p></div><div id='cpp11.input.output'><h3 ><a class='secnum' href='#cpp11.input.output' style='min-width:103pt'>C.3.7</a> Clause <a href='input.output'>[input.output]</a>: input/output library <a class='abbr_ref' href='diff.cpp11.input.output'>[diff.cpp11.input.output]</a></h3><p ><a href='c.files'>[c.files]</a>
+<br/><b>Change:</b> <span class='texttt'>gets</span> is not defined.
+<br/><b>Rationale:</b> Use of <span class='texttt'>gets</span> is considered dangerous.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2011 code that uses the <span class='texttt'>gets</span> function may fail to compile
+in this International Standard.</p></div></div><div id='cpp14'><h2 ><a class='secnum' href='#cpp14' style='min-width:88pt'>C.4</a> C++ and ISO C++ 2014 <a class='abbr_ref' href='diff.cpp14'>[diff.cpp14]</a></h2><div class='para' id='cpp14-1'><div class='marginalizedparent'><a class='marginalized' href='#cpp14-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1469'>#</a></div><p ><span class='indexparent'><a class='index' id=':summary,compatibility_with_ISO_C++~2014'></a></span>This subclause lists the differences between C++ and
+ISO C++ 2014 (ISO/IEC 14882:2014, <span class='textit'>Programming Languages — C++</span>),
+by the chapters of this document.</p></div><div id='cpp14.lex'><h3 ><a class='secnum' href='#cpp14.lex' style='min-width:103pt'>C.4.1</a> Clause <a href='lex'>[lex]</a>: lexical conventions <a class='abbr_ref' href='diff.cpp14.lex'>[diff.cpp14.lex]</a></h3><p ><a href='lex.phases'>[lex.phases]</a>
+<span class='indexparent'><a class='index' id=':trigraph_sequence'></a></span><br/><b>Change:</b> Removal of trigraph support as a required feature.
+<br/><b>Rationale:</b> Prevents accidental uses of trigraphs in non-raw string literals and comments.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2014 code that uses trigraphs may not be valid or may have different
+semantics in this International Standard. Implementations may choose to
+translate trigraphs as specified in C++ 2014 if they appear outside of a raw
+string literal, as part of the <span class='indexparent'><a class='index' id=':mapping_from_physical_source_file_characters_to_basic_source_character_set'></a></span>implementation-defined mapping from physical source file characters to
+the basic source character set.</p><p ><a href='lex.ppnumber'>[lex.ppnumber]</a>
+<br/><b>Change:</b> <i ><a href='lex.ppnumber#nt:pp-number'>pp-number</a></i> can contain <span class='texttt'>p</span> <i ><a href='lex.fcon#nt:sign'>sign</a></i> and
+<span class='texttt'>P</span> <i ><a href='lex.fcon#nt:sign'>sign</a></i>.
+<br/><b>Rationale:</b> Necessary to enable hexadecimal floating literals.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2014 code may fail to compile or produce different results in
+this International Standard. Specifically, character sequences like <span class='texttt'>0p+0</span>
+and <span class='texttt'>0e1_&shy;p+0</span> are three separate tokens each in C++ 2014, but one single token
+in this International Standard.</p><pre class='codeblock'>
+#define F(a) b ## a
+int b0p = F(0p+0);  <span class='comment'>// ill-formed; equivalent to “<span class='tcode_in_codeblock'>int b0p = b0p + 0;</span>” in C++ 2014
+</span></pre></div><div id='cpp14.expr'><h3 ><a class='secnum' href='#cpp14.expr' style='min-width:103pt'>C.4.2</a> Clause <a href='expr'>[expr]</a>: expressions <a class='abbr_ref' href='diff.cpp14.expr'>[diff.cpp14.expr]</a></h3><p ><a href='expr.post.incr'>[expr.post.incr]</a>, <a href='expr.pre.incr'>[expr.pre.incr]</a>
+<br/><b>Change:</b> 
+Remove increment operator with <span class='texttt'>bool</span> operand.
+<br/><b>Rationale:</b> Obsolete feature with occasionally surprising semantics.
+<br/><b>Effect on original feature:</b> A valid C++ 2014 expression utilizing the increment operator on
+a <span class='texttt'>bool</span> lvalue is ill-formed in this International Standard.
+Note that this might occur when the lvalue has a type given by a template
+parameter.</p><p ><a href='expr.new'>[expr.new]</a>, <a href='expr.delete'>[expr.delete]</a>
+<br/><b>Change:</b> Dynamic allocation mechanism for over-aligned types.
+<br/><b>Rationale:</b> Simplify use of over-aligned types.
+<br/><b>Effect on original feature:</b> In C++ 2014 code that uses a <i ><a href='expr.new#nt:new-expression'>new-expression</a></i>
+to allocate an object with an over-aligned class type,
+where that class has no allocation functions of its own,
+<span class='texttt'>&#x200b;::&#x200b;operator new(std&#x200b;::&#x200b;size_&shy;t)</span>
+is used to allocate the memory.
+In this International Standard,
+<span class='texttt'>&#x200b;::&#x200b;operator new(std&#x200b;::&#x200b;size_&shy;t, std&#x200b;::&#x200b;align_&shy;val_&shy;t)</span>
+is used instead.</p></div><div id='cpp14.dcl.dcl'><h3 ><a class='secnum' href='#cpp14.dcl.dcl' style='min-width:103pt'>C.4.3</a> Clause <a href='dcl.dcl'>[dcl.dcl]</a>: declarations <a class='abbr_ref' href='diff.cpp14.dcl.dcl'>[diff.cpp14.dcl.dcl]</a></h3><p ><a href='dcl.stc'>[dcl.stc]</a>
+<span class='indexparent'><a class='index' id=':register_storage_class'></a></span><br/><b>Change:</b> Removal of <span class='texttt'>register</span> <i ><a href='dcl.stc#nt:storage-class-specifier'>storage-class-specifier</a></i>.
+<br/><b>Rationale:</b> Enable repurposing of deprecated keyword in future revisions of this International Standard.
+<br/><b>Effect on original feature:</b> 
+A valid C++ 2014 declaration utilizing the <span class='texttt'>register</span>
+<i ><a href='dcl.stc#nt:storage-class-specifier'>storage-class-specifier</a></i> is ill-formed in this International Standard.
+The specifier can simply be removed to retain the original meaning.</p><p ><a href='dcl.spec.auto'>[dcl.spec.auto]</a>
+<br/><b>Change:</b> <span class='texttt'>auto</span> deduction from <i ><a href='dcl.init#nt:braced-init-list'>braced-init-list</a></i>.
+<br/><b>Rationale:</b> More intuitive deduction behavior.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2014 code may fail to compile or may change meaning
+in this International Standard. For example:
+</p><pre class='codeblock'>
+auto x1{1};    <span class='comment'>// was <span class='tcode_in_codeblock'>std&#x200b;::&#x200b;initializer_&shy;list&lt;int&gt;</span>, now <span class='tcode_in_codeblock'>int</span>
+</span>auto x2{1, 2}; <span class='comment'>// was <span class='tcode_in_codeblock'>std&#x200b;::&#x200b;initializer_&shy;list&lt;int&gt;</span>, now ill-formed
+</span></pre></div><div id='cpp14.decl'><h3 ><a class='secnum' href='#cpp14.decl' style='min-width:103pt'>C.4.4</a> Clause <a href='dcl.decl'>[dcl.decl]</a>: declarators <a class='abbr_ref' href='diff.cpp14.decl'>[diff.cpp14.decl]</a></h3><p ><a href='dcl.fct'>[dcl.fct]</a>
+<br/><b>Change:</b> Make exception specifications be part of the type system.
+<br/><b>Rationale:</b> Improve type-safety.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2014 code may fail to compile or change meaning in this
+International Standard:</p><pre class='codeblock'>
+void g1() noexcept;
+void g2();
+template&lt;class T&gt; int f(T *, T *);
+int x = f(g1, g2);    <span class='comment'>// ill-formed; previously well-formed
+</span></pre><p ><a href='dcl.init.aggr'>[dcl.init.aggr]</a>
+<br/><b>Change:</b> Definition of an aggregate is extended
+to apply to user-defined types with base classes.
+<br/><b>Rationale:</b> To increase convenience of aggregate initialization.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2014 code may fail to compile or produce different results in this
+International Standard; initialization from an empty initializer list will
+perform aggregate initialization instead of invoking a default constructor
+for the affected types:
+</p><pre class='codeblock'>
+struct derived;
+struct base {
+  friend struct derived;
+private:
+  base();
+};
+struct derived : base {};
+
+derived d1{};       <span class='comment'>// Error. The code was well-formed before.
+</span>derived d2;         <span class='comment'>// still OK
+</span></pre></div><div id='cpp14.special'><h3 ><a class='secnum' href='#cpp14.special' style='min-width:103pt'>C.4.5</a> Clause <a href='special'>[special]</a>: special member functions <a class='abbr_ref' href='diff.cpp14.special'>[diff.cpp14.special]</a></h3><p ><a href='class.inhctor.init'>[class.inhctor.init]</a>
+<br/><b>Change:</b> 
+Inheriting a constructor no longer injects a constructor into the derived class.
+<br/><b>Rationale:</b> 
+Better interaction with other language features.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2014 code that uses inheriting constructors may not be valid
+or may have different semantics. A <i ><a href='namespace.udecl#nt:using-declaration'>using-declaration</a></i>
+that names a constructor now makes the corresponding base class constructors
+visible to initializations of the derived class
+rather than declaring additional derived class constructors.
+</p><pre class='codeblock'>
+struct A {
+  template&lt;typename T&gt; A(T, typename T::type = 0);
+  A(int);
+};
+struct B : A {
+  using A::A;
+  B(int);
+};
+B b(42L); <span class='comment'>// now calls <span class='tcode_in_codeblock'>B(int)</span>, used to call <span class='tcode_in_codeblock'>B&lt;long&gt;(long)</span>,
+</span>          <span class='comment'>// which called <span class='tcode_in_codeblock'>A(int)</span> due to substitution failure
+</span>          <span class='comment'>// in <span class='tcode_in_codeblock'>A&lt;long&gt;(long)</span>.
+</span></pre></div><div id='cpp14.temp'><h3 ><a class='secnum' href='#cpp14.temp' style='min-width:103pt'>C.4.6</a> Clause <a href='temp'>[temp]</a>: templates <a class='abbr_ref' href='diff.cpp14.temp'>[diff.cpp14.temp]</a></h3><p ><a href='temp.deduct.type'>[temp.deduct.type]</a>
+<br/><b>Change:</b> Allowance to deduce from the type of a non-type template argument.
+<br/><b>Rationale:</b> In combination with the ability to declare
+non-type template arguments with placeholder types,
+allows partial specializations to decompose
+from the type deduced for the non-type template argument.
+<br/><b>Effect on original feature:</b> Valid C++ 2014 code may fail to compile
+or produce different results in this International Standard:
+</p><pre class='codeblock'>
+template &lt;int N&gt; struct A;
+template &lt;typename T, T N&gt; int foo(A&lt;N&gt; *) = delete;
+void foo(void *);
+void bar(A&lt;0&gt; *p) {
+  foo(p); <span class='comment'>// ill-formed; previously well-formed
+</span>}</pre></div><div id='cpp14.except'><h3 ><a class='secnum' href='#cpp14.except' style='min-width:103pt'>C.4.7</a> Clause <a href='except'>[except]</a>: exception handling <a class='abbr_ref' href='diff.cpp14.except'>[diff.cpp14.except]</a></h3><p ><a href='except.spec'>[except.spec]</a>
+<br/><b>Change:</b> Remove dynamic exception specifications.
+<br/><b>Rationale:</b> Dynamic exception specifications were a deprecated feature
+that was complex and brittle in use.
+They interacted badly with the type system,
+which became a more significant issue in this International Standard
+where (non-dynamic) exception specifications are part of the function type.
+<br/><b>Effect on original feature:</b> 
+A valid C++ 2014 function declaration,
+member function declaration,
+function pointer declaration,
+or function reference declaration,
+if it has a potentially throwing dynamic exception specification,
+will be rejected as ill-formed in this International Standard.
+Violating a non-throwing dynamic exception specification
+will call <span class='texttt'>terminate</span>
+rather than <span class='texttt'>unexpected</span>
+and might not perform stack unwinding prior to such a call.</p></div><div id='cpp14.library'><h3 ><a class='secnum' href='#cpp14.library' style='min-width:103pt'>C.4.8</a> Clause <a href='library'>[library]</a>: library introduction <a class='abbr_ref' href='diff.cpp14.library'>[diff.cpp14.library]</a></h3><p ><a href='namespace.future'>[namespace.future]</a>
+<br/><b>Change:</b> New reserved namespaces.
+<br/><b>Rationale:</b> Reserve namespaces for future revisions of the standard library
+that might otherwise be incompatible with existing programs.
+<br/><b>Effect on original feature:</b> 
+The global namespaces <span class='texttt'>std</span>
+followed by an arbitrary sequence of digits
+is reserved for future standardization.
+Valid C++ 2014 code that uses such a top-level namespace,
+e.g., <span class='texttt'>std2</span>, may be invalid in this International Standard.</p></div><div id='cpp14.utilities'><h3 ><a class='secnum' href='#cpp14.utilities' style='min-width:103pt'>C.4.9</a> Clause <a href='utilities'>[utilities]</a>: general utilities library <a class='abbr_ref' href='diff.cpp14.utilities'>[diff.cpp14.utilities]</a></h3><p ><a href='func.wrap'>[func.wrap]</a>
+<br/><b>Change:</b> Constructors taking allocators removed.
+<br/><b>Rationale:</b> No implementation consensus.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2014 code may fail to compile or may change meaning in this
+International Standard. Specifically, constructing a <span class='texttt'>std&#x200b;::&#x200b;function</span> with
+an allocator is ill-formed and uses-allocator construction will not pass an
+allocator to <span class='texttt'>std&#x200b;::&#x200b;function</span> constructors in this International Standard.</p><p ><a href='util.smartptr.shared'>[util.smartptr.shared]</a>
+<br/><b>Change:</b> Different constraint on conversions from <span class='texttt'>unique_&shy;ptr</span>.
+<br/><b>Rationale:</b> Adding array support to <span class='texttt'>shared_&shy;ptr</span>,
+via the syntax <span class='texttt'>shared_&shy;ptr&lt;T[]&gt;</span> and <span class='texttt'>shared_&shy;ptr&lt;T[N]&gt;</span>.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2014code may fail to compile or may change meaning in this
+International Standard.
+For example:</p><pre class='codeblock'>
+#include &lt;memory&gt;
+std::unique_ptr&lt;int[]&gt; arr(new int[1]);
+std::shared_ptr&lt;int&gt; ptr(std::move(arr)); <span class='comment'>// error: <span class='tcode_in_codeblock'>int(*)[]</span> is not compatible with <span class='tcode_in_codeblock'>int*</span>
+</span></pre></div><div id='cpp14.string'><h3 ><a class='secnum' href='#cpp14.string' style='min-width:103pt'>C.4.10</a> Clause <a href='strings'>[strings]</a>: strings library <a class='abbr_ref' href='diff.cpp14.string'>[diff.cpp14.string]</a></h3><p ><a href='basic.string'>[basic.string]</a>
+<br/><b>Change:</b> Non-const <span class='texttt'>.data()</span> member added.
+<br/><b>Rationale:</b> The lack of a non-const <span class='texttt'>.data()</span>
+differed from the similar member of <span class='texttt'>std&#x200b;::&#x200b;vector</span>.
+This change regularizes behavior for this International Standard.
+<br/><b>Effect on original feature:</b> 
+Overloaded functions which have differing code paths
+for <span class='texttt'>char*</span> and <span class='texttt'>const char*</span> arguments
+will execute differently
+when called with a non-const string's <span class='texttt'>.data()</span> member
+in this International Standard.</p><pre class='codeblock'>
+int f(char *) = delete;
+int f(const char *);
+string s;
+int x = f(s.data()); <span class='comment'>// ill-formed; previously well-formed
+</span></pre></div><div id='cpp14.containers'><h3 ><a class='secnum' href='#cpp14.containers' style='min-width:103pt'>C.4.11</a> Clause <a href='containers'>[containers]</a>: containers library <a class='abbr_ref' href='diff.cpp14.containers'>[diff.cpp14.containers]</a></h3><p ><a href='associative.reqmts'>[associative.reqmts]</a>
+<br/><b>Change:</b> Requirements change:
+<br/><b>Rationale:</b> Increase portability, clarification of associative container requirements.
+<br/><b>Effect on original feature:</b> 
+Valid C++ 2014 code that attempts to use associative containers
+having a comparison object with non-const function call operator
+may fail to compile in this International Standard:</p><pre class='codeblock'>
+#include &lt;set&gt;
+
+struct compare
+{
+  bool operator()(int a, int b)
+  {
+    return a &lt; b;
+  }
+};
+
+int main() {
+  const std::set&lt;int, compare&gt; s;
+  s.find(0);
+}</pre></div><div id='cpp14.depr'><h3 ><a class='secnum' href='#cpp14.depr' style='min-width:103pt'>C.4.12</a> Annex <a href='depr'>[depr]</a>: compatibility features <a class='abbr_ref' href='diff.cpp14.depr'>[diff.cpp14.depr]</a></h3><p ><br/><b>Change:</b> 
+The class templates
+<span class='texttt'>auto_&shy;ptr</span>,
+<span class='texttt'>unary_&shy;function</span>, and
+<span class='texttt'>binary_&shy;function</span>,
+the function templates
+<span class='texttt'>random_&shy;shuffle</span>,
+and the function templates (and their return types)
+<span class='texttt'>ptr_&shy;fun</span>,
+<span class='texttt'>mem_&shy;fun</span>,
+<span class='texttt'>mem_&shy;fun_&shy;ref</span>,
+<span class='texttt'>bind1st</span>, and
+<span class='texttt'>bind2nd</span>
+are not defined.
+<br/><b>Rationale:</b> Superseded by new features.
+<br/><b>Effect on original feature:</b> Valid C++ 2014 code that uses these class templates
+and function templates may fail to compile in this International Standard.</p><p ><br/><b>Change:</b> 
+Remove old iostreams members [depr.ios.members].
+<br/><b>Rationale:</b> Redundant feature for compatibility with pre-standard code
+has served its time.
+<br/><b>Effect on original feature:</b> A valid C++ 2014 program using these identifiers
+may be ill-formed in this International Standard.</p></div></div><div id='library'><h2 ><a class='secnum' href='#library' style='min-width:88pt'>C.5</a> C standard library <a class='abbr_ref' href='diff.library'>[diff.library]</a></h2><p ><span class='indexparent'><a class='index' id=':library,C_standard'></a></span>
+</p><div class='para' id='library-1'><div class='marginalizedparent'><a class='marginalized' href='#library-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1772'>#</a></div><p >This subclause summarizes the explicit changes in headers,
+definitions, declarations, or behavior between the C standard library
+in the C standard and the parts of the C++ standard library that were
+included from the C standard library.</p></div><div id='mods.to.headers'><h3 ><a class='secnum' href='#mods.to.headers' style='min-width:103pt'>C.5.1</a> Modifications to headers <a class='abbr_ref' href='diff.mods.to.headers'>[diff.mods.to.headers]</a></h3><div class='para' id='mods.to.headers-1'><div class='marginalizedparent'><a class='marginalized' href='#mods.to.headers-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1780'>#</a></div><p >For compatibility with the C standard library<span class='indexparent'><a class='index' id=':library,C_standard_'></a></span>,
+the C++ standard library provides the C headers enumerated
+in <a href='depr.c.headers'>[depr.c.headers]</a>, but their use is deprecated in C++.</p></div><div class='para' id='mods.to.headers-2'><div class='marginalizedparent'><a class='marginalized' href='#mods.to.headers-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1785'>#</a></div><p >There are no C++ headers for the C headers
+<span class='texttt'>&lt;stdatomic.h&gt;</span><span class='indexparent'><a class='index' id=':<stdatomic.h>'></a></span>,
+<span class='texttt'>&lt;stdnoreturn.h&gt;</span><span class='indexparent'><a class='index' id=':<stdnoreturn.h>'></a></span>,
+and <span class='texttt'>&lt;threads.h&gt;</span><span class='indexparent'><a class='index' id=':<threads.h>'></a></span>,
+nor are the C headers themselves part of C++.</p></div><div class='para' id='mods.to.headers-3'><div class='marginalizedparent'><a class='marginalized' href='#mods.to.headers-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1792'>#</a></div><p >The C++headers <span class='texttt'>&lt;ccomplex&gt;</span><span class='indexparent'><a class='index' id=':<ccomplex>'></a></span> (<a href='depr.ccomplex.syn'>[depr.ccomplex.syn]</a>)
+and <span class='texttt'>&lt;ctgmath&gt;</span><span class='indexparent'><a class='index' id=':<ctgmath>'></a></span> (<a href='depr.ctgmath.syn'>[depr.ctgmath.syn]</a>), as well
+as their corresponding C headers <span class='texttt'>&lt;complex.h&gt;</span><span class='indexparent'><a class='index' id=':<complex.h>'></a></span>
+and <span class='texttt'>&lt;tgmath.h&gt;</span><span class='indexparent'><a class='index' id=':<tgmath.h>'></a></span>, do not contain any of the
+content from the C standard library and instead merely include other headers
+from the C++ standard library.</p></div><div class='para' id='mods.to.headers-4'><div class='marginalizedparent'><a class='marginalized' href='#mods.to.headers-4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1800'>#</a></div><p >The headers <span class='texttt'>&lt;ciso646&gt;</span>, <span class='texttt'>&lt;cstdalign&gt;</span> (<a href='depr.cstdalign.syn'>[depr.cstdalign.syn]</a>),
+and <span class='texttt'>&lt;cstdbool&gt;</span> (<a href='depr.cstdbool.syn'>[depr.cstdbool.syn]</a>) are meaningless in C++. Use of
+the C++ headers <span class='texttt'>&lt;ccomplex&gt;</span>, <span class='texttt'>&lt;cstdalign&gt;</span>, <span class='texttt'>&lt;cstdbool&gt;</span>,
+and <span class='texttt'>&lt;ctgmath&gt;</span> is deprecated (<a href='depr.c.headers'>[depr.c.headers]</a>).</p></div></div><div id='mods.to.definitions'><h3 ><a class='secnum' href='#mods.to.definitions' style='min-width:103pt'>C.5.2</a> Modifications to definitions <a class='abbr_ref' href='diff.mods.to.definitions'>[diff.mods.to.definitions]</a></h3><div id='char16'><h4 ><a class='secnum' href='#char16' style='min-width:118pt'>C.5.2.1</a> Types <span class='texttt'>char16_&shy;t</span> and <span class='texttt'>char32_&shy;t</span> <a class='abbr_ref' href='diff.char16'>[diff.char16]</a></h4><div class='para' id='char16-1'><div class='marginalizedparent'><a class='marginalized' href='#char16-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1810'>#</a></div><p >The types <span class='texttt'>char16_&shy;t</span> and <span class='texttt'>char32_&shy;t</span>
+are distinct types rather than typedefs to existing integral types.
+The tokens <span class='texttt'>char16_&shy;t</span> and <span class='texttt'>char32_&shy;t</span>
+are <a href='lex.key'>keywords</a> in this International Standard.
+They do not appear as macro names defined in
+<span class='indexparent'><a class='index' id='lib:<cuchar>'></a></span>
+<a href='cuchar.syn'><span class='texttt'>&lt;cuchar&gt;</span></a>.</p></div></div><div id='wchar.t'><h4 ><a class='secnum' href='#wchar.t' style='min-width:118pt'>C.5.2.2</a> Type <span class='texttt'>wchar_&shy;t</span> <a class='abbr_ref' href='diff.wchar.t'>[diff.wchar.t]</a></h4><div class='para' id='wchar.t-1'><div class='marginalizedparent'><a class='marginalized' href='#wchar.t-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1821'>#</a></div><p >The type <span class='texttt'>wchar_&shy;t</span> is a distinct type rather than a typedef to an
+existing integral type.
+The token <span class='texttt'>wchar_&shy;t</span>
+is a <a href='lex.key'>keyword</a> in this International Standard.
+It does not appear as a type name defined in any of
+<a href='cstddef.syn'><span class='texttt'>&lt;cstddef&gt;</span></a><span class='indexparent'><a class='index' id='lib:<cstddef>'></a></span>,
+<a href='cstdlib.syn'><span class='texttt'>&lt;cstdlib&gt;</span></a><span class='indexparent'><a class='index' id='lib:<cstdlib>'></a></span>,
+or <a href='cwchar.syn'><span class='texttt'>&lt;cwchar&gt;</span></a><span class='indexparent'><a class='index' id='lib:<cwchar>'></a></span>.</p></div></div><div id='header.assert.h'><h4 ><a class='secnum' href='#header.assert.h' style='min-width:118pt'>C.5.2.3</a> Header <span class='texttt'>&lt;assert.h&gt;</span> <a class='abbr_ref' href='diff.header.assert.h'>[diff.header.assert.h]</a></h4><p ><span class='indexparent'><a class='index' id='lib:<assert.h>'></a></span>
+</p><div class='para' id='header.assert.h-1'><div class='marginalizedparent'><a class='marginalized' href='#header.assert.h-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1834'>#</a></div><p >The token <span class='texttt'>static_&shy;assert</span> is a <a href='lex.key'>keyword</a> in this International
+Standard. It does not appear as a macro name defined
+in <span class='indexparent'><a class='index' id='lib:<cassert>'></a></span><a href='cassert.syn'><span class='texttt'>&lt;cassert&gt;</span></a>.</p></div></div><div id='header.iso646.h'><h4 ><a class='secnum' href='#header.iso646.h' style='min-width:118pt'>C.5.2.4</a> Header <span class='texttt'>&lt;iso646.h&gt;</span> <a class='abbr_ref' href='diff.header.iso646.h'>[diff.header.iso646.h]</a></h4><p ><span class='indexparent'><a class='index' id='lib:<iso646.h>'></a></span>
+</p><div class='para' id='header.iso646.h-1'><div class='marginalizedparent'><a class='marginalized' href='#header.iso646.h-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1842'>#</a></div><p >The tokens
+<span class='texttt'>and</span>,
+<span class='texttt'>and_&shy;eq</span>,
+<span class='texttt'>bitand</span>,
+<span class='texttt'>bitor</span>,
+<span class='texttt'>compl</span>,
+<span class='texttt'>not_&shy;eq</span>,
+<span class='texttt'>not</span>,
+<span class='texttt'>or</span>,
+<span class='texttt'>or_&shy;eq</span>,
+<span class='texttt'>xor</span>,
+and
+<span class='texttt'>xor_&shy;eq</span>
+are <a href='lex.key'>keywords</a> in this International
+Standard.
+They do not appear as macro names defined in
+<span class='texttt'>&lt;ciso646&gt;</span>.
+<span class='indexparent'><a class='index' id='lib:<ciso646>'></a></span>
+</p></div></div><div id='header.stdalign.h'><h4 ><a class='secnum' href='#header.stdalign.h' style='min-width:118pt'>C.5.2.5</a> Header <span class='texttt'>&lt;stdalign.h&gt;</span> <a class='abbr_ref' href='diff.header.stdalign.h'>[diff.header.stdalign.h]</a></h4><p ><span class='indexparent'><a class='index' id='lib:<stdalign.h>'></a></span>
+</p><div class='para' id='header.stdalign.h-1'><div class='marginalizedparent'><a class='marginalized' href='#header.stdalign.h-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1865'>#</a></div><p >The token <span class='texttt'>alignas</span> is a keyword in this International
+Standard (<a href='lex.key'>[lex.key]</a>). It does not appear as a macro name defined
+in <span class='texttt'>&lt;cstdalign&gt;</span><span class='indexparent'><a class='index' id='lib:<cstdalign>'></a></span> (<a href='depr.cstdalign.syn'>[depr.cstdalign.syn]</a>).</p></div></div><div id='header.stdbool.h'><h4 ><a class='secnum' href='#header.stdbool.h' style='min-width:118pt'>C.5.2.6</a> Header <span class='texttt'>&lt;stdbool.h&gt;</span> <a class='abbr_ref' href='diff.header.stdbool.h'>[diff.header.stdbool.h]</a></h4><p ><span class='indexparent'><a class='index' id='lib:<stdbool.h>'></a></span>
+</p><div class='para' id='header.stdbool.h-1'><div class='marginalizedparent'><a class='marginalized' href='#header.stdbool.h-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1873'>#</a></div><p >The tokens <span class='texttt'>bool</span>, <span class='texttt'>true</span>, and <span class='texttt'>false</span>
+are <a href='lex.key'>keywords</a> in this International Standard.
+They do not appear as macro names defined in
+<span class='texttt'>&lt;cstdbool&gt;</span><span class='indexparent'><a class='index' id='lib:<cstdbool>'></a></span> (<a href='depr.cstdbool.syn'>[depr.cstdbool.syn]</a>).</p></div></div><div id='null'><h4 ><a class='secnum' href='#null' style='min-width:118pt'>C.5.2.7</a> Macro <span class='texttt'>NULL</span> <a class='abbr_ref' href='diff.null'>[diff.null]</a></h4><div class='para' id='null-1'><div class='marginalizedparent'><a class='marginalized' href='#null-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1881'>#</a></div><p >The macro
+<span class='texttt'>NULL</span>,
+defined in any of
+<a href='c.locales'><span class='texttt'>&lt;clocale&gt;</span></a><span class='indexparent'><a class='index' id='lib:<clocale>'></a></span>,
+<a href='cstddef.syn'><span class='texttt'>&lt;cstddef&gt;</span></a><span class='indexparent'><a class='index' id='lib:<cstddef>_'></a></span>,
+<a href='cstdio.syn'><span class='texttt'>&lt;cstdio&gt;</span></a><span class='indexparent'><a class='index' id='lib:<cstdio>'></a></span>,
+<a href='cstdlib.syn'><span class='texttt'>&lt;cstdlib&gt;</span></a><span class='indexparent'><a class='index' id='lib:<cstdlib>_'></a></span>,
+<a href='cstring.syn'><span class='texttt'>&lt;cstring&gt;</span></a><span class='indexparent'><a class='index' id='lib:<cstring>'></a></span>,
+<a href='ctime.syn'><span class='texttt'>&lt;ctime&gt;</span></a><span class='indexparent'><a class='index' id='lib:<ctime>'></a></span>,
+or <a href='cwchar.syn'><span class='texttt'>&lt;cwchar&gt;</span></a><span class='indexparent'><a class='index' id='lib:<cwchar>_'></a></span>,
+is an <span class='indexparent'><a class='index' id=':definition_of_NULL'></a></span>implementation-defined C++ null pointer constant in
+this International Standard (<a href='support.types'>[support.types]</a>).</p></div></div></div><div id='mods.to.declarations'><h3 ><a class='secnum' href='#mods.to.declarations' style='min-width:103pt'>C.5.3</a> Modifications to declarations <a class='abbr_ref' href='diff.mods.to.declarations'>[diff.mods.to.declarations]</a></h3><div class='para' id='mods.to.declarations-1'><div class='marginalizedparent'><a class='marginalized' href='#mods.to.declarations-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1897'>#</a></div><p >Header <a href='cstring.syn'><span class='texttt'>&lt;cstring&gt;</span></a><span class='indexparent'><a class='index' id='lib:<cstring>_'></a></span>:
+The following functions have different declarations:</p><ul class='itemize'><li id='mods.to.declarations-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mods.to.declarations-1.1'>(1.1)</a></div><p ><span class='texttt'>strchr</span>
+</p></li><li id='mods.to.declarations-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mods.to.declarations-1.2'>(1.2)</a></div><p ><span class='texttt'>strpbrk</span>
+</p></li><li id='mods.to.declarations-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mods.to.declarations-1.3'>(1.3)</a></div><p ><span class='texttt'>strrchr</span>
+</p></li><li id='mods.to.declarations-1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mods.to.declarations-1.4'>(1.4)</a></div><p ><span class='texttt'>strstr</span>
+</p></li><li id='mods.to.declarations-1.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mods.to.declarations-1.5'>(1.5)</a></div><p ><span class='texttt'>memchr</span>
+</p></li></ul><p >Subclause <a href='cstring.syn'>[cstring.syn]</a> describes the changes.</p></div><div class='para' id='mods.to.declarations-2'><div class='marginalizedparent'><a class='marginalized' href='#mods.to.declarations-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1911'>#</a></div><p >Header <a href='cwchar.syn'><span class='texttt'>&lt;cwchar&gt;</span></a><span class='indexparent'><a class='index' id='lib:<cwchar>__'></a></span>:
+The following functions have different declarations:</p><ul class='itemize'><li id='mods.to.declarations-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mods.to.declarations-2.1'>(2.1)</a></div><p ><span class='texttt'>wcschr</span>
+</p></li><li id='mods.to.declarations-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mods.to.declarations-2.2'>(2.2)</a></div><p ><span class='texttt'>wcspbrk</span>
+</p></li><li id='mods.to.declarations-2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mods.to.declarations-2.3'>(2.3)</a></div><p ><span class='texttt'>wcsrchr</span>
+</p></li><li id='mods.to.declarations-2.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mods.to.declarations-2.4'>(2.4)</a></div><p ><span class='texttt'>wcsstr</span>
+</p></li><li id='mods.to.declarations-2.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mods.to.declarations-2.5'>(2.5)</a></div><p ><span class='texttt'>wmemchr</span>
+</p></li></ul><p >Subclause <a href='cwchar.syn'>[cwchar.syn]</a> describes the changes.</p></div><div class='para' id='mods.to.declarations-3'><div class='marginalizedparent'><a class='marginalized' href='#mods.to.declarations-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1925'>#</a></div><p >Header <a href='cstddef.syn'><span class='texttt'>&lt;cstddef&gt;</span></a><span class='indexparent'><a class='index' id='lib:<cstddef>__'></a></span>
+declares the name <span class='texttt'>nullptr_&shy;t</span> in addition to the names declared in
+<span class='texttt'>&lt;stddef.h&gt;</span> in the C standard library.</p></div></div><div id='mods.to.behavior'><h3 ><a class='secnum' href='#mods.to.behavior' style='min-width:103pt'>C.5.4</a> Modifications to behavior <a class='abbr_ref' href='diff.mods.to.behavior'>[diff.mods.to.behavior]</a></h3><div class='para' id='mods.to.behavior-1'><div class='marginalizedparent'><a class='marginalized' href='#mods.to.behavior-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1932'>#</a></div><p >Header <a href='cstdlib.syn'><span class='texttt'>&lt;cstdlib&gt;</span></a><span class='indexparent'><a class='index' id='lib:<cstdlib>__'></a></span>:
+The following functions have different behavior:</p><ul class='itemize'><li id='mods.to.behavior-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mods.to.behavior-1.1'>(1.1)</a></div><p ><span class='texttt'>atexit</span>
+</p></li><li id='mods.to.behavior-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mods.to.behavior-1.2'>(1.2)</a></div><p ><span class='texttt'>exit</span>
+</p></li><li id='mods.to.behavior-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mods.to.behavior-1.3'>(1.3)</a></div><p ><span class='texttt'>abort</span>
+</p></li></ul><p >Subclause <a href='support.start.term'>[support.start.term]</a> describes the changes.</p></div><div class='para' id='mods.to.behavior-2'><div class='marginalizedparent'><a class='marginalized' href='#mods.to.behavior-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1944'>#</a></div><p >Header <a href='csetjmp.syn'><span class='texttt'>&lt;csetjmp&gt;</span></a><span class='indexparent'><a class='index' id='lib:<csetjmp>'></a></span>:
+The following functions have different behavior:</p><ul class='itemize'><li id='mods.to.behavior-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#mods.to.behavior-2.1'>(2.1)</a></div><p ><span class='texttt'>longjmp</span>
+</p></li></ul><p >Subclause <a href='csetjmp.syn'>[csetjmp.syn]</a> describes the changes.</p></div><div id='offsetof'><h4 ><a class='secnum' href='#offsetof' style='min-width:118pt'>C.5.4.1</a> Macro <span class='texttt'>offsetof(<span class='textit'>type</span>, <span class='textit'>member-designator</span>)</span> <a class='abbr_ref' href='diff.offsetof'>[diff.offsetof]</a></h4><p ><span class='indexparent'><a class='index' id='lib:offsetof'></a></span>
+</p><div class='para' id='offsetof-1'><div class='marginalizedparent'><a class='marginalized' href='#offsetof-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1957'>#</a></div><p >The macro <span class='texttt'>offsetof</span>, defined in
+<a href='cstddef.syn'><span class='texttt'>&lt;cstddef&gt;</span></a><span class='indexparent'><a class='index' id='lib:<cstddef>___'></a></span>,
+accepts a restricted set of <span class='texttt'><span class='textit'>type</span></span> arguments in this International Standard.
+Subclause <a href='support.types.layout'>[support.types.layout]</a> describes the change.</p></div></div><div id='malloc'><h4 ><a class='secnum' href='#malloc' style='min-width:118pt'>C.5.4.2</a> Memory allocation functions <a class='abbr_ref' href='diff.malloc'>[diff.malloc]</a></h4><div class='para' id='malloc-1'><div class='marginalizedparent'><a class='marginalized' href='#malloc-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/compatibility.tex#L1965'>#</a></div><p >The functions
+<span class='indexparent'><a class='index' id='lib:aligned_alloc'></a></span><span class='texttt'>aligned_&shy;alloc</span>,
+<span class='indexparent'><a class='index' id='lib:calloc'></a></span><span class='texttt'>calloc</span>,
+<span class='indexparent'><a class='index' id='lib:malloc'></a></span><span class='texttt'>malloc</span>,
+and
+<span class='indexparent'><a class='index' id='lib:realloc'></a></span><span class='texttt'>realloc</span>
+are restricted in this International Standard.
+Subclause <a href='c.malloc'>[c.malloc]</a> describes the changes.
+</p></div></div></div></div></div></body></html>

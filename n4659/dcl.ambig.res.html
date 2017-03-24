@@ -1,0 +1,78 @@
+<!DOCTYPE html><html lang='en'><head><title>[dcl.ambig.res]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>11</a> Declarators <a class='abbr_ref' href='./#dcl.decl'>[dcl.decl]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>11.2</a> Ambiguity resolution <a class='abbr_ref'>[dcl.ambig.res]</a></h2><p ><span class='indexparent'><a class='index' id=':ambiguity,declaration_versus_cast'></a></span><span class='indexparent'><a class='index' id=':declaration,parentheses_in'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/declarators.tex#L265'>#</a></div><p >The ambiguity arising from the similarity between a function-style cast and
+a declaration mentioned in <a href='stmt.ambig'>[stmt.ambig]</a> can also occur in the context of a declaration.
+In that context, the choice is between a function declaration with
+a redundant set of parentheses around a parameter name and an object declaration
+with a function-style cast as the initializer.
+Just as for the ambiguities mentioned in <a href='stmt.ambig'>[stmt.ambig]</a>,
+the resolution is to consider any construct that could possibly
+be a declaration a declaration.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+A declaration can be explicitly disambiguated by adding parentheses
+around the argument.
+The ambiguity can be avoided by use of copy-initialization or
+list-initialization syntax, or by use of a non-function-style cast.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+struct S {
+  S(int);
+};
+
+void foo(double a) {
+  S w(int(a));                  <span class='comment'>// function declaration
+</span>  S x(int());                   <span class='comment'>// function declaration
+</span>  S y((int(a)));                <span class='comment'>// object declaration
+</span>  S y((int)a);                  <span class='comment'>// object declaration
+</span>  S z = int(a);                 <span class='comment'>// object declaration
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/declarators.tex#L296'>#</a></div><p >An ambiguity can arise from the similarity between a function-style
+cast and a
+<i ><a href='dcl.name#nt:type-id'>type-id</a></i>.
+The resolution is that any construct that could possibly be a
+<i ><a href='dcl.name#nt:type-id'>type-id</a></i>
+in its syntactic context shall be considered a
+<i ><a href='dcl.name#nt:type-id'>type-id</a></i>.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+template &lt;class T&gt; struct X {};
+template &lt;int N&gt; struct Y {};
+X&lt;int()&gt; a;                     <span class='comment'>// type-id
+</span>X&lt;int(1)&gt; b;                    <span class='comment'>// expression (ill-formed)
+</span>Y&lt;int()&gt; c;                     <span class='comment'>// type-id (ill-formed)
+</span>Y&lt;int(1)&gt; d;                    <span class='comment'>// expression
+</span>
+void foo(signed char a) {
+  sizeof(int());                <span class='comment'>// type-id (ill-formed)
+</span>  sizeof(int(a));               <span class='comment'>// expression
+</span>  sizeof(int(unsigned(a)));     <span class='comment'>// type-id (ill-formed)
+</span>
+  (int())+1;                    <span class='comment'>// type-id (ill-formed)
+</span>  (int(a))+1;                   <span class='comment'>// expression
+</span>  (int(unsigned(a)))+1;         <span class='comment'>// type-id (ill-formed)
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/declarators.tex#L326'>#</a></div><p >Another ambiguity arises in a
+<i ><a href='dcl.fct#nt:parameter-declaration-clause'>parameter-declaration-clause</a></i> when a
+<i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i>
+is nested in parentheses.
+In this case, the choice is between the declaration of a parameter of type
+pointer to function and the declaration of a parameter with redundant
+parentheses around the
+<i ><a href='dcl.decl#nt:declarator-id'>declarator-id</a></i>.
+The resolution is to consider the
+<i ><a href='dcl.type.simple#nt:type-name'>type-name</a></i>
+as a
+<i ><a href='dcl.type.simple#nt:simple-type-specifier'>simple-type-specifier</a></i>
+rather than a
+<i ><a href='dcl.decl#nt:declarator-id'>declarator-id</a></i>.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+class C { };
+void f(int(C)) { }              <span class='comment'>// <span class='tcode_in_codeblock'>void f(int(*fp)(C c)) { }</span>
+</span>                                <span class='comment'>// not: <span class='tcode_in_codeblock'>void f(int C) { }</span>
+</span>
+int g(C);
+
+void foo() {
+  f(1);                         <span class='comment'>// error: cannot convert <span class='tcode_in_codeblock'>1</span> to function pointer
+</span>  f(g);                         <span class='comment'>// OK
+</span>}</pre><p >For another example,</p><pre class='codeblock'>
+class C { };
+void h(int *(C[10]));           <span class='comment'>// <span class='tcode_in_codeblock'>void h(int *(*_&shy;fp)(C _&shy;parm[10]));</span>
+</span>                                <span class='comment'>// not: <span class='tcode_in_codeblock'>void h(int *C[10]);</span>
+</span></pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div></div></body></html>

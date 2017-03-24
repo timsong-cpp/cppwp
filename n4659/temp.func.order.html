@@ -1,0 +1,124 @@
+<!DOCTYPE html><html lang='en'><head><title>[temp.func.order]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>17</a> Templates <a class='abbr_ref' href='./#temp'>[temp]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>17.5</a> Template declarations <a class='abbr_ref' href='temp.decls#temp.func.order'>[temp.decls]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>17.5.6</a> Function templates <a class='abbr_ref' href='temp.fct#temp.func.order'>[temp.fct]</a></h3><h4 ><a class='secnum' style='min-width:118pt'>17.5.6.2</a> Partial ordering of function templates <a class='abbr_ref'>[temp.func.order]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L2739'>#</a></div><p ><span class='indexparent'><a class='index' id=':overloading,resolution,template'></a></span>If a function template is overloaded,
+the use of a function template specialization might be ambiguous because
+<a href='temp.deduct'>template argument deduction</a> may associate the function
+template specialization with more than one function template declaration.
+<a class='hidden_link' href='#def:template,function,partial_ordering' id='def:template,function,partial_ordering'><i >Partial ordering</i></a>
+of overloaded function template declarations is used in the following contexts
+to select the function template to which a function template specialization
+refers:</p><ul class='itemize'><li id='1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.1'>(1.1)</a></div><p >during overload resolution for a call to a function template specialization (<a href='over.match.best'>[over.match.best]</a>);
+</p></li><li id='1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.2'>(1.2)</a></div><p >when the address of a function template specialization is taken;
+</p></li><li id='1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.3'>(1.3)</a></div><p >when a placement operator delete that is a
+function template
+specialization
+is selected to match a placement operator new (<a href='basic.stc.dynamic.deallocation'>[basic.stc.dynamic.deallocation]</a>, <a href='expr.new'>[expr.new]</a>);
+</p></li><li id='1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.4'>(1.4)</a></div><p >when a <a href='temp.friend'>friend function declaration</a>, an
+<a href='temp.explicit'>explicit instantiation</a> or an <a href='temp.expl.spec'>explicit specialization</a> refers to
+a function template specialization.
+</p></li></ul></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L2767'>#</a></div><p >Partial ordering selects which of two function templates is more
+specialized than the other by transforming each template in turn
+(see next paragraph) and performing template argument deduction
+using the function type.
+The deduction process determines whether
+one of the templates is more specialized than the other. If so, the
+more specialized template is the one chosen by the partial ordering
+process.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L2777'>#</a></div><p >To produce the transformed template, for each type, non-type, or template
+template parameter (including
+<a href='temp.variadic#def:template_parameter_pack'>template parameter packs</a>
+thereof) synthesize a unique type, value, or class template
+respectively and substitute it for each occurrence of that parameter
+in the function type of the template.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span> 
+The type replacing the placeholder
+in the type of the value synthesized for a non-type template parameter
+is also a unique synthesized type.
+<span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+If only one of the function templates <span class='textit'>M</span> is a non-static
+member of some class <span class='textit'>A</span>, <span class='textit'>M</span> is considered to have
+a new first parameter inserted in its function
+parameter list. Given <span class='textit'>cv</span> as the cv-qualifiers of <span class='textit'>M</span>
+(if any), the new parameter is of type “rvalue reference to
+<span class='textit'>cv</span> <span class='textit'>A</span>” if the optional <i ><a href='dcl.decl#nt:ref-qualifier'>ref-qualifier</a></i> of
+<span class='textit'>M</span> is <span class='texttt'>&amp;&amp;</span> or if <span class='textit'>M</span> has no
+<i ><a href='dcl.decl#nt:ref-qualifier'>ref-qualifier</a></i> and the first parameter of the other
+template has rvalue reference type. Otherwise, the new parameter is
+of type “lvalue reference to <span class='textit'>cv</span> <span class='textit'>A</span>”.
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span>  This allows a non-static
+member to be ordered with respect to a non-member function and for the results
+to be equivalent to the ordering of two equivalent non-members. <span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] 
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+struct A { };
+template&lt;class T&gt; struct B {
+  template&lt;class R&gt; int operator*(R&amp;);              <span class='comment'>// #1
+</span>};
+
+template&lt;class T, class R&gt; int operator*(T&amp;, R&amp;);   <span class='comment'>// #2
+</span>
+<span class='comment'>// The declaration of <span class='tcode_in_codeblock'>B&#x200b;::&#x200b;operator*</span> is transformed into the equivalent of
+</span><span class='comment'>// <span class='tcode_in_codeblock'>template&lt;class R&gt; int operator*(B&lt;A&gt;&amp;, R&amp;);</span>&emsp;&ensp;&emsp;&ensp;&emsp;&ensp;// #1a
+</span>
+int main() {
+  A a;
+  B&lt;A&gt; b;
+  b * a;                                            <span class='comment'>// calls #1a
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L2822'>#</a></div><p >Using the transformed function template's function type,
+perform type deduction against the other template as described in <a href='temp.deduct.partial'>[temp.deduct.partial]</a>.</p><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+template&lt;class T&gt; struct A { A(); };
+
+template&lt;class T&gt; void f(T);
+template&lt;class T&gt; void f(T*);
+template&lt;class T&gt; void f(const T*);
+
+template&lt;class T&gt; void g(T);
+template&lt;class T&gt; void g(T&amp;);
+
+template&lt;class T&gt; void h(const T&amp;);
+template&lt;class T&gt; void h(A&lt;T&gt;&amp;);
+
+void m() {
+  const int* p;
+  f(p);             <span class='comment'>// <span class='tcode_in_codeblock'>f(const T*)</span> is more specialized than <span class='tcode_in_codeblock'>f(T)</span> or <span class='tcode_in_codeblock'>f(T*)</span>
+</span>  float x;
+  g(x);             <span class='comment'>// ambiguous: <span class='tcode_in_codeblock'>g(T)</span> or <span class='tcode_in_codeblock'>g(T&amp;)</span>
+</span>  A&lt;int&gt; z;
+  h(z);             <span class='comment'>// overload resolution selects <span class='tcode_in_codeblock'>h(A&lt;T&gt;&amp;)</span>
+</span>  const A&lt;int&gt; z2;
+  h(z2);            <span class='comment'>// <span class='tcode_in_codeblock'>h(const T&amp;)</span> is called because <span class='tcode_in_codeblock'>h(A&lt;T&gt;&amp;)</span> is not callable
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/1af12266e2ba8c5a0eb0699f09fa5bde53dd70f3/source/templates.tex#L2854'>#</a></div><p >[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Note:</span>  Since partial ordering in a call context considers only parameters
+for which there are explicit call arguments, some parameters are ignored (namely,
+function parameter packs, parameters with default arguments, and ellipsis
+parameters).
+[<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> </p><pre class='codeblock'>
+template&lt;class T&gt; void f(T);                            <span class='comment'>// #1
+</span>template&lt;class T&gt; void f(T*, int=1);                    <span class='comment'>// #2
+</span>template&lt;class T&gt; void g(T);                            <span class='comment'>// #3
+</span>template&lt;class T&gt; void g(T*, ...);                      <span class='comment'>// #4
+</span></pre><pre class='codeblock'>
+int main() {
+  int* ip;
+  f(ip);                                                <span class='comment'>// calls #2
+</span>  g(ip);                                                <span class='comment'>// calls #4
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] [<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;class T, class U&gt; struct A { };
+
+template&lt;class T, class U&gt; void f(U, A&lt;U, T&gt;* p = 0);   <span class='comment'>// #1
+</span>template&lt;         class U&gt; void f(U, A&lt;U, U&gt;* p = 0);   <span class='comment'>// #2
+</span>template&lt;class T         &gt; void g(T, T = T());          <span class='comment'>// #3
+</span>template&lt;class T, class... U&gt; void g(T, U ...);         <span class='comment'>// #4
+</span>
+void h() {
+  f&lt;int&gt;(42, (A&lt;int, int&gt;*)0);                          <span class='comment'>// calls #2
+</span>  f&lt;int&gt;(42);                                           <span class='comment'>// error: ambiguous
+</span>  g(42);                                                <span class='comment'>// error: ambiguous
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] [<span style='white-space:nowrap'>&thinsp;</span><span class='textit'>Example:</span> 
+</p><pre class='codeblock'>
+template&lt;class T, class... U&gt; void f(T, U...);          <span class='comment'>// #1
+</span>template&lt;class T            &gt; void f(T);                <span class='comment'>// #2
+</span>template&lt;class T, class... U&gt; void g(T*, U...);         <span class='comment'>// #3
+</span>template&lt;class T            &gt; void g(T);                <span class='comment'>// #4
+</span>
+void h(int i) {
+  f(&amp;i);                                                <span class='comment'>// error: ambiguous
+</span>  g(&amp;i);                                                <span class='comment'>// OK: calls #3
+</span>}</pre><p ><span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end example</span><span style='white-space:nowrap'>&thinsp;</span>] <span class='textit'><span style='white-space:nowrap'>&thinsp;</span>—<span style='white-space:nowrap'>&thinsp;</span>end note</span><span style='white-space:nowrap'>&thinsp;</span>] </p></div></div></body></html>
