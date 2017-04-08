@@ -1,7 +1,119 @@
-From 38754e956ed95673923995ff2e581b52f05f30c6 Mon Sep 17 00:00:00 2001
+From 396118513d087a8b25bfe8709775de78ba7f51d3 Mon Sep 17 00:00:00 2001
+From: Eelis van der Weegen <eelis@eelis.net>
+Date: Fri, 7 Apr 2017 16:14:02 +0200
+Subject: [PATCH 01/43] Remove need to redefine \definition.
+
+---
+ source/intro.tex     |  2 --
+ source/iostreams.tex |  2 --
+ source/lib-intro.tex |  2 --
+ source/macros.tex    | 21 ++++++++++++++-------
+ source/regex.tex     |  2 --
+ 5 files changed, 14 insertions(+), 15 deletions(-)
+
+diff --git a/source/intro.tex b/source/intro.tex
+index 57a2c37..88f931b 100644
+--- a/source/intro.tex
++++ b/source/intro.tex
+@@ -106,8 +106,6 @@ Terms that are used only in a small portion of this document
+ are defined where they are used and italicized where they are
+ defined.
+ 
+-\def\definition{\definitionx{\section}}%
+-
+ \indexdefn{access}%
+ \definition{access}{defns.access}
+ \defncontext{execution-time action} to read or modify the value of an object
+diff --git a/source/iostreams.tex b/source/iostreams.tex
+index 06572ae..1de483f 100644
+--- a/source/iostreams.tex
++++ b/source/iostreams.tex
+@@ -10010,8 +10010,6 @@ products.
+ 
+ \rSec2[fs.definitions]{Terms and definitions}
+ 
+-\def\definition{\definitionx{\subsubsection}}%
+-
+ \definition{absolute path}{fs.def.absolute.path}
+ A path that unambiguously
+ identifies the location of a file without reference to an additional starting
+diff --git a/source/lib-intro.tex b/source/lib-intro.tex
+index 038bb34..8d80dc9 100644
+--- a/source/lib-intro.tex
++++ b/source/lib-intro.tex
+@@ -132,8 +132,6 @@ are the same unless otherwise stated.
+ Clause \ref{intro.defs} defines additional terms used elsewhere in this International Standard.
+ \end{note}
+ 
+-\def\definition{\definitionx{\subsection}}%
+-
+ \definition{arbitrary-positional stream}{defns.arbitrary.stream}
+ \indexdefn{stream!arbitrary-positional}%
+ a stream (described in Clause~\ref{input.output}) that can seek to any integral position within
+diff --git a/source/macros.tex b/source/macros.tex
+index ef5883c..a519d1b 100644
+--- a/source/macros.tex
++++ b/source/macros.tex
+@@ -91,12 +91,12 @@
+ % is equivalent to
+ %   \Sec2[temp.arg.type]{Template type arguments}
+ \newcounter{SectionDepthBase}
+-\newcounter{scratch}
++\newcounter{SectionDepth}
+ 
+ \def\rSec#1[#2]#3{%
+-\setcounter{scratch}{#1}
+-\addtocounter{scratch}{\value{SectionDepthBase}}
+-\Sec{\arabic{scratch}}[#2]{#3}}
++\setcounter{SectionDepth}{#1}
++\addtocounter{SectionDepth}{\value{SectionDepthBase}}
++\Sec{\arabic{SectionDepth}}[#2]{#3}}
+ 
+ %%--------------------------------------------------
+ % Indexing
+@@ -519,11 +519,18 @@
+ %%--------------------------------------------------
+ %% Definitions section for "Terms and definitions"
+ \newcommand{\nocontentsline}[3]{}
+-\newcommand{\definitionx}[3]{%
+-\addxref{#3}%
++\newcommand{\definition}[2]{%
++\addxref{#2}%
+ \let\oldcontentsline\addcontentsline%
+ \let\addcontentsline\nocontentsline%
+-#1[#2]{\hfill[#3]}\vspace{-.3\onelineskip}\label{#3} \textbf{#2}\\*%
++\ifcase\value{SectionDepth}
++         \let\s=\section
++      \or\let\s=\subsection
++      \or\let\s=\subsubsection
++      \or\let\s=\paragraph
++      \or\let\s=\subparagraph
++      \fi%
++\s[#1]{\hfill[#2]}\vspace{-.3\onelineskip}\label{#2} \textbf{#1}\\*%
+ \let\addcontentsline\oldcontentsline%
+ }
+ \newcommand{\defncontext}[1]{\textlangle#1\textrangle}
+diff --git a/source/regex.tex b/source/regex.tex
+index dac6c61..3e7b386 100644
+--- a/source/regex.tex
++++ b/source/regex.tex
+@@ -37,8 +37,6 @@ enumerating regular expression matches, as described in Table~\ref{tab:re.lib.su
+ 
+ \rSec1[re.def]{Definitions}
+ 
+-\def\definition{\definitionx{\subsection}}%
+-
+ \pnum
+ The following definitions shall apply to this Clause:
+ 
+-- 
+2.7.4
+
+
+From 6da5be8336c859b31af5fe1495e3c7d15e34d632 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Fri, 10 Mar 2017 14:45:02 +0100
-Subject: [PATCH 01/42] [expr.mptr.oper] Add missing indentation in example
+Subject: [PATCH 02/43] [expr.mptr.oper] Add missing indentation in example
  code.
 
 ---
@@ -29,10 +141,10 @@ index 42d6c91..93410e1 100644
 2.7.4
 
 
-From 954b140f8efb9dea62873af6b5b8c7843b10f477 Mon Sep 17 00:00:00 2001
+From fbea3b5f009e3c5969107b2fea1182aa195a9703 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sun, 5 Mar 2017 16:24:26 +0100
-Subject: [PATCH 02/42] [unord.req] Move library name index entries to library
+Subject: [PATCH 03/43] [unord.req] Move library name index entries to library
  name index.
 
 ---
@@ -362,10 +474,10 @@ index 6efe952..dc15181 100644
 2.7.4
 
 
-From f7fcb87a6db19a8aeb877577fb5655609a327908 Mon Sep 17 00:00:00 2001
+From c697f3fc5394db0e725ab28c438c40fb1dadeb18 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sun, 26 Feb 2017 19:38:28 +0100
-Subject: [PATCH 03/42] Harmonize index entries for 'null pointer value'.
+Subject: [PATCH 04/43] Harmonize index entries for 'null pointer value'.
 
 ---
  source/basic.tex       | 3 ++-
@@ -373,7 +485,7 @@ Subject: [PATCH 03/42] Harmonize index entries for 'null pointer value'.
  2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/source/basic.tex b/source/basic.tex
-index a824dc0..868c9d9 100644
+index d1f0ad0..52fe267 100644
 --- a/source/basic.tex
 +++ b/source/basic.tex
 @@ -4013,7 +4013,8 @@ a \defn{pointer to} an object or function (the pointer is said to \defn{point} t
@@ -408,10 +520,10 @@ index e88e8d0..05b8895 100644
 2.7.4
 
 
-From a8ca600c2221de415a98b3d9090f7cbc7be06b74 Mon Sep 17 00:00:00 2001
+From 0cee6528c805c6abe6526b768872c04fdd6bb3a4 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sun, 26 Feb 2017 14:24:19 +0100
-Subject: [PATCH 04/42] Replace \term with \placeholder.
+Subject: [PATCH 05/43] Replace \term with \placeholder.
 
 ---
  source/access.tex      | 20 ++++++++++----------
@@ -522,10 +634,10 @@ index 93410e1..fc046cd 100644
  \tcode{std::type_info} which preserves the behavior described
  in~\ref{type.info}.\footnote{The recommended name for such a class is
 diff --git a/source/lib-intro.tex b/source/lib-intro.tex
-index 038bb34..3f7fcf6 100644
+index 8d80dc9..dcc2944 100644
 --- a/source/lib-intro.tex
 +++ b/source/lib-intro.tex
-@@ -639,7 +639,7 @@ or as a
+@@ -637,7 +637,7 @@ or as a
  \indextext{type!enumerated}%
  
  \pnum
@@ -534,7 +646,7 @@ index 038bb34..3f7fcf6 100644
  
  \begin{codeblock}
  // For exposition only.
-@@ -654,28 +654,28 @@ inline constexpr @$\tcode{\placeholder{bitmask C}}_{2}$@(@$\tcode{\placeholder{V
+@@ -652,28 +652,28 @@ inline constexpr @$\tcode{\placeholder{bitmask C}}_{2}$@(@$\tcode{\placeholder{V
  inline constexpr @$\tcode{\placeholder{bitmask C}}_{3}$@(@$\tcode{\placeholder{V}}_{3}{}$@);
    .....
  
@@ -575,7 +687,7 @@ index 038bb34..3f7fcf6 100644
  }
  \end{codeblock}
 diff --git a/source/utilities.tex b/source/utilities.tex
-index 7dc0208..bd6be71 100644
+index da1f90c..53a303c 100644
 --- a/source/utilities.tex
 +++ b/source/utilities.tex
 @@ -17431,12 +17431,12 @@ namespace std {
@@ -601,10 +713,10 @@ index 7dc0208..bd6be71 100644
 2.7.4
 
 
-From 06bddc2a211495aa28c37f5afe4bf8e7c7df32d4 Mon Sep 17 00:00:00 2001
+From e95ddde3854bdf8072d9fd6bc3a9a7f61f5b50f3 Mon Sep 17 00:00:00 2001
 From: Jens Maurer <Jens.Maurer@gmx.net>
 Date: Mon, 6 Feb 2017 10:55:20 +0100
-Subject: [PATCH 05/42] [macros] Remove \xspace from macros taking a mandatory
+Subject: [PATCH 06/43] [macros] Remove \xspace from macros taking a mandatory
  argument.
 
 Other than positively influencing kerning, this removal has no effect.
@@ -613,7 +725,7 @@ Other than positively influencing kerning, this removal has no effect.
  1 file changed, 21 insertions(+), 21 deletions(-)
 
 diff --git a/source/macros.tex b/source/macros.tex
-index ef5883c..bdc1327 100644
+index a519d1b..15fb622 100644
 --- a/source/macros.tex
 +++ b/source/macros.tex
 @@ -126,7 +126,7 @@
@@ -722,10 +834,10 @@ index ef5883c..bdc1327 100644
 2.7.4
 
 
-From 035e06a1f7d02a5162b24ab44c12ac0bf7879355 Mon Sep 17 00:00:00 2001
+From 77a18e138f47e42632645f236860e30c1637dc82 Mon Sep 17 00:00:00 2001
 From: Jens Maurer <Jens.Maurer@gmx.net>
 Date: Tue, 7 Feb 2017 10:14:45 +0100
-Subject: [PATCH 06/42] Replace \Cpp and related macros with \Cpp{} etc.
+Subject: [PATCH 07/43] Replace \Cpp and related macros with \Cpp{} etc.
 
 ---
  source/algorithms.tex    |   4 +-
@@ -778,7 +890,7 @@ index 1a8ffe5..2bf8128 100644
  
  \rSec2[algorithms.parallel.defns]{Terms and definitions}
 diff --git a/source/basic.tex b/source/basic.tex
-index 868c9d9..181238a 100644
+index 52fe267..b7f3c91 100644
 --- a/source/basic.tex
 +++ b/source/basic.tex
 @@ -4,11 +4,11 @@
@@ -2302,7 +2414,7 @@ index 5c884c2..dafa870 100644
  A default member initializer does not determine the bound for a member
  array of unknown bound.  Since the default member initializer is
 diff --git a/source/diagnostics.tex b/source/diagnostics.tex
-index 0dd19e2..d58b417 100644
+index d874c1d..6c1e496 100644
 --- a/source/diagnostics.tex
 +++ b/source/diagnostics.tex
 @@ -4,7 +4,7 @@
@@ -2393,7 +2505,7 @@ index fc046cd..07c6214 100644
  functions~(\ref{replacement.functions}), and/or class-specific
  versions~(\ref{class.free}).
 diff --git a/source/future.tex b/source/future.tex
-index e51c901..65a8dba 100644
+index a3ad4b1..6336064 100644
 --- a/source/future.tex
 +++ b/source/future.tex
 @@ -2,7 +2,7 @@
@@ -2454,7 +2566,7 @@ index 7ac4257..149fd5e 100644
  must be applied to distinguish expressions from declarations.
  Further, access control, ambiguity, and type rules must be used
 diff --git a/source/intro.tex b/source/intro.tex
-index 57a2c37..48a0e29 100644
+index 88f931b..5c45c61 100644
 --- a/source/intro.tex
 +++ b/source/intro.tex
 @@ -5,17 +5,17 @@
@@ -2488,7 +2600,7 @@ index 57a2c37..48a0e29 100644
  
  \pnum
  The operating system interface described in ISO/IEC 9945:2003 is
-@@ -292,7 +292,7 @@ possible behaviors is usually delineated by this International Standard.
+@@ -290,7 +290,7 @@ possible behaviors is usually delineated by this International Standard.
  
  \indexdefn{program!well-formed}%
  \definition{well-formed program}{defns.well.formed}
@@ -2497,7 +2609,7 @@ index 57a2c37..48a0e29 100644
  semantic rules, and the one-definition rule~(\ref{basic.def.odr}).%
  \indextext{definitions|)}
  
-@@ -334,7 +334,7 @@ Standard except for those rules containing an explicit notation that
+@@ -332,7 +332,7 @@ Standard except for those rules containing an explicit notation that
  
  \pnum
  \indextext{conformance requirements!method of description}%
@@ -2506,7 +2618,7 @@ index 57a2c37..48a0e29 100644
  implementations, those requirements are often easier to understand if
  they are phrased as requirements on programs, parts of programs, or
  execution of programs. Such requirements have the following meaning:
-@@ -380,7 +380,7 @@ consistent with the descriptions in the library Clauses.
+@@ -378,7 +378,7 @@ consistent with the descriptions in the library Clauses.
  
  \pnum
  The names defined in the library have namespace
@@ -2515,7 +2627,7 @@ index 57a2c37..48a0e29 100644
  unit~(\ref{lex.phases}) obtains access to these names by including the
  appropriate standard library header~(\ref{cpp.include}).
  
-@@ -388,7 +388,7 @@ appropriate standard library header~(\ref{cpp.include}).
+@@ -386,7 +386,7 @@ appropriate standard library header~(\ref{cpp.include}).
  The templates, classes, functions, and objects in the library have
  external linkage~(\ref{basic.link}). The implementation provides
  definitions for standard library entities, as necessary, while combining
@@ -2524,7 +2636,7 @@ index 57a2c37..48a0e29 100644
  \indextext{conformance requirements!library|)}
  
  \pnum
-@@ -421,14 +421,14 @@ see~\ref{intro.execution}.}%
+@@ -419,14 +419,14 @@ see~\ref{intro.execution}.}%
  \pnum
  \indextext{standard!structure of|(}%
  \indextext{standard!structure of}%
@@ -2541,7 +2653,7 @@ index 57a2c37..48a0e29 100644
  That description includes detailed descriptions of the
  entities and macros
  that constitute the library, in a form described in Clause~\ref{library}.
-@@ -438,9 +438,9 @@ Annex~\ref{implimits} recommends lower bounds on the capacity of conforming
+@@ -436,9 +436,9 @@ Annex~\ref{implimits} recommends lower bounds on the capacity of conforming
  implementations.
  
  \pnum
@@ -2553,7 +2665,7 @@ index 57a2c37..48a0e29 100644
  purposes; Annex~\ref{depr} describes those features.
  
  \pnum
-@@ -486,11 +486,11 @@ identifiers separated by commas).
+@@ -484,11 +484,11 @@ identifiers separated by commas).
  \end{itemize}%
  \indextext{notation!syntax|)}
  
@@ -2567,7 +2679,7 @@ index 57a2c37..48a0e29 100644
  \defn{byte}.
  A byte is at least large enough to contain any member of the basic
  \indextext{character set!basic execution}%
-@@ -502,7 +502,7 @@ bits,\footnote{The number of bits in a byte is reported by the macro
+@@ -500,7 +500,7 @@ bits,\footnote{The number of bits in a byte is reported by the macro
  the number of which is \impldef{bits in a byte}. The least
  significant bit is called the \defn{low-order bit}; the most
  significant bit is called the \defn{high-order bit}. The memory
@@ -2576,7 +2688,7 @@ index 57a2c37..48a0e29 100644
  contiguous bytes. Every byte has a unique address.
  
  \pnum
-@@ -550,11 +550,11 @@ bit-fields \tcode{b} and \tcode{c} cannot be concurrently modified, but
+@@ -548,11 +548,11 @@ bit-fields \tcode{b} and \tcode{c} cannot be concurrently modified, but
  \tcode{b} and \tcode{a}, for example, can be. \end{example}%
  \indextext{memory model|)}
  
@@ -2590,7 +2702,7 @@ index 57a2c37..48a0e29 100644
  manipulate objects.
  An \defn{object} is created
  by a definition~(\ref{basic.def}),
-@@ -740,7 +740,7 @@ const bool b = &test1 != &test2;      // always \tcode{true}
+@@ -738,7 +738,7 @@ const bool b = &test1 != &test2;      // always \tcode{true}
  
  \pnum
  \begin{note}
@@ -2599,7 +2711,7 @@ index 57a2c37..48a0e29 100644
  new types from existing types~(\ref{basic.types}).
  \end{note}%
  \indextext{object model|)}
-@@ -1112,7 +1112,7 @@ function executions do not interleave with each other.}
+@@ -1110,7 +1110,7 @@ function executions do not interleave with each other.}
  If \placeholder{A} and \placeholder{B} would not otherwise be sequenced then they are
  indeterminately sequenced.
  \end{note}
@@ -2608,7 +2720,7 @@ index 57a2c37..48a0e29 100644
  though no corresponding function call syntax appears in the translation
  unit.
  \begin{example}
-@@ -1152,7 +1152,7 @@ potentially access every object and function in a program.\footnote{An object
+@@ -1150,7 +1150,7 @@ potentially access every object and function in a program.\footnote{An object
  with automatic or thread storage duration~(\ref{basic.stc}) is associated with
  one specific thread, and can be accessed by a different thread only indirectly
  through a pointer or reference~(\ref{basic.compound}).} Under a hosted
@@ -2617,7 +2729,7 @@ index 57a2c37..48a0e29 100644
  concurrently. The execution of each thread proceeds as defined by the remainder
  of this International Standard. The execution of the entire program consists of an execution
  of all of its threads. \begin{note} Usually the execution can be viewed as an
-@@ -1430,7 +1430,7 @@ write-read coherence. \end{note}
+@@ -1428,7 +1428,7 @@ write-read coherence. \end{note}
  \begin{note} The four preceding coherence requirements effectively disallow
  compiler reordering of atomic operations to a single object, even if both
  operations are relaxed loads. This effectively makes the cache coherence
@@ -2626,7 +2738,7 @@ index 57a2c37..48a0e29 100644
  \end{note}
  
  \pnum
-@@ -1494,7 +1494,7 @@ rules. \end{note}
+@@ -1492,7 +1492,7 @@ rules. \end{note}
  
  \pnum
  \begin{note} Transformations that introduce a speculative read of a potentially
@@ -2635,7 +2747,7 @@ index 57a2c37..48a0e29 100644
  defined in this International Standard, since they potentially introduce a data race. However,
  they are typically valid in the context of an optimizing compiler that targets a
  specific machine with well-defined semantics for data races. They would be
-@@ -1707,9 +1707,9 @@ other threads in a finite period of time.%
+@@ -1705,9 +1705,9 @@ other threads in a finite period of time.%
  \rSec1[intro.ack]{Acknowledgments}
  
  \pnum
@@ -2647,7 +2759,7 @@ index 57a2c37..48a0e29 100644
  edition, Addison-Wesley Publishing Company, ISBN 0-201-53992-6,
  copyright \copyright 1991 AT\&T). That, in turn, is based on the C
  programming language as described in Appendix A of Kernighan and
-@@ -1719,7 +1719,7 @@ Ritchie: \doccite{The C Programming Language} (Prentice-Hall, 1978, ISBN
+@@ -1717,7 +1717,7 @@ Ritchie: \doccite{The C Programming Language} (Prentice-Hall, 1978, ISBN
  \pnum
  Portions of the library Clauses of this document are based
  on work by P.J. Plauger, which was published as \doccite{The Draft
@@ -2657,7 +2769,7 @@ index 57a2c37..48a0e29 100644
  
  \pnum
 diff --git a/source/iostreams.tex b/source/iostreams.tex
-index 4a57c3c..672af75 100644
+index 1de483f..6abf988 100644
 --- a/source/iostreams.tex
 +++ b/source/iostreams.tex
 @@ -4,7 +4,7 @@
@@ -2687,7 +2799,7 @@ index 4a57c3c..672af75 100644
  gives no meaning to the combination of \tcode{fixed} and
  \tcode{scientific}.\end{note}
  
-@@ -10839,7 +10839,7 @@ For Windows-based operating systems, the
+@@ -10837,7 +10837,7 @@ For Windows-based operating systems, the
  native narrow encoding is determined by calling a Windows API function.
  \end{note}
  \begin{note}
@@ -2789,7 +2901,7 @@ index faeeb96..bb4ae88 100644
  \indextext{backslash character}%
  \indextext{\idxcode{\textbackslash}|see{backslash character}}%
 diff --git a/source/lib-intro.tex b/source/lib-intro.tex
-index 3f7fcf6..a57749a 100644
+index dcc2944..774d7dd 100644
 --- a/source/lib-intro.tex
 +++ b/source/lib-intro.tex
 @@ -5,9 +5,9 @@
@@ -2863,7 +2975,7 @@ index 3f7fcf6..a57749a 100644
  \indextext{library!C standard}%
  suitably adjusted to ensure static type safety.
  
-@@ -225,9 +225,9 @@ that is not list-initialization~(\ref{dcl.init.list})
+@@ -223,9 +223,9 @@ that is not list-initialization~(\ref{dcl.init.list})
  \indexdefn{function!handler}%
  a
  \term{non-reserved function}
@@ -2875,7 +2987,7 @@ index 3f7fcf6..a57749a 100644
  supplying a pointer to the function when calling any of the library functions that install
  handler functions (Clause~\ref{language.support}).
  \end{note}
-@@ -295,7 +295,7 @@ including reference types. \end{note}
+@@ -293,7 +293,7 @@ including reference types. \end{note}
  \indexdefn{function!replacement}%
  a
  \term{non-reserved function}
@@ -2884,7 +2996,7 @@ index 3f7fcf6..a57749a 100644
  \begin{note}
  Only one definition for such a function is in effect for the duration of the program's
  execution, as the result of creating the program~(\ref{lex.phases}) and resolving the
-@@ -317,17 +317,17 @@ semantics
+@@ -315,17 +315,17 @@ semantics
  applicable to both the behavior provided by the implementation and
  the behavior of any such function definition in the program\\
  \begin{note}
@@ -2905,7 +3017,7 @@ index 3f7fcf6..a57749a 100644
  \indextext{undefined}
  \end{note}
  
-@@ -355,7 +355,7 @@ and \tcode{x.front()} can be called only if \tcode{x.empty()} returns
+@@ -353,7 +353,7 @@ and \tcode{x.front()} can be called only if \tcode{x.empty()} returns
  \rSec1[description]{Method of description (Informative)}
  
  \pnum
@@ -2914,7 +3026,7 @@ index 3f7fcf6..a57749a 100644
  library. \ref{structure} describes the structure of the normative
  Clauses~\ref{\firstlibchapter} through~\ref{\lastlibchapter} and
  Annex~\ref{depr}. \ref{conventions} describes other editorial conventions.
-@@ -404,7 +404,7 @@ The contents of the summary and the detailed specifications include:
+@@ -402,7 +402,7 @@ The contents of the summary and the detailed specifications include:
  
  \pnum
  \indextext{requirements}%
@@ -2923,7 +3035,7 @@ index 3f7fcf6..a57749a 100644
  Such extensions are generally one of the following:
  
  \begin{itemize}
-@@ -437,7 +437,7 @@ Template argument requirements are sometimes referenced by name.
+@@ -435,7 +435,7 @@ Template argument requirements are sometimes referenced by name.
  See~\ref{type.descriptions}.
  
  \pnum
@@ -2932,7 +3044,7 @@ index 3f7fcf6..a57749a 100644
  Such code is intended as a
  specification of equivalence of a construct to another construct, not
  necessarily as the way the construct
-@@ -518,7 +518,7 @@ The
+@@ -516,7 +516,7 @@ The
  \term{required behavior}
  describes the semantics of a function definition provided by
  \indextext{behavior!required}%
@@ -2941,7 +3053,7 @@ index 3f7fcf6..a57749a 100644
  Where no distinction is explicitly made in the description, the
  behavior described is the required behavior.
  
-@@ -548,7 +548,7 @@ of this International Standard and the ISO C standard.
+@@ -546,7 +546,7 @@ of this International Standard and the ISO C standard.
  
  \pnum
  This subclause describes several editorial conventions used to describe the contents
@@ -2950,7 +3062,7 @@ index 3f7fcf6..a57749a 100644
  These conventions are for describing
  implementation-defined types~(\ref{type.descriptions}),
  and member functions~(\ref{functions.within.classes}).
-@@ -569,7 +569,7 @@ Examples from~\ref{iterator.requirements} include:
+@@ -567,7 +567,7 @@ Examples from~\ref{iterator.requirements} include:
  \tcode{ForwardIterator}.}
  These names are used in library Clauses
  to describe the types that
@@ -2959,7 +3071,7 @@ index 3f7fcf6..a57749a 100644
  the library.
  
  \pnum
-@@ -895,7 +895,7 @@ An implementation may use any technique that provides equivalent observable beha
+@@ -893,7 +893,7 @@ An implementation may use any technique that provides equivalent observable beha
  \rSec1[requirements]{Library-wide requirements}
  
  \pnum
@@ -2968,7 +3080,7 @@ index 3f7fcf6..a57749a 100644
  Clauses~\ref{\firstlibchapter} through~\ref{\lastlibchapter} and Annex~\ref{depr}
  specify the requirements of individual entities within the library.
  
-@@ -905,27 +905,27 @@ programs having only a single thread of execution.
+@@ -903,27 +903,27 @@ programs having only a single thread of execution.
  
  \pnum
  Within this subclause, \ref{organization} describes the library's contents and
@@ -3003,7 +3115,7 @@ index 3f7fcf6..a57749a 100644
  
  \pnum
  All library entities except
-@@ -936,7 +936,7 @@ are defined within the namespace
+@@ -934,7 +934,7 @@ are defined within the namespace
  \tcode{std}
  or namespaces nested within namespace
  \tcode{std}.\footnote{The C standard library headers (Annex~\ref{depr.c.headers}) also define
@@ -3012,7 +3124,7 @@ index 3f7fcf6..a57749a 100644
  facilities~(\ref{headers}) may also define names within the global namespace.}%
  \indextext{namespace}
  It is unspecified whether names declared in a specific namespace are declared
-@@ -957,17 +957,17 @@ is meant.
+@@ -955,17 +955,17 @@ is meant.
  \rSec3[headers]{Headers}
  
  \pnum
@@ -3034,7 +3146,7 @@ index 3f7fcf6..a57749a 100644
  {llll}
  \topline
  \tcode{<algorithm>} &
-@@ -1056,7 +1056,7 @@ shown in Table~\ref{tab:cpp.library.headers}.
+@@ -1054,7 +1054,7 @@ shown in Table~\ref{tab:cpp.library.headers}.
  The facilities of the C standard library are provided in the
  \indextext{library!C standard}%
  additional headers shown in Table~\ref{tab:cpp.c.headers}.%
@@ -3043,7 +3155,7 @@ index 3f7fcf6..a57749a 100644
  for any of these C headers:
  \indextext{\idxhdr{stdatomic.h}}%
  \indextext{\idxhdr{stdnoreturn.h}}%
-@@ -1065,7 +1065,7 @@ for any of these C headers:
+@@ -1063,7 +1063,7 @@ for any of these C headers:
  \tcode{<stdnoreturn.h>},
  \tcode{<threads.h>}.}
  
@@ -3052,7 +3164,7 @@ index 3f7fcf6..a57749a 100644
  {lllll}
  \topline
  
-@@ -1109,7 +1109,7 @@ Except as noted in Clauses~\ref{library} through~\ref{\lastlibchapter}
+@@ -1107,7 +1107,7 @@ Except as noted in Clauses~\ref{library} through~\ref{\lastlibchapter}
  and Annex~\ref{depr}, the contents of each header \tcode{c\placeholder{name}} is
  the same as that of the corresponding header \tcode{\placeholder{name}.h} as
  specified in the C standard library (Clause~\ref{intro.refs}).
@@ -3061,7 +3173,7 @@ index 3f7fcf6..a57749a 100644
  declarations (except for names which are defined as macros in C) are within
  namespace scope~(\ref{basic.scope.namespace}) of the namespace \tcode{std}.
  It is unspecified whether these names (including any overloads added in
-@@ -1119,7 +1119,7 @@ and are then injected into namespace \tcode{std} by explicit
+@@ -1117,7 +1117,7 @@ and are then injected into namespace \tcode{std} by explicit
  \grammarterm{using-declaration}{s}~(\ref{namespace.udecl}).
  
  \pnum
@@ -3070,7 +3182,7 @@ index 3f7fcf6..a57749a 100644
  standard library, even if C grants license for implementation as functions.
  \begin{note} The names defined as macros in C include the following:
  \tcode{assert}, \tcode{offsetof}, \tcode{setjmp}, \tcode{va_arg},
-@@ -1127,22 +1127,22 @@ standard library, even if C grants license for implementation as functions.
+@@ -1125,22 +1125,22 @@ standard library, even if C grants license for implementation as functions.
  
  \pnum
  Names that are defined as functions in C shall be defined as functions in the
@@ -3099,7 +3211,7 @@ index 3f7fcf6..a57749a 100644
  intended to be strictly compatible with C. }
  
  \pnum
-@@ -1155,9 +1155,9 @@ most of them provide the same service
+@@ -1153,9 +1153,9 @@ most of them provide the same service
  as the C library function with the unsuffixed name,
  but generally take an additional argument
  whose value is the size of the result array.
@@ -3111,7 +3223,7 @@ index 3f7fcf6..a57749a 100644
  whether any of these names
  is declared in the global namespace.
  (None of them is declared in namespace \tcode{std}.)
-@@ -1280,7 +1280,7 @@ A freestanding implementation\indextext{implementation!freestanding} has an
+@@ -1278,7 +1278,7 @@ A freestanding implementation\indextext{implementation!freestanding} has an
  \impldef{headers for freestanding implementation} set of headers. This set shall
  include at least the headers shown in Table~\ref{tab:cpp.headers.freestanding}.
  
@@ -3120,7 +3232,7 @@ index 3f7fcf6..a57749a 100644
                           &                           & \tcode{<ciso646>}          \\ \rowsep
  \ref{support.types}      & Types                     & \tcode{<cstddef>}          \\ \rowsep
  \ref{support.limits}     & Implementation properties & \tcode{<cfloat>} \tcode{<limits>} \tcode{<climits>} \\ \rowsep
-@@ -1318,15 +1318,15 @@ The other headers listed in this table shall meet the same requirements as for a
+@@ -1316,15 +1316,15 @@ The other headers listed in this table shall meet the same requirements as for a
  \rSec3[using.overview]{Overview}
  
  \pnum
@@ -3139,7 +3251,7 @@ index 3f7fcf6..a57749a 100644
  whose contents are made available to a translation unit when it contains the appropriate
  \indextext{unit!translation}%
  \tcode{\#include}
-@@ -1362,7 +1362,7 @@ declared in that header. No diagnostic is required.
+@@ -1360,7 +1360,7 @@ declared in that header. No diagnostic is required.
  \rSec3[using.linkage]{Linkage}
  
  \pnum
@@ -3148,7 +3260,7 @@ index 3f7fcf6..a57749a 100644
  Unless otherwise specified, objects and functions have the default
  \tcode{extern "C++"}
  linkage~(\ref{dcl.link}).
-@@ -1388,7 +1388,7 @@ Standard.}
+@@ -1386,7 +1386,7 @@ Standard.}
  
  \pnum
  Objects and functions
@@ -3157,7 +3269,7 @@ index 3f7fcf6..a57749a 100644
  the program prior to program startup.
  
  \indextext{startup!program}%
-@@ -1402,7 +1402,7 @@ runtime changes~(\ref{handler.functions}).
+@@ -1400,7 +1400,7 @@ runtime changes~(\ref{handler.functions}).
  \pnum
  \ref{utility.arg.requirements}
  describes requirements on types and expressions used to instantiate templates
@@ -3166,7 +3278,7 @@ index 3f7fcf6..a57749a 100644
  \ref{swappable.requirements} describes the requirements on swappable types and
  swappable expressions.
  \ref{nullablepointer.requirements} describes the requirements on pointer-like
-@@ -1414,11 +1414,11 @@ allocators.
+@@ -1412,11 +1412,11 @@ allocators.
  \rSec3[utility.arg.requirements]{Template argument requirements}
  
  \pnum
@@ -3180,7 +3292,7 @@ index 3f7fcf6..a57749a 100644
  \tcode{a},
  \tcode{b}, and
  \tcode{c} are values of type (possibly \tcode{const}) \tcode{T};
-@@ -2145,8 +2145,8 @@ whether or not \tcode{T} is a complete type:
+@@ -2143,8 +2143,8 @@ whether or not \tcode{T} is a complete type:
  \rSec3[constraints.overview]{Overview}
  
  \pnum
@@ -3191,7 +3303,7 @@ index 3f7fcf6..a57749a 100644
  program's use of namespaces~(\ref{namespace.std}), its use of various reserved
  names~(\ref{reserved.names}), its use of headers~(\ref{alt.headers}), its use of
  standard library classes as base classes~(\ref{derived.classes}), its
-@@ -2158,7 +2158,7 @@ installation of handler functions during execution~(\ref{handler.functions}).
+@@ -2156,7 +2156,7 @@ installation of handler functions during execution~(\ref{handler.functions}).
  \rSec4[namespace.std]{Namespace \tcode{std}}
  
  \pnum
@@ -3200,7 +3312,7 @@ index 3f7fcf6..a57749a 100644
  \tcode{std}
  or to a namespace within namespace
  \tcode{std}
-@@ -2174,7 +2174,7 @@ must be prepared to work adequately with any user-supplied specialization
+@@ -2172,7 +2172,7 @@ must be prepared to work adequately with any user-supplied specialization
  that meets the minimum requirements of this International Standard.}
  
  \pnum
@@ -3209,7 +3321,7 @@ index 3f7fcf6..a57749a 100644
  \begin{itemize}
  \item an explicit specialization of any member function of a standard
  library class template, or
-@@ -2198,7 +2198,7 @@ A translation unit shall not declare namespace \tcode{std} to be an inline names
+@@ -2196,7 +2196,7 @@ A translation unit shall not declare namespace \tcode{std} to be an inline names
  \rSec4[namespace.posix]{Namespace \tcode{posix}}
  
  \pnum
@@ -3218,7 +3330,7 @@ index 3f7fcf6..a57749a 100644
  \tcode{posix}
  or to a namespace within namespace
  \tcode{posix}
-@@ -2211,7 +2211,7 @@ ISO/IEC 9945 and other POSIX standards.
+@@ -2209,7 +2209,7 @@ ISO/IEC 9945 and other POSIX standards.
  Top level namespaces with a name starting with \tcode{std} and
  followed by a non-empty sequence of digits
  are reserved for future standardization.
@@ -3227,7 +3339,7 @@ index 3f7fcf6..a57749a 100644
  it adds declarations or definitions to such a namespace.
  \begin{example} The top level namespace \tcode{std2} is reserved
  for use by future revisions of this International Standard. \end{example}
-@@ -2220,7 +2220,7 @@ for use by future revisions of this International Standard. \end{example}
+@@ -2218,7 +2218,7 @@ for use by future revisions of this International Standard. \end{example}
  \indextext{name!reserved}
  
  \pnum
@@ -3236,7 +3348,7 @@ index 3f7fcf6..a57749a 100644
  \begin{itemize}
  \item macros
  \item global names
-@@ -2403,7 +2403,7 @@ Literal suffix identifiers~(\ref{over.literal}) that do not start with an unders
+@@ -2401,7 +2401,7 @@ Literal suffix identifiers~(\ref{over.literal}) that do not start with an unders
  
  \pnum
  If a file with a name
@@ -3245,7 +3357,7 @@ index 3f7fcf6..a57749a 100644
  is not provided as part of the implementation, and a file with that name
  is placed in any of the standard places for a source file to be included~(\ref{cpp.include}),
  the behavior is undefined.%
-@@ -2415,7 +2415,7 @@ the behavior is undefined.%
+@@ -2413,7 +2413,7 @@ the behavior is undefined.%
  \pnum
  Virtual member function signatures defined
  \indextext{function!virtual member}%
@@ -3254,7 +3366,7 @@ index 3f7fcf6..a57749a 100644
  \indextext{class!base}%
  \indextext{library!C++ standard}%
  library may be overridden in a derived class defined in the program~(\ref{class.virtual}).
-@@ -2426,14 +2426,14 @@ library may be overridden in a derived class defined in the program~(\ref{class.
+@@ -2424,14 +2424,14 @@ library may be overridden in a derived class defined in the program~(\ref{class.
  \indextext{definition!alternate}%
  Clauses~\ref{\firstlibchapter} through~\ref{\lastlibchapter} and Annex~\ref{depr}
  describe the behavior of numerous functions defined by
@@ -3271,7 +3383,7 @@ index 3f7fcf6..a57749a 100644
  dynamic memory allocation function signatures declared in header
  \tcode{<new>}~(\ref{basic.stc.dynamic}, \ref{support.dynamic}):
  
-@@ -2486,7 +2486,7 @@ No diagnostic is required.
+@@ -2484,7 +2484,7 @@ No diagnostic is required.
  \rSec3[handler.functions]{Handler functions}
  
  \pnum
@@ -3280,7 +3392,7 @@ index 3f7fcf6..a57749a 100644
  function (Clause~\ref{language.support}):
  
  \begin{itemize}
-@@ -2496,7 +2496,7 @@ function (Clause~\ref{language.support}):
+@@ -2494,7 +2494,7 @@ function (Clause~\ref{language.support}):
  \end{itemize}
  
  \pnum
@@ -3289,7 +3401,7 @@ index 3f7fcf6..a57749a 100644
  supplying a pointer to a function defined in the program or the library
  as an argument to (respectively):
  \begin{itemize}
-@@ -2507,7 +2507,7 @@ See also subclauses~\ref{alloc.errors}, Storage allocation errors, and~\ref{supp
+@@ -2505,7 +2505,7 @@ See also subclauses~\ref{alloc.errors}, Storage allocation errors, and~\ref{supp
  Exception handling.
  
  \pnum
@@ -3298,7 +3410,7 @@ index 3f7fcf6..a57749a 100644
  functions:
  
  \begin{itemize}
-@@ -2528,8 +2528,8 @@ any of the \tcode{set_*} functions shall synchronize with subsequent calls to th
+@@ -2526,8 +2526,8 @@ any of the \tcode{set_*} functions shall synchronize with subsequent calls to th
  
  \pnum
  In certain cases (replacement functions, handler functions, operations on types used to
@@ -3309,7 +3421,7 @@ index 3f7fcf6..a57749a 100644
  If these components do not meet their requirements, this International Standard places no requirements
  on the implementation.
  
-@@ -2574,7 +2574,7 @@ allowed for that component.
+@@ -2572,7 +2572,7 @@ allowed for that component.
  \indextext{argument}%
  Each of the following applies to all arguments
  \indextext{argument}%
@@ -3318,7 +3430,7 @@ index 3f7fcf6..a57749a 100644
  \indextext{library!C++ standard}
  unless explicitly stated otherwise.
  
-@@ -2641,7 +2641,7 @@ paragraph specifies throwing an exception when the precondition is violated.
+@@ -2639,7 +2639,7 @@ paragraph specifies throwing an exception when the precondition is violated.
  \rSec3[conforming.overview]{Overview}
  
  \pnum
@@ -3327,7 +3439,7 @@ index 3f7fcf6..a57749a 100644
  
  \pnum
  An implementation's use of headers is discussed in~\ref{res.on.headers}, its use
-@@ -2654,9 +2654,9 @@ exceptions in~\ref{res.on.exception.handling}.
+@@ -2652,9 +2652,9 @@ exceptions in~\ref{res.on.exception.handling}.
  \rSec3[res.on.headers]{Headers}
  
  \pnum
@@ -3340,7 +3452,7 @@ index 3f7fcf6..a57749a 100644
  shall provide the declarations and definitions that appear in the synopses of
  those other headers.
  
-@@ -2667,7 +2667,7 @@ included after any other header that also defines it~(\ref{basic.def.odr}).
+@@ -2665,7 +2665,7 @@ included after any other header that also defines it~(\ref{basic.def.odr}).
  
  \pnum
  The C standard library headers (\ref{depr.c.headers})
@@ -3349,7 +3461,7 @@ index 3f7fcf6..a57749a 100644
  as described in~\ref{headers}.
  
  \rSec3[res.on.macro.definitions]{Restrictions on macro definitions}
-@@ -2693,17 +2693,17 @@ explicitly stated otherwise.
+@@ -2691,17 +2691,17 @@ explicitly stated otherwise.
  \pnum
  It is unspecified whether any
  non-member
@@ -3370,7 +3482,7 @@ index 3f7fcf6..a57749a 100644
  
  \pnum
  An implementation shall not declare a non-member function signature
-@@ -2733,11 +2733,11 @@ return *this;
+@@ -2731,11 +2731,11 @@ return *this;
  \rSec3[member.functions]{Member functions}
  
  \pnum
@@ -3384,7 +3496,7 @@ index 3f7fcf6..a57749a 100644
  an implementation may declare a different set of member function signatures,
  provided that any call to the member function that would select
  an overload from the set of declarations described in this International Standard
-@@ -2784,7 +2784,7 @@ original order).
+@@ -2782,7 +2782,7 @@ original order).
  
  \pnum
  Except where explicitly specified in this International Standard, it is \impldef{which functions in
@@ -3393,7 +3505,7 @@ index 3f7fcf6..a57749a 100644
  library may be recursively reentered.
  
  \rSec3[res.on.data.races]{Data race avoidance}
-@@ -2796,13 +2796,13 @@ Every standard library function shall meet each requirement unless otherwise spe
+@@ -2794,13 +2794,13 @@ Every standard library function shall meet each requirement unless otherwise spe
  Implementations may prevent data races in cases other than those specified below.
  
  \pnum
@@ -3409,7 +3521,7 @@ index 3f7fcf6..a57749a 100644
  objects~(\ref{intro.multithread}) accessible by threads other than the current thread
  unless the objects are accessed directly or indirectly via the function's non-const
  arguments, including \tcode{this}.
-@@ -2813,7 +2813,7 @@ internal purposes without synchronization because it could cause a data race eve
+@@ -2811,7 +2811,7 @@ internal purposes without synchronization because it could cause a data race eve
  programs that do not explicitly share objects between threads. \end{note}
  
  \pnum
@@ -3418,7 +3530,7 @@ index 3f7fcf6..a57749a 100644
  arguments or via elements of its container arguments except by invoking functions
  required by its specification on those container elements.
  
-@@ -2828,7 +2828,7 @@ Implementations may share their own internal objects between threads if the obje
+@@ -2826,7 +2826,7 @@ Implementations may share their own internal objects between threads if the obje
  not visible to users and are protected against data races.
  
  \pnum
@@ -3427,7 +3539,7 @@ index 3f7fcf6..a57749a 100644
  solely within the current thread if those operations have effects that are
  visible~(\ref{intro.multithread}) to users.
  
-@@ -2844,7 +2844,7 @@ side effects. \end{note}
+@@ -2842,7 +2842,7 @@ side effects. \end{note}
  It is unspecified whether any function signature or class described in
  Clauses~\ref{\firstlibchapter} through~\ref{\lastlibchapter} and Annex~\ref{depr} is a
  \tcode{friend}
@@ -3436,7 +3548,7 @@ index 3f7fcf6..a57749a 100644
  \indextext{specifier!\idxcode{friend}}
  
  \rSec3[derivation]{Derived classes}
-@@ -2852,13 +2852,13 @@ of another class in the \Cpp standard library.
+@@ -2850,13 +2850,13 @@ of another class in the \Cpp standard library.
  \pnum
  \indextext{class!derived}%
  \indextext{class!base}%
@@ -3453,7 +3565,7 @@ index 3f7fcf6..a57749a 100644
  \indextext{library!C++ standard}%
  An implementation may derive such a class directly from the required base or indirectly
  through a hierarchy of base classes with names reserved to the implementation.
-@@ -2884,7 +2884,7 @@ described as synonyms for basic integral types, such as
+@@ -2882,7 +2882,7 @@ described as synonyms for basic integral types, such as
  \end{itemize}
  
  \pnum
@@ -3462,7 +3574,7 @@ index 3f7fcf6..a57749a 100644
  unless otherwise specified.
  
  \rSec3[res.on.exception.handling]{Restrictions on exception handling}%
-@@ -2892,7 +2892,7 @@ unless otherwise specified.
+@@ -2890,7 +2890,7 @@ unless otherwise specified.
  \indextext{exception handling!handler}
  
  \pnum
@@ -3471,7 +3583,7 @@ index 3f7fcf6..a57749a 100644
  \indextext{library!C++ standard}%
  can report a failure by throwing an exception of a type described in its
  \throws
-@@ -2918,14 +2918,14 @@ and
+@@ -2916,14 +2916,14 @@ and
  \tcode{bsearch()}~(\ref{alg.c.library}) meet this condition.}
  
  \pnum
@@ -3489,7 +3601,7 @@ index 3f7fcf6..a57749a 100644
  \indextext{specifications!C++}%
  that do not have a
  \throws
-@@ -2966,7 +2966,7 @@ pointer location. \end{note}
+@@ -2964,7 +2964,7 @@ pointer location. \end{note}
  \rSec3[value.error.codes]{Value of error codes}
  
  \pnum
@@ -3498,7 +3610,7 @@ index 3f7fcf6..a57749a 100644
  \tcode{std::error_code}~(\ref{syserr.errcode.overview}) object. That object's
  \tcode{category()} member shall return \tcode{std::system_category()} for
  errors originating from the operating system, or a reference to an
-@@ -2984,7 +2984,7 @@ may provide enums for the associated values. \end{example}
+@@ -2982,7 +2982,7 @@ may provide enums for the associated values. \end{example}
  \rSec3[lib.types.movedfrom]{Moved-from state of library types}
  
  \pnum
@@ -3521,7 +3633,7 @@ index d1b2c85..306ee8d 100644
  Every implementation shall
  document those limitations where known.
 diff --git a/source/locales.tex b/source/locales.tex
-index 9c67794..2c1c38b 100644
+index 928f77e..10d1a2f 100644
 --- a/source/locales.tex
 +++ b/source/locales.tex
 @@ -4,7 +4,7 @@
@@ -3604,7 +3716,7 @@ index f4e28f6..2d520fe 100644
  Dongarra, Du Croz, Duff, and Hammerling:
  \textit{A set of Level 3 Basic Linear Algebra Subprograms};
 diff --git a/source/regex.tex b/source/regex.tex
-index 44d2c92..9c8c266 100644
+index 3e7b386..03a1f99 100644
 --- a/source/regex.tex
 +++ b/source/regex.tex
 @@ -6,7 +6,7 @@
@@ -3616,7 +3728,7 @@ index 44d2c92..9c8c266 100644
  perform operations involving regular expression matching and
  searching.
  
-@@ -4038,7 +4038,7 @@ Objects of type specialization of \tcode{basic_regex} store within themselves a
+@@ -4039,7 +4039,7 @@ Objects of type specialization of \tcode{basic_regex} store within themselves a
  default-constructed instance of their \tcode{traits} template parameter, henceforth
  referred to as \tcode{traits_inst}. This \tcode{traits_inst} object is used to support localization
  of the regular expression; \tcode{basic_regex} member functions shall not call
@@ -3626,7 +3738,7 @@ index 44d2c92..9c8c266 100644
  
  \pnum
 diff --git a/source/support.tex b/source/support.tex
-index 9b8d8d8..16fd32a 100644
+index 4875993..aef0b3c 100644
 --- a/source/support.tex
 +++ b/source/support.tex
 @@ -6,7 +6,7 @@
@@ -3647,7 +3759,7 @@ index 9b8d8d8..16fd32a 100644
  support for dynamic memory management,
  support for dynamic type identification,
  support for exception processing, support for initializer lists,
-@@ -627,7 +627,7 @@ if the type does allow subnormal values
+@@ -628,7 +628,7 @@ if the type does allow subnormal values
  The
  \indexlibrary{\idxcode{numeric_limits}}%
  \tcode{numeric_limits}
@@ -3656,7 +3768,7 @@ index 9b8d8d8..16fd32a 100644
  the implementation's representation of the
  arithmetic types.
  
-@@ -1883,9 +1883,9 @@ is not a valid alignment value,
+@@ -1879,9 +1879,9 @@ is not a valid alignment value,
  the behavior is undefined.
  
  \newcommand{\replaceabledesc}[1]{%
@@ -3668,7 +3780,7 @@ index 9b8d8d8..16fd32a 100644
  }
  
  \rSec3[new.delete.single]{Single-object forms}
-@@ -1966,7 +1966,7 @@ void* operator new(std::size_t size, std::align_val_t alignment, const std::noth
+@@ -1962,7 +1962,7 @@ void* operator new(std::size_t size, std::align_val_t alignment, const std::noth
  \effects
  Same as above, except that these are called by a placement version of a
  \grammarterm{new-expression}
@@ -3677,7 +3789,7 @@ index 9b8d8d8..16fd32a 100644
  instead of a
  \tcode{bad_alloc}
  exception.
-@@ -2228,7 +2228,7 @@ void* operator new[](std::size_t size, std::align_val_t alignment, const std::no
+@@ -2224,7 +2224,7 @@ void* operator new[](std::size_t size, std::align_val_t alignment, const std::no
  \effects
  Same as above, except that these are called by a placement version of a
  \grammarterm{new-expression}
@@ -3686,7 +3798,7 @@ index 9b8d8d8..16fd32a 100644
  instead of a
  \tcode{bad_alloc}
  exception.
-@@ -2396,8 +2396,8 @@ respectively.
+@@ -2392,8 +2392,8 @@ respectively.
  \rSec3[new.delete.placement]{Non-allocating forms}
  
  \pnum
@@ -3697,7 +3809,7 @@ index 9b8d8d8..16fd32a 100644
  The provisions of~\ref{basic.stc.dynamic} do not apply to these reserved
  placement forms of \tcode{operator new} and \tcode{operator delete}.
  
-@@ -3073,7 +3073,7 @@ suitable for conversion and display as a
+@@ -3067,7 +3067,7 @@ suitable for conversion and display as a
  \pnum
  The header
  \tcode{<exception>}
@@ -3706,7 +3818,7 @@ index 9b8d8d8..16fd32a 100644
  
  \rSec2[exception.syn]{Header \tcode{<exception>} synopsis}
  \indextext{\idxhdr{exception}}%
-@@ -3126,7 +3126,7 @@ The class
+@@ -3118,7 +3118,7 @@ The class
  \tcode{exception}
  defines the base
  class for the types of objects thrown as exceptions by
@@ -3729,7 +3841,7 @@ index ab7a876..54a14b9 100644
  \begin{note} These components are not restricted to multi-threaded programs but can be useful in
  single-threaded programs as well. \end{note}
 diff --git a/source/utilities.tex b/source/utilities.tex
-index bd6be71..341ca04 100644
+index 53a303c..59589ef 100644
 --- a/source/utilities.tex
 +++ b/source/utilities.tex
 @@ -4,8 +4,8 @@
@@ -3808,17 +3920,17 @@ index bd6be71..341ca04 100644
 2.7.4
 
 
-From 0e66a4e00ef9de082dbf4f9bb41b6c75da98b097 Mon Sep 17 00:00:00 2001
+From 12434ddd79b4231cf75da127389c86e24d93cbbe Mon Sep 17 00:00:00 2001
 From: Jens Maurer <Jens.Maurer@gmx.net>
 Date: Tue, 7 Feb 2017 10:26:32 +0100
-Subject: [PATCH 07/42] [macros] remove \xspace from \NTS
+Subject: [PATCH 08/43] [macros] remove \xspace from \NTS
 
 ---
  source/macros.tex | 9 +++++----
  1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/source/macros.tex b/source/macros.tex
-index bdc1327..80d30a4 100644
+index 15fb622..3772516 100644
 --- a/source/macros.tex
 +++ b/source/macros.tex
 @@ -238,12 +238,13 @@
@@ -3843,10 +3955,10 @@ index bdc1327..80d30a4 100644
 2.7.4
 
 
-From 4278e5639d1902d88d0e5770e9d097b60ebb9dea Mon Sep 17 00:00:00 2001
+From b2ecae007ef3f4044b1cfcd65bde3f63947c25c5 Mon Sep 17 00:00:00 2001
 From: Jens Maurer <Jens.Maurer@gmx.net>
 Date: Tue, 7 Feb 2017 10:26:52 +0100
-Subject: [PATCH 08/42] Replace \ntbs with \ntbs{} and \ntmbs with \ntmbs{}
+Subject: [PATCH 09/43] Replace \ntbs with \ntbs{} and \ntmbs with \ntmbs{}
 
 ---
  source/basic.tex       |  2 +-
@@ -3860,7 +3972,7 @@ Subject: [PATCH 08/42] Replace \ntbs with \ntbs{} and \ntmbs with \ntmbs{}
  8 files changed, 33 insertions(+), 32 deletions(-)
 
 diff --git a/source/basic.tex b/source/basic.tex
-index 181238a..04cbe2a 100644
+index b7f3c91..fd356d1 100644
 --- a/source/basic.tex
 +++ b/source/basic.tex
 @@ -2472,7 +2472,7 @@ program is run. If
@@ -3873,7 +3985,7 @@ index 181238a..04cbe2a 100644
  non-negative. The value of \tcode{argv[argc]} shall be 0. \begin{note} It
  is recommended that any further (optional) parameters be added after
 diff --git a/source/diagnostics.tex b/source/diagnostics.tex
-index d58b417..993a61a 100644
+index 6c1e496..c78e380 100644
 --- a/source/diagnostics.tex
 +++ b/source/diagnostics.tex
 @@ -1791,8 +1791,8 @@ const char* what() const noexcept override;
@@ -3888,7 +4000,7 @@ index d58b417..993a61a 100644
  code.message()}.\end{note}
  \end{itemdescr}
 diff --git a/source/future.tex b/source/future.tex
-index 65a8dba..95aff5e 100644
+index 6336064..f8a8cae 100644
 --- a/source/future.tex
 +++ b/source/future.tex
 @@ -913,7 +913,7 @@ initializing the base class with
@@ -3919,7 +4031,7 @@ index 65a8dba..95aff5e 100644
  \tcode{strstreambuf(s,n,s + std::strlen(s))}.
  \indexlibrary{\idxcode{strstream}!destructor}%
 diff --git a/source/iostreams.tex b/source/iostreams.tex
-index 672af75..a96a377 100644
+index 6abf988..60cfb9a 100644
 --- a/source/iostreams.tex
 +++ b/source/iostreams.tex
 @@ -8648,12 +8648,12 @@ initializes the
@@ -3938,10 +4050,10 @@ index 672af75..a96a377 100644
  as indicated in Table~\ref{tab:iostreams.file.open.modes}.
  If \tcode{mode} is not some combination of flags shown in the table then
 diff --git a/source/lib-intro.tex b/source/lib-intro.tex
-index a57749a..995c259 100644
+index 774d7dd..2ee6b9c 100644
 --- a/source/lib-intro.tex
 +++ b/source/lib-intro.tex
-@@ -784,7 +784,7 @@ A
+@@ -782,7 +782,7 @@ A
  \indextext{string!null-terminated byte}%
  \indextext{NTBS}%
  \term{null-terminated byte string},
@@ -3950,7 +4062,7 @@ index a57749a..995c259 100644
  is a character sequence whose highest-addressed element
  with defined content has the value zero
  (the
-@@ -802,17 +802,17 @@ a length value, maintained separately from the character sequence.}
+@@ -800,17 +800,17 @@ a length value, maintained separately from the character sequence.}
  
  \pnum
  The
@@ -3971,7 +4083,7 @@ index a57749a..995c259 100644
  is the sequence of values of the
  elements up to and including the terminating null character.
  \indextext{NTBS}%
-@@ -821,11 +821,11 @@ elements up to and including the terminating null character.
+@@ -819,11 +819,11 @@ elements up to and including the terminating null character.
  A
  \indextext{NTBS}%
  \indextext{NTBS!static}%
@@ -3986,7 +4098,7 @@ index a57749a..995c259 100644
  
  \rSec5[multibyte.strings]{Multibyte strings}
  
-@@ -833,17 +833,18 @@ is a static \ntbs.}
+@@ -831,17 +831,18 @@ is a static \ntbs.}
  \indextext{NTBS}%
  \indextext{NTMBS}%
  A \defnx{null-terminated multibyte string}{string!null-terminated multibyte},
@@ -4011,10 +4123,10 @@ index a57749a..995c259 100644
  \indextext{NTMBS}%
  
 diff --git a/source/support.tex b/source/support.tex
-index 16fd32a..a9d8bd7 100644
+index aef0b3c..fe8ff1d 100644
 --- a/source/support.tex
 +++ b/source/support.tex
-@@ -2561,7 +2561,7 @@ const char* what() const noexcept override;
+@@ -2557,7 +2557,7 @@ const char* what() const noexcept override;
  \begin{itemdescr}
  \pnum
  \returns
@@ -4023,7 +4135,7 @@ index 16fd32a..a9d8bd7 100644
  
  \pnum
  \remarks
-@@ -2607,7 +2607,7 @@ const char* what() const noexcept override;
+@@ -2603,7 +2603,7 @@ const char* what() const noexcept override;
  \begin{itemdescr}
  \pnum
  \returns
@@ -4032,7 +4144,7 @@ index 16fd32a..a9d8bd7 100644
  
  \pnum
  \remarks
-@@ -2925,7 +2925,7 @@ const char* name() const noexcept;
+@@ -2919,7 +2919,7 @@ const char* name() const noexcept;
  \begin{itemdescr}
  \pnum
  \returns
@@ -4041,7 +4153,7 @@ index 16fd32a..a9d8bd7 100644
  
  \pnum
  \remarks
-@@ -2992,7 +2992,7 @@ const char* what() const noexcept override;
+@@ -2986,7 +2986,7 @@ const char* what() const noexcept override;
  \begin{itemdescr}
  \pnum
  \returns
@@ -4050,7 +4162,7 @@ index 16fd32a..a9d8bd7 100644
  
  \pnum
  \remarks
-@@ -3059,7 +3059,7 @@ const char* what() const noexcept override;
+@@ -3053,7 +3053,7 @@ const char* what() const noexcept override;
  \begin{itemdescr}
  \pnum
  \returns
@@ -4059,7 +4171,7 @@ index 16fd32a..a9d8bd7 100644
  
  \pnum
  \remarks
-@@ -3188,7 +3188,7 @@ virtual const char* what() const noexcept;
+@@ -3180,7 +3180,7 @@ virtual const char* what() const noexcept;
  \begin{itemdescr}
  \pnum
  \returns
@@ -4068,7 +4180,7 @@ index 16fd32a..a9d8bd7 100644
  
  \pnum
  \remarks
-@@ -3257,7 +3257,7 @@ const char* what() const noexcept override;
+@@ -3249,7 +3249,7 @@ const char* what() const noexcept override;
  \begin{itemdescr}
  \pnum
  \returns
@@ -4091,7 +4203,7 @@ index 54a14b9..08568e8 100644
  
  \rSec2[futures.state]{Shared state}
 diff --git a/source/utilities.tex b/source/utilities.tex
-index 341ca04..42e237d 100644
+index 59589ef..81a572a 100644
 --- a/source/utilities.tex
 +++ b/source/utilities.tex
 @@ -3540,7 +3540,7 @@ Constructs an object of class \tcode{bad_optional_access}.
@@ -4134,10 +4246,10 @@ index 341ca04..42e237d 100644
 2.7.4
 
 
-From c561ed084ec001cd99765a533aaa4bf719eb3dc1 Mon Sep 17 00:00:00 2001
+From 4b36cf5d16402d7f7ab4fa36adb57cd97afeffe0 Mon Sep 17 00:00:00 2001
 From: Jens Maurer <Jens.Maurer@gmx.net>
 Date: Tue, 7 Feb 2017 10:34:22 +0100
-Subject: [PATCH 09/42] Replace \opt with \opt{}
+Subject: [PATCH 10/43] Replace \opt with \opt{}
 
 ---
  source/access.tex       |  2 +-
@@ -4171,7 +4283,7 @@ index 6f87863..a010889 100644
  
  An
 diff --git a/source/basic.tex b/source/basic.tex
-index 04cbe2a..96d5f73 100644
+index fd356d1..c929392 100644
 --- a/source/basic.tex
 +++ b/source/basic.tex
 @@ -686,7 +686,7 @@ The point of declaration of a class first declared in an
@@ -4220,7 +4332,7 @@ index 04cbe2a..96d5f73 100644
  
  \pnum
 diff --git a/source/classes.tex b/source/classes.tex
-index ab1b59f..66c1912 100644
+index c5f0bbf..de2c154 100644
 --- a/source/classes.tex
 +++ b/source/classes.tex
 @@ -34,13 +34,13 @@ make \grammarterm{class-name}{s}. An object of a class consists of a
@@ -4240,7 +4352,7 @@ index ab1b59f..66c1912 100644
  \end{bnf}
  
  \begin{bnf}
-@@ -442,13 +442,13 @@ ignored. A \grammarterm{typedef-name} shall not be used as the
+@@ -441,13 +441,13 @@ ignored. A \grammarterm{typedef-name} shall not be used as the
  
  \begin{bnf}
  \nontermdef{member-specification}\br
@@ -4257,7 +4369,7 @@ index ab1b59f..66c1912 100644
      function-definition\br
      using-declaration\br
      static_assert-declaration\br
-@@ -466,9 +466,9 @@ ignored. A \grammarterm{typedef-name} shall not be used as the
+@@ -465,9 +465,9 @@ ignored. A \grammarterm{typedef-name} shall not be used as the
  
  \begin{bnf}
  \nontermdef{member-declarator}\br
@@ -4270,7 +4382,7 @@ index ab1b59f..66c1912 100644
  \end{bnf}
  
  \begin{bnf}
-@@ -1294,7 +1294,7 @@ A static data member shall not be
+@@ -1293,7 +1293,7 @@ A static data member shall not be
  A \grammarterm{member-declarator} of the form
  
  \begin{ncbnftab}
@@ -4940,10 +5052,10 @@ index 07c6214..a8ceb7a 100644
  
  \pnum
 diff --git a/source/intro.tex b/source/intro.tex
-index 48a0e29..b8d361a 100644
+index 5c45c61..355c101 100644
 --- a/source/intro.tex
 +++ b/source/intro.tex
-@@ -460,7 +460,7 @@ and characters in \tcode{constant} \tcode{width} type. Alternatives are
+@@ -458,7 +458,7 @@ and characters in \tcode{constant} \tcode{width} type. Alternatives are
  listed on separate lines except in a few cases where a long set of
  alternatives is marked by the phrase ``one of''. If the text of an alternative is too long to fit on a line, the text is continued on subsequent lines indented from the first one.
  An optional terminal or non-terminal symbol is indicated by the subscript
@@ -5433,17 +5545,17 @@ index bac69bb..5abe7a5 100644
 2.7.4
 
 
-From 0e5c38ada845e05d3372663ff69d7cf0f0ebf144 Mon Sep 17 00:00:00 2001
+From 2d8df35146e98e0b32de9731b73c7f4a88f847db Mon Sep 17 00:00:00 2001
 From: Jens Maurer <Jens.Maurer@gmx.net>
 Date: Tue, 7 Feb 2017 10:34:48 +0100
-Subject: [PATCH 10/42] [macros] Remove \xspace from \opt
+Subject: [PATCH 11/43] [macros] Remove \xspace from \opt
 
 ---
  source/macros.tex | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/source/macros.tex b/source/macros.tex
-index 80d30a4..2f6304a 100644
+index 3772516..0bc148b 100644
 --- a/source/macros.tex
 +++ b/source/macros.tex
 @@ -183,7 +183,7 @@
@@ -5459,10 +5571,10 @@ index 80d30a4..2f6304a 100644
 2.7.4
 
 
-From c0b7c5708ca05c312a4733ce19bd29a2f48bb395 Mon Sep 17 00:00:00 2001
+From cacc528f6d5f487340d83829b5ed49afcbead4bb Mon Sep 17 00:00:00 2001
 From: Jens Maurer <Jens.Maurer@gmx.net>
 Date: Tue, 7 Feb 2017 10:43:07 +0100
-Subject: [PATCH 11/42] Use \opt{arg} instead of suffix \opt{}
+Subject: [PATCH 12/43] Use \opt{arg} instead of suffix \opt{}
 
 This was machine-converted using
 
@@ -5504,7 +5616,7 @@ index a010889..93e88ef 100644
  
  An
 diff --git a/source/basic.tex b/source/basic.tex
-index 96d5f73..096afdc 100644
+index c929392..021c52e 100644
 --- a/source/basic.tex
 +++ b/source/basic.tex
 @@ -686,7 +686,7 @@ The point of declaration of a class first declared in an
@@ -5553,7 +5665,7 @@ index 96d5f73..096afdc 100644
  
  \pnum
 diff --git a/source/classes.tex b/source/classes.tex
-index 66c1912..4347990 100644
+index de2c154..8579bb5 100644
 --- a/source/classes.tex
 +++ b/source/classes.tex
 @@ -29,18 +29,18 @@ make \grammarterm{class-name}{s}. An object of a class consists of a
@@ -5579,7 +5691,7 @@ index 66c1912..4347990 100644
  \end{bnf}
  
  \begin{bnf}
-@@ -442,13 +442,13 @@ ignored. A \grammarterm{typedef-name} shall not be used as the
+@@ -441,13 +441,13 @@ ignored. A \grammarterm{typedef-name} shall not be used as the
  
  \begin{bnf}
  \nontermdef{member-specification}\br
@@ -5596,7 +5708,7 @@ index 66c1912..4347990 100644
      function-definition\br
      using-declaration\br
      static_assert-declaration\br
-@@ -466,9 +466,9 @@ ignored. A \grammarterm{typedef-name} shall not be used as the
+@@ -465,9 +465,9 @@ ignored. A \grammarterm{typedef-name} shall not be used as the
  
  \begin{bnf}
  \nontermdef{member-declarator}\br
@@ -5609,7 +5721,7 @@ index 66c1912..4347990 100644
  \end{bnf}
  
  \begin{bnf}
-@@ -1294,7 +1294,7 @@ A static data member shall not be
+@@ -1293,7 +1293,7 @@ A static data member shall not be
  A \grammarterm{member-declarator} of the form
  
  \begin{ncbnftab}
@@ -6410,10 +6522,10 @@ index a8ceb7a..21308d2 100644
  
  \pnum
 diff --git a/source/intro.tex b/source/intro.tex
-index b8d361a..ce42b6c 100644
+index 355c101..05ebfbd 100644
 --- a/source/intro.tex
 +++ b/source/intro.tex
-@@ -463,7 +463,7 @@ An optional terminal or non-terminal symbol is indicated by the subscript
+@@ -461,7 +461,7 @@ An optional terminal or non-terminal symbol is indicated by the subscript
  ``\opt{}'', so
  
  \begin{ncbnf}
@@ -6423,10 +6535,10 @@ index b8d361a..ce42b6c 100644
  
  indicates an optional expression enclosed in braces.%
 diff --git a/source/iostreams.tex b/source/iostreams.tex
-index a96a377..eec470c 100644
+index 60cfb9a..4aa0ac3 100644
 --- a/source/iostreams.tex
 +++ b/source/iostreams.tex
-@@ -10113,8 +10113,8 @@ entry for the file under discussion.
+@@ -10111,8 +10111,8 @@ entry for the file under discussion.
  A sequence of elements that identify
  the location of a file within a filesystem.
  The elements are the
@@ -6437,7 +6549,7 @@ index a96a377..eec470c 100644
  and an optional sequence of filenames.
  The maximum number of elements in the sequence is operating system dependent.
  
-@@ -10651,7 +10651,7 @@ any operating system dependent \grammarterm{root-name}{s}}}
+@@ -10649,7 +10649,7 @@ any operating system dependent \grammarterm{root-name}{s}}}
  
  \begin{ncbnf}
  \nontermdef{pathname}\br
@@ -6446,7 +6558,7 @@ index a96a377..eec470c 100644
  \end{ncbnf}
  
  \begin{ncbnf}
-@@ -10679,8 +10679,8 @@ any operating system dependent \grammarterm{root-name}{s}}}
+@@ -10677,8 +10677,8 @@ any operating system dependent \grammarterm{root-name}{s}}}
  
  \begin{ncbnf}
  \nontermdef{directory-separator}\br
@@ -6628,7 +6740,7 @@ index 3fd1fd0..2f46bd9 100644
      hexadecimal-prefix hexadecimal-fractional-constant binary-exponent-part ud-suffix\br
      hexadecimal-prefix hexadecimal-digit-sequence binary-exponent-part ud-suffix
 diff --git a/source/macros.tex b/source/macros.tex
-index 2f6304a..ed40cc3 100644
+index 0bc148b..5b5e14c 100644
 --- a/source/macros.tex
 +++ b/source/macros.tex
 @@ -183,7 +183,7 @@
@@ -7142,7 +7254,7 @@ index 5abe7a5..d6ff7bf 100644
  
  \pnum
 diff --git a/source/utilities.tex b/source/utilities.tex
-index 42e237d..e9dce54 100644
+index 81a572a..8353668 100644
 --- a/source/utilities.tex
 +++ b/source/utilities.tex
 @@ -14676,7 +14676,7 @@ template<class F> function(F) -> function<@\seebelow@>;
@@ -7158,10 +7270,10 @@ index 42e237d..e9dce54 100644
 2.7.4
 
 
-From eb46f3f8738b137455752993160cdf30470ff65c Mon Sep 17 00:00:00 2001
+From 3464b11e9fbfe47de39c8f517e269d568812da3d Mon Sep 17 00:00:00 2001
 From: Jens Maurer <Jens.Maurer@gmx.net>
 Date: Tue, 7 Feb 2017 10:46:43 +0100
-Subject: [PATCH 12/42] manual fixes for \opt{} removal
+Subject: [PATCH 13/43] manual fixes for \opt{} removal
 
 ---
  source/declarations.tex | 2 +-
@@ -7236,10 +7348,10 @@ index 21308d2..6837f70 100644
 2.7.4
 
 
-From 3d97604e908340f21f2da14f769f7d3c81e68619 Mon Sep 17 00:00:00 2001
+From 288177038c12da2ab48a17cd10f3dd8d82ee1a48 Mon Sep 17 00:00:00 2001
 From: Jens Maurer <Jens.Maurer@gmx.net>
 Date: Tue, 7 Feb 2017 11:12:22 +0100
-Subject: [PATCH 13/42] [rand] Remove non-macro use of \xspace
+Subject: [PATCH 14/43] [rand] Remove non-macro use of \xspace
 
 ---
  source/numerics.tex | 2 +-
@@ -7262,10 +7374,10 @@ index 2d520fe..0e5d645 100644
 2.7.4
 
 
-From 968e7a593f4558e9bf983d4770db8143e4d476c2 Mon Sep 17 00:00:00 2001
+From 98999265933974f42d9b12e3bafe37de7f5f7fcf Mon Sep 17 00:00:00 2001
 From: Jens Maurer <Jens.Maurer@gmx.net>
 Date: Tue, 7 Feb 2017 11:10:48 +0100
-Subject: [PATCH 14/42] [structure.specifications] Do not use library
+Subject: [PATCH 15/43] [structure.specifications] Do not use library
  description macros in running text
 
 This avoids colons in running text and some bad spacing.
@@ -7274,10 +7386,10 @@ This avoids colons in running text and some bad spacing.
  1 file changed, 9 insertions(+), 9 deletions(-)
 
 diff --git a/source/lib-intro.tex b/source/lib-intro.tex
-index 995c259..1b9930d 100644
+index 2ee6b9c..1a94905 100644
 --- a/source/lib-intro.tex
 +++ b/source/lib-intro.tex
-@@ -492,18 +492,18 @@ preconditions, there will be no \requires paragraph.}
+@@ -490,18 +490,18 @@ preconditions, there will be no \requires paragraph.}
  \end{itemize}
  
  \pnum
@@ -7304,7 +7416,7 @@ index 995c259..1b9930d 100644
  element in the code sequence.
  
  \pnum
-@@ -540,7 +540,7 @@ constants~(\ref{syserr}).
+@@ -538,7 +538,7 @@ constants~(\ref{syserr}).
  \rSec3[structure.see.also]{C library}
  
  \pnum
@@ -7317,10 +7429,10 @@ index 995c259..1b9930d 100644
 2.7.4
 
 
-From b1b18e7f2a006503cf879d051c6591266de577bf Mon Sep 17 00:00:00 2001
+From 0b5b55958d458907266188ff91d4fc5166291c2c Mon Sep 17 00:00:00 2001
 From: Jens Maurer <Jens.Maurer@gmx.net>
 Date: Tue, 7 Feb 2017 11:13:32 +0100
-Subject: [PATCH 15/42] [macros] Replace \xspace with \space in library
+Subject: [PATCH 16/43] [macros] Replace \xspace with \space in library
  description macros
 
 ---
@@ -7328,7 +7440,7 @@ Subject: [PATCH 15/42] [macros] Replace \xspace with \space in library
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/source/macros.tex b/source/macros.tex
-index ed40cc3..ec059b7 100644
+index 5b5e14c..47f5845 100644
 --- a/source/macros.tex
 +++ b/source/macros.tex
 @@ -212,7 +212,7 @@
@@ -7353,10 +7465,10 @@ index ed40cc3..ec059b7 100644
 2.7.4
 
 
-From f5eeeac5ffa0e6e88e0f57f3f811e5d3532f931a Mon Sep 17 00:00:00 2001
+From ca14573fb1b98cad26e1d5b588859b73fd161ebd Mon Sep 17 00:00:00 2001
 From: Jens Maurer <Jens.Maurer@gmx.net>
 Date: Tue, 7 Feb 2017 11:14:01 +0100
-Subject: [PATCH 16/42] [std] Remove unused package 'xspace'
+Subject: [PATCH 17/43] [std] Remove unused package 'xspace'
 
 Fixes #1433.
 ---
@@ -7379,10 +7491,10 @@ index e77b5a1..96c8af3 100644
 2.7.4
 
 
-From a7dc0c32c512d0694b27ed98ce9601be8544a191 Mon Sep 17 00:00:00 2001
+From 799cf7aa79e6bc0e3b4fdcaa1b9adaef91a925b8 Mon Sep 17 00:00:00 2001
 From: Jens Maurer <Jens.Maurer@gmx.net>
 Date: Wed, 8 Feb 2017 09:17:46 +0100
-Subject: [PATCH 17/42] [alg.merge] Add a linebreak hint
+Subject: [PATCH 18/43] [alg.merge] Add a linebreak hint
 
 to avoid an overfull hbox.
 ---
@@ -7410,10 +7522,10 @@ index 2bf8128..21469db 100644
 2.7.4
 
 
-From 918d2cadbcd8ad203ffaaca39289eced7b063b2f Mon Sep 17 00:00:00 2001
+From b419bed8402133a64b15f9091873541461eeabeb Mon Sep 17 00:00:00 2001
 From: Jens Maurer <Jens.Maurer@gmx.net>
 Date: Wed, 8 Feb 2017 09:18:12 +0100
-Subject: [PATCH 18/42] [macros] For references to earlier revisions of C++,
+Subject: [PATCH 19/43] [macros] For references to earlier revisions of C++,
  use \Cpp~2003 etc.
 
 This avoids linebreaks in an unpleaseant location.
@@ -7422,7 +7534,7 @@ This avoids linebreaks in an unpleaseant location.
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/source/macros.tex b/source/macros.tex
-index ec059b7..0714f85 100644
+index 47f5845..13a9bdc 100644
 --- a/source/macros.tex
 +++ b/source/macros.tex
 @@ -180,9 +180,9 @@
@@ -7442,10 +7554,10 @@ index ec059b7..0714f85 100644
 2.7.4
 
 
-From c035267fa1167f20027095f35899a48965d2f7e8 Mon Sep 17 00:00:00 2001
+From 5cec989fa56993111702bfdaf8e83e6e7d389692 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Tue, 7 Feb 2017 01:08:05 +0100
-Subject: [PATCH 19/42] Merge \term+\indextext pairs into \defn(x)s.
+Subject: [PATCH 20/43] Merge \term+\indextext pairs into \defn(x)s.
 
 ---
  source/declarators.tex |  9 +++------
@@ -7605,10 +7717,10 @@ index 6837f70..641244d 100644
  an entity that is a permitted result of a constant expression (as defined below), or
  a prvalue core constant expression whose value
 diff --git a/source/lib-intro.tex b/source/lib-intro.tex
-index 1b9930d..20195fb 100644
+index 1a94905..ee2e079 100644
 --- a/source/lib-intro.tex
 +++ b/source/lib-intro.tex
-@@ -510,14 +510,10 @@ element in the code sequence.
+@@ -508,14 +508,10 @@ element in the code sequence.
  For non-reserved replacement and handler functions,
  Clause~\ref{language.support} specifies two behaviors for the functions in question:
  their required and default behavior.
@@ -7625,7 +7737,7 @@ index 1b9930d..20195fb 100644
  either the implementation or a \Cpp{} program.
  Where no distinction is explicitly made in the description, the
  behavior described is the required behavior.
-@@ -630,8 +626,7 @@ All such elements have distinct values.
+@@ -628,8 +624,7 @@ All such elements have distinct values.
  \pnum
  Several types defined in Clauses~\ref{\firstlibchapter} through~\ref{\lastlibchapter}
  and Annex~\ref{depr} are
@@ -7635,7 +7747,7 @@ index 1b9930d..20195fb 100644
  Each bitmask type can be implemented as an
  enumerated type that overloads certain operators, as an integer type,
  or as a
-@@ -731,9 +726,8 @@ is any of the 26 lowercase or 26
+@@ -729,9 +724,8 @@ is any of the 26 lowercase or 26
  uppercase letters in the basic execution character set.
  \item
  The
@@ -7646,7 +7758,7 @@ index 1b9930d..20195fb 100644
  (single-byte) character used by functions that convert between a (single-byte)
  character sequence and a value of one of the floating-point types.
  It is used
-@@ -781,9 +775,8 @@ A character sequence can be designated by a pointer value
+@@ -779,9 +773,8 @@ A character sequence can be designated by a pointer value
  
  \pnum
  A
@@ -7657,7 +7769,7 @@ index 1b9930d..20195fb 100644
  or \ntbs{},
  is a character sequence whose highest-addressed element
  with defined content has the value zero
-@@ -820,8 +813,7 @@ elements up to and including the terminating null character.
+@@ -818,8 +811,7 @@ elements up to and including the terminating null character.
  \pnum
  A
  \indextext{NTBS}%
@@ -7667,7 +7779,7 @@ index 1b9930d..20195fb 100644
  is an \ntbs{} with
  static storage duration.\footnote{A string literal, such as
  \tcode{"abc"},
-@@ -843,9 +835,8 @@ consists of a single byte.}
+@@ -841,9 +833,8 @@ consists of a single byte.}
  
  \pnum
  A
@@ -7678,7 +7790,7 @@ index 1b9930d..20195fb 100644
  \indextext{NTMBS}%
  
  \rSec3[functions.within.classes]{Functions within classes}
-@@ -1269,11 +1260,10 @@ These names are also subject to the restrictions of~\ref{macro.names}.
+@@ -1267,11 +1258,10 @@ These names are also subject to the restrictions of~\ref{macro.names}.
  
  \pnum
  Two kinds of implementations are defined:
@@ -7783,7 +7895,7 @@ index e69126b..e83afe3 100644
  assignment operator is defined as deleted; otherwise, it is defined as
  defaulted~(\ref{dcl.fct.def}).
 diff --git a/source/strings.tex b/source/strings.tex
-index 063aada..4856d21 100644
+index 03d54cf..506b314 100644
 --- a/source/strings.tex
 +++ b/source/strings.tex
 @@ -6,9 +6,9 @@
@@ -7823,7 +7935,7 @@ index 08568e8..efae4bc 100644
  
  \pnum
 diff --git a/source/utilities.tex b/source/utilities.tex
-index e9dce54..9959bf6 100644
+index 8353668..f8b02f5 100644
 --- a/source/utilities.tex
 +++ b/source/utilities.tex
 @@ -12888,7 +12888,7 @@ template <class OuterA1, class OuterA2, class... InnerAllocs>
@@ -7895,10 +8007,10 @@ index e9dce54..9959bf6 100644
 2.7.4
 
 
-From 93e53cd5804ba6ef0f39e2aeadb188cb4ef4c93e Mon Sep 17 00:00:00 2001
+From 601cdd0f15bd3928150eda1d3c564e0ce52151a5 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sat, 4 Feb 2017 09:29:18 +0100
-Subject: [PATCH 20/42] [intro.defs] Consistently hyphenate
+Subject: [PATCH 21/43] [intro.defs] Consistently hyphenate
  parameter-type-list.
 
 ---
@@ -7906,10 +8018,10 @@ Subject: [PATCH 20/42] [intro.defs] Consistently hyphenate
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/source/intro.tex b/source/intro.tex
-index ce42b6c..872ce3e 100644
+index 05ebfbd..a8942b6 100644
 --- a/source/intro.tex
 +++ b/source/intro.tex
-@@ -219,13 +219,13 @@ following the macro name
+@@ -217,13 +217,13 @@ following the macro name
  
  \indexdefn{signature}%
  \definition{signature}{defns.signature}
@@ -7925,7 +8037,7 @@ index ce42b6c..872ce3e 100644
  return type, and template parameter list
  
  \indexdefn{signature}%
-@@ -235,13 +235,13 @@ and its template arguments (whether explicitly specified or deduced)
+@@ -233,13 +233,13 @@ and its template arguments (whether explicitly specified or deduced)
  
  \indexdefn{signature}%
  \definition{signature}{defns.signature.member}
@@ -7945,10 +8057,10 @@ index ce42b6c..872ce3e 100644
 2.7.4
 
 
-From ced2b1e849b9dc06eea9f45395c9db49ab3f9d48 Mon Sep 17 00:00:00 2001
+From 1987edc2622f0f1ae590530da64b98cb21de7eab Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Fri, 3 Feb 2017 08:15:11 +0100
-Subject: [PATCH 21/42] Add index entry for 'active handler'.
+Subject: [PATCH 22/43] Add index entry for 'active handler'.
 
 ---
  source/exceptions.tex | 4 ++--
@@ -7973,10 +8085,10 @@ index ef52450..455012a 100644
 2.7.4
 
 
-From d8232b0ae52b8a234191d9fd9b7477248c2ecc91 Mon Sep 17 00:00:00 2001
+From 4ddbca02832a1d1ac320ccb5ab317d533fc02d13 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sat, 4 Feb 2017 08:53:36 +0100
-Subject: [PATCH 22/42] [alg.sorting] Index 'partitioned with respect to'.
+Subject: [PATCH 23/43] [alg.sorting] Index 'partitioned with respect to'.
 
 ---
  source/algorithms.tex | 2 +-
@@ -7999,10 +8111,10 @@ index 21469db..7aa1a26 100644
 2.7.4
 
 
-From 9973a5c20690e86d7fc7ef80ec3fc6a1f298ef36 Mon Sep 17 00:00:00 2001
+From 1af2910481144a4f443132f601c0bce8a1b39f59 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Tue, 7 Feb 2017 21:42:14 +0100
-Subject: [PATCH 23/42] [dcl.enum] Add index entry for 'fixed' underlying type.
+Subject: [PATCH 24/43] [dcl.enum] Add index entry for 'fixed' underlying type.
 
 ---
  source/declarations.tex | 2 +-
@@ -8025,10 +8137,10 @@ index 0682b94..8061430 100644
 2.7.4
 
 
-From 2e773bebe1724911815fc1f72be3d19771aab89f Mon Sep 17 00:00:00 2001
+From 46b6e11e150aa07482cb51a18c265ebb73347614 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Wed, 1 Feb 2017 03:09:50 +0100
-Subject: [PATCH 24/42] Don't abuse \grammarterm for things that are not
+Subject: [PATCH 25/43] Don't abuse \grammarterm for things that are not
  grammar terms.
 
 ---
@@ -8059,10 +8171,10 @@ index 79826ed..8f7b768 100644
  
  \begin{itemize}
 diff --git a/source/intro.tex b/source/intro.tex
-index 872ce3e..5d4570d 100644
+index a8942b6..ae3e06c 100644
 --- a/source/intro.tex
 +++ b/source/intro.tex
-@@ -455,7 +455,7 @@ and notes may be nested.%
+@@ -453,7 +453,7 @@ and notes may be nested.%
  \pnum
  \indextext{notation!syntax|(}%
  In the syntax notation used in this document, syntactic
@@ -8075,10 +8187,10 @@ index 872ce3e..5d4570d 100644
 2.7.4
 
 
-From 99cb10e891391258c10921189ea1a60fbe474a7a Mon Sep 17 00:00:00 2001
+From 5098445ba5eef29ee359f75181581ffb39ad8051 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Wed, 1 Feb 2017 03:39:27 +0100
-Subject: [PATCH 25/42] Make references more precise.
+Subject: [PATCH 26/43] Make references more precise.
 
 ---
  source/basic.tex        | 2 +-
@@ -8089,7 +8201,7 @@ Subject: [PATCH 25/42] Make references more precise.
  5 files changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/source/basic.tex b/source/basic.tex
-index 096afdc..17ce998 100644
+index 021c52e..252888a 100644
 --- a/source/basic.tex
 +++ b/source/basic.tex
 @@ -96,7 +96,7 @@ A declaration may also have effects including:
@@ -8102,10 +8214,10 @@ index 096afdc..17ce998 100644
  \end{itemize}
  
 diff --git a/source/classes.tex b/source/classes.tex
-index 4347990..e3e4644 100644
+index 8579bb5..13409ab 100644
 --- a/source/classes.tex
 +++ b/source/classes.tex
-@@ -923,7 +923,7 @@ object that is not of type \tcode{X}, or of a type derived from
+@@ -922,7 +922,7 @@ object that is not of type \tcode{X}, or of a type derived from
  \tcode{X}, the behavior is undefined.
  
  \pnum
@@ -8114,7 +8226,7 @@ index 4347990..e3e4644 100644
  class member access syntax~(\ref{expr.ref}) and not used to form a
  pointer to member~(\ref{expr.unary.op}) is used in
  a member of class \tcode{X} in a context where \tcode{this} can be
-@@ -943,11 +943,11 @@ If \tcode{C} is not \tcode{X} or a base class of \tcode{X}, the class
+@@ -942,11 +942,11 @@ If \tcode{C} is not \tcode{X} or a base class of \tcode{X}, the class
  member access expression is ill-formed.
  \end{note}
  Similarly during name lookup, when an
@@ -8155,7 +8267,7 @@ index 5586e1a..8bfbd2b 100644
  \begin{codeblock}
  T(a)->m = 7;        // expression-statement
 diff --git a/source/strings.tex b/source/strings.tex
-index 4856d21..70f43a6 100644
+index 506b314..97c27b0 100644
 --- a/source/strings.tex
 +++ b/source/strings.tex
 @@ -1535,7 +1535,7 @@ basic_string& operator=(basic_string&& str)
@@ -8171,10 +8283,10 @@ index 4856d21..70f43a6 100644
 2.7.4
 
 
-From 76c1b74fa2746d4ce855a4cace8423e3c2fe45bf Mon Sep 17 00:00:00 2001
+From c44208578e1582ad42492c6a205b931c055d5492 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sat, 7 Jan 2017 01:59:05 +0100
-Subject: [PATCH 26/42] [rand.req.eng] Omit superfluous dollar-math wrapping
+Subject: [PATCH 27/43] [rand.req.eng] Omit superfluous dollar-math wrapping
  inside \bigoh.
 
 ---
@@ -8248,10 +8360,10 @@ index 0e5d645..4f8b8bf 100644
 2.7.4
 
 
-From cf36a5148ae09f8731c097393427d70cbe89cd8c Mon Sep 17 00:00:00 2001
+From 479a6bfa0424e18e0ec7dfd95e9fea725b5e4d8a Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Thu, 5 Jan 2017 23:06:32 +0100
-Subject: [PATCH 27/42] Move index entries for first item in enumeration into
+Subject: [PATCH 28/43] Move index entries for first item in enumeration into
  item.
 
 ---
@@ -8278,10 +8390,10 @@ index 2f46bd9..28ffe65 100644
 2.7.4
 
 
-From 466d1019223827f7fb1aa8c58b492fe8cada9fe9 Mon Sep 17 00:00:00 2001
+From 0a70e44cfbfb5aa5c8df080bc43e48eeac832299 Mon Sep 17 00:00:00 2001
 From: timsong-cpp <rs2740@gmail.com>
 Date: Sun, 1 Jan 2017 16:12:50 +0100
-Subject: [PATCH 28/42] Use floattable for [optional] tables.
+Subject: [PATCH 29/43] Use floattable for [optional] tables.
 
 ---
  source/tables.tex | 31 ++++---------------------------
@@ -8336,10 +8448,10 @@ index 4a9071a..6fa98bd 100644
 2.7.4
 
 
-From f87634f615c7b29138a38e4410650d753bbba479 Mon Sep 17 00:00:00 2001
+From f5731b0e87c058c9413d98107dc8a7ce090c31b7 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Thu, 5 Jan 2017 01:13:49 +0100
-Subject: [PATCH 29/42] Avoid \, inside \mbox inside math, because MathJax does
+Subject: [PATCH 30/43] Avoid \, inside \mbox inside math, because MathJax does
  not support it. See https://github.com/mathjax/MathJax/issues/569
 
 ---
@@ -8363,10 +8475,10 @@ index 4f8b8bf..9f9cfc7 100644
 2.7.4
 
 
-From 19215038fa16b219322e51a44d584cb5b973e03c Mon Sep 17 00:00:00 2001
+From 87e3f6e324d16dc3b30c64fe742eb318967c7210 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Mon, 23 Jan 2017 06:58:26 +0100
-Subject: [PATCH 30/42] Reduce excessive indentation of comments. Helps layout
+Subject: [PATCH 31/43] Reduce excessive indentation of comments. Helps layout
  on smaller (e.g. half-screen) window sizes.
 
 ---
@@ -8377,7 +8489,7 @@ Subject: [PATCH 30/42] Reduce excessive indentation of comments. Helps layout
  4 files changed, 40 insertions(+), 40 deletions(-)
 
 diff --git a/source/basic.tex b/source/basic.tex
-index 17ce998..92c5ba8 100644
+index 252888a..bac133f 100644
 --- a/source/basic.tex
 +++ b/source/basic.tex
 @@ -219,7 +219,7 @@ or destructor~(\ref{class.dtor}) member functions. \end{note}
@@ -8556,10 +8668,10 @@ index d6ff7bf..8c5e231 100644
 2.7.4
 
 
-From 11f953761bdb7e17787ce2c01527212849166b71 Mon Sep 17 00:00:00 2001
+From 6b0093de427fa1ca1b06a5f85d974526a175ae82 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sun, 29 Jan 2017 05:44:06 +0100
-Subject: [PATCH 31/42] [expr] Where appropriate, replace \term with
+Subject: [PATCH 32/43] [expr] Where appropriate, replace \term with
  \grammarterm, \placeholder, or math.
 
 ---
@@ -8603,20 +8715,20 @@ index e772b4e..8a07fea 100644
 2.7.4
 
 
-From a06ecbd19af12e51c2610960c7be86a0106297be Mon Sep 17 00:00:00 2001
+From bc808f7b7f203879ae3cd37a17699cff5bfbd724 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sun, 12 Feb 2017 10:32:17 +0100
-Subject: [PATCH 32/42] Use \placeholder for a placeholder.
+Subject: [PATCH 33/43] Use \placeholder for a placeholder.
 
 ---
  source/regex.tex | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/source/regex.tex b/source/regex.tex
-index 9c8c266..fcd496b 100644
+index 03a1f99..926719b 100644
 --- a/source/regex.tex
 +++ b/source/regex.tex
-@@ -1020,7 +1020,7 @@ namespace std {
+@@ -1021,7 +1021,7 @@ namespace std {
        using char_type       = charT;
        using string_type     = basic_string<char_type>;
        using locale_type     = locale;
@@ -8629,10 +8741,10 @@ index 9c8c266..fcd496b 100644
 2.7.4
 
 
-From d690480f717665671af7467a3dac2f7d06a4fac2 Mon Sep 17 00:00:00 2001
+From 303cba0065d8645023f28e30728376eda76eccbc Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Mon, 20 Feb 2017 16:41:40 +0100
-Subject: [PATCH 33/42] Annotate and index 'move/copy constructor' as defined
+Subject: [PATCH 34/43] Annotate and index 'move/copy constructor' as defined
  terms.
 
 Necessary to nicely linkify opening sentence in [special]/1.
@@ -8667,17 +8779,17 @@ index 002631b..8caa612 100644
 2.7.4
 
 
-From da46fc429aca86529035055c75c31fe5f6888df7 Mon Sep 17 00:00:00 2001
+From 0036be211582c78e63b8296ecf742dd160f7e7ab Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Wed, 1 Feb 2017 03:24:29 +0100
-Subject: [PATCH 34/42] Add and use new link macros.
+Subject: [PATCH 35/43] Add and use new link macros.
 
 ---
  source/access.tex        |  22 +-
  source/algorithms.tex    | 190 +++++++-------
  source/atomics.tex       |  10 +-
  source/basic.tex         | 482 +++++++++++++++++------------------
- source/classes.tex       | 192 +++++++-------
+ source/classes.tex       | 190 +++++++-------
  source/compatibility.tex |  55 ++--
  source/containers.tex    | 185 +++++++-------
  source/conversions.tex   |  78 +++---
@@ -8703,11 +8815,11 @@ Subject: [PATCH 34/42] Add and use new link macros.
  source/special.tex       | 248 +++++++++---------
  source/statements.tex    |  82 +++---
  source/strings.tex       |  61 ++---
- source/support.tex       | 165 ++++++------
+ source/support.tex       | 161 ++++++------
  source/templates.tex     | 269 ++++++++++----------
  source/threads.tex       | 172 ++++++-------
  source/utilities.tex     | 473 ++++++++++++++++++-----------------
- 34 files changed, 2537 insertions(+), 2408 deletions(-)
+ 34 files changed, 2534 insertions(+), 2405 deletions(-)
 
 diff --git a/source/access.tex b/source/access.tex
 index 93e88ef..96b22d4 100644
@@ -9457,7 +9569,7 @@ index 84b72ab..b7083fa 100644
  result of the lock-free query shall be consistent for all pointers of the same
  type.
 diff --git a/source/basic.tex b/source/basic.tex
-index 92c5ba8..a2f8491 100644
+index bac133f..b2cf6c0 100644
 --- a/source/basic.tex
 +++ b/source/basic.tex
 @@ -42,7 +42,7 @@ label~(\ref{stmt.goto}, \ref{stmt.label}).
@@ -9803,8 +9915,8 @@ index 92c5ba8..a2f8491 100644
  
  \pnum
  The point of declaration for an
--\grammarterm{injected-class-name} (Clause~\ref{class}) is immediately following
-+\deflink{\textit{injected-class-name}}{Clause~\ref{class}} is immediately following
+-injected-class-name (Clause~\ref{class}) is immediately following
++\deflink{injected-class-name}{Clause~\ref{class}} is immediately following
  the opening brace of the class definition.
  
  \pnum
@@ -10809,19 +10921,10 @@ index 92c5ba8..a2f8491 100644
  in the library~(\ref{meta.trans.other}) can be used to obtain aligned storage.
  \end{note}
 diff --git a/source/classes.tex b/source/classes.tex
-index e3e4644..9961464 100644
+index 13409ab..aed8f8a 100644
 --- a/source/classes.tex
 +++ b/source/classes.tex
-@@ -64,7 +64,7 @@ be \tcode{final}. \end{note}
- A \grammarterm{class-name} is inserted into the scope in which it is
- declared immediately after the \grammarterm{class-name} is seen. The
- \grammarterm{class-name} is also inserted into the scope of the class
--itself; this is known as the \grammarterm{injected-class-name}.
-+itself; this is known as the \defn{injected-class-name}.
- \indextext{\idxgram{injected-class-name}}%
- For purposes of access checking, the injected-class-name is treated as
- if it were a public member name.
-@@ -133,11 +133,11 @@ and move assignment operator~(\ref{class.copy}, \ref{over.ass})
+@@ -132,11 +132,11 @@ and move assignment operator~(\ref{class.copy}, \ref{over.ass})
  is either deleted or trivial,
  \item that has at least one non-deleted copy constructor, move constructor,
  copy assignment operator, or move assignment operator, and
@@ -10835,7 +10938,7 @@ index e3e4644..9961464 100644
  all of which are either trivial or deleted and
  at least one of which is not deleted.
  \begin{note} In particular, a trivially copyable or trivial class does not have
-@@ -150,10 +150,10 @@ A class \tcode{S} is a \defn{standard-layout class} if it:
+@@ -149,10 +149,10 @@ A class \tcode{S} is a \defn{standard-layout class} if it:
  \item has no non-static data members of type non-standard-layout class
  (or array of such types) or reference,
  
@@ -10849,7 +10952,7 @@ index e3e4644..9961464 100644
  for all non-static data members,
  
  \item has no non-standard-layout base classes,
-@@ -173,7 +173,7 @@ address~(\ref{expr.eq}).}
+@@ -172,7 +172,7 @@ address~(\ref{expr.eq}).}
  $M(\mathtt{X})$ is defined as follows:
  \begin{itemize}
  \item If \tcode{X} is a non-union class type with no (possibly
@@ -10858,7 +10961,7 @@ index e3e4644..9961464 100644
  $M(\mathtt{X})$ is empty.
  
  \item If \tcode{X} is a non-union class type whose first non-static data
-@@ -269,7 +269,7 @@ If a \grammarterm{class-head-name} contains a \grammarterm{nested-name-specifier
+@@ -268,7 +268,7 @@ If a \grammarterm{class-head-name} contains a \grammarterm{nested-name-specifier
  the \grammarterm{class-specifier} shall refer to a class that was
  previously declared directly in the class or namespace to which the
  \grammarterm{nested-name-specifier} refers,
@@ -10867,7 +10970,7 @@ index e3e4644..9961464 100644
  (i.e., not merely inherited or
  introduced by a \grammarterm{using-declaration}), and the
  \grammarterm{class-specifier} shall appear in a namespace enclosing the
-@@ -310,7 +310,7 @@ int f(Y);
+@@ -309,7 +309,7 @@ int f(Y);
  \end{codeblock}
  
  \indextext{overloading}%
@@ -10876,7 +10979,7 @@ index e3e4644..9961464 100644
  simply a single function \tcode{f()} twice. For the same reason,
  
  \begin{codeblock}
-@@ -328,7 +328,7 @@ A class declaration introduces the class name into the scope where
+@@ -327,7 +327,7 @@ A class declaration introduces the class name into the scope where
  \indextext{name hiding!class definition}%
  it is declared and hides any
  class, variable, function, or other declaration of that name in an
@@ -10885,7 +10988,7 @@ index e3e4644..9961464 100644
  scope where a variable, function, or enumerator of the same name is also
  declared, then when both declarations are in scope, the class can be
  referred to only using an
-@@ -495,9 +495,9 @@ full set of members of the class; no member can be added elsewhere.
+@@ -494,9 +494,9 @@ full set of members of the class; no member can be added elsewhere.
  A \defn{direct member} of a class \tcode{X} is a member of \tcode{X}
  that was first declared within the \grammarterm{member-specification} of \tcode{X},
  including anonymous union objects~(\ref{class.union.anon}) and direct members thereof.
@@ -10898,7 +11001,7 @@ index e3e4644..9961464 100644
  \begin{note}
  A specialization of a static data member template is a static data member.
  A specialization of a member function template is a member function.
-@@ -508,14 +508,14 @@ A specialization of a member class template is a nested class.
+@@ -507,14 +507,14 @@ A specialization of a member class template is a nested class.
  A \grammarterm{member-declaration} does not declare new members of the class
  if it is
  \begin{itemize}
@@ -10915,7 +11018,7 @@ index e3e4644..9961464 100644
  is a member of the class,
  and each such \grammarterm{member-declaration}
  shall either
-@@ -527,10 +527,10 @@ A \defn{data member} is a non-function member introduced by a
+@@ -526,10 +526,10 @@ A \defn{data member} is a non-function member introduced by a
  \grammarterm{member-declarator}.
  A \defn{member function} is a member that is a function.
  Nested types are classes~(\ref{class.name},~\ref{class.nest}) and
@@ -10929,7 +11032,7 @@ index e3e4644..9961464 100644
  are members of the class.
  
  \indextext{member!static}%
-@@ -619,9 +619,9 @@ shall contain a \grammarterm{type-specifier} that is not a \grammarterm{cv-quali
+@@ -618,9 +618,9 @@ shall contain a \grammarterm{type-specifier} that is not a \grammarterm{cv-quali
  The
  \grammarterm{member-declarator-list} can be omitted only after a
  \grammarterm{class-specifier} or an \grammarterm{enum-specifier} or in a
@@ -10941,7 +11044,7 @@ index e3e4644..9961464 100644
  that is not a \tcode{friend} declaration.
  
  \pnum
-@@ -633,8 +633,8 @@ it shall not appear if the optional \grammarterm{member-declarator-list} is omit
+@@ -632,8 +632,8 @@ it shall not appear if the optional \grammarterm{member-declarator-list} is omit
  A \grammarterm{virt-specifier-seq} shall contain at most one of each
  \grammarterm{virt-specifier}.
  A \grammarterm{virt-specifier-seq}
@@ -10952,7 +11055,7 @@ index e3e4644..9961464 100644
  
  \pnum
  \indextext{class object!member}%
-@@ -689,17 +689,17 @@ of the \tcode{tword} member of the \tcode{right} subtree of \tcode{s}.
+@@ -688,17 +688,17 @@ of the \tcode{tword} member of the \tcode{right} subtree of \tcode{s}.
  \pnum
  \indextext{layout!class object}%
  Non-static data members of a (non-union) class
@@ -10975,7 +11078,7 @@ index e3e4644..9961464 100644
  
  \pnum
  If \tcode{T} is the name of a class, then each of the following shall
-@@ -710,8 +710,8 @@ have a name different from \tcode{T}:
+@@ -709,8 +709,8 @@ have a name different from \tcode{T}:
  
  \item every member function of class \tcode{T}
  \begin{note}
@@ -10986,7 +11089,7 @@ index e3e4644..9961464 100644
  \end{note};
  
  \item every member of class \tcode{T} that is itself a type;
-@@ -727,11 +727,12 @@ unscoped enumerated type; and
+@@ -726,11 +726,12 @@ unscoped enumerated type; and
  
  \pnum
  In addition, if class \tcode{T} has a user-declared
@@ -11001,7 +11104,7 @@ index e3e4644..9961464 100644
  types is the longest sequence of non-static data
  members and bit-fields in declaration order, starting with the first
  such entity in each of the structs, such that corresponding entities
-@@ -752,7 +753,7 @@ The common initial sequence of \tcode{A} and \tcode{E} is empty.
+@@ -751,7 +752,7 @@ The common initial sequence of \tcode{A} and \tcode{E} is empty.
  \end{example}
  
  \pnum
@@ -11010,7 +11113,7 @@ index e3e4644..9961464 100644
  \defnx{layout-compatible classes}{layout-compatible!class} if
  their common initial sequence comprises all members and bit-fields of
  both classes~(\ref{basic.types}).
-@@ -760,11 +761,11 @@ both classes~(\ref{basic.types}).
+@@ -759,11 +760,11 @@ both classes~(\ref{basic.types}).
  \pnum
  Two standard-layout unions are layout-compatible if they
  have the same number of non-static data members and corresponding
@@ -11025,7 +11128,7 @@ index e3e4644..9961464 100644
  of struct type \tcode{T1}, it is permitted to read a non-static
  data member \tcode{m} of another union member of struct type \tcode{T2}
  provided \tcode{m} is part of the common initial sequence of \tcode{T1} and \tcode{T2};
-@@ -804,9 +805,9 @@ pointer-interconvertible~(\ref{basic.compound}, \ref{expr.static.cast}).
+@@ -803,9 +804,9 @@ pointer-interconvertible~(\ref{basic.compound}, \ref{expr.static.cast}).
  \pnum
  \indextext{member function!inline}%
  \indextext{definition!member function}%
@@ -11038,7 +11141,7 @@ index e3e4644..9961464 100644
  definition if it has already been declared but not defined in its class
  definition. A member function definition that appears outside of the
  class definition shall appear in a namespace scope enclosing the class
-@@ -823,7 +824,7 @@ declaration in the class definition or its definition outside of the
+@@ -822,7 +823,7 @@ declaration in the class definition or its definition outside of the
  class definition declares the function as \tcode{inline} or \tcode{constexpr}.
  \begin{note}
  Member functions of a class in namespace scope have the linkage of that class.
@@ -11047,7 +11150,7 @@ index e3e4644..9961464 100644
  See~\ref{basic.link}.
  \end{note}
  
-@@ -842,8 +843,8 @@ definition, the member function name shall be qualified by its class
+@@ -841,8 +842,8 @@ definition, the member function name shall be qualified by its class
  name using the \tcode{::} operator.
  \begin{note}
  A name used in a member function definition (that is, in the
@@ -11058,7 +11161,7 @@ index e3e4644..9961464 100644
  as described in~\ref{basic.lookup}.
  \end{note}
  \begin{example}
-@@ -908,9 +909,9 @@ Also see~\ref{temp.arg}.
+@@ -907,9 +908,9 @@ Also see~\ref{temp.arg}.
  
  \pnum
  A non-static member function may be called for an object of
@@ -11071,7 +11174,7 @@ index e3e4644..9961464 100644
  member function may also be called directly using the function call
  syntax~(\ref{expr.call},~\ref{over.match.call}) from within
  the body of a member function of its class or of a class derived from
-@@ -924,19 +925,18 @@ object that is not of type \tcode{X}, or of a type derived from
+@@ -923,19 +924,18 @@ object that is not of type \tcode{X}, or of a type derived from
  
  \pnum
  When an \grammarterm{id-expression}~(\ref{expr.prim.id}) that is not part of a
@@ -11098,7 +11201,7 @@ index e3e4644..9961464 100644
  to the left of the \tcode{.} operator.
  \begin{note}
  If \tcode{C} is not \tcode{X} or a base class of \tcode{X}, the class
-@@ -991,9 +991,9 @@ declared elsewhere.\footnote{See, for example, \tcode{<cstring>}~(\ref{c.strings
+@@ -990,9 +990,9 @@ declared elsewhere.\footnote{See, for example, \tcode{<cstring>}~(\ref{c.strings
  \pnum
  A non-static member function may be declared \tcode{const},
  \tcode{volatile}, or \tcode{const} \tcode{volatile}. These
@@ -11111,7 +11214,7 @@ index e3e4644..9961464 100644
  \tcode{const} is a \term{const} member function, a member function
  declared \tcode{volatile} is a \term{volatile} member function and a
  member function declared \tcode{const} \tcode{volatile} is a
-@@ -1024,7 +1024,7 @@ A non-static member function may be declared
+@@ -1023,7 +1023,7 @@ A non-static member function may be declared
  
  \pnum
  \indextext{this pointer@\tcode{this} pointer|see{\tcode{this}}}%
@@ -11120,7 +11223,7 @@ index e3e4644..9961464 100644
  keyword \tcode{this} is a prvalue expression whose value is the
  address of the object for which the function is called.
  \indextext{\idxcode{this}!type of}%
-@@ -1062,13 +1062,13 @@ called. This is not allowed in a \tcode{const} member function because
+@@ -1061,13 +1061,13 @@ called. This is not allowed in a \tcode{const} member function because
  \end{example}
  
  \pnum
@@ -11136,7 +11239,7 @@ index e3e4644..9961464 100644
  cv-qualified or less-cv-qualified than the member function.
  \begin{example}
  
-@@ -1091,7 +1091,7 @@ and \tcode{s::g()} is a non-\tcode{const} member function, that is,
+@@ -1090,7 +1090,7 @@ and \tcode{s::g()} is a non-\tcode{const} member function, that is,
  \indextext{\idxcode{const}!destructor and}%
  \indextext{\idxcode{volatile}!constructor and}%
  \indextext{\idxcode{volatile}!destructor and}%
@@ -11145,7 +11248,7 @@ index e3e4644..9961464 100644
  not be declared \tcode{const}, \tcode{volatile} or \tcode{const}
  \tcode{volatile}. \begin{note} However, these functions can be invoked to
  create and destroy objects with cv-qualified types,
-@@ -1104,7 +1104,7 @@ see~\ref{class.ctor} and~\ref{class.dtor}.
+@@ -1103,7 +1103,7 @@ see~\ref{class.ctor} and~\ref{class.dtor}.
  \pnum
  A static member \tcode{s} of class \tcode{X} may be referred to
  using the \grammarterm{qualified-id} expression \tcode{X::s}; it is not
@@ -11154,7 +11257,7 @@ index e3e4644..9961464 100644
  refer to a static member. A static member may be
  referred to using the class member access syntax, in which case the
  object expression is evaluated.
-@@ -1125,7 +1125,7 @@ void f() {
+@@ -1124,7 +1124,7 @@ void f() {
  
  \pnum
  A static member may be referred to directly in the scope of its
@@ -11163,7 +11266,7 @@ index e3e4644..9961464 100644
  from its class; in this case, the static member is referred to
  as if a \grammarterm{qualified-id} expression was used, with the
  \grammarterm{nested-name-specifier} of the \grammarterm{qualified-id} naming
-@@ -1145,9 +1145,9 @@ int Y::i = g();                 // equivalent to \tcode{Y::g();}
+@@ -1144,9 +1144,9 @@ int Y::i = g();                 // equivalent to \tcode{Y::g();}
  \end{example}
  
  \pnum
@@ -11175,7 +11278,7 @@ index e3e4644..9961464 100644
  finds that the \grammarterm{unqualified-id} refers to a static
  member, enumerator, or nested type of the member's class (or of a base
  class of the member's class), the \grammarterm{unqualified-id} is
-@@ -1161,8 +1161,8 @@ members and non-static member functions.
+@@ -1160,8 +1160,8 @@ members and non-static member functions.
  
  
  \pnum
@@ -11186,7 +11289,7 @@ index e3e4644..9961464 100644
  member, the \tcode{static} specifier shall only be used in the member
  declarations that appear within the \grammarterm{member-specification} of
  the class definition.
-@@ -1181,8 +1181,7 @@ functions.
+@@ -1180,8 +1180,7 @@ functions.
  
  \pnum
  \begin{note}
@@ -11196,7 +11299,7 @@ index e3e4644..9961464 100644
  \end{note}
  A static member function shall not be \tcode{virtual}. There
  shall not be a static and a non-static member function with the
-@@ -1255,7 +1254,7 @@ its declaration in the class definition can specify a
+@@ -1254,7 +1253,7 @@ its declaration in the class definition can specify a
  \grammarterm{initializer-clause} that is an \grammarterm{assignment-expression}
  is a constant expression~(\ref{expr.const}).
  The member shall still be defined in a namespace scope if
@@ -11205,7 +11308,7 @@ index e3e4644..9961464 100644
  namespace scope definition shall not contain an \grammarterm{initializer}.
  An inline static data member may be defined in the class definition
  and may specify a \grammarterm{brace-or-equal-initializer}. If the
-@@ -1267,7 +1266,7 @@ static data members shall not specify a \grammarterm{brace-or-equal-initializer}
+@@ -1266,7 +1265,7 @@ static data members shall not specify a \grammarterm{brace-or-equal-initializer}
  \pnum
  \begin{note}
  There shall be exactly one definition of a static data member
@@ -11214,7 +11317,7 @@ index e3e4644..9961464 100644
  \end{note}
  Unnamed classes and classes contained directly
  or indirectly within unnamed classes shall not contain static
-@@ -1275,7 +1274,8 @@ data members.
+@@ -1274,7 +1273,8 @@ data members.
  
  \pnum
  \begin{note}
@@ -11224,7 +11327,7 @@ index e3e4644..9961464 100644
  \end{note}
  
  \pnum
-@@ -1285,7 +1285,7 @@ non-local variables~(\ref{basic.start.static}, \ref{basic.start.dynamic},
+@@ -1284,7 +1284,7 @@ non-local variables~(\ref{basic.start.static}, \ref{basic.start.dynamic},
  
  \pnum
  A static data member shall not be
@@ -11233,7 +11336,7 @@ index e3e4644..9961464 100644
  
  \rSec2[class.bit]{Bit-fields}%
  \indextext{bit-field}
-@@ -1305,10 +1305,10 @@ attribute is not part of the type of the class member. The
+@@ -1304,10 +1304,10 @@ attribute is not part of the type of the class member. The
  \grammarterm{constant-expression} shall be an integral constant expression
  with a value greater than or equal to zero. The
  value of the integral constant expression may
@@ -11247,7 +11350,7 @@ index e3e4644..9961464 100644
  \indextext{allocation!implementation-defined bit-field}%
  Allocation of bit-fields within a class object is
  \impldef{allocation of bit-fields within a class object}.
-@@ -1366,7 +1366,7 @@ type \tcode{bool} of any size (including a one bit bit-field), the
+@@ -1365,7 +1365,7 @@ type \tcode{bool} of any size (including a one bit bit-field), the
  original \tcode{bool} value and the value of the bit-field shall compare
  equal. If the value of an enumerator is stored into a bit-field of the
  same enumeration type and the number of bits in the bit-field is large
@@ -11256,7 +11359,7 @@ index e3e4644..9961464 100644
  the original enumerator value and the value of the bit-field shall
  compare equal.
  \begin{example}
-@@ -1469,10 +1469,10 @@ class E::I2 { };                // definition of nested class
+@@ -1468,10 +1468,10 @@ class E::I2 { };                // definition of nested class
  
  \pnum
  \indextext{friend function!nested class}%
@@ -11270,7 +11373,7 @@ index e3e4644..9961464 100644
  members of an enclosing class.
  
  \rSec2[class.nested.type]{Nested type names}
-@@ -1508,13 +1508,13 @@ X::I e;                         // OK
+@@ -1507,13 +1507,13 @@ X::I e;                         // OK
  In a union,
  a non-static data member is \defnx{active}{active!union member}
  if its name refers to an object
@@ -11286,7 +11389,7 @@ index e3e4644..9961464 100644
  if a non-static data member of an object of this standard-layout union type
  is active and is one of the standard-layout structs,
  it is permitted to inspect the common initial sequence
-@@ -1528,7 +1528,7 @@ of its non-static data members. Each non-static data member is allocated
+@@ -1527,7 +1527,7 @@ of its non-static data members. Each non-static data member is allocated
  as if it were the sole member of a struct.
  \begin{note}
  A union object and its non-static data members are
@@ -11295,7 +11398,7 @@ index e3e4644..9961464 100644
  As a consequence, all non-static data members of a
  union object have the same address.
  \end{note}
-@@ -1539,21 +1539,21 @@ union object have the same address.
+@@ -1538,21 +1538,21 @@ union object have the same address.
  \indextext{destructor!\idxcode{union}}%
  A union can have member functions (including constructors and destructors),
  \indextext{restriction!\idxcode{union}}%
@@ -11324,7 +11427,7 @@ index e3e4644..9961464 100644
  
  \pnum
  \begin{example} Consider the following union:
-@@ -1566,7 +1566,7 @@ union U {
+@@ -1565,7 +1565,7 @@ union U {
  };
  \end{codeblock}
  
@@ -11333,7 +11436,7 @@ index e3e4644..9961464 100644
  member functions, \tcode{U} will have an implicitly deleted default constructor,
  copy/move constructor,
  copy/move assignment operator, and destructor.
-@@ -1575,7 +1575,7 @@ must be user-provided.\end{example}
+@@ -1574,7 +1574,7 @@ must be user-provided.\end{example}
  
  \pnum
  When the left operand of an assignment operator
@@ -11342,7 +11445,7 @@ index e3e4644..9961464 100644
  that nominates a union member,
  it may begin the lifetime of that union member,
  as described below.
-@@ -1601,8 +1601,8 @@ and empty otherwise.
+@@ -1600,8 +1600,8 @@ and empty otherwise.
  Otherwise, $S(\mathtt{E})$ is empty.
  \end{itemize}
  In an assignment expression of the form \tcode{E1 = E2}
@@ -11353,7 +11456,7 @@ index e3e4644..9961464 100644
  for each element \tcode{X} of $S($\tcode{E1}$)$,
  if modification of \tcode{X} would have undefined behavior under~\ref{basic.life},
  an object of the type of \tcode{X} is implicitly created
-@@ -1612,8 +1612,8 @@ the beginning of its lifetime is sequenced after
+@@ -1611,8 +1611,8 @@ the beginning of its lifetime is sequenced after
  the value computation of the left and right operands
  and before the assignment.
  \begin{note}
@@ -11364,7 +11467,7 @@ index e3e4644..9961464 100644
  \end{note}
  \begin{example}
  \begin{codeblock}
-@@ -1767,7 +1767,7 @@ its enclosing scope.
+@@ -1766,7 +1766,7 @@ its enclosing scope.
  The local class is in the scope of the enclosing scope, and has the same
  access to names outside the function as does the enclosing function.
  Declarations in a local class
@@ -11373,7 +11476,7 @@ index e3e4644..9961464 100644
  duration from an
  enclosing scope.
  \begin{example}
-@@ -1796,7 +1796,7 @@ local* p = 0;                   // error: \tcode{local} not in scope
+@@ -1795,7 +1795,7 @@ local* p = 0;                   // error: \tcode{local} not in scope
  
  \pnum
  An enclosing function has no special access to members of the local
@@ -13671,7 +13774,7 @@ index 0cf8b7d..6d0d752 100644
  destroyed) from such a constructor (or destructor) is undefined.%
  \indextext{derived class|)}
 diff --git a/source/diagnostics.tex b/source/diagnostics.tex
-index 993a61a..627b40f 100644
+index c78e380..c74c2f5 100644
 --- a/source/diagnostics.tex
 +++ b/source/diagnostics.tex
 @@ -567,13 +567,13 @@ is not defined.
@@ -15769,7 +15872,7 @@ index 8a07fea..b9219cc 100644
  and the selected conversion function shall be \tcode{constexpr}. \begin{example}
  \begin{codeblock}
 diff --git a/source/future.tex b/source/future.tex
-index 95aff5e..296edfa 100644
+index f8a8cae..8add384 100644
 --- a/source/future.tex
 +++ b/source/future.tex
 @@ -12,7 +12,7 @@ is defined as:
@@ -15883,10 +15986,10 @@ index 149fd5e..3c01043 100644
  
  \begin{ncbnf}
 diff --git a/source/intro.tex b/source/intro.tex
-index 5d4570d..851922c 100644
+index ae3e06c..838ddfb 100644
 --- a/source/intro.tex
 +++ b/source/intro.tex
-@@ -127,7 +127,7 @@ comma-separated list bounded by the parentheses~(\ref{cpp.replace})
+@@ -125,7 +125,7 @@ comma-separated list bounded by the parentheses~(\ref{cpp.replace})
  \indexdefn{argument}%
  \indexdefn{argument!throw expression}%
  \definition{argument}{defns.argument.throw}
@@ -15895,7 +15998,7 @@ index 5d4570d..851922c 100644
  
  \indexdefn{argument}%
  \indexdefn{argument!template instantiation}%
-@@ -157,13 +157,14 @@ implementation's output messages
+@@ -155,13 +155,14 @@ implementation's output messages
  
  \indexdefn{type!dynamic}%
  \definition{dynamic type}{defns.dynamic.type}
@@ -15915,7 +16018,7 @@ index 5d4570d..851922c 100644
  treated similarly.
  \end{example}
  
-@@ -173,7 +174,7 @@ treated similarly.
+@@ -171,7 +172,7 @@ treated similarly.
  
  \indexdefn{program!ill-formed}%
  \definition{ill-formed program}{defns.ill.formed}
@@ -15924,7 +16027,7 @@ index 5d4570d..851922c 100644
  
  \indexdefn{behavior!implementation-defined}%
  \definition{implementation-defined behavior}{defns.impl.defined}
-@@ -219,13 +220,13 @@ following the macro name
+@@ -217,13 +218,13 @@ following the macro name
  
  \indexdefn{signature}%
  \definition{signature}{defns.signature}
@@ -15940,7 +16043,7 @@ index 5d4570d..851922c 100644
  return type, and template parameter list
  
  \indexdefn{signature}%
-@@ -235,13 +236,13 @@ and its template arguments (whether explicitly specified or deduced)
+@@ -233,13 +234,13 @@ and its template arguments (whether explicitly specified or deduced)
  
  \indexdefn{signature}%
  \definition{signature}{defns.signature.member}
@@ -15956,7 +16059,7 @@ index 5d4570d..851922c 100644
  function is a member, \cv-qualifiers (if any),
  \grammarterm{ref-qualifier} (if any), return type (if any), and template parameter list
  
-@@ -277,8 +278,8 @@ characteristic of the environment (with or without the issuance of a
+@@ -275,8 +276,8 @@ characteristic of the environment (with or without the issuance of a
  diagnostic message), to terminating a translation or execution (with the
  issuance of a diagnostic message). Many erroneous program constructs do
  not engender undefined behavior; they are required to be diagnosed.
@@ -15967,7 +16070,7 @@ index 5d4570d..851922c 100644
  \end{note}
  
  \indexdefn{behavior!unspecified}%
-@@ -293,7 +294,7 @@ possible behaviors is usually delineated by this International Standard.
+@@ -291,7 +292,7 @@ possible behaviors is usually delineated by this International Standard.
  \indexdefn{program!well-formed}%
  \definition{well-formed program}{defns.well.formed}
  \Cpp{}  program constructed according to the syntax rules, diagnosable
@@ -15976,7 +16079,7 @@ index 5d4570d..851922c 100644
  \indextext{definitions|)}
  
  \rSec0[intro]{General principles}
-@@ -369,7 +370,7 @@ see~\ref{temp.deduct}.
+@@ -367,7 +368,7 @@ see~\ref{temp.deduct}.
  \indextext{conformance requirements!classes}%
  \indextext{conformance requirements!class templates}%
  For classes and class templates, the library Clauses specify partial
@@ -15985,7 +16088,7 @@ index 5d4570d..851922c 100644
  specified, but each implementation shall supply them to complete the
  definitions according to the description in the library Clauses.
  
-@@ -380,13 +381,13 @@ consistent with the descriptions in the library Clauses.
+@@ -378,13 +379,13 @@ consistent with the descriptions in the library Clauses.
  
  \pnum
  The names defined in the library have namespace
@@ -16003,7 +16106,7 @@ index 5d4570d..851922c 100644
  definitions for standard library entities, as necessary, while combining
  translation units to form a complete \Cpp{}  program~(\ref{lex.phases}).%
  \indextext{conformance requirements!library|)}
-@@ -492,9 +493,9 @@ identifiers separated by commas).
+@@ -490,9 +491,9 @@ identifiers separated by commas).
  \indextext{memory model|(}%
  The fundamental storage unit in the \Cpp{} memory model is the
  \defn{byte}.
@@ -16015,7 +16118,7 @@ index 5d4570d..851922c 100644
  and the eight-bit code units of the Unicode UTF-8 encoding form
  and is composed of a contiguous sequence of
  bits,\footnote{The number of bits in a byte is reported by the macro
-@@ -514,8 +515,8 @@ A \defn{memory location} is either an object of scalar type or a maximal
+@@ -512,8 +513,8 @@ A \defn{memory location} is either an object of scalar type or a maximal
  sequence of adjacent bit-fields all having nonzero width. \begin{note} Various
  features of the language, such as references and virtual functions, might
  involve additional memory locations that are not accessible to programs but are
@@ -16026,7 +16129,7 @@ index 5d4570d..851922c 100644
  locations without interfering with each other.
  
  \pnum
-@@ -557,26 +558,26 @@ bit-fields \tcode{b} and \tcode{c} cannot be concurrently modified, but
+@@ -555,26 +556,26 @@ bit-fields \tcode{b} and \tcode{c} cannot be concurrently modified, but
  The constructs in a \Cpp{} program create, destroy, refer to, access, and
  manipulate objects.
  An \defn{object} is created
@@ -16061,7 +16164,7 @@ index 5d4570d..851922c 100644
  generates information associated with each such object that makes it
  possible to determine that object's type during program execution. For
  other objects, the interpretation of the values found therein is
-@@ -698,7 +699,7 @@ of the (unique) object that contains \tcode{x}.
+@@ -696,7 +697,7 @@ of the (unique) object that contains \tcode{x}.
  \end{itemize}
  
  \pnum
@@ -16070,7 +16173,7 @@ index 5d4570d..851922c 100644
  class type, its type is considered the \defn{most derived
  class}, to distinguish it from the class type of any base class subobject;
  an object of a most derived class type or of a non-class type is called a
-@@ -706,11 +707,11 @@ an object of a most derived class type or of a non-class type is called a
+@@ -704,11 +705,11 @@ an object of a most derived class type or of a non-class type is called a
  
  \pnum
  \indextext{most derived object!bit-field}%
@@ -16085,7 +16188,7 @@ index 5d4570d..851922c 100644
  
  \pnum
  \indextext{most derived object!bit-field}%
-@@ -814,8 +815,8 @@ requirement on the implementation executing that program with that input
+@@ -812,8 +813,8 @@ requirement on the implementation executing that program with that input
  operation).
  
  \pnum
@@ -16096,7 +16199,7 @@ index 5d4570d..851922c 100644
  block. Such an object exists and retains its last-stored value during
  the execution of the block and while the block is suspended (by a call
  of a function or receipt of a signal).
-@@ -923,11 +924,11 @@ if \tcode{e} is a \grammarterm{lambda-expression}~(\ref{expr.prim.lambda}),
+@@ -921,11 +922,11 @@ if \tcode{e} is a \grammarterm{lambda-expression}~(\ref{expr.prim.lambda}),
  the initialization of the entities captured by copy and
  the constituent expressions of the \grammarterm{initializer} of the \grammarterm{init-capture}{s},
  \item
@@ -16111,7 +16214,7 @@ index 5d4570d..851922c 100644
  the constituent expressions of each default member initializer~(\ref{class.mem})
  used in the initialization.
  \end{itemize}
-@@ -945,7 +946,7 @@ are not subexpressions of the \grammarterm{lambda-expression}.
+@@ -943,7 +944,7 @@ are not subexpressions of the \grammarterm{lambda-expression}.
  A \defn{full-expression} is
  \begin{itemize}
  \item
@@ -16120,7 +16223,7 @@ index 5d4570d..851922c 100644
  \item
  a \grammarterm{constant-expression}~(\ref{expr.const}),
  \item
-@@ -954,7 +955,7 @@ a \grammarterm{mem-initializer}~(\ref{class.base.init}),
+@@ -952,7 +953,7 @@ a \grammarterm{mem-initializer}~(\ref{class.base.init}),
  including the constituent expressions of the initializer,
  \item
  an invocation of a destructor generated at the end of the lifetime
@@ -16129,7 +16232,7 @@ index 5d4570d..851922c 100644
  \item
  an expression that is not a subexpression of another expression and
  that is not otherwise part of a full-expression.
-@@ -1001,14 +1002,14 @@ struct B {
+@@ -999,14 +1000,14 @@ struct B {
  \begin{note} The evaluation of a full-expression can include the
  evaluation of subexpressions that are not lexically part of the
  full-expression. For example, subexpressions involved in evaluating
@@ -16146,7 +16249,7 @@ index 5d4570d..851922c 100644
  function, or calling a function that does any of those operations are
  all
  \defn{side effects}, which are changes in the state of the execution
-@@ -1024,7 +1025,7 @@ may not have completed yet.
+@@ -1022,7 +1023,7 @@ may not have completed yet.
  
  \pnum
  \defnx{Sequenced before}{sequenced before} is an asymmetric, transitive, pair-wise relation between
@@ -16155,7 +16258,7 @@ index 5d4570d..851922c 100644
  a partial order among those evaluations. Given any two evaluations \placeholder{A} and
  \placeholder{B}, if \placeholder{A} is sequenced before \placeholder{B}
  (or, equivalently, \placeholder{B} is \defn{sequenced after} \placeholder{A}),
-@@ -1069,10 +1070,10 @@ evaluations. \end{note} The value computations of the operands of an
+@@ -1067,10 +1068,10 @@ evaluations. \end{note} The value computations of the operands of an
  operator are sequenced before the value computation of the result of the
  operator. If a
  \indextext{side effects}%
@@ -16168,7 +16271,7 @@ index 5d4570d..851922c 100644
  the behavior is undefined.
  \begin{note}
  The next section imposes similar, but more complex restrictions on
-@@ -1118,7 +1119,7 @@ unit.
+@@ -1116,7 +1117,7 @@ unit.
  \begin{example}
  Evaluation of a \grammarterm{new-expression} invokes one or more allocation
  and constructor functions; see~\ref{expr.new}. For another example,
@@ -16177,7 +16280,7 @@ index 5d4570d..851922c 100644
  contexts in which no function call syntax appears.
  \end{example}
  The sequencing constraints on the execution of the called function (as
-@@ -1149,9 +1150,10 @@ subsequently executed by the thread. \begin{note} When one thread creates anothe
+@@ -1147,9 +1148,10 @@ subsequently executed by the thread. \begin{note} When one thread creates anothe
  the initial call to the top-level function of the new thread is executed by the
  new thread, not by the creating thread. \end{note} Every thread in a program can
  potentially access every object and function in a program.\footnote{An object
@@ -16190,7 +16293,7 @@ index 5d4570d..851922c 100644
  implementation, a \Cpp{} program can have more than one thread running
  concurrently. The execution of each thread proceeds as defined by the remainder
  of this International Standard. The execution of the entire program consists of an execution
-@@ -1179,13 +1181,13 @@ and detailed visibility constraints. However, it also implicitly supports a
+@@ -1177,13 +1179,13 @@ and detailed visibility constraints. However, it also implicitly supports a
  simpler view for more restricted programs. \end{note}
  
  \pnum
@@ -16208,7 +16311,7 @@ index 5d4570d..851922c 100644
  synchronization operations. These operations play a special role in making
  assignments in one thread visible to another. A synchronization operation on one
  or more memory locations is either a consume operation, an acquire operation, a
-@@ -1249,7 +1251,7 @@ the value of \placeholder{A} is used as an operand of \placeholder{B}, unless:
+@@ -1247,7 +1249,7 @@ the value of \placeholder{A} is used as an operand of \placeholder{B}, unless:
  \begin{itemize}
  \item
  \placeholder{B} is an invocation of any specialization of
@@ -16217,7 +16320,7 @@ index 5d4570d..851922c 100644
  \item
  \placeholder{A} is the left operand of a built-in logical AND (\tcode{\&\&},
  see~\ref{expr.log.and}) or logical OR (\tcode{||}, see~\ref{expr.log.or})
-@@ -1258,8 +1260,8 @@ operator, or
+@@ -1256,8 +1258,8 @@ operator, or
  \placeholder{A} is the left operand of a conditional (\tcode{?:}, see~\ref{expr.cond})
  operator, or
  \item
@@ -16228,7 +16331,7 @@ index 5d4570d..851922c 100644
  \item
  \placeholder{A} writes a scalar object or bit-field \placeholder{M}, \placeholder{B} reads the value
  written by \placeholder{A} from \placeholder{M}, and \placeholder{A} is sequenced before \placeholder{B}, or
-@@ -1517,12 +1519,12 @@ empty loops, even when termination cannot be proven. \end{note}
+@@ -1515,12 +1517,12 @@ empty loops, even when termination cannot be proven. \end{note}
  
  \pnum
  Executions of atomic functions
@@ -16244,7 +16347,7 @@ index 5d4570d..851922c 100644
    in a standard library function,
    a lock-free execution in that thread shall complete.
    \begin{note}
-@@ -1567,7 +1569,7 @@ an \defn{execution step}:
+@@ -1565,7 +1567,7 @@ an \defn{execution step}:
  \end{itemize}
  
  \pnum
@@ -16253,7 +16356,7 @@ index 5d4570d..851922c 100644
  is considered to continuously execute execution steps while waiting for the
  condition that it blocks on to be satisfied.
  \begin{example}
-@@ -1605,8 +1607,8 @@ this will happen in an unspecified but finite amount of time.
+@@ -1603,8 +1605,8 @@ this will happen in an unspecified but finite amount of time.
  It is \impldef{whether the thread that executes \tcode{main} and the threads created
  by \tcode{std::thread} provide concurrent forward progress guarantees} whether the
  implementation-created thread of execution that executes
@@ -16265,7 +16368,7 @@ index 5d4570d..851922c 100644
  \begin{note}
  General-purpose implementations are encouraged to provide these guarantees.
 diff --git a/source/iostreams.tex b/source/iostreams.tex
-index eec470c..5007e8c 100644
+index 4aa0ac3..d4a5b66 100644
 --- a/source/iostreams.tex
 +++ b/source/iostreams.tex
 @@ -392,10 +392,9 @@ In this Clause, the type name \tcode{FILE} refers to
@@ -16296,7 +16399,7 @@ index eec470c..5007e8c 100644
 -Concurrent access to a synchronized~(\ref{ios.members.static}) standard iostream object's formatted and unformatted input~(\ref{istream}) and output~(\ref{ostream}) functions or a standard C stream by multiple threads shall not result in a data race~(\ref{intro.multithread}). \begin{note} Users must still synchronize concurrent use of these objects and streams by multiple threads if they wish to avoid interleaved characters. \end{note}
 +Concurrent access to a synchronized~(\ref{ios.members.static}) standard iostream object's formatted and unformatted \link{input}{\ref{istream}} and \link{output}{\ref{ostream}} functions or a standard C stream by multiple threads shall not result in a \deflink{data race}{\ref{intro.multithread}}. \begin{note} Users must still synchronize concurrent use of these objects and streams by multiple threads if they wish to avoid interleaved characters. \end{note}
  
- \xref~ISO C 7.21.2.
+ \xref ISO C 7.21.2
  
 @@ -452,7 +451,7 @@ associated with the object
  declared in
@@ -16954,7 +17057,7 @@ index eec470c..5007e8c 100644
  
  \pnum
  If the possibility of a file system race would make it unreliable for a
-@@ -10026,7 +10045,7 @@ other files, possibly including other directory files.
+@@ -10024,7 +10043,7 @@ other files, possibly including other directory files.
  \definition{file}{fs.def.file}
  An object within a file system that holds user or system data. Files can be written to, or read from, or both. A file
  has certain attributes, including type. File types include regular files
@@ -16963,7 +17066,7 @@ index eec470c..5007e8c 100644
  may be supported by the implementation.
  
  \definition{file system}{fs.def.filesystem}
-@@ -10055,7 +10074,7 @@ The following characteristics of filenames are operating system dependent:
+@@ -10053,7 +10072,7 @@ The following characteristics of filenames are operating system dependent:
  \end{itemize}
  
  \definition{hard link}{fs.def.hardlink}
@@ -16972,7 +17075,7 @@ index eec470c..5007e8c 100644
  file systems support multiple hard links to a file. If the last hard link to a
  file is removed, the file itself is removed.
  \begin{note} A hard link can be thought of as a shared-ownership smart
-@@ -10120,7 +10139,7 @@ The maximum number of elements in the sequence is operating system dependent.
+@@ -10118,7 +10137,7 @@ The maximum number of elements in the sequence is operating system dependent.
  
  \definition{pathname}{fs.def.pathname}
  A character string that represents the name of a path. Pathnames are
@@ -16981,7 +17084,7 @@ index eec470c..5007e8c 100644
  operating system dependent
  native pathname format.
  
-@@ -10162,7 +10181,7 @@ unless \tcode{EcharT} is one of the encoded character types.
+@@ -10160,7 +10179,7 @@ unless \tcode{EcharT} is one of the encoded character types.
  
  \pnum
  Template parameters named \tcode{InputIterator} shall meet the
@@ -16990,7 +17093,7 @@ index eec470c..5007e8c 100644
  have a value type that is one of the encoded character types.
  
  \pnum
-@@ -10174,7 +10193,7 @@ they are not included as permitted types. \end{note}
+@@ -10172,7 +10191,7 @@ they are not included as permitted types. \end{note}
  
  \pnum
  Template parameters named \tcode{Allocator} shall meet the
@@ -16999,7 +17102,7 @@ index eec470c..5007e8c 100644
  
  \rSec3[fs.req.namespace]{Namespaces and headers}
  
-@@ -10408,7 +10427,7 @@ namespace std::filesystem {
+@@ -10406,7 +10425,7 @@ namespace std::filesystem {
  
  \pnum
  \tcode{\textit{trivial-clock}} is an \impldef{type of filesystem trivial clock} type
@@ -17008,7 +17111,7 @@ index eec470c..5007e8c 100644
  and that is capable of representing and measuring file time values.
  Implementations should ensure that the resolution and range of
  \tcode{file_time_type} reflect the operating system dependent resolution and range
-@@ -10472,8 +10491,8 @@ handle errors as follows, unless otherwise specified:
+@@ -10470,8 +10489,8 @@ handle errors as follows, unless otherwise specified:
  
  \indexlibrary{\idxcode{path}}%
  \pnum
@@ -17019,7 +17122,7 @@ index eec470c..5007e8c 100644
  Such an object is concerned only with the lexical and syntactic aspects
  of a path. The path does not necessarily exist in external storage, and the
  pathname is not necessarily valid for the current operating
-@@ -10759,8 +10778,8 @@ because on these systems:
+@@ -10757,8 +10776,8 @@ because on these systems:
  \pnum
  Several functions are defined to accept \term{detected-format} arguments,
  which are character sequences. A detected-format argument represents a path
@@ -17030,7 +17133,7 @@ index eec470c..5007e8c 100644
  Such an argument is taken to be in the generic format if and only if
  it matches the generic format and is not acceptable to the operating system
  as a native path.
-@@ -10844,7 +10863,7 @@ standard library functions that perform file operations using narrow character
+@@ -10842,7 +10861,7 @@ standard library functions that perform file operations using narrow character
  strings to identify paths. Changing this behavior would be surprising and error
  prone.
  \end{note}
@@ -17039,7 +17142,7 @@ index eec470c..5007e8c 100644
  The method of conversion is unspecified.
  \begin{note}
  For Windows-based operating systems \tcode{path::value_type} is \tcode{wchar_t}
-@@ -10904,7 +10923,7 @@ denotes a possibly \tcode{const} encoded character type~(\ref{temp.deduct}).
+@@ -10902,7 +10921,7 @@ denotes a possibly \tcode{const} encoded character type~(\ref{temp.deduct}).
  
  \pnum
  \begin{note}
@@ -17048,7 +17151,7 @@ index eec470c..5007e8c 100644
  for how the value types above and their encodings convert to
  \tcode{path::value_type} and its encoding.
  \end{note}
-@@ -10999,7 +11018,7 @@ follows:
+@@ -10997,7 +11016,7 @@ follows:
  \begin{itemize}
  \item
  If \tcode{value_type} is \tcode{wchar_t}, converts to the native
@@ -17057,7 +17160,7 @@ index eec470c..5007e8c 100644
  facet of \tcode{loc}.
  \item
  Otherwise a conversion is performed using the
-@@ -11381,7 +11400,7 @@ void swap(path& rhs) noexcept;
+@@ -11379,7 +11398,7 @@ void swap(path& rhs) noexcept;
  \rSec4[fs.path.native.obs]{\tcode{path} native format observers}
  
  \pnum
@@ -17066,7 +17169,7 @@ index eec470c..5007e8c 100644
  
  \indexlibrarymember{native}{path}%
  \begin{itemdecl}
-@@ -11464,7 +11483,7 @@ The encoding of the string returned by \tcode{u8string()} is always UTF-8.
+@@ -11462,7 +11481,7 @@ The encoding of the string returned by \tcode{u8string()} is always UTF-8.
  
  \pnum
  Generic format observer functions return strings formatted according to the
@@ -17075,7 +17178,7 @@ index eec470c..5007e8c 100644
  A single slash (\tcode{'/'}) character is used as
  the \grammarterm{directory-separator}.
  
-@@ -11810,7 +11829,7 @@ bool is_absolute() const;
+@@ -11808,7 +11827,7 @@ bool is_absolute() const;
  \begin{itemdescr}
  \pnum
  \returns \tcode{true} if the pathname in the native format
@@ -17084,7 +17187,7 @@ index eec470c..5007e8c 100644
  
  \pnum
  \begin{example} \tcode{path("/").is_absolute()} is
-@@ -11838,7 +11857,7 @@ path lexically_normal() const;
+@@ -11836,7 +11855,7 @@ path lexically_normal() const;
  \begin{itemdescr}
  \pnum
  \returns A path whose pathname in the generic format is
@@ -17093,7 +17196,7 @@ index eec470c..5007e8c 100644
  in the generic format of \tcode{*this}.
  
  \pnum
-@@ -11862,8 +11881,8 @@ path lexically_relative(const path& base) const;
+@@ -11860,8 +11879,8 @@ path lexically_relative(const path& base) const;
  \begin{itemdescr}
  \pnum
  \returns \tcode{*this} made relative to \tcode{base}.
@@ -17104,7 +17207,7 @@ index eec470c..5007e8c 100644
  
  \pnum
  \effects
-@@ -11912,7 +11931,7 @@ but that does not affect \tcode{path} equality.
+@@ -11910,7 +11929,7 @@ but that does not affect \tcode{path} equality.
    use the operational function \tcode{relative()}. \end{note}
  
  \pnum
@@ -17113,7 +17216,7 @@ index eec470c..5007e8c 100644
    to ensure consistent matching of elements,
    apply \tcode{lexically_normal()} to
    \tcode{*this}, \tcode{base}, or both. \end{note}
-@@ -11933,7 +11952,7 @@ path lexically_proximate(const path& base) const;
+@@ -11931,7 +11950,7 @@ path lexically_proximate(const path& base) const;
    use the operational function \tcode{proximate()}. \end{note}
  
  \pnum
@@ -17122,7 +17225,7 @@ index eec470c..5007e8c 100644
    to ensure consistent matching of elements,
    apply \tcode{lexically_normal()} to
    \tcode{*this}, \tcode{base}, or both. \end{note}
-@@ -11944,11 +11963,11 @@ path lexically_proximate(const path& base) const;
+@@ -11942,11 +11961,11 @@ path lexically_proximate(const path& base) const;
  \indexlibrary{\idxcode{path}!\idxcode{iterator}}%
  \pnum
  Path iterators iterate over the elements of the pathname
@@ -17136,7 +17239,7 @@ index eec470c..5007e8c 100644
  except that,
  for dereferenceable iterators \tcode{a} and \tcode{b}
  of type \tcode{path::iterator}
-@@ -12079,7 +12098,7 @@ bool operator==(const path& lhs, const path& rhs) noexcept;
+@@ -12077,7 +12096,7 @@ bool operator==(const path& lhs, const path& rhs) noexcept;
  which considers the two path's lexical representations only.
  \begin{example} \tcode{path("foo") == "bar"} is never \tcode{true}. \end{example}
  \item Equivalence is determined by the \tcode{equivalent()} non-member function, which
@@ -17145,7 +17248,7 @@ index eec470c..5007e8c 100644
  \begin{example}
  \tcode{equivalent("foo", "bar")} will be \tcode{true} when both paths resolve to the same file.
  \end{example}
-@@ -12167,8 +12186,8 @@ template <class InputIterator>
+@@ -12165,8 +12184,8 @@ template <class InputIterator>
  \pnum
  \returns
  \begin{itemize}
@@ -17156,7 +17259,7 @@ index eec470c..5007e8c 100644
        return \tcode{path(source)} or \tcode{path(first, last)};
        otherwise,
  \item if \tcode{value_type} is \tcode{wchar_t} and the
-@@ -12184,7 +12203,7 @@ template <class InputIterator>
+@@ -12182,7 +12201,7 @@ template <class InputIterator>
  \end{itemize}
  
  \pnum
@@ -17165,7 +17268,7 @@ index eec470c..5007e8c 100644
    arguments for these functions. How Unicode encoding conversions are performed is
    unspecified.
  
-@@ -12469,7 +12488,7 @@ implementations shall provide only a single definition.
+@@ -12467,7 +12486,7 @@ implementations shall provide only a single definition.
  \indexlibrary{\idxcode{perms}}%
  \pnum
  The \tcode{enum class} type \tcode{perms}
@@ -17174,7 +17277,7 @@ index eec470c..5007e8c 100644
  permissions, with the meanings listed in Table~\ref{tab:fs.enum.perms}.
  
  \begin{floattable}
-@@ -13201,8 +13220,8 @@ namespace std::filesystem {
+@@ -13199,8 +13218,8 @@ namespace std::filesystem {
  \end{codeblock}
  
  \pnum
@@ -17185,7 +17288,7 @@ index eec470c..5007e8c 100644
  
  \pnum
  If an iterator of type \tcode{directory_iterator} reports an error or
-@@ -13344,7 +13363,7 @@ directory_iterator& increment(error_code& ec) noexcept;
+@@ -13342,7 +13361,7 @@ directory_iterator& increment(error_code& ec) noexcept;
  
  \pnum
  \effects As specified for the prefix increment operation of
@@ -17194,7 +17297,7 @@ index eec470c..5007e8c 100644
  
  \pnum
  \returns \tcode{*this}.
-@@ -13631,7 +13650,7 @@ recursive_directory_iterator& increment(error_code& ec) noexcept;
+@@ -13629,7 +13648,7 @@ recursive_directory_iterator& increment(error_code& ec) noexcept;
  \begin{itemdescr}
  \pnum
  \effects As specified for the prefix increment operation of
@@ -17203,7 +17306,7 @@ index eec470c..5007e8c 100644
  except that:
  
  \begin{itemize}
-@@ -13724,7 +13743,7 @@ Filesystem operation functions query or modify files, including directories,
+@@ -13722,7 +13741,7 @@ Filesystem operation functions query or modify files, including directories,
  in external storage.
  
  \pnum
@@ -17212,7 +17315,7 @@ index eec470c..5007e8c 100644
  and many other kinds of errors occur frequently in file system operations, users should be aware
  that any filesystem operation function, no matter how apparently innocuous, may encounter
  an error; see~\ref{fs.err.report}. \end{note}
-@@ -14319,7 +14338,7 @@ as if by \tcode{status(p1)} and \tcode{status(p2)}, respectively.
+@@ -14317,7 +14336,7 @@ as if by \tcode{status(p1)} and \tcode{status(p2)}, respectively.
  \pnum
  \effects Determines \tcode{s1} and \tcode{s2}.
  If \tcode{(!exists(s1) \&\& !exists(s2)) || (is_other(s1) \&\& is_other(s2))}
@@ -17221,7 +17324,7 @@ index eec470c..5007e8c 100644
  
  \pnum
  \returns \tcode{true}, if \tcode{s1 == s2} and \tcode{p1} and \tcode{p2} resolve to the same file
-@@ -15207,7 +15226,7 @@ path weakly_canonical(const path& p, error_code& ec);
+@@ -15205,7 +15224,7 @@ path weakly_canonical(const path& p, error_code& ec);
  \begin{itemdescr}
  \pnum
  \returns \tcode{p} with symlinks resolved and
@@ -17230,7 +17333,7 @@ index eec470c..5007e8c 100644
  
  \pnum
  \effects Using \tcode{status(p)} or \tcode{status(p, ec)}, respectively,
-@@ -15226,7 +15245,7 @@ path weakly_canonical(const path& p, error_code& ec);
+@@ -15224,7 +15243,7 @@ path weakly_canonical(const path& p, error_code& ec);
    \tcode{path()} is returned at the first error occurrence, if any.
  
  \pnum
@@ -17239,7 +17342,7 @@ index eec470c..5007e8c 100644
  
  \pnum
  \remarks Implementations are encouraged
-@@ -15550,8 +15569,8 @@ with the following changes:
+@@ -15548,8 +15567,8 @@ with the following changes:
  The header \tcode{<cinttypes>} includes the header \tcode{<cstdint>} instead
  of \tcode{<stdint.h>}, and
  \item
@@ -17650,7 +17753,7 @@ index 28ffe65..dea99a8 100644
  purpose. During concatenation, \grammarterm{ud-suffix}{es} are removed and ignored and
  the concatenation process occurs as described in~\ref{lex.string}. At the end of phase
 diff --git a/source/lib-intro.tex b/source/lib-intro.tex
-index 20195fb..e8621f1 100644
+index ee2e079..1b721f7 100644
 --- a/source/lib-intro.tex
 +++ b/source/lib-intro.tex
 @@ -11,8 +11,8 @@ how a well-formed \Cpp{} program makes use of the library, and
@@ -17743,7 +17846,7 @@ index 20195fb..e8621f1 100644
  and manage threads, including mutual exclusion and interthread communication.
  
  \rSec1[library.c]{The C standard library}
-@@ -166,13 +166,13 @@ represent a
+@@ -164,13 +164,13 @@ represent a
  \begin{note}
  It is used for one of the template parameters of the string,
  iostream, and regular expression class templates.
@@ -17760,7 +17863,7 @@ index 20195fb..e8621f1 100644
  
  \definition{component}{defns.component}
  \indexdefn{component}%
-@@ -192,8 +192,8 @@ strings are referred to as the
+@@ -190,8 +190,8 @@ strings are referred to as the
  \indexdefn{constant subexpression}%
  an expression whose evaluation as subexpression of a
  \grammarterm{conditional-expression}
@@ -17771,7 +17874,7 @@ index 20195fb..e8621f1 100644
  
  \definition{deadlock}{defns.deadlock}
  \indexdefn{deadlock}%
-@@ -253,7 +253,7 @@ necessary to implement the iostream class templates.
+@@ -251,7 +251,7 @@ necessary to implement the iostream class templates.
  
  \definition{modifier function}{defns.modifier}
  \indexdefn{function!modifier}%
@@ -17780,7 +17883,7 @@ index 20195fb..e8621f1 100644
  assignment operator, or destructor
  that alters the state of an object of the class
  
-@@ -276,7 +276,7 @@ value
+@@ -274,7 +274,7 @@ value
  
  \definition{observer function}{defns.observer}
  \indexdefn{function!observer}%
@@ -17789,7 +17892,7 @@ index 20195fb..e8621f1 100644
  but does not alter that state\\
  \begin{note}
  Observer functions are specified as
-@@ -546,8 +546,8 @@ of this International Standard and the ISO C standard.
+@@ -544,8 +544,8 @@ of this International Standard and the ISO C standard.
  This subclause describes several editorial conventions used to describe the contents
  of the \Cpp{} standard library.
  These conventions are for describing
@@ -17800,7 +17903,7 @@ index 20195fb..e8621f1 100644
  
  \rSec3[type.descriptions]{Type descriptions}
  
-@@ -630,7 +630,7 @@ and Annex~\ref{depr} are
+@@ -628,7 +628,7 @@ and Annex~\ref{depr} are
  Each bitmask type can be implemented as an
  enumerated type that overloads certain operators, as an integer type,
  or as a
@@ -17809,7 +17912,7 @@ index 20195fb..e8621f1 100644
  \indextext{type!enumerated}%
  
  \pnum
-@@ -742,7 +742,7 @@ also its value in the \tcode{"C"}
+@@ -740,7 +740,7 @@ also its value in the \tcode{"C"}
  locale, but may change during program
  execution by a call to
  \tcode{setlocale(int, const char*)},\footnote{declared in
@@ -17818,7 +17921,7 @@ index 20195fb..e8621f1 100644
  \indextext{\idxcode{setlocale}}%
  \indexlibrary{\idxcode{setlocale}}%
  \indextext{\idxhdr{clocale}}%
-@@ -753,7 +753,7 @@ object, as described in Clauses~\ref{locales} and~\ref{input.output}.
+@@ -751,7 +751,7 @@ object, as described in Clauses~\ref{locales} and~\ref{input.output}.
  \item
  A
  \term{character sequence}
@@ -17827,7 +17930,7 @@ index 20195fb..e8621f1 100644
  can be declared as
  \tcode{\placeholdernc{T\;A}[\placeholder{N}]},
  where \tcode{\placeholder{T}} is any of the types
-@@ -787,7 +787,7 @@ character); no other element in the sequence has the value zero.%
+@@ -785,7 +785,7 @@ character); no other element in the sequence has the value zero.%
  \indexlibrary{\idxhdr{cstring}}%
  \indextext{NTBS}\footnote{Many of the objects manipulated by
  function signatures declared in
@@ -17836,7 +17939,7 @@ index 20195fb..e8621f1 100644
  \indextext{\idxhdr{cstring}}%
  \indexlibrary{\idxhdr{cstring}}%
  The size of some of these character sequences is limited by
-@@ -865,7 +865,7 @@ of which at most one participates in overload resolution. \end{note}
+@@ -863,7 +863,7 @@ of which at most one participates in overload resolution. \end{note}
  \pnum
  Clauses~\ref{\firstlibchapter} through~\ref{\lastlibchapter} and
  Annex~\ref{depr} do not specify the representation of classes, and intentionally
@@ -17845,7 +17948,7 @@ index 20195fb..e8621f1 100644
  define static or non-static class members, or both, as needed to implement the
  semantics of the member functions specified in Clauses~\ref{\firstlibchapter}
  through~\ref{\lastlibchapter} and Annex~\ref{depr}.
-@@ -1100,10 +1100,10 @@ for any of these C headers:
+@@ -1098,10 +1098,10 @@ for any of these C headers:
  Except as noted in Clauses~\ref{library} through~\ref{\lastlibchapter}
  and Annex~\ref{depr}, the contents of each header \tcode{c\placeholder{name}} is
  the same as that of the corresponding header \tcode{\placeholder{name}.h} as
@@ -17858,7 +17961,7 @@ index 20195fb..e8621f1 100644
  It is unspecified whether these names (including any overloads added in
  Clauses~\ref{\firstlibchapter} through~\ref{\lastlibchapter} and Annex~\ref{depr})
  are first declared within the global namespace scope
-@@ -1311,8 +1311,8 @@ The other headers listed in this table shall meet the same requirements as for a
+@@ -1309,8 +1309,8 @@ The other headers listed in this table shall meet the same requirements as for a
  \pnum
  This section describes how a \Cpp{} program gains access to the facilities of the
  \Cpp{} standard library. \ref{using.headers} describes effects during translation
@@ -17869,7 +17972,7 @@ index 20195fb..e8621f1 100644
  
  \rSec3[using.headers]{Headers}
  
-@@ -1320,8 +1320,8 @@ phase 4, while~\ref{using.linkage} describes effects during phase
+@@ -1318,8 +1318,8 @@ phase 4, while~\ref{using.linkage} describes effects during phase
  The entities in the \Cpp{} standard library are defined in headers,
  whose contents are made available to a translation unit when it contains the appropriate
  \indextext{unit!translation}%
@@ -17880,7 +17983,7 @@ index 20195fb..e8621f1 100644
  \indextext{\idxcode{\#include}}%
  \indextext{source file}
  
-@@ -1353,7 +1353,7 @@ declared in that header. No diagnostic is required.
+@@ -1351,7 +1351,7 @@ declared in that header. No diagnostic is required.
  \rSec3[using.linkage]{Linkage}
  
  \pnum
@@ -17889,7 +17992,7 @@ index 20195fb..e8621f1 100644
  Unless otherwise specified, objects and functions have the default
  \tcode{extern "C++"}
  linkage~(\ref{dcl.link}).
-@@ -1384,9 +1384,8 @@ the program prior to program startup.
+@@ -1382,9 +1382,8 @@ the program prior to program startup.
  
  \indextext{startup!program}%
  \pnum
@@ -17901,7 +18004,7 @@ index 20195fb..e8621f1 100644
  
  \rSec2[utility.requirements]{Requirements on types and expressions}
  
-@@ -1423,7 +1422,7 @@ type \tcode{const T}.
+@@ -1421,7 +1420,7 @@ type \tcode{const T}.
  In general, a default constructor is not required. Certain container class
  member function signatures specify \tcode{T()} as a default argument.
  \tcode{T()} shall be a well-defined expression~(\ref{dcl.init}) if one of those
@@ -17910,7 +18013,7 @@ index 20195fb..e8621f1 100644
  
  \indextext{requirements!\idxcode{EqualityComparable}}%
  \begin{concepttable}{\tcode{EqualityComparable} requirements}{equalitycomparable}
-@@ -1451,7 +1450,7 @@ If \tcode{a == b} and \tcode{b == c}, then \tcode{a == c}.
+@@ -1449,7 +1448,7 @@ If \tcode{a == b} and \tcode{b == c}, then \tcode{a == c}.
  \hdstyle{Expression}  &   \hdstyle{Return type} &   \hdstyle{Requirement} \\ \capsep
  \tcode{a < b}   &
  convertible to \tcode{bool} &
@@ -17919,7 +18022,7 @@ index 20195fb..e8621f1 100644
  \end{concepttable}
  
  \enlargethispage{-3\baselineskip}
-@@ -1547,14 +1546,14 @@ evaluated in the context described below, and
+@@ -1545,14 +1544,14 @@ evaluated in the context described below, and
  
  \pnum
  The context in which \tcode{swap(t, u)} and \tcode{swap(u, t)} are evaluated shall
@@ -17938,7 +18041,7 @@ index 20195fb..e8621f1 100644
  \end{itemize}
  
  \begin{note} If \tcode{T} and \tcode{U} are both fundamental types or arrays of
-@@ -1572,7 +1571,7 @@ An rvalue or lvalue \tcode{t} is \defn{swappable} if and only if \tcode{t} is
+@@ -1570,7 +1569,7 @@ An rvalue or lvalue \tcode{t} is \defn{swappable} if and only if \tcode{t} is
  swappable with any rvalue or lvalue, respectively, of type \tcode{T}.
  
  \pnum
@@ -17947,7 +18050,7 @@ index 20195fb..e8621f1 100644
  satisfies the requirements of \tcode{ValueSwappable} if,
  for any dereferenceable object
  \tcode{x} of type \tcode{X},
-@@ -1633,7 +1632,7 @@ A type \tcode{P} meets the requirements of \tcode{NullablePointer} if:
+@@ -1631,7 +1630,7 @@ A type \tcode{P} meets the requirements of \tcode{NullablePointer} if:
  \tcode{DefaultConstructible}, \tcode{CopyConstructible}, \tcode{CopyAssignable},
  and \tcode{Destructible},
  
@@ -17956,7 +18059,7 @@ index 20195fb..e8621f1 100644
  
  \item the expressions shown in Table~\ref{tab:nullablepointer} are
  valid and have the indicated semantics, and
-@@ -1648,8 +1647,9 @@ of type \tcode{P} may have an indeterminate value. \begin{note} Operations invol
+@@ -1646,8 +1645,9 @@ of type \tcode{P} may have an indeterminate value. \begin{note} Operations invol
  indeterminate values may cause undefined behavior. \end{note}
  
  \pnum
@@ -17968,7 +18071,7 @@ index 20195fb..e8621f1 100644
  had been evaluated in place of \tcode{p}.
  
  \pnum
-@@ -1707,9 +1707,10 @@ Expression  &   Return type   &   Operational semantics \\ \capsep
+@@ -1705,9 +1705,10 @@ Expression  &   Return type   &   Operational semantics \\ \capsep
  A type \tcode{H} meets the \tcode{Hash} requirements if:
  
  \begin{itemize}
@@ -17982,7 +18085,7 @@ index 20195fb..e8621f1 100644
  \item the expressions shown in Table~\ref{tab:hash}
  are valid and have the indicated semantics.
  \end{itemize}
-@@ -1747,14 +1748,14 @@ which are class-type objects that encapsulate the information about an allocatio
+@@ -1745,14 +1746,14 @@ which are class-type objects that encapsulate the information about an allocatio
  This information includes the knowledge of pointer types, the type of their
  difference, the type of the size of objects in this allocation model, as well
  as the memory allocation and deallocation primitives for it. All of the
@@ -18001,7 +18104,7 @@ index 20195fb..e8621f1 100644
  a uniform interface to all allocator types.
  Table~\ref{tab:desc.var.def} describes the types manipulated
  through allocators. Table~\ref{tab:utilities.allocator.requirements}
-@@ -2023,28 +2024,28 @@ above form, no default is provided.
+@@ -2021,28 +2022,28 @@ above form, no default is provided.
  Note B:
  If \tcode{X::propagate_on_container_copy_assignment::value} is \tcode{true},
  \tcode{X} shall satisfy the
@@ -18037,7 +18140,7 @@ index 20195fb..e8621f1 100644
  
  \pnum
  Let \tcode{x1} and \tcode{x2} denote objects of (possibly different) types
-@@ -2127,7 +2128,7 @@ whether or not \tcode{T} is a complete type:
+@@ -2125,7 +2126,7 @@ whether or not \tcode{T} is a complete type:
  
  \begin{itemize}
  \item \tcode{X} is a complete type, and
@@ -18046,7 +18149,7 @@ index 20195fb..e8621f1 100644
    other than \tcode{value_type} are complete types.
  \end{itemize}
  
-@@ -2138,11 +2139,11 @@ whether or not \tcode{T} is a complete type:
+@@ -2136,11 +2137,11 @@ whether or not \tcode{T} is a complete type:
  \pnum
  This section describes restrictions on \Cpp{} programs that use the facilities of
  the \Cpp{} standard library. The following subclauses specify constraints on the
@@ -18062,7 +18165,7 @@ index 20195fb..e8621f1 100644
  
  \rSec3[namespace.constraints]{Namespace use}
  
-@@ -2388,7 +2389,7 @@ shall be identical to
+@@ -2386,7 +2387,7 @@ shall be identical to
  \rSec4[usrlit.suffix]{User-defined literal suffixes}
  
  \pnum
@@ -18071,7 +18174,7 @@ index 20195fb..e8621f1 100644
  
  \rSec3[alt.headers]{Headers}
  
-@@ -2396,7 +2397,7 @@ Literal suffix identifiers~(\ref{over.literal}) that do not start with an unders
+@@ -2394,7 +2395,7 @@ Literal suffix identifiers~(\ref{over.literal}) that do not start with an unders
  If a file with a name
  equivalent to the derived file name for one of the \Cpp{} standard library headers
  is not provided as part of the implementation, and a file with that name
@@ -18080,7 +18183,7 @@ index 20195fb..e8621f1 100644
  the behavior is undefined.%
  \indextext{source file}%
  \indextext{undefined}
-@@ -2529,7 +2530,7 @@ In particular, the effects are undefined in the following cases:
+@@ -2527,7 +2528,7 @@ In particular, the effects are undefined in the following cases:
  
  \begin{itemize}
  \item
@@ -18089,7 +18192,7 @@ index 20195fb..e8621f1 100644
  implement the semantics of the applicable
  \required
  paragraph.
-@@ -2553,7 +2554,7 @@ in the applicable
+@@ -2551,7 +2552,7 @@ in the applicable
  \required
  paragraph.
  \item
@@ -18098,7 +18201,7 @@ index 20195fb..e8621f1 100644
  argument when instantiating a template component, unless specifically
  allowed for that component.
  \end{itemize}
-@@ -2609,7 +2610,7 @@ specified as being shareable without data races or the user supplies a locking m
+@@ -2607,7 +2608,7 @@ specified as being shareable without data races or the user supplies a locking m
  
  \pnum
  If an object of a standard library type is accessed, and
@@ -18107,7 +18210,7 @@ index 20195fb..e8621f1 100644
  does not happen before the access, or
  the access does not happen before the end of the object's lifetime,
  the behavior is undefined unless otherwise specified.
-@@ -2657,7 +2658,7 @@ Every such entity shall be defined such that any header that defines it may be
+@@ -2655,7 +2656,7 @@ Every such entity shall be defined such that any header that defines it may be
  included after any other header that also defines it~(\ref{basic.def.odr}).
  
  \pnum
@@ -18116,7 +18219,7 @@ index 20195fb..e8621f1 100644
  shall include only their corresponding \Cpp{} standard library header,
  as described in~\ref{headers}.
  
-@@ -2685,7 +2686,7 @@ explicitly stated otherwise.
+@@ -2683,7 +2684,7 @@ explicitly stated otherwise.
  It is unspecified whether any
  non-member
  functions in the \Cpp{} standard library are defined as
@@ -18125,7 +18228,7 @@ index 20195fb..e8621f1 100644
  
  \pnum
  A call to a non-member function signature
-@@ -2710,7 +2711,7 @@ The phrase ``unless otherwise specified'' applies to cases such as
+@@ -2708,7 +2709,7 @@ The phrase ``unless otherwise specified'' applies to cases such as
  the swappable with requirements~(\ref{swappable.requirements}).
  The exception for overloaded operators allows argument-dependent lookup
  in cases like that of
@@ -18134,7 +18237,7 @@ index 20195fb..e8621f1 100644
  
  \effects
  \begin{codeblock}
-@@ -2725,7 +2726,7 @@ return *this;
+@@ -2723,7 +2724,7 @@ return *this;
  
  \pnum
  It is unspecified whether any member functions in the \Cpp{} standard library are defined as
@@ -18143,7 +18246,7 @@ index 20195fb..e8621f1 100644
  
  \pnum
  For a non-virtual member function described in the \Cpp{} standard library,
-@@ -2744,7 +2745,7 @@ or add additional signatures for a member function name.
+@@ -2742,7 +2743,7 @@ or add additional signatures for a member function name.
  
  \pnum
  This International Standard explicitly requires that certain standard library functions are
@@ -18152,7 +18255,7 @@ index 20195fb..e8621f1 100644
  any standard library function signature as \tcode{constexpr} except for those where
  it is explicitly required.
  Within any header that provides any non-defining declarations of constexpr
-@@ -2781,8 +2782,8 @@ library may be recursively reentered.
+@@ -2779,8 +2780,8 @@ library may be recursively reentered.
  \rSec3[res.on.data.races]{Data race avoidance}
  
  \pnum
@@ -18163,7 +18266,7 @@ index 20195fb..e8621f1 100644
  Every standard library function shall meet each requirement unless otherwise specified.
  Implementations may prevent data races in cases other than those specified below.
  
-@@ -2821,7 +2822,7 @@ not visible to users and are protected against data races.
+@@ -2819,7 +2820,7 @@ not visible to users and are protected against data races.
  \pnum
  Unless otherwise specified, \Cpp{} standard library functions shall perform all operations
  solely within the current thread if those operations have effects that are
@@ -18172,7 +18275,7 @@ index 20195fb..e8621f1 100644
  
  \pnum
  \begin{note} This allows implementations to parallelize operations if there are no visible
-@@ -2870,8 +2871,8 @@ Every base class not specified as
+@@ -2868,8 +2869,8 @@ Every base class not specified as
  Unless explicitly stated otherwise, types with distinct names shall be distinct
  types.\footnote{There is an implicit exception to this rule for types that are
  described as synonyms for basic integral types, such as
@@ -18183,7 +18286,7 @@ index 20195fb..e8621f1 100644
  \end{itemize}
  
  \pnum
-@@ -2927,9 +2928,9 @@ may throw \impldef{exceptions thrown by standard library functions that have a
+@@ -2925,9 +2926,9 @@ may throw \impldef{exceptions thrown by standard library functions that have a
  potentially-throwing exception specification} exceptions.%
  \footnote{In particular, they
  can report a failure to allocate storage by throwing an exception of type
@@ -18195,7 +18298,7 @@ index 20195fb..e8621f1 100644
  Implementations should
  report errors by throwing exceptions of or derived
  from the standard exception classes~(\ref{bad.alloc},
-@@ -2947,8 +2948,8 @@ by adding a non-throwing exception specification.
+@@ -2945,8 +2946,8 @@ by adding a non-throwing exception specification.
  \indextext{traceable pointer object}%
  \indextext{pointer!to traceable object}%
  Objects constructed by the standard library that may hold a user-supplied pointer value
@@ -18206,7 +18309,7 @@ index 20195fb..e8621f1 100644
  strongly encouraged to do the same, since not doing so may result in accidental use of
  pointers that are not safely derived. Libraries that store pointers outside the user's
  address space should make it appear that they are stored and retrieved from a traceable
-@@ -2958,7 +2959,7 @@ pointer location. \end{note}
+@@ -2956,7 +2957,7 @@ pointer location. \end{note}
  
  \pnum
  Certain functions in the \Cpp{} standard library report errors via a
@@ -18216,7 +18319,7 @@ index 20195fb..e8621f1 100644
  errors originating from the operating system, or a reference to an
  \impldef{\tcode{error_category} for errors originating outside the
 diff --git a/source/locales.tex b/source/locales.tex
-index 2c1c38b..92e3871 100644
+index 10d1a2f..44c01a9 100644
 --- a/source/locales.tex
 +++ b/source/locales.tex
 @@ -282,7 +282,7 @@ Whether there is one global locale object for the entire program or one global l
@@ -18303,10 +18406,10 @@ index 2c1c38b..92e3871 100644
  }
  
 diff --git a/source/macros.tex b/source/macros.tex
-index 0714f85..77b8ab5 100644
+index 13a9bdc..acebfc4 100644
 --- a/source/macros.tex
 +++ b/source/macros.tex
-@@ -528,3 +528,47 @@
+@@ -535,3 +535,47 @@
  \let\addcontentsline\oldcontentsline%
  }
  \newcommand{\defncontext}[1]{\textlangle#1\textrangle}
@@ -19342,7 +19445,7 @@ index a5fb356..45f41fb 100644
  \end{description}
  
 diff --git a/source/regex.tex b/source/regex.tex
-index fcd496b..b7fd51e 100644
+index 926719b..f7b473e 100644
 --- a/source/regex.tex
 +++ b/source/regex.tex
 @@ -12,7 +12,7 @@ searching.
@@ -19354,7 +19457,7 @@ index fcd496b..b7fd51e 100644
  two specializations of this class template that handle sequences of \tcode{char} and \tcode{wchar_t},
  a class template that holds the
  result of a regular expression match, a series of algorithms that allow a character
-@@ -112,8 +112,8 @@ defining types and functions for the character container
+@@ -113,8 +113,8 @@ defining types and functions for the character container
  type \tcode{charT}; \tcode{u} is an object of
  type \tcode{X}; \tcode{v} is an object of type \tcode{const
  X}; \tcode{p} is a value of type \tcode{const charT*}; \tcode{I1}
@@ -19365,7 +19468,7 @@ index fcd496b..b7fd51e 100644
  \tcode{c} is a value of type \tcode{const charT};
  \tcode{s} is an object of type \tcode{X::string_type};
  \tcode{cs} is an object of type \tcode{const X::string_type};
-@@ -147,7 +147,7 @@ and \tcode{loc} is an object of type \tcode{X::locale_type}.
+@@ -148,7 +148,7 @@ and \tcode{loc} is an object of type \tcode{X::locale_type}.
    & A type that represents the locale used by the traits class. \indextext{locale}
   \\ \rowsep
  \tcode{X::char_class_type}
@@ -19374,7 +19477,7 @@ index fcd496b..b7fd51e 100644
   & A bitmask type representing a particular character classification.
     \indextext{regular expression traits!\idxcode{char_class_type}}%
     \indextext{\idxcode{char_class_type}!regular expression traits}%
-@@ -651,8 +651,8 @@ namespace std::regex_constants {
+@@ -652,8 +652,8 @@ namespace std::regex_constants {
  \indexlibrary{\idxcode{syntax_option_type}!\idxcode{awk}}%
  \indexlibrary{\idxcode{syntax_option_type}!\idxcode{grep}}%
  \indexlibrary{\idxcode{syntax_option_type}!\idxcode{egrep}}%
@@ -19385,7 +19488,7 @@ index fcd496b..b7fd51e 100644
  Table~\ref{tab:re:syntaxoption}.  A valid value of type
  \tcode{syntax_option_type} shall have at most one of the grammar elements
  \tcode{ECMAScript}, \tcode{basic}, \tcode{extended}, \tcode{awk}, \tcode{grep}, \tcode{egrep}, set.
-@@ -786,7 +786,7 @@ namespace std::regex_constants {
+@@ -787,7 +787,7 @@ namespace std::regex_constants {
  \pnum
  \indexlibrary{\idxcode{match_flag_type}}%
  The type \tcode{match_flag_type} is an
@@ -19394,7 +19497,7 @@ index fcd496b..b7fd51e 100644
  The constants of that type, except for \tcode{match_default} and
  \tcode{format_default}, are bitmask elements. The \tcode{match_default} and
  \tcode{format_default} constants are empty bitmasks.
-@@ -848,7 +848,7 @@ The expression shall only match a sub-sequence that begins at
+@@ -849,7 +849,7 @@ The expression shall only match a sub-sequence that begins at
  \tcode{match_prev_avail} &
  \verb!--first! is a valid iterator position. When this flag is
  set the flags \tcode{match_not_bol} and \tcode{match_not_bow} shall be ignored by the
@@ -19403,7 +19506,7 @@ index fcd496b..b7fd51e 100644
  \\ \rowsep
  %
  \indexlibrary{\idxcode{format_default}}%
-@@ -909,7 +909,7 @@ namespace std::regex_constants {
+@@ -910,7 +910,7 @@ namespace std::regex_constants {
  \indexlibrary{\idxcode{error_type}}%
  \indexlibrary{\idxcode{regex_constants}!\idxcode{error_type}}%
  The type \tcode{error_type} is an \impldef{type of
@@ -19412,7 +19515,7 @@ index fcd496b..b7fd51e 100644
  Values of type \tcode{error_type} represent the error
  conditions described in Table~\ref{tab:re:errortype}:
  
-@@ -1732,8 +1732,8 @@ template <class InputIterator>
+@@ -1733,8 +1733,8 @@ template <class InputIterator>
  
  \begin{itemdescr}
  \pnum
@@ -19423,7 +19526,7 @@ index fcd496b..b7fd51e 100644
  
  \pnum
  \returns \tcode{assign(string_type(first, last), f)}.
-@@ -2829,7 +2829,7 @@ template <class OutputIter>
+@@ -2830,7 +2830,7 @@ template <class OutputIter>
  \begin{itemdescr}
  \pnum
  \requires \tcode{ready() == true} and \tcode{OutputIter} shall satisfy the requirements for an
@@ -19432,7 +19535,7 @@ index fcd496b..b7fd51e 100644
  
  \pnum
  \effects Copies the character sequence \range{fmt_first}{fmt_last} to
-@@ -3017,7 +3017,7 @@ template <class BidirectionalIterator, class Allocator, class charT, class trait
+@@ -3018,7 +3018,7 @@ template <class BidirectionalIterator, class Allocator, class charT, class trait
  \begin{itemdescr}
  \pnum
  \requires The type \tcode{BidirectionalIterator} shall satisfy the requirements
@@ -19441,7 +19544,7 @@ index fcd496b..b7fd51e 100644
  
  \pnum
  \effects  Determines whether there is a match between the
-@@ -3199,8 +3199,8 @@ template <class BidirectionalIterator, class Allocator, class charT, class trait
+@@ -3200,8 +3200,8 @@ template <class BidirectionalIterator, class Allocator, class charT, class trait
  
  \begin{itemdescr}
  \pnum
@@ -19452,7 +19555,7 @@ index fcd496b..b7fd51e 100644
  
  \pnum
  \effects Determines whether there is some sub-sequence within \range{first}{last} that matches
-@@ -4163,8 +4163,8 @@ to an integral value, this is accomplished by calling \tcode{traits_inst.value}.
+@@ -4164,8 +4164,8 @@ to an integral value, this is accomplished by calling \tcode{traits_inst.value}.
  The behavior of the internal finite state machine representation when used to match a
  sequence of characters is as described in ECMA-262.
  The behavior is modified according
@@ -20554,7 +20657,7 @@ index 8bfbd2b..bca2658 100644
  \grammarterm{declarator} starts with a \tcode{(}. In those cases the
  \grammarterm{statement} is a \grammarterm{declaration}.
 diff --git a/source/strings.tex b/source/strings.tex
-index 70f43a6..10683d9 100644
+index 97c27b0..1348644 100644
 --- a/source/strings.tex
 +++ b/source/strings.tex
 @@ -5,7 +5,7 @@
@@ -20762,7 +20865,7 @@ index 70f43a6..10683d9 100644
 +but they have the same behavior as in the \link{C standard library}{\ref{library.c}}.
  \end{note}
  
- \xref ISO C~7.24.
+ \xref ISO C 7.24
 @@ -6054,7 +6057,7 @@ are the same as the C standard library header
  The functions
  \tcode{wcschr}, \tcode{wcspbrk}, \tcode{wcsrchr}, \tcode{wcsstr}, and \tcode{wmemchr}
@@ -20784,7 +20887,7 @@ index 70f43a6..10683d9 100644
  \end{note}
  
 diff --git a/source/support.tex b/source/support.tex
-index a9d8bd7..90664ca 100644
+index fe8ff1d..5a98279 100644
 --- a/source/support.tex
 +++ b/source/support.tex
 @@ -43,21 +43,14 @@ as summarized in Table~\ref{tab:lang.sup.lib.summary}.
@@ -20872,7 +20975,7 @@ index a9d8bd7..90664ca 100644
  is an \impldef{definition of \tcode{NULL}} null pointer constant.%
  \footnote{Possible definitions include
  \tcode{0}
-@@ -287,21 +276,20 @@ but not
+@@ -289,21 +278,20 @@ but not
  
  \pnum
  The macro
@@ -20898,7 +21001,7 @@ index a9d8bd7..90664ca 100644
  dependent. The result of applying the \tcode{offsetof} macro to
  a static data member or a function member is undefined.
  No operation invoked by the \tcode{offsetof} macro shall throw an exception and
-@@ -322,7 +310,7 @@ to contain the size in bytes of any object.
+@@ -324,7 +312,7 @@ to contain the size in bytes of any object~(\ref{expr.sizeof}).
  \pnum
  \begin{note}
  It is recommended that implementations choose types for \tcode{ptrdiff_t} and \tcode{size_t}
@@ -20907,18 +21010,7 @@ index a9d8bd7..90664ca 100644
  \tcode{signed long int} unless a larger size is necessary to contain all the possible values.
  \end{note}
  
-@@ -333,8 +321,8 @@ The type
- is at least as great as that of every scalar type, and whose alignment
- requirement is supported in every context.
- 
--\xref Alignment~(\ref{basic.align}), Sizeof~(\ref{expr.sizeof}), Additive
--operators~(\ref{expr.add}), Free store~(\ref{class.free}), and ISO C~7.19.
-+\xref \link{Alignment}{\ref{basic.align}}, \link{Sizeof}{\ref{expr.sizeof}}, \link{Additive
-+operators}{\ref{expr.add}}, \link{Free store}{\ref{class.free}}, and ISO C~7.19.
- 
- \rSec2[support.types.byteops]{\tcode{byte} type operations}
- 
-@@ -494,9 +482,9 @@ template <class IntType>
+@@ -495,9 +483,9 @@ template <class IntType>
  
  \pnum
  The headers
@@ -20931,7 +21023,7 @@ index a9d8bd7..90664ca 100644
  supply characteristics of imple\-mentation-dependent
  arithmetic types~(\ref{basic.fundamental}).
  
-@@ -717,7 +705,7 @@ the specialization on the unqualified type \tcode{T}.
+@@ -718,7 +706,7 @@ the specialization on the unqualified type \tcode{T}.
  
  \pnum
  Non-arithmetic standard types, such as
@@ -20940,7 +21032,7 @@ index a9d8bd7..90664ca 100644
  
  \rSec3[numeric.limits.members]{\tcode{numeric_limits} members}
  
-@@ -747,10 +735,11 @@ or
+@@ -748,10 +736,11 @@ or
  \tcode{is_bounded == false \&\& is_signed == false}.
  \end{itemdescr}
  
@@ -20953,7 +21045,7 @@ index a9d8bd7..90664ca 100644
  
  \begin{itemdescr}
  \pnum
-@@ -1601,7 +1590,7 @@ the C standard library header \tcode{<stdint.h>}.
+@@ -1602,7 +1591,7 @@ the C standard library header \tcode{<stdint.h>}.
  \pnum
  \indextext{\idxhdr{cstdlib}}%
  \begin{note}
@@ -20962,7 +21054,7 @@ index a9d8bd7..90664ca 100644
  declares the functions described in this subclause.
  \end{note}
  
-@@ -1658,7 +1647,8 @@ The
+@@ -1659,7 +1648,8 @@ The
  functions register the function pointed to by \tcode{f}
  to be called without arguments at normal program termination.
  It is unspecified whether a call to \tcode{atexit()} that does not
@@ -20972,7 +21064,7 @@ index a9d8bd7..90664ca 100644
  \begin{note} The \tcode{atexit()} functions do not introduce a data
  race~(\ref{res.on.data.races}). \end{note}
  
-@@ -1674,10 +1664,11 @@ function returns zero if the registration succeeds,
+@@ -1675,10 +1665,11 @@ function returns zero if the registration succeeds,
  nonzero if it fails.
  \end{itemdescr}
  
@@ -20985,7 +21077,7 @@ index a9d8bd7..90664ca 100644
  
  \begin{itemdescr}
  \pnum
-@@ -1692,7 +1683,7 @@ are called.\footnote{A function is called for every time it is registered.}
+@@ -1693,7 +1684,7 @@ are called.\footnote{A function is called for every time it is registered.}
  See~\ref{basic.start.term} for the order of destructions and calls.
  (Automatic objects are not destroyed as a result of calling
  \tcode{exit()}.)\footnote{Objects with automatic storage duration are all destroyed in a program whose
@@ -20994,7 +21086,7 @@ index a9d8bd7..90664ca 100644
  contains no automatic objects and executes the call to
  \tcode{exit()}.
  Control can be transferred directly to such a
-@@ -1746,7 +1737,8 @@ int at_quick_exit(@\placeholder{atexit-handler}@* f) noexcept;
+@@ -1747,7 +1738,8 @@ int at_quick_exit(@\placeholder{atexit-handler}@* f) noexcept;
  \effects The \tcode{at_quick_exit()} functions register the function pointed to by \tcode{f}
  to be called without arguments when \tcode{quick_exit} is called.
  It is unspecified whether a call to \tcode{at_quick_exit()} that does not
@@ -21004,7 +21096,7 @@ index a9d8bd7..90664ca 100644
  \tcode{at_quick_exit()} functions do not introduce a
  data race~(\ref{res.on.data.races}). \end{note}
  \begin{note}
-@@ -1900,7 +1892,7 @@ void* operator new(std::size_t size, std::align_val_t alignment);
+@@ -1896,7 +1888,7 @@ void* operator new(std::size_t size, std::align_val_t alignment);
  \pnum
  \effects
  The
@@ -21013,7 +21105,7 @@ index a9d8bd7..90664ca 100644
  called by a
  \grammarterm{new-expression}~(\ref{expr.new})
  to allocate
-@@ -1945,7 +1937,7 @@ a null pointer value, throws
+@@ -1941,7 +1933,7 @@ a null pointer value, throws
  \tcode{bad_alloc}.
  \item
  Otherwise, the function calls the current
@@ -21022,16 +21114,16 @@ index a9d8bd7..90664ca 100644
  If the called function returns, the loop repeats.
  \item
  The loop terminates when an attempt to allocate the requested storage is
-@@ -2016,7 +2008,7 @@ void operator delete(void* ptr, std::size_t size, std::align_val_t alignment) no
+@@ -2012,7 +2004,7 @@ void operator delete(void* ptr, std::size_t size, std::align_val_t alignment) no
  \pnum
  \effects
  The
 -deallocation functions~(\ref{basic.stc.dynamic.deallocation})
 +\link{deallocation functions}{\ref{basic.stc.dynamic.deallocation}}
  called by a
- \grammarterm{delete-expression}
+ \grammarterm{delete-expression}~(\ref{expr.delete})
  to render the value of \tcode{ptr} invalid.
-@@ -2049,7 +2041,7 @@ which has not been invalidated by an intervening call to
+@@ -2045,7 +2037,7 @@ which has not been invalidated by an intervening call to
  
  \pnum
  \requires
@@ -21040,7 +21132,7 @@ index a9d8bd7..90664ca 100644
  then \tcode{ptr} shall be a safely-derived pointer.
  
  \pnum
-@@ -2115,7 +2107,7 @@ void operator delete(void* ptr, std::align_val_t alignment, const std::nothrow_t
+@@ -2111,7 +2103,7 @@ void operator delete(void* ptr, std::align_val_t alignment, const std::nothrow_t
  \pnum
  \effects
  The
@@ -21049,7 +21141,7 @@ index a9d8bd7..90664ca 100644
  called by the implementation
  to render the value of \tcode{ptr} invalid
  when the constructor invoked from a nothrow
-@@ -2139,7 +2131,7 @@ which has not been invalidated by an intervening call to
+@@ -2135,7 +2127,7 @@ which has not been invalidated by an intervening call to
  
  \pnum
  \requires
@@ -21058,7 +21150,7 @@ index a9d8bd7..90664ca 100644
  then \tcode{ptr} shall be a safely-derived pointer.
  
  \pnum
-@@ -2170,7 +2162,7 @@ void* operator new[](std::size_t size, std::align_val_t alignment);
+@@ -2166,7 +2158,7 @@ void* operator new[](std::size_t size, std::align_val_t alignment);
  \pnum
  \effects
  The
@@ -21067,7 +21159,7 @@ index a9d8bd7..90664ca 100644
  called by the array form of a
  \grammarterm{new-expression}~(\ref{expr.new})
  to allocate
-@@ -2270,7 +2262,7 @@ void operator delete[](void* ptr, std::size_t size, std::align_val_t alignment)
+@@ -2266,7 +2258,7 @@ void operator delete[](void* ptr, std::size_t size, std::align_val_t alignment)
  \pnum
  \effects
  The
@@ -21076,7 +21168,7 @@ index a9d8bd7..90664ca 100644
  called by the array form of a
  \grammarterm{delete-expression}
  to render the value of \tcode{ptr} invalid.
-@@ -2303,7 +2295,7 @@ which has not been invalidated by an intervening call to
+@@ -2299,7 +2291,7 @@ which has not been invalidated by an intervening call to
  
  \pnum
  \requires
@@ -21085,7 +21177,7 @@ index a9d8bd7..90664ca 100644
  then \tcode{ptr} shall be a safely-derived pointer.
  
  \pnum
-@@ -2350,7 +2342,7 @@ void operator delete[](void* ptr, std::align_val_t alignment, const std::nothrow
+@@ -2346,7 +2338,7 @@ void operator delete[](void* ptr, std::align_val_t alignment, const std::nothrow
  \pnum
  \effects
  The
@@ -21094,7 +21186,7 @@ index a9d8bd7..90664ca 100644
  called by the implementation
  to render the value of \tcode{ptr} invalid
  when the constructor invoked from a nothrow
-@@ -2374,7 +2366,7 @@ which has not been invalidated by an intervening call to
+@@ -2370,7 +2362,7 @@ which has not been invalidated by an intervening call to
  
  \pnum
  \requires
@@ -21103,7 +21195,7 @@ index a9d8bd7..90664ca 100644
  then \tcode{ptr} shall be a safely-derived pointer.
  
  \pnum
-@@ -2453,7 +2445,7 @@ Intentionally performs no action.
+@@ -2449,7 +2441,7 @@ Intentionally performs no action.
  
  \pnum
  \requires
@@ -21112,7 +21204,7 @@ index a9d8bd7..90664ca 100644
  then \tcode{ptr} shall be a safely-derived pointer.
  
  \pnum
-@@ -2476,7 +2468,7 @@ Intentionally performs no action.
+@@ -2472,7 +2464,7 @@ Intentionally performs no action.
  
  \pnum
  \requires
@@ -21121,7 +21213,7 @@ index a9d8bd7..90664ca 100644
  then \tcode{ptr} shall be a safely-derived pointer.
  
  \pnum
-@@ -2501,8 +2493,8 @@ versions of \tcode{operator delete}, the C standard library function
+@@ -2497,8 +2489,8 @@ versions of \tcode{operator delete}, the C standard library function
  introduce a data race~(\ref{res.on.data.races}).
  Calls to these functions that allocate or deallocate a particular unit
  of storage shall occur in a single total order, and each such deallocation call
@@ -21132,7 +21224,7 @@ index a9d8bd7..90664ca 100644
  
  \rSec2[alloc.errors]{Storage allocation errors}
  
-@@ -2565,7 +2557,8 @@ An \impldef{return value of \tcode{bad_alloc::what}} \ntbs{}.
+@@ -2561,7 +2553,8 @@ An \impldef{return value of \tcode{bad_alloc::what}} \ntbs{}.
  
  \pnum
  \remarks
@@ -21142,7 +21234,7 @@ index a9d8bd7..90664ca 100644
  suitable for conversion and display as a
  \tcode{wstring}~(\ref{string.classes}, \ref{locale.codecvt}).
  \end{itemdescr}
-@@ -2611,17 +2604,19 @@ An \impldef{return value of \tcode{bad_array_new_length::what}} \ntbs{}.
+@@ -2607,17 +2600,19 @@ An \impldef{return value of \tcode{bad_array_new_length::what}} \ntbs{}.
  
  \pnum
  \remarks
@@ -21164,7 +21256,7 @@ index a9d8bd7..90664ca 100644
  
  \begin{itemdescr}
  \pnum
-@@ -2698,8 +2693,8 @@ template <class T> constexpr T* launder(T* p) noexcept;
+@@ -2694,8 +2689,8 @@ template <class T> constexpr T* launder(T* p) noexcept;
  \pnum
  \requires
  \tcode{p} represents the address \placeholder{A} of a byte in memory.
@@ -21175,7 +21267,7 @@ index a9d8bd7..90664ca 100644
  is located at the address \placeholder{A}.
  All bytes of storage that would be reachable through the result
  are reachable through \tcode{p} (see below).
-@@ -2929,7 +2924,8 @@ An \impldef{return value of \tcode{type_info::name()}} \ntbs{}.
+@@ -2923,7 +2918,8 @@ An \impldef{return value of \tcode{type_info::name()}} \ntbs{}.
  
  \pnum
  \remarks
@@ -21185,7 +21277,7 @@ index a9d8bd7..90664ca 100644
  suitable for conversion and display as a
  \tcode{wstring}~(\ref{string.classes}, \ref{locale.codecvt})
  \end{itemdescr}
-@@ -2996,7 +2992,8 @@ An \impldef{return value of \tcode{bad_cast::what}} \ntbs{}.
+@@ -2990,7 +2986,8 @@ An \impldef{return value of \tcode{bad_cast::what}} \ntbs{}.
  
  \pnum
  \remarks
@@ -21195,7 +21287,7 @@ index a9d8bd7..90664ca 100644
  suitable for conversion and display as a
  \tcode{wstring}~(\ref{string.classes}, \ref{locale.codecvt})
  \end{itemdescr}
-@@ -3063,7 +3060,8 @@ An \impldef{return value of \tcode{bad_typeid::what}} \ntbs{}.
+@@ -3057,7 +3054,8 @@ An \impldef{return value of \tcode{bad_typeid::what}} \ntbs{}.
  
  \pnum
  \remarks
@@ -21205,7 +21297,7 @@ index a9d8bd7..90664ca 100644
  suitable for conversion and display as a
  \tcode{wstring}~(\ref{string.classes}, \ref{locale.codecvt})
  \end{itemdescr}
-@@ -3192,7 +3190,8 @@ An \impldef{return value of \tcode{exception::what}} \ntbs{}.
+@@ -3184,7 +3182,8 @@ An \impldef{return value of \tcode{exception::what}} \ntbs{}.
  
  \pnum
  \remarks
@@ -21215,7 +21307,7 @@ index a9d8bd7..90664ca 100644
  suitable for conversion and display as a
  \tcode{wstring}~(\ref{string.classes}, \ref{locale.codecvt}).
  The return value remains valid until the exception object from which
-@@ -3261,7 +3260,8 @@ An \impldef{return value of \tcode{bad_exception::what}} \ntbs{}.
+@@ -3253,7 +3252,8 @@ An \impldef{return value of \tcode{bad_exception::what}} \ntbs{}.
  
  \pnum
  \remarks
@@ -21225,7 +21317,7 @@ index a9d8bd7..90664ca 100644
  suitable for conversion and display as a
  \tcode{wstring}~(\ref{string.classes}, \ref{locale.codecvt}).
  \end{itemdescr}
-@@ -3365,21 +3365,22 @@ int uncaught_exceptions() noexcept;
+@@ -3357,21 +3357,22 @@ int uncaught_exceptions() noexcept;
  \begin{itemdescr}
  \pnum
  \returns
@@ -21252,7 +21344,7 @@ index a9d8bd7..90664ca 100644
  
  \begin{itemdescr}
  \pnum
-@@ -3387,7 +3388,7 @@ The type \tcode{exception_ptr} can be used to refer to an exception object.
+@@ -3379,7 +3380,7 @@ The type \tcode{exception_ptr} can be used to refer to an exception object.
  
  \pnum
  \tcode{exception_ptr} shall satisfy the requirements of
@@ -21261,7 +21353,7 @@ index a9d8bd7..90664ca 100644
  
  \pnum
  Two non-null values of type \tcode{exception_ptr} are equivalent and compare equal if and
-@@ -3424,8 +3425,9 @@ exception_ptr current_exception() noexcept;
+@@ -3416,8 +3417,9 @@ exception_ptr current_exception() noexcept;
  
  \begin{itemdescr}
  \pnum
@@ -21273,7 +21365,7 @@ index a9d8bd7..90664ca 100644
  handled exception, or a null \tcode{exception_ptr} object if no exception is being
  handled. The referenced object shall remain valid at least as long as there is an
  \tcode{exception_ptr} object that refers to it.
-@@ -3735,7 +3737,7 @@ provide further compatibility with C code.
+@@ -3727,7 +3729,7 @@ provide further compatibility with C code.
  \pnum
  Calls to the function
  \indexlibrary{\idxcode{getenv}}%
@@ -21282,7 +21374,7 @@ index a9d8bd7..90664ca 100644
  race~(\ref{res.on.data.races}) provided that nothing modifies the environment.
  \begin{note} Calls to the POSIX functions
  \indexlibrary{\idxcode{setenv}}%
-@@ -3745,7 +3747,7 @@ race~(\ref{res.on.data.races}) provided that nothing modifies the environment.
+@@ -3737,7 +3739,7 @@ race~(\ref{res.on.data.races}) provided that nothing modifies the environment.
  environment. \end{note}
  
  \pnum
@@ -21291,7 +21383,7 @@ index a9d8bd7..90664ca 100644
  may introduce a data race with other
  calls to the \tcode{setlocale} function or with calls to functions that are
  affected by the current C locale. The implementation shall behave as if no
-@@ -3756,20 +3758,15 @@ function.
+@@ -3748,20 +3750,15 @@ function.
  
  \indextext{\idxhdr{cstdarg}}%
  \indexlibrary{\idxhdr{cstdarg}}%
@@ -22777,7 +22869,7 @@ index efae4bc..d77cb18 100644
 +\requires \tcode{Alloc} shall be an \link{Allocator}{\ref{allocator.requirements}}.
  \end{itemdescr}
 diff --git a/source/utilities.tex b/source/utilities.tex
-index 9959bf6..37eb1bb 100644
+index f8b02f5..9725684 100644
 --- a/source/utilities.tex
 +++ b/source/utilities.tex
 @@ -166,7 +166,7 @@ namespace std {
@@ -24442,7 +24534,7 @@ index 9959bf6..37eb1bb 100644
 -races~(\ref{res.on.data.races}).
 +\tcode{localtime} are not required to \link{avoid data races}{\ref{res.on.data.races}}.
  
- \xref ISO C~7.27.
+ \xref ISO C 7.27
  
 @@ -19055,9 +19080,9 @@ namespace std {
  
@@ -24461,10 +24553,10 @@ index 9959bf6..37eb1bb 100644
 2.7.4
 
 
-From b19ea8488ca905be96ce343ebac1107f4564421c Mon Sep 17 00:00:00 2001
+From 0207adddea95e8d4275d510a2446378204308d47 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sat, 25 Feb 2017 18:01:58 +0100
-Subject: [PATCH 35/42] Add and use \weblink for external references.
+Subject: [PATCH 36/43] Add and use \weblink for external references.
 
 ---
  source/macros.tex | 4 ++++
@@ -24472,10 +24564,10 @@ Subject: [PATCH 35/42] Add and use \weblink for external references.
  2 files changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/source/macros.tex b/source/macros.tex
-index 77b8ab5..1bb45fa 100644
+index acebfc4..211a5b1 100644
 --- a/source/macros.tex
 +++ b/source/macros.tex
-@@ -560,6 +560,10 @@
+@@ -567,6 +567,10 @@
  	% Convenience macro for when the link
  	% text is also the definition key.
  
@@ -24487,10 +24579,10 @@ index 77b8ab5..1bb45fa 100644
  	%   arg 0: text
  	%   arg 1: indices (zero or more \index commands)
 diff --git a/source/regex.tex b/source/regex.tex
-index b7fd51e..f03cf81 100644
+index f7b473e..9039ed7 100644
 --- a/source/regex.tex
 +++ b/source/regex.tex
-@@ -856,7 +856,7 @@ set the flags \tcode{match_not_bol} and \tcode{match_not_bow} shall be ignored b
+@@ -857,7 +857,7 @@ set the flags \tcode{match_not_bol} and \tcode{match_not_bow} shall be ignored b
  When a regular expression match is to be replaced by a
  new string, the new string shall be constructed using the rules used by
  the ECMAScript replace function in ECMA-262,
@@ -24503,10 +24595,10 @@ index b7fd51e..f03cf81 100644
 2.7.4
 
 
-From 20dde92a2099ce239c750ab2628247ae236ba23b Mon Sep 17 00:00:00 2001
+From 314ddfe2ce242dd9eb859c9f0f8440bbe753bb95 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sun, 26 Feb 2017 01:07:19 +0100
-Subject: [PATCH 36/42] Remove unwanted paragraph breaks.
+Subject: [PATCH 37/43] Remove unwanted paragraph breaks.
 
 ---
  source/expressions.tex | 3 ---
@@ -24534,10 +24626,10 @@ index b9219cc..7e57758 100644
 2.7.4
 
 
-From d6245438d4ccf138d38b46a5abef09d896486f72 Mon Sep 17 00:00:00 2001
+From acdac524a215cc5ba43df9bb51c712e1f61078cd Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sun, 26 Feb 2017 13:04:04 +0100
-Subject: [PATCH 37/42] Remove some index entries that cause unnecessary
+Subject: [PATCH 38/43] Remove some index entries that cause unnecessary
  duplicate ids.
 
 ---
@@ -24547,10 +24639,10 @@ Subject: [PATCH 37/42] Remove some index entries that cause unnecessary
  3 files changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/source/classes.tex b/source/classes.tex
-index 9961464..e49a214 100644
+index aed8f8a..f95637d 100644
 --- a/source/classes.tex
 +++ b/source/classes.tex
-@@ -111,7 +111,7 @@ as equality comparison, can be defined by the user; see~\ref{over.oper}.
+@@ -110,7 +110,7 @@ as equality comparison, can be defined by the user; see~\ref{over.oper}.
  
  \pnum
  \indextext{\idxcode{struct}!\tcode{class} versus}%
@@ -24560,10 +24652,10 @@ index 9961464..e49a214 100644
  A \term{union} is a class defined with the \grammarterm{class-key}
  \tcode{union};
 diff --git a/source/lib-intro.tex b/source/lib-intro.tex
-index e8621f1..6fee935 100644
+index 1b721f7..cc9c1b8 100644
 --- a/source/lib-intro.tex
 +++ b/source/lib-intro.tex
-@@ -540,7 +540,7 @@ Paragraphs labeled ``\textsc{See also}'' contain cross-references to the relevan
+@@ -538,7 +538,7 @@ Paragraphs labeled ``\textsc{See also}'' contain cross-references to the relevan
  of this International Standard and the ISO C standard.
  
  \rSec2[conventions]{Other conventions}
@@ -24599,10 +24691,10 @@ index 3014fe7..c7ad75c 100644
 2.7.4
 
 
-From fa89d4cba0f70bb659091e50340f12a3ccca696c Mon Sep 17 00:00:00 2001
+From a7a86387f6ec77b6d7c56949f234aa1c69a50f89 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sun, 26 Feb 2017 13:11:19 +0100
-Subject: [PATCH 38/42] [temp.class.order] Merge \defn with index entry.
+Subject: [PATCH 39/43] [temp.class.order] Merge \defn with index entry.
 
 ---
  source/templates.tex | 3 +--
@@ -24627,10 +24719,10 @@ index c7ad75c..100897e 100644
 2.7.4
 
 
-From 2a02c1178007204922d7a1e272a17b57da157fb8 Mon Sep 17 00:00:00 2001
+From c6bfe14014dae49b1794d570c6a32daffec8e49f Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sun, 26 Feb 2017 13:55:28 +0100
-Subject: [PATCH 39/42] Replace \term with \techterm where appropriate.
+Subject: [PATCH 40/43] Replace \term with \techterm where appropriate.
 
 Or more specifically: where necessary to prevent cxxdraft-htmlgen from generating duplicate IDs
 (since it generates anchors for all \term{}s).
@@ -24645,10 +24737,10 @@ Or more specifically: where necessary to prevent cxxdraft-htmlgen from generatin
  7 files changed, 43 insertions(+), 43 deletions(-)
 
 diff --git a/source/classes.tex b/source/classes.tex
-index e49a214..ff7fbcf 100644
+index f95637d..b128e5f 100644
 --- a/source/classes.tex
 +++ b/source/classes.tex
-@@ -113,7 +113,7 @@ as equality comparison, can be defined by the user; see~\ref{over.oper}.
+@@ -112,7 +112,7 @@ as equality comparison, can be defined by the user; see~\ref{over.oper}.
  \indextext{\idxcode{struct}!\tcode{class} versus}%
  %\indextext{structure}%
  \indextext{\idxcode{union}!\tcode{class} versus}%
@@ -24687,7 +24779,7 @@ index 7e57758..5e54f18 100644
  
  \pnum
 diff --git a/source/iostreams.tex b/source/iostreams.tex
-index 5007e8c..6493ecf 100644
+index d4a5b66..172a172 100644
 --- a/source/iostreams.tex
 +++ b/source/iostreams.tex
 @@ -3020,16 +3020,16 @@ namespace std {
@@ -24857,10 +24949,10 @@ index 264a455..c9e4500 100644
  The default constructor
  \tcode{istreambuf_iterator()}
 diff --git a/source/lib-intro.tex b/source/lib-intro.tex
-index 6fee935..d2fedb9 100644
+index cc9c1b8..ac64620 100644
 --- a/source/lib-intro.tex
 +++ b/source/lib-intro.tex
-@@ -224,7 +224,7 @@ that is not list-initialization~(\ref{dcl.init.list})
+@@ -222,7 +222,7 @@ that is not list-initialization~(\ref{dcl.init.list})
  \definition{handler function}{defns.handler}
  \indexdefn{function!handler}%
  a
@@ -24869,7 +24961,7 @@ index 6fee935..d2fedb9 100644
  whose definition may be provided by a \Cpp{} program\\
  \begin{note}
  A \Cpp{} program may designate a handler function at various points in its execution by
-@@ -294,7 +294,7 @@ including reference types. \end{note}
+@@ -292,7 +292,7 @@ including reference types. \end{note}
  \definition{replacement function}{defns.replacement}
  \indexdefn{function!replacement}%
  a
@@ -24878,7 +24970,7 @@ index 6fee935..d2fedb9 100644
  whose definition is provided by a \Cpp{} program\\
  \begin{note}
  Only one definition for such a function is in effect for the duration of the program's
-@@ -310,9 +310,9 @@ previously encountered
+@@ -308,9 +308,9 @@ previously encountered
  \definition{required behavior}{defns.required.behavior}
  \indexdefn{behavior!required}%
  a description of
@@ -24890,7 +24982,7 @@ index 6fee935..d2fedb9 100644
  semantics
  applicable to both the behavior provided by the implementation and
  the behavior of any such function definition in the program\\
-@@ -694,17 +694,17 @@ bitmask types:
+@@ -692,17 +692,17 @@ bitmask types:
  \begin{itemize}
  \item
  To
@@ -24911,7 +25003,7 @@ index 6fee935..d2fedb9 100644
  in the object
  \textit{X} if the expression \textit{X} \tcode{\&} \textit{Y} is nonzero.
  \end{itemize}
-@@ -795,17 +795,17 @@ a length value, maintained separately from the character sequence.}
+@@ -793,17 +793,17 @@ a length value, maintained separately from the character sequence.}
  
  \pnum
  The
@@ -24955,7 +25047,7 @@ index 34a5a7a..96619f8 100644
  it is \link{odr-used}{\ref{basic.def.odr}} (e.g., when it is selected by overload resolution
  to assign to an object of its class type)
 diff --git a/source/utilities.tex b/source/utilities.tex
-index 37eb1bb..fc1194e 100644
+index 9725684..b803750 100644
 --- a/source/utilities.tex
 +++ b/source/utilities.tex
 @@ -15269,7 +15269,7 @@ arguments that help define the relationship being described. It shall
@@ -24971,10 +25063,10 @@ index 37eb1bb..fc1194e 100644
 2.7.4
 
 
-From 07f7fef9eb20d8d8b49278542a576327ede3b6c7 Mon Sep 17 00:00:00 2001
+From 735170442302c0706e6b62fffaf86d76b3e403b2 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sun, 26 Feb 2017 14:02:26 +0100
-Subject: [PATCH 40/42] Replace \term with \grammarterm where appropriate.
+Subject: [PATCH 41/43] Replace \term with \grammarterm where appropriate.
 
 ---
  source/access.tex       | 2 +-
@@ -25016,10 +25108,10 @@ index 45f41fb..c36ce31 100644
 2.7.4
 
 
-From 76fc0a445a990daf2a65444539100bb2344f5d0f Mon Sep 17 00:00:00 2001
+From 448dad7a886a4f0694262c5b3ba13679c9097a72 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sun, 26 Feb 2017 17:29:53 +0100
-Subject: [PATCH 41/42] Index second definition of 'object expression'.
+Subject: [PATCH 42/43] Index second definition of 'object expression'.
 
 ---
  source/expressions.tex | 2 +-
@@ -25042,20 +25134,20 @@ index 5e54f18..cdcfaee 100644
 2.7.4
 
 
-From 9f44f048fec7db03d7e7741d98d7fda6ba6ef99a Mon Sep 17 00:00:00 2001
+From fda8c7ebf26b8c87dcdc9da225b6840f5cd857c8 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Mon, 20 Mar 2017 20:59:23 +0100
-Subject: [PATCH 42/42] Use \newcommand instead of \def.
+Subject: [PATCH 43/43] Use \newcommand instead of \def.
 
 ---
  source/iostreams.tex | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/source/iostreams.tex b/source/iostreams.tex
-index 6493ecf..af307bd 100644
+index 172a172..62500ea 100644
 --- a/source/iostreams.tex
 +++ b/source/iostreams.tex
-@@ -10665,7 +10665,7 @@ For Windows-based operating systems,
+@@ -10663,7 +10663,7 @@ For Windows-based operating systems,
  
  \rSec3[fs.path.generic]{Generic pathname format}
  
