@@ -29,6 +29,9 @@ if [ -f ../htmlgen_code.patch ]
 then
 git apply ../htmlgen_code.patch
 fi
+
+export PATH=$PATH:/usr/local/lib/node_modules/mathjax-node/bin/
+
 rm -rf 14882
 runhaskell genhtml.hs ../draft Bare
 
@@ -52,6 +55,12 @@ mv icon.png.html icon.png
 cp ../draft/source/std_orig.pdf ./draft.pdf
 cp ../networking-ts/src/ts.pdf ./networking-ts.pdf
 cp ../ranges-ts/ranges.pdf ./ranges-ts.pdf
+
+if [ ! -f full.html ]
+then
+echo "Something was wrong."
+exit 1
+fi
 
 git add -A
 git commit -m 'Update'
