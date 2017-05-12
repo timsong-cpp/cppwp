@@ -30,8 +30,6 @@ then
 git apply ../htmlgen_code.patch
 fi
 
-export PATH=$PATH:/usr/local/lib/node_modules/mathjax-node/bin/
-
 rm -rf 14882
 runhaskell genhtml.hs ../draft Bare
 
