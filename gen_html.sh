@@ -1,5 +1,8 @@
 #! /bin/sh
 
+if [ "$1" != "htmlonly" ]
+then
+
 git submodule foreach 'git pull origin || :'
 
 # Build the standard
@@ -23,7 +26,10 @@ fi
 latexmk -c
 latexmk -pdf std
 
-cd ../../cxxdraft-htmlgen
+cd ../..
+fi
+
+cd cxxdraft-htmlgen
 git reset --hard origin/master
 if [ -f ../htmlgen_code.patch ]
 then
@@ -31,7 +37,9 @@ git apply ../htmlgen_code.patch
 fi
 
 rm -rf 14882
-runhaskell genhtml.hs ../draft Bare
+cabal update
+cabal build
+dist/build/cxxdraft-htmlgen/cxxdraft-htmlgen ../draft Bare
 
 rm ../gh-pages/*.html ../gh-pages/draft.pdf
 find 14882/ -maxdepth 1 -type f -execdir cp '{}' ../../gh-pages/'{}'.html \;
@@ -47,9 +55,8 @@ latexmk -pdf ranges
 
 # Fixup gh-pages
 cd ../gh-pages
-mv 14882.css.html 14882.css
+rename 's/.html//' *.css.html *.png.html
 mv index.html.html index.html
-mv icon.png.html icon.png
 cp ../draft/source/std_orig.pdf ./draft.pdf
 cp ../networking-ts/src/ts.pdf ./networking-ts.pdf
 cp ../ranges-ts/ranges.pdf ./ranges-ts.pdf
