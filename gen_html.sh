@@ -55,6 +55,7 @@ latexmk -pdf ranges
 
 # Fixup gh-pages
 cd ../gh-pages
+rm *.css *.png
 rename 's/.html//' *.css.html *.png.html
 mv index.html.html index.html
 cp ../draft/source/std_orig.pdf ./draft.pdf
