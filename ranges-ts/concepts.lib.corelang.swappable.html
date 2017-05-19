@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang='en'><head><title>[concepts.lib.corelang.swappable]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>7</a> Concepts library <a class='abbr_ref' href='index.html#concepts.lib'>[concepts.lib]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>7.3</a> Core language concepts <a class='abbr_ref' href='concepts.lib.corelang.html#swappable'>[concepts.lib.corelang]</a></h2><div id='concepts.lib.corelang.swappable'><h3 ><a class='secnum' style='min-width:103pt'>7.3.11</a> Concept <span class='texttt'>Swappable</span> <a class='abbr_ref'>[concepts.lib.corelang.swappable]</a></h3><p ><span class='indexparent'><a class='index' id='Swappable'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+concept bool Swappable() {
+  return requires(T&amp;&amp; a, T&amp;&amp; b) {
+    ranges::swap(std::forward&lt;T&gt;(a), std::forward&lt;T&gt;(b));
+  };
+}
+
+template &lt;class T, class U&gt;
+concept bool Swappable() {
+  return Swappable&lt;T&gt;() &amp;&amp;
+    Swappable&lt;U&gt;() &amp;&amp;
+    CommonReference&lt;const T&amp;, const U&amp;&gt;() &amp;&amp;
+    requires(T&amp;&amp; t, U&amp;&amp; u) {
+      ranges::swap(std::forward&lt;T&gt;(t), std::forward&lt;U&gt;(u));
+      ranges::swap(std::forward&lt;U&gt;(u), std::forward&lt;T&gt;(t));
+    };
+}
+</code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p >This subclause provides definitions for swappable types and expressions. In these
+definitions, let <span class='texttt'>t</span> denote an expression of type <span class='texttt'>T</span>, and let <span class='texttt'>u</span>
+denote an expression of type <span class='texttt'>U</span>.</p></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p >An object <span class='texttt'>t</span> is <a class='hidden_link' href='#def:swappable_with' id='def:swappable_with'><i>swappable with</i></a> an object <span class='texttt'>u</span> if and only if
+<span class='texttt'>Swappable&lt;T, U&gt;()</span> is satisfied. <span class='texttt'>Swappable&lt;T, U&gt;()</span> is satisfied if
+and only if given distinct objects <span class='texttt'>t2</span> equal to <span class='texttt'>t</span>
+and <span class='texttt'>u2</span> equal to <span class='texttt'>u</span>, after evaluating either
+<span class='texttt'>ranges::swap(t, u)</span> or <span class='texttt'>ranges::swap(u, t)</span>, <span class='texttt'>t2</span> is equal to
+<span class='texttt'>u</span> and <span class='texttt'>u2</span> is equal to <span class='texttt'>t</span>.</p></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p >An rvalue or lvalue <span class='texttt'>t</span> is <a class='hidden_link' href='#def:swappable' id='def:swappable'><i>swappable</i></a> if and only if <span class='texttt'>t</span> is
+swappable with any rvalue or lvalue, respectively, of type <span class='texttt'>T</span>.</p><p >[&nbsp;<i>Example:</i> User code can ensure that the evaluation of <span class='texttt'>swap</span> calls
+is performed in an appropriate context under the various conditions as follows:
+</p><pre class='codeblock'>
+#include &lt;utility&gt;
+
+<span class='comment'>// Requires: <span class='texttt'>std::forward&lt;T&gt;(t)</span> shall be swappable with <span class='texttt'>std::forward&lt;U&gt;(u)</span>.
+</span>template &lt;class T, class U&gt;
+void value_swap(T&amp;&amp; t, U&amp;&amp; u) {
+  using std::experimental::ranges::swap;
+  swap(std::forward&lt;T&gt;(t), std::forward&lt;U&gt;(u));         <span class='comment'>// OK: uses “swappable with” conditions
+</span>                                                        <span class='comment'>// for rvalues and lvalues
+</span>}
+
+<span class='comment'>// Requires: lvalues of <span class='texttt'>T</span> shall be swappable.
+</span>template &lt;class T&gt;
+void lv_swap(T&amp; t1, T&amp; t2) {
+  using std::experimental::ranges::swap;
+  swap(t1, t2);                                         <span class='comment'>// OK: uses swappable conditions for
+</span>}                                                       <span class='comment'>// lvalues of type <span class='texttt'>T</span>
+</span>
+namespace N {
+  struct A { int m; };
+  struct Proxy { A* a; };
+  Proxy proxy(A&amp; a) { return Proxy{ &amp;a }; }
+
+  void swap(A&amp; x, Proxy p) {
+    std::experimental::ranges::swap(x.m, p.a-&gt;m);  <span class='comment'>// OK: uses context equivalent to swappable
+</span>                                                   <span class='comment'>// conditions for fundamental types
+</span>  }
+  void swap(Proxy p, A&amp; x) { swap(x, p); }         <span class='comment'>// satisfy symmetry constraint
+</span>}
+
+int main() {
+  int i = 1, j = 2;
+  lv_swap(i, j);
+  assert(i == 2 &amp;&amp; j == 1);
+
+  N::A a1 = { 5 }, a2 = { -5 };
+  value_swap(a1, proxy(a2));
+  assert(a1.m == -5 &amp;&amp; a2.m == 5);
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div></div></div></body></html>

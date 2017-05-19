@@ -1,0 +1,61 @@
+<!DOCTYPE html><html lang='en'><head><title>[common.iterator]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>9</a> Iterators library <a class='abbr_ref' href='index.html#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>9.7</a> Iterator adaptors <a class='abbr_ref' href='iterators.predef.html#common.iterator'>[iterators.predef]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>9.7.4</a> Common iterators <a class='abbr_ref' href='iterators.common.html#common.iterator'>[iterators.common]</a></h3><div id='common.iterator'><h4 ><a class='secnum' style='min-width:118pt'>9.7.4.1</a> Class template <span class='texttt'>common_iterator</span> <a class='abbr_ref'>[common.iterator]</a></h4><p ><span class='indexparent'><a class='index' id='common_iterator'></a></span></p><pre class='codeblock'>
+namespace std { namespace experimental { namespace ranges { inline namespace v1 {
+  template &lt;Iterator I, Sentinel&lt;I&gt; S&gt;
+    requires !Same&lt;I, S&gt;()
+  class common_iterator {
+  public:
+    using difference_type = difference_type_t&lt;I&gt;;
+
+    common_iterator();
+    common_iterator(I i);
+    common_iterator(S s);
+    common_iterator(const common_iterator&lt;ConvertibleTo&lt;I&gt;, ConvertibleTo&lt;S&gt;&gt;&amp; u);
+    common_iterator&amp; operator=(const common_iterator&lt;ConvertibleTo&lt;I&gt;, ConvertibleTo&lt;S&gt;&gt;&amp; u);
+
+    ~common_iterator();
+
+    <i><span class='texttt'>see below</span></i> operator*();
+    <i><span class='texttt'>see below</span></i> operator*() const;
+    <i><span class='texttt'>see below</span></i> operator-&gt;() const requires Readable&lt;I&gt;();
+
+    common_iterator&amp; operator++();
+    common_iterator operator++(int);
+
+  private:
+    bool is_sentinel; <span class='comment'>// <i>exposition only</i>
+</span>    I iter;           <span class='comment'>// <i>exposition only</i>
+</span>    S sentinel;       <span class='comment'>// <i>exposition only</i>
+</span>  };
+
+  template &lt;Readable I, class S&gt;
+  struct value_type&lt;common_iterator&lt;I, S&gt;&gt; {
+    using type = value_type_t&lt;I&gt;;
+  };
+
+  template &lt;InputIterator I, class S&gt;
+  struct iterator_category&lt;common_iterator&lt;I, S&gt;&gt; {
+    using type = input_iterator_tag;
+  };
+
+  template &lt;ForwardIterator I, class S&gt;
+  struct iterator_category&lt;common_iterator&lt;I, S&gt;&gt; {
+    using type = forward_iterator_tag;
+  };
+
+  template &lt;class I1, class I2, Sentinel&lt;I2&gt; S1, Sentinel&lt;I1&gt; S2&gt;
+  bool operator==(
+    const common_iterator&lt;I1, S1&gt;&amp; x, const common_iterator&lt;I2, S2&gt;&amp; y);
+  template &lt;class I1, class I2, Sentinel&lt;I2&gt; S1, Sentinel&lt;I1&gt; S2&gt;
+    requires EqualityComparable&lt;I1, I2&gt;()
+  bool operator==(
+    const common_iterator&lt;I1, S1&gt;&amp; x, const common_iterator&lt;I2, S2&gt;&amp; y);
+  template &lt;class I1, class I2, Sentinel&lt;I2&gt; S1, Sentinel&lt;I1&gt; S2&gt;
+  bool operator!=(
+    const common_iterator&lt;I1, S1&gt;&amp; x, const common_iterator&lt;I2, S2&gt;&amp; y);
+
+  template &lt;class I2, SizedSentinel&lt;I2&gt; I1, SizedSentinel&lt;I2&gt; S1, SizedSentinel&lt;I1&gt; S2&gt;
+  difference_type_t&lt;I2&gt; operator-(
+    const common_iterator&lt;I1, S1&gt;&amp; x, const common_iterator&lt;I2, S2&gt;&amp; y);
+}}}}
+</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >[&nbsp;<i>Note:</i> It is unspecified whether <span class='texttt'>common_iterator</span>'s members
+<span class='texttt'>iter</span> and <span class='texttt'>sentinel</span> have distinct addresses or not.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div></div></body></html>

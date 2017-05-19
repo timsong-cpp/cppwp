@@ -1,0 +1,212 @@
+<!DOCTYPE html><html lang='en'><head><title>[meta]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>8</a> General utilities library <a class='abbr_ref' href='index.html#utilities'>[utilities]</a></h1><div id='meta'><h2 ><a class='secnum' style='min-width:88pt'>8.4</a> Metaprogramming and type traits <a class='abbr_ref'>[meta]</a></h2><div id='type.synop'><h3 ><a class='secnum' href='#type.synop' style='min-width:103pt'>8.4.1</a> Header <span class='texttt'>&lt;type_traits&gt;</span> synopsis <a class='abbr_ref' href='meta.type.synop.html'>[meta.type.synop]</a></h3><p ><span class='enote'>[Editor's note: Change the <span class='texttt'>&lt;type_traits&gt;</span> synopsis (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> meta.type.synop <span class='endcsname'></span>) as
+follows. Note: this change is intended to be made in <span class='texttt'>namespace std</span>.]</span></p><pre class='codeblock'>
+namespace std {
+  [...]
+  <span class='comment'>// 20.10.4.3, type properties:
+</span>  [...]
+  template &lt;class T&gt; struct is_move_assignable;
+
+  <span class='added'>template &lt;class T, class U&gt; struct is_swappable_with;</span>
+  <span class='added'>template &lt;class T&gt; struct is_swappable;</span>
+
+  template &lt;class T&gt; struct is_destructible;
+  [...]
+  template &lt;class T&gt; struct is_nothrow_move_assignable;
+
+  <span class='added'>template &lt;class T, class U&gt; struct is_nothrow_swappable_with;</span>
+  <span class='added'>template &lt;class T&gt; struct is_nothrow_swappable;</span>
+
+  template &lt;class T&gt; struct is_nothrow_destructible;
+  [...]
+
+  <span class='comment'>// 20.10.7.6, other transformations:
+</span>  [...]
+  template &lt;class... T&gt; struct common_type;
+  <span class='added'>template &lt;class T, class U, template &lt;class&gt; class TQual, template &lt;class&gt; class UQual&gt;</span>
+    <span class='added'>struct basic_common_reference { };</span>
+  <span class='added'>template &lt;class... T&gt; struct common_reference;</span>
+  template &lt;class T&gt; struct underlying_type;
+  [...]
+  template &lt;class... T&gt;
+    using common_type_t = typename common_type&lt;T...&gt;::type;
+  <span class='added'>template &lt;class... T&gt;</span>
+    <span class='added'>using common_reference_t = typename common_reference&lt;T...&gt;::type;</span>
+  template &lt;class T&gt;
+    using underlying_type_t = typename underlying_type&lt;T&gt;::type;
+  [...]
+
+  <span class='comment'>// 20.15.4.3, type properties
+</span>  [...]
+  <span class='added'>template &lt;class T, class U&gt; constexpr bool is_swappable_with_v</span>
+    <span class='added'>= is_swappable_with&lt;T, U&gt;::value;</span>
+  <span class='added'>template &lt;class T&gt; constexpr bool is_swappable_v</span>
+    <span class='added'>= is_swappable&lt;T&gt;::value;</span>
+  [...]
+  <span class='added'>template &lt;class T, class U&gt; constexpr bool is_nothrow_swappable_with_v</span>
+    <span class='added'>= is_nothrow_swappable_with&lt;T, U&gt;::value;</span>
+  <span class='added'>template &lt;class T&gt; constexpr bool is_nothrow_swappable_v</span>
+    <span class='added'>= is_nothrow_swappable&lt;T&gt;::value;</span>
+  [...]
+}
+</pre></div><div id='unary.prop'><h3 ><a class='secnum' href='#unary.prop' style='min-width:103pt'>8.4.2</a> Type properties <a class='abbr_ref' href='meta.unary.prop.html'>[meta.unary.prop]</a></h3><p ><span class='enote'>[Editor's note: Change [meta.unary.prop], Table 49 – “Type property predicates” in
+ISO/IEC 14882:2014 as indicated. The following is taken from the current
+Working Draft of C++17.]</span></p><div class='numberedTable' id='tab:type-traits.properties'>Table <a href='#tab:type-traits.properties'>5</a> — Type property predicates<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Template</b></td><td colspan='1' class='center'><b>Condition</b></td><td colspan='1' class='center'><b>Preconditions</b></td></tr><tr class='capsep'><td class='left'> 
+...  </td><td class='left'> </td><td class='left'> </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_swappable_with'></a></span><span class='added'><span class='texttt'>template &lt;class T, class U&gt;</span></span><br/>
+  <span class='added'><span class='texttt'>struct is_swappable_with;</span></span> </td><td class='left'>
+  <span class='added'>The expressions <span class='texttt'>swap(declval&lt;T&gt;(),</span></span><span class='added'><span class='texttt'> declval&lt;U&gt;())</span>
+  and <span class='texttt'>swap(</span></span><span class='added'><span class='texttt'>declval&lt;U&gt;(),</span></span><span class='added'><span class='texttt'> declval&lt;T&gt;())</span>
+  are each well-formed when treated as an unevaluated operand (Clause   ISO/IEC 14882:2014 &sect;  <span class='csname'></span> expr <span class='endcsname'></span>)
+  in an overload-resolution context for swappable
+  values (<a href='concepts.lib.corelang.swappable.html'>[concepts.lib.corelang.swappable]</a>).
+  Access checking is performed as if in a context unrelated to <span class='texttt'>T</span> and <span class='texttt'>U</span>.
+  Only the validity of the immediate context of the <span class='texttt'>swap</span> expressions is
+  considered.</span>
+  [&nbsp;<i>Note:</i>
+  <span class='added'>The compilation of the expressions can result in side effects such as the
+  instantiation of class template specializations and function template specializations,
+  the generation of implicitly-defined functions, and so on. Such side effects are not
+  in the “immediate context” and can result in the program being ill-formed.</span>
+  <i>&nbsp;—&nbsp;end note</i>&nbsp;] </td><td class='left'>
+  <span class='added'><span class='texttt'>T</span> and <span class='texttt'>U</span> shall be complete types,
+  (possibly cv-qualified) <span class='texttt'>void</span>, or
+  arrays of unknown bound.</span>  </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_swappable'></a></span><span class='added'><span class='texttt'>template &lt;class T&gt;</span></span><br/>
+  <span class='added'><span class='texttt'>struct is_swappable;</span></span> </td><td class='left'>
+  <span class='added'>For a referenceable type <span class='texttt'>T</span>,
+  the same result as <span class='texttt'>is_swappable_with_v&lt;</span></span><span class='added'><span class='texttt'>T&amp;, T&amp;&gt;</span>,
+  otherwise <span class='texttt'>false</span>.</span> </td><td class='left'>
+  <span class='added'><span class='texttt'>T</span> shall be a complete type,
+  (possibly cv-qualified) <span class='texttt'>void</span>, or
+  an array of unknown bound.</span> </td></tr><tr class='rowsep'><td class='left'> ... </td><td class='left'> </td><td class='left'> </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_nothrow_swappable_with'></a></span><span class='texttt'><span class='added'>template &lt;class T, class U&gt;</span></span><br/>
+  <span class='added'><span class='texttt'>struct is_nothrow_swappable_with;</span></span> </td><td class='left'>
+  <span class='added'><span class='texttt'>is_swappable_with_v&lt;T, </span></span><span class='added'><span class='texttt'>U&gt;</span> is <span class='texttt'>true</span> and
+  each <span class='texttt'>swap</span> expression of the definition of
+  <span class='texttt'>is_swappable_with&lt;T, U&gt;</span> is known not to throw
+  any exceptions (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> expr.unary.noexcept <span class='endcsname'></span>).</span> </td><td class='left'>
+  <span class='added'><span class='texttt'>T</span> and <span class='texttt'>U</span> shall be complete types,
+  (possibly cv-qualified) <span class='texttt'>void</span>, or
+  arrays of unknown bound.</span> </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_nothrow_swappable'></a></span><span class='texttt'><span class='added'>template &lt;class T&gt;</span></span><br/>
+  <span class='added'><span class='texttt'>struct is_nothrow_swappable;</span></span> </td><td class='left'>
+  <span class='added'>For a referenceable type <span class='texttt'>T</span>,
+  the same result as <span class='texttt'>is_nothrow_swappable_</span></span><span class='added'><span class='texttt'>with_v&lt;T&amp;, T&amp;&gt;</span>,
+  otherwise <span class='texttt'>false</span>.</span> </td><td class='left'>
+  <span class='added'><span class='texttt'>T</span> shall be a complete type,
+  (possibly cv-qualified) <span class='texttt'>void</span>, or
+  an array of unknown bound.</span> </td></tr><tr class='rowsep'><td class='left'> ... </td><td class='left'> </td><td class='left'> </td></tr></table></div></div><div id='trans.other'><h3 ><a class='secnum' href='#trans.other' style='min-width:103pt'>8.4.3</a> Other transformations <a class='abbr_ref' href='meta.trans.other.html'>[meta.trans.other]</a></h3><p ><span class='enote'>[Editor's note: Change Table 57 – “Other Transformations” in ISO/IEC 14882:2014 as
+follows:]</span></p><div class='numberedTable' id='tab:type-traits.other'>Table <a href='#tab:type-traits.other'>6</a> — Other transformations<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Template</b></td><td colspan='1' class='center'><b>Condition</b></td><td colspan='1' class='center'><b>Comments</b></td></tr><tr class='capsep'><td class='left'> 
+... </td><td class='left'> </td><td class='left'> </td></tr><tr class='rowsep'><td class='left'>  <span class='texttt'>template &lt;class... T&gt;</span> <span class='texttt'>struct common_type;</span>
+ </td><td class='left'> </td><td class='left'>
+ The member typedef <span class='texttt'>type</span> shall be defined or omitted as specified below.
+ If it is omitted, there shall be no member <span class='texttt'>type</span>. <span class='removed'>All types</span>
+ <span class='added'>Each type</span> in the parameter pack <span class='texttt'>T</span> shall be complete or
+ (possibly <i>cv</i>) <span class='texttt'>void</span>. A program may specialize this trait if at least one
+ template parameter in the specialization <span class='removed'>is</span><span class='added'>depends on</span> a
+ user-defined type<span class='added'> and <span class='texttt'>sizeof...(T) == 2</span></span>. [&nbsp;<i>Note:</i> Such
+ specializations are needed when only explicit conversions are desired among the
+ template arguments.
+ <i>&nbsp;—&nbsp;end note</i>&nbsp;] </td></tr><tr class='rowsep'><td class='left'> <span class='added'><span class='texttt'>template &lt;class T, class U,</span></span><br/>
+<span class='added'><span class='texttt'>  template &lt;class&gt; class TQual,</span></span>
+<span class='added'><span class='texttt'>  template &lt;class&gt; class UQual&gt;</span></span>
+<span class='added'><span class='texttt'>struct basic_common_reference;</span></span> </td><td class='left'> </td><td class='left'>
+<span class='added'>The primary template shall have no member typedef
+<span class='texttt'>type</span>. A program may specialize this trait if at least one
+template parameter in the specialization depends on a user-defined
+type. In such a specialization, a member typedef <span class='texttt'>type</span> may be
+defined or omitted. If it is omitted, there shall be no member
+<span class='texttt'>type</span>.</span>
+[&nbsp;<i>Note:</i> <span class='added'>Such specializations may be used to influence
+the result of <span class='texttt'>common_reference</span>.</span><i>&nbsp;—&nbsp;end note</i>&nbsp;] </td></tr><tr class='rowsep'><td class='left'> <span class='added'><span class='texttt'>template &lt;class... T&gt;</span></span>
+<span class='added'><span class='texttt'>struct common_reference;</span></span> </td><td class='left'> </td><td class='left'>
+<span class='added'>The member typedef <span class='texttt'>type</span> shall be defined or omitted
+as specified below. If it is omitted, there shall be no member
+<span class='texttt'>type</span>. Each type in the parameter pack <span class='texttt'>T</span> shall be
+complete or (possibly <i>cv</i>) <span class='texttt'>void</span>.</span> </td></tr><tr class='rowsep'><td class='left'> ... </td><td class='left'> </td><td class='left'> </td></tr></table></div><p ><span class='enote'>[Editor's note: Delete [meta.trans.other]/p3 from ISO/IEC 14882:2014 and replace it with
+the following:]</span></p><div class='para' id='trans.other-1'><div class='marginalizedparent'><a class='marginalized' href='#trans.other-1'>1</a></div><p ><span class='added'>Let <span class='texttt'>CREF(A)</span> be <span class='texttt'>add_lvalue_reference_t&lt;const
+remove_reference_t&lt;A&gt;&gt;</span>. Let <span class='texttt'>UNCVREF(A)</span> be
+<span class='texttt'>remove_cv_t&lt;remove_reference_t&lt;A&gt;&gt;</span>. Let <span class='texttt'>XREF(A)</span>
+denote a unary template <span class='texttt'>T</span> such that <span class='texttt'>T&lt;UNCVREF(A)&gt;</span>
+denotes the same type as <span class='texttt'>A</span>. Let <span class='texttt'>COPYCV(FROM, TO)</span> be
+an alias for type <span class='texttt'>TO</span> with the addition of <span class='texttt'>FROM</span>'s
+top-level <i>cv</i>-qualifiers. [&nbsp;<i>Example:</i> <span class='texttt'>COPYCV(const int,
+volatile short)</span> is an alias for <span class='texttt'>const volatile short</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;] Let <span class='texttt'>RREF_RES(Z)</span> be
+<span class='texttt'>remove_reference_t&lt;Z&gt;&amp;&amp;</span> if <span class='texttt'>Z</span> is a reference type
+or <span class='texttt'>Z</span> otherwise. Let <span class='texttt'>COND_RES(X, Y)</span> be
+<span class='texttt'>decltype(declval&lt;bool&gt;() ? declval&lt;X&gt;() : declval&lt;Y&gt;())</span>.
+Given types <span class='texttt'>A</span> and <span class='texttt'>B</span>, let <span class='texttt'>X</span> be
+<span class='texttt'>remove_reference_t&lt;A&gt;</span>, let <span class='texttt'>Y</span> be
+<span class='texttt'>remove_reference_t&lt;B&gt;</span>, and let <span class='texttt'>COMMON_REF(A, B)</span> be:</span>
+</p><ul class='itemize'><li id='trans.other-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#trans.other-1.1'>(1.1)</a></div><p ><span class='added'>If <span class='texttt'>A</span> and <span class='texttt'>B</span> are both lvalue reference types,
+  <span class='texttt'>COMMON_REF(A, B)</span> is
+  <span class='texttt'>COND_RES(COPYCV(X, Y) &amp;, COPYCV(Y, X) &amp;)</span>.</span>
+</p></li><li id='trans.other-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#trans.other-1.2'>(1.2)</a></div><p ><span class='added'>Otherwise, let <span class='texttt'>C</span> be
+  <span class='texttt'>RREF_RES(COMMON_REF(X&amp;, Y&amp;))</span>. If <span class='texttt'>A</span> and <span class='texttt'>B</span>
+  are both rvalue reference types, and <span class='texttt'>C</span> is well-formed,
+  and <span class='texttt'>is_convertible&lt;A, C&gt;::value</span> and
+  <span class='texttt'>is_convertible&lt;B, C&gt;::value</span> are <span class='texttt'>true</span>, then
+  <span class='texttt'>COMMON_REF(A, B)</span> is <span class='texttt'>C</span>.</span>
+</p></li><li id='trans.other-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#trans.other-1.3'>(1.3)</a></div><p ><span class='added'>Otherwise, let <span class='texttt'>D</span> be
+  <span class='texttt'>COMMON_REF(const X&amp;, Y&amp;)</span>. If <span class='texttt'>A</span> is an rvalue
+  reference and <span class='texttt'>B</span> is an lvalue reference and <span class='texttt'>D</span> is
+  well-formed and <span class='texttt'>is_convertible&lt;A, D&gt;::value</span> is
+  <span class='texttt'>true</span>, then <span class='texttt'>COMMON_REF(A, B)</span> is <span class='texttt'>D</span>.</span>
+</p></li><li id='trans.other-1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#trans.other-1.4'>(1.4)</a></div><p ><span class='added'>Otherwise, if <span class='texttt'>A</span> is an lvalue reference and <span class='texttt'>B</span>
+  is an rvalue reference, then <span class='texttt'>COMMON_REF(A, B)</span> is
+  <span class='texttt'>COMMON_REF(B, A)</span>.</span>
+</p></li><li id='trans.other-1.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#trans.other-1.5'>(1.5)</a></div><p ><span class='added'>Otherwise, <span class='texttt'>COMMON_REF(A, B)</span> is
+  <span class='texttt'>decay_t&lt;COND_RES(CREF(A), CREF(B))&gt;</span>.</span>
+</p></li></ul><p ><span class='added'>If any of the types computed above are ill-formed, then
+<span class='texttt'>COMMON_REF(A, B)</span> is ill-formed.</span></p></div><div class='para' id='trans.other-2'><div class='marginalizedparent'><a class='marginalized' href='#trans.other-2'>2</a></div><p >For the <span class='texttt'>common_type</span> trait applied to a parameter pack
+<span class='texttt'>T</span> of types, the member <span class='texttt'>type</span> shall be either defined or not
+present as follows:
+</p><ul class='itemize'><li id='trans.other-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#trans.other-2.1'>(2.1)</a></div><p >If <span class='texttt'>sizeof...(T)</span> is zero, there shall be no member <span class='texttt'>type</span>.
+</p></li><li id='trans.other-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#trans.other-2.2'>(2.2)</a></div><p >Otherwise, if <span class='texttt'>sizeof...(T)</span> is one, let <span class='removed'>T0</span><span class='added'>T1</span>
+  denote the sole type in the pack <span class='texttt'>T</span>. The member typedef <span class='texttt'>type</span>
+  shall denote the same type as <span class='texttt'>decay_t&lt;<span class='removed'>T0</span><span class='added'>T1</span>&gt;</span>.
+</p></li><li id='trans.other-2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#trans.other-2.3'>(2.3)</a></div><p ><span class='added'>Otherwise, if <span class='texttt'>sizeof...(T)</span> is two, let <span class='texttt'>T1</span> and <span class='texttt'>T2</span>
+  denote the two types in the pack <span class='texttt'>T</span>, and let <span class='texttt'>D1</span> and <span class='texttt'>D2</span>
+  be <span class='texttt'>decay_t&lt;T1&gt;</span> and <span class='texttt'>decay_t&lt;T2&gt;</span> respectively. Then</span>
+</p><ul class='itemize'><li id='trans.other-2.3.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#trans.other-2.3.1'>(2.3.1)</a></div><p ><span class='added'>If <span class='texttt'>D1</span> and <span class='texttt'>T1</span> denote the same type and <span class='texttt'>D2</span> and
+  <span class='texttt'>T2</span> denote the same type, then</span>
+</p><ul class='itemize'><li id='trans.other-2.3.1.1'><div class='marginalizedparent' style='left:-11em'><a class='marginalized' href='#trans.other-2.3.1.1'>(2.3.1.1)</a></div><p ><span class='added'>If <span class='texttt'>COMMON_REF(T1, T2)</span> is well-formed, then the member typedef
+  <span class='texttt'>type</span> denotes that type.</span>
+</p></li><li id='trans.other-2.3.1.2'><div class='marginalizedparent' style='left:-11em'><a class='marginalized' href='#trans.other-2.3.1.2'>(2.3.1.2)</a></div><p ><span class='added'>Otherwise, there shall be no member <span class='texttt'>type</span>.</span>
+</p></li></ul></li><li id='trans.other-2.3.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#trans.other-2.3.2'>(2.3.2)</a></div><p ><span class='added'>Otherwise, if <span class='texttt'>common_type_t&lt;D1, D2&gt;</span> is well-formed, then the
+  member typedef <span class='texttt'>type</span> denotes that type.</span>
+</p></li><li id='trans.other-2.3.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#trans.other-2.3.3'>(2.3.3)</a></div><p ><span class='added'>Otherwise, there shall be no member <span class='texttt'>type</span>.</span>
+</p></li></ul></li><li id='trans.other-2.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#trans.other-2.4'>(2.4)</a></div><p >Otherwise, if <span class='texttt'>sizeof...(T)</span> is greater than <span class='removed'>one</span><span class='added'>two</span>,
+  let <span class='texttt'>T1</span>, <span class='texttt'>T2</span>, and <span class='texttt'>R<span class='added'>est</span></span>,
+  respectively, denote the first, second, and (pack of) remaining types
+  comprising <span class='texttt'>T</span>. <span class='removed'>[&nbsp;<i>Note:</i> <span class='texttt'>sizeof...(R)</span> may be zero.
+  <i>&nbsp;—&nbsp;end note</i>&nbsp;]</span> Let <span class='texttt'>C</span> <span class='removed'>denote the type, if any, of an unevaluated
+  conditional expression (5.16) whose first operand is an arbitrary value of
+  type <span class='texttt'>bool</span>, whose second operand is an xvalue of type <span class='texttt'>T1</span>, and
+  whose third operand is an xvalue of type <span class='texttt'>T2</span>.</span><span class='added'>be the type
+  <span class='texttt'>common_type_t&lt;T1, T2&gt;</span>. Then:</span>
+</p><ul class='itemize'><li id='trans.other-2.4.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#trans.other-2.4.1'>(2.4.1)</a></div><p >If there is such a type <span class='texttt'>C</span>, the member typedef
+  <span class='texttt'>type</span> shall denote the same type, if any, as
+  <span class='texttt'>common_type_t&lt;C, R<span class='added'>est</span>...&gt;</span>.
+</p></li><li id='trans.other-2.4.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#trans.other-2.4.2'>(2.4.2)</a></div><p >Otherwise, there shall be no member <span class='texttt'>type</span>.
+</p></li></ul></li></ul></div><div class='para' id='trans.other-3'><div class='marginalizedparent'><a class='marginalized' href='#trans.other-3'>3</a></div><p ><span class='added'>For the <span class='texttt'>common_reference</span> trait applied to a parameter pack <span class='texttt'>T</span> of
+types, the member <span class='texttt'>type</span> shall be either defined or not present as follows:</span>
+</p><ul class='itemize'><li id='trans.other-3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#trans.other-3.1'>(3.1)</a></div><p ><span class='added'>If <span class='texttt'>sizeof...(T)</span> is zero, there shall be no member <span class='texttt'>type</span>.</span>
+</p></li><li id='trans.other-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#trans.other-3.2'>(3.2)</a></div><p ><span class='added'>Otherwise, if <span class='texttt'>sizeof...(T)</span> is one, let <span class='texttt'>T1</span> denote the sole
+  type in the pack <span class='texttt'>T</span>. The member typedef <span class='texttt'>type</span> shall denote the
+  same type as <span class='texttt'>T1</span>.</span>
+</p></li><li id='trans.other-3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#trans.other-3.3'>(3.3)</a></div><p ><span class='added'>Otherwise, if <span class='texttt'>sizeof...(T)</span> is two, let <span class='texttt'>T1</span> and <span class='texttt'>T2</span>
+  denote the two types in the pack <span class='texttt'>T</span>. Then</span>
+</p><ul class='itemize'><li id='trans.other-3.3.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#trans.other-3.3.1'>(3.3.1)</a></div><p ><span class='added'>If <span class='texttt'>COMMON_REF(T1, T2)</span> is well-formed and denotes a reference type
+  then the member typedef <span class='texttt'>type</span> denotes that type.</span>
+</p></li><li id='trans.other-3.3.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#trans.other-3.3.2'>(3.3.2)</a></div><p ><span class='added'>Otherwise, if <span class='texttt'>basic_common_reference&lt;UNCVREF(T1), UNCVREF(T2),
+  XREF(T1), XREF(T2)&gt;::type</span> is well-formed, then the member typedef
+  <span class='texttt'>type</span> denotes that type.</span>
+</p></li><li id='trans.other-3.3.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#trans.other-3.3.3'>(3.3.3)</a></div><p ><span class='added'>Otherwise, if <span class='texttt'>common_type_t&lt;T1, T2&gt;</span> is well-formed, then the
+  member typedef <span class='texttt'>type</span> denotes that type.</span>
+</p></li><li id='trans.other-3.3.4'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#trans.other-3.3.4'>(3.3.4)</a></div><p ><span class='added'>Otherwise, there shall be no member <span class='texttt'>type</span>.</span>
+</p></li></ul></li><li id='trans.other-3.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#trans.other-3.4'>(3.4)</a></div><p ><span class='added'>Otherwise, if <span class='texttt'>sizeof...(T)</span> is greater than two, let <span class='texttt'>T1</span>,
+  <span class='texttt'>T2</span>, and <span class='texttt'>Rest</span>, respectively, denote the first, second, and
+  (pack of) remaining types comprising <span class='texttt'>T</span>. Let <span class='texttt'>C</span> be the type
+  <span class='texttt'>common_reference_t&lt;T1, T2&gt;</span>. Then:</span>
+</p><ul class='itemize'><li id='trans.other-3.4.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#trans.other-3.4.1'>(3.4.1)</a></div><p ><span class='added'>If there is such a type <span class='texttt'>C</span>, the member typedef <span class='texttt'>type</span> shall
+  denote the same type, if any, as <span class='texttt'>common_reference_t&lt;C, Rest...&gt;</span>.</span>
+</p></li><li id='trans.other-3.4.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#trans.other-3.4.2'>(3.4.2)</a></div><p ><span class='added'>Otherwise, there shall be no member <span class='texttt'>type</span>.</span>
+</p></li></ul></li></ul></div></div></div></div></body></html>

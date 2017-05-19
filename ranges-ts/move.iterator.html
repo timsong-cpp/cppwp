@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang='en'><head><title>[move.iterator]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>9</a> Iterators library <a class='abbr_ref' href='index.html#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>9.7</a> Iterator adaptors <a class='abbr_ref' href='iterators.predef.html#move.iterator'>[iterators.predef]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>9.7.3</a> Move iterators and sentinels <a class='abbr_ref' href='iterators.move.html#move.iterator'>[iterators.move]</a></h3><div id='move.iterator'><h4 ><a class='secnum' style='min-width:118pt'>9.7.3.1</a> Class template <span class='texttt'>move_iterator</span> <a class='abbr_ref'>[move.iterator]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Class template <span class='texttt'>move_iterator</span> is an iterator adaptor
+with the same behavior as the underlying iterator except that its
+indirection operator implicitly converts the value returned by the
+underlying iterator's indirection operator to an rvalue
+of the value type.
+Some generic algorithms can be called with move iterators to replace
+copying with moving.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+list&lt;string&gt; s;
+<span class='comment'>// populate the list <span class='texttt'>s</span>
+</span>vector&lt;string&gt; v1(s.begin(), s.end());          <span class='comment'>// copies strings into <span class='texttt'>v1</span>
+</span>vector&lt;string&gt; v2(make_move_iterator(s.begin()),
+                  make_move_iterator(s.end())); <span class='comment'>// moves strings into <span class='texttt'>v2</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='move_iterator'></a></span></p><pre class='codeblock'>
+namespace std { namespace experimental { namespace ranges { inline namespace v1 {
+  template &lt;InputIterator I&gt;
+  class move_iterator {
+  public:
+    using iterator_type     = I;
+    using difference_type   = difference_type_t&lt;I&gt;;
+    using value_type        = value_type_t&lt;I&gt;;
+    using iterator_category = input_iterator_tag;
+    using reference         = rvalue_reference_t&lt;I&gt;;
+
+    move_iterator();
+    explicit move_iterator(I i);
+    move_iterator(const move_iterator&lt;ConvertibleTo&lt;I&gt;&gt;&amp; i);
+    move_iterator&amp; operator=(const move_iterator&lt;ConvertibleTo&lt;I&gt;&gt;&amp; i);
+
+    I base() const;
+    reference operator*() const;
+
+    move_iterator&amp; operator++();
+    move_iterator operator++(int);
+    move_iterator&amp; operator--()
+      requires BidirectionalIterator&lt;I&gt;();
+    move_iterator operator--(int)
+      requires BidirectionalIterator&lt;I&gt;();
+
+    move_iterator operator+(difference_type n) const
+      requires RandomAccessIterator&lt;I&gt;();
+    move_iterator&amp; operator+=(difference_type n)
+      requires RandomAccessIterator&lt;I&gt;();
+    move_iterator operator-(difference_type n) const
+      requires RandomAccessIterator&lt;I&gt;();
+    move_iterator&amp; operator-=(difference_type n)
+      requires RandomAccessIterator&lt;I&gt;();
+    reference operator[](difference_type n) const
+      requires RandomAccessIterator&lt;I&gt;();
+
+  private:
+    I current; <span class='comment'>// <i>exposition only</i>
+</span>  };
+
+  template &lt;class I1, class I2&gt;
+      requires EqualityComparable&lt;I1, I2&gt;()
+    bool operator==(
+      const move_iterator&lt;I1&gt;&amp; x, const move_iterator&lt;I2&gt;&amp; y);
+  template &lt;class I1, class I2&gt;
+      requires EqualityComparable&lt;I1, I2&gt;()
+    bool operator!=(
+      const move_iterator&lt;I1&gt;&amp; x, const move_iterator&lt;I2&gt;&amp; y);
+  template &lt;class I1, class I2&gt;
+      requires StrictTotallyOrdered&lt;I1, I2&gt;()
+    bool operator&lt;(
+      const move_iterator&lt;I1&gt;&amp; x, const move_iterator&lt;I2&gt;&amp; y);
+  template &lt;class I1, class I2&gt;
+      requires StrictTotallyOrdered&lt;I1, I2&gt;()
+    bool operator&lt;=(
+      const move_iterator&lt;I1&gt;&amp; x, const move_iterator&lt;I2&gt;&amp; y);
+  template &lt;class I1, class I2&gt;
+      requires StrictTotallyOrdered&lt;I1, I2&gt;()
+    bool operator&gt;(
+      const move_iterator&lt;I1&gt;&amp; x, const move_iterator&lt;I2&gt;&amp; y);
+  template &lt;class I1, class I2&gt;
+      requires StrictTotallyOrdered&lt;I1, I2&gt;()
+    bool operator&gt;=(
+      const move_iterator&lt;I1&gt;&amp; x, const move_iterator&lt;I2&gt;&amp; y);
+
+  template &lt;class I1, class I2&gt;
+      requires SizedSentinel&lt;I1, I2&gt;()
+    difference_type_t&lt;I2&gt; operator-(
+      const move_iterator&lt;I1&gt;&amp; x,
+      const move_iterator&lt;I2&gt;&amp; y);
+  template &lt;RandomAccessIterator I&gt;
+    move_iterator&lt;I&gt;
+      operator+(
+        difference_type_t&lt;I&gt; n,
+        const move_iterator&lt;I&gt;&amp; x);
+  template &lt;InputIterator I&gt;
+    move_iterator&lt;I&gt; make_move_iterator(I i);
+}}}}
+</pre></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >[&nbsp;<i>Note:</i> <span class='texttt'>move_iterator</span> does not provide an <span class='texttt'>operator-&gt;</span> because the class member access
+expression <span class='texttt'><i>i</i>-&gt;<i>m</i></span> may have different semantics than the expression
+<span class='texttt'>(*<i>i</i>).<i>m</i></span> when the expression <span class='texttt'>*<i>i</i></span> is an rvalue.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div></div></body></html>

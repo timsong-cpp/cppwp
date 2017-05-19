@@ -1,0 +1,119 @@
+<!DOCTYPE html><html lang='en'><head><title>[counted.iterator]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>9</a> Iterators library <a class='abbr_ref' href='index.html#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>9.7</a> Iterator adaptors <a class='abbr_ref' href='iterators.predef.html#counted.iterator'>[iterators.predef]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>9.7.6</a> Counted iterators <a class='abbr_ref' href='iterators.counted.html#counted.iterator'>[iterators.counted]</a></h3><div id='counted.iterator'><h4 ><a class='secnum' style='min-width:118pt'>9.7.6.1</a> Class template <span class='texttt'>counted_iterator</span> <a class='abbr_ref'>[counted.iterator]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Class template <span class='texttt'>counted_iterator</span> is an iterator adaptor
+with the same behavior as the underlying iterator except that it
+keeps track of its distance from its starting position. It can be
+used together with class <span class='texttt'>default_sentinel</span> in calls to generic
+algorithms to operate on a range of <span class='math'><span class='mathalpha'>N</span></span> elements starting at a given
+position without needing to know the end position <i>a priori</i>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >[&nbsp;<i>Example:</i></p><pre class='codeblock'>
+list&lt;string&gt; s;
+<span class='comment'>// populate the list <span class='texttt'>s</span> with at least 10 strings
+</span>vector&lt;string&gt; v(make_counted_iterator(s.begin(), 10),
+                 default_sentinel()); <span class='comment'>// copies 10 strings into <span class='texttt'>v</span>
+</span></pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >Two values <span class='texttt'>i1</span> and <span class='texttt'>i2</span> of (possibly differing) types
+<span class='texttt'>counted_iterator&lt;I1&gt;</span> and <span class='texttt'>counted_iterator&lt;I2&gt;</span> refer to
+elements of the same sequence if and only if <span class='texttt'>next(i1.base(), i1.count())</span>
+and <span class='texttt'>next(i2.base(), i2.count())</span> refer to the same (possibly past-the-end) element.</p><p ><span class='indexparent'><a class='index' id='counted_iterator'></a></span></p><pre class='codeblock'>
+namespace std { namespace experimental { namespace ranges { inline namespace v1 {
+  template &lt;Iterator I&gt;
+  class counted_iterator {
+  public:
+    using iterator_type = I;
+    using difference_type = difference_type_t&lt;I&gt;;
+
+    counted_iterator();
+    counted_iterator(I x, difference_type_t&lt;I&gt; n);
+    counted_iterator(const counted_iterator&lt;ConvertibleTo&lt;I&gt;&gt;&amp; i);
+    counted_iterator&amp; operator=(const counted_iterator&lt;ConvertibleTo&lt;I&gt;&gt;&amp; i);
+
+    I base() const;
+    difference_type_t&lt;I&gt; count() const;
+    <i><span class='texttt'>see below</span></i> operator*();
+    <i><span class='texttt'>see below</span></i> operator*() const;
+
+    counted_iterator&amp; operator++();
+    counted_iterator operator++(int);
+    counted_iterator&amp; operator--()
+      requires BidirectionalIterator&lt;I&gt;();
+    counted_iterator operator--(int)
+      requires BidirectionalIterator&lt;I&gt;();
+
+    counted_iterator  operator+ (difference_type n) const
+      requires RandomAccessIterator&lt;I&gt;();
+    counted_iterator&amp; operator+=(difference_type n)
+      requires RandomAccessIterator&lt;I&gt;();
+    counted_iterator  operator- (difference_type n) const
+      requires RandomAccessIterator&lt;I&gt;();
+    counted_iterator&amp; operator-=(difference_type n)
+      requires RandomAccessIterator&lt;I&gt;();
+    <i><span class='texttt'>see below</span></i> operator[](difference_type n) const
+      requires RandomAccessIterator&lt;I&gt;();
+  private:
+    I current; <span class='comment'>// <i>exposition only</i>
+</span>    difference_type_t&lt;I&gt; cnt; <span class='comment'>// <i>exposition only</i>
+</span>  };
+
+  template &lt;Readable I&gt;
+  struct value_type&lt;counted_iterator&lt;I&gt;&gt; {
+    using type = value_type_t&lt;I&gt;;
+  };
+
+  template &lt;InputIterator I&gt;
+  struct iterator_category&lt;counted_iterator&lt;I&gt;&gt; {
+    using type = iterator_category_t&lt;I&gt;;
+  };
+
+  template &lt;class I1, class I2&gt;
+      requires Common&lt;I1, I2&gt;()
+    bool operator==(
+      const counted_iterator&lt;I1&gt;&amp; x, const counted_iterator&lt;I2&gt;&amp; y);
+    bool operator==(
+      const counted_iterator&lt;auto&gt;&amp; x, default_sentinel);
+    bool operator==(
+      default_sentinel, const counted_iterator&lt;auto&gt;&amp; x);
+
+  template &lt;class I1, class I2&gt;
+      requires Common&lt;I1, I2&gt;()
+    bool operator!=(
+      const counted_iterator&lt;I1&gt;&amp; x, const counted_iterator&lt;I2&gt;&amp; y);
+    bool operator!=(
+      const counted_iterator&lt;auto&gt;&amp; x, default_sentinel y);
+    bool operator!=(
+      default_sentinel x, const counted_iterator&lt;auto&gt;&amp; y);
+
+  template &lt;class I1, class I2&gt;
+      requires Common&lt;I1, I2&gt;()
+    bool operator&lt;(
+      const counted_iterator&lt;I1&gt;&amp; x, const counted_iterator&lt;I2&gt;&amp; y);
+  template &lt;class I1, class I2&gt;
+      requires Common&lt;I1, I2&gt;()
+    bool operator&lt;=(
+      const counted_iterator&lt;I1&gt;&amp; x, const counted_iterator&lt;I2&gt;&amp; y);
+  template &lt;class I1, class I2&gt;
+      requires Common&lt;I1, I2&gt;()
+    bool operator&gt;(
+      const counted_iterator&lt;I1&gt;&amp; x, const counted_iterator&lt;I2&gt;&amp; y);
+  template &lt;class I1, class I2&gt;
+      requires Common&lt;I1, I2&gt;()
+    bool operator&gt;=(
+      const counted_iterator&lt;I1&gt;&amp; x, const counted_iterator&lt;I2&gt;&amp; y);
+  template &lt;class I1, class I2&gt;
+      requires Common&lt;I1, I2&gt;()
+    difference_type_t&lt;I2&gt; operator-(
+      const counted_iterator&lt;I1&gt;&amp; x, const counted_iterator&lt;I2&gt;&amp; y);
+  template &lt;class I&gt;
+    difference_type_t&lt;I&gt; operator-(
+      const counted_iterator&lt;I&gt;&amp; x, default_sentinel y);
+  template &lt;class I&gt;
+    difference_type_t&lt;I&gt; operator-(
+      default_sentinel x, const counted_iterator&lt;I&gt;&amp; y);
+
+  template &lt;RandomAccessIterator I&gt;
+    counted_iterator&lt;I&gt;
+      operator+(difference_type_t&lt;I&gt; n, const counted_iterator&lt;I&gt;&amp; x);
+
+  template &lt;Iterator I&gt;
+    counted_iterator&lt;I&gt; make_counted_iterator(I i, difference_type_t&lt;I&gt; n);
+
+  template &lt;Iterator I&gt;
+    void advance(counted_iterator&lt;I&gt;&amp; i, difference_type_t&lt;I&gt; n);
+}}}}
+</pre></div></div></div></body></html>

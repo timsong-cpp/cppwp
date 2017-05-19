@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang='en'><head><title>[ranges.view]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>9</a> Iterators library <a class='abbr_ref' href='index.html#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>9.9</a> Range concepts <a class='abbr_ref' href='ranges.html#view'>[ranges]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>9.9.2</a> Range requirements <a class='abbr_ref' href='ranges.requirements.html#ranges.view'>[ranges.requirements]</a></h3><div id='ranges.view'><h4 ><a class='secnum' style='min-width:118pt'>9.9.2.4</a> Views <a class='abbr_ref'>[ranges.view]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The <span class='texttt'>View</span> concept specifies the requirements of a
+<span class='texttt'>Range</span> type that has constant time copy, move and assignment operators; that
+is, the cost of these operations is not proportional to the number of elements in
+the <span class='texttt'>View</span>.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >[&nbsp;<i>Example:</i>
+Examples of <span class='texttt'>View</span>s are:</p><ul class='itemize'><li id='2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.1'>(2.1)</a></div><p >A <span class='texttt'>Range</span> type that wraps a pair of iterators.</p></li><li id='2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.2'>(2.2)</a></div><p >A <span class='texttt'>Range</span> type that holds its elements by <span class='texttt'>shared_ptr</span>
+and shares ownership with all its copies.</p></li><li id='2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.3'>(2.3)</a></div><p >A <span class='texttt'>Range</span> type that generates its elements on demand.
+</p></li></ul><p >A container (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> containers <span class='endcsname'></span>) is not a <span class='texttt'>View</span> since copying the
+container copies the elements, which cannot be done in constant time.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p ><code class='itemdecl'>
+template &lt;class T&gt;
+struct enable_view { };
+
+struct view_base { };
+
+<span class='comment'>// <i>exposition only</i>
+</span>template &lt;class T&gt;
+constexpr bool __view_predicate = <i><span class='texttt'>see below</span></i>;
+
+template &lt;class T&gt;
+concept bool View() {
+  return Range&lt;T&gt;() &amp;&amp;
+    Semiregular&lt;T&gt;() &amp;&amp;
+    __view_predicate&lt;T&gt;;
+}
+</code></p></div><div class='itemdescr'></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p >Since the difference between <span class='texttt'>Range</span> and <span class='texttt'>View</span> is largely semantic, the
+two are differentiated with the help of the <span class='texttt'>enable_view</span>
+trait. Users may specialize <span class='texttt'>enable_view</span>
+to derive from <span class='texttt'>true_type</span> or <span class='texttt'>false_type</span>.</p></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p >For a type <span class='texttt'>T</span>, the value of <span class='texttt'>__view_predicate&lt;T&gt;</span> shall be:
+</p><ul class='itemize'><li id='4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.1'>(4.1)</a></div><p >If <span class='texttt'>enable_view&lt;T&gt;</span> has a member type <span class='texttt'>type</span>, <span class='texttt'>enable_view&lt;T&gt;::type::value</span>;
+</p></li><li id='4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.2'>(4.2)</a></div><p >Otherwise, if <span class='texttt'>T</span> is derived from <span class='texttt'>view_base</span>, <span class='texttt'>true</span>;
+</p></li><li id='4.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.3'>(4.3)</a></div><p >Otherwise, if <span class='texttt'>T</span> is an instantiation of class template
+<span class='texttt'>initializer_list</span> (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> support.initlist <span class='endcsname'></span>),
+<span class='texttt'>set</span> (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> set <span class='endcsname'></span>),
+<span class='texttt'>multiset</span> (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> multiset <span class='endcsname'></span>),
+<span class='texttt'>unordered_set</span> (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> unord.set <span class='endcsname'></span>), or
+<span class='texttt'>unordered_multiset</span> (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> unord.multiset <span class='endcsname'></span>), <span class='texttt'>false</span>;
+</p></li><li id='4.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.4'>(4.4)</a></div><p >Otherwise, if both <span class='texttt'>T</span> and <span class='texttt'>const T</span> satisfy <span class='texttt'>Range</span> and <span class='texttt'>reference_t</span>
+<span class='texttt'>&lt;iterator_t&lt;T&gt;&gt;</span> is not the same type as <span class='texttt'>reference_t</span>
+<span class='texttt'>&lt;iterator_t&lt;const T&gt;&gt;</span>,
+<span class='texttt'>false</span>; [&nbsp;<i>Note:</i> Deep <span class='texttt'>const</span>-ness implies element ownership, whereas shallow <span class='texttt'>const</span>-ness
+implies reference semantics. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></li><li id='4.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.5'>(4.5)</a></div><p >Otherwise, <span class='texttt'>true</span>.
+</p></li></ul></div></div></div></div></body></html>

@@ -1,0 +1,1047 @@
+<!DOCTYPE html><html lang='en'><head><title>[algorithms.general]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>10</a> Algorithms library <a class='abbr_ref' href='index.html#algorithms'>[algorithms]</a></h1><div id='algorithms.general'><h2 ><a class='secnum' style='min-width:88pt'>10.1</a> General <a class='abbr_ref'>[algorithms.general]</a></h2><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >This Clause describes components that C++ programs may use to perform
+algorithmic operations on containers (Clause   ISO/IEC 14882:2014 &sect;  <span class='csname'></span> containers <span class='endcsname'></span>) and other sequences.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >The following subclauses describe components for
+non-modifying sequence operations,
+modifying sequence operations,
+and sorting and related operations,
+as summarized in Table <a href='#tab:algorithms.summary'>[tab:algorithms.summary]</a>.</p><div class='numberedTable' id='tab:algorithms.summary'>Table <a href='#tab:algorithms.summary'>11</a> — Algorithms library summary<br><table ><tr class='rowsep'><td colspan='2' class='center'><b>Subclause</b></td><td class='left'>	<b>Header(s)</b>	</td></tr><tr class='capsep'><td class='left'> 
+
+
+<a href='alg.nonmodifying.html'>[alg.nonmodifying]</a> </td><td class='left'> Non-modifying sequence operations  </td><td class='left'>           </td></tr><tr ><td class='left'>
+<a href='alg.modifying.operations.html'>[alg.modifying.operations]</a> </td><td class='left'> Mutating sequence operations </td><td class='left'> <span class='texttt'>&lt;experimental/ranges/algorithm&gt;</span> </td></tr><tr ><td class='left'>
+<a href='alg.sorting.html'>[alg.sorting]</a> </td><td class='left'> Sorting and related operations      </td><td class='left'>           </td></tr></table></div><p ><b>Header <span class='texttt'>&lt;experimental/ranges/algorithm&gt;</span> synopsis</b></p><p ><span class='indexparent'><a class='index' id='experimental/ranges/algorithm'></a></span>
+</p><pre class='codeblock'>
+#include &lt;initializer_list&gt;
+
+namespace std { namespace experimental { namespace ranges { inline namespace v1 {
+  namespace tag {
+    <span class='comment'>// <a href='alg.tagspec.html'>[alg.tagspec]</a>, tag specifiers (See <a href='taggedtup.tagged.html'>[taggedtup.tagged]</a>):
+</span>    struct in;
+    struct in1;
+    struct in2;
+    struct out;
+    struct out1;
+    struct out2;
+    struct fun;
+    struct min;
+    struct max;
+    struct begin;
+    struct end;
+  }
+
+  <span class='comment'>// <a href='alg.nonmodifying.html'>[alg.nonmodifying]</a>, non-modifying sequence operations:
+</span>  template &lt;InputIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+    bool all_of(I first, S last, Pred pred, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+    bool all_of(Rng&amp;&amp; rng, Pred pred, Proj proj = Proj{});
+
+  template &lt;InputIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+    bool any_of(I first, S last, Pred pred, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+    bool any_of(Rng&amp;&amp; rng, Pred pred, Proj proj = Proj{});
+
+  template &lt;InputIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+    bool none_of(I first, S last, Pred pred, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+    bool none_of(Rng&amp;&amp; rng, Pred pred, Proj proj = Proj{});
+
+  template &lt;InputIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectInvocable&lt;projected&lt;I, Proj&gt;&gt; Fun&gt;
+    tagged_pair&lt;tag::in(I), tag::fun(Fun)&gt;
+      for_each(I first, S last, Fun f, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, class Proj = identity,
+      IndirectInvocable&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Fun&gt;
+    tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::fun(Fun)&gt;
+      for_each(Rng&amp;&amp; rng, Fun f, Proj proj = Proj{});
+
+  template &lt;InputIterator I, Sentinel&lt;I&gt; S, class T, class Proj = identity&gt;
+    requires IndirectRelation&lt;equal_to&lt;&gt;, projected&lt;I, Proj&gt;, const T*&gt;()
+    I find(I first, S last, const T&amp; value, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, class T, class Proj = identity&gt;
+    requires IndirectRelation&lt;equal_to&lt;&gt;, projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;, const T*&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      find(Rng&amp;&amp; rng, const T&amp; value, Proj proj = Proj{});
+
+  template &lt;InputIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+    I find_if(I first, S last, Pred pred, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+    safe_iterator_t&lt;Rng&gt;
+      find_if(Rng&amp;&amp; rng, Pred pred, Proj proj = Proj{});
+
+  template &lt;InputIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+    I find_if_not(I first, S last, Pred pred, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+    safe_iterator_t&lt;Rng&gt;
+      find_if_not(Rng&amp;&amp; rng, Pred pred, Proj proj = Proj{});
+
+  template &lt;ForwardIterator I1, Sentinel&lt;I1&gt; S1, ForwardIterator I2,
+      Sentinel&lt;I2&gt; S2, class Proj = identity,
+      IndirectRelation&lt;I2, projected&lt;I1, Proj&gt;&gt; Pred = equal_to&lt;&gt;&gt;
+    I1
+      find_end(I1 first1, S1 last1, I2 first2, S2 last2,
+               Pred pred = Pred{}, Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng1, ForwardRange Rng2, class Proj = identity,
+      IndirectRelation&lt;iterator_t&lt;Rng2&gt;,
+        projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred = equal_to&lt;&gt;&gt;
+    safe_iterator_t&lt;Rng1&gt;
+      find_end(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, Pred pred = Pred{}, Proj proj = Proj{});
+
+  template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, ForwardIterator I2, Sentinel&lt;I2&gt; S2,
+      class Proj1 = identity, class Proj2 = identity,
+      IndirectPredicate&lt;projected&lt;I1, Proj1&gt;, projected&lt;I2, Proj2&gt;&gt; Pred = equal_to&lt;&gt;&gt;
+    I1
+      find_first_of(I1 first1, S1 last1, I2 first2, S2 last2,
+                    Pred pred = Pred{},
+                    Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;InputRange Rng1, ForwardRange Rng2, class Proj1 = identity,
+      class Proj2 = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng1&gt;, Proj1&gt;,
+        projected&lt;iterator_t&lt;Rng2&gt;, Proj2&gt;&gt; Pred = equal_to&lt;&gt;&gt;
+    safe_iterator_t&lt;Rng1&gt;
+      find_first_of(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2,
+                    Pred pred = Pred{},
+                    Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectRelation&lt;projected&lt;I, Proj&gt;&gt; Pred = equal_to&lt;&gt;&gt;
+    I
+      adjacent_find(I first, S last, Pred pred = Pred{},
+                    Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class Proj = identity,
+      IndirectRelation&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred = equal_to&lt;&gt;&gt;
+    safe_iterator_t&lt;Rng&gt;
+      adjacent_find(Rng&amp;&amp; rng, Pred pred = Pred{}, Proj proj = Proj{});
+
+  template &lt;InputIterator I, Sentinel&lt;I&gt; S, class T, class Proj = identity&gt;
+    requires IndirectRelation&lt;equal_to&lt;&gt;, projected&lt;I, Proj&gt;, const T*&gt;()
+    difference_type_t&lt;I&gt;
+      count(I first, S last, const T&amp; value, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, class T, class Proj = identity&gt;
+    requires IndirectRelation&lt;equal_to&lt;&gt;, projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;, const T*&gt;()
+    difference_type_t&lt;iterator_t&lt;Rng&gt;&gt;
+      count(Rng&amp;&amp; rng, const T&amp; value, Proj proj = Proj{});
+
+  template &lt;InputIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+    difference_type_t&lt;I&gt;
+      count_if(I first, S last, Pred pred, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+    difference_type_t&lt;iterator_t&lt;Rng&gt;&gt;
+      count_if(Rng&amp;&amp; rng, Pred pred, Proj proj = Proj{});
+
+  template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, Sentinel&lt;I2&gt; S2,
+      class Proj1 = identity, class Proj2 = identity,
+      IndirectPredicate&lt;projected&lt;I1, Proj1&gt;, projected&lt;I2, Proj2&gt;&gt; Pred = equal_to&lt;&gt;&gt;
+    tagged_pair&lt;tag::in1(I1), tag::in2(I2)&gt;
+      mismatch(I1 first1, S1 last1, I2 first2, S2 last2, Pred pred = Pred{},
+               Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;InputRange Rng1, InputRange Rng2,
+      class Proj1 = identity, class Proj2 = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng1&gt;, Proj1&gt;,
+        projected&lt;iterator_t&lt;Rng2&gt;, Proj2&gt;&gt; Pred = equal_to&lt;&gt;&gt;
+    tagged_pair&lt;tag::in1(safe_iterator_t&lt;Rng1&gt;),
+                tag::in2(safe_iterator_t&lt;Rng2&gt;)&gt;
+      mismatch(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, Pred pred = Pred{},
+               Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, Sentinel&lt;I2&gt; S2,
+      class Pred = equal_to&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+    requires IndirectlyComparable&lt;I1, I2, Pred, Proj1, Proj2&gt;()
+    bool equal(I1 first1, S1 last1, I2 first2, S2 last2,
+               Pred pred = Pred{},
+               Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;InputRange Rng1, InputRange Rng2, class Pred = equal_to&lt;&gt;,
+      class Proj1 = identity, class Proj2 = identity&gt;
+    requires IndirectlyComparable&lt;iterator_t&lt;Rng1&gt;, iterator_t&lt;Rng2&gt;, Pred, Proj1, Proj2&gt;()
+    bool equal(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, Pred pred = Pred{},
+               Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+
+  template &lt;ForwardIterator I1, Sentinel&lt;I1&gt; S1, ForwardIterator I2,
+      Sentinel&lt;I2&gt; S2, class Pred = equal_to&lt;&gt;, class Proj1 = identity,
+      class Proj2 = identity&gt;
+    requires IndirectlyComparable&lt;I1, I2, Pred, Proj1, Proj2&gt;()
+    bool is_permutation(I1 first1, S1 last1, I2 first2, S2 last2,
+                        Pred pred = Pred{},
+                        Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to&lt;&gt;,
+      class Proj1 = identity, class Proj2 = identity&gt;
+    requires IndirectlyComparable&lt;iterator_t&lt;Rng1&gt;, iterator_t&lt;Rng2&gt;, Pred, Proj1, Proj2&gt;()
+    bool is_permutation(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, Pred pred = Pred{},
+                        Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;ForwardIterator I1, Sentinel&lt;I1&gt; S1, ForwardIterator I2,
+      Sentinel&lt;I2&gt; S2, class Pred = equal_to&lt;&gt;,
+      class Proj1 = identity, class Proj2 = identity&gt;
+    requires IndirectlyComparable&lt;I1, I2, Pred, Proj1, Proj2&gt;()
+    I1
+      search(I1 first1, S1 last1, I2 first2, S2 last2,
+             Pred pred = Pred{},
+             Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;ForwardRange Rng1, ForwardRange Rng2, class Pred = equal_to&lt;&gt;,
+      class Proj1 = identity, class Proj2 = identity&gt;
+    requires IndirectlyComparable&lt;iterator_t&lt;Rng1&gt;, iterator_t&lt;Rng2&gt;, Pred, Proj1, Proj2&gt;()
+    safe_iterator_t&lt;Rng1&gt;
+      search(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, Pred pred = Pred{},
+             Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class T,
+      class Pred = equal_to&lt;&gt;, class Proj = identity&gt;
+    requires IndirectlyComparable&lt;I, const T*, Pred, Proj&gt;()
+    I
+      search_n(I first, S last, difference_type_t&lt;I&gt; count,
+               const T&amp; value, Pred pred = Pred{},
+               Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class T, class Pred = equal_to&lt;&gt;,
+      class Proj = identity&gt;
+    requires IndirectlyComparable&lt;iterator_t&lt;Rng&gt;, const T*, Pred, Proj&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      search_n(Rng&amp;&amp; rng, difference_type_t&lt;iterator_t&lt;Rng&gt;&gt; count,
+               const T&amp; value, Pred pred = Pred{}, Proj proj = Proj{});
+
+  <span class='comment'>// <a href='alg.modifying.operations.html'>[alg.modifying.operations]</a>, modifying sequence operations:
+</span>  <span class='comment'>// <a href='alg.copy.html'>[alg.copy]</a>, copy:
+</span>  template &lt;InputIterator I, Sentinel&lt;I&gt; S, WeaklyIncrementable O&gt;
+    requires IndirectlyCopyable&lt;I, O&gt;()
+    tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+      copy(I first, S last, O result);
+
+  template &lt;InputRange Rng, WeaklyIncrementable O&gt;
+    requires IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, O&gt;()
+    tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(O)&gt;
+      copy(Rng&amp;&amp; rng, O result);
+
+  template &lt;InputIterator I, WeaklyIncrementable O&gt;
+    requires IndirectlyCopyable&lt;I, O&gt;()
+    tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+      copy_n(I first, difference_type_t&lt;I&gt; n, O result);
+
+  template &lt;InputIterator I, Sentinel&lt;I&gt; S, WeaklyIncrementable O, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+    requires IndirectlyCopyable&lt;I, O&gt;()
+    tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+      copy_if(I first, S last, O result, Pred pred, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, WeaklyIncrementable O, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+    requires IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, O&gt;()
+    tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(O)&gt;
+      copy_if(Rng&amp;&amp; rng, O result, Pred pred, Proj proj = Proj{});
+
+  template &lt;BidirectionalIterator I1, Sentinel&lt;I1&gt; S1, BidirectionalIterator I2&gt;
+    requires IndirectlyCopyable&lt;I1, I2&gt;()
+    tagged_pair&lt;tag::in(I1), tag::out(I2)&gt;
+      copy_backward(I1 first, S1 last, I2 result);
+
+  template &lt;BidirectionalRange Rng, BidirectionalIterator I&gt;
+    requires IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, I&gt;()
+    tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(I)&gt;
+      copy_backward(Rng&amp;&amp; rng, I result);
+
+  <span class='comment'>// <a href='alg.move.html'>[alg.move]</a>, move:
+</span>  template &lt;InputIterator I, Sentinel&lt;I&gt; S, WeaklyIncrementable O&gt;
+    requires IndirectlyMovable&lt;I, O&gt;()
+    tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+      move(I first, S last, O result);
+
+  template &lt;InputRange Rng, WeaklyIncrementable O&gt;
+    requires IndirectlyMovable&lt;iterator_t&lt;Rng&gt;, O&gt;()
+    tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(O)&gt;
+      move(Rng&amp;&amp; rng, O result);
+
+  template &lt;BidirectionalIterator I1, Sentinel&lt;I1&gt; S1, BidirectionalIterator I2&gt;
+    requires IndirectlyMovable&lt;I1, I2&gt;()
+    tagged_pair&lt;tag::in(I1), tag::out(I2)&gt;
+      move_backward(I1 first, S1 last, I2 result);
+
+  template &lt;BidirectionalRange Rng, BidirectionalIterator I&gt;
+    requires IndirectlyMovable&lt;iterator_t&lt;Rng&gt;, I&gt;()
+    tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(I)&gt;
+      move_backward(Rng&amp;&amp; rng, I result);
+
+  template &lt;ForwardIterator I1, Sentinel&lt;I1&gt; S1, ForwardIterator I2, Sentinel&lt;I2&gt; S2&gt;
+    requires IndirectlySwappable&lt;I1, I2&gt;()
+    tagged_pair&lt;tag::in1(I1), tag::in2(I2)&gt;
+      swap_ranges(I1 first1, S1 last1, I2 first2, S2 last2);
+
+  template &lt;ForwardRange Rng1, ForwardRange Rng2&gt;
+    requires IndirectlySwappable&lt;iterator_t&lt;Rng1&gt;, iterator_t&lt;Rng2&gt;&gt;()
+    tagged_pair&lt;tag::in1(safe_iterator_t&lt;Rng1&gt;), tag::in2(safe_iterator_t&lt;Rng2&gt;)&gt;
+      swap_ranges(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2);
+
+  template &lt;InputIterator I, Sentinel&lt;I&gt; S, WeaklyIncrementable O, class F, class Proj = identity&gt;
+    requires Writable&lt;O, indirect_result_of_t&lt;F&amp;(projected&lt;I, Proj&gt;)&gt;&gt;()
+    tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+      transform(I first, S last, O result, F op, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, WeaklyIncrementable O, class F, class Proj = identity&gt;
+    requires Writable&lt;O, indirect_result_of_t&lt;F&amp;(
+      projected&lt;iterator_t&lt;R&gt;, Proj&gt;)&gt;&gt;()
+    tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(O)&gt;
+      transform(Rng&amp;&amp; rng, O result, F op, Proj proj = Proj{});
+
+  template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, Sentinel&lt;I2&gt; S2,
+      WeaklyIncrementable O, class F, class Proj1 = identity, class Proj2 = identity&gt;
+    requires Writable&lt;O, indirect_result_of_t&lt;F&amp;(projected&lt;I1, Proj1&gt;,
+      projected&lt;I2, Proj2&gt;)&gt;&gt;()
+    tagged_tuple&lt;tag::in1(I1), tag::in2(I2), tag::out(O)&gt;
+      transform(I1 first1, S1 last1, I2 first2, S2 last2, O result,
+              F binary_op, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;InputRange Rng1, InputRange Rng2, WeaklyIncrementable O, class F,
+      class Proj1 = identity, class Proj2 = identity&gt;
+    requires Writable&lt;O, indirect_result_of_t&lt;F&amp;(
+      projected&lt;iterator_t&lt;Rng1&gt;, Proj1&gt;, projected&lt;iterator_t&lt;Rng2&gt;, Proj2&gt;)&gt;&gt;()
+    tagged_tuple&lt;tag::in1(safe_iterator_t&lt;Rng1&gt;),
+                 tag::in2(safe_iterator_t&lt;Rng2&gt;),
+                 tag::out(O)&gt;
+      transform(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, O result,
+                F binary_op, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class T1, class T2, class Proj = identity&gt;
+    requires Writable&lt;I, const T2&amp;&gt;() &amp;&amp;
+      IndirectRelation&lt;equal_to&lt;&gt;, projected&lt;I, Proj&gt;, const T1*&gt;()
+    I
+      replace(I first, S last, const T1&amp; old_value, const T2&amp; new_value, Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class T1, class T2, class Proj = identity&gt;
+    requires Writable&lt;iterator_t&lt;Rng&gt;, const T2&amp;&gt;() &amp;&amp;
+      IndirectRelation&lt;equal_to&lt;&gt;, projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;, const T1*&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      replace(Rng&amp;&amp; rng, const T1&amp; old_value, const T2&amp; new_value, Proj proj = Proj{});
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class T, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+    requires Writable&lt;I, const T&amp;&gt;()
+    I
+      replace_if(I first, S last, Pred pred, const T&amp; new_value, Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class T, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+    requires Writable&lt;iterator_t&lt;Rng&gt;, const T&amp;&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      replace_if(Rng&amp;&amp; rng, Pred pred, const T&amp; new_value, Proj proj = Proj{});
+
+  template &lt;InputIterator I, Sentinel&lt;I&gt; S, class T1, class T2, OutputIterator&lt;const T2&amp;&gt; O,
+      class Proj = identity&gt;
+    requires IndirectlyCopyable&lt;I, O&gt;() &amp;&amp;
+      IndirectRelation&lt;equal_to&lt;&gt;, projected&lt;I, Proj&gt;, const T1*&gt;()
+    tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+      replace_copy(I first, S last, O result, const T1&amp; old_value, const T2&amp; new_value,
+                   Proj proj = Proj{});
+
+  template &lt;InputRange Rng, class T1, class T2, OutputIterator&lt;const T2&amp;&gt; O,
+      class Proj = identity&gt;
+    requires IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, O&gt;() &amp;&amp;
+      IndirectRelation&lt;equal_to&lt;&gt;, projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;, const T1*&gt;()
+    tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(O)&gt;
+      replace_copy(Rng&amp;&amp; rng, O result, const T1&amp; old_value, const T2&amp; new_value,
+                   Proj proj = Proj{});
+
+  template &lt;InputIterator I, Sentinel&lt;I&gt; S, class T, OutputIterator&lt;const T&amp;&gt; O,
+      class Proj = identity, IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+    requires IndirectlyCopyable&lt;I, O&gt;()
+    tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+      replace_copy_if(I first, S last, O result, Pred pred, const T&amp; new_value,
+                      Proj proj = Proj{});
+
+  template &lt;InputRange Rng, class T, OutputIterator&lt;const T&amp;&gt; O, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+    requires IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, O&gt;()
+    tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(O)&gt;
+      replace_copy_if(Rng&amp;&amp; rng, O result, Pred pred, const T&amp; new_value,
+                      Proj proj = Proj{});
+
+  template &lt;class T, OutputIterator&lt;const T&amp;&gt; O, Sentinel&lt;O&gt; S&gt;
+    O fill(O first, S last, const T&amp; value);
+
+  template &lt;class T, OutputRange&lt;const T&amp;&gt; Rng&gt;
+    safe_iterator_t&lt;Rng&gt;
+      fill(Rng&amp;&amp; rng, const T&amp; value);
+
+  template &lt;class T, OutputIterator&lt;const T&amp;&gt; O&gt;
+    O fill_n(O first, difference_type_t&lt;O&gt; n, const T&amp; value);
+
+  template &lt;Iterator O, Sentinel&lt;O&gt; S, CopyConstructible F&gt;
+      requires Callable&lt;F&amp;&gt;() &amp;&amp; Writable&lt;O, result_of_t&lt;F&amp;()&gt;&gt;()
+    O generate(O first, S last, F gen);
+
+  template &lt;class Rng, CopyConstructible F&gt;
+      requires Callable&lt;F&amp;&gt;() &amp;&amp; OutputRange&lt;Rng, result_of_t&lt;F&amp;()&gt;&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      generate(Rng&amp;&amp; rng, F gen);
+
+  template &lt;Iterator O, CopyConstructible F&gt;
+      requires Callable&lt;F&amp;&gt;() &amp;&amp; Writable&lt;O, result_of_t&lt;F&amp;()&gt;&gt;()
+    O generate_n(O first, difference_type_t&lt;O&gt; n, F gen);
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class T, class Proj = identity&gt;
+    requires Permutable&lt;I&gt;() &amp;&amp;
+      IndirectRelation&lt;equal_to&lt;&gt;, projected&lt;I, Proj&gt;, const T*&gt;()
+    I remove(I first, S last, const T&amp; value, Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class T, class Proj = identity&gt;
+    requires Permutable&lt;iterator_t&lt;Rng&gt;&gt;() &amp;&amp;
+      IndirectRelation&lt;equal_to&lt;&gt;, projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;, const T*&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      remove(Rng&amp;&amp; rng, const T&amp; value, Proj proj = Proj{});
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+    requires Permutable&lt;I&gt;()
+    I remove_if(I first, S last, Pred pred, Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+    requires Permutable&lt;iterator_t&lt;Rng&gt;&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      remove_if(Rng&amp;&amp; rng, Pred pred, Proj proj = Proj{});
+
+  template &lt;InputIterator I, Sentinel&lt;I&gt; S, WeaklyIncrementable O, class T,
+      class Proj = identity&gt;
+    requires IndirectlyCopyable&lt;I, O&gt;() &amp;&amp;
+      IndirectRelation&lt;equal_to&lt;&gt;, projected&lt;I, Proj&gt;, const T*&gt;()
+    tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+      remove_copy(I first, S last, O result, const T&amp; value, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, WeaklyIncrementable O, class T, class Proj = identity&gt;
+    requires IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, O&gt;() &amp;&amp;
+      IndirectRelation&lt;equal_to&lt;&gt;, projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;, const T*&gt;()
+    tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(O)&gt;
+      remove_copy(Rng&amp;&amp; rng, O result, const T&amp; value, Proj proj = Proj{});
+
+  template &lt;InputIterator I, Sentinel&lt;I&gt; S, WeaklyIncrementable O,
+      class Proj = identity, IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+    requires IndirectlyCopyable&lt;I, O&gt;()
+    tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+      remove_copy_if(I first, S last, O result, Pred pred, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, WeaklyIncrementable O, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+    requires IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, O&gt;()
+    tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(O)&gt;
+      remove_copy_if(Rng&amp;&amp; rng, O result, Pred pred, Proj proj = Proj{});
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectRelation&lt;projected&lt;I, Proj&gt;&gt; R = equal_to&lt;&gt;&gt;
+    requires Permutable&lt;I&gt;()
+    I unique(I first, S last, R comp = R{}, Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class Proj = identity,
+      IndirectRelation&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; R = equal_to&lt;&gt;&gt;
+    requires Permutable&lt;iterator_t&lt;Rng&gt;&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      unique(Rng&amp;&amp; rng, R comp = R{}, Proj proj = Proj{});
+
+  template &lt;InputIterator I, Sentinel&lt;I&gt; S, WeaklyIncrementable O,
+      class Proj = identity, IndirectRelation&lt;projected&lt;I, Proj&gt;&gt; R = equal_to&lt;&gt;&gt;
+    requires IndirectlyCopyable&lt;I, O&gt;() &amp;&amp; (ForwardIterator&lt;I&gt;() ||
+      ForwardIterator&lt;O&gt;() || IndirectlyCopyableStorable&lt;I, O&gt;())
+    tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+      unique_copy(I first, S last, O result, R comp = R{}, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, WeaklyIncrementable O, class Proj = identity,
+      IndirectRelation&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; R = equal_to&lt;&gt;&gt;
+    requires IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, O&gt;() &amp;&amp;
+      (ForwardIterator&lt;iterator_t&lt;Rng&gt;&gt;() || ForwardIterator&lt;O&gt;() ||
+       IndirectlyCopyableStorable&lt;iterator_t&lt;Rng&gt;, O&gt;())
+    tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(O)&gt;
+      unique_copy(Rng&amp;&amp; rng, O result, R comp = R{}, Proj proj = Proj{});
+
+  template &lt;BidirectionalIterator I, Sentinel&lt;I&gt; S&gt;
+    requires Permutable&lt;I&gt;()
+    I reverse(I first, S last);
+
+  template &lt;BidirectionalRange Rng&gt;
+    requires Permutable&lt;iterator_t&lt;Rng&gt;&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      reverse(Rng&amp;&amp; rng);
+
+  template &lt;BidirectionalIterator I, Sentinel&lt;I&gt; S, WeaklyIncrementable O&gt;
+    requires IndirectlyCopyable&lt;I, O&gt;()
+    tagged_pair&lt;tag::in(I), tag::out(O)&gt; reverse_copy(I first, S last, O result);
+
+  template &lt;BidirectionalRange Rng, WeaklyIncrementable O&gt;
+    requires IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, O&gt;()
+    tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(O)&gt;
+      reverse_copy(Rng&amp;&amp; rng, O result);
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S&gt;
+    requires Permutable&lt;I&gt;()
+    tagged_pair&lt;tag::begin(I), tag::end(I)&gt;
+      rotate(I first, I middle, S last);
+
+  template &lt;ForwardRange Rng&gt;
+    requires Permutable&lt;iterator_t&lt;Rng&gt;&gt;()
+    tagged_pair&lt;tag::begin(safe_iterator_t&lt;Rng&gt;),
+                tag::end(safe_iterator_t&lt;Rng&gt;)&gt;
+      rotate(Rng&amp;&amp; rng, iterator_t&lt;Rng&gt; middle);
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, WeaklyIncrementable O&gt;
+    requires IndirectlyCopyable&lt;I, O&gt;()
+    tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+      rotate_copy(I first, I middle, S last, O result);
+
+  template &lt;ForwardRange Rng, WeaklyIncrementable O&gt;
+    requires IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, O&gt;()
+    tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(O)&gt;
+      rotate_copy(Rng&amp;&amp; rng, iterator_t&lt;Rng&gt; middle, O result);
+
+  <span class='comment'>// <a href='alg.random.shuffle.html'>[alg.random.shuffle]</a>, shuffle:
+</span>  template &lt;RandomAccessIterator I, Sentinel&lt;I&gt; S, class Gen&gt;
+    requires Permutable&lt;I&gt;() &amp;&amp;
+      UniformRandomNumberGenerator&lt;remove_reference_t&lt;Gen&gt;&gt;() &amp;&amp;
+      ConvertibleTo&lt;result_of_t&lt;Gen&amp;()&gt;, difference_type_t&lt;I&gt;&gt;()
+    I shuffle(I first, S last, Gen&amp;&amp; g);
+
+  template &lt;RandomAccessRange Rng, class Gen&gt;
+    requires Permutable&lt;I&gt;() &amp;&amp;
+      UniformRandomNumberGenerator&lt;remove_reference_t&lt;Gen&gt;&gt;() &amp;&amp;
+      ConvertibleTo&lt;result_of_t&lt;Gen&amp;()&gt;, difference_type_t&lt;I&gt;&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      shuffle(Rng&amp;&amp; rng, Gen&amp;&amp; g);
+
+  <span class='comment'>// <a href='alg.partitions.html'>[alg.partitions]</a>, partitions:
+</span>  template &lt;InputIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+    bool is_partitioned(I first, S last, Pred pred, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+    bool
+      is_partitioned(Rng&amp;&amp; rng, Pred pred, Proj proj = Proj{});
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+    requires Permutable&lt;I&gt;()
+    I partition(I first, S last, Pred pred, Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+    requires Permutable&lt;iterator_t&lt;Rng&gt;&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      partition(Rng&amp;&amp; rng, Pred pred, Proj proj = Proj{});
+
+  template &lt;BidirectionalIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+    requires Permutable&lt;I&gt;()
+    I stable_partition(I first, S last, Pred pred, Proj proj = Proj{});
+
+  template &lt;BidirectionalRange Rng, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+    requires Permutable&lt;iterator_t&lt;Rng&gt;&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      stable_partition(Rng&amp;&amp; rng, Pred pred, Proj proj = Proj{});
+
+  template &lt;InputIterator I, Sentinel&lt;I&gt; S, WeaklyIncrementable O1, WeaklyIncrementable O2,
+      class Proj = identity, IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+    requires IndirectlyCopyable&lt;I, O1&gt;() &amp;&amp; IndirectlyCopyable&lt;I, O2&gt;()
+    tagged_tuple&lt;tag::in(I), tag::out1(O1), tag::out2(O2)&gt;
+      partition_copy(I first, S last, O1 out_true, O2 out_false, Pred pred,
+                     Proj proj = Proj{});
+
+  template &lt;InputRange Rng, WeaklyIncrementable O1, WeaklyIncrementable O2,
+      class Proj = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+    requires IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, O1&gt;() &amp;&amp;
+      IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, O2&gt;()
+    tagged_tuple&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out1(O1), tag::out2(O2)&gt;
+      partition_copy(Rng&amp;&amp; rng, O1 out_true, O2 out_false, Pred pred, Proj proj = Proj{});
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+    I partition_point(I first, S last, Pred pred, Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class Proj = identity,
+      IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+    safe_iterator_t&lt;Rng&gt;
+      partition_point(Rng&amp;&amp; rng, Pred pred, Proj proj = Proj{});
+
+  <span class='comment'>// <a href='alg.sorting.html'>[alg.sorting]</a>, sorting and related operations:
+</span>  <span class='comment'>// <a href='alg.sort.html'>[alg.sort]</a>, sorting:
+</span>  template &lt;RandomAccessIterator I, Sentinel&lt;I&gt; S, class Comp = less&lt;&gt;,
+      class Proj = identity&gt;
+    requires Sortable&lt;I, Comp, Proj&gt;()
+    I sort(I first, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessRange Rng, class Comp = less&lt;&gt;, class Proj = identity&gt;
+    requires Sortable&lt;iterator_t&lt;Rng&gt;, Comp, Proj&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      sort(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessIterator I, Sentinel&lt;I&gt; S, class Comp = less&lt;&gt;,
+      class Proj = identity&gt;
+    requires Sortable&lt;I, Comp, Proj&gt;()
+    I stable_sort(I first, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessRange Rng, class Comp = less&lt;&gt;, class Proj = identity&gt;
+    requires Sortable&lt;iterator_t&lt;Rng&gt;, Comp, Proj&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      stable_sort(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessIterator I, Sentinel&lt;I&gt; S, class Comp = less&lt;&gt;,
+      class Proj = identity&gt;
+    requires Sortable&lt;I, Comp, Proj&gt;()
+    I partial_sort(I first, I middle, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessRange Rng, class Comp = less&lt;&gt;, class Proj = identity&gt;
+    requires Sortable&lt;iterator_t&lt;Rng&gt;, Comp, Proj&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      partial_sort(Rng&amp;&amp; rng, iterator_t&lt;Rng&gt; middle, Comp comp = Comp{},
+                   Proj proj = Proj{});
+
+  template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, RandomAccessIterator I2, Sentinel&lt;I2&gt; S2,
+      class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+    requires IndirectlyCopyable&lt;I1, I2&gt;() &amp;&amp; Sortable&lt;I2, Comp, Proj2&gt;() &amp;&amp;
+        IndirectStrictWeakOrder&lt;Comp, projected&lt;I1, Proj1&gt;, projected&lt;I2, Proj2&gt;&gt;()
+    I2
+      partial_sort_copy(I1 first, S1 last, I2 result_first, S2 result_last,
+                        Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;InputRange Rng1, RandomAccessRange Rng2, class Comp = less&lt;&gt;,
+      class Proj1 = identity, class Proj2 = identity&gt;
+    requires IndirectlyCopyable&lt;iterator_t&lt;Rng1&gt;, iterator_t&lt;Rng2&gt;&gt;() &amp;&amp;
+        Sortable&lt;iterator_t&lt;Rng2&gt;, Comp, Proj2&gt;() &amp;&amp;
+        IndirectStrictWeakOrder&lt;Comp, projected&lt;iterator_t&lt;Rng1&gt;, Proj1&gt;,
+          projected&lt;iterator_t&lt;Rng2&gt;, Proj2&gt;&gt;()
+    safe_iterator_t&lt;Rng2&gt;
+      partial_sort_copy(Rng1&amp;&amp; rng, Rng2&amp;&amp; result_rng, Comp comp = Comp{},
+                        Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;I, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    bool is_sorted(I first, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    bool
+      is_sorted(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;I, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    I is_sorted_until(I first, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    safe_iterator_t&lt;Rng&gt;
+      is_sorted_until(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessIterator I, Sentinel&lt;I&gt; S, class Comp = less&lt;&gt;,
+      class Proj = identity&gt;
+    requires Sortable&lt;I, Comp, Proj&gt;()
+    I nth_element(I first, I nth, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessRange Rng, class Comp = less&lt;&gt;, class Proj = identity&gt;
+    requires Sortable&lt;iterator_t&lt;Rng&gt;, Comp, Proj&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      nth_element(Rng&amp;&amp; rng, iterator_t&lt;Rng&gt; nth, Comp comp = Comp{}, Proj proj = Proj{});
+
+  <span class='comment'>// <a href='alg.binary.search.html'>[alg.binary.search]</a>, binary search:
+</span>  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class T, class Proj = identity,
+      IndirectStrictWeakOrder&lt;const T*, projected&lt;I, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    I
+      lower_bound(I first, S last, const T&amp; value, Comp comp = Comp{},
+                  Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class T, class Proj = identity,
+      IndirectStrictWeakOrder&lt;const T*, projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    safe_iterator_t&lt;Rng&gt;
+      lower_bound(Rng&amp;&amp; rng, const T&amp; value, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class T, class Proj = identity,
+      IndirectStrictWeakOrder&lt;const T*, projected&lt;I, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    I
+      upper_bound(I first, S last, const T&amp; value, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class T, class Proj = identity,
+      IndirectStrictWeakOrder&lt;const T*, projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    safe_iterator_t&lt;Rng&gt;
+      upper_bound(Rng&amp;&amp; rng, const T&amp; value, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class T, class Proj = identity,
+      IndirectStrictWeakOrder&lt;const T*, projected&lt;I, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    tagged_pair&lt;tag::begin(I), tag::end(I)&gt;
+      equal_range(I first, S last, const T&amp; value, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class T, class Proj = identity,
+      IndirectStrictWeakOrder&lt;const T*, projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    tagged_pair&lt;tag::begin(safe_iterator_t&lt;Rng&gt;),
+                tag::end(safe_iterator_t&lt;Rng&gt;)&gt;
+      equal_range(Rng&amp;&amp; rng, const T&amp; value, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class T, class Proj = identity,
+      IndirectStrictWeakOrder&lt;const T*, projected&lt;I, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    bool
+      binary_search(I first, S last, const T&amp; value, Comp comp = Comp{},
+                    Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class T, class Proj = identity,
+      IndirectStrictWeakOrder&lt;const T*, projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    bool
+      binary_search(Rng&amp;&amp; rng, const T&amp; value, Comp comp = Comp{},
+                    Proj proj = Proj{});
+
+  <span class='comment'>// <a href='alg.merge.html'>[alg.merge]</a>, merge:
+</span>  template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, Sentinel&lt;I2&gt; S2,
+      WeaklyIncrementable O, class Comp = less&lt;&gt;, class Proj1 = identity,
+      class Proj2 = identity&gt;
+    requires Mergeable&lt;I1, I2, O, Comp, Proj1, Proj2&gt;()
+    tagged_tuple&lt;tag::in1(I1), tag::in2(I2), tag::out(O)&gt;
+      merge(I1 first1, S1 last1, I2 first2, S2 last2, O result,
+            Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;InputRange Rng1, InputRange Rng2, WeaklyIncrementable O, class Comp = less&lt;&gt;,
+      class Proj1 = identity, class Proj2 = identity&gt;
+    requires Mergeable&lt;iterator_t&lt;Rng1&gt;, iterator_t&lt;Rng2&gt;, O, Comp, Proj1, Proj2&gt;()
+    tagged_tuple&lt;tag::in1(safe_iterator_t&lt;Rng1&gt;),
+                 tag::in2(safe_iterator_t&lt;Rng2&gt;),
+                 tag::out(O)&gt;
+      merge(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, O result,
+            Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;BidirectionalIterator I, Sentinel&lt;I&gt; S, class Comp = less&lt;&gt;,
+      class Proj = identity&gt;
+    requires Sortable&lt;I, Comp, Proj&gt;()
+    I
+      inplace_merge(I first, I middle, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;BidirectionalRange Rng, class Comp = less&lt;&gt;, class Proj = identity&gt;
+    requires Sortable&lt;iterator_t&lt;Rng&gt;, Comp, Proj&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      inplace_merge(Rng&amp;&amp; rng, iterator_t&lt;Rng&gt; middle, Comp comp = Comp{},
+                    Proj proj = Proj{});
+
+  <span class='comment'>// <a href='alg.set.operations.html'>[alg.set.operations]</a>, set operations:
+</span>  template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, Sentinel&lt;I2&gt; S2,
+      class Proj1 = identity, class Proj2 = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;I1, Proj1&gt;, projected&lt;I2, Proj2&gt;&gt; Comp = less&lt;&gt;&gt;
+    bool
+      includes(I1 first1, S1 last1, I2 first2, S2 last2, Comp comp = Comp{},
+               Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;InputRange Rng1, InputRange Rng2, class Proj1 = identity,
+      class Proj2 = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;iterator_t&lt;Rng1&gt;, Proj1&gt;,
+        projected&lt;iterator_t&lt;Rng2&gt;, Proj2&gt;&gt; Comp = less&lt;&gt;&gt;
+    bool
+      includes(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, Comp comp = Comp{},
+               Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, Sentinel&lt;I2&gt; S2,
+      WeaklyIncrementable O, class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+    requires Mergeable&lt;I1, I2, O, Comp, Proj1, Proj2&gt;()
+    tagged_tuple&lt;tag::in1(I1), tag::in2(I2), tag::out(O)&gt;
+      set_union(I1 first1, S1 last1, I2 first2, S2 last2, O result, Comp comp = Comp{},
+                Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;InputRange Rng1, InputRange Rng2, WeaklyIncrementable O,
+      class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+    requires Mergeable&lt;iterator_t&lt;Rng1&gt;, iterator_t&lt;Rng2&gt;, O, Comp, Proj1, Proj2&gt;()
+    tagged_tuple&lt;tag::in1(safe_iterator_t&lt;Rng1&gt;),
+                 tag::in2(safe_iterator_t&lt;Rng2&gt;),
+                 tag::out(O)&gt;
+      set_union(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, O result, Comp comp = Comp{},
+                Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, Sentinel&lt;I2&gt; S2,
+      WeaklyIncrementable O, class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+    requires Mergeable&lt;I1, I2, O, Comp, Proj1, Proj2&gt;()
+    O
+      set_intersection(I1 first1, S1 last1, I2 first2, S2 last2, O result,
+                       Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;InputRange Rng1, InputRange Rng2, WeaklyIncrementable O,
+      class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+    requires Mergeable&lt;iterator_t&lt;Rng1&gt;, iterator_t&lt;Rng2&gt;, O, Comp, Proj1, Proj2&gt;()
+    O
+      set_intersection(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, O result,
+                       Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, Sentinel&lt;I2&gt; S2,
+      WeaklyIncrementable O, class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+    requires Mergeable&lt;I1, I2, O, Comp, Proj1, Proj2&gt;()
+    tagged_pair&lt;tag::in1(I1), tag::out(O)&gt;
+      set_difference(I1 first1, S1 last1, I2 first2, S2 last2, O result,
+                     Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;InputRange Rng1, InputRange Rng2, WeaklyIncrementable O,
+      class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+    requires Mergeable&lt;iterator_t&lt;Rng1&gt;, iterator_t&lt;Rng2&gt;, O, Comp, Proj1, Proj2&gt;()
+    tagged_pair&lt;tag::in1(safe_iterator_t&lt;Rng1&gt;), tag::out(O)&gt;
+      set_difference(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, O result,
+                     Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, Sentinel&lt;I2&gt; S2,
+      WeaklyIncrementable O, class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+    requires Mergeable&lt;I1, I2, O, Comp, Proj1, Proj2&gt;()
+    tagged_tuple&lt;tag::in1(I1), tag::in2(I2), tag::out(O)&gt;
+      set_symmetric_difference(I1 first1, S1 last1, I2 first2, S2 last2, O result,
+                               Comp comp = Comp{}, Proj1 proj1 = Proj1{},
+                               Proj2 proj2 = Proj2{});
+
+  template &lt;InputRange Rng1, InputRange Rng2, WeaklyIncrementable O,
+      class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+    requires Mergeable&lt;iterator_t&lt;Rng1&gt;, iterator_t&lt;Rng2&gt;, O, Comp, Proj1, Proj2&gt;()
+    tagged_tuple&lt;tag::in1(safe_iterator_t&lt;Rng1&gt;),
+                 tag::in2(safe_iterator_t&lt;Rng2&gt;),
+                 tag::out(O)&gt;
+      set_symmetric_difference(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, O result, Comp comp = Comp{},
+                               Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  <span class='comment'>// <a href='alg.heap.operations.html'>[alg.heap.operations]</a>, heap operations:
+</span>  template &lt;RandomAccessIterator I, Sentinel&lt;I&gt; S, class Comp = less&lt;&gt;,
+      class Proj = identity&gt;
+    requires Sortable&lt;I, Comp, Proj&gt;()
+    I push_heap(I first, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessRange Rng, class Comp = less&lt;&gt;, class Proj = identity&gt;
+    requires Sortable&lt;iterator_t&lt;Rng&gt;, Comp, Proj&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      push_heap(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessIterator I, Sentinel&lt;I&gt; S, class Comp = less&lt;&gt;,
+      class Proj = identity&gt;
+    requires Sortable&lt;I, Comp, Proj&gt;()
+    I pop_heap(I first, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessRange Rng, class Comp = less&lt;&gt;, class Proj = identity&gt;
+    requires Sortable&lt;iterator_t&lt;Rng&gt;, Comp, Proj&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      pop_heap(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessIterator I, Sentinel&lt;I&gt; S, class Comp = less&lt;&gt;,
+      class Proj = identity&gt;
+    requires Sortable&lt;I, Comp, Proj&gt;()
+    I make_heap(I first, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessRange Rng, class Comp = less&lt;&gt;, class Proj = identity&gt;
+    requires Sortable&lt;iterator_t&lt;Rng&gt;, Comp, Proj&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      make_heap(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessIterator I, Sentinel&lt;I&gt; S, class Comp = less&lt;&gt;,
+      class Proj = identity&gt;
+    requires Sortable&lt;I, Comp, Proj&gt;()
+    I sort_heap(I first, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessRange Rng, class Comp = less&lt;&gt;, class Proj = identity&gt;
+    requires Sortable&lt;iterator_t&lt;Rng&gt;, Comp, Proj&gt;()
+    safe_iterator_t&lt;Rng&gt;
+      sort_heap(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;I, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    bool is_heap(I first, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessRange Rng, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    bool
+      is_heap(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;I, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    I is_heap_until(I first, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;RandomAccessRange Rng, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    safe_iterator_t&lt;Rng&gt;
+      is_heap_until(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  <span class='comment'>// <a href='alg.min.max.html'>[alg.min.max]</a>, minimum and maximum:
+</span>  template &lt;class T, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;const T*, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    constexpr const T&amp; min(const T&amp; a, const T&amp; b, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;Copyable T, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;const T*, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    constexpr T min(initializer_list&lt;T&gt; t, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    requires Copyable&lt;value_type_t&lt;iterator_t&lt;Rng&gt;&gt;&gt;()
+    value_type_t&lt;iterator_t&lt;Rng&gt;&gt;
+      min(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;class T, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;const T*, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    constexpr const T&amp; max(const T&amp; a, const T&amp; b, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;Copyable T, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;const T*, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    constexpr T max(initializer_list&lt;T&gt; t, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    requires Copyable&lt;value_type_t&lt;iterator_t&lt;Rng&gt;&gt;&gt;()
+    value_type_t&lt;iterator_t&lt;Rng&gt;&gt;
+      max(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;class T, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;const T*, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    constexpr tagged_pair&lt;tag::min(const T&amp;), tag::max(const T&amp;)&gt;
+      minmax(const T&amp; a, const T&amp; b, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;Copyable T, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;const T*, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    constexpr tagged_pair&lt;tag::min(T), tag::max(T)&gt;
+      minmax(initializer_list&lt;T&gt; t, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;InputRange Rng, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    requires Copyable&lt;value_type_t&lt;iterator_t&lt;Rng&gt;&gt;&gt;()
+    tagged_pair&lt;tag::min(value_type_t&lt;iterator_t&lt;Rng&gt;&gt;),
+                tag::max(value_type_t&lt;iterator_t&lt;Rng&gt;&gt;)&gt;
+      minmax(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;I, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    I min_element(I first, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    safe_iterator_t&lt;Rng&gt;
+      min_element(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;I, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    I max_element(I first, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    safe_iterator_t&lt;Rng&gt;
+      max_element(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;I, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    tagged_pair&lt;tag::min(I), tag::max(I)&gt;
+      minmax_element(I first, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;ForwardRange Rng, class Proj = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Comp = less&lt;&gt;&gt;
+    tagged_pair&lt;tag::min(safe_iterator_t&lt;Rng&gt;),
+                tag::max(safe_iterator_t&lt;Rng&gt;)&gt;
+      minmax_element(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, Sentinel&lt;I2&gt; S2,
+      class Proj1 = identity, class Proj2 = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;I1, Proj1&gt;, projected&lt;I2, Proj2&gt;&gt; Comp = less&lt;&gt;&gt;
+    bool
+      lexicographical_compare(I1 first1, S1 last1, I2 first2, S2 last2,
+                              Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  template &lt;InputRange Rng1, InputRange Rng2, class Proj1 = identity,
+      class Proj2 = identity,
+      IndirectStrictWeakOrder&lt;projected&lt;iterator_t&lt;Rng1&gt;, Proj1&gt;,
+        projected&lt;iterator_t&lt;Rng2&gt;, Proj2&gt;&gt; Comp = less&lt;&gt;&gt;
+    bool
+      lexicographical_compare(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, Comp comp = Comp{},
+                              Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+  <span class='comment'>// <a href='alg.permutation.generators.html'>[alg.permutation.generators]</a>, permutations:
+</span>  template &lt;BidirectionalIterator I, Sentinel&lt;I&gt; S, class Comp = less&lt;&gt;,
+      class Proj = identity&gt;
+    requires Sortable&lt;I, Comp, Proj&gt;()
+    bool next_permutation(I first, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;BidirectionalRange Rng, class Comp = less&lt;&gt;,
+      class Proj = identity&gt;
+    requires Sortable&lt;iterator_t&lt;Rng&gt;, Comp, Proj&gt;()
+    bool
+      next_permutation(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;BidirectionalIterator I, Sentinel&lt;I&gt; S, class Comp = less&lt;&gt;,
+      class Proj = identity&gt;
+    requires Sortable&lt;I, Comp, Proj&gt;()
+    bool prev_permutation(I first, S last, Comp comp = Comp{}, Proj proj = Proj{});
+
+  template &lt;BidirectionalRange Rng, class Comp = less&lt;&gt;,
+      class Proj = identity&gt;
+    requires Sortable&lt;iterator_t&lt;Rng&gt;, Comp, Proj&gt;()
+    bool
+      prev_permutation(Rng&amp;&amp; rng, Comp comp = Comp{}, Proj proj = Proj{});
+}}}}
+</pre></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >All of the algorithms are separated from the particular implementations of data structures and are
+parameterized by iterator types.
+Because of this, they can work with program-defined data structures, as long
+as these data structures have iterator types satisfying the assumptions on the algorithms.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >For purposes of determining the existence of data races, algorithms shall
+not modify objects referenced through an iterator argument unless the
+specification requires such modification.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >Both in-place and copying versions are provided for certain
+algorithms.<a class='footnotenum' href='#footnote-4'>4</a>
+When such a version is provided for <i>algorithm</i> it is called
+<i>algorithm<span class='texttt'>_copy</span></i>. Algorithms that take predicates end with the
+suffix <span class='texttt'>_if</span> (which follows the suffix <span class='texttt'>_copy</span>).</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >[&nbsp;<i>Note:</i>
+Unless otherwise specified, algorithms that take function objects as arguments
+are permitted to copy those function objects freely. Programmers for whom object
+identity is important should consider using a wrapper class that points to a
+noncopied implementation object such as <span class='texttt'>reference_wrapper&lt;T&gt;</span> (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> refwrap <span class='endcsname'></span>), or some equivalent solution.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >In the description of the algorithms operators
+<span class='texttt'>+</span>
+and
+<span class='texttt'>-</span>
+are used for some of the iterator categories for which
+they do not have to be defined.
+In these cases the semantics of
+<span class='texttt'>a+n</span>
+is the same as that of</p><pre class='codeblock'>
+X tmp = a;
+advance(tmp, n);
+return tmp;
+</pre><p >and that of
+<span class='texttt'>b-a</span>
+is the same as of</p><pre class='codeblock'>
+return distance(a, b);
+</pre></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >In the description of algorithm return values, sentinel values are sometimes
+returned where an iterator is expected. In these cases, the semantics are as
+if the sentinel is converted into an iterator as follows:</p><pre class='codeblock'>
+I tmp = first;
+while(tmp != last)
+  ++tmp;
+return tmp;
+</pre></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >Overloads of algorithms that take <span class='texttt'>Range</span> arguments (<a href='ranges.range.html'>[ranges.range]</a>)
+behave as if they are implemented by calling <span class='texttt'>begin</span> and <span class='texttt'>end</span> on
+the <span class='texttt'>Range</span> and dispatching to the overload that takes separate
+iterator and sentinel arguments.</p></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >Some algorithms declare both an overload that takes a <span class='texttt'>Range</span>
+and an <span class='texttt'>Iterator</span>, and an overload that takes two <span class='texttt'>Range</span>
+parameters. Since an array type (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> basic.compound <span class='endcsname'></span>) both satisfies
+<span class='texttt'>Range</span> and decays to a pointer (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> conv.array <span class='endcsname'></span>) which satisfies
+<span class='texttt'>Iterator</span>, such overloads are ambiguous when an array is passed as
+the second argument. Implementations provide a mechanism to resolve
+this ambiguity in favor of the overload that takes two ranges.</p></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><p >The number and order of template parameters for algorithm declarations
+is unspecified, except where explicitly stated otherwise.</p></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><p >Despite that the algorithm declarations nominally accept parameters
+by value, it is unspecified when and if the argument expressions are used to
+initialize the actual parameters except that any such initialization shall be
+sequenced before (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> intro.execution <span class='endcsname'></span>) the algorithm returns.
+[&nbsp;<i>Note:</i> The behavior of a program that modifies the values of the actual
+argument expressions is consequently undefined unless the algorithm return
+happens before (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> intro.multithread <span class='endcsname'></span>) any such modifications. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='footnote' id='footnote-4'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-4'>4)</a></div><p >The decision whether to include a copying version was
+usually based on complexity considerations. When the cost of doing the operation
+dominates the cost of copy, the copying version is not included. For example,
+<span class='texttt'>sort_copy</span> is not included because the cost of sorting is much more
+significant, and users might as well do <span class='texttt'>copy</span> followed by <span class='texttt'>sort</span>.</p></div></div></div></body></html>

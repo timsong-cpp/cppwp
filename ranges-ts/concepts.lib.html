@@ -1,0 +1,805 @@
+<!DOCTYPE html><html lang='en'><head><title>[concepts.lib]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><div id='concepts.lib'><h1 ><a class='secnum' style='min-width:73pt'>7</a> Concepts library <a class='abbr_ref' href='index.html#concepts.lib'>[concepts.lib]</a></h1><div id='general'><h2 ><a class='secnum' href='#general' style='min-width:88pt'>7.1</a> General <a class='abbr_ref' href='concepts.lib.general.html'>[concepts.lib.general]</a></h2><div class='para' id='general-1'><div class='marginalizedparent'><a class='marginalized' href='#general-1'>1</a></div><p >This Clause describes library components that C++ programs may use to perform
+compile-time validation of template parameters and perform function dispatch
+based on properties of types. The purpose of these concepts is to establish
+a foundation for equational reasoning in programs.</p></div><div class='para' id='general-2'><div class='marginalizedparent'><a class='marginalized' href='#general-2'>2</a></div><p >The following subclauses describe core language concepts,
+comparison concepts, object concepts, and function concepts
+as summarized in Table <a href='#tab:concepts.lib.summary'>[tab:concepts.lib.summary]</a>.</p><div class='numberedTable' id='tab:concepts.lib.summary'>Table <a href='#tab:concepts.lib.summary'>3</a> — Fundamental concepts library summary<br><table ><tr class='rowsep'><td colspan='2' class='center'><b>Subclause</b></td><td class='left'>	<b>Header(s)</b>	</td></tr><tr class='capsep'><td class='left'> 
+
+
+<a href='concepts.lib.corelang.html'>[concepts.lib.corelang]</a>   </td><td class='left'> Core language concepts         </td><td class='left'>   <span class='texttt'>&lt;experimental/ranges/concepts&gt;</span>      </td></tr><tr ><td class='left'>
+<a href='concepts.lib.compare.html'>[concepts.lib.compare]</a>    </td><td class='left'> Comparison concepts            </td><td class='left'>                      </td></tr><tr ><td class='left'>
+<a href='concepts.lib.object.html'>[concepts.lib.object]</a>     </td><td class='left'> Object concepts                </td><td class='left'>                      </td></tr><tr ><td class='left'>
+<a href='concepts.lib.callable.html'>[concepts.lib.callable]</a>   </td><td class='left'> Callable concepts              </td><td class='left'>                      </td></tr></table></div></div><div id='general.equality'><h3 ><a class='secnum' href='#general.equality' style='min-width:103pt'>7.1.1</a> Equality Preservation <a class='abbr_ref' href='concepts.lib.general.equality.html'>[concepts.lib.general.equality]</a></h3><div class='para' id='general.equality-1'><div class='marginalizedparent'><a class='marginalized' href='#general.equality-1'>1</a></div><p >An expression is <i>equality preserving</i> if, given equal inputs, the expression results in
+equal outputs. The inputs to an expression are the set of the expression's operands. The
+output of an expression is the expression's result and all operands modified by the expression.</p></div><div class='para' id='general.equality-2'><div class='marginalizedparent'><a class='marginalized' href='#general.equality-2'>2</a></div><p >Not all input values must be valid for a given expression; e.g., for integers <span class='texttt'>a</span>
+and <span class='texttt'>b</span>, the expression <span class='texttt'>a / b</span> is not well-defined when <span class='texttt'>b</span> is <span class='texttt'>0</span>. This
+does not preclude the expression <span class='texttt'>a / b</span> being equality preserving. The
+<i>domain</i> of an expression is the set of input values for which the
+expression is required to be well-defined.</p></div><div class='para' id='general.equality-3'><div class='marginalizedparent'><a class='marginalized' href='#general.equality-3'>3</a></div><p >Expressions required by this specification to be equality preserving are
+further required to be stable: two evaluations of such an expression with the same
+input objects must have equal outputs absent any
+explicit intervening modification of those input objects.
+[&nbsp;<i>Note:</i> This requirement allows generic code to reason
+about the current values of objects based on knowledge of the prior values as
+observed via equality preserving expressions. It effectively forbids spontaneous
+changes to an object, changes to an object from another thread of execution, changes
+to an object as side effects of non-modifying expressions, and changes to an object as
+side effects of modifying a distinct object if those changes could be observable
+to a library function via an equality preserving expression that is required to be
+valid for that object. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='general.equality-4'><div class='marginalizedparent'><a class='marginalized' href='#general.equality-4'>4</a></div><p >Expressions declared in a <i>requires-expression</i> in this document are
+required to be equality preserving, except for those annotated with the comment
+“not required to be equality preserving.” An expression so annotated
+may be equality preserving, but is not required to be so.</p></div><div class='para' id='general.equality-5'><div class='marginalizedparent'><a class='marginalized' href='#general.equality-5'>5</a></div><p >An expression that may alter the value of one or more of its inputs in a manner
+observable to equality preserving expressions is said to modify those inputs.
+This document uses a notational convention to specify which expressions declared
+in a <i>requires-expression</i> modify which inputs: except where otherwise
+specified, an expression operand that is a non-constant lvalue or rvalue may be
+modified. Operands that are constant lvalues or rvalues must not be modified.</p></div><div class='para' id='general.equality-6'><div class='marginalizedparent'><a class='marginalized' href='#general.equality-6'>6</a></div><p >Where a <i>requires-expression</i> declares an expression that is non-modifying
+for some constant lvalue operand, additional variants of that expression that accept
+a non-constant lvalue or (possibly constant) rvalue for the given operand are also
+required except where such an expression variant is explicitly required with
+differing semantics. Such implicit expression variants must meet the semantic
+requirements of the declared expression. The extent to which an implementation
+validates the syntax of these implicit expression variants is unspecified.</p><p >[&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+template &lt;class T&gt;
+concept bool C() {
+  return requires(T a, T b, const T c, const T d) {
+    c == d;           <span class='comment'>// #1
+</span>    a = std::move(b); <span class='comment'>// #2
+</span>    a = c;            <span class='comment'>// #3
+</span>  };
+}
+</pre><p >Expression #1 does not modify either of its operands, #2 modifies both of its
+operands, and #3 modifies only its first operand <span class='texttt'>a</span>.</p><p >Expression #1 implicitly requires additional expression variants that meet the
+requirements for <span class='texttt'>c == d</span> (including non-modification), as if the expressions
+</p><pre class='codeblock'>
+a == d;       a == b;             a == move(b);       a == d;
+c == a;       c == move(a);       c == move(d);
+move(a) == d; move(a) == b;       move(a) == move(b); move(a) == move(d);
+move(c) == b; move(c) == move(b); move(c) == d;       move(c) == move(d);
+</pre><p >had been declared as well.</p><p >Expression #3 implicitly requires additional expression variants that meet the
+requirements for <span class='texttt'>a = c</span> (including non-modification of the second operand),
+as if the expressions <span class='texttt'>a = b</span> and <span class='texttt'>a = move(c)</span> had been declared.
+Expression #3 does not implicitly require an expression variant with a
+non-constant rvalue second operand, since expression #2 already specifies exactly
+such an expression explicitly.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p >[&nbsp;<i>Example:</i>
+The following type <span class='texttt'>T</span> meets the explicitly stated syntactic requirements
+of concept <span class='texttt'>C</span> above but does not meet the additional implicit requirements:</p><pre class='codeblock'>
+struct T {
+  bool operator==(const T&amp;) const { return true; }
+  bool operator==(T&amp;) = delete;
+};
+</pre><p ><span class='texttt'>T</span> fails to meet the implicit
+requirements of <span class='texttt'>C</span>, so <span class='texttt'>C&lt;T&gt;()</span> is not satisfied. Since
+implementations are not required to validate the syntax of implicit requirements, it
+is unspecified whether or not an implementation diagnoses as ill-formed a program
+which requires <span class='texttt'>C&lt;T&gt;()</span>.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div><div id='synopsis'><h2 ><a class='secnum' href='#synopsis' style='min-width:88pt'>7.2</a> Header <span class='texttt'>&lt;experimental/ranges/concepts&gt;</span> synopsis <a class='abbr_ref' href='concepts.lib.synopsis.html'>[concepts.lib.synopsis]</a></h2><p ><span class='indexparent'><a class='index' id='experimental/ranges/concepts'></a></span></p><pre class='codeblock'>
+namespace std { namespace experimental { namespace ranges { inline namespace v1 {
+  <span class='comment'>// <a href='concepts.lib.corelang.html'>[concepts.lib.corelang]</a>, core language concepts:
+</span>  <span class='comment'>// <a href='concepts.lib.corelang.same.html'>[concepts.lib.corelang.same]</a>, Same:
+</span>  template &lt;class T, class U&gt;
+  concept bool Same() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.corelang.derived.html'>[concepts.lib.corelang.derived]</a>, DerivedFrom:
+</span>  template &lt;class T, class U&gt;
+  concept bool DerivedFrom() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.corelang.convertibleto.html'>[concepts.lib.corelang.convertibleto]</a>, ConvertibleTo:
+</span>  template &lt;class T, class U&gt;
+  concept bool ConvertibleTo() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.corelang.commonref.html'>[concepts.lib.corelang.commonref]</a>, CommonReference:
+</span>  template &lt;class T, class U&gt;
+  concept bool CommonReference() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.corelang.common.html'>[concepts.lib.corelang.common]</a>, Common:
+</span>  template &lt;class T, class U&gt;
+  concept bool Common() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.corelang.integral.html'>[concepts.lib.corelang.integral]</a>, Integral:
+</span>  template &lt;class T&gt;
+  concept bool Integral() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.corelang.signedintegral.html'>[concepts.lib.corelang.signedintegral]</a>, SignedIntegral:
+</span>  template &lt;class T&gt;
+  concept bool SignedIntegral() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.corelang.unsignedintegral.html'>[concepts.lib.corelang.unsignedintegral]</a>, UnsignedIntegral:
+</span>  template &lt;class T&gt;
+  concept bool UnsignedIntegral() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.corelang.assignable.html'>[concepts.lib.corelang.assignable]</a>, Assignable:
+</span>  template &lt;class T, class U&gt;
+  concept bool Assignable() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.corelang.swappable.html'>[concepts.lib.corelang.swappable]</a>, Swappable:
+</span>  template &lt;class T&gt;
+  concept bool Swappable() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  template &lt;class T, class U&gt;
+  concept bool Swappable() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.compare.html'>[concepts.lib.compare]</a>, comparison concepts:
+</span>  <span class='comment'>// <a href='concepts.lib.compare.boolean.html'>[concepts.lib.compare.boolean]</a>, Boolean:
+</span>  template &lt;class B&gt;
+  concept bool Boolean() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.compare.equalitycomparable.html'>[concepts.lib.compare.equalitycomparable]</a>, EqualityComparable:
+</span>  template &lt;class T, class U&gt;
+  concept bool WeaklyEqualityComparable() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  template &lt;class T&gt;
+  concept bool EqualityComparable() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  template &lt;class T, class U&gt;
+  concept bool EqualityComparable() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.compare.stricttotallyordered.html'>[concepts.lib.compare.stricttotallyordered]</a>, StrictTotallyOrdered:
+</span>  template &lt;class T&gt;
+  concept bool StrictTotallyOrdered() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  template &lt;class T, class U&gt;
+  concept bool StrictTotallyOrdered() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.object.html'>[concepts.lib.object]</a>, object concepts:
+</span>  <span class='comment'>// <a href='concepts.lib.object.destructible.html'>[concepts.lib.object.destructible]</a>, Destructible:
+</span>  template &lt;class T&gt;
+  concept bool Destructible() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.object.constructible.html'>[concepts.lib.object.constructible]</a>, Constructible:
+</span>  template &lt;class T, class... Args&gt;
+  concept bool Constructible() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.object.defaultconstructible.html'>[concepts.lib.object.defaultconstructible]</a>, DefaultConstructible:
+</span>  template &lt;class T&gt;
+  concept bool DefaultConstructible() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.object.moveconstructible.html'>[concepts.lib.object.moveconstructible]</a>, MoveConstructible:
+</span>  template &lt;class T&gt;
+  concept bool MoveConstructible() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.object.copyconstructible.html'>[concepts.lib.object.copyconstructible]</a>, CopyConstructible:
+</span>  template &lt;class T&gt;
+  concept bool CopyConstructible() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.object.movable.html'>[concepts.lib.object.movable]</a>, Movable:
+</span>  template &lt;class T&gt;
+  concept bool Movable() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.object.copyable.html'>[concepts.lib.object.copyable]</a>, Copyable:
+</span>  template &lt;class T&gt;
+  concept bool Copyable() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.object.semiregular.html'>[concepts.lib.object.semiregular]</a>, Semiregular:
+</span>  template &lt;class T&gt;
+  concept bool Semiregular() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.object.regular.html'>[concepts.lib.object.regular]</a>, Regular:
+</span>  template &lt;class T&gt;
+  concept bool Regular() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.callable.html'>[concepts.lib.callable]</a>, callable concepts:
+</span>  <span class='comment'>// <a href='concepts.lib.callable.invocable.html'>[concepts.lib.callable.invocable]</a>, Invocable:
+</span>  template &lt;class F, class... Args&gt;
+  concept bool Invocable() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.callable.regularinvocable.html'>[concepts.lib.callable.regularinvocable]</a>, RegularInvocable:
+</span>  template &lt;class F, class... Args&gt;
+  concept bool RegularInvocable() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.callable.predicate.html'>[concepts.lib.callable.predicate]</a>, Predicate:
+</span>  template &lt;class F, class... Args&gt;
+  concept bool Predicate() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.callable.relation.html'>[concepts.lib.callable.relation]</a>, Relation:
+</span>  template &lt;class R, class T&gt;
+  concept bool Relation() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  template &lt;class R, class T, class U&gt;
+  concept bool Relation() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  <span class='comment'>// <a href='concepts.lib.callable.strictweakorder.html'>[concepts.lib.callable.strictweakorder]</a>, StrictWeakOrder:
+</span>  template &lt;class R, class T&gt;
+  concept bool StrictWeakOrder() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  template &lt;class R, class T, class U&gt;
+  concept bool StrictWeakOrder() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+}}}}
+</pre></div><div id='corelang'><h2 ><a class='secnum' href='#corelang' style='min-width:88pt'>7.3</a> Core language concepts <a class='abbr_ref' href='concepts.lib.corelang.html'>[concepts.lib.corelang]</a></h2><div id='corelang.general'><h3 ><a class='secnum' href='#corelang.general' style='min-width:103pt'>7.3.1</a> In general <a class='abbr_ref' href='concepts.lib.corelang.general.html'>[concepts.lib.corelang.general]</a></h3><div class='para' id='corelang.general-1'><div class='marginalizedparent'><a class='marginalized' href='#corelang.general-1'>1</a></div><p >This section contains the definition of concepts corresponding to language features.
+These concepts express relationships between types, type classifications, and
+fundamental type properties.</p></div></div><div id='corelang.same'><h3 ><a class='secnum' href='#corelang.same' style='min-width:103pt'>7.3.2</a> Concept <span class='texttt'>Same</span> <a class='abbr_ref' href='concepts.lib.corelang.same.html'>[concepts.lib.corelang.same]</a></h3><p ><span class='indexparent'><a class='index' id='Same'></a></span><code class='itemdecl'>
+template &lt;class T, class U&gt;
+concept bool Same() {
+  return <i><span class='texttt'>see below</span></i>;
+}
+</code></p><div class='itemdescr'></div><div class='para' id='corelang.same-1'><div class='marginalizedparent'><a class='marginalized' href='#corelang.same-1'>1</a></div><div class='itemdescr'><p ><span class='texttt'>Same&lt;T, U&gt;()</span> is satisfied if and
+only if <span class='texttt'>T</span> and <span class='texttt'>U</span> denote the same type.</p></div></div><div class='para' id='corelang.same-2'><div class='marginalizedparent'><a class='marginalized' href='#corelang.same-2'>2</a></div><div class='itemdescr'><p ><i>Remarks:</i> For the purposes of constraint checking, <span class='texttt'>Same&lt;T, U&gt;()</span> implies
+<span class='texttt'>Same&lt;U, T&gt;()</span>.
+</p></div></div></div><div id='corelang.derived'><h3 ><a class='secnum' href='#corelang.derived' style='min-width:103pt'>7.3.3</a> Concept <span class='texttt'>DerivedFrom</span> <a class='abbr_ref' href='concepts.lib.corelang.derived.html'>[concepts.lib.corelang.derived]</a></h3><p ><span class='indexparent'><a class='index' id='DerivedFrom'></a></span><code class='itemdecl'>
+template &lt;class T, class U&gt;
+concept bool DerivedFrom() {
+  return <i><span class='texttt'>see below</span></i>;
+}
+</code></p><div class='itemdescr'></div><div class='para' id='corelang.derived-1'><div class='marginalizedparent'><a class='marginalized' href='#corelang.derived-1'>1</a></div><div class='itemdescr'><p ><span class='texttt'>DerivedFrom&lt;T, U&gt;()</span> is satisfied if and only if
+<span class='texttt'>is_base_of&lt;U, T&gt;::value</span> is <span class='texttt'>true</span>.
+</p></div></div></div><div id='corelang.convertibleto'><h3 ><a class='secnum' href='#corelang.convertibleto' style='min-width:103pt'>7.3.4</a> Concept <span class='texttt'>ConvertibleTo</span> <a class='abbr_ref' href='concepts.lib.corelang.convertibleto.html'>[concepts.lib.corelang.convertibleto]</a></h3><p ><span class='indexparent'><a class='index' id='ConvertibleTo'></a></span><code class='itemdecl'>
+template &lt;class T, class U&gt;
+concept bool ConvertibleTo() {
+  return <i><span class='texttt'>see below</span></i>;
+}
+</code></p><div class='itemdescr'></div><div class='para' id='corelang.convertibleto-1'><div class='marginalizedparent'><a class='marginalized' href='#corelang.convertibleto-1'>1</a></div><div class='itemdescr'><p ><span class='texttt'>ConvertibleTo&lt;T, U&gt;()</span> is satisfied
+if and only if <span class='texttt'>is_convertible&lt;T, U&gt;::value</span> is <span class='texttt'>true</span>.
+</p></div></div></div><div id='corelang.commonref'><h3 ><a class='secnum' href='#corelang.commonref' style='min-width:103pt'>7.3.5</a> Concept <span class='texttt'>CommonReference</span> <a class='abbr_ref' href='concepts.lib.corelang.commonref.html'>[concepts.lib.corelang.commonref]</a></h3><div class='para' id='corelang.commonref-1'><div class='marginalizedparent'><a class='marginalized' href='#corelang.commonref-1'>1</a></div><p >For two types <span class='texttt'>T</span> and <span class='texttt'>U</span>, if <span class='texttt'>common_reference_t&lt;T, U&gt;</span>
+is well-formed and denotes a type <span class='texttt'>C</span> such that both
+<span class='texttt'>ConvertibleTo&lt;T, C&gt;()</span> and <span class='texttt'>ConvertibleTo&lt;U, C&gt;()</span> are
+satisfied, then <span class='texttt'>T</span> and <span class='texttt'>U</span> share a <i>common reference
+type</i>, <span class='texttt'>C</span>. [&nbsp;<i>Note:</i> <span class='texttt'>C</span> could be the same as <span class='texttt'>T</span>, or
+<span class='texttt'>U</span>, or it could be a different type. <span class='texttt'>C</span> may be a reference
+type. <span class='texttt'>C</span> need not be unique.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='CommonReference'></a></span><code class='itemdecl'>
+template &lt;class T, class U&gt;
+concept bool CommonReference() {
+  return requires(T (&amp;t)(), U (&amp;u)()) {
+    typename common_reference_t&lt;T, U&gt;;
+    typename common_reference_t&lt;U, T&gt;;
+    requires Same&lt;common_reference_t&lt;T, U&gt;,
+                  common_reference_t&lt;U, T&gt;&gt;();
+    common_reference_t&lt;T, U&gt;(t());
+    common_reference_t&lt;T, U&gt;(u());
+  };
+}
+</code></p></div><div class='itemdescr'></div><div class='para' id='corelang.commonref-2'><div class='marginalizedparent'><a class='marginalized' href='#corelang.commonref-2'>2</a></div><div class='itemdescr'><p >Let <span class='texttt'>C</span> be <span class='texttt'>common_reference_t&lt;T, U&gt;</span>. Let <span class='texttt'>t</span> be a
+function whose return type is <span class='texttt'>T</span>, and let <span class='texttt'>u</span> be a function
+whose return type is <span class='texttt'>U</span>. <span class='texttt'>CommonReference&lt;T, U&gt;()</span> is satisfied
+if and only if:
+</p><ul class='itemize'><li id='corelang.commonref-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#corelang.commonref-2.1'>(2.1)</a></div><p ><span class='texttt'>C(t())</span> equals <span class='texttt'>C(t())</span> if and only if <span class='texttt'>t()</span> is an
+  equality preserving expression (<a href='concepts.lib.general.equality.html'>[concepts.lib.general.equality]</a>).
+</p></li><li id='corelang.commonref-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#corelang.commonref-2.2'>(2.2)</a></div><p ><span class='texttt'>C(u())</span> equals <span class='texttt'>C(u())</span> if and only if <span class='texttt'>u()</span> is an
+  equality preserving expression.
+</p></li></ul></div></div><div class='para' id='corelang.commonref-3'><div class='marginalizedparent'><a class='marginalized' href='#corelang.commonref-3'>3</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> Users can customize the behavior of <span class='texttt'>CommonReference</span> by specializing the
+<span class='texttt'>basic_common_reference</span> class template (<a href='meta.trans.other.html'>[meta.trans.other]</a>).<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div><div id='corelang.common'><h3 ><a class='secnum' href='#corelang.common' style='min-width:103pt'>7.3.6</a> Concept <span class='texttt'>Common</span> <a class='abbr_ref' href='concepts.lib.corelang.common.html'>[concepts.lib.corelang.common]</a></h3><div class='para' id='corelang.common-1'><div class='marginalizedparent'><a class='marginalized' href='#corelang.common-1'>1</a></div><p >If <span class='texttt'>T</span> and <span class='texttt'>U</span> can both be explicitly converted to some third type,
+<span class='texttt'>C</span>, then <span class='texttt'>T</span> and <span class='texttt'>U</span> share a <i>common type</i>,
+<span class='texttt'>C</span>. [&nbsp;<i>Note:</i> <span class='texttt'>C</span> could be the same as <span class='texttt'>T</span>, or <span class='texttt'>U</span>, or
+it could be a different type. <span class='texttt'>C</span> may not be unique.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='Common'></a></span><code class='itemdecl'>
+template &lt;class T, class U&gt;
+concept bool Common() {
+  return CommonReference&lt;const T&amp;, const U&amp;&gt;() &amp;&amp;
+    requires(T (&amp;t)(), U (&amp;u)()) {
+      typename common_type_t&lt;T, U&gt;;
+      typename common_type_t&lt;U, T&gt;;
+      requires Same&lt;common_type_t&lt;U, T&gt;, common_type_t&lt;T, U&gt;&gt;();
+      common_type_t&lt;T, U&gt;(t());
+      common_type_t&lt;T, U&gt;(u());
+      requires CommonReference&lt;add_lvalue_reference_t&lt;common_type_t&lt;T, U&gt;&gt;,
+                               common_reference_t&lt;add_lvalue_reference_t&lt;const T&gt;,
+                                                  add_lvalue_reference_t&lt;const U&gt;&gt;&gt;();
+    };
+}
+</code></p></div><div class='itemdescr'></div><div class='para' id='corelang.common-2'><div class='marginalizedparent'><a class='marginalized' href='#corelang.common-2'>2</a></div><div class='itemdescr'><p >Let <span class='texttt'>C</span> be <span class='texttt'>common_type_t&lt;T, U&gt;</span>. Let
+<span class='texttt'>t</span> be a function whose return type is <span class='texttt'>T</span>, and let <span class='texttt'>u</span> be a function
+whose return type is <span class='texttt'>U</span>. <span class='texttt'>Common&lt;T, U&gt;()</span> is satisfied if and only if:
+</p><ul class='itemize'><li id='corelang.common-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#corelang.common-2.1'>(2.1)</a></div><p ><span class='texttt'>C(t())</span> equals <span class='texttt'>C(t())</span> if and only if
+  <span class='texttt'>t()</span> is an equality preserving
+  expression (<a href='concepts.lib.general.equality.html'>[concepts.lib.general.equality]</a>).
+</p></li><li id='corelang.common-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#corelang.common-2.2'>(2.2)</a></div><p ><span class='texttt'>C(u())</span> equals <span class='texttt'>C(u())</span> if and only if
+  <span class='texttt'>u()</span> is an equality preserving
+  expression (<a href='concepts.lib.general.equality.html'>[concepts.lib.general.equality]</a>).
+</p></li></ul></div></div><div class='para' id='corelang.common-3'><div class='marginalizedparent'><a class='marginalized' href='#corelang.common-3'>3</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> Users can customize the behavior of <span class='texttt'>Common</span> by specializing the <span class='texttt'>common_type</span>
+class template (<a href='meta.unary.prop.html'>[meta.unary.prop]</a>).<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div></div><div id='corelang.integral'><h3 ><a class='secnum' href='#corelang.integral' style='min-width:103pt'>7.3.7</a> Concept <span class='texttt'>Integral</span> <a class='abbr_ref' href='concepts.lib.corelang.integral.html'>[concepts.lib.corelang.integral]</a></h3><p ><span class='indexparent'><a class='index' id='Integral'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+concept bool Integral() {
+  return is_integral&lt;T&gt;::value;
+}
+</code></p></div><div id='corelang.signedintegral'><h3 ><a class='secnum' href='#corelang.signedintegral' style='min-width:103pt'>7.3.8</a> Concept <span class='texttt'>SignedIntegral</span> <a class='abbr_ref' href='concepts.lib.corelang.signedintegral.html'>[concepts.lib.corelang.signedintegral]</a></h3><p ><span class='indexparent'><a class='index' id='SignedIntegral'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+concept bool SignedIntegral() {
+  return Integral&lt;T&gt;() &amp;&amp; is_signed&lt;T&gt;::value;
+}
+</code></p><div class='itemdescr'></div><div class='para' id='corelang.signedintegral-1'><div class='marginalizedparent'><a class='marginalized' href='#corelang.signedintegral-1'>1</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> <span class='texttt'>SignedIntegral&lt;T&gt;()</span> may be satisfied even for
+types that are not signed integral types (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> basic.fundamental <span class='endcsname'></span>);
+for example, <span class='texttt'>char</span>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div><div id='corelang.unsignedintegral'><h3 ><a class='secnum' href='#corelang.unsignedintegral' style='min-width:103pt'>7.3.9</a> Concept <span class='texttt'>UnsignedIntegral</span> <a class='abbr_ref' href='concepts.lib.corelang.unsignedintegral.html'>[concepts.lib.corelang.unsignedintegral]</a></h3><p ><span class='indexparent'><a class='index' id='UnsignedIntegral'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+concept bool UnsignedIntegral() {
+  return Integral&lt;T&gt;() &amp;&amp; !SignedIntegral&lt;T&gt;();
+}
+</code></p><div class='itemdescr'></div><div class='para' id='corelang.unsignedintegral-1'><div class='marginalizedparent'><a class='marginalized' href='#corelang.unsignedintegral-1'>1</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> <span class='texttt'>UnsignedIntegral&lt;T&gt;()</span> may be satisfied even for
+types that are not unsigned integral types (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> basic.fundamental <span class='endcsname'></span>);
+for example, <span class='texttt'>char</span>.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div><div id='corelang.assignable'><h3 ><a class='secnum' href='#corelang.assignable' style='min-width:103pt'>7.3.10</a> Concept <span class='texttt'>Assignable</span> <a class='abbr_ref' href='concepts.lib.corelang.assignable.html'>[concepts.lib.corelang.assignable]</a></h3><p ><span class='indexparent'><a class='index' id='Assignable'></a></span><code class='itemdecl'>
+template &lt;class T, class U&gt;
+concept bool Assignable() {
+  return CommonReference&lt;const T&amp;, const U&amp;&gt;() &amp;&amp; requires(T&amp;&amp; t, U&amp;&amp; u) {
+    { std::forward&lt;T&gt;(t) = std::forward&lt;U&gt;(u) } -&gt; Same&lt;T&amp;&gt;;
+  };
+}
+</code></p><div class='itemdescr'></div><div class='para' id='corelang.assignable-1'><div class='marginalizedparent'><a class='marginalized' href='#corelang.assignable-1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>t</span> be an lvalue of type <span class='texttt'>T</span>, and <span class='texttt'>R</span> be the
+type <span class='texttt'>remove_reference_t&lt;U&gt;</span>. If <span class='texttt'>U</span> is an lvalue reference
+type, let <span class='texttt'>v</span> be an lvalue of type <span class='texttt'>R</span>;
+otherwise, let <span class='texttt'>v</span> be an rvalue of type <span class='texttt'>R</span>.
+Let <span class='texttt'>uu</span> be a distinct object of type <span class='texttt'>R</span> such that
+<span class='texttt'>uu</span> is equal to <span class='texttt'>v</span>.
+Then <span class='texttt'>Assignable&lt;T, U&gt;()</span> is satisfied if and only if</p><ul class='itemize'><li id='corelang.assignable-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#corelang.assignable-1.1'>(1.1)</a></div><p ><span class='texttt'>addressof(t = v) == addressof(t)</span>.
+</p></li><li id='corelang.assignable-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#corelang.assignable-1.2'>(1.2)</a></div><p >After evaluating <span class='texttt'>t = v</span>, <span class='texttt'>t</span> is equal to <span class='texttt'>uu</span> and:
+</p><ul class='itemize'><li id='corelang.assignable-1.2.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#corelang.assignable-1.2.1'>(1.2.1)</a></div><p >If <span class='texttt'>v</span> is a non-<span class='texttt'>const</span> rvalue, its resulting
+state is valid but unspecified (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> lib.types.movedfrom <span class='endcsname'></span>).
+</p></li><li id='corelang.assignable-1.2.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#corelang.assignable-1.2.2'>(1.2.2)</a></div><p >Otherwise, <span class='texttt'>v</span> is not modified.
+</p></li></ul></li></ul></div></div></div><div id='corelang.swappable'><h3 ><a class='secnum' href='#corelang.swappable' style='min-width:103pt'>7.3.11</a> Concept <span class='texttt'>Swappable</span> <a class='abbr_ref' href='concepts.lib.corelang.swappable.html'>[concepts.lib.corelang.swappable]</a></h3><p ><span class='indexparent'><a class='index' id='Swappable'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+concept bool Swappable() {
+  return requires(T&amp;&amp; a, T&amp;&amp; b) {
+    ranges::swap(std::forward&lt;T&gt;(a), std::forward&lt;T&gt;(b));
+  };
+}
+
+template &lt;class T, class U&gt;
+concept bool Swappable() {
+  return Swappable&lt;T&gt;() &amp;&amp;
+    Swappable&lt;U&gt;() &amp;&amp;
+    CommonReference&lt;const T&amp;, const U&amp;&gt;() &amp;&amp;
+    requires(T&amp;&amp; t, U&amp;&amp; u) {
+      ranges::swap(std::forward&lt;T&gt;(t), std::forward&lt;U&gt;(u));
+      ranges::swap(std::forward&lt;U&gt;(u), std::forward&lt;T&gt;(t));
+    };
+}
+</code></p><div class='itemdescr'></div><div class='para' id='corelang.swappable-1'><div class='marginalizedparent'><a class='marginalized' href='#corelang.swappable-1'>1</a></div><div class='itemdescr'><p >This subclause provides definitions for swappable types and expressions. In these
+definitions, let <span class='texttt'>t</span> denote an expression of type <span class='texttt'>T</span>, and let <span class='texttt'>u</span>
+denote an expression of type <span class='texttt'>U</span>.</p></div></div><div class='para' id='corelang.swappable-2'><div class='marginalizedparent'><a class='marginalized' href='#corelang.swappable-2'>2</a></div><div class='itemdescr'><p >An object <span class='texttt'>t</span> is <a class='hidden_link' href='#def:swappable_with' id='def:swappable_with'><i>swappable with</i></a> an object <span class='texttt'>u</span> if and only if
+<span class='texttt'>Swappable&lt;T, U&gt;()</span> is satisfied. <span class='texttt'>Swappable&lt;T, U&gt;()</span> is satisfied if
+and only if given distinct objects <span class='texttt'>t2</span> equal to <span class='texttt'>t</span>
+and <span class='texttt'>u2</span> equal to <span class='texttt'>u</span>, after evaluating either
+<span class='texttt'>ranges::swap(t, u)</span> or <span class='texttt'>ranges::swap(u, t)</span>, <span class='texttt'>t2</span> is equal to
+<span class='texttt'>u</span> and <span class='texttt'>u2</span> is equal to <span class='texttt'>t</span>.</p></div></div><div class='para' id='corelang.swappable-3'><div class='marginalizedparent'><a class='marginalized' href='#corelang.swappable-3'>3</a></div><div class='itemdescr'><p >An rvalue or lvalue <span class='texttt'>t</span> is <a class='hidden_link' href='#def:swappable' id='def:swappable'><i>swappable</i></a> if and only if <span class='texttt'>t</span> is
+swappable with any rvalue or lvalue, respectively, of type <span class='texttt'>T</span>.</p><p >[&nbsp;<i>Example:</i> User code can ensure that the evaluation of <span class='texttt'>swap</span> calls
+is performed in an appropriate context under the various conditions as follows:
+</p><pre class='codeblock'>
+#include &lt;utility&gt;
+
+<span class='comment'>// Requires: <span class='texttt'>std::forward&lt;T&gt;(t)</span> shall be swappable with <span class='texttt'>std::forward&lt;U&gt;(u)</span>.
+</span>template &lt;class T, class U&gt;
+void value_swap(T&amp;&amp; t, U&amp;&amp; u) {
+  using std::experimental::ranges::swap;
+  swap(std::forward&lt;T&gt;(t), std::forward&lt;U&gt;(u));         <span class='comment'>// OK: uses “swappable with” conditions
+</span>                                                        <span class='comment'>// for rvalues and lvalues
+</span>}
+
+<span class='comment'>// Requires: lvalues of <span class='texttt'>T</span> shall be swappable.
+</span>template &lt;class T&gt;
+void lv_swap(T&amp; t1, T&amp; t2) {
+  using std::experimental::ranges::swap;
+  swap(t1, t2);                                         <span class='comment'>// OK: uses swappable conditions for
+</span>}                                                       <span class='comment'>// lvalues of type <span class='texttt'>T</span>
+</span>
+namespace N {
+  struct A { int m; };
+  struct Proxy { A* a; };
+  Proxy proxy(A&amp; a) { return Proxy{ &amp;a }; }
+
+  void swap(A&amp; x, Proxy p) {
+    std::experimental::ranges::swap(x.m, p.a-&gt;m);  <span class='comment'>// OK: uses context equivalent to swappable
+</span>                                                   <span class='comment'>// conditions for fundamental types
+</span>  }
+  void swap(Proxy p, A&amp; x) { swap(x, p); }         <span class='comment'>// satisfy symmetry constraint
+</span>}
+
+int main() {
+  int i = 1, j = 2;
+  lv_swap(i, j);
+  assert(i == 2 &amp;&amp; j == 1);
+
+  N::A a1 = { 5 }, a2 = { -5 };
+  value_swap(a1, proxy(a2));
+  assert(a1.m == -5 &amp;&amp; a2.m == 5);
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]
+</p></div></div></div></div><div id='compare'><h2 ><a class='secnum' href='#compare' style='min-width:88pt'>7.4</a> Comparison concepts <a class='abbr_ref' href='concepts.lib.compare.html'>[concepts.lib.compare]</a></h2><div id='compare.general'><h3 ><a class='secnum' href='#compare.general' style='min-width:103pt'>7.4.1</a> In general <a class='abbr_ref' href='concepts.lib.compare.general.html'>[concepts.lib.compare.general]</a></h3><div class='para' id='compare.general-1'><div class='marginalizedparent'><a class='marginalized' href='#compare.general-1'>1</a></div><p >This section describes concepts that establish relationships and orderings
+on values of possibly differing object types.</p></div></div><div id='compare.boolean'><h3 ><a class='secnum' href='#compare.boolean' style='min-width:103pt'>7.4.2</a> Concept <span class='texttt'>Boolean</span> <a class='abbr_ref' href='concepts.lib.compare.boolean.html'>[concepts.lib.compare.boolean]</a></h3><div class='para' id='compare.boolean-1'><div class='marginalizedparent'><a class='marginalized' href='#compare.boolean-1'>1</a></div><p >The <span class='texttt'>Boolean</span> concept specifies the requirements on a type that is usable in Boolean contexts.</p><p ><span class='indexparent'><a class='index' id='Boolean'></a></span><code class='itemdecl'>
+template &lt;class B&gt;
+concept bool Boolean() {
+  return MoveConstructible&lt;B&gt;() &amp;&amp; <span class='comment'>// (see <a href='concepts.lib.object.moveconstructible.html'>[concepts.lib.object.moveconstructible]</a>)
+</span>    requires(const B b1, const B b2, const bool a) {
+      bool(b1);
+      { b1 } -&gt; bool;
+      bool(!b1);
+      { !b1 } -&gt; bool;
+      { b1 &amp;&amp; b2 } -&gt; Same&lt;bool&gt;;
+      { b1 &amp;&amp; a } -&gt; Same&lt;bool&gt;;
+      { a &amp;&amp; b1 } -&gt; Same&lt;bool&gt;;
+      { b1 || b2 } -&gt; Same&lt;bool&gt;;
+      { b1 || a } -&gt; Same&lt;bool&gt;;
+      { a || b1 } -&gt; Same&lt;bool&gt;;
+      { b1 == b2 } -&gt; bool;
+      { b1 != b2 } -&gt; bool;
+      { b1 == a } -&gt; bool;
+      { a == b1 } -&gt; bool;
+      { b1 != a } -&gt; bool;
+      { a != b1 } -&gt; bool;
+    };
+}
+</code></p></div><div class='para' id='compare.boolean-2'><div class='marginalizedparent'><a class='marginalized' href='#compare.boolean-2'>2</a></div><p >Given values <span class='texttt'>b1</span> and <span class='texttt'>b2</span> of type <span class='texttt'>B</span>, then
+<span class='texttt'>Boolean&lt;B&gt;()</span> is satisfied if and only if</p><ul class='itemize'><li id='compare.boolean-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.boolean-2.1'>(2.1)</a></div><p ><span class='texttt'>bool(b1) == [](bool x) { return x; }(b1)</span>.
+</p></li><li id='compare.boolean-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.boolean-2.2'>(2.2)</a></div><p ><span class='texttt'>bool(b1) == !bool(!b1)</span>.
+</p></li><li id='compare.boolean-2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.boolean-2.3'>(2.3)</a></div><p ><span class='texttt'>(b1 &amp;&amp; b2)</span>, <span class='texttt'>(b1 &amp;&amp; bool(b2))</span>, and
+      <span class='texttt'>(bool(b1) &amp;&amp; b2)</span> are all equal to
+      <span class='texttt'>(bool(b1) &amp;&amp; bool(b2))</span>, and have the same short-circuit evaluation.
+</p></li><li id='compare.boolean-2.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.boolean-2.4'>(2.4)</a></div><p ><span class='texttt'>(b1 || b2)</span>, <span class='texttt'>(b1 || bool(b2))</span>, and
+      <span class='texttt'>(bool(b1) || b2)</span> are all equal to
+      <span class='texttt'>(bool(b1) || bool(b2))</span>, and have the same short-circuit evaluation.
+</p></li><li id='compare.boolean-2.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.boolean-2.5'>(2.5)</a></div><p ><span class='texttt'>bool(b1 == b2)</span>, <span class='texttt'>bool(b1 == bool(b2))</span>, and
+      <span class='texttt'>bool(bool(b1) == b2)</span> are all equal to <span class='texttt'>(bool(b1) == bool(b2))</span>.
+</p></li><li id='compare.boolean-2.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.boolean-2.6'>(2.6)</a></div><p ><span class='texttt'>bool(b1 != b2)</span>, <span class='texttt'>bool(b1 != bool(b2))</span>, and
+      <span class='texttt'>bool(bool(b1) != b2)</span> are all equal to <span class='texttt'>(bool(b1) != bool(b2))</span>.
+</p></li></ul></div><div class='para' id='compare.boolean-3'><div class='marginalizedparent'><a class='marginalized' href='#compare.boolean-3'>3</a></div><p >[&nbsp;<i>Example:</i> The types <span class='texttt'>bool</span>, <span class='texttt'>std::true_type</span>, and
+<span class='texttt'>std::bitset&lt;<span class='math'><span class='mathalpha'>N</span></span>&gt;::reference</span> are <span class='texttt'>Boolean</span> types.
+Pointers, smart pointers, and types with explicit conversions to <span class='texttt'>bool</span> are
+not <span class='texttt'>Boolean</span> types.<i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div id='compare.equalitycomparable'><h3 ><a class='secnum' href='#compare.equalitycomparable' style='min-width:103pt'>7.4.3</a> Concept <span class='texttt'>EqualityComparable</span> <a class='abbr_ref' href='concepts.lib.compare.equalitycomparable.html'>[concepts.lib.compare.equalitycomparable]</a></h3><p ><span class='indexparent'><a class='index' id='WeaklyEqualityComparable'></a></span><code class='itemdecl'>
+template &lt;class T, class U&gt;
+concept bool WeaklyEqualityComparable() {
+  return requires(const T&amp; t, const U&amp; u) {
+    { t == u } -&gt; Boolean;
+    { u == t } -&gt; Boolean;
+    { t != u } -&gt; Boolean;
+    { u != t } -&gt; Boolean;
+  };
+}
+</code></p><div class='itemdescr'></div><div class='para' id='compare.equalitycomparable-1'><div class='marginalizedparent'><a class='marginalized' href='#compare.equalitycomparable-1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>t</span> and <span class='texttt'>u</span> be objects of types <span class='texttt'>T</span> and <span class='texttt'>U</span> respectively.
+<span class='texttt'>WeaklyEqualityComparable&lt;T, U&gt;()</span> is satisfied if and only if:
+</p><ul class='itemize'><li id='compare.equalitycomparable-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.equalitycomparable-1.1'>(1.1)</a></div><p ><span class='texttt'>t == u</span>, <span class='texttt'>u == t</span>, <span class='texttt'>t != u</span>, and <span class='texttt'>u != t</span>
+      have the same domain.
+</p></li><li id='compare.equalitycomparable-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.equalitycomparable-1.2'>(1.2)</a></div><p ><span class='texttt'>bool(u == t) == bool(t == u)</span>.
+</p></li><li id='compare.equalitycomparable-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.equalitycomparable-1.3'>(1.3)</a></div><p ><span class='texttt'>bool(t != u) == !bool(t == u)</span>.
+</p></li><li id='compare.equalitycomparable-1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.equalitycomparable-1.4'>(1.4)</a></div><p ><span class='texttt'>bool(u != t) == bool(t != u)</span>.
+</p></li></ul></div></div><p ><span class='indexparent'><a class='index' id='EqualityComparable'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+concept bool EqualityComparable() {
+  return WeaklyEqualityComparable&lt;T, T&gt;();
+}
+</code></p><div class='itemdescr'></div><div class='para' id='compare.equalitycomparable-2'><div class='marginalizedparent'><a class='marginalized' href='#compare.equalitycomparable-2'>2</a></div><div class='itemdescr'><p >Let <span class='texttt'>a</span> and <span class='texttt'>b</span> be objects
+of type <span class='texttt'>T</span>. <span class='texttt'>EqualityComparable&lt;T&gt;()</span>
+is satisfied if and only if:</p><ul class='itemize'><li id='compare.equalitycomparable-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.equalitycomparable-2.1'>(2.1)</a></div><p ><span class='texttt'>bool(a == b)</span> if and only if <span class='texttt'>a</span> is equal to <span class='texttt'>b</span>.
+</p></li></ul></div></div><div class='para' id='compare.equalitycomparable-3'><div class='marginalizedparent'><a class='marginalized' href='#compare.equalitycomparable-3'>3</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> The requirement that the expression <span class='texttt'>a == b</span> is equality preserving
+implies that <span class='texttt'>==</span> is reflexive, transitive, and symmetric.<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='EqualityComparable'></a></span><code class='itemdecl'>
+template &lt;class T, class U&gt;
+concept bool EqualityComparable() {
+  return CommonReference&lt;const T&amp;, const U&amp;&gt;() &amp;&amp;
+    EqualityComparable&lt;T&gt;() &amp;&amp;
+    EqualityComparable&lt;U&gt;() &amp;&amp;
+    EqualityComparable&lt;
+      remove_cv_t&lt;remove_reference_t&lt;common_reference_t&lt;const T&amp;, const U&amp;&gt;&gt;&gt;&gt;() &amp;&amp;
+    WeaklyEqualityComparable&lt;T, U&gt;();
+}
+</code></p><div class='itemdescr'></div><div class='para' id='compare.equalitycomparable-4'><div class='marginalizedparent'><a class='marginalized' href='#compare.equalitycomparable-4'>4</a></div><div class='itemdescr'><p >Let <span class='texttt'>t</span> be an object of type <span class='texttt'>T</span>, <span class='texttt'>u</span> be an object of type <span class='texttt'>U</span>, and <span class='texttt'>C</span> be
+<span class='texttt'>common_reference_t&lt;const T&amp;, const U&amp;&gt;</span>.
+Then <span class='texttt'>EqualityComparable&lt;T, U&gt;()</span>
+is satisfied if and only if:</p><ul class='itemize'><li id='compare.equalitycomparable-4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.equalitycomparable-4.1'>(4.1)</a></div><p ><span class='texttt'>bool(t == u) == bool(C(t) == C(u))</span>.
+</p></li></ul></div></div></div><div id='compare.stricttotallyordered'><h3 ><a class='secnum' href='#compare.stricttotallyordered' style='min-width:103pt'>7.4.4</a> Concept <span class='texttt'>StrictTotallyOrdered</span> <a class='abbr_ref' href='concepts.lib.compare.stricttotallyordered.html'>[concepts.lib.compare.stricttotallyordered]</a></h3><p ><span class='indexparent'><a class='index' id='StrictTotallyOrdered'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+concept bool StrictTotallyOrdered() {
+  return EqualityComparable&lt;T&gt;() &amp;&amp;
+    requires(const T a, const T b) {
+      { a &lt; b } -&gt; Boolean;
+      { a &gt; b } -&gt; Boolean;
+      { a &lt;= b } -&gt; Boolean;
+      { a &gt;= b } -&gt; Boolean;
+    };
+}
+</code></p><div class='itemdescr'></div><div class='para' id='compare.stricttotallyordered-1'><div class='marginalizedparent'><a class='marginalized' href='#compare.stricttotallyordered-1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>a</span>, <span class='texttt'>b</span>, and <span class='texttt'>c</span> be objects of type <span class='texttt'>T</span>.
+Then <span class='texttt'>StrictTotallyOrdered&lt;T&gt;()</span> is satisfied if and only if</p><ul class='itemize'><li id='compare.stricttotallyordered-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.stricttotallyordered-1.1'>(1.1)</a></div><p >Exactly one of <span class='texttt'>bool(a &lt; b)</span>, <span class='texttt'>bool(a &gt; b)</span>, or
+      <span class='texttt'>bool(a == b)</span> is <span class='texttt'>true</span>.
+</p></li><li id='compare.stricttotallyordered-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.stricttotallyordered-1.2'>(1.2)</a></div><p >If <span class='texttt'>bool(a &lt; b)</span> and <span class='texttt'>bool(b &lt; c)</span>, then
+      <span class='texttt'>bool(a &lt; c)</span>.
+</p></li><li id='compare.stricttotallyordered-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.stricttotallyordered-1.3'>(1.3)</a></div><p ><span class='texttt'>bool(a &gt; b) == bool(b &lt; a)</span>.
+</p></li><li id='compare.stricttotallyordered-1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.stricttotallyordered-1.4'>(1.4)</a></div><p ><span class='texttt'>bool(a &lt;= b) == !bool(b &lt; a)</span>.
+</p></li><li id='compare.stricttotallyordered-1.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.stricttotallyordered-1.5'>(1.5)</a></div><p ><span class='texttt'>bool(a &gt;= b) == !bool(a &lt; b)</span>.
+</p></li></ul></div></div><p ><code class='itemdecl'>
+template &lt;class T, class U&gt;
+concept bool StrictTotallyOrdered() {
+  return CommonReference&lt;const T&amp;, const U&amp;&gt;() &amp;&amp;
+    StrictTotallyOrdered&lt;T&gt;() &amp;&amp;
+    StrictTotallyOrdered&lt;U&gt;() &amp;&amp;
+    StrictTotallyOrdered&lt;
+      remove_cv_t&lt;remove_reference_t&lt;common_reference_t&lt;const T&amp;, const U&amp;&gt;&gt;&gt;&gt;() &amp;&amp;
+    EqualityComparable&lt;T, U&gt;() &amp;&amp;
+    requires(const T t, const U u) {
+      { t &lt; u } -&gt; Boolean;
+      { t &gt; u } -&gt; Boolean;
+      { t &lt;= u } -&gt; Boolean;
+      { t &gt;= u } -&gt; Boolean;
+      { u &lt; t } -&gt; Boolean;
+      { u &gt; t } -&gt; Boolean;
+      { u &lt;= t } -&gt; Boolean;
+      { u &gt;= t } -&gt; Boolean;
+    };
+}
+</code></p><div class='itemdescr'></div><div class='para' id='compare.stricttotallyordered-2'><div class='marginalizedparent'><a class='marginalized' href='#compare.stricttotallyordered-2'>2</a></div><div class='itemdescr'><p >Let <span class='texttt'>t</span> be an object of type T, <span class='texttt'>u</span> be an object
+of type <span class='texttt'>U</span>, and <span class='texttt'>C</span> be
+<span class='texttt'>common_reference_t&lt;const T&amp;, const U&amp;&gt;</span>.
+Then <span class='texttt'>StrictTotallyOrdered&lt;T, U&gt;()</span> is satisfied if and only if</p><ul class='itemize'><li id='compare.stricttotallyordered-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.stricttotallyordered-2.1'>(2.1)</a></div><p ><span class='texttt'>bool(t &lt; u) == bool(C(t) &lt; C(u)).</span>
+</p></li><li id='compare.stricttotallyordered-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.stricttotallyordered-2.2'>(2.2)</a></div><p ><span class='texttt'>bool(t &gt; u) == bool(C(t) &gt; C(u)).</span>
+</p></li><li id='compare.stricttotallyordered-2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.stricttotallyordered-2.3'>(2.3)</a></div><p ><span class='texttt'>bool(t &lt;= u) == bool(C(t) &lt;= C(u)).</span>
+</p></li><li id='compare.stricttotallyordered-2.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.stricttotallyordered-2.4'>(2.4)</a></div><p ><span class='texttt'>bool(t &gt;= u) == bool(C(t) &gt;= C(u)).</span>
+</p></li><li id='compare.stricttotallyordered-2.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.stricttotallyordered-2.5'>(2.5)</a></div><p ><span class='texttt'>bool(u &lt; t) == bool(C(u) &lt; C(t)).</span>
+</p></li><li id='compare.stricttotallyordered-2.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.stricttotallyordered-2.6'>(2.6)</a></div><p ><span class='texttt'>bool(u &gt; t) == bool(C(u) &gt; C(t)).</span>
+</p></li><li id='compare.stricttotallyordered-2.7'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.stricttotallyordered-2.7'>(2.7)</a></div><p ><span class='texttt'>bool(u &lt;= t) == bool(C(u) &lt;= C(t)).</span>
+</p></li><li id='compare.stricttotallyordered-2.8'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#compare.stricttotallyordered-2.8'>(2.8)</a></div><p ><span class='texttt'>bool(u &gt;= t) == bool(C(u) &gt;= C(t)).</span>
+</p></li></ul></div></div></div></div><div id='object'><h2 ><a class='secnum' href='#object' style='min-width:88pt'>7.5</a> Object concepts <a class='abbr_ref' href='concepts.lib.object.html'>[concepts.lib.object]</a></h2><div class='para' id='object-1'><div class='marginalizedparent'><a class='marginalized' href='#object-1'>1</a></div><p >This section describes concepts that specify the basis of the
+value-oriented programming style on which the library is based.
+
+</p></div><div id='object.destructible'><h3 ><a class='secnum' href='#object.destructible' style='min-width:103pt'>7.5.1</a> Concept <span class='texttt'>Destructible</span> <a class='abbr_ref' href='concepts.lib.object.destructible.html'>[concepts.lib.object.destructible]</a></h3><div class='para' id='object.destructible-1'><div class='marginalizedparent'><a class='marginalized' href='#object.destructible-1'>1</a></div><p >The <span class='texttt'>Destructible</span> concept is the base of the hierarchy of object concepts.
+It specifies properties that all such object types have in common.</p><p ><span class='indexparent'><a class='index' id='Destructible'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+concept bool Destructible() {
+  return requires(T t, const T ct, T* p) {
+    { t.<span class='math'>~</span>T() } noexcept;
+    { &amp;t } -&gt; Same&lt;T*&gt;; <span class='comment'>// not required to be equality preserving
+</span>    { &amp;ct } -&gt; Same&lt;const T*&gt;; <span class='comment'>// not required to be equality preserving
+</span>    delete p;
+    delete[] p;
+  };
+}
+</code></p></div><div class='itemdescr'></div><div class='para' id='object.destructible-2'><div class='marginalizedparent'><a class='marginalized' href='#object.destructible-2'>2</a></div><div class='itemdescr'><p >The expression requirement <span class='texttt'>&amp;ct</span> does not require implicit expression variants.</p></div></div><div class='para' id='object.destructible-3'><div class='marginalizedparent'><a class='marginalized' href='#object.destructible-3'>3</a></div><div class='itemdescr'><p >Given a (possibly <span class='texttt'>const</span>) lvalue <span class='texttt'>t</span> of type <span class='texttt'>T</span> and pointer
+<span class='texttt'>p</span> of type <span class='texttt'>T*</span>, <span class='texttt'>Destructible&lt;T&gt;()</span> is satisfied if and only if</p><ul class='itemize'><li id='object.destructible-3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#object.destructible-3.1'>(3.1)</a></div><p >After evaluating the expression <span class='texttt'>t.<span class='math'>~</span>T()</span>,
+<span class='texttt'>delete p</span>, or <span class='texttt'>delete[] p</span>, all resources owned by
+the denoted object(s) are reclaimed.
+</p></li><li id='object.destructible-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#object.destructible-3.2'>(3.2)</a></div><p ><span class='texttt'>&amp;t == addressof(t)</span>.
+</p></li><li id='object.destructible-3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#object.destructible-3.3'>(3.3)</a></div><p >The expression <span class='texttt'>&amp;t</span> is non-modifying.
+</p></li></ul></div></div><div class='para' id='object.destructible-4'><div class='marginalizedparent'><a class='marginalized' href='#object.destructible-4'>4</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> Unlike the <span class='texttt'>Destructible</span> library concept in the C++
+Standard (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> utility.arg.requirements <span class='endcsname'></span>), this concept forbids destructors
+that are <span class='texttt'>noexcept(false)</span>, even if non-throwing. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div><div id='object.constructible'><h3 ><a class='secnum' href='#object.constructible' style='min-width:103pt'>7.5.2</a> Concept <span class='texttt'>Constructible</span> <a class='abbr_ref' href='concepts.lib.object.constructible.html'>[concepts.lib.object.constructible]</a></h3><div class='para' id='object.constructible-1'><div class='marginalizedparent'><a class='marginalized' href='#object.constructible-1'>1</a></div><p >The <span class='texttt'>Constructible</span> concept is used to constrain the type of a
+variable to be either an object type constructible from a given set of argument
+types, or a reference type that can be bound to those arguments.</p><p ><span class='indexparent'><a class='index' id='Constructible'></a></span><code class='itemdecl'>
+template &lt;class T, class... Args&gt;
+concept bool __ConstructibleObject = <span class='comment'>// <i>exposition only</i>
+</span>  Destructible&lt;T&gt;() &amp;&amp; requires(Args&amp;&amp;... args) {
+    T{std::forward&lt;Args&gt;(args)...}; <span class='comment'>// not required to be equality preserving
+</span>    new T{std::forward&lt;Args&gt;(args)...}; <span class='comment'>// not required to be equality preserving
+</span>  };
+
+template &lt;class T, class... Args&gt;
+concept bool __BindableReference = <span class='comment'>// <i>exposition only</i>
+</span>  is_reference&lt;T&gt;::value &amp;&amp; requires(Args&amp;&amp;... args) {
+    T(std::forward&lt;Args&gt;(args)...);
+  };
+
+template &lt;class T, class... Args&gt;
+concept bool Constructible() {
+  return __ConstructibleObject&lt;T, Args...&gt; ||
+    __BindableReference&lt;T, Args...&gt;;
+}
+</code></p></div></div><div id='object.defaultconstructible'><h3 ><a class='secnum' href='#object.defaultconstructible' style='min-width:103pt'>7.5.3</a> Concept <span class='texttt'>DefaultConstructible</span> <a class='abbr_ref' href='concepts.lib.object.defaultconstructible.html'>[concepts.lib.object.defaultconstructible]</a></h3><p ><span class='indexparent'><a class='index' id='DefaultConstructible'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+concept bool DefaultConstructible() {
+  return Constructible&lt;T&gt;() &amp;&amp;
+    requires(const size_t n) {
+      new T[n]{}; <span class='comment'>// not required to be equality preserving
+</span>    };
+}
+</code></p><div class='para' id='object.defaultconstructible-1'><div class='marginalizedparent'><a class='marginalized' href='#object.defaultconstructible-1'>1</a></div><p >[&nbsp;<i>Note:</i> The array allocation expression <span class='texttt'>new T[n]{}</span> implicitly
+requires that <span class='texttt'>T</span> has a non-explicit default constructor. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='object.moveconstructible'><h3 ><a class='secnum' href='#object.moveconstructible' style='min-width:103pt'>7.5.4</a> Concept <span class='texttt'>MoveConstructible</span> <a class='abbr_ref' href='concepts.lib.object.moveconstructible.html'>[concepts.lib.object.moveconstructible]</a></h3><p ><span class='indexparent'><a class='index' id='MoveConstructible'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+concept bool MoveConstructible() {
+  return Constructible&lt;T, remove_cv_t&lt;T&gt;&amp;&amp;&gt;() &amp;&amp;
+    ConvertibleTo&lt;remove_cv_t&lt;T&gt;&amp;&amp;, T&gt;();
+}
+</code></p><div class='itemdescr'></div><div class='para' id='object.moveconstructible-1'><div class='marginalizedparent'><a class='marginalized' href='#object.moveconstructible-1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>U</span> be the type <span class='texttt'>remove_cv_t&lt;T&gt;</span>,
+<span class='texttt'>rv</span> be an rvalue of type <span class='texttt'>U</span>,
+and <span class='texttt'>u2</span> be a distinct object of type <span class='texttt'>T</span> equal to <span class='texttt'>rv</span>.
+Then <span class='texttt'>MoveConstructible&lt;T&gt;()</span> is satisfied if and only if</p><ul class='itemize'><li id='object.moveconstructible-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#object.moveconstructible-1.1'>(1.1)</a></div><p >After the definition <span class='texttt'>T u = rv;</span>, <span class='texttt'>u</span> is equal to <span class='texttt'>u2</span>.
+</p></li><li id='object.moveconstructible-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#object.moveconstructible-1.2'>(1.2)</a></div><p ><span class='texttt'>T{rv}</span> or <span class='texttt'>*new T{rv}</span> is equal to <span class='texttt'>u2</span>.
+</p></li></ul></div></div><div class='para' id='object.moveconstructible-2'><div class='marginalizedparent'><a class='marginalized' href='#object.moveconstructible-2'>2</a></div><div class='itemdescr'><p ><span class='texttt'>rv</span>'s resulting state is valid but unspecified (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> lib.types.movedfrom <span class='endcsname'></span>).</p></div></div></div><div id='object.copyconstructible'><h3 ><a class='secnum' href='#object.copyconstructible' style='min-width:103pt'>7.5.5</a> Concept <span class='texttt'>CopyConstructible</span> <a class='abbr_ref' href='concepts.lib.object.copyconstructible.html'>[concepts.lib.object.copyconstructible]</a></h3><p ><span class='indexparent'><a class='index' id='CopyConstructible'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+concept bool CopyConstructible() {
+  return MoveConstructible&lt;T&gt;() &amp;&amp;
+    Constructible&lt;T, const remove_cv_t&lt;T&gt;&amp;&gt;() &amp;&amp;
+    ConvertibleTo&lt;remove_cv_t&lt;T&gt;&amp;, T&gt;() &amp;&amp;
+    ConvertibleTo&lt;const remove_cv_t&lt;T&gt;&amp;, T&gt;() &amp;&amp;
+    ConvertibleTo&lt;const remove_cv_t&lt;T&gt;&amp;&amp;, T&gt;();
+}
+</code></p><div class='itemdescr'></div><div class='para' id='object.copyconstructible-1'><div class='marginalizedparent'><a class='marginalized' href='#object.copyconstructible-1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>v</span> be an lvalue of type (possibly <span class='texttt'>const</span>)
+<span class='texttt'>remove_cv_t&lt;T&gt;</span> or an rvalue of type <span class='texttt'>const remove_cv_t&lt;T&gt;</span>.
+Then <span class='texttt'>CopyConstructible&lt;T&gt;()</span> is satisfied if and only if</p><ul class='itemize'><li id='object.copyconstructible-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#object.copyconstructible-1.1'>(1.1)</a></div><p >After the definition <span class='texttt'>T u = v;</span>, <span class='texttt'>u</span> is equal
+to <span class='texttt'>v</span>.
+</p></li><li id='object.copyconstructible-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#object.copyconstructible-1.2'>(1.2)</a></div><p ><span class='texttt'>T{v}</span> or <span class='texttt'>*new T{v}</span> is equal
+to <span class='texttt'>v</span>.
+</p></li></ul></div></div></div><div id='object.movable'><h3 ><a class='secnum' href='#object.movable' style='min-width:103pt'>7.5.6</a> Concept <span class='texttt'>Movable</span> <a class='abbr_ref' href='concepts.lib.object.movable.html'>[concepts.lib.object.movable]</a></h3><p ><span class='indexparent'><a class='index' id='Movable'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+concept bool Movable() {
+  return MoveConstructible&lt;T&gt;() &amp;&amp;
+    Assignable&lt;T&amp;, T&gt;() &amp;&amp;
+    Swappable&lt;T&amp;&gt;();
+}
+</code></p></div><div id='object.copyable'><h3 ><a class='secnum' href='#object.copyable' style='min-width:103pt'>7.5.7</a> Concept <span class='texttt'>Copyable</span> <a class='abbr_ref' href='concepts.lib.object.copyable.html'>[concepts.lib.object.copyable]</a></h3><p ><span class='indexparent'><a class='index' id='Copyable'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+concept bool Copyable() {
+  return CopyConstructible&lt;T&gt;() &amp;&amp;
+    Movable&lt;T&gt;() &amp;&amp;
+    Assignable&lt;T&amp;, const T&amp;&gt;();
+}
+</code></p></div><div id='object.semiregular'><h3 ><a class='secnum' href='#object.semiregular' style='min-width:103pt'>7.5.8</a> Concept <span class='texttt'>Semiregular</span> <a class='abbr_ref' href='concepts.lib.object.semiregular.html'>[concepts.lib.object.semiregular]</a></h3><p ><span class='indexparent'><a class='index' id='Semiregular'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+concept bool Semiregular() {
+  return Copyable&lt;T&gt;() &amp;&amp;
+    DefaultConstructible&lt;T&gt;();
+}
+</code></p><div class='itemdescr'></div><div class='para' id='object.semiregular-1'><div class='marginalizedparent'><a class='marginalized' href='#object.semiregular-1'>1</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> The <span class='texttt'>Semiregular</span> concept is satisfied by types that
+behave similarly to built-in types like <span class='texttt'>int</span>, except that they may not be
+comparable with <span class='texttt'>==</span>.<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div><div id='object.regular'><h3 ><a class='secnum' href='#object.regular' style='min-width:103pt'>7.5.9</a> Concept <span class='texttt'>Regular</span> <a class='abbr_ref' href='concepts.lib.object.regular.html'>[concepts.lib.object.regular]</a></h3><p ><span class='indexparent'><a class='index' id='Regular'></a></span><code class='itemdecl'>
+template &lt;class T&gt;
+concept bool Regular() {
+  return Semiregular&lt;T&gt;() &amp;&amp;
+    EqualityComparable&lt;T&gt;();
+}
+</code></p><div class='itemdescr'></div><div class='para' id='object.regular-1'><div class='marginalizedparent'><a class='marginalized' href='#object.regular-1'>1</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> The <span class='texttt'>Regular</span> concept is satisfied by types that behave
+similarly to built-in types like <span class='texttt'>int</span> and that are comparable with <span class='texttt'>==</span>.<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div></div><div id='callable'><h2 ><a class='secnum' href='#callable' style='min-width:88pt'>7.6</a> Callable concepts <a class='abbr_ref' href='concepts.lib.callable.html'>[concepts.lib.callable]</a></h2><div id='callable.general'><h3 ><a class='secnum' href='#callable.general' style='min-width:103pt'>7.6.1</a> In general <a class='abbr_ref' href='concepts.lib.callable.general.html'>[concepts.lib.callable.general]</a></h3><div class='para' id='callable.general-1'><div class='marginalizedparent'><a class='marginalized' href='#callable.general-1'>1</a></div><p >The concepts in this section describe the requirements on function
+objects (<a href='function.objects.html'>[function.objects]</a>) and their arguments.</p></div></div><div id='callable.invocable'><h3 ><a class='secnum' href='#callable.invocable' style='min-width:103pt'>7.6.2</a> Concept <span class='texttt'>Invocable</span> <a class='abbr_ref' href='concepts.lib.callable.invocable.html'>[concepts.lib.callable.invocable]</a></h3><div class='para' id='callable.invocable-1'><div class='marginalizedparent'><a class='marginalized' href='#callable.invocable-1'>1</a></div><p >The <span class='texttt'>Invocable</span> concept specifies a relationship between a callable
+type (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> func.def <span class='endcsname'></span>) <span class='texttt'>F</span> and a set of argument types <span class='texttt'>Args...</span> which
+can be evaluated by the library function <span class='texttt'>invoke</span> (<a href='func.invoke.html'>[func.invoke]</a>).</p><p ><span class='indexparent'><a class='index' id='Invocable'></a></span><code class='itemdecl'>
+template &lt;class F, class... Args&gt;
+concept bool Invocable() {
+  return requires(F&amp;&amp; f, Args&amp;&amp;... args) {
+      invoke(std::forward&lt;F&gt;(f), std::forward&lt;Args&gt;(args)...); <span class='comment'>// not required to be equality preserving
+</span>    };
+}
+</code></p></div><div class='itemdescr'></div><div class='para' id='callable.invocable-2'><div class='marginalizedparent'><a class='marginalized' href='#callable.invocable-2'>2</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> Since the <span class='texttt'>invoke</span> function call
+expression is not required to be
+equality-preserving (<a href='concepts.lib.general.equality.html'>[concepts.lib.general.equality]</a>), a function that generates random numbers
+may satisfy <span class='texttt'>Invocable</span>.<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div><div id='callable.regularinvocable'><h3 ><a class='secnum' href='#callable.regularinvocable' style='min-width:103pt'>7.6.3</a> Concept <span class='texttt'>RegularInvocable</span> <a class='abbr_ref' href='concepts.lib.callable.regularinvocable.html'>[concepts.lib.callable.regularinvocable]</a></h3><p ><span class='indexparent'><a class='index' id='RegularInvocable'></a></span><code class='itemdecl'>
+template &lt;class F, class... Args&gt;
+concept bool RegularInvocable() {
+  return Invocable&lt;F, Args...&gt;();
+}
+</code></p><div class='itemdescr'></div><div class='para' id='callable.regularinvocable-1'><div class='marginalizedparent'><a class='marginalized' href='#callable.regularinvocable-1'>1</a></div><div class='itemdescr'><p >The <span class='texttt'>invoke</span> function call expression shall be
+equality-preserving (<a href='concepts.lib.general.equality.html'>[concepts.lib.general.equality]</a>). [&nbsp;<i>Note:</i> This requirement supersedes the
+annotation in the definition of <span class='texttt'>Invocable</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='callable.regularinvocable-2'><div class='marginalizedparent'><a class='marginalized' href='#callable.regularinvocable-2'>2</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> A random number generator does not satisfy
+<span class='texttt'>RegularInvocable</span>.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='callable.regularinvocable-3'><div class='marginalizedparent'><a class='marginalized' href='#callable.regularinvocable-3'>3</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> The distinction between <span class='texttt'>Invocable</span> and
+<span class='texttt'>RegularInvocable</span> is purely semantic.<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div><div id='callable.predicate'><h3 ><a class='secnum' href='#callable.predicate' style='min-width:103pt'>7.6.4</a> Concept <span class='texttt'>Predicate</span> <a class='abbr_ref' href='concepts.lib.callable.predicate.html'>[concepts.lib.callable.predicate]</a></h3><p ><span class='indexparent'><a class='index' id='Predicate'></a></span><code class='itemdecl'>
+template &lt;class F, class... Args&gt;
+concept bool Predicate() {
+  return RegularInvocable&lt;F, Args...&gt;() &amp;&amp;
+    Boolean&lt;result_of_t&lt;F&amp;&amp;(Args&amp;&amp;...)&gt;&gt;();
+}
+</code></p></div><div id='callable.relation'><h3 ><a class='secnum' href='#callable.relation' style='min-width:103pt'>7.6.5</a> Concept <span class='texttt'>Relation</span> <a class='abbr_ref' href='concepts.lib.callable.relation.html'>[concepts.lib.callable.relation]</a></h3><p ><span class='indexparent'><a class='index' id='Relation'></a></span><code class='itemdecl'>
+template &lt;class R, class T&gt;
+concept bool Relation() {
+  return Predicate&lt;R, T, T&gt;();
+}
+
+template &lt;class R, class T, class U&gt;
+concept bool Relation() {
+  return Relation&lt;R, T&gt;() &amp;&amp;
+    Relation&lt;R, U&gt;() &amp;&amp;
+    CommonReference&lt;const T&amp;, const U&amp;&gt;() &amp;&amp;
+    Relation&lt;R,
+      common_reference_t&lt;const T&amp;, const U&amp;&gt;&gt;() &amp;&amp;
+    Predicate&lt;R, T, U&gt;() &amp;&amp;
+    Predicate&lt;R, U, T&gt;();
+}
+</code></p><div class='itemdescr'></div><div class='para' id='callable.relation-1'><div class='marginalizedparent'><a class='marginalized' href='#callable.relation-1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>r</span> be any object of type <span class='texttt'>R</span>, <span class='texttt'>t</span> be any
+object of type <span class='texttt'>T</span>, <span class='texttt'>u</span> be any
+object of type <span class='texttt'>U</span>, and <span class='texttt'>C</span> be
+<span class='texttt'>common_reference_t&lt;const T&amp;, const U&amp;&gt;</span>.
+Then <span class='texttt'>Relation&lt;R, T, U&gt;()</span> is satisfied if and only if</p><ul class='itemize'><li id='callable.relation-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#callable.relation-1.1'>(1.1)</a></div><p ><span class='texttt'>bool(r(t, u)) == bool(r(C(t), C(u))).</span>
+</p></li><li id='callable.relation-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#callable.relation-1.2'>(1.2)</a></div><p ><span class='texttt'>bool(r(u, t)) == bool(r(C(u), C(t))).</span>
+</p></li></ul></div></div></div><div id='callable.strictweakorder'><h3 ><a class='secnum' href='#callable.strictweakorder' style='min-width:103pt'>7.6.6</a> Concept <span class='texttt'>StrictWeakOrder</span> <a class='abbr_ref' href='concepts.lib.callable.strictweakorder.html'>[concepts.lib.callable.strictweakorder]</a></h3><p ><span class='indexparent'><a class='index' id='Relation'></a></span><code class='itemdecl'>
+template &lt;class R, class T&gt;
+concept bool StrictWeakOrder() {
+  return Relation&lt;R, T&gt;();
+}
+
+template &lt;class R, class T, class U&gt;
+concept bool StrictWeakOrder() {
+  return Relation&lt;R, T, U&gt;();
+}
+</code></p><div class='itemdescr'></div><div class='para' id='callable.strictweakorder-1'><div class='marginalizedparent'><a class='marginalized' href='#callable.strictweakorder-1'>1</a></div><div class='itemdescr'><p >A <span class='texttt'>Relation</span> satisfies <span class='texttt'>StrictWeakOrder</span> if and only if
+it imposes a <i>strict weak ordering</i> on its arguments.</p></div></div><div class='para' id='callable.strictweakorder-2'><div class='marginalizedparent'><a class='marginalized' href='#callable.strictweakorder-2'>2</a></div><div class='itemdescr'><p >The term
+<i>strict</i>
+refers to the
+requirement of an irreflexive relation (<span class='texttt'>!comp(x, x)</span> for all <span class='texttt'>x</span>),
+and the term
+<i>weak</i>
+to requirements that are not as strong as
+those for a total ordering,
+but stronger than those for a partial
+ordering.
+If we define
+<span class='texttt'>equiv(a, b)</span>
+as
+<span class='texttt'>!comp(a, b) &amp;&amp; !comp(b, a)</span>,
+then the requirements are that
+<span class='texttt'>comp</span>
+and
+<span class='texttt'>equiv</span>
+both be transitive  relations:</p><ul class='itemize'><li id='callable.strictweakorder-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#callable.strictweakorder-2.1'>(2.1)</a></div><p ><span class='texttt'>comp(a, b) &amp;&amp; comp(b, c)</span>
+implies
+<span class='texttt'>comp(a, c)</span>
+</p></li><li id='callable.strictweakorder-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#callable.strictweakorder-2.2'>(2.2)</a></div><p ><span class='texttt'>equiv(a, b) &amp;&amp; equiv(b, c)</span>
+implies
+<span class='texttt'>equiv(a, c)</span>
+[&nbsp;<i>Note:</i>
+Under these conditions, it can be shown that
+</p><ul class='itemize'><li id='callable.strictweakorder-2.2.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#callable.strictweakorder-2.2.1'>(2.2.1)</a></div><p ><span class='texttt'>equiv</span>
+is an equivalence relation
+</p></li><li id='callable.strictweakorder-2.2.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#callable.strictweakorder-2.2.2'>(2.2.2)</a></div><p ><span class='texttt'>comp</span>
+induces a well-defined relation on the equivalence
+classes determined by
+<span class='texttt'>equiv</span>
+</p></li><li id='callable.strictweakorder-2.2.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#callable.strictweakorder-2.2.3'>(2.2.3)</a></div><p >The induced relation is a strict total ordering.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></li></ul></li></ul></div></div></div></div></div></div></body></html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html><html lang='en'><head><title>[iterator.assoc.types.value_type]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>9</a> Iterators library <a class='abbr_ref' href='index.html#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>9.3</a> Iterator requirements <a class='abbr_ref' href='iterator.requirements.html#iterator.assoc.types.value_type'>[iterator.requirements]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>9.3.3</a> Iterator associated types <a class='abbr_ref' href='iterator.assoc.types.html#value_type'>[iterator.assoc.types]</a></h3><div id='iterator.assoc.types.value_type'><h4 ><a class='secnum' style='min-width:118pt'>9.3.3.2</a> <span class='texttt'>value_type</span> <a class='abbr_ref'>[iterator.assoc.types.value_type]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A <span class='texttt'>Readable</span> type has an associated value type that can be accessed with the
+<span class='texttt'>value_type_t</span> alias template.</p><p ><span class='indexparent'><a class='index' id='value_type'></a></span></p><pre class='codeblock'>
+  template &lt;class&gt; struct value_type { };
+
+  template &lt;class T&gt;
+  struct value_type&lt;T*&gt;
+    : enable_if&lt;is_object&lt;T&gt;::value, remove_cv_t&lt;T&gt;&gt; { };
+
+  template &lt;class I&gt;
+    requires is_array&lt;I&gt;::value
+  struct value_type&lt;I&gt; : value_type&lt;decay_t&lt;I&gt;&gt; { };
+
+  template &lt;class I&gt;
+  struct value_type&lt;I const&gt; : value_type&lt;decay_t&lt;I&gt;&gt; { };
+
+  template &lt;class T&gt;
+    requires requires { typename T::value_type; }
+  struct value_type&lt;T&gt;
+    : enable_if&lt;is_object&lt;typename T::value_type&gt;::value, typename T::value_type&gt; { };
+
+  template &lt;class T&gt;
+    requires requires { typename T::element_type; }
+  struct value_type&lt;T&gt;
+    : enable_if&lt;is_object&lt;typename T::element_type&gt;::value, typename T::element_type&gt; { };
+
+  template &lt;class T&gt; using value_type_t
+    = typename value_type&lt;T&gt;::type;
+</pre></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >If a type <span class='texttt'>I</span> has an associated value type, then <span class='texttt'>value_type&lt;I&gt;::type</span> shall name the
+value type. Otherwise, there shall be no nested type <span class='texttt'>type</span>.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The <span class='texttt'>value_type</span> class template may be specialized on user-defined types.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >When instantiated with a type <span class='texttt'>I</span>
+such that <span class='texttt'>I::value_type</span> is valid and denotes a type,
+<span class='texttt'>value_type&lt;I&gt;::type</span> names that type, unless it is not an object type (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> basic.types <span class='endcsname'></span>) in which case
+<span class='texttt'>value_type&lt;I&gt;</span> shall have no nested type <span class='texttt'>type</span>. [&nbsp;<i>Note:</i> Some legacy output
+iterators define a nested type named <span class='texttt'>value_type</span> that is an alias for <span class='texttt'>void</span>. These
+types are not <span class='texttt'>Readable</span> and have no associated value types.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >When instantiated with a type <span class='texttt'>I</span>
+such that <span class='texttt'>I::element_type</span> is valid and denotes a type,
+<span class='texttt'>value_type&lt;I&gt;::type</span> names that type, unless it is not an object type (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> basic.types <span class='endcsname'></span>) in which case
+<span class='texttt'>value_type&lt;I&gt;</span> shall have no nested type <span class='texttt'>type</span>. [&nbsp;<i>Note:</i> Smart pointers like
+<span class='texttt'>shared_ptr&lt;int&gt;</span> are <span class='texttt'>Readable</span> and have an associated value type. But a smart pointer
+like <span class='texttt'>shared_ptr&lt;void&gt;</span> is not <span class='texttt'>Readable</span> and has no associated value type.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div></div></body></html>

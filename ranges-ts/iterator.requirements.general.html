@@ -1,0 +1,135 @@
+<!DOCTYPE html><html lang='en'><head><title>[iterator.requirements.general]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>9</a> Iterators library <a class='abbr_ref' href='index.html#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>9.3</a> Iterator requirements <a class='abbr_ref' href='iterator.requirements.html#general'>[iterator.requirements]</a></h2><div id='iterator.requirements.general'><h3 ><a class='secnum' style='min-width:103pt'>9.3.1</a> In general <a class='abbr_ref'>[iterator.requirements.general]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='requirements,iterator'></a></span>Iterators are a generalization of pointers that allow a C++ program to work with different data structures
+(for example, containers and ranges) in a uniform manner.
+To be able to construct template algorithms that work correctly and
+efficiently on different types of data structures, the library formalizes not just the interfaces but also the
+semantics and complexity assumptions of iterators.
+All input iterators
+<span class='texttt'>i</span>
+support the expression
+<span class='texttt'>*i</span>,
+resulting in a value of some object type
+<span class='texttt'>T</span>,
+called the
+<a class='hidden_link' href='#def:value_type' id='def:value_type'><i>value type</i></a>
+of the iterator.
+All output iterators support the expression
+<span class='texttt'>*i = o</span>
+where
+<span class='texttt'>o</span>
+is a value of some type that is in the set of types that are
+<a class='hidden_link' href='#def:writable' id='def:writable'><i>writable</i></a>
+to the particular iterator type of
+<span class='texttt'>i</span>.
+For every iterator type
+<span class='texttt'>X</span>
+there is a corresponding signed integer type called the
+<a class='hidden_link' href='#def:difference_type' id='def:difference_type'><i>difference type</i></a>
+of the iterator.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Since iterators are an abstraction of pointers, their semantics are
+a generalization of most of the semantics of pointers in C++.
+This ensures that every
+function template
+that takes iterators
+works as well with regular pointers.
+This document defines
+five categories of iterators, according to the operations
+defined on them:
+<i>input iterators</i>,
+<i>output iterators</i>,
+<i>forward iterators</i>,
+<i>bidirectional iterators</i>
+and
+<i>random access iterators</i>,
+as shown in Table <a href='#tab:iterators.relations'>[tab:iterators.relations]</a>.</p><div class='numberedTable' id='tab:iterators.relations'>Table <a href='#tab:iterators.relations'>8</a> — Relations among iterator categories<br><table ><tr class='rowsep'><td class='left'>
+
+
+
+<b>Random Access</b>          </td><td class='left'>   <span class='math'>→</span> <b>Bidirectional</b>    </td><td class='left'>
+<span class='math'>→</span> <b>Forward</b>  </td><td class='left'>   <span class='math'>→</span> <b>Input</b>            </td></tr><tr ><td class='left'>
+                        </td><td class='left'>   </td><td class='left'>   </td><td class='left'>   <span class='math'>→</span> <b>Output</b>           </td></tr></table></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The five categories of iterators correspond to the iterator concepts
+<span class='texttt'>InputIterator</span>,
+<span class='texttt'>OutputIterator</span>,
+<span class='texttt'>ForwardIterator</span>,
+<span class='texttt'>BidirectionalIterator</span>, and
+<span class='texttt'>RandomAccessIterator</span>, respectively. The generic term <i>iterator</i> refers to
+any type that satisfies <span class='texttt'>Iterator</span>.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Forward iterators satisfy all the requirements of input
+iterators and can be used whenever an input iterator is specified;
+Bidirectional iterators also satisfy all the requirements of
+forward iterators and can be used whenever a forward iterator is specified;
+Random access iterators also satisfy all the requirements of bidirectional
+iterators and can be used whenever a bidirectional iterator is specified.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >Iterators that further satisfy the requirements of output iterators are
+called <a class='hidden_link' href='#def:mutable_iterator' id='def:mutable_iterator'><i>mutable iterator</i></a>s. Nonmutable iterators are referred to
+as <a class='hidden_link' href='#def:constant_iterator' id='def:constant_iterator'><i>constant iterator</i></a>s.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >Just as a regular pointer to an array guarantees that there is a pointer value pointing past the last element
+of the array, so for any iterator type there is an iterator value that points past the last element of a
+corresponding sequence.
+These values are called
+<a class='hidden_link' href='#def:past-the-end' id='def:past-the-end'><i>past-the-end</i></a>
+values.
+Values of an iterator
+<span class='texttt'>i</span>
+for which the expression
+<span class='texttt'>*i</span>
+is defined are called
+<a class='hidden_link' href='#def:dereferenceable' id='def:dereferenceable'><i>dereferenceable</i></a>.
+The library never assumes that past-the-end values are dereferenceable.
+Iterators can also have singular values that are not associated with any
+sequence.
+[&nbsp;<i>Example:</i>
+After the declaration of an uninitialized pointer
+<span class='texttt'>x</span>
+(as with
+<span class='texttt'>int* x;</span>),
+<span class='texttt'>x</span>
+must always be assumed to have a singular value of a pointer.
+<i>&nbsp;—&nbsp;end example</i>&nbsp;]
+Results of most expressions are undefined for singular values;
+the only exceptions are destroying an iterator that holds a singular value,
+the assignment of a non-singular value to
+an iterator that holds a singular value, and using a value-initialized iterator
+as the source of a copy or move operation. [&nbsp;<i>Note:</i> This guarantee is not
+offered for default initialization, although the distinction only matters for types
+with trivial default constructors such as pointers or aggregates holding pointers.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+In these cases the singular
+value is overwritten the same way as any other value.
+Dereferenceable
+values are always non-singular.</p></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p >Most of the library's algorithmic templates that operate on data structures have
+interfaces that use ranges. A range is an iterator and a <a class='hidden_link' href='#def:sentinel' id='def:sentinel'><i>sentinel</i></a> that designate
+the beginning and end of the computation. An iterator and a sentinel denoting a range
+are comparable. A sentinel denotes an element when it compares equal to an iterator
+<span class='texttt'>i</span>, and <span class='texttt'>i</span> points to that element. The types of a sentinel and an
+iterator that denote a range must satisfy <span class='texttt'>Sentinel</span> (<a href='iterators.sentinel.html'>[iterators.sentinel]</a>).</p></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><p >A range <span class='texttt'>[i,s)</span>
+is empty if <span class='texttt'>i == s</span>;
+otherwise, <span class='texttt'>[i,s)</span>
+refers to the elements in the data structure starting with the element
+pointed to by
+<span class='texttt'>i</span>
+and up to but not including the element pointed to by
+the first iterator <span class='texttt'>j</span> such that <span class='texttt'>j == s</span>.</p></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><p >A sentinel
+<span class='texttt'>s</span>
+is called
+<a class='hidden_link' href='#def:reachable' id='def:reachable'><i>reachable</i></a>
+from an iterator
+<span class='texttt'>i</span>
+if and only if there is a finite sequence of applications of
+the expression
+<span class='texttt'>++i</span>
+that makes
+<span class='texttt'>i == s</span>.
+If
+<span class='texttt'>s</span>
+is reachable from
+<span class='texttt'>i</span>,
+they denote a range.</p></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >A range <span class='texttt'>[i,s)</span>
+is valid if and only if
+<span class='texttt'>s</span>
+is reachable from
+<span class='texttt'>i</span>.
+The result of the application of functions in the library to invalid ranges is
+undefined.</p></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><p >All the categories of iterators require only those functions that are realizable for a given category in
+constant time (amortized).</p></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><p >Destruction of an iterator may invalidate pointers and references
+previously obtained from that iterator.</p></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><p >An
+<i>invalid</i>
+iterator is an iterator that may be singular.<a class='footnotenum' href='#footnote-3'>3</a></p></div><div class='footnote' id='footnote-3'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-3'>3)</a></div><p >This definition applies to pointers, since pointers are iterators.
+The effect of dereferencing an iterator that has been invalidated
+is undefined.
+</p></div></div></div></body></html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html><html lang='en'><head><title>[depr]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><div id='depr'><h1 ><a class='annexnum' style='min-width:73pt'>Annex A&emsp;(normative)</a> Compatibility features <a class='abbr_ref' href='index.html#depr'>[depr]</a></h1><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >This Clause describes features of this document that are specified for compatibility with
+existing implementations.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >These are deprecated features, where
+<a class='hidden_link' href='#def:deprecated' id='def:deprecated'><i>deprecated</i></a>
+is defined as:
+Normative for the current edition of the Ranges TS,
+but having been identified as a candidate for removal from future revisions.
+An implementation may declare library names and entities described in this section with the
+<span class='texttt'>deprecated</span> attribute (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> dcl.attr.deprecated <span class='endcsname'></span>).</p></div><div id='rvalue.ranges'><h2 ><a class='secnum' href='#rvalue.ranges' style='min-width:88pt'>A.1</a> Rvalue range access <a class='abbr_ref' href='depr.rvalue.ranges.html'>[depr.rvalue.ranges]</a></h2><div class='para' id='rvalue.ranges-1'><div class='marginalizedparent'><a class='marginalized' href='#rvalue.ranges-1'>1</a></div><p >Use of the range access customization point objects
+<span class='texttt'>begin</span>, <span class='texttt'>end</span>,
+<span class='texttt'>cbegin</span>, <span class='texttt'>cend</span>,
+<span class='texttt'>rbegin</span>, <span class='texttt'>rend</span>,
+<span class='texttt'>crbegin</span>, <span class='texttt'>crend</span>,
+<span class='texttt'>data</span>, and <span class='texttt'>cdata</span>
+with rvalue arguments is deprecated. In a future revision of this document,
+such usage could become ill-formed.</p></div></div><div id='algo.range-and-a-half'><h2 ><a class='secnum' href='#algo.range-and-a-half' style='min-width:88pt'>A.2</a> Range-and-a-half algorithms <a class='abbr_ref' href='depr.algo.range-and-a-half.html'>[depr.algo.range-and-a-half]</a></h2><div class='para' id='algo.range-and-a-half-1'><div class='marginalizedparent'><a class='marginalized' href='#algo.range-and-a-half-1'>1</a></div><p >The following algorithm signatures are deemed unsafe and are deprecated in this document.</p><pre class='codeblock'>
+template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2,
+    class Proj1 = identity, class Proj2 = identity,
+    IndirectPredicate&lt;projected&lt;I1, Proj1&gt;, projected&lt;I2, Proj2&gt;&gt; Pred = equal_to&lt;&gt;&gt;
+  tagged_pair&lt;tag::in1(I1), tag::in2(I2)&gt;
+    mismatch(I1 first1, S1 last1, I2 first2, Pred pred = Pred{},
+             Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+template &lt;InputRange Rng1, InputIterator I2,
+    class Proj1 = identity, class Proj2 = identity,
+    IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng1&gt;, Proj1&gt;,
+      projected&lt;I2, Proj2&gt;&gt; Pred = equal_to&lt;&gt;&gt;
+  tagged_pair&lt;tag::in1(safe_iterator_t&lt;Rng1&gt;), tag::in2(I2)&gt;
+    mismatch(Rng1&amp;&amp; rng1, I2 first2, Pred pred = Pred{},
+             Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2,
+    class Pred = equal_to&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+  requires IndirectlyComparable&lt;I1, I2, Pred, Proj1, Proj2&gt;()
+  bool equal(I1 first1, S1 last1,
+             I2 first2, Pred pred = Pred{},
+             Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+template &lt;InputRange Rng1, InputIterator I2, class Pred = equal_to&lt;&gt;,
+    class Proj1 = identity, class Proj2 = identity&gt;
+  requires IndirectlyComparable&lt;iterator_t&lt;Rng1&gt;, I2, Pred, Proj1, Proj2&gt;()
+  bool equal(Rng1&amp;&amp; rng1, I2 first2, Pred pred = Pred{},
+             Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+template &lt;ForwardIterator I1, Sentinel&lt;I1&gt; S1, ForwardIterator I2,
+    class Pred = equal_to&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+  requires IndirectlyComparable&lt;I1, I2, Pred, Proj1, Proj2&gt;()
+  bool is_permutation(I1 first1, S1 last1, I2 first2,
+                      Pred pred = Pred{},
+                      Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+template &lt;ForwardRange Rng1, ForwardIterator I2, class Pred = equal_to&lt;&gt;,
+    class Proj1 = identity, class Proj2 = identity&gt;
+  requires IndirectlyComparable&lt;iterator_t&lt;Rng1&gt;, I2, Pred, Proj1, Proj2&gt;()
+  bool is_permutation(Rng1&amp;&amp; rng1, I2 first2, Pred pred = Pred{},
+                      Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+template &lt;ForwardIterator I1, Sentinel&lt;I1&gt; S1, ForwardIterator I2&gt;
+  requires IndirectlySwappable&lt;I1, I2&gt;()
+  tagged_pair&lt;tag::in1(I1), tag::in2(I2)&gt;
+    swap_ranges(I1 first1, S1 last1, I2 first2);
+
+template &lt;ForwardRange Rng, ForwardIterator I&gt;
+  requires IndirectlySwappable&lt;iterator_t&lt;Rng&gt;, I&gt;()
+  tagged_pair&lt;tag::in1(safe_iterator_t&lt;Rng&gt;), tag::in2(I)&gt;
+    swap_ranges(Rng&amp;&amp; rng1, I first2);
+
+template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, WeaklyIncrementable O,
+    class F, class Proj1 = identity, class Proj2 = identity&gt;
+  requires Writable&lt;O, indirect_result_of_t&lt;F&amp;(projected&lt;I1, Proj1&gt;, projected&lt;I2, Proj2&gt;)&gt;&gt;()
+  tagged_tuple&lt;tag::in1(I1), tag::in2(I2), tag::out(O)&gt;
+    transform(I1 first1, S1 last1, I2 first2, O result,
+              F binary_op, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+template &lt;InputRange Rng, InputIterator I, WeaklyIncrementable O, class F,
+    class Proj1 = identity, class Proj2 = identity&gt;
+  requires Writable&lt;O, indirect_result_of_t&lt;F&amp;(
+    projected&lt;iterator_t&lt;Rng&gt;, Proj1&gt;, projected&lt;I, Proj2&gt;&gt;)&gt;()
+  tagged_tuple&lt;tag::in1(safe_iterator_t&lt;Rng&gt;), tag::in2(I), tag::out(O)&gt;
+    transform(Rng&amp;&amp; rng1, I first2, O result,
+              F binary_op, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+</pre><p ><i>Remark:</i> These signatures behave as described in Clause <a href='algorithms.html'>[algorithms]</a> with the name
+<span class='texttt'>last2</span> defined as <span class='texttt'>first2 + (last1 - first1)</span>.</p></div></div></div></div></body></html>

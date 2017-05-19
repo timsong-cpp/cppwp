@@ -1,0 +1,304 @@
+<!DOCTYPE html><html lang='en'><head><title>[iterator.primitives]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>9</a> Iterators library <a class='abbr_ref' href='index.html#iterators'>[iterators]</a></h1><div id='iterator.primitives'><h2 ><a class='secnum' style='min-width:88pt'>9.6</a> Iterator primitives <a class='abbr_ref'>[iterator.primitives]</a></h2><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >To simplify the task of defining iterators, the library provides
+several classes and functions:</p></div><div id='iterator.traits'><h3 ><a class='secnum' href='#iterator.traits' style='min-width:103pt'>9.6.1</a> Iterator traits <a class='abbr_ref' href='iterator.traits.html'>[iterator.traits]</a></h3><div class='para' id='iterator.traits-1'><div class='marginalizedparent'><a class='marginalized' href='#iterator.traits-1'>1</a></div><p >The class templates <span class='texttt'>is_indirectly_movable</span>,
+<span class='texttt'>is_nothrow_indirectly_movable</span>, <span class='texttt'>is_indirectly_swappable</span>,
+and <span class='texttt'>is_nothrow_indirectly_swappable</span> shall be defined as follows:</p><pre class='codeblock'>
+template &lt;class In, class Out&gt;
+struct is_indirectly_movable : false_type { };
+
+template &lt;class In, class Out&gt;
+  requires IndirectlyMovable&lt;In, Out&gt;()
+struct is_indirectly_movable&lt;In, Out&gt; : true_type { };
+
+template &lt;class In, class Out&gt;
+struct is_nothrow_indirectly_movable : false_type { };
+
+template &lt;class In, class Out&gt;
+  requires IndirectlyMovable&lt;In, Out&gt;()
+struct is_nothrow_indirectly_movable&lt;In, Out&gt; :
+  integral_constant&lt;bool,
+    is_nothrow_constructible&lt;value_type_t&lt;In&gt;, rvalue_reference_t&lt;In&gt;&gt;::value &amp;&amp;
+    is_nothrow_assignable&lt;value_type_t&lt;In&gt; &amp;, rvalue_reference_t&lt;In&gt;&gt;::value &amp;&amp;
+    is_nothrow_assignable&lt;reference_t&lt;Out&gt;, rvalue_reference_t&lt;In&gt;&gt;::value &amp;&amp;
+    is_nothrow_assignable&lt;reference_t&lt;Out&gt;, value_type_t&lt;In&gt;&gt;::value&gt;{ };
+
+template &lt;class I1, class I2 = I1&gt;
+struct is_indirectly_swappable : false_type { };
+
+template &lt;class I1, class I2&gt;
+  requires IndirectlySwappable&lt;I1, I2&gt;()
+struct is_indirectly_swappable&lt;I1, I2&gt; : true_type { };
+
+template &lt;class I1, class I2 = I1&gt;
+struct is_nothrow_indirectly_swappable : false_type { };
+
+template &lt;class I1, class I2&gt;
+  requires IndirectlySwappable&lt;I1, I2&gt;()
+struct is_nothrow_indirectly_swappable&lt;I1, I2&gt; :
+  integral_constant&lt;bool,
+    noexcept(ranges::iter_swap(declval&lt;I1&amp;&gt;(), declval&lt;I2&amp;&gt;())) &amp;&amp;
+    noexcept(ranges::iter_swap(declval&lt;I2&amp;&gt;(), declval&lt;I1&amp;&gt;())) &amp;&amp;
+    noexcept(ranges::iter_swap(declval&lt;I1&amp;&gt;(), declval&lt;I1&amp;&gt;())) &amp;&amp;
+    noexcept(ranges::iter_swap(declval&lt;I2&amp;&gt;(), declval&lt;I2&amp;&gt;()))&gt;{ };
+</pre></div><div class='para' id='iterator.traits-2'><div class='marginalizedparent'><a class='marginalized' href='#iterator.traits-2'>2</a></div><p >For the sake of backwards compatibility, this document specifies the existence of an <span class='texttt'>iterator_traits</span>
+alias that collects an iterator's associated types. It is defined as if:</p><p ><span class='indexparent'><a class='index' id='iterator_traits'></a></span></p><pre class='codeblock'>
+  template &lt;InputIterator I&gt; struct __pointer_type {        <span class='comment'>// <i>exposition only</i>
+</span>    using type = add_pointer_t&lt;reference_t&lt;I&gt;&gt;;
+  };
+  template &lt;InputIterator I&gt;
+    requires requires(I i) { { i.operator-&gt;() } -&gt; auto&amp;&amp;; }
+  struct __pointer_type&lt;I&gt; {                                    <span class='comment'>// <i>exposition only</i>
+</span>    using type = decltype(declval&lt;I&gt;().operator-&gt;());
+  };
+  template &lt;class&gt; struct __iterator_traits { };                <span class='comment'>// <i>exposition only</i>
+</span>  template &lt;Iterator I&gt; struct __iterator_traits&lt;I&gt; {
+    using difference_type = difference_type_t&lt;I&gt;;
+    using value_type = void;
+    using reference = void;
+    using pointer = void;
+    using iterator_category = output_iterator_tag;
+  };
+  template &lt;InputIterator I&gt; struct __iterator_traits&lt;I&gt; {  <span class='comment'>// <i>exposition only</i>
+</span>    using difference_type = difference_type_t&lt;I&gt;;
+    using value_type = value_type_t&lt;I&gt;;
+    using reference = reference_t&lt;I&gt;;
+    using pointer = typename __pointer_type&lt;I&gt;::type;
+    using iterator_category = iterator_category_t&lt;I&gt;;
+  };
+  template &lt;class I&gt;
+    using iterator_traits = __iterator_traits&lt;I&gt;;
+</pre></div><div class='para' id='iterator.traits-3'><div class='marginalizedparent'><a class='marginalized' href='#iterator.traits-3'>3</a></div><p >[&nbsp;<i>Note:</i>
+<span class='texttt'>iterator_traits</span> is an alias template
+to prevent user code from specializing it.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='iterator.traits-4'><div class='marginalizedparent'><a class='marginalized' href='#iterator.traits-4'>4</a></div><p >[&nbsp;<i>Example:</i>
+To implement a generic
+<span class='texttt'>reverse</span>
+function, a C++ program can do the following:</p><pre class='codeblock'>
+template &lt;BidirectionalIterator I&gt;
+void reverse(I first, I last) {
+  difference_type_t&lt;I&gt; n = distance(first, last);
+  --n;
+  while(n &gt; 0) {
+    value_type_t&lt;I&gt; tmp = *first;
+    *first++ = *--last;
+    *last = tmp;
+    n -= 2;
+  }
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div id='iterator.stdtraits'><h3 ><a class='secnum' href='#iterator.stdtraits' style='min-width:103pt'>9.6.2</a> Standard iterator traits <a class='abbr_ref' href='iterator.stdtraits.html'>[iterator.stdtraits]</a></h3><div class='para' id='iterator.stdtraits-1'><div class='marginalizedparent'><a class='marginalized' href='#iterator.stdtraits-1'>1</a></div><p >To facilitate interoperability between new code using iterators conforming to this document
+and older code using iterators that conform to the iterator
+requirements specified in ISO/IEC 14882, three specializations of <span class='texttt'>std::iterator_traits</span>
+are provided to map the newer iterator categories and associated types to the older ones.</p><pre class='codeblock'>
+namespace std {
+  template &lt;experimental::ranges::Iterator Out&gt;
+  struct iterator_traits&lt;Out&gt; {
+    using difference_type   = experimental::ranges::difference_type_t&lt;Out&gt;;
+    using value_type        = <i><span class='texttt'>see below</span></i>;
+    using reference         = <i><span class='texttt'>see below</span></i>;
+    using pointer           = <i><span class='texttt'>see below</span></i>;
+    using iterator_category = std::output_iterator_tag;
+  };
+\end{codeblock}
+
+\pnum
+The nested type \tcode{value_type} is computed as follows:
+\begin{itemize}
+\item If
+      \tcode{Out::value_type} is valid and denotes a type, then
+      \tcode{std::iterator_traits&lt;Out&gt;::value_type} is \tcode{Out::value_type}.
+\item Otherwise, \tcode{std::iterator_traits&lt;Out&gt;::value_type} is \tcode{void}.
+\end{itemize}
+
+\pnum
+The nested type \tcode{reference} is computed as follows:
+\begin{itemize}
+\item If
+      \tcode{Out::reference} is valid and denotes a type, then
+      \tcode{std::iterator_traits&lt;Out&gt;::reference} is \tcode{Out::\brk{}reference}.
+\item Otherwise, \tcode{std::iterator_traits&lt;Out&gt;::reference} is \tcode{void}.
+\end{itemize}
+
+\pnum
+The nested type \tcode{pointer} is computed as follows:
+\begin{itemize}
+\item If
+      \tcode{Out::pointer} is valid and denotes a type, then
+      \tcode{std::iterator_traits&lt;Out&gt;::pointer} is \tcode{Out::pointer}.
+\item Otherwise, \tcode{std::iterator_traits&lt;Out&gt;::pointer} is \tcode{void}.
+\end{itemize}
+
+\begin{codeblock}
+  template &lt;experimental::ranges::InputIterator In&gt;
+  struct iterator_traits&lt;In&gt; { };
+
+  template &lt;experimental::ranges::InputIterator In&gt;
+    requires experimental::ranges::Sentinel&lt;In, In&gt;()
+  struct iterator_traits&lt;In&gt; {
+    using difference_type   = experimental::ranges::difference_type_t&lt;In&gt;;
+    using value_type        = experimental::ranges::value_type_t&lt;In&gt;;
+    using reference         = <i><span class='texttt'>see below</span></i>;
+    using pointer           = <i><span class='texttt'>see below</span></i>;
+    using iterator_category = <i><span class='texttt'>see below</span></i>;
+  };
+}
+</pre></div><div class='para' id='iterator.stdtraits-2'><div class='marginalizedparent'><a class='marginalized' href='#iterator.stdtraits-2'>2</a></div><p >The nested type <span class='texttt'>reference</span> is computed as follows:
+</p><ul class='itemize'><li id='iterator.stdtraits-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator.stdtraits-2.1'>(2.1)</a></div><p >If
+      <span class='texttt'>In::reference</span> is valid and denotes a type, then
+      <span class='texttt'>std::iterator_traits&lt;In&gt;::reference</span> is <span class='texttt'>In::reference</span>.
+</p></li><li id='iterator.stdtraits-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator.stdtraits-2.2'>(2.2)</a></div><p >Otherwise, <span class='texttt'>std::iterator_traits&lt;In&gt;::reference</span> is
+      <span class='texttt'>experimental::ranges::reference_t&lt;In&gt;</span>.
+</p></li></ul></div><div class='para' id='iterator.stdtraits-3'><div class='marginalizedparent'><a class='marginalized' href='#iterator.stdtraits-3'>3</a></div><p >The nested type <span class='texttt'>pointer</span> is computed as follows:
+</p><ul class='itemize'><li id='iterator.stdtraits-3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator.stdtraits-3.1'>(3.1)</a></div><p >If
+      <span class='texttt'>In::pointer</span> is valid and denotes a type, then
+      <span class='texttt'>std::iterator_traits&lt;In&gt;::pointer</span> is <span class='texttt'>In::pointer</span>.
+</p></li><li id='iterator.stdtraits-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator.stdtraits-3.2'>(3.2)</a></div><p >Otherwise, <span class='texttt'>std::iterator_traits&lt;In&gt;::pointer</span> is
+      <span class='texttt'>experimental::ranges::iterator_traits&lt;In&gt;::pointer</span>.
+</p></li></ul></div><div class='para' id='iterator.stdtraits-4'><div class='marginalizedparent'><a class='marginalized' href='#iterator.stdtraits-4'>4</a></div><p >Let type <span class='texttt'>C</span> be <span class='texttt'>experimental::ranges::</span><span class='texttt'>iterator_category_t</span><span class='texttt'>&lt;In&gt;</span>.
+The nested type <span class='texttt'>std::iterator_traits&lt;In&gt;::iterator_category</span> is computed as
+follows:
+</p><ul class='itemize'><li id='iterator.stdtraits-4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator.stdtraits-4.1'>(4.1)</a></div><p >If <span class='texttt'>C</span> is the same as or inherits from <span class='texttt'>std::input_iterator_tag</span> or
+      <span class='texttt'>std::output_iterator_tag</span>, <span class='texttt'>std::iterator_traits&lt;In&gt;::iterator_category</span>
+      is <span class='texttt'>C</span>.
+</p></li><li id='iterator.stdtraits-4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator.stdtraits-4.2'>(4.2)</a></div><p >Otherwise, if <span class='texttt'>experimental::ranges::reference_t&lt;In&gt;</span> is not a reference type,
+      <span class='texttt'>std::iterator_traits&lt;In&gt;::iterator_category</span> is <span class='texttt'>std::input_iterator_tag</span>.
+</p></li><li id='iterator.stdtraits-4.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator.stdtraits-4.3'>(4.3)</a></div><p >Otherwise, if <span class='texttt'>C</span> is the same as or inherits from <span class='texttt'>experimental::ranges::random_access_iterator_tag</span>,
+      <span class='texttt'>std::iterator_traits&lt;In&gt;::iterator_category</span> is <span class='texttt'>std::random_access_iterator_tag</span>.
+</p></li><li id='iterator.stdtraits-4.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator.stdtraits-4.4'>(4.4)</a></div><p >Otherwise, if <span class='texttt'>C</span> is the same as or inherits from <span class='texttt'>experimental::ranges::bidirectional_iterator_tag</span>,
+      <span class='texttt'>std::iterator_traits&lt;In&gt;::iterator_category</span> is <span class='texttt'>std::bidirectional_iterator_tag</span>.
+</p></li><li id='iterator.stdtraits-4.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator.stdtraits-4.5'>(4.5)</a></div><p >Otherwise, if <span class='texttt'>C</span> is the same as or inherits from <span class='texttt'>experimental::ranges::forward_iterator_tag</span>,
+      <span class='texttt'>std::iterator_traits&lt;In&gt;::iterator_category</span> is <span class='texttt'>std::forward_iterator_tag</span>.
+</p></li><li id='iterator.stdtraits-4.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator.stdtraits-4.6'>(4.6)</a></div><p >Otherwise, <span class='texttt'>std::iterator_traits&lt;In&gt;::iterator_category</span> is <span class='texttt'>std::input_iterator_tag</span>.
+</p></li></ul></div><div class='para' id='iterator.stdtraits-5'><div class='marginalizedparent'><a class='marginalized' href='#iterator.stdtraits-5'>5</a></div><p >[&nbsp;<i>Note:</i> Some implementations may find it necessary to add additional constraints to
+these partial specializations to prevent them from being considered for types that
+conform to the iterator requirements specified in ISO/IEC 14882.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='std.iterator.tags'><h3 ><a class='secnum' href='#std.iterator.tags' style='min-width:103pt'>9.6.3</a> Standard iterator tags <a class='abbr_ref' href='std.iterator.tags.html'>[std.iterator.tags]</a></h3><div class='para' id='std.iterator.tags-1'><div class='marginalizedparent'><a class='marginalized' href='#std.iterator.tags-1'>1</a></div><p ><span class='indexparent'><a class='index' id='output_iterator_tag'></a></span><span class='indexparent'><a class='index' id='input_iterator_tag'></a></span><span class='indexparent'><a class='index' id='forward_iterator_tag'></a></span><span class='indexparent'><a class='index' id='bidirectional_iterator_tag'></a></span><span class='indexparent'><a class='index' id='random_access_iterator_tag'></a></span>It is often desirable for a
+function template specialization
+to find out what is the most specific category of its iterator
+argument, so that the function can select the most efficient algorithm at compile time.
+To facilitate this, the
+library introduces
+<i>category tag</i>
+classes which can be used as compile time tags for algorithm selection.
+[&nbsp;<i>Note:</i> The preferred way to dispatch to more specialized algorithm implementations is
+with concept-based overloading.<i>&nbsp;—&nbsp;end note</i>&nbsp;]
+The category tags are:
+<span class='texttt'>input_iterator_tag</span>,
+<span class='texttt'>output_iterator_tag</span>,
+<span class='texttt'>forward_iterator_tag</span>,
+<span class='texttt'>bidirectional_iterator_tag</span>
+and
+<span class='texttt'>random_access_iterator_tag</span>.
+For every input iterator of type
+<span class='texttt'>I</span>,
+<span class='texttt'>iterator_category_t&lt;I&gt;</span>
+shall be defined to be the most specific category tag that describes the
+iterator's behavior.</p><pre class='codeblock'>
+namespace std { namespace experimental { namespace ranges { inline namespace v1 {
+  struct output_iterator_tag { };
+  struct input_iterator_tag { };
+  struct forward_iterator_tag : input_iterator_tag { };
+  struct bidirectional_iterator_tag : forward_iterator_tag { };
+  struct random_access_iterator_tag : bidirectional_iterator_tag { };
+}}}}
+</pre></div><div class='para' id='std.iterator.tags-2'><div class='marginalizedparent'><a class='marginalized' href='#std.iterator.tags-2'>2</a></div><p >[&nbsp;<i>Note:</i>
+The <span class='texttt'>output_iterator_tag</span> is provided for the sake of backward compatibility.
+<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='std.iterator.tags-3'><div class='marginalizedparent'><a class='marginalized' href='#std.iterator.tags-3'>3</a></div><p ><span class='indexparent'><a class='index' id='empty'></a></span><span class='indexparent'><a class='index' id='input_iterator_tag'></a></span><span class='indexparent'><a class='index' id='output_iterator_tag'></a></span><span class='indexparent'><a class='index' id='forward_iterator_tag'></a></span><span class='indexparent'><a class='index' id='bidirectional_iterator_tag'></a></span><span class='indexparent'><a class='index' id='random_access_iterator_tag'></a></span>[&nbsp;<i>Example:</i>
+For a program-defined iterator
+<span class='texttt'>BinaryTreeIterator</span>,
+it could be included
+into the bidirectional iterator category by specializing the
+<span class='texttt'>difference_type</span>, <span class='texttt'>value_type</span>, and
+<span class='texttt'>iterator_category</span> templates:</p><pre class='codeblock'>
+template &lt;class T&gt; struct difference_type&lt;BinaryTreeIterator&lt;T&gt;&gt; {
+  using type = ptrdiff_t;
+};
+template &lt;class T&gt; struct value_type&lt;BinaryTreeIterator&lt;T&gt;&gt; {
+  using type = T;
+};
+template &lt;class T&gt; struct iterator_category&lt;BinaryTreeIterator&lt;T&gt;&gt; {
+  using type = bidirectional_iterator_tag;
+};
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div><div id='iterator.operations'><h3 ><a class='secnum' href='#iterator.operations' style='min-width:103pt'>9.6.4</a> Iterator operations <a class='abbr_ref' href='iterator.operations.html'>[iterator.operations]</a></h3><div class='para' id='iterator.operations-1'><div class='marginalizedparent'><a class='marginalized' href='#iterator.operations-1'>1</a></div><p >Since only types that satisfy
+<span class='texttt'>RandomAccessIterator</span> provide the <span class='texttt'>+</span> operator, and
+types that satisfy <span class='texttt'>SizedSentinel</span> provide the <span class='texttt'>-</span>
+operator, the library provides four function templates
+<span class='texttt'>advance</span>, <span class='texttt'>distance</span>, <span class='texttt'>next</span>, and <span class='texttt'>prev</span>.
+These
+function templates
+use
+<span class='texttt'>+</span>
+and
+<span class='texttt'>-</span>
+for random access iterators and ranges that satisfy <span class='texttt'>SizedSentinel</span>, respectively (and are, therefore, constant
+time for them); for output, input, forward and bidirectional iterators they use
+<span class='texttt'>++</span>
+to provide linear time
+implementations.</p><p ><span class='indexparent'><a class='index' id='advance'></a></span><code class='itemdecl'>
+template &lt;Iterator I&gt;
+  void advance(I&amp; i, difference_type_t&lt;I&gt; n);
+</code></p></div><div class='itemdescr'></div><div class='para' id='iterator.operations-2'><div class='marginalizedparent'><a class='marginalized' href='#iterator.operations-2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>n</span>
+shall be negative only for bidirectional iterators.</p></div></div><div class='para' id='iterator.operations-3'><div class='marginalizedparent'><a class='marginalized' href='#iterator.operations-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+For random access iterators, equivalent to <span class='texttt'>i += n</span>.
+Otherwise, increments (or decrements for negative
+<span class='texttt'>n</span>)
+iterator
+<span class='texttt'>i</span>
+by
+<span class='texttt'>n</span>.
+</p></div></div><p ><code class='itemdecl'>
+template &lt;Iterator I, Sentinel&lt;I&gt; S&gt;
+  void advance(I&amp; i, S bound);
+</code></p><div class='itemdescr'></div><div class='para' id='iterator.operations-4'><div class='marginalizedparent'><a class='marginalized' href='#iterator.operations-4'>4</a></div><div class='itemdescr'><p ><i>Requires:</i>
+If
+<span class='texttt'>Assignable&lt;I&amp;, S&gt;()</span> is not satisfied, <span class='texttt'>[i,bound)</span>
+shall denote a range.</p></div></div><div class='para' id='iterator.operations-5'><div class='marginalizedparent'><a class='marginalized' href='#iterator.operations-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><ul class='itemize'><li id='iterator.operations-5.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator.operations-5.1'>(5.1)</a></div><p >If <span class='texttt'>Assignable&lt;I&amp;, S&gt;()</span> is satisfied,
+      equivalent to <span class='texttt'>i = std::move(bound)</span>.</p></li><li id='iterator.operations-5.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator.operations-5.2'>(5.2)</a></div><p >Otherwise, if
+      <span class='texttt'>SizedSentinel&lt;S, I&gt;()</span> is satisfied, equivalent to <span class='texttt'>advance(i, bound - i)</span>.</p></li><li id='iterator.operations-5.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator.operations-5.3'>(5.3)</a></div><p >Otherwise, increments <span class='texttt'>i</span> until <span class='texttt'>i == bound</span>.
+</p></li></ul></div></div><p ><code class='itemdecl'>
+template &lt;Iterator I, Sentinel&lt;I&gt; S&gt;
+  difference_type_t&lt;I&gt; advance(I&amp; i, difference_type_t&lt;I&gt; n, S bound);
+</code></p><div class='itemdescr'></div><div class='para' id='iterator.operations-6'><div class='marginalizedparent'><a class='marginalized' href='#iterator.operations-6'>6</a></div><div class='itemdescr'><p ><i>Requires:</i>
+If <span class='texttt'>n &gt; 0</span>, <span class='texttt'>[i,bound)</span> shall denote a range. If
+<span class='texttt'>n == 0</span>, <span class='texttt'>[i,bound)</span> or <span class='texttt'>[bound,i)</span> shall denote a range. If <span class='texttt'>n &lt; 0</span>,
+<span class='texttt'>[bound,i)</span> shall denote a range and <span class='texttt'>(BidirectionalIterator&lt;I&gt;() &amp;&amp; Same&lt;I, S&gt;())</span>
+shall be satisfied.</p></div></div><div class='para' id='iterator.operations-7'><div class='marginalizedparent'><a class='marginalized' href='#iterator.operations-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><ul class='itemize'><li id='iterator.operations-7.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator.operations-7.1'>(7.1)</a></div><p >If <span class='texttt'>SizedSentinel&lt;S, I&gt;()</span> is satisfied:
+      </p><ul class='itemize'><li id='iterator.operations-7.1.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#iterator.operations-7.1.1'>(7.1.1)</a></div><p >If <span class='math'>|<span class='texttt'>n</span>| &gt;= |<span class='texttt'>bound - i</span>|</span>, equivalent to <span class='texttt'>advance(i, bound)</span>.</p></li><li id='iterator.operations-7.1.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#iterator.operations-7.1.2'>(7.1.2)</a></div><p >Otherwise, equivalent to <span class='texttt'>advance(i, n)</span>.
+      </p></li></ul></li><li id='iterator.operations-7.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator.operations-7.2'>(7.2)</a></div><p >Otherwise, increments (or decrements for negative <span class='texttt'>n</span>)
+      iterator <span class='texttt'>i</span> either <span class='texttt'>n</span> times or until <span class='texttt'>i == bound</span>,
+      whichever comes first.
+</p></li></ul></div></div><div class='para' id='iterator.operations-8'><div class='marginalizedparent'><a class='marginalized' href='#iterator.operations-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>n - <span class='math'><span class='mathalpha'>M</span></span></span>, where <span class='math'><span class='mathalpha'>M</span></span> is the distance from the starting position of
+<span class='texttt'>i</span> to the ending position.
+</p></div></div><p ><span class='indexparent'><a class='index' id='distance'></a></span><code class='itemdecl'>
+template &lt;Iterator I, Sentinel&lt;I&gt; S&gt;
+  difference_type_t&lt;I&gt; distance(I first, S last);
+</code></p><div class='itemdescr'></div><div class='para' id='iterator.operations-9'><div class='marginalizedparent'><a class='marginalized' href='#iterator.operations-9'>9</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>[first,last)</span> shall denote a range, or <span class='texttt'>(Same&lt;S, I&gt;() &amp;&amp; SizedSentinel&lt;S, I&gt;())</span> shall be
+satisfied and <span class='texttt'>[last,first)</span> shall denote a range.</p></div></div><div class='para' id='iterator.operations-10'><div class='marginalizedparent'><a class='marginalized' href='#iterator.operations-10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i>
+If <span class='texttt'>SizedSentinel&lt;S, I&gt;()</span> is satisfied, returns <span class='texttt'>(last - first)</span>; otherwise,
+returns the number of increments needed to get from
+<span class='texttt'>first</span>
+to
+<span class='texttt'>last</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='next'></a></span><code class='itemdecl'>
+template &lt;Iterator I&gt;
+  I next(I x, difference_type_t&lt;I&gt; n = 1);
+</code></p><div class='itemdescr'></div><div class='para' id='iterator.operations-11'><div class='marginalizedparent'><a class='marginalized' href='#iterator.operations-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>advance(x, n); return x;</span>
+</p></div></div><p ><code class='itemdecl'>
+template &lt;Iterator I, Sentinel&lt;I&gt; S&gt;
+  I next(I x, S bound);
+</code></p><div class='itemdescr'></div><div class='para' id='iterator.operations-12'><div class='marginalizedparent'><a class='marginalized' href='#iterator.operations-12'>12</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>advance(x, bound); return x;</span>
+</p></div></div><p ><code class='itemdecl'>
+template &lt;Iterator I, Sentinel&lt;I&gt; S&gt;
+  I next(I x, difference_type_t&lt;I&gt; n, S bound);
+</code></p><div class='itemdescr'></div><div class='para' id='iterator.operations-13'><div class='marginalizedparent'><a class='marginalized' href='#iterator.operations-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>advance(x, n, bound); return x;</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='prev'></a></span><code class='itemdecl'>
+template &lt;BidirectionalIterator I&gt;
+  I prev(I x, difference_type_t&lt;I&gt; n = 1);
+</code></p><div class='itemdescr'></div><div class='para' id='iterator.operations-14'><div class='marginalizedparent'><a class='marginalized' href='#iterator.operations-14'>14</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>advance(x, -n); return x;</span>
+</p></div></div><p ><code class='itemdecl'>
+template &lt;BidirectionalIterator I&gt;
+  I prev(I x, difference_type_t&lt;I&gt; n, I bound);
+</code></p><div class='itemdescr'></div><div class='para' id='iterator.operations-15'><div class='marginalizedparent'><a class='marginalized' href='#iterator.operations-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>advance(x, -n, bound); return x;</span>
+</p></div></div></div></div></div></body></html>

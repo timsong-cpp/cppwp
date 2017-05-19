@@ -1,0 +1,79 @@
+<!DOCTYPE html><html lang='en'><head><title>[alg.remove]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>10</a> Algorithms library <a class='abbr_ref' href='index.html#algorithms'>[algorithms]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>10.4</a> Mutating sequence operations <a class='abbr_ref' href='alg.modifying.operations.html#alg.remove'>[alg.modifying.operations]</a></h2><div id='alg.remove'><h3 ><a class='secnum' style='min-width:103pt'>10.4.8</a> Remove <a class='abbr_ref'>[alg.remove]</a></h3><p ><span class='indexparent'><a class='index' id='remove'></a></span><span class='indexparent'><a class='index' id='remove_if'></a></span><code class='itemdecl'>
+template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class T, class Proj = identity&gt;
+  requires Permutable&lt;I&gt;() &amp;&amp;
+    IndirectRelation&lt;equal_to&lt;&gt;, projected&lt;I, Proj&gt;, const T*&gt;()
+  I remove(I first, S last, const T&amp; value, Proj proj = Proj{});
+
+template &lt;ForwardRange Rng, class T, class Proj = identity&gt;
+  requires Permutable&lt;iterator_t&lt;Rng&gt;&gt;() &amp;&amp;
+    IndirectRelation&lt;equal_to&lt;&gt;, projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;, const T*&gt;()
+  safe_iterator_t&lt;Rng&gt;
+    remove(Rng&amp;&amp; rng, const T&amp; value, Proj proj = Proj{});
+
+template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class Proj = identity,
+    IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+  requires Permutable&lt;I&gt;()
+  I remove_if(I first, S last, Pred pred, Proj proj = Proj{});
+
+template &lt;ForwardRange Rng, class Proj = identity,
+    IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+  requires Permutable&lt;iterator_t&lt;Rng&gt;&gt;()
+  safe_iterator_t&lt;Rng&gt;
+    remove_if(Rng&amp;&amp; rng, Pred pred, Proj proj = Proj{});
+</code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Eliminates all the elements referred to by iterator
+<span class='texttt'>i</span>
+in the range <span class='texttt'>[first,last)</span>
+for which the following corresponding conditions hold:
+<span class='texttt'>invoke(proj, *i) == value</span>,
+<span class='texttt'>invoke(pred, invoke(proj, *i)) != false</span>.</p></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The end of the resulting range.</p></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p ><i>Remarks:</i> Stable (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> algorithm.stable <span class='endcsname'></span>).</p></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+Exactly
+<span class='texttt'>last - first</span>
+applications of the corresponding predicate and projection.</p></div></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Note:</i> each element in the range <span class='texttt'>[ret,last)</span>, where <span class='texttt'>ret</span> is
+the returned value, has a valid but unspecified state, because the algorithms
+can eliminate elements by moving from elements that were originally
+in that range.
+</p></div></div><p ><span class='indexparent'><a class='index' id='remove_copy'></a></span><span class='indexparent'><a class='index' id='remove_copy_if'></a></span><code class='itemdecl'>
+template &lt;InputIterator I, Sentinel&lt;I&gt; S, WeaklyIncrementable O, class T,
+    class Proj = identity&gt;
+  requires IndirectlyCopyable&lt;I, O&gt;() &amp;&amp;
+    IndirectRelation&lt;equal_to&lt;&gt;, projected&lt;I, Proj&gt;, const T*&gt;()
+  tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+    remove_copy(I first, S last, O result, const T&amp; value, Proj proj = Proj{});
+
+template &lt;InputRange Rng, WeaklyIncrementable O, class T, class Proj = identity&gt;
+  requires IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, O&gt;() &amp;&amp;
+    IndirectRelation&lt;equal_to&lt;&gt;, projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;, const T*&gt;()
+  tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(O)&gt;
+    remove_copy(Rng&amp;&amp; rng, O result, const T&amp; value, Proj proj = Proj{});
+
+template &lt;InputIterator I, Sentinel&lt;I&gt; S, WeaklyIncrementable O,
+    class Proj = identity, IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+  requires IndirectlyCopyable&lt;I, O&gt;()
+  tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+    remove_copy_if(I first, S last, O result, Pred pred, Proj proj = Proj{});
+
+template &lt;InputRange Rng, WeaklyIncrementable O, class Proj = identity,
+    IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+  requires IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, O&gt;()
+  tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(O)&gt;
+    remove_copy_if(Rng&amp;&amp; rng, O result, Pred pred, Proj proj = Proj{});
+</code></p><div class='itemdescr'></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><i>Requires:</i>
+The ranges
+<span class='texttt'>[first,last)</span>
+and
+<span class='texttt'>[result,result + (last - first))</span>
+shall not overlap.</p></div></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Copies all the elements referred to by the iterator
+<span class='texttt'>i</span>
+in the range
+<span class='texttt'>[first,last)</span>
+for which the following corresponding conditions do not hold:
+<span class='texttt'>invoke(proj, *i) == value</span>,
+<span class='texttt'>invoke(pred, invoke(proj, *i)) != false</span>.</p></div></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>
+A pair consisting of <span class='texttt'>last</span> and the end of the resulting range.</p></div></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+Exactly
+<span class='texttt'>last - first</span>
+applications of the corresponding predicate and projection.</p></div></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><div class='itemdescr'><p ><i>Remarks:</i> Stable (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> algorithm.stable <span class='endcsname'></span>).
+</p></div></div></div></div></body></html>

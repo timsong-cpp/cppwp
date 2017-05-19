@@ -1,0 +1,68 @@
+<!DOCTYPE html><html lang='en'><head><title>[alg.copy]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>10</a> Algorithms library <a class='abbr_ref' href='index.html#algorithms'>[algorithms]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>10.4</a> Mutating sequence operations <a class='abbr_ref' href='alg.modifying.operations.html#alg.copy'>[alg.modifying.operations]</a></h2><div id='alg.copy'><h3 ><a class='secnum' style='min-width:103pt'>10.4.1</a> Copy <a class='abbr_ref'>[alg.copy]</a></h3><p ><span class='indexparent'><a class='index' id='copy'></a></span><code class='itemdecl'>
+template &lt;InputIterator I, Sentinel&lt;I&gt; S, WeaklyIncrementable O&gt;
+  requires IndirectlyCopyable&lt;I, O&gt;()
+  tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+    copy(I first, S last, O result);
+
+template &lt;InputRange Rng, WeaklyIncrementable O&gt;
+  requires IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, O&gt;()
+  tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(O)&gt;
+    copy(Rng&amp;&amp; rng, O result);
+</code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Copies elements in the range <span class='texttt'>[first,last)</span> into the range
+<span class='texttt'>[result,result + (last - first))</span> starting from <span class='texttt'>first</span> and
+proceeding to <span class='texttt'>last</span>. For each non-negative integer
+<span class='texttt'>n &lt; (last - first)</span>, performs <span class='texttt'>*(result + n) = *(first + n)</span>.</p></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>{last, result + (last - first)}</span>.</p></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>result</span> shall not be in the range <span class='texttt'>[first,last)</span>.</p></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><i>Complexity:</i> Exactly <span class='texttt'>last - first</span> assignments.
+</p></div></div><p ><span class='indexparent'><a class='index' id='copy_n'></a></span><code class='itemdecl'>
+template &lt;InputIterator I, WeaklyIncrementable O&gt;
+  requires IndirectlyCopyable&lt;I, O&gt;()
+  tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+    copy_n(I first, difference_type_t&lt;I&gt; n, O result);
+</code></p><div class='itemdescr'></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> For each non-negative integer
+<span class='math'><span class='mathalpha'>i</span> &lt; <span class='mathalpha'>n</span></span>, performs <span class='texttt'>*(result + i) = *(first + i)</span>.</p></div></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>{first + n, result + n}</span>.</p></div></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><p ><i>Complexity:</i> Exactly <span class='texttt'>n</span> assignments.
+</p></div></div><p ><span class='indexparent'><a class='index' id='copy_n'></a></span><code class='itemdecl'>
+template &lt;InputIterator I, Sentinel&lt;I&gt; S, WeaklyIncrementable O, class Proj = identity,
+    IndirectPredicate&lt;projected&lt;I, Proj&gt;&gt; Pred&gt;
+  requires IndirectlyCopyable&lt;I, O&gt;()
+  tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+    copy_if(I first, S last, O result, Pred pred, Proj proj = Proj{});
+
+template &lt;InputRange Rng, WeaklyIncrementable O, class Proj = identity,
+    IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng&gt;, Proj&gt;&gt; Pred&gt;
+  requires IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, O&gt;()
+  tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(O)&gt;
+    copy_if(Rng&amp;&amp; rng, O result, Pred pred, Proj proj = Proj{});
+</code></p><div class='itemdescr'></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='itemdescr'><p ><i>Requires:</i> The ranges <span class='texttt'>[first,last)</span> and <span class='texttt'>[result,result + (last - first))</span> shall not overlap.</p></div></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i> Copies all of the elements referred to by the iterator <span class='texttt'>i</span> in the range <span class='texttt'>[first,last)</span>
+for which <span class='texttt'>invoke(pred, invoke(proj, *i))</span> is <span class='texttt'>true</span>.</p></div></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>{last, result + (last - first)}</span>.</p></div></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><div class='itemdescr'><p ><i>Complexity:</i> Exactly <span class='texttt'>last - first</span> applications of the corresponding predicate and projection.</p></div></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><div class='itemdescr'><p ><i>Remarks:</i> Stable (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> algorithm.stable <span class='endcsname'></span>).
+</p></div></div><p ><span class='indexparent'><a class='index' id='copy_backward'></a></span><code class='itemdecl'>
+template &lt;BidirectionalIterator I1, Sentinel&lt;I1&gt; S1, BidirectionalIterator I2&gt;
+  requires IndirectlyCopyable&lt;I1, I2&gt;()
+  tagged_pair&lt;tag::in(I1), tag::out(I2)&gt;
+    copy_backward(I1 first, S1 last, I2 result);
+
+template &lt;BidirectionalRange Rng, BidirectionalIterator I&gt;
+  requires IndirectlyCopyable&lt;iterator_t&lt;Rng&gt;, I&gt;()
+  tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(I)&gt;
+    copy_backward(Rng&amp;&amp; rng, I result);
+</code></p><div class='itemdescr'></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Copies elements in the range <span class='texttt'>[first,last)</span>
+into the
+range <span class='texttt'>[result - (last-first),result)</span>
+starting from
+<span class='texttt'>last - 1</span>
+and proceeding to <span class='texttt'>first</span>.<a class='footnotenum' href='#footnote-5'>5</a>
+For each positive integer
+<span class='texttt'>n &lt;= (last - first)</span>,
+performs
+<span class='texttt'>*(result - n) = *(last - n)</span>.</p></div></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>result</span>
+shall not be in the range
+<span class='texttt'>(first,last]</span>.</p></div></div><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>{last, result - (last - first)}</span>.</p></div></div><div class='para' id='16'><div class='marginalizedparent'><a class='marginalized' href='#16'>16</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+Exactly
+<span class='texttt'>last - first</span>
+assignments.
+</p></div></div><div class='footnote' id='footnote-5'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-5'>5)</a></div><p ><span class='texttt'>copy_backward</span>
+should be used instead of copy when <span class='texttt'>last</span>
+is in
+the range
+<span class='texttt'>[result - (last - first),result)</span>.</p></div></div></div></body></html>

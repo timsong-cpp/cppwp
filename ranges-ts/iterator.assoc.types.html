@@ -1,0 +1,117 @@
+<!DOCTYPE html><html lang='en'><head><title>[iterator.assoc.types]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>9</a> Iterators library <a class='abbr_ref' href='index.html#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>9.3</a> Iterator requirements <a class='abbr_ref' href='iterator.requirements.html#iterator.assoc.types'>[iterator.requirements]</a></h2><div id='iterator.assoc.types'><h3 ><a class='secnum' style='min-width:103pt'>9.3.3</a> Iterator associated types <a class='abbr_ref'>[iterator.assoc.types]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >To implement algorithms only in terms of iterators, it is often necessary to
+determine the value and
+difference types that correspond to a particular iterator type.
+Accordingly, it is required that if
+<span class='texttt'>WI</span> is the name of a type that
+satisfies the <span class='texttt'>WeaklyIncrementable</span> concept (<a href='iterators.weaklyincrementable.html'>[iterators.weaklyincrementable]</a>),
+<span class='texttt'>R</span> is the name of a type that
+satisfies the <span class='texttt'>Readable</span> concept (<a href='iterators.readable.html'>[iterators.readable]</a>), and
+<span class='texttt'>II</span> is the name of a type that satisfies the
+<span class='texttt'>InputIterator</span> concept (<a href='iterators.input.html'>[iterators.input]</a>) concept, the types</p><pre class='codeblock'>
+difference_type_t&lt;WI&gt;
+value_type_t&lt;R&gt;
+iterator_category_t&lt;II&gt;
+</pre><p >be defined as the iterator's difference type, value type and iterator category, respectively.</p></div><div id='difference_type'><h4 ><a class='secnum' href='#difference_type' style='min-width:118pt'>9.3.3.1</a> <span class='texttt'>difference_type</span> <a class='abbr_ref' href='iterator.assoc.types.difference_type.html'>[iterator.assoc.types.difference_type]</a></h4><div class='para' id='difference_type-1'><div class='marginalizedparent'><a class='marginalized' href='#difference_type-1'>1</a></div><p ><span class='indexparent'><a class='index' id='difference_type_t'></a></span><span class='texttt'>difference_type_t&lt;T&gt;</span> is implemented as if:</p><p ><span class='indexparent'><a class='index' id='difference_type'></a></span></p><pre class='codeblock'>
+  template &lt;class&gt; struct difference_type { };
+
+  template &lt;class T&gt;
+  struct difference_type&lt;T*&gt;
+    : enable_if&lt;is_object&lt;T&gt;::value, ptrdiff_t&gt; { };
+
+  template &lt;class I&gt;
+  struct difference_type&lt;I const&gt; : difference_type&lt;decay_t&lt;I&gt;&gt; { };
+
+  template &lt;class T&gt;
+    requires requires { typename T::difference_type; }
+  struct difference_type&lt;T&gt; {
+    using type = typename T::difference_type;
+  };
+
+  template &lt;class T&gt;
+    requires !requires { typename T::difference_type; } &amp;&amp;
+      requires(const T&amp; a, const T&amp; b) { { a - b } -&gt; Integral; }
+  struct difference_type&lt;T&gt;
+    : make_signed&lt; decltype(declval&lt;T&gt;() - declval&lt;T&gt;()) &gt; {
+  };
+
+  template &lt;class T&gt; using difference_type_t
+    = typename difference_type&lt;T&gt;::type;
+</pre></div><div class='para' id='difference_type-2'><div class='marginalizedparent'><a class='marginalized' href='#difference_type-2'>2</a></div><p >Users may specialize <span class='texttt'>difference_type</span> on user-defined types.</p></div></div><div id='value_type'><h4 ><a class='secnum' href='#value_type' style='min-width:118pt'>9.3.3.2</a> <span class='texttt'>value_type</span> <a class='abbr_ref' href='iterator.assoc.types.value_type.html'>[iterator.assoc.types.value_type]</a></h4><div class='para' id='value_type-1'><div class='marginalizedparent'><a class='marginalized' href='#value_type-1'>1</a></div><p >A <span class='texttt'>Readable</span> type has an associated value type that can be accessed with the
+<span class='texttt'>value_type_t</span> alias template.</p><p ><span class='indexparent'><a class='index' id='value_type'></a></span></p><pre class='codeblock'>
+  template &lt;class&gt; struct value_type { };
+
+  template &lt;class T&gt;
+  struct value_type&lt;T*&gt;
+    : enable_if&lt;is_object&lt;T&gt;::value, remove_cv_t&lt;T&gt;&gt; { };
+
+  template &lt;class I&gt;
+    requires is_array&lt;I&gt;::value
+  struct value_type&lt;I&gt; : value_type&lt;decay_t&lt;I&gt;&gt; { };
+
+  template &lt;class I&gt;
+  struct value_type&lt;I const&gt; : value_type&lt;decay_t&lt;I&gt;&gt; { };
+
+  template &lt;class T&gt;
+    requires requires { typename T::value_type; }
+  struct value_type&lt;T&gt;
+    : enable_if&lt;is_object&lt;typename T::value_type&gt;::value, typename T::value_type&gt; { };
+
+  template &lt;class T&gt;
+    requires requires { typename T::element_type; }
+  struct value_type&lt;T&gt;
+    : enable_if&lt;is_object&lt;typename T::element_type&gt;::value, typename T::element_type&gt; { };
+
+  template &lt;class T&gt; using value_type_t
+    = typename value_type&lt;T&gt;::type;
+</pre></div><div class='para' id='value_type-2'><div class='marginalizedparent'><a class='marginalized' href='#value_type-2'>2</a></div><p >If a type <span class='texttt'>I</span> has an associated value type, then <span class='texttt'>value_type&lt;I&gt;::type</span> shall name the
+value type. Otherwise, there shall be no nested type <span class='texttt'>type</span>.</p></div><div class='para' id='value_type-3'><div class='marginalizedparent'><a class='marginalized' href='#value_type-3'>3</a></div><p >The <span class='texttt'>value_type</span> class template may be specialized on user-defined types.</p></div><div class='para' id='value_type-4'><div class='marginalizedparent'><a class='marginalized' href='#value_type-4'>4</a></div><p >When instantiated with a type <span class='texttt'>I</span>
+such that <span class='texttt'>I::value_type</span> is valid and denotes a type,
+<span class='texttt'>value_type&lt;I&gt;::type</span> names that type, unless it is not an object type (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> basic.types <span class='endcsname'></span>) in which case
+<span class='texttt'>value_type&lt;I&gt;</span> shall have no nested type <span class='texttt'>type</span>. [&nbsp;<i>Note:</i> Some legacy output
+iterators define a nested type named <span class='texttt'>value_type</span> that is an alias for <span class='texttt'>void</span>. These
+types are not <span class='texttt'>Readable</span> and have no associated value types.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='value_type-5'><div class='marginalizedparent'><a class='marginalized' href='#value_type-5'>5</a></div><p >When instantiated with a type <span class='texttt'>I</span>
+such that <span class='texttt'>I::element_type</span> is valid and denotes a type,
+<span class='texttt'>value_type&lt;I&gt;::type</span> names that type, unless it is not an object type (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> basic.types <span class='endcsname'></span>) in which case
+<span class='texttt'>value_type&lt;I&gt;</span> shall have no nested type <span class='texttt'>type</span>. [&nbsp;<i>Note:</i> Smart pointers like
+<span class='texttt'>shared_ptr&lt;int&gt;</span> are <span class='texttt'>Readable</span> and have an associated value type. But a smart pointer
+like <span class='texttt'>shared_ptr&lt;void&gt;</span> is not <span class='texttt'>Readable</span> and has no associated value type.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='iterator_category'><h4 ><a class='secnum' href='#iterator_category' style='min-width:118pt'>9.3.3.3</a> <span class='texttt'>iterator_category</span> <a class='abbr_ref' href='iterator.assoc.types.iterator_category.html'>[iterator.assoc.types.iterator_category]</a></h4><div class='para' id='iterator_category-1'><div class='marginalizedparent'><a class='marginalized' href='#iterator_category-1'>1</a></div><p ><span class='indexparent'><a class='index' id='iterator_category_t'></a></span><span class='texttt'>iterator_category_t&lt;T&gt;</span>
+is implemented as if:</p><p ><span class='indexparent'><a class='index' id='iterator_category'></a></span></p><pre class='codeblock'>
+  template &lt;class&gt; struct iterator_category { };
+
+  template &lt;class T&gt;
+  struct iterator_category&lt;T*&gt;
+    : enable_if&lt;is_object&lt;T&gt;::value, random_access_iterator_tag&gt; { };
+
+  template &lt;class T&gt;
+  struct iterator_category&lt;T const&gt; : iterator_category&lt;T&gt; { };
+
+  template &lt;class T&gt;
+    requires requires { typename T::iterator_category; }
+  struct iterator_category&lt;T&gt; {
+    using type = <i><span class='texttt'>see below</span></i>;
+  };
+
+  template &lt;class T&gt; using iterator_category_t
+    = typename iterator_category&lt;T&gt;::type;
+</pre></div><div class='para' id='iterator_category-2'><div class='marginalizedparent'><a class='marginalized' href='#iterator_category-2'>2</a></div><p >Users may specialize <span class='texttt'>iterator_category</span> on user-defined types.</p></div><div class='para' id='iterator_category-3'><div class='marginalizedparent'><a class='marginalized' href='#iterator_category-3'>3</a></div><p >If
+<span class='texttt'>T::iterator_category</span> is valid and denotes a type, then the
+type <span class='texttt'>iterator_category&lt;T&gt;::type</span> is computed as follows:
+</p><ul class='itemize'><li id='iterator_category-3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator_category-3.1'>(3.1)</a></div><p >If <span class='texttt'>T::iterator_category</span> is the same as or derives from <span class='texttt'>std::random_access_iterator_tag</span>,
+      <span class='texttt'>iterator_category&lt;T&gt;::type</span> is <span class='texttt'>ranges::random_access_iterator_tag</span>.
+</p></li><li id='iterator_category-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator_category-3.2'>(3.2)</a></div><p >Otherwise, if <span class='texttt'>T::iterator_category</span> is the same as or derives from <span class='texttt'>std::bidirectional_iterator_tag</span>,
+      <span class='texttt'>iterator_category&lt;T&gt;::type</span> is <span class='texttt'>ranges::bidirectional_iterator_tag</span>.
+</p></li><li id='iterator_category-3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator_category-3.3'>(3.3)</a></div><p >Otherwise, if <span class='texttt'>T::iterator_category</span> is the same as or derives from <span class='texttt'>std::forward_iterator_tag</span>,
+      <span class='texttt'>iterator_category&lt;T&gt;::type</span> is <span class='texttt'>ranges::forward_iterator_tag</span>.
+</p></li><li id='iterator_category-3.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator_category-3.4'>(3.4)</a></div><p >Otherwise, if <span class='texttt'>T::iterator_category</span> is the same as or derives from <span class='texttt'>std::input_iterator_tag</span>,
+      <span class='texttt'>iterator_category&lt;T&gt;::type</span> is <span class='texttt'>ranges::input_iterator_tag</span>.
+</p></li><li id='iterator_category-3.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator_category-3.5'>(3.5)</a></div><p >Otherwise, if <span class='texttt'>T::iterator_category</span> is the same as or derives from <span class='texttt'>std::output_iterator_tag</span>,
+      <span class='texttt'>iterator_category&lt;T&gt;</span> has no nested <span class='texttt'>type</span>.
+</p></li><li id='iterator_category-3.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#iterator_category-3.6'>(3.6)</a></div><p >Otherwise, <span class='texttt'>iterator_category&lt;T&gt;::type</span> is <span class='texttt'>T::iterator_category</span>
+</p></li></ul></div><div class='para' id='iterator_category-4'><div class='marginalizedparent'><a class='marginalized' href='#iterator_category-4'>4</a></div><p ><span class='indexparent'><a class='index' id='rvalue_reference_t'></a></span><span class='texttt'>rvalue_reference_t&lt;T&gt;</span> is implemented as if:</p><p ><code class='itemdecl'>
+  template &lt;<i>dereferenceable</i> T&gt;
+      requires <i><span class='texttt'>see below</span></i> using rvalue_reference_t
+    = decltype(ranges::iter_move(declval&lt;T&amp;&gt;()));
+</code></p></div><div class='itemdescr'></div><div class='para' id='iterator_category-5'><div class='marginalizedparent'><a class='marginalized' href='#iterator_category-5'>5</a></div><div class='itemdescr'><p >The expression in the <span class='texttt'>requires</span> clause is equivalent to:
+</p><pre class='codeblock'>
+requires(T&amp; t) { { ranges::iter_move(t) } -&gt; auto&amp;&amp;; }
+</pre></div></div></div></div></div></body></html>

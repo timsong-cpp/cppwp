@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang='en'><head><title>[iterators.random.access]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>9</a> Iterators library <a class='abbr_ref' href='index.html#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>9.3</a> Iterator requirements <a class='abbr_ref' href='iterator.requirements.html#iterators.random.access'>[iterator.requirements]</a></h2><div id='iterators.random.access'><h3 ><a class='secnum' style='min-width:103pt'>9.3.15</a> Concept <span class='texttt'>RandomAccessIterator</span> <a class='abbr_ref'>[iterators.random.access]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The <span class='texttt'>RandomAccessIterator</span> concept refines <span class='texttt'>BidirectionalIterator</span> (<a href='iterators.bidirectional.html'>[iterators.bidirectional]</a>)
+and adds support for constant-time advancement with <span class='texttt'>+=</span>, <span class='texttt'>+</span>,  <span class='texttt'>-=</span>, and <span class='texttt'>-</span>, and the
+computation of distance in constant time with <span class='texttt'>-</span>. Random access iterators also support array
+notation via subscripting.</p><p ><span class='indexparent'><a class='index' id='RandomAccessIterator'></a></span></p><pre class='codeblock'>
+  template &lt;class I&gt;
+  concept bool RandomAccessIterator() {
+    return BidirectionalIterator&lt;I&gt;() &amp;&amp;
+      DerivedFrom&lt;iterator_category_t&lt;I&gt;, random_access_iterator_tag&gt;() &amp;&amp;
+      StrictTotallyOrdered&lt;I&gt;() &amp;&amp;
+      SizedSentinel&lt;I, I&gt;() &amp;&amp;
+      requires(I i, const I j, const difference_type_t&lt;I&gt; n) {
+        { i += n } -&gt; Same&lt;I&amp;&gt;;
+        { j + n } -&gt; Same&lt;I&gt;;
+        { n + j } -&gt; Same&lt;I&gt;;
+        { i -= n } -&gt; Same&lt;I&amp;&gt;;
+        { j - n } -&gt; Same&lt;I&gt;;
+        { j[n] } -&gt; Same&lt;reference_t&lt;I&gt;&gt;;
+      };
+  }
+</pre></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Let <span class='texttt'>a</span> and <span class='texttt'>b</span> be valid iterators of type <span class='texttt'>I</span> such that <span class='texttt'>b</span> is reachable
+from <span class='texttt'>a</span>. Let <span class='texttt'>n</span> be the smallest value of type
+<span class='texttt'>difference_type_t&lt;I&gt;</span> such that after
+<span class='texttt'>n</span> applications of <span class='texttt'>++a</span>, then <span class='texttt'>bool(a == b)</span>. Then
+<span class='texttt'>RandomAccessIterator&lt;I&gt;()</span> is satisfied if and only if:</p><ul class='itemize'><li id='2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.1'>(2.1)</a></div><p ><span class='texttt'>(a += n)</span> is equal to <span class='texttt'>b</span>.
+</p></li><li id='2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.2'>(2.2)</a></div><p ><span class='texttt'>&amp;(a += n)</span> is equal to <span class='texttt'>&amp;a</span>.
+</p></li><li id='2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.3'>(2.3)</a></div><p ><span class='texttt'>(a + n)</span> is equal to <span class='texttt'>(a += n)</span>.
+</p></li><li id='2.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.4'>(2.4)</a></div><p >For any two positive integers <span class='texttt'>x</span> and <span class='texttt'>y</span>, if <span class='texttt'>a + (x + y)</span> is valid, then
+<span class='texttt'>a + (x + y)</span> is equal to <span class='texttt'>(a + x) + y</span>.
+</p></li><li id='2.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.5'>(2.5)</a></div><p ><span class='texttt'>a + 0</span> is equal to <span class='texttt'>a</span>.
+</p></li><li id='2.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.6'>(2.6)</a></div><p >If <span class='texttt'>(a + (n - 1))</span> is valid, then <span class='texttt'>a + n</span> is equal to <span class='texttt'>++(a + (n - 1))</span>.
+</p></li><li id='2.7'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.7'>(2.7)</a></div><p ><span class='texttt'>(b += -n)</span> is equal to <span class='texttt'>a</span>.
+</p></li><li id='2.8'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.8'>(2.8)</a></div><p ><span class='texttt'>(b -= n)</span> is equal to <span class='texttt'>a</span>.
+</p></li><li id='2.9'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.9'>(2.9)</a></div><p ><span class='texttt'>&amp;(b -= n)</span> is equal to <span class='texttt'>&amp;b</span>.
+</p></li><li id='2.10'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.10'>(2.10)</a></div><p ><span class='texttt'>(b - n)</span> is equal to <span class='texttt'>(b -= n)</span>.
+</p></li><li id='2.11'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.11'>(2.11)</a></div><p >If <span class='texttt'>b</span> is dereferenceable, then <span class='texttt'>a[n]</span> is valid and is equal to <span class='texttt'>*b</span>.
+</p></li></ul></div></div></div></body></html>

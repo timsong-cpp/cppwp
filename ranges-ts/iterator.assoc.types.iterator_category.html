@@ -1,0 +1,41 @@
+<!DOCTYPE html><html lang='en'><head><title>[iterator.assoc.types.iterator_category]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>9</a> Iterators library <a class='abbr_ref' href='index.html#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>9.3</a> Iterator requirements <a class='abbr_ref' href='iterator.requirements.html#iterator.assoc.types.iterator_category'>[iterator.requirements]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>9.3.3</a> Iterator associated types <a class='abbr_ref' href='iterator.assoc.types.html#iterator_category'>[iterator.assoc.types]</a></h3><div id='iterator.assoc.types.iterator_category'><h4 ><a class='secnum' style='min-width:118pt'>9.3.3.3</a> <span class='texttt'>iterator_category</span> <a class='abbr_ref'>[iterator.assoc.types.iterator_category]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p ><span class='indexparent'><a class='index' id='iterator_category_t'></a></span><span class='texttt'>iterator_category_t&lt;T&gt;</span>
+is implemented as if:</p><p ><span class='indexparent'><a class='index' id='iterator_category'></a></span></p><pre class='codeblock'>
+  template &lt;class&gt; struct iterator_category { };
+
+  template &lt;class T&gt;
+  struct iterator_category&lt;T*&gt;
+    : enable_if&lt;is_object&lt;T&gt;::value, random_access_iterator_tag&gt; { };
+
+  template &lt;class T&gt;
+  struct iterator_category&lt;T const&gt; : iterator_category&lt;T&gt; { };
+
+  template &lt;class T&gt;
+    requires requires { typename T::iterator_category; }
+  struct iterator_category&lt;T&gt; {
+    using type = <i><span class='texttt'>see below</span></i>;
+  };
+
+  template &lt;class T&gt; using iterator_category_t
+    = typename iterator_category&lt;T&gt;::type;
+</pre></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Users may specialize <span class='texttt'>iterator_category</span> on user-defined types.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >If
+<span class='texttt'>T::iterator_category</span> is valid and denotes a type, then the
+type <span class='texttt'>iterator_category&lt;T&gt;::type</span> is computed as follows:
+</p><ul class='itemize'><li id='3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#3.1'>(3.1)</a></div><p >If <span class='texttt'>T::iterator_category</span> is the same as or derives from <span class='texttt'>std::random_access_iterator_tag</span>,
+      <span class='texttt'>iterator_category&lt;T&gt;::type</span> is <span class='texttt'>ranges::random_access_iterator_tag</span>.
+</p></li><li id='3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#3.2'>(3.2)</a></div><p >Otherwise, if <span class='texttt'>T::iterator_category</span> is the same as or derives from <span class='texttt'>std::bidirectional_iterator_tag</span>,
+      <span class='texttt'>iterator_category&lt;T&gt;::type</span> is <span class='texttt'>ranges::bidirectional_iterator_tag</span>.
+</p></li><li id='3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#3.3'>(3.3)</a></div><p >Otherwise, if <span class='texttt'>T::iterator_category</span> is the same as or derives from <span class='texttt'>std::forward_iterator_tag</span>,
+      <span class='texttt'>iterator_category&lt;T&gt;::type</span> is <span class='texttt'>ranges::forward_iterator_tag</span>.
+</p></li><li id='3.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#3.4'>(3.4)</a></div><p >Otherwise, if <span class='texttt'>T::iterator_category</span> is the same as or derives from <span class='texttt'>std::input_iterator_tag</span>,
+      <span class='texttt'>iterator_category&lt;T&gt;::type</span> is <span class='texttt'>ranges::input_iterator_tag</span>.
+</p></li><li id='3.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#3.5'>(3.5)</a></div><p >Otherwise, if <span class='texttt'>T::iterator_category</span> is the same as or derives from <span class='texttt'>std::output_iterator_tag</span>,
+      <span class='texttt'>iterator_category&lt;T&gt;</span> has no nested <span class='texttt'>type</span>.
+</p></li><li id='3.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#3.6'>(3.6)</a></div><p >Otherwise, <span class='texttt'>iterator_category&lt;T&gt;::type</span> is <span class='texttt'>T::iterator_category</span>
+</p></li></ul></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p ><span class='indexparent'><a class='index' id='rvalue_reference_t'></a></span><span class='texttt'>rvalue_reference_t&lt;T&gt;</span> is implemented as if:</p><p ><code class='itemdecl'>
+  template &lt;<i>dereferenceable</i> T&gt;
+      requires <i><span class='texttt'>see below</span></i> using rvalue_reference_t
+    = decltype(ranges::iter_move(declval&lt;T&amp;&gt;()));
+</code></p></div><div class='itemdescr'></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p >The expression in the <span class='texttt'>requires</span> clause is equivalent to:
+</p><pre class='codeblock'>
+requires(T&amp; t) { { ranges::iter_move(t) } -&gt; auto&amp;&amp;; }
+</pre></div></div></div></div></body></html>

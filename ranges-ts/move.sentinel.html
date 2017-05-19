@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang='en'><head><title>[move.sentinel]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>9</a> Iterators library <a class='abbr_ref' href='index.html#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>9.7</a> Iterator adaptors <a class='abbr_ref' href='iterators.predef.html#move.sentinel'>[iterators.predef]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>9.7.3</a> Move iterators and sentinels <a class='abbr_ref' href='iterators.move.html#move.sentinel'>[iterators.move]</a></h3><div id='move.sentinel'><h4 ><a class='secnum' style='min-width:118pt'>9.7.3.3</a> Class template <span class='texttt'>move_sentinel</span> <a class='abbr_ref'>[move.sentinel]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Class template <span class='texttt'>move_sentinel</span> is a sentinel adaptor useful for denoting
+ranges together with <span class='texttt'>move_iterator</span>. When an input iterator type
+<span class='texttt'>I</span> and sentinel type <span class='texttt'>S</span> satisfy <span class='texttt'>Sentinel&lt;S, I&gt;()</span>,
+<span class='texttt'>Sentinel&lt;move_sentinel&lt;S&gt;, move_iterator&lt;I&gt;&gt;()</span> is satisfied as well.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >[&nbsp;<i>Example:</i> A <span class='texttt'>move_if</span> algorithm is easily implemented with
+<span class='texttt'>copy_if</span> using <span class='texttt'>move_iterator</span> and <span class='texttt'>move_sentinel</span>:</p><pre class='codeblock'>
+template &lt;InputIterator I, Sentinel&lt;I&gt; S, WeaklyIncrementable O,
+          IndirectPredicate&lt;I&gt; Pred&gt;
+  requires IndirectlyMovable&lt;I, O&gt;()
+void move_if(I first, S last, O out, Pred pred){
+  copy_if(move_iterator&lt;I&gt;{first}, move_sentinel&lt;S&gt;{last}, out, pred);
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='move_sentinel'></a></span></p><pre class='codeblock'>
+namespace std { namespace experimental { namespace ranges { inline namespace v1 {
+  template &lt;Semiregular S&gt;
+  class move_sentinel {
+  public:
+    constexpr move_sentinel();
+    explicit move_sentinel(S s);
+    move_sentinel(const move_sentinel&lt;ConvertibleTo&lt;S&gt;&gt;&amp; s);
+    move_sentinel&amp; operator=(const move_sentinel&lt;ConvertibleTo&lt;S&gt;&gt;&amp; s);
+
+    S base() const;
+
+  private:
+    S last; <span class='comment'>// <i>exposition only</i>
+</span>  };
+
+  template &lt;class I, Sentinel&lt;I&gt; S&gt;
+    bool operator==(
+      const move_iterator&lt;I&gt;&amp; i, const move_sentinel&lt;S&gt;&amp; s);
+  template &lt;class I, Sentinel&lt;I&gt; S&gt;
+    bool operator==(
+      const move_sentinel&lt;S&gt;&amp; s, const move_iterator&lt;I&gt;&amp; i);
+  template &lt;class I, Sentinel&lt;I&gt; S&gt;
+    bool operator!=(
+      const move_iterator&lt;I&gt;&amp; i, const move_sentinel&lt;S&gt;&amp; s);
+  template &lt;class I, Sentinel&lt;I&gt; S&gt;
+    bool operator!=(
+      const move_sentinel&lt;S&gt;&amp; s, const move_iterator&lt;I&gt;&amp; i);
+
+  template &lt;class I, SizedSentinel&lt;I&gt; S&gt;
+    difference_type_t&lt;I&gt; operator-(
+      const move_sentinel&lt;S&gt;&amp; s, const move_iterator&lt;I&gt;&amp; i);
+  template &lt;class I, SizedSentinel&lt;I&gt; S&gt;
+    difference_type_t&lt;I&gt; operator-(
+      const move_iterator&lt;I&gt;&amp; i, const move_sentinel&lt;S&gt;&amp; s);
+
+  template &lt;Semiregular S&gt;
+    move_sentinel&lt;S&gt; make_move_sentinel(S s);
+}}}}
+</pre></div></div></div></body></html>

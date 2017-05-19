@@ -1,0 +1,172 @@
+<!DOCTYPE html><html lang='en'><head><title>[alg.set.operations]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>10</a> Algorithms library <a class='abbr_ref' href='index.html#algorithms'>[algorithms]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>10.5</a> Sorting and related operations <a class='abbr_ref' href='alg.sorting.html#alg.set.operations'>[alg.sorting]</a></h2><div id='alg.set.operations'><h3 ><a class='secnum' style='min-width:103pt'>10.5.5</a> Set operations on sorted structures <a class='abbr_ref'>[alg.set.operations]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >This section defines all the basic set operations on sorted structures.
+They also work with
+<span class='texttt'>multiset</span>s (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> multiset <span class='endcsname'></span>)
+containing multiple copies of equivalent elements.
+The semantics of the set operations are generalized to
+<span class='texttt'>multiset</span>s
+in a standard way by defining
+<span class='texttt'>set_union()</span>
+to contain the maximum number of occurrences of every element,
+<span class='texttt'>set_intersection()</span>
+to contain the minimum, and so on.</p></div><div id='includes'><h4 ><a class='secnum' href='#includes' style='min-width:118pt'>10.5.5.1</a> <span class='texttt'>includes</span> <a class='abbr_ref' href='includes.html'>[includes]</a></h4><p ><span class='indexparent'><a class='index' id='includes'></a></span><code class='itemdecl'>
+template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, Sentinel&lt;I2&gt; S2,
+    class Proj1 = identity, class Proj2 = identity,
+    IndirectStrictWeakOrder&lt;projected&lt;I1, Proj1&gt;, projected&lt;I2, Proj2&gt;&gt; Comp = less&lt;&gt;&gt;
+  bool
+    includes(I1 first1, S1 last1, I2 first2, S2 last2, Comp comp = Comp{},
+             Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+template &lt;InputRange Rng1, InputRange Rng2, class Proj1 = identity,
+    class Proj2 = identity,
+    IndirectStrictWeakOrder&lt;projected&lt;iterator_t&lt;Rng1&gt;, Proj1&gt;,
+      projected&lt;iterator_t&lt;Rng2&gt;, Proj2&gt;&gt; Comp = less&lt;&gt;&gt;
+  bool
+    includes(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, Comp comp = Comp{},
+             Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+</code></p><div class='itemdescr'></div><div class='para' id='includes-1'><div class='marginalizedparent'><a class='marginalized' href='#includes-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>true</span>
+if <span class='texttt'>[first2,last2)</span> is empty or
+if every element in the range
+<span class='texttt'>[first2,last2)</span>
+is contained in the range
+<span class='texttt'>[first1,last1)</span>.
+Returns
+<span class='texttt'>false</span>
+otherwise.</p></div></div><div class='para' id='includes-2'><div class='marginalizedparent'><a class='marginalized' href='#includes-2'>2</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+At most
+<span class='texttt'>2 * ((last1 - first1) + (last2 - first2)) - 1</span>
+applications of the comparison function and projections.
+</p></div></div></div><div id='set.union'><h4 ><a class='secnum' href='#set.union' style='min-width:118pt'>10.5.5.2</a> <span class='texttt'>set_union</span> <a class='abbr_ref' href='set.union.html'>[set.union]</a></h4><p ><span class='indexparent'><a class='index' id='set_union'></a></span><code class='itemdecl'>
+template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, Sentinel&lt;I2&gt; S2,
+    WeaklyIncrementable O, class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+  requires Mergeable&lt;I1, I2, O, Comp, Proj1, Proj2&gt;()
+  tagged_tuple&lt;tag::in1(I1), tag::in2(I2), tag::out(O)&gt;
+    set_union(I1 first1, S1 last1, I2 first2, S2 last2, O result, Comp comp = Comp{},
+              Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+template &lt;InputRange Rng1, InputRange Rng2, WeaklyIncrementable O,
+    class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+  requires Mergeable&lt;iterator_t&lt;Rng1&gt;, iterator_t&lt;Rng2&gt;, O, Comp, Proj1, Proj2&gt;()
+  tagged_tuple&lt;tag::in1(safe_iterator_t&lt;Rng1&gt;),
+               tag::in2(safe_iterator_t&lt;Rng2&gt;),
+               tag::out(O)&gt;
+    set_union(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, O result, Comp comp = Comp{},
+              Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+</code></p><div class='itemdescr'></div><div class='para' id='set.union-1'><div class='marginalizedparent'><a class='marginalized' href='#set.union-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs a sorted union of the elements from the two ranges;
+that is, the set of elements that are present in one or both of the ranges.</p></div></div><div class='para' id='set.union-2'><div class='marginalizedparent'><a class='marginalized' href='#set.union-2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i>
+The resulting range shall not overlap with either of the original ranges.</p></div></div><div class='para' id='set.union-3'><div class='marginalizedparent'><a class='marginalized' href='#set.union-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>make_tagged_tuple&lt;tag::in1, tag::in2, tag::out&gt;(last1, last2, result + <span class='math'><span class='mathalpha'>n</span></span>)</span>, where <span class='texttt'><span class='math'><span class='mathalpha'>n</span></span></span> is
+the number of elements in the constructed range.</p></div></div><div class='para' id='set.union-4'><div class='marginalizedparent'><a class='marginalized' href='#set.union-4'>4</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+At most
+<span class='texttt'>2 * ((last1 - first1) + (last2 - first2)) - 1</span>
+applications of the comparison function and projections.</p></div></div><div class='para' id='set.union-5'><div class='marginalizedparent'><a class='marginalized' href='#set.union-5'>5</a></div><div class='itemdescr'><p ><i>Remarks:</i> If <span class='texttt'>[first1,last1)</span> contains <span class='math'><span class='mathalpha'>m</span></span> elements that are equivalent to
+each other and <span class='texttt'>[first2,last2)</span> contains <span class='math'><span class='mathalpha'>n</span></span> elements that are equivalent
+to them, then all <span class='math'><span class='mathalpha'>m</span></span> elements from the first range shall be copied to the output
+range, in order, and then <span class='math'><span class="mathrm">max</span>(<span class='mathalpha'>n</span> - <span class='mathalpha'>m</span>, 0)</span> elements from the second range shall
+be copied to the output range, in order.
+</p></div></div></div><div id='set.intersection'><h4 ><a class='secnum' href='#set.intersection' style='min-width:118pt'>10.5.5.3</a> <span class='texttt'>set_intersection</span> <a class='abbr_ref' href='set.intersection.html'>[set.intersection]</a></h4><p ><span class='indexparent'><a class='index' id='set_intersection'></a></span><code class='itemdecl'>
+template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, Sentinel&lt;I2&gt; S2,
+    WeaklyIncrementable O, class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+  requires Mergeable&lt;I1, I2, O, Comp, Proj1, Proj2&gt;()
+  O
+    set_intersection(I1 first1, S1 last1, I2 first2, S2 last2, O result,
+                     Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+template &lt;InputRange Rng1, InputRange Rng2, WeaklyIncrementable O,
+    class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+  requires Mergeable&lt;iterator_t&lt;Rng1&gt;, iterator_t&lt;Rng2&gt;, O, Comp, Proj1, Proj2&gt;()
+  O
+    set_intersection(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, O result,
+                     Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+</code></p><div class='itemdescr'></div><div class='para' id='set.intersection-1'><div class='marginalizedparent'><a class='marginalized' href='#set.intersection-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Constructs a sorted intersection of the elements from the two ranges;
+that is, the set of elements that are present in both of the ranges.</p></div></div><div class='para' id='set.intersection-2'><div class='marginalizedparent'><a class='marginalized' href='#set.intersection-2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i>
+The resulting range shall not overlap with either of the original ranges.</p></div></div><div class='para' id='set.intersection-3'><div class='marginalizedparent'><a class='marginalized' href='#set.intersection-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+The end of the constructed range.</p></div></div><div class='para' id='set.intersection-4'><div class='marginalizedparent'><a class='marginalized' href='#set.intersection-4'>4</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+At most
+<span class='texttt'>2 * ((last1 - first1) + (last2 - first2)) - 1</span>
+applications of the comparison function and projections.</p></div></div><div class='para' id='set.intersection-5'><div class='marginalizedparent'><a class='marginalized' href='#set.intersection-5'>5</a></div><div class='itemdescr'><p ><i>Remarks:</i> If <span class='texttt'>[first1,last1)</span> contains <span class='math'><span class='mathalpha'>m</span></span> elements that are equivalent to
+each other and <span class='texttt'>[first2,last2)</span> contains <span class='math'><span class='mathalpha'>n</span></span> elements that are equivalent
+to them, the first <span class='math'><span class="mathrm">min</span>(<span class='mathalpha'>m</span>, <span class='mathalpha'>n</span>)</span> elements shall be copied from the first range
+to the output range, in order.
+</p></div></div></div><div id='set.difference'><h4 ><a class='secnum' href='#set.difference' style='min-width:118pt'>10.5.5.4</a> <span class='texttt'>set_difference</span> <a class='abbr_ref' href='set.difference.html'>[set.difference]</a></h4><p ><span class='indexparent'><a class='index' id='set_difference'></a></span><code class='itemdecl'>
+template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, Sentinel&lt;I2&gt; S2,
+    WeaklyIncrementable O, class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+  requires Mergeable&lt;I1, I2, O, Comp, Proj1, Proj2&gt;()
+  tagged_pair&lt;tag::in1(I1), tag::out(O)&gt;
+    set_difference(I1 first1, S1 last1, I2 first2, S2 last2, O result,
+                   Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+template &lt;InputRange Rng1, InputRange Rng2, WeaklyIncrementable O,
+    class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+  requires Mergeable&lt;iterator_t&lt;Rng1&gt;, iterator_t&lt;Rng2&gt;, O, Comp, Proj1, Proj2&gt;()
+  tagged_pair&lt;tag::in1(safe_iterator_t&lt;Rng1&gt;), tag::out(O)&gt;
+    set_difference(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, O result,
+                   Comp comp = Comp{}, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+</code></p><div class='itemdescr'></div><div class='para' id='set.difference-1'><div class='marginalizedparent'><a class='marginalized' href='#set.difference-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Copies the elements of the range
+<span class='texttt'>[first1,last1)</span>
+which are not present in the range
+<span class='texttt'>[first2,last2)</span>
+to the range beginning at
+<span class='texttt'>result</span>.
+The elements in the constructed range are sorted.</p></div></div><div class='para' id='set.difference-2'><div class='marginalizedparent'><a class='marginalized' href='#set.difference-2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i>
+The resulting range shall not overlap with either of the original ranges.</p></div></div><div class='para' id='set.difference-3'><div class='marginalizedparent'><a class='marginalized' href='#set.difference-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>{last1, result + <span class='math'><span class='mathalpha'>n</span></span>}</span>, where <span class='math'><span class='mathalpha'>n</span></span>
+is the number of elements in the constructed range.</p></div></div><div class='para' id='set.difference-4'><div class='marginalizedparent'><a class='marginalized' href='#set.difference-4'>4</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+At most
+<span class='texttt'>2 * ((last1 - first1) + (last2 - first2)) - 1</span>
+applications of the comparison function and projections.</p></div></div><div class='para' id='set.difference-5'><div class='marginalizedparent'><a class='marginalized' href='#set.difference-5'>5</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+If
+<span class='texttt'>[first1,last1)</span>
+contains <span class='math'><span class='mathalpha'>m</span></span>
+elements that are equivalent to each other and
+<span class='texttt'>[first2,last2)</span>
+contains <span class='math'><span class='mathalpha'>n</span></span>
+elements that are equivalent to them, the last
+<span class='math'><span class="mathrm">max</span>(<span class='mathalpha'>m</span> - <span class='mathalpha'>n</span>, 0)</span>
+elements from
+<span class='texttt'>[first1,last1)</span>
+shall be copied to the output range.
+</p></div></div></div><div id='set.symmetric.difference'><h4 ><a class='secnum' href='#set.symmetric.difference' style='min-width:118pt'>10.5.5.5</a> <span class='texttt'>set_symmetric_difference</span> <a class='abbr_ref' href='set.symmetric.difference.html'>[set.symmetric.difference]</a></h4><p ><span class='indexparent'><a class='index' id='set_symmetric_difference'></a></span><code class='itemdecl'>
+template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, Sentinel&lt;I2&gt; S2,
+    WeaklyIncrementable O, class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+  requires Mergeable&lt;I1, I2, O, Comp, Proj1, Proj2&gt;()
+  tagged_tuple&lt;tag::in1(I1), tag::in2(I2), tag::out(O)&gt;
+    set_symmetric_difference(I1 first1, S1 last1, I2 first2, S2 last2, O result,
+                             Comp comp = Comp{}, Proj1 proj1 = Proj1{},
+                             Proj2 proj2 = Proj2{});
+
+template &lt;InputRange Rng1, InputRange Rng2, WeaklyIncrementable O,
+    class Comp = less&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+  requires Mergeable&lt;iterator_t&lt;Rng1&gt;, iterator_t&lt;Rng2&gt;, O, Comp, Proj1, Proj2&gt;()
+  tagged_tuple&lt;tag::in1(safe_iterator_t&lt;Rng1&gt;),
+               tag::in2(safe_iterator_t&lt;Rng2&gt;),
+               tag::out(O)&gt;
+    set_symmetric_difference(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, O result, Comp comp = Comp{},
+                             Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+</code></p><div class='itemdescr'></div><div class='para' id='set.symmetric.difference-1'><div class='marginalizedparent'><a class='marginalized' href='#set.symmetric.difference-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Copies the elements of the range
+<span class='texttt'>[first1,last1)</span>
+that are not present in the range
+<span class='texttt'>[first2,last2)</span>,
+and the elements of the range
+<span class='texttt'>[first2,last2)</span>
+that are not present in the range
+<span class='texttt'>[first1,last1)</span>
+to the range beginning at
+<span class='texttt'>result</span>.
+The elements in the constructed range are sorted.</p></div></div><div class='para' id='set.symmetric.difference-2'><div class='marginalizedparent'><a class='marginalized' href='#set.symmetric.difference-2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i>
+The resulting range shall not overlap with either of the original ranges.</p></div></div><div class='para' id='set.symmetric.difference-3'><div class='marginalizedparent'><a class='marginalized' href='#set.symmetric.difference-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>make_tagged_tuple&lt;tag::in1, tag::in2, tag::out&gt;(last1, last2, result + <span class='math'><span class='mathalpha'>n</span></span>)</span>, where <span class='texttt'><span class='math'><span class='mathalpha'>n</span></span></span> is
+the number of elements in the constructed range.</p></div></div><div class='para' id='set.symmetric.difference-4'><div class='marginalizedparent'><a class='marginalized' href='#set.symmetric.difference-4'>4</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+At most
+<span class='texttt'>2 * ((last1 - first1) + (last2 - first2)) - 1</span>
+applications of the comparison function and projections.</p></div></div><div class='para' id='set.symmetric.difference-5'><div class='marginalizedparent'><a class='marginalized' href='#set.symmetric.difference-5'>5</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+If <span class='texttt'>[first1,last1)</span> contains <span class='math'><span class='mathalpha'>m</span></span> elements that are equivalent to each other and
+<span class='texttt'>[first2,last2)</span> contains <span class='math'><span class='mathalpha'>n</span></span> elements that are equivalent to them, then
+<span class='math'>|<span class='mathalpha'>m</span> - <span class='mathalpha'>n</span>|</span> of those elements shall be copied to the output range: the last
+<span class='math'><span class='mathalpha'>m</span> - <span class='mathalpha'>n</span></span> of these elements from <span class='texttt'>[first1,last1)</span> if <span class='math'><span class='mathalpha'>m</span> &gt; <span class='mathalpha'>n</span></span>, and the last
+<span class='math'><span class='mathalpha'>n</span> - <span class='mathalpha'>m</span></span> of these elements from <span class='texttt'>[first2,last2)</span> if <span class='math'><span class='mathalpha'>m</span> &lt; <span class='mathalpha'>n</span></span>.
+</p></div></div></div></div></div></body></html>

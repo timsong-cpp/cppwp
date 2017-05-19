@@ -1,0 +1,59 @@
+<!DOCTYPE html><html lang='en'><head><title>[alg.transform]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>10</a> Algorithms library <a class='abbr_ref' href='index.html#algorithms'>[algorithms]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>10.4</a> Mutating sequence operations <a class='abbr_ref' href='alg.modifying.operations.html#alg.transform'>[alg.modifying.operations]</a></h2><div id='alg.transform'><h3 ><a class='secnum' style='min-width:103pt'>10.4.4</a> Transform <a class='abbr_ref'>[alg.transform]</a></h3><p ><span class='indexparent'><a class='index' id='transform'></a></span><code class='itemdecl'>
+template &lt;InputIterator I, Sentinel&lt;I&gt; S, WeaklyIncrementable O, class F, class Proj = identity&gt;
+  requires Writable&lt;O, indirect_result_of_t&lt;F&amp;(projected&lt;I, Proj&gt;)&gt;&gt;()
+  tagged_pair&lt;tag::in(I), tag::out(O)&gt;
+    transform(I first, S last, O result, F op, Proj proj = Proj{});
+
+template &lt;InputRange Rng, WeaklyIncrementable O, class F, class Proj = identity&gt;
+  requires Writable&lt;O, indirect_result_of_t&lt;F&amp;(
+    projected&lt;iterator_t&lt;R&gt;, Proj&gt;)&gt;&gt;()
+  tagged_pair&lt;tag::in(safe_iterator_t&lt;Rng&gt;), tag::out(O)&gt;
+    transform(Rng&amp;&amp; rng, O result, F op, Proj proj = Proj{});
+
+template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, Sentinel&lt;I2&gt; S2,
+    WeaklyIncrementable O, class F, class Proj1 = identity, class Proj2 = identity&gt;
+  requires Writable&lt;O, indirect_result_of_t&lt;F&amp;(projected&lt;I1, Proj1&gt;,
+    projected&lt;I2, Proj2&gt;)&gt;&gt;()
+  tagged_tuple&lt;tag::in1(I1), tag::in2(I2), tag::out(O)&gt;
+    transform(I1 first1, S1 last1, I2 first2, S2 last2, O result,
+            F binary_op, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+template &lt;InputRange Rng1, InputRange Rng2, WeaklyIncrementable O, class F,
+    class Proj1 = identity, class Proj2 = identity&gt;
+  requires Writable&lt;O, indirect_result_of_t&lt;F&amp;(
+    projected&lt;iterator_t&lt;Rng1&gt;, Proj1&gt;, projected&lt;iterator_t&lt;Rng2&gt;, Proj2&gt;)&gt;&gt;()
+  tagged_tuple&lt;tag::in1(safe_iterator_t&lt;Rng1&gt;),
+               tag::in2(safe_iterator_t&lt;Rng2&gt;),
+               tag::out(O)&gt;
+    transform(Rng1&amp;&amp; rng1, Rng2&amp;&amp; rng2, O result,
+              F binary_op, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+</code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p >Let <span class='math'><span class='mathalpha'>N</span></span> be <span class='texttt'>(last1 - first1)</span>
+for unary transforms, or <span class='texttt'>min(last1 - first1, last2 - first2) for binary
+transforms.</span></p></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Assigns through every iterator
+<span class='texttt'>i</span>
+in the range
+<span class='texttt'>[result,result + <span class='math'><span class='mathalpha'>N</span></span>)</span>
+a new
+corresponding value equal to
+<span class='texttt'>invoke(op, invoke(proj, *(first1 + (i - result))))</span>
+or
+<span class='texttt'>invoke(binary_op, invoke(proj1, *(first1 + (i - result))), invoke(proj2, *(first2 + (i - result))))</span>.</p></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>op</span> and <span class='texttt'>binary_op</span>
+shall not invalidate iterators or subranges, or modify elements in the ranges
+<span class='texttt'>[first1,first1 + <span class='math'><span class='mathalpha'>N</span></span>]</span>,
+<span class='texttt'>[first2,first2 + <span class='math'><span class='mathalpha'>N</span></span>]</span>,
+and
+<span class='texttt'>[result,result + <span class='math'><span class='mathalpha'>N</span></span>]</span>.<a class='footnotenum' href='#footnote-7'>7</a></p></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>{first1 + <span class='math'><span class='mathalpha'>N</span></span>, result + <span class='math'><span class='mathalpha'>N</span></span>}</span>
+ or <span class='texttt'>make_tagged_tuple&lt;tag::in1, tag::in2, tag::out&gt;(first1 + <span class='math'><span class='mathalpha'>N</span></span>, first2 + <span class='math'><span class='mathalpha'>N</span></span>, result + <span class='math'><span class='mathalpha'>N</span></span>)</span>.</p></div></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+Exactly
+<span class='texttt'><span class='math'><span class='mathalpha'>N</span></span></span>
+applications of
+<span class='texttt'>op</span> or <span class='texttt'>binary_op</span>.</p></div></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+<span class='texttt'>result</span> may be equal to <span class='texttt'>first1</span>
+in case of unary transform,
+or to <span class='texttt'>first1</span> or <span class='texttt'>first2</span>
+in case of binary transform.
+</p></div></div><div class='footnote' id='footnote-7'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-7'>7)</a></div><p >The use of fully
+closed ranges is intentional.</p></div></div></div></body></html>

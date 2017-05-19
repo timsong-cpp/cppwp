@@ -1,0 +1,100 @@
+<!DOCTYPE html><html lang='en'><head><title>[utility]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>8</a> General utilities library <a class='abbr_ref' href='index.html#utilities'>[utilities]</a></h1><div id='utility'><h2 ><a class='secnum' style='min-width:88pt'>8.2</a> Utility components <a class='abbr_ref'>[utility]</a></h2><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >This subclause contains some basic function and class templates that are used
+throughout the rest of the library.</p><p ><span class='indexparent'><a class='index' id='experimental/ranges/utility'></a></span><b>Header <span class='texttt'>&lt;experimental/ranges/utility&gt;</span> synopsis</b></p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >The header <span class='texttt'>&lt;experimental/ranges/utility&gt;</span> defines several types,
+function templates, and concepts that are described in this Clause. It also
+defines the templates <span class='texttt'>tagged</span> and <span class='texttt'>tagged_pair</span> and various
+function templates that operate on <span class='texttt'>tagged_pair</span> objects.</p><pre class='codeblock'>
+namespace std { namespace experimental { namespace ranges { inline namespace v1 {
+  <span class='comment'>// <a href='utility.swap.html'>[utility.swap]</a>, swap:
+</span>  namespace {
+    constexpr <i><span class='texttt'>unspecified</span></i> swap = <i><span class='texttt'>unspecified</span></i>;
+  }
+
+  <span class='comment'>// <a href='utility.exchange.html'>[utility.exchange]</a>, exchange:
+</span>  template &lt;MoveConstructible T, class U=T&gt;
+    requires Assignable&lt;T&amp;, U&gt;()
+  T exchange(T&amp; obj, U&amp;&amp; new_val);
+
+  <span class='comment'>// <a href='taggedtup.tagged.html'>[taggedtup.tagged]</a>, struct with named accessors
+</span>  template &lt;class T&gt;
+  concept bool TagSpecifier() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  template &lt;class F&gt;
+  concept bool TaggedType() {
+    return <i><span class='texttt'>see below</span></i>;
+  }
+
+  template &lt;class Base, TagSpecifier... Tags&gt;
+    requires sizeof...(Tags) &lt;= tuple_size&lt;Base&gt;::value
+  struct tagged;
+
+  <span class='comment'>// <a href='tagged.pairs.html'>[tagged.pairs]</a>, tagged pairs
+</span>  template &lt;TaggedType T1, TaggedType T2&gt; using tagged_pair = <i><span class='texttt'>see below</span></i>;
+
+  template &lt;TagSpecifier Tag1, TagSpecifier Tag2, class T1, class T2&gt;
+  constexpr <i><span class='texttt'>see below</span></i> make_tagged_pair(T1&amp;&amp; x, T2&amp;&amp; y);
+}}}}
+
+namespace std {
+  <span class='comment'>// <a href='tagged.astuple.html'>[tagged.astuple]</a>, tuple-like access to tagged
+</span>  template &lt;class Base, class... Tags&gt;
+  struct tuple_size&lt;experimental::ranges::tagged&lt;Base, Tags...&gt;&gt;;
+
+  template &lt;size_t N, class Base, class... Tags&gt;
+  struct tuple_element&lt;N, experimental::ranges::tagged&lt;Base, Tags...&gt;&gt;;
+}
+</pre></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >Any entities declared or defined directly in namespace <span class='texttt'>std</span> in header <span class='texttt'>&lt;utility&gt;</span>
+that are not already defined in namespace <span class='texttt'>std::experimental::ranges::v1</span> in header
+<span class='texttt'>&lt;experimental/ranges/utility&gt;</span> are imported with
+<span class='grammarterm'>using-declarations</span> (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> namespace.udecl <span class='endcsname'></span>). [&nbsp;<i>Example:</i>
+</p><pre class='codeblock'>
+namespace std { namespace experimental { namespace ranges { inline namespace v1 {
+  using std::pair;
+  using std::make_pair;
+  <span class='comment'>// ... others
+</span>}}}}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div id='swap'><h3 ><a class='secnum' href='#swap' style='min-width:103pt'>8.2.1</a> <span class='texttt'>swap</span> <a class='abbr_ref' href='utility.swap.html'>[utility.swap]</a></h3><p ><span class='indexparent'><a class='index' id='swap'></a></span></p><div class='para' id='swap-1'><div class='marginalizedparent'><a class='marginalized' href='#swap-1'>1</a></div><p >The name <span class='texttt'>swap</span> denotes a customization point
+object (<a href='customization.point.object.html'>[customization.point.object]</a>). The effect of the expression
+<span class='texttt'>ranges::swap(E1, E2)</span> for some expressions <span class='texttt'>E1</span>
+and <span class='texttt'>E2</span> is equivalent to:</p><ul class='itemize'><li id='swap-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#swap-1.1'>(1.1)</a></div><p ><span class='texttt'>(void)swap(E1, E2)</span>, if that expression is valid, with overload resolution
+  performed in a context that includes the declarations
+</p><pre class='codeblock'>
+  template &lt;class T&gt;
+  void swap(T&amp;, T&amp;) = delete;
+  template &lt;class T, size_t N&gt;
+  void swap(T(&amp;)[N], T(&amp;)[N]) = delete;
+</pre><p >and does not include a declaration of <span class='texttt'>ranges::swap</span>.
+  If the function selected by overload resolution does not
+  exchange the values referenced by <span class='texttt'>E1</span> and <span class='texttt'>E2</span>,
+  the program is ill-formed with no diagnostic required.</p></li><li id='swap-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#swap-1.2'>(1.2)</a></div><p >Otherwise, <span class='texttt'>(void)swap_ranges(E1, E2)</span> if <span class='texttt'>E1</span> and
+  <span class='texttt'>E2</span> are lvalues of array types (  ISO/IEC 14882:2014 &sect;  <span class='csname'></span> basic.compound <span class='endcsname'></span>)
+  of equal extent and <span class='texttt'>ranges::swap(*(E1), *(E2))</span>
+  is a valid expression, except that
+  <span class='texttt'>noexcept(ranges::swap(E1, E2))</span> is equal to
+  <span class='texttt'>noexcept(ranges::swap(*(E1), *(E2)))</span>.</p></li><li id='swap-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#swap-1.3'>(1.3)</a></div><p >Otherwise, if <span class='texttt'>E1</span> and <span class='texttt'>E2</span> are lvalues of the
+  same type <span class='texttt'>T</span> which meets the syntactic requirements of
+  <span class='texttt'>MoveConstructible&lt;T&gt;()</span> and
+  <span class='texttt'>Assignable&lt;T&amp;, T&gt;()</span>, exchanges the referenced values.
+  <span class='texttt'>ranges::swap(E1, E2)</span> is a constant expression if
+  the constructor selected by overload resolution for
+  <span class='texttt'>T{std::move(E1)}</span> is a constexpr constructor and
+  the expression <span class='texttt'>E1 = std::move(E2)</span> can appear in a
+  constexpr function. <span class='texttt'>noexcept(ranges::swap(E1, E2))</span>
+  is equal to <span class='texttt'>is_nothrow_move_constructible&lt;T&gt;::value
+  &amp;&amp; is_nothrow_move_assignable&lt;T&gt;::value</span>. If either
+  <span class='texttt'>MoveConstructible</span> or
+  <span class='texttt'>Assignable</span> is not satisfied, the program
+  is ill-formed with no diagnostic required.</p></li><li id='swap-1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#swap-1.4'>(1.4)</a></div><p >Otherwise, <span class='texttt'>ranges::swap(E1, E2)</span> is ill-formed.
+</p></li></ul></div><div class='para' id='swap-2'><div class='marginalizedparent'><a class='marginalized' href='#swap-2'>2</a></div><p ><i>Remark:</i> Whenever <span class='texttt'>ranges::swap(E1, E2)</span> is a valid
+expression, it exchanges the values referenced by <span class='texttt'>E1</span>
+and <span class='texttt'>E2</span> and has type <span class='texttt'>void</span>.</p></div></div><div id='exchange'><h3 ><a class='secnum' href='#exchange' style='min-width:103pt'>8.2.2</a> <span class='texttt'>exchange</span> <a class='abbr_ref' href='utility.exchange.html'>[utility.exchange]</a></h3><p ><code class='itemdecl'>
+template &lt;MoveConstructible T, class U=T&gt;
+  requires Assignable&lt;T&amp;, U&gt;()
+T exchange(T&amp; obj, U&amp;&amp; new_val);
+</code></p><div class='itemdescr'></div><div class='para' id='exchange-1'><div class='marginalizedparent'><a class='marginalized' href='#exchange-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:</p><pre class='codeblock'>
+T old_val = std::move(obj);
+obj = std::forward&lt;U&gt;(new_val);
+return old_val;
+</pre></div></div></div></div></div></body></html>
