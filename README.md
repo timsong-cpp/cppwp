@@ -10,5 +10,7 @@ Currently four versions are available:
 * N4618 (November 2016 post-Issaquah working draft): [HTML](https://timsong-cpp.github.io/cppwp/n4618/) [Full PDF](https://timsong-cpp.github.io/cppwp/n4618/draft.pdf)
 * N4659 (March 2017 post-Kona working draft/C++17 DIS): [HTML](https://timsong-cpp.github.io/cppwp/n4659/) [Full PDF](https://timsong-cpp.github.io/cppwp/n4659/draft.pdf)
 
-I plan to generate (permanent) HTML versions for each post-meeting working draft after N4618.
+The following TSes are also available:
+* Ranges: [HTML](https://timsong-cpp.github.io/cppwp/ranges-ts/) [Full PDF](https://timsong-cpp.github.io/cppwp/ranges-ts.pdf)
+* Networking: [HTML](https://timsong-cpp.github.io/cppwp/networking-ts/) [Full PDF](https://timsong-cpp.github.io/cppwp/networking-ts.pdf)
 
