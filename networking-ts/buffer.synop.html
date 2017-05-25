@@ -1,0 +1,290 @@
+<!DOCTYPE html><html lang='en'><head><title>[buffer.synop]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>16</a> Buffers <a class='abbr_ref' href='./#buffer'>[buffer]</a></h1><div id='buffer.synop'><h2 ><a class='secnum' style='min-width:88pt'>16.1</a> Header <span class='texttt'>&lt;experimental/buffer&gt;</span> synopsis <a class='abbr_ref'>[buffer.synop]</a></h2><p ><span class='indexparent'><a class='index' id='is_mutable_buffer_sequence_v'></a></span><span class='indexparent'><a class='index' id='is_const_buffer_sequence_v'></a></span><span class='indexparent'><a class='index' id='is_dynamic_buffer_v'></a></span><span class='indexparent'><a class='index' id='stream_errc'></a></span></p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  enum class stream_errc {
+    eof = <i>an implementation defined non-zero value</i>,
+    not_found = <i>an implementation defined non-zero value</i>
+  };
+
+  const error_category&amp; stream_category() noexcept;
+
+  error_code make_error_code(stream_errc e) noexcept;
+  error_condition make_error_condition(stream_errc e) noexcept;
+
+  class mutable_buffer;
+  class const_buffer;
+
+  <span class='comment'>// buffer type traits:
+</span>
+  template&lt;class T&gt; struct is_mutable_buffer_sequence;
+  template&lt;class T&gt; struct is_const_buffer_sequence;
+  template&lt;class T&gt; struct is_dynamic_buffer;
+
+  template&lt;class T&gt;
+      constexpr bool is_mutable_buffer_sequence_v = is_mutable_buffer_sequence&lt;T&gt;::value;
+    template&lt;class T&gt;
+      constexpr bool is_const_buffer_sequence_v = is_const_buffer_sequence&lt;T&gt;::value;
+    template&lt;class T&gt;
+      constexpr bool is_dynamic_buffer_v = is_dynamic_buffer&lt;T&gt;::value;
+
+  <span class='comment'>// buffer sequence access:
+</span>
+  const mutable_buffer* buffer_sequence_begin(const mutable_buffer&amp; b);
+  const const_buffer* buffer_sequence_begin(const const_buffer&amp; b);
+  const mutable_buffer* buffer_sequence_end(const mutable_buffer&amp; b);
+  const const_buffer* buffer_sequence_end(const const_buffer&amp; b);
+  template&lt;class C&gt; auto buffer_sequence_begin(C&amp; c) -&gt; decltype(c.begin());
+  template&lt;class C&gt; auto buffer_sequence_begin(const C&amp; c) -&gt; decltype(c.begin());
+  template&lt;class C&gt; auto buffer_sequence_end(C&amp; c) -&gt; decltype(c.end());
+  template&lt;class C&gt; auto buffer_sequence_end(const C&amp; c) -&gt; decltype(c.end());
+
+  <span class='comment'>// buffer size:
+</span>
+  template&lt;class ConstBufferSequence&gt;
+    size_t buffer_size(const ConstBufferSequence&amp; buffers) noexcept;
+
+  <span class='comment'>// buffer copy:
+</span>
+  template&lt;class MutableBufferSequence, class ConstBufferSequence&gt;
+    size_t buffer_copy(const MutableBufferSequence&amp; dest,
+                       const ConstBufferSequence&amp; source) noexcept;
+  template&lt;class MutableBufferSequence, class ConstBufferSequence&gt;
+    size_t buffer_copy(const MutableBufferSequence&amp; dest,
+                       const ConstBufferSequence&amp; source,
+                       size_t max_size) noexcept;
+
+  <span class='comment'>// buffer arithmetic:
+</span>
+  mutable_buffer operator+(const mutable_buffer&amp; b, size_t n) noexcept;
+  mutable_buffer operator+(size_t n, const mutable_buffer&amp; b) noexcept;
+  const_buffer operator+(const const_buffer&amp;, size_t n) noexcept;
+  const_buffer operator+(size_t, const const_buffer&amp;) noexcept;
+
+  <span class='comment'>// buffer creation:
+</span>
+  mutable_buffer buffer(void* p, size_t n) noexcept;
+  const_buffer buffer(const void* p, size_t n) noexcept;
+
+  mutable_buffer buffer(const mutable_buffer&amp; b) noexcept;
+  mutable_buffer buffer(const mutable_buffer&amp; b, size_t n) noexcept;
+  const_buffer buffer(const const_buffer&amp; b) noexcept;
+  const_buffer buffer(const const_buffer&amp; b, size_t n) noexcept;
+
+  template&lt;class T, size_t N&gt;
+    mutable_buffer buffer(T (&amp;data)[N]) noexcept;
+  template&lt;class T, size_t N&gt;
+    const_buffer buffer(const T (&amp;data)[N]) noexcept;
+  template&lt;class T, size_t N&gt;
+    mutable_buffer buffer(array&lt;T, N&gt;&amp; data) noexcept;
+  template&lt;class T, size_t N&gt;
+    const_buffer buffer(array&lt;const T, N&gt;&amp; data) noexcept;
+  template&lt;class T, size_t N&gt;
+    const_buffer buffer(const array&lt;T, N&gt;&amp; data) noexcept;
+  template&lt;class T, class Allocator&gt;
+    mutable_buffer buffer(vector&lt;T, Allocator&gt;&amp; data) noexcept;
+  template&lt;class T, class Allocator&gt;
+    const_buffer buffer(const vector&lt;T, Allocator&gt;&amp; data) noexcept;
+  template&lt;class CharT, class Traits, class Allocator&gt;
+    mutable_buffer buffer(basic_string&lt;CharT, Traits, Allocator&gt;&amp; data) noexcept;
+  template&lt;class CharT, class Traits, class Allocator&gt;
+    const_buffer buffer(const basic_string&lt;CharT, Traits, Allocator&gt;&amp; data) noexcept;
+  template&lt;class CharT, class Traits&gt;
+    const_buffer buffer(basic_string_view&lt;CharT, Traits&gt; data) noexcept;
+
+  template&lt;class T, size_t N&gt;
+    mutable_buffer buffer(T (&amp;data)[N], size_t n) noexcept;
+  template&lt;class T, size_t N&gt;
+    const_buffer buffer(const T (&amp;data)[N], size_t n) noexcept;
+  template&lt;class T, size_t N&gt;
+    mutable_buffer buffer(array&lt;T, N&gt;&amp; data, size_t n) noexcept;
+  template&lt;class T, size_t N&gt;
+    const_buffer buffer(array&lt;const T, N&gt;&amp; data, size_t n) noexcept;
+  template&lt;class T, size_t N&gt;
+    const_buffer buffer(const array&lt;T, N&gt;&amp; data, size_t n) noexcept;
+  template&lt;class T, class Allocator&gt;
+    mutable_buffer buffer(vector&lt;T, Allocator&gt;&amp; data, size_t n) noexcept;
+  template&lt;class T, class Allocator&gt;
+    const_buffer buffer(const vector&lt;T, Allocator&gt;&amp; data, size_t n) noexcept;
+  template&lt;class CharT, class Traits, class Allocator&gt;
+    mutable_buffer buffer(basic_string&lt;CharT, Traits, Allocator&gt;&amp; data,
+                          size_t n) noexcept;
+  template&lt;class CharT, class Traits, class Allocator&gt;
+    const_buffer buffer(const basic_string&lt;CharT, Traits, Allocator&gt;&amp; data,
+                        size_t n) noexcept;
+  template&lt;class CharT, class Traits&gt;
+    const_buffer buffer(basic_string_view&lt;CharT, Traits&gt; data,
+                        size_t n) noexcept;
+
+  template&lt;class T, class Allocator&gt;
+    class dynamic_vector_buffer;
+
+  template&lt;class CharT, class Traits, class Allocator&gt;
+    class dynamic_string_buffer;
+
+  <span class='comment'>// dynamic buffer creation:
+</span>
+  template&lt;class T, class Allocator&gt;
+    dynamic_vector_buffer&lt;T, Allocator&gt;
+    dynamic_buffer(vector&lt;T, Allocator&gt;&amp; vec) noexcept;
+  template&lt;class T, class Allocator&gt;
+    dynamic_vector_buffer&lt;T, Allocator&gt;
+    dynamic_buffer(vector&lt;T, Allocator&gt;&amp; vec, size_t n) noexcept;
+
+  template&lt;class CharT, class Traits, class Allocator&gt;
+    dynamic_string_buffer&lt;CharT, Traits, Allocator&gt;
+    dynamic_buffer(basic_string&lt;CharT, Traits, Allocator&gt;&amp; str) noexcept;
+  template&lt;class CharT, class Traits, class Allocator&gt;
+    dynamic_string_buffer&lt;CharT, Traits, Allocator&gt;
+    dynamic_buffer(basic_string&lt;CharT, Traits, Allocator&gt;&amp; str, size_t n) noexcept;
+
+  class transfer_all;
+  class transfer_at_least;
+  class transfer_exactly;
+
+  <span class='comment'>// synchronous read operations:
+</span>
+  template&lt;class SyncReadStream, class MutableBufferSequence&gt;
+    size_t read(SyncReadStream&amp; stream,
+                const MutableBufferSequence&amp; buffers);
+  template&lt;class SyncReadStream, class MutableBufferSequence&gt;
+    size_t read(SyncReadStream&amp; stream,
+                const MutableBufferSequence&amp; buffers, error_code&amp; ec);
+  template&lt;class SyncReadStream, class MutableBufferSequence,
+    class CompletionCondition&gt;
+      size_t read(SyncReadStream&amp; stream,
+                  const MutableBufferSequence&amp; buffers,
+                  CompletionCondition completion_condition);
+  template&lt;class SyncReadStream, class MutableBufferSequence,
+    class CompletionCondition&gt;
+      size_t read(SyncReadStream&amp; stream,
+                  const MutableBufferSequence&amp; buffers,
+                  CompletionCondition completion_condition,
+                  error_code&amp; ec);
+
+  template&lt;class SyncReadStream, class DynamicBuffer&gt;
+    size_t read(SyncReadStream&amp; stream, DynamicBuffer&amp;&amp; b);
+  template&lt;class SyncReadStream, class DynamicBuffer&gt;
+    size_t read(SyncReadStream&amp; stream, DynamicBuffer&amp;&amp; b, error_code&amp; ec);
+  template&lt;class SyncReadStream, class DynamicBuffer, class CompletionCondition&gt;
+    size_t read(SyncReadStream&amp; stream, DynamicBuffer&amp;&amp; b,
+                CompletionCondition completion_condition);
+  template&lt;class SyncReadStream, class DynamicBuffer, class CompletionCondition&gt;
+    size_t read(SyncReadStream&amp; stream, DynamicBuffer&amp;&amp; b,
+                CompletionCondition completion_condition, error_code&amp; ec);
+
+  <span class='comment'>// asynchronous read operations:
+</span>
+  template&lt;class AsyncReadStream, class MutableBufferSequence,
+    class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_read(AsyncReadStream&amp; stream,
+                         const MutableBufferSequence&amp; buffers,
+                         CompletionToken&amp;&amp; token);
+  template&lt;class AsyncReadStream, class MutableBufferSequence,
+    class CompletionCondition, class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_read(AsyncReadStream&amp; stream,
+                         const MutableBufferSequence&amp; buffers,
+                         CompletionCondition completion_condition,
+                         CompletionToken&amp;&amp; token);
+
+  template&lt;class AsyncReadStream, class DynamicBuffer, class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> async_read(AsyncReadStream&amp; stream,
+                       DynamicBuffer&amp;&amp; b, CompletionToken&amp;&amp; token);
+  template&lt;class AsyncReadStream, class DynamicBuffer,
+    class CompletionCondition, class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_read(AsyncReadStream&amp; stream,
+                         DynamicBuffer&amp;&amp; b,
+                         CompletionCondition completion_condition,
+                         CompletionToken&amp;&amp; token);
+
+  <span class='comment'>// synchronous write operations:
+</span>
+  template&lt;class SyncWriteStream, class ConstBufferSequence&gt;
+    size_t write(SyncWriteStream&amp; stream,
+                 const ConstBufferSequence&amp; buffers);
+  template&lt;class SyncWriteStream, class ConstBufferSequence&gt;
+    size_t write(SyncWriteStream&amp; stream,
+                 const ConstBufferSequence&amp; buffers, error_code&amp; ec);
+  template&lt;class SyncWriteStream, class ConstBufferSequence,
+    class CompletionCondition&gt;
+      size_t write(SyncWriteStream&amp; stream,
+                   const ConstBufferSequence&amp; buffers,
+                   CompletionCondition completion_condition);
+  template&lt;class SyncWriteStream, class ConstBufferSequence,
+    class CompletionCondition&gt;
+      size_t write(SyncWriteStream&amp; stream,
+                   const ConstBufferSequence&amp; buffers,
+                   CompletionCondition completion_condition,
+                   error_code&amp; ec);
+
+  template&lt;class SyncWriteStream, class DynamicBuffer&gt;
+    size_t write(SyncWriteStream&amp; stream, DynamicBuffer&amp;&amp; b);
+  template&lt;class SyncWriteStream, class DynamicBuffer&gt;
+    size_t write(SyncWriteStream&amp; stream, DynamicBuffer&amp;&amp; b, error_code&amp; ec);
+  template&lt;class SyncWriteStream, class DynamicBuffer, class CompletionCondition&gt;
+    size_t write(SyncWriteStream&amp; stream, DynamicBuffer&amp;&amp; b,
+                 CompletionCondition completion_condition);
+  template&lt;class SyncWriteStream, class DynamicBuffer, class CompletionCondition&gt;
+    size_t write(SyncWriteStream&amp; stream, DynamicBuffer&amp;&amp; b,
+                 CompletionCondition completion_condition, error_code&amp; ec);
+
+  <span class='comment'>// asynchronous write operations:
+</span>
+  template&lt;class AsyncWriteStream, class ConstBufferSequence,
+    class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_write(AsyncWriteStream&amp; stream,
+                          const ConstBufferSequence&amp; buffers,
+                          CompletionToken&amp;&amp; token);
+  template&lt;class AsyncWriteStream, class ConstBufferSequence,
+    class CompletionCondition, class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_write(AsyncWriteStream&amp; stream,
+                          const ConstBufferSequence&amp; buffers,
+                          CompletionCondition completion_condition,
+                          CompletionToken&amp;&amp; token);
+
+  template&lt;class AsyncWriteStream, class DynamicBuffer, class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> async_write(AsyncWriteStream&amp; stream,
+                     DynamicBuffer&amp;&amp; b, CompletionToken&amp;&amp; token);
+  template&lt;class AsyncWriteStream, class DynamicBuffer,
+    class CompletionCondition, class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_write(AsyncWriteStream&amp; stream,
+                          DynamicBuffer&amp;&amp; b,
+                          CompletionCondition completion_condition,
+                          CompletionToken&amp;&amp; token);
+
+  <span class='comment'>// synchronous delimited read operations:
+</span>
+  template&lt;class SyncReadStream, class DynamicBuffer&gt;
+    size_t read_until(SyncReadStream&amp; s, DynamicBuffer&amp;&amp; b, char delim);
+  template&lt;class SyncReadStream, class DynamicBuffer&gt;
+    size_t read_until(SyncReadStream&amp; s, DynamicBuffer&amp;&amp; b,
+                      char delim, error_code&amp; ec);
+  template&lt;class SyncReadStream, class DynamicBuffer&gt;
+    size_t read_until(SyncReadStream&amp; s, DynamicBuffer&amp;&amp; b, string_view delim);
+  template&lt;class SyncReadStream, class DynamicBuffer&gt;
+    size_t read_until(SyncReadStream&amp; s, DynamicBuffer&amp;&amp; b,
+                      string_view delim, error_code&amp; ec);
+
+  <span class='comment'>// asynchronous delimited read operations:
+</span>
+  template&lt;class AsyncReadStream, class DynamicBuffer, class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> async_read_until(AsyncReadStream&amp; s,
+                             DynamicBuffer&amp;&amp; b, char delim,
+                             CompletionToken&amp;&amp; token);
+  template&lt;class AsyncReadStream, class DynamicBuffer, class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> async_read_until(AsyncReadStream&amp; s,
+                             DynamicBuffer&amp;&amp; b, string_view delim,
+                             CompletionToken&amp;&amp; token);
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>
+  template&lt;&gt; struct is_error_code_enum&lt;
+    experimental::net::v1::stream_errc&gt;
+      : public true_type {};
+
+} <span class='comment'>// namespace std
+</span></pre></div></div></body></html>

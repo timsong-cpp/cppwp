@@ -1,0 +1,123 @@
+<!DOCTYPE html><html lang='en'><head><title>[io_context.io_context]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>14</a> Basic I/O services <a class='abbr_ref' href='./#io_context'>[io_context]</a></h1><div id='io_context.io_context'><h2 ><a class='secnum' style='min-width:88pt'>14.2</a> Class <span class='texttt'>io_context</span> <a class='abbr_ref'>[io_context.io_context]</a></h2><p ><span class='indexparent'><a class='index' id='io_context'></a></span></p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  class io_context : public execution_context
+  {
+  public:
+    <span class='comment'>// types:
+</span>
+    class executor_type;
+    using count_type = <i>implementation-defined</i>;
+
+    <span class='comment'>// construct / copy / destroy:
+</span>
+    io_context();
+    explicit io_context(int concurrency_hint);
+    io_context(const io_context&amp;) = delete;
+    io_context&amp; operator=(const io_context&amp;) = delete;
+
+    <span class='comment'>// io_context operations:
+</span>
+    executor_type get_executor() noexcept;
+
+    count_type run();
+    template&lt;class Rep, class Period&gt;
+      count_type run_for(const chrono::duration&lt;Rep, Period&gt;&amp; rel_time);
+    template&lt;class Clock, class Duration&gt;
+      count_type run_until(const chrono::time_point&lt;Clock, Duration&gt;&amp; abs_time);
+
+    count_type run_one();
+    template&lt;class Rep, class Period&gt;
+      count_type run_one_for(const chrono::duration&lt;Rep, Period&gt;&amp; rel_time);
+    template&lt;class Clock, class Duration&gt;
+      count_type run_one_until(const chrono::time_point&lt;Clock, Duration&gt;&amp; abs_time);
+
+    count_type poll();
+
+    count_type poll_one();
+
+    void stop();
+
+    bool stopped() const noexcept;
+
+    void restart();
+  };
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The class <span class='texttt'>io_context</span> satisfies the ExecutionContext type requirements (<a href='async.reqmts.executioncontext'>[async.reqmts.executioncontext]</a>).</p><p ><span class='indexparent'><a class='index' id='count_type,io_context'></a></span><span class='indexparent'><a class='index' id='io_context,count_type'></a></span></p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p ><span class='texttt'>count_type</span> is an <span class='indexparent'><a class='index' id='type_of_io_context::count_type'></a></span>implementation-defined
+unsigned integral type of at least 32 bits.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >The <span class='texttt'>io_context</span> member functions <span class='texttt'>run</span>, <span class='texttt'>run_for</span>, <span class='texttt'>run_until</span>, <span class='texttt'>run_one</span>, <span class='texttt'>run_one_for</span>, <span class='texttt'>run_one_until</span>, <span class='texttt'>poll</span>, and <span class='texttt'>poll_one</span> are collectively referred to as the <a class='hidden_link' href='#def:run_functions' id='def:run_functions'><i>run functions</i></a>. The run functions must be called for the <span class='texttt'>io_context</span> to perform asynchronous operations (<a href='defs.async.op'>[defs.async.op]</a>) on behalf of a C++ program. Notification that an asynchronous operation has completed is delivered by execution of the associated completion handler function object, as determined by the requirements for asynchronous operations (<a href='async.reqmts.async'>[async.reqmts.async]</a>).</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >For an object of type <span class='texttt'>io_context</span>, <a class='hidden_link' href='#def:outstanding_work' id='def:outstanding_work'><i>outstanding work</i></a> is defined as the sum of:</p><ul class='itemize'><li id='4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.1'>(4.1)</a></div><p >the total number of calls to the <span class='texttt'>on_work_started</span> function, less the total number of calls to the <span class='texttt'>on_work_finished</span> function, to any executor of the <span class='texttt'>io_context</span>.
+</p></li><li id='4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.2'>(4.2)</a></div><p >the number of function objects that have been added to the <span class='texttt'>io_context</span> via any executor of the <span class='texttt'>io_context</span>, but not yet executed; and
+</p></li><li id='4.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#4.3'>(4.3)</a></div><p >the number of function objects that are currently being executed by the <span class='texttt'>io_context</span>.
+</p></li></ul></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >If at any time the outstanding work falls to <span class='texttt'>0</span>, the <span class='texttt'>io_context</span> is stopped as if by <span class='texttt'>stop()</span>.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >The <span class='texttt'>io_context</span> member functions <span class='texttt'>get_executor</span>, <span class='texttt'>stop</span>, and <span class='texttt'>stopped</span>, the run functions, and the <span class='texttt'>io_context::executor_type</span> copy constructors, member functions and comparison operators, do not introduce data races as a result of concurrent calls to those functions from different threads of execution. [&nbsp;<i>Note:</i> The <span class='texttt'>restart</span> member function is excluded from these thread safety requirements. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div id='members'><h3 ><a class='secnum' href='#members' style='min-width:103pt'>14.2.1</a> <span class='texttt'>io_context</span> members <a class='abbr_ref' href='io_context.io_context.members'>[io_context.io_context.members]</a></h3><p ><span class='indexparent'><a class='index' id='io_context,constructor'></a></span><code class='itemdecl'>
+io_context();
+explicit io_context(int concurrency_hint);
+</code></p><div class='itemdescr'></div><div class='para' id='members-1'><div class='marginalizedparent'><a class='marginalized' href='#members-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Creates an object of class <span class='texttt'>io_context</span>.</p></div></div><div class='para' id='members-2'><div class='marginalizedparent'><a class='marginalized' href='#members-2'>2</a></div><div class='itemdescr'><p ><i>Remarks:</i> The <span class='texttt'>concurrency_hint</span> parameter is a suggestion to the implementation on the number of threads that should process asynchronous operations and execute function objects.
+</p></div></div><p ><span class='indexparent'><a class='index' id='get_executor,io_context'></a></span><span class='indexparent'><a class='index' id='io_context,get_executor'></a></span><code class='itemdecl'>
+executor_type get_executor() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='members-3'><div class='marginalizedparent'><a class='marginalized' href='#members-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> An executor that may be used for submitting function objects to the <span class='texttt'>io_context</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='run,io_context'></a></span><span class='indexparent'><a class='index' id='io_context,run'></a></span><code class='itemdecl'>
+count_type run();
+</code></p><div class='itemdescr'></div><div class='para' id='members-4'><div class='marginalizedparent'><a class='marginalized' href='#members-4'>4</a></div><div class='itemdescr'><p ><i>Requires:</i> Must not be called from a thread that is currently calling a run function.</p></div></div><div class='para' id='members-5'><div class='marginalizedparent'><a class='marginalized' href='#members-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to:
+</p><pre class='codeblock'>
+count_type n = 0;
+while (run_one())
+  if (n != numeric_limits&lt;count_type&gt;::max())
+    ++n;
+</pre></div></div><div class='para' id='members-6'><div class='marginalizedparent'><a class='marginalized' href='#members-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>n</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='run_for,io_context'></a></span><span class='indexparent'><a class='index' id='io_context,run_for'></a></span><code class='itemdecl'>
+template&lt;class Rep, class Period&gt;
+  count_type run_for(const chrono::duration&lt;Rep, Period&gt;&amp; rel_time);
+</code></p><div class='itemdescr'></div><div class='para' id='members-7'><div class='marginalizedparent'><a class='marginalized' href='#members-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to:
+</p><pre class='codeblock'>
+return run_until(chrono::steady_clock::now() + rel_time);
+</pre></div></div><p ><span class='indexparent'><a class='index' id='run_until,io_context'></a></span><span class='indexparent'><a class='index' id='io_context,run_until'></a></span><code class='itemdecl'>
+template&lt;class Clock, class Duration&gt;
+  count_type run_until(const chrono::time_point&lt;Clock, Duration&gt;&amp; abs_time);
+</code></p><div class='itemdescr'></div><div class='para' id='members-8'><div class='marginalizedparent'><a class='marginalized' href='#members-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to:
+</p><pre class='codeblock'>
+count_type n = 0;
+while (run_one_until(abs_time))
+  if (n != numeric_limits&lt;count_type&gt;::max())
+    ++n;
+</pre></div></div><div class='para' id='members-9'><div class='marginalizedparent'><a class='marginalized' href='#members-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>n</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='run_one,io_context'></a></span><span class='indexparent'><a class='index' id='io_context,run_one'></a></span><code class='itemdecl'>
+count_type run_one();
+</code></p><div class='itemdescr'></div><div class='para' id='members-10'><div class='marginalizedparent'><a class='marginalized' href='#members-10'>10</a></div><div class='itemdescr'><p ><i>Requires:</i> Must not be called from a thread that is currently calling a run function.</p></div></div><div class='para' id='members-11'><div class='marginalizedparent'><a class='marginalized' href='#members-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> If the <span class='texttt'>io_context</span> object has no outstanding work, performs <span class='texttt'>stop()</span>. Otherwise, blocks while the io_context has outstanding work, or until the <span class='texttt'>io_context</span> is stopped, or until one function object has been executed.</p></div></div><div class='para' id='members-12'><div class='marginalizedparent'><a class='marginalized' href='#members-12'>12</a></div><div class='itemdescr'><p >If an executed function object throws an exception, the exception propagates to the caller of <span class='texttt'>run_one()</span>. The <span class='texttt'>io_context</span> state is as if the function object had returned normally.</p></div></div><div class='para' id='members-13'><div class='marginalizedparent'><a class='marginalized' href='#members-13'>13</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>1</span> if a function object was executed, otherwise <span class='texttt'>0</span>.</p></div></div><div class='para' id='members-14'><div class='marginalizedparent'><a class='marginalized' href='#members-14'>14</a></div><div class='itemdescr'><p >Notes: This function may invoke additional function objects through nested calls to the <span class='texttt'>io_context</span> executor's <span class='texttt'>dispatch</span> member function. These do not count towards the return value.
+</p></div></div><p ><span class='indexparent'><a class='index' id='run_one_for,io_context'></a></span><span class='indexparent'><a class='index' id='io_context,run_one_for'></a></span><code class='itemdecl'>
+template&lt;class Rep, class Period&gt;
+  count_type run_one_for(const chrono::duration&lt;Rep, Period&gt;&amp; rel_time);
+</code></p><div class='itemdescr'></div><div class='para' id='members-15'><div class='marginalizedparent'><a class='marginalized' href='#members-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to:
+</p><pre class='codeblock'>
+return run_one_until(chrono::steady_clock::now() + rel_time);
+</pre></div></div><p ><span class='indexparent'><a class='index' id='run_one_until,io_context'></a></span><span class='indexparent'><a class='index' id='io_context,run_one_until'></a></span><code class='itemdecl'>
+template&lt;class Clock, class Duration&gt;
+  count_type run_one_until(const chrono::time_point&lt;Clock, Duration&gt;&amp; abs_time);
+</code></p><div class='itemdescr'></div><div class='para' id='members-16'><div class='marginalizedparent'><a class='marginalized' href='#members-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i> If the <span class='texttt'>io_context</span> object has no outstanding work, performs <span class='texttt'>stop()</span>. Otherwise, blocks while the io_context has outstanding work, or until the expiration of the absolute timeout (C++Std &sect;<a href='../n4140/thread.req.timing'>[thread.req.timing]</a>) specified by <span class='texttt'>abs_time</span>, or until the <span class='texttt'>io_context</span> is stopped, or until one function object has been executed.</p></div></div><div class='para' id='members-17'><div class='marginalizedparent'><a class='marginalized' href='#members-17'>17</a></div><div class='itemdescr'><p >If an executed function object throws an exception, the exception propagates to the caller of <span class='texttt'>run_one()</span>. The <span class='texttt'>io_context</span> state is as if the function object had returned normally.</p></div></div><div class='para' id='members-18'><div class='marginalizedparent'><a class='marginalized' href='#members-18'>18</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>1</span> if a function object was executed, otherwise <span class='texttt'>0</span>.</p></div></div><div class='para' id='members-19'><div class='marginalizedparent'><a class='marginalized' href='#members-19'>19</a></div><div class='itemdescr'><p >Notes: This function may invoke additional function objects through nested calls to the <span class='texttt'>io_context</span> executor's <span class='texttt'>dispatch</span> member function. These do not count towards the return value.
+</p></div></div><p ><span class='indexparent'><a class='index' id='poll,io_context'></a></span><span class='indexparent'><a class='index' id='io_context,poll'></a></span><code class='itemdecl'>
+count_type poll();
+</code></p><div class='itemdescr'></div><div class='para' id='members-20'><div class='marginalizedparent'><a class='marginalized' href='#members-20'>20</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to:
+</p><pre class='codeblock'>
+count_type n = 0;
+while (poll_one())
+  if (n != numeric_limits&lt;count_type&gt;::max())
+    ++n;
+</pre></div></div><div class='para' id='members-21'><div class='marginalizedparent'><a class='marginalized' href='#members-21'>21</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>n</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='poll_one,io_context'></a></span><span class='indexparent'><a class='index' id='io_context,poll_one'></a></span><code class='itemdecl'>
+count_type poll_one();
+</code></p><div class='itemdescr'></div><div class='para' id='members-22'><div class='marginalizedparent'><a class='marginalized' href='#members-22'>22</a></div><div class='itemdescr'><p ><i>Effects:</i> If the <span class='texttt'>io_context</span> object has no outstanding work, performs <span class='texttt'>stop()</span>. Otherwise, if there is a function object ready for immediate execution, executes it.</p></div></div><div class='para' id='members-23'><div class='marginalizedparent'><a class='marginalized' href='#members-23'>23</a></div><div class='itemdescr'><p >If an executed function object throws an exception, the exception propagates to the caller of <span class='texttt'>poll_one()</span>. The <span class='texttt'>io_context</span> state is as if the function object had returned normally.</p></div></div><div class='para' id='members-24'><div class='marginalizedparent'><a class='marginalized' href='#members-24'>24</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>1</span> if a function object was invoked, otherwise <span class='texttt'>0</span>.</p></div></div><div class='para' id='members-25'><div class='marginalizedparent'><a class='marginalized' href='#members-25'>25</a></div><div class='itemdescr'><p >Notes: This function may invoke additional function objects through nested calls to the <span class='texttt'>io_context</span> executor's <span class='texttt'>dispatch</span> member function. These do not count towards the return value.
+</p></div></div><p ><span class='indexparent'><a class='index' id='stop,io_context'></a></span><span class='indexparent'><a class='index' id='io_context,stop'></a></span><code class='itemdecl'>
+void stop();
+</code></p><div class='itemdescr'></div><div class='para' id='members-26'><div class='marginalizedparent'><a class='marginalized' href='#members-26'>26</a></div><div class='itemdescr'><p ><i>Effects:</i> Stops the <span class='texttt'>io_context</span>. Concurrent calls to any run function will end as soon as possible. If a call to a run function is currently executing a function object, the call will end only after completion of that function object. The call to <span class='texttt'>stop()</span> returns without waiting for concurrent calls to run functions to complete.</p></div></div><div class='para' id='members-27'><div class='marginalizedparent'><a class='marginalized' href='#members-27'>27</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>stopped() == true</span>.</p></div></div><div class='para' id='members-28'><div class='marginalizedparent'><a class='marginalized' href='#members-28'>28</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> When <span class='texttt'>stopped() == true</span>, subsequent calls to a run function will exit immediately with a return value of <span class='texttt'>0</span>, without executing any function objects. An <span class='texttt'>io_context</span> remains in the stopped state until a call to <span class='texttt'>restart()</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><span class='indexparent'><a class='index' id='stopped,io_context'></a></span><span class='indexparent'><a class='index' id='io_context,stopped'></a></span><code class='itemdecl'>
+bool stopped() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='members-29'><div class='marginalizedparent'><a class='marginalized' href='#members-29'>29</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>true</span> if the <span class='texttt'>io_context</span> is stopped.
+</p></div></div><p ><span class='indexparent'><a class='index' id='restart,io_context'></a></span><span class='indexparent'><a class='index' id='io_context,restart'></a></span><code class='itemdecl'>
+void restart();
+</code></p><div class='itemdescr'></div><div class='para' id='members-30'><div class='marginalizedparent'><a class='marginalized' href='#members-30'>30</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>stopped() == false</span>.
+</p></div></div></div></div></div></body></html>

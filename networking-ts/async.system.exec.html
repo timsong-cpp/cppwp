@@ -1,0 +1,55 @@
+<!DOCTYPE html><html lang='en'><head><title>[async.system.exec]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>13</a> Asynchronous model <a class='abbr_ref' href='./#async'>[async]</a></h1><div id='async.system.exec'><h2 ><a class='secnum' style='min-width:88pt'>13.18</a> Class <span class='texttt'>system_executor</span> <a class='abbr_ref'>[async.system.exec]</a></h2><p ><span class='indexparent'><a class='index' id='system_executor'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Class <span class='texttt'>system_executor</span> represents a set of rules where function objects are permitted to execute on any thread.</p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  class system_executor
+  {
+  public:
+    <span class='comment'>// constructors:
+</span>
+    system_executor() {}
+
+    <span class='comment'>// executor operations:
+</span>
+    system_context&amp; context() const noexcept;
+
+    void on_work_started() const noexcept {}
+    void on_work_finished() const noexcept {}
+
+    template&lt;class Func, class ProtoAllocator&gt;
+      void dispatch(Func&amp;&amp; f, const ProtoAllocator&amp; a) const;
+    template&lt;class Func, class ProtoAllocator&gt;
+      void post(Func&amp;&amp; f, const ProtoAllocator&amp; a) const;
+    template&lt;class Func, class ProtoAllocator&gt;
+      void defer(Func&amp;&amp; f, const ProtoAllocator&amp; a) const;
+  };
+
+  bool operator==(const system_executor&amp;, const system_executor&amp;) noexcept;
+  bool operator!=(const system_executor&amp;, const system_executor&amp;) noexcept;
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Class <span class='texttt'>system_executor</span> satisfies the <span class='texttt'>Destructible</span> (C++Std &sect;<a href='../n4140/destructible'>[destructible]</a>), <span class='texttt'>DefaultConstructible</span> (C++Std &sect;<a href='../n4140/defaultconstructible'>[defaultconstructible]</a>), and <span class='texttt'>Executor</span> (<a href='async.reqmts.executor'>[async.reqmts.executor]</a>) type requirements.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >To satisfy the <span class='texttt'>Executor</span> requirements for the <span class='texttt'>post</span> and <span class='texttt'>defer</span> member functions, the system executor may create <span class='texttt'>thread</span> objects to run the submitted function objects. These <span class='texttt'>thread</span> objects are collectively referred to as system threads.</p></div><div id='ops'><h3 ><a class='secnum' href='#ops' style='min-width:103pt'>13.18.1</a> <span class='texttt'>system_executor</span> operations <a class='abbr_ref' href='async.system.exec.ops'>[async.system.exec.ops]</a></h3><p ><span class='indexparent'><a class='index' id='context,system_executor'></a></span><span class='indexparent'><a class='index' id='system_executor,context'></a></span><code class='itemdecl'>
+system_context&amp; context() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='ops-1'><div class='marginalizedparent'><a class='marginalized' href='#ops-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> A reference to an object with static storage duration. All calls to this function return references to the same object.
+</p></div></div><p ><span class='indexparent'><a class='index' id='dispatch,system_executor'></a></span><span class='indexparent'><a class='index' id='system_executor,dispatch'></a></span><code class='itemdecl'>
+template&lt;class Func, class ProtoAllocator&gt;
+  void dispatch(Func&amp;&amp; f, const ProtoAllocator&amp; a) const;
+</code></p><div class='itemdescr'></div><div class='para' id='ops-2'><div class='marginalizedparent'><a class='marginalized' href='#ops-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'><i>DECAY_COPY</i>(forward&lt;Func&gt;(f))()</span> (C++Std &sect;<a href='../n4140/thread.decaycopy'>[thread.decaycopy]</a>).
+</p></div></div><p ><span class='indexparent'><a class='index' id='post,system_executor'></a></span><span class='indexparent'><a class='index' id='system_executor,post'></a></span><span class='indexparent'><a class='index' id='defer,system_executor'></a></span><span class='indexparent'><a class='index' id='system_executor,defer'></a></span><code class='itemdecl'>
+template&lt;class Func, class ProtoAllocator&gt;
+  void post(Func&amp;&amp; f, const ProtoAllocator&amp; a) const;
+template&lt;class Func, class ProtoAllocator&gt;
+  void defer(Func&amp;&amp; f, const ProtoAllocator&amp; a) const;
+</code></p><div class='itemdescr'></div><div class='para' id='ops-3'><div class='marginalizedparent'><a class='marginalized' href='#ops-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>context().stopped() == false</span>, creates an object <span class='texttt'>f1</span> initialized with <span class='texttt'><i>DECAY_COPY</i>(forward&lt;Func&gt;(f))</span>, and calls <span class='texttt'>f1</span> as if in a thread of execution represented by a <span class='texttt'>thread</span> object. Any exception propagated from the execution of <span class='texttt'><i>DECAY_COPY</i>(forward&lt;Func&gt;(f))()</span> results in a call to <span class='texttt'>std::terminate</span>.
+</p></div></div></div><div id='comparisons'><h3 ><a class='secnum' href='#comparisons' style='min-width:103pt'>13.18.2</a> <span class='texttt'>system_executor</span> comparisons <a class='abbr_ref' href='async.system.exec.comparisons'>[async.system.exec.comparisons]</a></h3><p ><span class='indexparent'><a class='index' id='operator==,system_executor'></a></span><span class='indexparent'><a class='index' id='system_executor,operator=='></a></span><code class='itemdecl'>
+bool operator==(const system_executor&amp;, const system_executor&amp;) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-1'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>true</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator!=,system_executor'></a></span><span class='indexparent'><a class='index' id='system_executor,operator!='></a></span><code class='itemdecl'>
+bool operator!=(const system_executor&amp;, const system_executor&amp;) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-2'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>false</span>.
+</p></div></div></div></div></div></body></html>

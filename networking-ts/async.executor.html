@@ -1,0 +1,173 @@
+<!DOCTYPE html><html lang='en'><head><title>[async.executor]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>13</a> Asynchronous model <a class='abbr_ref' href='./#async'>[async]</a></h1><div id='async.executor'><h2 ><a class='secnum' style='min-width:88pt'>13.21</a> Class <span class='texttt'>executor</span> <a class='abbr_ref'>[async.executor]</a></h2><p ><span class='indexparent'><a class='index' id='executor'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The <span class='texttt'>executor</span> class provides a polymorphic wrapper for types that satisfy the Executor requirements (<a href='async.reqmts.executor'>[async.reqmts.executor]</a>).</p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  class executor
+  {
+  public:
+    <span class='comment'>// construct / copy / destroy:
+</span>
+    executor() noexcept;
+    executor(nullptr_t) noexcept;
+    executor(const executor&amp; e) noexcept;
+    executor(executor&amp;&amp; e) noexcept;
+    template&lt;class Executor&gt; executor(Executor e);
+    template&lt;class Executor, class ProtoAllocator&gt;
+      executor(allocator_arg_t, const ProtoAllocator&amp; a, Executor e);
+
+    executor&amp; operator=(const executor&amp; e) noexcept;
+    executor&amp; operator=(executor&amp;&amp; e) noexcept;
+    executor&amp; operator=(nullptr_t) noexcept;
+    template&lt;class Executor&gt; executor&amp; operator=(Executor e);
+
+    ~executor();
+
+    <span class='comment'>// executor modifiers:
+</span>
+    void swap(executor&amp; other) noexcept;
+    template&lt;class Executor, class ProtoAllocator&gt;
+      void assign(Executor e, const ProtoAllocator&amp; a);
+
+    <span class='comment'>// executor operations:
+</span>
+    execution_context&amp; context() const noexcept;
+
+    void on_work_started() const noexcept;
+    void on_work_finished() const noexcept;
+
+    template&lt;class Func, class ProtoAllocator&gt;
+      void dispatch(Func&amp;&amp; f, const ProtoAllocator&amp; a) const;
+    template&lt;class Func, class ProtoAllocator&gt;
+      void post(Func&amp;&amp; f, const ProtoAllocator&amp; a) const;
+    template&lt;class Func, class ProtoAllocator&gt;
+      void defer(Func&amp;&amp; f, const ProtoAllocator&amp; a) const;
+
+    <span class='comment'>// executor capacity:
+</span>
+    explicit operator bool() const noexcept;
+
+    <span class='comment'>// executor target access:
+</span>
+    const type_info&amp; target_type() const noexcept;
+    template&lt;class Executor&gt; Executor* target() noexcept;
+    template&lt;class Executor&gt; const Executor* target() const noexcept;
+  };
+
+  <span class='comment'>// executor comparisons:
+</span>
+  bool operator==(const executor&amp; a, const executor&amp; b) noexcept;
+  bool operator==(const executor&amp; e, nullptr_t) noexcept;
+  bool operator==(nullptr_t, const executor&amp; e) noexcept;
+  bool operator!=(const executor&amp; a, const executor&amp; b) noexcept;
+  bool operator!=(const executor&amp; e, nullptr_t) noexcept;
+  bool operator!=(nullptr_t, const executor&amp; e) noexcept;
+
+  <span class='comment'>// executor specialized algorithms:
+</span>
+  void swap(executor&amp; a, executor&amp; b) noexcept;
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>
+  template&lt;class Allocator&gt;
+    struct uses_allocator&lt;experimental::net::v1::executor, Allocator&gt;
+      : true_type {};
+
+} <span class='comment'>// namespace std
+</span></pre></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Class <span class='texttt'>executor</span> meets the requirements of <span class='texttt'>Executor</span> (<a href='async.reqmts.executor'>[async.reqmts.executor]</a>), <span class='texttt'>DefaultConstructible</span> (C++Std &sect;<a href='../n4140/defaultconstructible'>[defaultconstructible]</a>), and <span class='texttt'>CopyAssignable</span> (C++Std &sect;<a href='../n4140/copyassignable'>[copyassignable]</a>).</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >[&nbsp;<i>Note:</i> To meet the <span class='texttt'>noexcept</span> requirements for executor copy constructors and move constructors, implementations may share a target between two or more <span class='texttt'>executor</span> objects. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >The <a class='hidden_link' href='#def:target,executor' id='def:target,executor'><i>target</i></a> is the executor object that is held by the wrapper.</p></div><div id='cons'><h3 ><a class='secnum' href='#cons' style='min-width:103pt'>13.21.1</a> <span class='texttt'>executor</span> constructors <a class='abbr_ref' href='async.executor.cons'>[async.executor.cons]</a></h3><p ><span class='indexparent'><a class='index' id='executor,constructor'></a></span><code class='itemdecl'>
+executor() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='cons-1'><div class='marginalizedparent'><a class='marginalized' href='#cons-1'>1</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>!*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='executor,constructor'></a></span><code class='itemdecl'>
+executor(nullptr_t) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='cons-2'><div class='marginalizedparent'><a class='marginalized' href='#cons-2'>2</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>!*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='executor,constructor'></a></span><code class='itemdecl'>
+executor(const executor&amp; e) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='cons-3'><div class='marginalizedparent'><a class='marginalized' href='#cons-3'>3</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>!*this</span> if <span class='texttt'>!e</span>; otherwise, <span class='texttt'>*this</span> targets <span class='texttt'>e.target()</span> or a copy of <span class='texttt'>e.target()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='executor,constructor'></a></span><code class='itemdecl'>
+executor(executor&amp;&amp; e) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='cons-4'><div class='marginalizedparent'><a class='marginalized' href='#cons-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>!e</span>, <span class='texttt'>*this</span> has no target; otherwise, moves <span class='texttt'>e.target()</span> or move-constructs the target of <span class='texttt'>e</span> into the target of <span class='texttt'>*this</span>, leaving <span class='texttt'>e</span> in a valid state with an unspecified value.
+</p></div></div><p ><span class='indexparent'><a class='index' id='executor,constructor'></a></span><code class='itemdecl'>
+template&lt;class Executor&gt; executor(Executor e);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-5'><div class='marginalizedparent'><a class='marginalized' href='#cons-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>*this</span> targets a copy of <span class='texttt'>e</span> initialized with <span class='texttt'>std::move(e)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='executor,constructor'></a></span><code class='itemdecl'>
+template&lt;class Executor, class ProtoAllocator&gt;
+  executor(allocator_arg_t, const ProtoAllocator&amp; a, Executor e);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-6'><div class='marginalizedparent'><a class='marginalized' href='#cons-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>*this</span> targets a copy of <span class='texttt'>e</span> initialized with <span class='texttt'>std::move(e)</span>.</p></div></div><div class='para' id='cons-7'><div class='marginalizedparent'><a class='marginalized' href='#cons-7'>7</a></div><div class='itemdescr'><p >A copy of the allocator argument is used to allocate memory, if necessary, for the internal data structures of the constructed <span class='texttt'>executor</span> object.
+</p></div></div></div><div id='assign'><h3 ><a class='secnum' href='#assign' style='min-width:103pt'>13.21.2</a> <span class='texttt'>executor</span> assignment <a class='abbr_ref' href='async.executor.assign'>[async.executor.assign]</a></h3><p ><span class='indexparent'><a class='index' id='operator=,executor'></a></span><span class='indexparent'><a class='index' id='executor,operator='></a></span><code class='itemdecl'>
+executor&amp; operator=(const executor&amp; e) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='assign-1'><div class='marginalizedparent'><a class='marginalized' href='#assign-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>executor(e).swap(*this)</span>.</p></div></div><div class='para' id='assign-2'><div class='marginalizedparent'><a class='marginalized' href='#assign-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=,executor'></a></span><span class='indexparent'><a class='index' id='executor,operator='></a></span><code class='itemdecl'>
+executor&amp; operator=(executor&amp;&amp; e) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='assign-3'><div class='marginalizedparent'><a class='marginalized' href='#assign-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Replaces the target of <span class='texttt'>*this</span> with the target of <span class='texttt'>e</span>, leaving <span class='texttt'>e</span> in a valid state with an unspecified value.</p></div></div><div class='para' id='assign-4'><div class='marginalizedparent'><a class='marginalized' href='#assign-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=,executor'></a></span><span class='indexparent'><a class='index' id='executor,operator='></a></span><code class='itemdecl'>
+executor&amp; operator=(nullptr_t) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='assign-5'><div class='marginalizedparent'><a class='marginalized' href='#assign-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>executor(nullptr).swap(*this)</span>.</p></div></div><div class='para' id='assign-6'><div class='marginalizedparent'><a class='marginalized' href='#assign-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator=,executor'></a></span><span class='indexparent'><a class='index' id='executor,operator='></a></span><code class='itemdecl'>
+template&lt;class Executor&gt; executor&amp; operator=(Executor e);
+</code></p><div class='itemdescr'></div><div class='para' id='assign-7'><div class='marginalizedparent'><a class='marginalized' href='#assign-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>executor(std::move(e)).swap(*this)</span>.</p></div></div><div class='para' id='assign-8'><div class='marginalizedparent'><a class='marginalized' href='#assign-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div></div><div id='dtor'><h3 ><a class='secnum' href='#dtor' style='min-width:103pt'>13.21.3</a> <span class='texttt'>executor</span> destructor <a class='abbr_ref' href='async.executor.dtor'>[async.executor.dtor]</a></h3><p ><span class='indexparent'><a class='index' id='executor,destructor'></a></span><code class='itemdecl'>
+~executor();
+</code></p><div class='itemdescr'></div><div class='para' id='dtor-1'><div class='marginalizedparent'><a class='marginalized' href='#dtor-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>*this != nullptr</span>, releases shared ownership of, or destroys, the target of <span class='texttt'>*this</span>.
+</p></div></div></div><div id='modifiers'><h3 ><a class='secnum' href='#modifiers' style='min-width:103pt'>13.21.4</a> <span class='texttt'>executor</span> modifiers <a class='abbr_ref' href='async.executor.modifiers'>[async.executor.modifiers]</a></h3><p ><span class='indexparent'><a class='index' id='swap,executor'></a></span><span class='indexparent'><a class='index' id='executor,swap'></a></span><code class='itemdecl'>
+void swap(executor&amp; other) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='modifiers-1'><div class='marginalizedparent'><a class='marginalized' href='#modifiers-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Interchanges the targets of <span class='texttt'>*this</span> and <span class='texttt'>other</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='assign,executor'></a></span><span class='indexparent'><a class='index' id='executor,assign'></a></span><code class='itemdecl'>
+template&lt;class Executor, class ProtoAllocator&gt;
+  void assign(Executor e, const ProtoAllocator&amp; a);
+</code></p><div class='itemdescr'></div><div class='para' id='modifiers-2'><div class='marginalizedparent'><a class='marginalized' href='#modifiers-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>executor(allocator_arg, a, std::move(e)).swap(*this)</span>.
+</p></div></div></div><div id='ops'><h3 ><a class='secnum' href='#ops' style='min-width:103pt'>13.21.5</a> <span class='texttt'>executor</span> operations <a class='abbr_ref' href='async.executor.ops'>[async.executor.ops]</a></h3><p ><span class='indexparent'><a class='index' id='context,executor'></a></span><span class='indexparent'><a class='index' id='executor,context'></a></span><code class='itemdecl'>
+execution_context&amp; context() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='ops-1'><div class='marginalizedparent'><a class='marginalized' href='#ops-1'>1</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>*this != nullptr</span>.</p></div></div><div class='para' id='ops-2'><div class='marginalizedparent'><a class='marginalized' href='#ops-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>e.context()</span>, where <span class='texttt'>e</span> is the target object of <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='on_work_started,executor'></a></span><span class='indexparent'><a class='index' id='executor,on_work_started'></a></span><code class='itemdecl'>
+void on_work_started() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='ops-3'><div class='marginalizedparent'><a class='marginalized' href='#ops-3'>3</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>*this != nullptr</span>.</p></div></div><div class='para' id='ops-4'><div class='marginalizedparent'><a class='marginalized' href='#ops-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>e.on_work_started()</span>, where <span class='texttt'>e</span> is the target object of <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='on_work_finished,executor'></a></span><span class='indexparent'><a class='index' id='executor,on_work_finished'></a></span><code class='itemdecl'>
+void on_work_finished() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='ops-5'><div class='marginalizedparent'><a class='marginalized' href='#ops-5'>5</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>*this != nullptr</span>.</p></div></div><div class='para' id='ops-6'><div class='marginalizedparent'><a class='marginalized' href='#ops-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>e.on_work_finished()</span>, where <span class='texttt'>e</span> is the target object of <span class='texttt'>*this</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='dispatch,executor'></a></span><span class='indexparent'><a class='index' id='executor,dispatch'></a></span><code class='itemdecl'>
+template&lt;class Func, class ProtoAllocator&gt;
+  void dispatch(Func&amp;&amp; f, const ProtoAllocator&amp; a) const;
+</code></p><div class='itemdescr'></div><div class='para' id='ops-7'><div class='marginalizedparent'><a class='marginalized' href='#ops-7'>7</a></div><div class='itemdescr'><p >Let <span class='texttt'>e</span> be the target object of <span class='texttt'>*this</span>. Let <span class='texttt'>a1</span> be the allocator that was specified when the target was set. Let <span class='texttt'>fd</span> be the result of <span class='texttt'><i>DECAY_COPY</i>(f)</span> (C++Std &sect;<a href='../n4140/thread.decaycopy'>[thread.decaycopy]</a>).</p></div></div><div class='para' id='ops-8'><div class='marginalizedparent'><a class='marginalized' href='#ops-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>e.dispatch(g, a1)</span>, where <span class='texttt'>g</span> is a function object of unspecified type that, when called as <span class='texttt'>g()</span>, performs <span class='texttt'>fd()</span>. The allocator <span class='texttt'>a</span> is used to allocate any memory required to implement <span class='texttt'>g</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='post,executor'></a></span><span class='indexparent'><a class='index' id='executor,post'></a></span><code class='itemdecl'>
+template&lt;class Func, class ProtoAllocator&gt;
+  void post(Func&amp;&amp; f, const ProtoAllocator&amp; a) const;
+</code></p><div class='itemdescr'></div><div class='para' id='ops-9'><div class='marginalizedparent'><a class='marginalized' href='#ops-9'>9</a></div><div class='itemdescr'><p >Let <span class='texttt'>e</span> be the target object of <span class='texttt'>*this</span>. Let <span class='texttt'>a1</span> be the allocator that was specified when the target was set. Let <span class='texttt'>fd</span> be the result of <span class='texttt'><i>DECAY_COPY</i>(f)</span>.</p></div></div><div class='para' id='ops-10'><div class='marginalizedparent'><a class='marginalized' href='#ops-10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>e.post(g, a1)</span>, where <span class='texttt'>g</span> is a function object of unspecified type that, when called as <span class='texttt'>g()</span>, performs <span class='texttt'>fd()</span>. The allocator <span class='texttt'>a</span> is used to allocate any memory required to implement <span class='texttt'>g</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='defer,executor'></a></span><span class='indexparent'><a class='index' id='executor,defer'></a></span><code class='itemdecl'>
+template&lt;class Func, class ProtoAllocator&gt;
+  void defer(Func&amp;&amp; f, const ProtoAllocator&amp; a) const;
+</code></p><div class='itemdescr'></div><div class='para' id='ops-11'><div class='marginalizedparent'><a class='marginalized' href='#ops-11'>11</a></div><div class='itemdescr'><p >Let <span class='texttt'>e</span> be the target object of <span class='texttt'>*this</span>. Let <span class='texttt'>a1</span> be the allocator that was specified when the target was set. Let <span class='texttt'>fd</span> be the result of <span class='texttt'><i>DECAY_COPY</i>(f)</span>.</p></div></div><div class='para' id='ops-12'><div class='marginalizedparent'><a class='marginalized' href='#ops-12'>12</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>e.defer(g, a1)</span>, where <span class='texttt'>g</span> is a function object of unspecified type that, when called as <span class='texttt'>g()</span>, performs <span class='texttt'>fd()</span>. The allocator <span class='texttt'>a</span> is used to allocate any memory required to implement <span class='texttt'>g</span>.
+</p></div></div></div><div id='capacity'><h3 ><a class='secnum' href='#capacity' style='min-width:103pt'>13.21.6</a> <span class='texttt'>executor</span> capacity <a class='abbr_ref' href='async.executor.capacity'>[async.executor.capacity]</a></h3><p ><span class='indexparent'><a class='index' id='operator_bool,executor'></a></span><span class='indexparent'><a class='index' id='executor,operator_bool'></a></span><code class='itemdecl'>
+explicit operator bool() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='capacity-1'><div class='marginalizedparent'><a class='marginalized' href='#capacity-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>true</span> if <span class='texttt'>*this</span> has a target, otherwise <span class='texttt'>false</span>.
+</p></div></div></div><div id='target'><h3 ><a class='secnum' href='#target' style='min-width:103pt'>13.21.7</a> <span class='texttt'>executor</span> target access <a class='abbr_ref' href='async.executor.target'>[async.executor.target]</a></h3><p ><span class='indexparent'><a class='index' id='target_type,executor'></a></span><span class='indexparent'><a class='index' id='executor,target_type'></a></span><code class='itemdecl'>
+const type_info&amp; target_type() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='target-1'><div class='marginalizedparent'><a class='marginalized' href='#target-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> If <span class='texttt'>*this</span> has a target of type <span class='texttt'>T</span>, <span class='texttt'>typeid(T)</span>; otherwise, <span class='texttt'>typeid(void)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='target,executor'></a></span><span class='indexparent'><a class='index' id='executor,target'></a></span><code class='itemdecl'>
+template&lt;class Executor&gt; Executor* target() noexcept;
+template&lt;class Executor&gt; const Executor* target() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='target-2'><div class='marginalizedparent'><a class='marginalized' href='#target-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> If <span class='texttt'>target_type() == typeid(Executor)</span> a pointer to the stored executor target; otherwise a null pointer value.
+</p></div></div></div><div id='comparisons'><h3 ><a class='secnum' href='#comparisons' style='min-width:103pt'>13.21.8</a> <span class='texttt'>executor</span> comparisons <a class='abbr_ref' href='async.executor.comparisons'>[async.executor.comparisons]</a></h3><p ><span class='indexparent'><a class='index' id='operator==,executor'></a></span><span class='indexparent'><a class='index' id='executor,operator=='></a></span><code class='itemdecl'>
+bool operator==(const executor&amp; a, const executor&amp; b) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-1'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</p><ul class='itemize'><li id='comparisons-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#comparisons-1.1'>(1.1)</a></div><p ><span class='texttt'>true</span> if <span class='texttt'>!a</span> and <span class='texttt'>!b</span>;
+</p></li><li id='comparisons-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#comparisons-1.2'>(1.2)</a></div><p ><span class='texttt'>true</span> if <span class='texttt'>a</span> and <span class='texttt'>b</span> share a target;
+</p></li><li id='comparisons-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#comparisons-1.3'>(1.3)</a></div><p ><span class='texttt'>true</span> if <span class='texttt'>e</span> and <span class='texttt'>f</span> are the same type and <span class='texttt'>e == f</span>, where <span class='texttt'>e</span> is the target of <span class='texttt'>a</span> and <span class='texttt'>f</span> is the target of <span class='texttt'>b</span>;
+</p></li><li id='comparisons-1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#comparisons-1.4'>(1.4)</a></div><p >otherwise <span class='texttt'>false</span>.
+</p></li></ul></div></div><p ><span class='indexparent'><a class='index' id='operator==,executor'></a></span><span class='indexparent'><a class='index' id='executor,operator=='></a></span><code class='itemdecl'>
+bool operator==(const executor&amp; e, nullptr_t) noexcept;
+bool operator==(nullptr_t, const executor&amp; e) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-2'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!e</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator!=,executor'></a></span><span class='indexparent'><a class='index' id='executor,operator!='></a></span><code class='itemdecl'>
+bool operator!=(const executor&amp; a, const executor&amp; b) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-3'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>!(a == b)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator!=,executor'></a></span><span class='indexparent'><a class='index' id='executor,operator!='></a></span><code class='itemdecl'>
+bool operator!=(const executor&amp; e, nullptr_t) noexcept;
+bool operator!=(nullptr_t, const executor&amp; e) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-4'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>(bool) e</span>.
+</p></div></div></div><div id='algo'><h3 ><a class='secnum' href='#algo' style='min-width:103pt'>13.21.9</a> <span class='texttt'>executor</span> specialized algorithms <a class='abbr_ref' href='async.executor.algo'>[async.executor.algo]</a></h3><p ><span class='indexparent'><a class='index' id='swap,executor'></a></span><span class='indexparent'><a class='index' id='executor,swap'></a></span><code class='itemdecl'>
+void swap(executor&amp; a, executor&amp; b) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='algo-1'><div class='marginalizedparent'><a class='marginalized' href='#algo-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> <span class='texttt'>a.swap(b)</span>.
+</p></div></div></div></div></div></body></html>

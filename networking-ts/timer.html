@@ -1,0 +1,186 @@
+<!DOCTYPE html><html lang='en'><head><title>[timer]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><div id='timer'><h1 ><a class='secnum' style='min-width:73pt'>15</a> Timers <a class='abbr_ref' href='./#timer'>[timer]</a></h1><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >This clause defines components for performing timer operations.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >[&nbsp;<i>Example:</i> Performing a synchronous wait operation on a timer:
+</p><pre class='codeblock'>
+io_context c;
+steady_timer t(c);
+t.expires_after(seconds(5));
+t.wait();
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >[&nbsp;<i>Example:</i> Performing an asynchronous wait operation on a timer:
+</p><pre class='codeblock'>
+void handler(error_code ec) { ... }
+...
+io_context c;
+steady_timer t(c);
+t.expires_after(seconds(5));
+t.async_wait(handler);
+c.run();
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='experimental/timer'></a></span></p></div><div id='synop'><h2 ><a class='secnum' href='#synop' style='min-width:88pt'>15.1</a> Header <span class='texttt'>&lt;experimental/timer&gt;</span> synopsis <a class='abbr_ref' href='timer.synop'>[timer.synop]</a></h2><pre class='codeblock'>
+#include &lt;chrono&gt;
+
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  template&lt;class Clock&gt; struct wait_traits;
+
+  template&lt;class Clock, class WaitTraits = wait_traits&lt;Clock&gt;&gt;
+    class basic_waitable_timer;
+
+  using system_timer = basic_waitable_timer&lt;chrono::system_clock&gt;;
+  using steady_timer = basic_waitable_timer&lt;chrono::steady_clock&gt;;
+  using high_resolution_timer = basic_waitable_timer&lt;chrono::high_resolution_clock&gt;;
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre></div><div id='reqmts'><h2 ><a class='secnum' href='#reqmts' style='min-width:88pt'>15.2</a> Requirements <a class='abbr_ref' href='timer.reqmts'>[timer.reqmts]</a></h2><div id='reqmts.waittraits'><h3 ><a class='secnum' href='#reqmts.waittraits' style='min-width:103pt'>15.2.1</a> Wait traits requirements <a class='abbr_ref' href='timer.reqmts.waittraits'>[timer.reqmts.waittraits]</a></h3><div class='para' id='reqmts.waittraits-1'><div class='marginalizedparent'><a class='marginalized' href='#reqmts.waittraits-1'>1</a></div><p >The <span class='texttt'>basic_waitable_timer</span> template uses wait traits to allow programs to customize <span class='texttt'>wait</span> and <span class='texttt'>async_wait</span> behavior.
+[&nbsp;<i>Note:</i> Possible uses of wait traits include:
+</p><ul class='itemize'><li id='reqmts.waittraits-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#reqmts.waittraits-1.1'>(1.1)</a></div><p >To enable timers based on non-realtime clocks.
+</p></li><li id='reqmts.waittraits-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#reqmts.waittraits-1.2'>(1.2)</a></div><p >Determining how quickly wallclock-based timers respond to system time changes.
+</p></li><li id='reqmts.waittraits-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#reqmts.waittraits-1.3'>(1.3)</a></div><p >Correcting for errors or rounding timeouts to boundaries.
+</p></li><li id='reqmts.waittraits-1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#reqmts.waittraits-1.4'>(1.4)</a></div><p >Preventing duration overflow. That is, a program may set a timer's expiry <span class='texttt'>e</span> to be <span class='texttt'>Clock::max()</span> (meaning never reached) or <span class='texttt'>Clock::min()</span> (meaning always in the past). As a result, computing the duration until timer expiry as <span class='texttt'>e - Clock::now()</span> may cause overflow. </p></li></ul><p ><i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='reqmts.waittraits-2'><div class='marginalizedparent'><a class='marginalized' href='#reqmts.waittraits-2'>2</a></div><p >For a type <span class='texttt'>Clock</span> meeting the <span class='texttt'>Clock</span> requirements (C++Std &sect;<a href='../n4140/time.clock.req'>[time.clock.req]</a>), a type <span class='texttt'>X</span> meets the <span class='texttt'>WaitTraits</span> requirements if it satisfies the requirements listed below.</p></div><div class='para' id='reqmts.waittraits-3'><div class='marginalizedparent'><a class='marginalized' href='#reqmts.waittraits-3'>3</a></div><p >In Table <a href='#tab:timer.reqmts.waittraits.requirements'>[tab:timer.reqmts.waittraits.requirements]</a>,
+<span class='texttt'>t</span> denotes a value of type <span class='texttt'>Clock::time_point</span> or <span class='texttt'>const Clock::time_point</span>;
+and <span class='texttt'>d</span> denotes a value of type <span class='texttt'>Clock::duration</span> or <span class='texttt'>const Clock::duration</span>.</p><p ><span class='indexparent'><a class='index' id='requirements,WaitTraits'></a></span>
+ 
+ 
+ </p><div class='numberedTable' id='tab:timer.reqmts.waittraits.requirements'>Table <a href='#tab:timer.reqmts.waittraits.requirements'>11</a> — WaitTraits requirements<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>expression</b></td><td colspan='1' class='center'><b>return type</b></td><td colspan='1' class='center'><b>assertion/note pre/post-condition</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='texttt'>X::to_wait_duration(d)</span>  </td><td class='left'>
+<span class='texttt'>Clock::duration</span>  </td><td class='left'>
+Returns a <span class='texttt'>Clock::duration</span> value to be used in a <span class='texttt'>wait</span> or <span class='texttt'>async_wait</span> operation. [&nbsp;<i>Note:</i> The return value is typically representative of the duration <span class='texttt'>d</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::to_wait_duration(t)</span>  </td><td class='left'>
+<span class='texttt'>Clock::duration</span>  </td><td class='left'>
+Returns a <span class='texttt'>Clock::duration</span> value to be used in a <span class='texttt'>wait</span> or <span class='texttt'>async_wait</span> operation. [&nbsp;<i>Note:</i> The return value is typically representative of the duration from <span class='texttt'>Clock::now()</span> until the time point <span class='texttt'>t</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]  </td></tr></table></div></div></div></div><div id='waittraits'><h2 ><a class='secnum' href='#waittraits' style='min-width:88pt'>15.3</a> Class template <span class='texttt'>wait_traits</span> <a class='abbr_ref' href='timer.waittraits'>[timer.waittraits]</a></h2><p ><span class='indexparent'><a class='index' id='wait_traits'></a></span></p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  template&lt;class Clock&gt;
+  struct wait_traits
+  {
+    static typename Clock::duration to_wait_duration(
+      const typename Clock::duration&amp; d);
+
+    static typename Clock::duration to_wait_duration(
+      const typename Clock::time_point&amp; t);
+  };
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre><div class='para' id='waittraits-1'><div class='marginalizedparent'><a class='marginalized' href='#waittraits-1'>1</a></div><p >Class template <span class='texttt'>wait_traits</span> satisfies the <span class='texttt'>WaitTraits</span> (<a href='timer.reqmts.waittraits'>[timer.reqmts.waittraits]</a>) type requirements. Template argument <span class='texttt'>Clock</span> is a type meeting the <span class='texttt'>Clock</span> requirements (C++Std &sect;<a href='../n4140/time.clock.req'>[time.clock.req]</a>).</p><p ><span class='indexparent'><a class='index' id='to_wait_duration,wait_traits'></a></span><span class='indexparent'><a class='index' id='wait_traits,to_wait_duration'></a></span><code class='itemdecl'>
+static typename Clock::duration to_wait_duration(
+  const typename Clock::duration&amp; d);
+</code></p></div><div class='itemdescr'></div><div class='para' id='waittraits-2'><div class='marginalizedparent'><a class='marginalized' href='#waittraits-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>d</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='to_wait_duration,wait_traits'></a></span><span class='indexparent'><a class='index' id='wait_traits,to_wait_duration'></a></span><code class='itemdecl'>
+static typename Clock::duration to_wait_duration(
+  const typename Clock::time_point&amp; t);
+</code></p><div class='itemdescr'></div><div class='para' id='waittraits-3'><div class='marginalizedparent'><a class='marginalized' href='#waittraits-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> Let <span class='texttt'>now</span> be <span class='texttt'>Clock::now()</span>. If <span class='texttt'>now + Clock::duration::max()</span> is before <span class='texttt'>t</span>, <span class='texttt'>Clock::duration::max()</span>; if <span class='texttt'>now + Clock::duration::min()</span> is after <span class='texttt'>t</span>, <span class='texttt'>Clock::duration::min()</span>; otherwise, <span class='texttt'>t - now</span>.
+</p></div></div></div><div id='waitable'><h2 ><a class='secnum' href='#waitable' style='min-width:88pt'>15.4</a> Class template <span class='texttt'>basic_waitable_timer</span> <a class='abbr_ref' href='timer.waitable'>[timer.waitable]</a></h2><p ><span class='indexparent'><a class='index' id='basic_waitable_timer'></a></span></p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  template&lt;class Clock, class WaitTraits = wait_traits&lt;Clock&gt;&gt;
+  class basic_waitable_timer
+  {
+  public:
+    <span class='comment'>// types:
+</span>
+    using executor_type = io_context::executor_type;
+    using clock_type = Clock;
+    using duration = typename clock_type::duration;
+    using time_point = typename clock_type::time_point;
+    using traits_type = WaitTraits;
+
+    <span class='comment'>// construct / copy / destroy:
+</span>
+    explicit basic_waitable_timer(io_context&amp; ctx);
+    basic_waitable_timer(io_context&amp; ctx, const time_point&amp; t);
+    basic_waitable_timer(io_context&amp; ctx, const duration&amp; d);
+    basic_waitable_timer(const basic_waitable_timer&amp;) = delete;
+    basic_waitable_timer(basic_waitable_timer&amp;&amp; rhs);
+
+    ~basic_waitable_timer();
+
+    basic_waitable_timer&amp; operator=(const basic_waitable_timer&amp;) = delete;
+    basic_waitable_timer&amp; operator=(basic_waitable_timer&amp;&amp; rhs);
+
+    <span class='comment'>// basic_waitable_timer operations:
+</span>
+    executor_type get_executor() noexcept;
+
+    size_t cancel();
+    size_t cancel_one();
+
+    time_point expiry() const;
+    size_t expires_at(const time_point&amp; t);
+    size_t expires_after(const duration&amp; d);
+
+    void wait();
+    void wait(error_code&amp; ec);
+
+    template&lt;class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_wait(CompletionToken&amp;&amp; token);
+  };
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre><div class='para' id='waitable-1'><div class='marginalizedparent'><a class='marginalized' href='#waitable-1'>1</a></div><p >Instances of class template <span class='texttt'>basic_waitable_timer</span> meet the requirements of <span class='texttt'>Destructible</span> (C++Std &sect;<a href='../n4140/destructible'>[destructible]</a>), <span class='texttt'>MoveConstructible</span> (C++Std &sect;<a href='../n4140/moveconstructible'>[moveconstructible]</a>), and <span class='texttt'>MoveAssignable</span> (C++Std &sect;<a href='../n4140/moveassignable'>[moveassignable]</a>).</p></div><div id='waitable.cons'><h3 ><a class='secnum' href='#waitable.cons' style='min-width:103pt'>15.4.1</a> <span class='texttt'>basic_waitable_timer</span> constructors <a class='abbr_ref' href='timer.waitable.cons'>[timer.waitable.cons]</a></h3><p ><span class='indexparent'><a class='index' id='basic_waitable_timer,constructor'></a></span><code class='itemdecl'>
+explicit basic_waitable_timer(io_context&amp; ctx);
+</code></p><div class='itemdescr'></div><div class='para' id='waitable.cons-1'><div class='marginalizedparent'><a class='marginalized' href='#waitable.cons-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>basic_waitable_timer(ctx, time_point())</span>.
+</p></div></div><p ><code class='itemdecl'>
+basic_waitable_timer(io_context&amp; ctx, const time_point&amp; t);
+</code></p><div class='itemdescr'></div><div class='para' id='waitable.cons-2'><div class='marginalizedparent'><a class='marginalized' href='#waitable.cons-2'>2</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
+</p><ul class='itemize'><li id='waitable.cons-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#waitable.cons-2.1'>(2.1)</a></div><p ><span class='texttt'>get_executor() == ctx.get_executor()</span>.
+</p></li><li id='waitable.cons-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#waitable.cons-2.2'>(2.2)</a></div><p ><span class='texttt'>expiry() == t</span>.
+</p></li></ul></div></div><p ><code class='itemdecl'>
+basic_waitable_timer(io_context&amp; ctx, const duration&amp; d);
+</code></p><div class='itemdescr'></div><div class='para' id='waitable.cons-3'><div class='marginalizedparent'><a class='marginalized' href='#waitable.cons-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Sets the expiry time as if by calling <span class='texttt'>expires_after(d)</span>.</p></div></div><div class='para' id='waitable.cons-4'><div class='marginalizedparent'><a class='marginalized' href='#waitable.cons-4'>4</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>get_executor() == ctx.get_executor()</span>.
+</p></div></div><p ><code class='itemdecl'>
+basic_waitable_timer(basic_waitable_timer&amp;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='waitable.cons-5'><div class='marginalizedparent'><a class='marginalized' href='#waitable.cons-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Move constructs an object of class <span class='texttt'>basic_waitable_timer&lt;Clock, WaitTraits&gt;</span> that refers to the state originally represented by <span class='texttt'>rhs</span>.</p></div></div><div class='para' id='waitable.cons-6'><div class='marginalizedparent'><a class='marginalized' href='#waitable.cons-6'>6</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
+</p><ul class='itemize'><li id='waitable.cons-6.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#waitable.cons-6.1'>(6.1)</a></div><p ><span class='texttt'>get_executor() == rhs.get_executor()</span>.
+</p></li><li id='waitable.cons-6.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#waitable.cons-6.2'>(6.2)</a></div><p ><span class='texttt'>expiry()</span> returns the same value as <span class='texttt'>rhs.expiry()</span> prior to the constructor invocation.
+</p></li><li id='waitable.cons-6.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#waitable.cons-6.3'>(6.3)</a></div><p ><span class='texttt'>rhs.expiry() == time_point()</span>.
+</p></li></ul></div></div></div><div id='waitable.dtor'><h3 ><a class='secnum' href='#waitable.dtor' style='min-width:103pt'>15.4.2</a> <span class='texttt'>basic_waitable_timer</span> destructor <a class='abbr_ref' href='timer.waitable.dtor'>[timer.waitable.dtor]</a></h3><p ><span class='indexparent'><a class='index' id='basic_waitable_timer,destructor'></a></span><code class='itemdecl'>
+~basic_waitable_timer();
+</code></p><div class='itemdescr'></div><div class='para' id='waitable.dtor-1'><div class='marginalizedparent'><a class='marginalized' href='#waitable.dtor-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Destroys the timer, canceling any asynchronous wait operations associated with the timer as if by calling <span class='texttt'>cancel()</span>.
+</p></div></div></div><div id='waitable.assign'><h3 ><a class='secnum' href='#waitable.assign' style='min-width:103pt'>15.4.3</a> <span class='texttt'>basic_waitable_timer</span> assignment <a class='abbr_ref' href='timer.waitable.assign'>[timer.waitable.assign]</a></h3><p ><span class='indexparent'><a class='index' id='operator=,basic_waitable_timer'></a></span><span class='indexparent'><a class='index' id='basic_waitable_timer,operator='></a></span><code class='itemdecl'>
+basic_waitable_timer&amp; operator=(basic_waitable_timer&amp;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='waitable.assign-1'><div class='marginalizedparent'><a class='marginalized' href='#waitable.assign-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Cancels any outstanding asynchronous operations associated with <span class='texttt'>*this</span> as if by calling <span class='texttt'>cancel()</span>, then moves into <span class='texttt'>*this</span> the state originally represented by <span class='texttt'>rhs</span>.</p></div></div><div class='para' id='waitable.assign-2'><div class='marginalizedparent'><a class='marginalized' href='#waitable.assign-2'>2</a></div><div class='itemdescr'><p ><i>Postconditions:</i>
+</p><ul class='itemize'><li id='waitable.assign-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#waitable.assign-2.1'>(2.1)</a></div><p ><span class='texttt'>get_executor() == rhs.get_executor()</span>.
+</p></li><li id='waitable.assign-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#waitable.assign-2.2'>(2.2)</a></div><p ><span class='texttt'>expiry()</span> returns the same value as <span class='texttt'>rhs.expiry()</span> prior to the assignment.
+</p></li><li id='waitable.assign-2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#waitable.assign-2.3'>(2.3)</a></div><p ><span class='texttt'>rhs.expiry() == time_point()</span>.
+</p></li></ul></div></div><div class='para' id='waitable.assign-3'><div class='marginalizedparent'><a class='marginalized' href='#waitable.assign-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div></div><div id='waitable.ops'><h3 ><a class='secnum' href='#waitable.ops' style='min-width:103pt'>15.4.4</a> <span class='texttt'>basic_waitable_timer</span> operations <a class='abbr_ref' href='timer.waitable.ops'>[timer.waitable.ops]</a></h3><p ><span class='indexparent'><a class='index' id='get_executor,basic_waitable_timer'></a></span><span class='indexparent'><a class='index' id='basic_waitable_timer,get_executor'></a></span><code class='itemdecl'>
+executor_type get_executor() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='waitable.ops-1'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> The associated executor.
+</p></div></div><p ><span class='indexparent'><a class='index' id='cancel,basic_waitable_timer'></a></span><span class='indexparent'><a class='index' id='basic_waitable_timer,cancel'></a></span><code class='itemdecl'>
+size_t cancel();
+</code></p><div class='itemdescr'></div><div class='para' id='waitable.ops-2'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Causes any outstanding asynchronous wait operations to complete. Completion handlers for canceled operations are passed an error code <span class='texttt'>ec</span> such that <span class='texttt'>ec == errc::operation_canceled</span> yields <span class='texttt'>true</span>.</p></div></div><div class='para' id='waitable.ops-3'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> The number of operations that were canceled.</p></div></div><div class='para' id='waitable.ops-4'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-4'>4</a></div><div class='itemdescr'><p ><i>Remarks:</i> Does not block (C++Std &sect;<a href='../n4140/defns.block'>[defns.block]</a>) the calling thread pending completion of the canceled operations.
+</p></div></div><p ><span class='indexparent'><a class='index' id='cancel_one,basic_waitable_timer'></a></span><span class='indexparent'><a class='index' id='basic_waitable_timer,cancel_one'></a></span><code class='itemdecl'>
+size_t cancel_one();
+</code></p><div class='itemdescr'></div><div class='para' id='waitable.ops-5'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Causes the outstanding asynchronous wait operation that was initiated first, if any, to complete as soon as possible. The completion handler for the canceled operation is passed an error code <span class='texttt'>ec</span> such that <span class='texttt'>ec == errc::operation_canceled</span> yields <span class='texttt'>true</span>.</p></div></div><div class='para' id='waitable.ops-6'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>1</span> if an operation was canceled, otherwise <span class='texttt'>0</span>.</p></div></div><div class='para' id='waitable.ops-7'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-7'>7</a></div><div class='itemdescr'><p ><i>Remarks:</i> Does not block (C++Std &sect;<a href='../n4140/defns.block'>[defns.block]</a>) the calling thread pending completion of the canceled operation.
+</p></div></div><p ><span class='indexparent'><a class='index' id='expiry,basic_waitable_timer'></a></span><span class='indexparent'><a class='index' id='basic_waitable_timer,expiry'></a></span><code class='itemdecl'>
+time_point expiry() const;
+</code></p><div class='itemdescr'></div><div class='para' id='waitable.ops-8'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> The expiry time associated with the timer, as previously set using <span class='texttt'>expires_at()</span> or <span class='texttt'>expires_after()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='expires_at,basic_waitable_timer'></a></span><span class='indexparent'><a class='index' id='basic_waitable_timer,expires_at'></a></span><code class='itemdecl'>
+size_t expires_at(const time_point&amp; t);
+</code></p><div class='itemdescr'></div><div class='para' id='waitable.ops-9'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i> Cancels outstanding asynchronous wait operations, as if by calling <span class='texttt'>cancel()</span>. Sets the expiry time associated with the timer.</p></div></div><div class='para' id='waitable.ops-10'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> The number of operations that were canceled.</p></div></div><div class='para' id='waitable.ops-11'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-11'>11</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>expiry() == t</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='expires_after,basic_waitable_timer'></a></span><span class='indexparent'><a class='index' id='basic_waitable_timer,expires_after'></a></span><code class='itemdecl'>
+size_t expires_after(const duration&amp; d);
+</code></p><div class='itemdescr'></div><div class='para' id='waitable.ops-12'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>expires_at(clock_type::now() + d)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='wait,basic_waitable_timer'></a></span><span class='indexparent'><a class='index' id='basic_waitable_timer,wait'></a></span><code class='itemdecl'>
+void wait();
+void wait(error_code&amp; ec);
+</code></p><div class='itemdescr'></div><div class='para' id='waitable.ops-13'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i> Establishes the postcondition as if by repeatedly blocking the calling thread (C++Std &sect;<a href='../n4140/defns.block'>[defns.block]</a>) for the relative time produced by <span class='texttt'>WaitTraits::to_wait_duration(expiry())</span>.</p></div></div><div class='para' id='waitable.ops-14'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-14'>14</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>ec || expiry() &lt;= clock_type::now()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='asynchronous_wait_operation'></a></span><span class='indexparent'><a class='index' id='async_wait,basic_waitable_timer'></a></span><span class='indexparent'><a class='index' id='basic_waitable_timer,async_wait'></a></span><code class='itemdecl'>
+template&lt;class CompletionToken&gt;
+  <i><span class='texttt'>DEDUCED</span></i> async_wait(CompletionToken&amp;&amp; token);
+</code></p><div class='itemdescr'></div><div class='para' id='waitable.ops-15'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-15'>15</a></div><div class='itemdescr'><p ><i>Completion signature:</i> <span class='texttt'>void(error_code ec)</span>.</p></div></div><div class='para' id='waitable.ops-16'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i> Initiates an asynchronous wait operation to repeatedly wait for the relative time produced by <span class='texttt'>WaitTraits::to_wait_duration(e)</span>, where <span class='texttt'>e</span> is a value of type <span class='texttt'>time_point</span> such that <span class='texttt'>e &lt;= expiry()</span>. The completion handler is submitted for execution only when the condition <span class='texttt'>ec || expiry() &lt;= clock_type::now()</span> yields <span class='texttt'>true</span>.</p></div></div><div class='para' id='waitable.ops-17'><div class='marginalizedparent'><a class='marginalized' href='#waitable.ops-17'>17</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> To implement <span class='texttt'>async_wait</span>, an <span class='texttt'>io_context</span> object <span class='texttt'>ctx</span> may maintain a priority queue for each specialization of <span class='texttt'>basic_waitable_timer&lt;Clock, WaitTraits&gt;</span> for which a timer object was initialized with <span class='texttt'>ctx</span>. Only the time point <span class='texttt'>e</span> of the earliest outstanding expiry need be passed to <span class='texttt'>WaitTraits::to_wait_duration(e)</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div></div></div></div></body></html>

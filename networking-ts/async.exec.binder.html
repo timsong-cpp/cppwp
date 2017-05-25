@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang='en'><head><title>[async.exec.binder]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>13</a> Asynchronous model <a class='abbr_ref' href='./#async'>[async]</a></h1><div id='async.exec.binder'><h2 ><a class='secnum' style='min-width:88pt'>13.14</a> Class template <span class='texttt'>executor_binder</span> <a class='abbr_ref'>[async.exec.binder]</a></h2><p ><span class='indexparent'><a class='index' id='executor_binder'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The class template <span class='texttt'>executor_binder</span> binds executors to objects.
+A specialization <span class='texttt'>executor_binder&lt;T, Executor&gt;</span> binds
+an executor of type <span class='texttt'>Executor</span> satisfying the Executor requirements (<a href='async.reqmts.executor'>[async.reqmts.executor]</a>)
+to an object or function of type <span class='texttt'>T</span>.</p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  template&lt;class T, class Executor&gt;
+  class executor_binder
+  {
+  public:
+    <span class='comment'>// types:
+</span>
+    using target_type = T;
+    using executor_type = Executor;
+
+    <span class='comment'>// construct / copy / destroy:
+</span>
+    executor_binder(T t, const Executor&amp; ex);
+    executor_binder(const executor_binder&amp; other) = default;
+    executor_binder(executor_binder&amp;&amp; other) = default;
+    template&lt;class U, class OtherExecutor&gt;
+      executor_binder(const executor_binder&lt;U, OtherExecutor&gt;&amp; other);
+    template&lt;class U, class OtherExecutor&gt;
+      executor_binder(executor_binder&lt;U, OtherExecutor&gt;&amp;&amp; other);
+    template&lt;class U, class OtherExecutor&gt;
+      executor_binder(executor_arg_t, const Executor&amp; ex,
+        const executor_binder&lt;U, OtherExecutor&gt;&amp; other);
+    template&lt;class U, class OtherExecutor&gt;
+      executor_binder(executor_arg_t, const Executor&amp; ex,
+        executor_binder&lt;U, OtherExecutor&gt;&amp;&amp; other);
+
+    ~executor_binder();
+
+    <span class='comment'>// executor binder access:
+</span>
+    T&amp; get() noexcept;
+    const T&amp; get() const noexcept;
+    executor_type get_executor() const noexcept;
+
+    <span class='comment'>// executor binder invocation:
+</span>
+    template&lt;class... Args&gt;
+      result_of_t&lt;T&amp;(Args&amp;&amp;...)&gt; operator()(Args&amp;&amp;... args);
+    template&lt;class... Args&gt;
+      result_of_t&lt;const T&amp;(Args&amp;&amp;...)&gt; operator()(Args&amp;&amp;... args) const;
+
+  private:
+    Executor ex_; <span class='comment'>// <i>exposition only</i>
+</span>    T target_; <span class='comment'>// <i>exposition only</i>
+</span>  };
+
+  template&lt;class T, class Executor, class Signature&gt;
+    class async_result&lt;executor_binder&lt;T, Executor&gt;, Signature&gt;;
+
+  template&lt;class T, class Executor, class ProtoAllocator&gt;
+    struct associated_allocator&lt;executor_binder&lt;T, Executor&gt;, ProtoAllocator&gt;;
+
+  template&lt;class T, class Executor, class Executor1&gt;
+    struct associated_executor&lt;executor_binder&lt;T, Executor&gt;, Executor1&gt;;
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre></div><div id='cons'><h3 ><a class='secnum' href='#cons' style='min-width:103pt'>13.14.1</a> <span class='texttt'>executor_binder</span> constructors <a class='abbr_ref' href='async.exec.binder.cons'>[async.exec.binder.cons]</a></h3><p ><span class='indexparent'><a class='index' id='executor_binder,constructor'></a></span><code class='itemdecl'>
+executor_binder(T t, const Executor&amp; ex);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-1'><div class='marginalizedparent'><a class='marginalized' href='#cons-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>ex_</span> with <span class='texttt'>ex</span>. Initializes <span class='texttt'>target_</span> by performing uses-executor construction, using the constructor argument <span class='texttt'>std::move(t)</span> and the executor <span class='texttt'>ex_</span>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class U, class OtherExecutor&gt;
+  executor_binder(const executor_binder&lt;U, OtherExecutor&gt;&amp; other);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-2'><div class='marginalizedparent'><a class='marginalized' href='#cons-2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i> If <span class='texttt'>U</span> is not convertible to <span class='texttt'>T</span>, or if <span class='texttt'>OtherExecutor</span> is not convertible to <span class='texttt'>Executor</span>, the program is ill-formed.</p></div></div><div class='para' id='cons-3'><div class='marginalizedparent'><a class='marginalized' href='#cons-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>ex_</span> with <span class='texttt'>other.get_executor()</span>. Initializes <span class='texttt'>target_</span> by performing uses-executor construction, using the constructor argument <span class='texttt'>other.get()</span> and the executor <span class='texttt'>ex_</span>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class U, class OtherExecutor&gt;
+  executor_binder(executor_binder&lt;U, OtherExecutor&gt;&amp;&amp; other);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-4'><div class='marginalizedparent'><a class='marginalized' href='#cons-4'>4</a></div><div class='itemdescr'><p ><i>Requires:</i> If <span class='texttt'>U</span> is not convertible to <span class='texttt'>T</span>, or if <span class='texttt'>OtherExecutor</span> is not convertible to <span class='texttt'>Executor</span>, the program is ill-formed.</p></div></div><div class='para' id='cons-5'><div class='marginalizedparent'><a class='marginalized' href='#cons-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>ex_</span> with <span class='texttt'>other.get_executor()</span>. Initializes <span class='texttt'>target_</span> by performing uses-executor construction, using the constructor argument <span class='texttt'>std::move(other.get())</span> and the executor <span class='texttt'>ex_</span>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class U, class OtherExecutor&gt;
+  executor_binder(executor_arg_t, const Executor&amp; ex,
+    const executor_binder&lt;U, OtherExecutor&gt;&amp; other);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-6'><div class='marginalizedparent'><a class='marginalized' href='#cons-6'>6</a></div><div class='itemdescr'><p ><i>Requires:</i> If <span class='texttt'>U</span> is not convertible to <span class='texttt'>T</span> the program is ill-formed.</p></div></div><div class='para' id='cons-7'><div class='marginalizedparent'><a class='marginalized' href='#cons-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>ex_</span> with <span class='texttt'>ex</span>. Initializes <span class='texttt'>target_</span> by performing uses-executor construction, using the constructor argument <span class='texttt'>other.get()</span> and the executor <span class='texttt'>ex_</span>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class U, class OtherExecutor&gt;
+  executor_binder(executor_arg_t, const Executor&amp; ex,
+    executor_binder&lt;U, OtherExecutor&gt;&amp;&amp; other);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-8'><div class='marginalizedparent'><a class='marginalized' href='#cons-8'>8</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>U</span> is <span class='texttt'>T</span> or convertible to <span class='texttt'>T</span>.</p></div></div><div class='para' id='cons-9'><div class='marginalizedparent'><a class='marginalized' href='#cons-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>ex_</span> with <span class='texttt'>ex</span>. Initializes <span class='texttt'>target_</span> by performing uses-executor construction, using the constructor argument <span class='texttt'>std::move(other.get())</span> and the executor <span class='texttt'>ex_</span>.
+</p></div></div></div><div id='access'><h3 ><a class='secnum' href='#access' style='min-width:103pt'>13.14.2</a> <span class='texttt'>executor_binder</span> access <a class='abbr_ref' href='async.exec.binder.access'>[async.exec.binder.access]</a></h3><p ><span class='indexparent'><a class='index' id='get,executor_binder'></a></span><span class='indexparent'><a class='index' id='executor_binder,get'></a></span><code class='itemdecl'>
+T&amp; get() noexcept;
+const T&amp; get() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='access-1'><div class='marginalizedparent'><a class='marginalized' href='#access-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>target_</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='get_executor,executor_binder'></a></span><span class='indexparent'><a class='index' id='executor_binder,get_executor'></a></span><code class='itemdecl'>
+executor_type get_executor() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='access-2'><div class='marginalizedparent'><a class='marginalized' href='#access-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>executor_</span>.
+</p></div></div></div><div id='invocation'><h3 ><a class='secnum' href='#invocation' style='min-width:103pt'>13.14.3</a> <span class='texttt'>executor_binder</span> invocation <a class='abbr_ref' href='async.exec.binder.invocation'>[async.exec.binder.invocation]</a></h3><p ><span class='indexparent'><a class='index' id='operator(),executor_binder'></a></span><span class='indexparent'><a class='index' id='executor_binder,operator()'></a></span><code class='itemdecl'>
+template&lt;class... Args&gt;
+  result_of_t&lt;T&amp;(Args&amp;&amp;...)&gt; operator()(Args&amp;&amp;... args);
+template&lt;class... Args&gt;
+  result_of_t&lt;const T&amp;(Args&amp;&amp;...)&gt; operator()(Args&amp;&amp;... args) const;
+</code></p><div class='itemdescr'></div><div class='para' id='invocation-1'><div class='marginalizedparent'><a class='marginalized' href='#invocation-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'><i>INVOKE</i>(get(), forward&lt;Args&gt;(args)...)</span> (C++Std &sect;<a href='../n4140/func.require'>[func.require]</a>).
+</p></div></div></div><div id='async.result'><h3 ><a class='secnum' href='#async.result' style='min-width:103pt'>13.14.4</a> Class template partial specialization <span class='texttt'>async_result</span> <a class='abbr_ref' href='async.exec.binder.async.result'>[async.exec.binder.async.result]</a></h3><p ><span class='indexparent'><a class='index' id='async_result,specialization_for_executor_binder'></a></span><span class='indexparent'><a class='index' id='async_result'></a></span></p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  template&lt;class T, class Executor, class Signature&gt;
+  class async_result&lt;executor_binder&lt;T, Executor&gt;, Signature&gt;
+  {
+  public:
+    using completion_handler_type = executor_binder&lt;
+      typename async_result&lt;T, Signature&gt;::completion_handler_type,
+        Executor&gt;;
+    using return_type = typename async_result&lt;T, Signature&gt;::return_type;
+
+    explicit async_result(completion_handler_type&amp; h);
+    async_result(const async_result&amp;) = delete;
+    async_result&amp; operator=(const async_result&amp;) = delete;
+
+    return_type get();
+
+  private:
+    async_result&lt;T, Signature&gt; target_; <span class='comment'>// <i>exposition only</i>
+</span>  };
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre><p ><code class='itemdecl'>
+explicit async_result(completion_handler_type&amp; h);
+</code></p><div class='itemdescr'></div><div class='para' id='async.result-1'><div class='marginalizedparent'><a class='marginalized' href='#async.result-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>target_</span> as <span class='texttt'>target_(h.get())</span>.
+</p></div></div><p ><code class='itemdecl'>
+return_type get();
+</code></p><div class='itemdescr'></div><div class='para' id='async.result-2'><div class='marginalizedparent'><a class='marginalized' href='#async.result-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>target_.get()</span>.
+</p></div></div></div><div id='assoc.alloc'><h3 ><a class='secnum' href='#assoc.alloc' style='min-width:103pt'>13.14.5</a> Class template partial specialization <span class='texttt'>associated_allocator</span> <a class='abbr_ref' href='async.exec.binder.assoc.alloc'>[async.exec.binder.assoc.alloc]</a></h3><p ><span class='indexparent'><a class='index' id='associated_allocator,specialization_for_executor_binder'></a></span><span class='indexparent'><a class='index' id='associated_allocator'></a></span></p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  template&lt;class T, class Executor, class ProtoAllocator&gt;
+    struct associated_allocator&lt;executor_binder&lt;T, Executor&gt;, ProtoAllocator&gt;
+  {
+    using type = associated_allocator_t&lt;T, ProtoAllocator&gt;;
+
+    static type get(const executor_binder&lt;T, Executor&gt;&amp; b,
+                    const ProtoAllocator&amp; a = ProtoAllocator()) noexcept;
+  };
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre><p ><code class='itemdecl'>
+static type get(const executor_binder&lt;T, Executor&gt;&amp; b,
+                const ProtoAllocator&amp; a = ProtoAllocator()) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='assoc.alloc-1'><div class='marginalizedparent'><a class='marginalized' href='#assoc.alloc-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>associated_allocator&lt;T, ProtoAllocator&gt;::get(b.get(), a)</span>.
+</p></div></div></div><div id='assoc.exec'><h3 ><a class='secnum' href='#assoc.exec' style='min-width:103pt'>13.14.6</a> Class template partial specialization <span class='texttt'>associated_executor</span> <a class='abbr_ref' href='async.exec.binder.assoc.exec'>[async.exec.binder.assoc.exec]</a></h3><p ><span class='indexparent'><a class='index' id='associated_executor,specialization_for_executor_binder'></a></span><span class='indexparent'><a class='index' id='associated_executor'></a></span></p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  template&lt;class T, class Executor, class Executor1&gt;
+    struct associated_executor&lt;executor_binder&lt;T, Executor&gt;, Executor1&gt;
+  {
+    using type = Executor;
+
+    static type get(const executor_binder&lt;T, Executor&gt;&amp; b,
+                    const Executor1&amp; e = Executor1()) noexcept;
+  };
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre><p ><code class='itemdecl'>
+static type get(const executor_binder&lt;T, Executor&gt;&amp; b,
+                const Executor1&amp; e = Executor1()) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='assoc.exec-1'><div class='marginalizedparent'><a class='marginalized' href='#assoc.exec-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>b.get_executor()</span>.
+</p></div></div></div></div></div></body></html>

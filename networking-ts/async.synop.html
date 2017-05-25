@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang='en'><head><title>[async.synop]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>13</a> Asynchronous model <a class='abbr_ref' href='./#async'>[async]</a></h1><div id='async.synop'><h2 ><a class='secnum' style='min-width:88pt'>13.1</a> Header <span class='texttt'>&lt;experimental/executor&gt;</span> synopsis <a class='abbr_ref'>[async.synop]</a></h2><p ><span class='indexparent'><a class='index' id='is_executor_v'></a></span><span class='indexparent'><a class='index' id='uses_executor_v'></a></span><span class='indexparent'><a class='index' id='associated_allocator_t'></a></span><span class='indexparent'><a class='index' id='associated_executor_t'></a></span></p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  template&lt;class CompletionToken, class Signature&gt;
+    class async_result;
+
+  template&lt;class CompletionToken, class Signature&gt;
+    struct async_completion;
+
+  template&lt;class T, class ProtoAllocator = allocator&lt;void&gt;&gt;
+    struct associated_allocator;
+
+  template&lt;class T, class ProtoAllocator = allocator&lt;void&gt;&gt;
+    using associated_allocator_t = typename associated_allocator&lt;T, ProtoAllocator&gt;::type;
+
+  <span class='comment'>// get_associated_allocator:
+</span>
+  template&lt;class T&gt;
+    associated_allocator_t&lt;T&gt; get_associated_allocator(const T&amp; t) noexcept;
+  template&lt;class T, class ProtoAllocator&gt;
+    associated_allocator_t&lt;T, ProtoAllocator&gt;
+      get_associated_allocator(const T&amp; t, const ProtoAllocator&amp; a) noexcept;
+
+  enum class fork_event {
+    prepare,
+    parent,
+    child
+  };
+
+  class execution_context;
+
+  class service_already_exists;
+
+  template&lt;class Service&gt; Service&amp; use_service(execution_context&amp; ctx);
+  template&lt;class Service, class... Args&gt; Service&amp;
+    make_service(execution_context&amp; ctx, Args&amp;&amp;... args);
+  template&lt;class Service&gt; bool has_service(execution_context&amp; ctx) noexcept;
+
+  template&lt;class T&gt; struct is_executor;
+
+  template&lt;class T&gt;
+    constexpr bool is_executor_v = is_executor&lt;T&gt;::value;
+
+  struct executor_arg_t { };
+  constexpr executor_arg_t executor_arg = executor_arg_t();
+
+  template&lt;class T, class Executor&gt; struct uses_executor;
+
+  template&lt;class T, class Executor&gt;
+    constexpr bool uses_executor_v = uses_executor&lt;T, Executor&gt;::value;
+
+  template&lt;class T, class Executor = system_executor&gt;
+    struct associated_executor;
+
+  template&lt;class T, class Executor = system_executor&gt;
+    using associated_executor_t = typename associated_executor&lt;T, Executor&gt;::type;
+
+  <span class='comment'>// get_associated_executor:
+</span>
+  template&lt;class T&gt;
+    associated_executor_t&lt;T&gt; get_associated_executor(const T&amp; t) noexcept;
+  template&lt;class T, class Executor&gt;
+    associated_executor_t&lt;T, Executor&gt;
+      get_associated_executor(const T&amp; t, const Executor&amp; ex) noexcept;
+  template&lt;class T, class ExecutionContext&gt;
+    associated_executor_t&lt;T, typename ExecutionContext::executor_type&gt;
+      get_associated_executor(const T&amp; t, ExecutionContext&amp; ctx) noexcept;
+
+  template&lt;class T, class Executor&gt;
+    class executor_binder;
+
+  template&lt;class T, class Executor, class Signature&gt;
+    class async_result&lt;executor_binder&lt;T, Executor&gt;, Signature&gt;;
+
+  template&lt;class T, class Executor, class ProtoAllocator&gt;
+    struct associated_allocator&lt;executor_binder&lt;T, Executor&gt;, ProtoAllocator&gt;;
+
+  template&lt;class T, class Executor, class Executor1&gt;
+    struct associated_executor&lt;executor_binder&lt;T, Executor&gt;, Executor1&gt;;
+
+  <span class='comment'>// bind_executor:
+</span>
+  template&lt;class Executor, class T&gt;
+    executor_binder&lt;decay_t&lt;T&gt;, Executor&gt;
+      bind_executor(const Executor&amp; ex, T&amp;&amp; t);
+  template&lt;class ExecutionContext, class T&gt;
+    executor_binder&lt;decay_t&lt;T&gt;, typename ExecutionContext::executor_type&gt;
+      bind_executor(ExecutionContext&amp; ctx, T&amp;&amp; t);
+
+  template&lt;class Executor&gt;
+    class executor_work_guard;
+
+  <span class='comment'>// make_work_guard:
+</span>
+  template&lt;class Executor&gt;
+    executor_work_guard&lt;Executor&gt;
+      make_work_guard(const Executor&amp; ex);
+  template&lt;class ExecutionContext&gt;
+    executor_work_guard&lt;typename ExecutionContext::executor_type&gt;
+      make_work_guard(ExecutionContext&amp; ctx);
+  template&lt;class T&gt;
+    executor_work_guard&lt;associated_executor_t&lt;T&gt;&gt;
+      make_work_guard(const T&amp; t);
+  template&lt;class T, class U&gt;
+    auto make_work_guard(const T&amp; t, U&amp;&amp; u)
+      -&gt; decltype(make_work_guard(get_associated_executor(t, forward&lt;U&gt;(u))));
+
+  class system_executor;
+  class system_context;
+
+  bool operator==(const system_executor&amp;, const system_executor&amp;);
+  bool operator!=(const system_executor&amp;, const system_executor&amp;);
+
+  class bad_executor;
+
+  class executor;
+
+  bool operator==(const executor&amp; a, const executor&amp; b) noexcept;
+  bool operator==(const executor&amp; e, nullptr_t) noexcept;
+  bool operator==(nullptr_t, const executor&amp; e) noexcept;
+  bool operator!=(const executor&amp; a, const executor&amp; b) noexcept;
+  bool operator!=(const executor&amp; e, nullptr_t) noexcept;
+  bool operator!=(nullptr_t, const executor&amp; e) noexcept;
+
+  <span class='comment'>// dispatch:
+</span>
+  template&lt;class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> dispatch(CompletionToken&amp;&amp; token);
+  template&lt;class Executor, class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> dispatch(const Executor&amp; ex, CompletionToken&amp;&amp; token);
+  template&lt;class ExecutionContext, class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> dispatch(ExecutionContext&amp; ctx, CompletionToken&amp;&amp; token);
+
+  <span class='comment'>// post:
+</span>
+  template&lt;class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> post(CompletionToken&amp;&amp; token);
+  template&lt;class Executor, class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> post(const Executor&amp; ex, CompletionToken&amp;&amp; token);
+  template&lt;class ExecutionContext, class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> post(ExecutionContext&amp; ctx, CompletionToken&amp;&amp; token);
+
+  <span class='comment'>// defer:
+</span>
+  template&lt;class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> defer(CompletionToken&amp;&amp; token);
+  template&lt;class Executor, class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> defer(const Executor&amp; ex, CompletionToken&amp;&amp; token);
+  template&lt;class ExecutionContext, class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> defer(ExecutionContext&amp; ctx, CompletionToken&amp;&amp; token);
+
+  template&lt;class Executor&gt;
+    class strand;
+
+  template&lt;class Executor&gt;
+    bool operator==(const strand&lt;Executor&gt;&amp; a, const strand&lt;Executor&gt;&amp; b);
+  template&lt;class Executor&gt;
+    bool operator!=(const strand&lt;Executor&gt;&amp; a, const strand&lt;Executor&gt;&amp; b);
+
+  template&lt;class ProtoAllocator = allocator&lt;void&gt;&gt;
+    class use_future_t;
+
+  constexpr use_future_t&lt;&gt; use_future = use_future_t&lt;&gt;();
+
+  template&lt;class ProtoAllocator, class Result, class... Args&gt;
+    class async_result&lt;use_future_t&lt;ProtoAllocator&gt;, Result(Args...)&gt;;
+
+  template&lt;class R, class... Args, class Signature&gt;
+    class async_result&lt;packaged_task&lt;Result(Args...)&gt;, Signature&gt;;
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>
+  template&lt;class Allocator&gt;
+    struct uses_allocator&lt;experimental::net::v1::executor, Allocator&gt;
+      : true_type {};
+
+} <span class='comment'>// namespace std
+</span></pre></div></div></body></html>

@@ -1,0 +1,786 @@
+<!DOCTYPE html><html lang='en'><head><title>[buffer]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><div id='buffer'><h1 ><a class='secnum' style='min-width:73pt'>16</a> Buffers <a class='abbr_ref' href='./#buffer'>[buffer]</a></h1><p ><span class='indexparent'><a class='index' id='experimental/buffer'></a></span></p><div id='synop'><h2 ><a class='secnum' href='#synop' style='min-width:88pt'>16.1</a> Header <span class='texttt'>&lt;experimental/buffer&gt;</span> synopsis <a class='abbr_ref' href='buffer.synop'>[buffer.synop]</a></h2><p ><span class='indexparent'><a class='index' id='is_mutable_buffer_sequence_v'></a></span><span class='indexparent'><a class='index' id='is_const_buffer_sequence_v'></a></span><span class='indexparent'><a class='index' id='is_dynamic_buffer_v'></a></span><span class='indexparent'><a class='index' id='stream_errc'></a></span></p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  enum class stream_errc {
+    eof = <i>an implementation defined non-zero value</i>,
+    not_found = <i>an implementation defined non-zero value</i>
+  };
+
+  const error_category&amp; stream_category() noexcept;
+
+  error_code make_error_code(stream_errc e) noexcept;
+  error_condition make_error_condition(stream_errc e) noexcept;
+
+  class mutable_buffer;
+  class const_buffer;
+
+  <span class='comment'>// buffer type traits:
+</span>
+  template&lt;class T&gt; struct is_mutable_buffer_sequence;
+  template&lt;class T&gt; struct is_const_buffer_sequence;
+  template&lt;class T&gt; struct is_dynamic_buffer;
+
+  template&lt;class T&gt;
+      constexpr bool is_mutable_buffer_sequence_v = is_mutable_buffer_sequence&lt;T&gt;::value;
+    template&lt;class T&gt;
+      constexpr bool is_const_buffer_sequence_v = is_const_buffer_sequence&lt;T&gt;::value;
+    template&lt;class T&gt;
+      constexpr bool is_dynamic_buffer_v = is_dynamic_buffer&lt;T&gt;::value;
+
+  <span class='comment'>// buffer sequence access:
+</span>
+  const mutable_buffer* buffer_sequence_begin(const mutable_buffer&amp; b);
+  const const_buffer* buffer_sequence_begin(const const_buffer&amp; b);
+  const mutable_buffer* buffer_sequence_end(const mutable_buffer&amp; b);
+  const const_buffer* buffer_sequence_end(const const_buffer&amp; b);
+  template&lt;class C&gt; auto buffer_sequence_begin(C&amp; c) -&gt; decltype(c.begin());
+  template&lt;class C&gt; auto buffer_sequence_begin(const C&amp; c) -&gt; decltype(c.begin());
+  template&lt;class C&gt; auto buffer_sequence_end(C&amp; c) -&gt; decltype(c.end());
+  template&lt;class C&gt; auto buffer_sequence_end(const C&amp; c) -&gt; decltype(c.end());
+
+  <span class='comment'>// buffer size:
+</span>
+  template&lt;class ConstBufferSequence&gt;
+    size_t buffer_size(const ConstBufferSequence&amp; buffers) noexcept;
+
+  <span class='comment'>// buffer copy:
+</span>
+  template&lt;class MutableBufferSequence, class ConstBufferSequence&gt;
+    size_t buffer_copy(const MutableBufferSequence&amp; dest,
+                       const ConstBufferSequence&amp; source) noexcept;
+  template&lt;class MutableBufferSequence, class ConstBufferSequence&gt;
+    size_t buffer_copy(const MutableBufferSequence&amp; dest,
+                       const ConstBufferSequence&amp; source,
+                       size_t max_size) noexcept;
+
+  <span class='comment'>// buffer arithmetic:
+</span>
+  mutable_buffer operator+(const mutable_buffer&amp; b, size_t n) noexcept;
+  mutable_buffer operator+(size_t n, const mutable_buffer&amp; b) noexcept;
+  const_buffer operator+(const const_buffer&amp;, size_t n) noexcept;
+  const_buffer operator+(size_t, const const_buffer&amp;) noexcept;
+
+  <span class='comment'>// buffer creation:
+</span>
+  mutable_buffer buffer(void* p, size_t n) noexcept;
+  const_buffer buffer(const void* p, size_t n) noexcept;
+
+  mutable_buffer buffer(const mutable_buffer&amp; b) noexcept;
+  mutable_buffer buffer(const mutable_buffer&amp; b, size_t n) noexcept;
+  const_buffer buffer(const const_buffer&amp; b) noexcept;
+  const_buffer buffer(const const_buffer&amp; b, size_t n) noexcept;
+
+  template&lt;class T, size_t N&gt;
+    mutable_buffer buffer(T (&amp;data)[N]) noexcept;
+  template&lt;class T, size_t N&gt;
+    const_buffer buffer(const T (&amp;data)[N]) noexcept;
+  template&lt;class T, size_t N&gt;
+    mutable_buffer buffer(array&lt;T, N&gt;&amp; data) noexcept;
+  template&lt;class T, size_t N&gt;
+    const_buffer buffer(array&lt;const T, N&gt;&amp; data) noexcept;
+  template&lt;class T, size_t N&gt;
+    const_buffer buffer(const array&lt;T, N&gt;&amp; data) noexcept;
+  template&lt;class T, class Allocator&gt;
+    mutable_buffer buffer(vector&lt;T, Allocator&gt;&amp; data) noexcept;
+  template&lt;class T, class Allocator&gt;
+    const_buffer buffer(const vector&lt;T, Allocator&gt;&amp; data) noexcept;
+  template&lt;class CharT, class Traits, class Allocator&gt;
+    mutable_buffer buffer(basic_string&lt;CharT, Traits, Allocator&gt;&amp; data) noexcept;
+  template&lt;class CharT, class Traits, class Allocator&gt;
+    const_buffer buffer(const basic_string&lt;CharT, Traits, Allocator&gt;&amp; data) noexcept;
+  template&lt;class CharT, class Traits&gt;
+    const_buffer buffer(basic_string_view&lt;CharT, Traits&gt; data) noexcept;
+
+  template&lt;class T, size_t N&gt;
+    mutable_buffer buffer(T (&amp;data)[N], size_t n) noexcept;
+  template&lt;class T, size_t N&gt;
+    const_buffer buffer(const T (&amp;data)[N], size_t n) noexcept;
+  template&lt;class T, size_t N&gt;
+    mutable_buffer buffer(array&lt;T, N&gt;&amp; data, size_t n) noexcept;
+  template&lt;class T, size_t N&gt;
+    const_buffer buffer(array&lt;const T, N&gt;&amp; data, size_t n) noexcept;
+  template&lt;class T, size_t N&gt;
+    const_buffer buffer(const array&lt;T, N&gt;&amp; data, size_t n) noexcept;
+  template&lt;class T, class Allocator&gt;
+    mutable_buffer buffer(vector&lt;T, Allocator&gt;&amp; data, size_t n) noexcept;
+  template&lt;class T, class Allocator&gt;
+    const_buffer buffer(const vector&lt;T, Allocator&gt;&amp; data, size_t n) noexcept;
+  template&lt;class CharT, class Traits, class Allocator&gt;
+    mutable_buffer buffer(basic_string&lt;CharT, Traits, Allocator&gt;&amp; data,
+                          size_t n) noexcept;
+  template&lt;class CharT, class Traits, class Allocator&gt;
+    const_buffer buffer(const basic_string&lt;CharT, Traits, Allocator&gt;&amp; data,
+                        size_t n) noexcept;
+  template&lt;class CharT, class Traits&gt;
+    const_buffer buffer(basic_string_view&lt;CharT, Traits&gt; data,
+                        size_t n) noexcept;
+
+  template&lt;class T, class Allocator&gt;
+    class dynamic_vector_buffer;
+
+  template&lt;class CharT, class Traits, class Allocator&gt;
+    class dynamic_string_buffer;
+
+  <span class='comment'>// dynamic buffer creation:
+</span>
+  template&lt;class T, class Allocator&gt;
+    dynamic_vector_buffer&lt;T, Allocator&gt;
+    dynamic_buffer(vector&lt;T, Allocator&gt;&amp; vec) noexcept;
+  template&lt;class T, class Allocator&gt;
+    dynamic_vector_buffer&lt;T, Allocator&gt;
+    dynamic_buffer(vector&lt;T, Allocator&gt;&amp; vec, size_t n) noexcept;
+
+  template&lt;class CharT, class Traits, class Allocator&gt;
+    dynamic_string_buffer&lt;CharT, Traits, Allocator&gt;
+    dynamic_buffer(basic_string&lt;CharT, Traits, Allocator&gt;&amp; str) noexcept;
+  template&lt;class CharT, class Traits, class Allocator&gt;
+    dynamic_string_buffer&lt;CharT, Traits, Allocator&gt;
+    dynamic_buffer(basic_string&lt;CharT, Traits, Allocator&gt;&amp; str, size_t n) noexcept;
+
+  class transfer_all;
+  class transfer_at_least;
+  class transfer_exactly;
+
+  <span class='comment'>// synchronous read operations:
+</span>
+  template&lt;class SyncReadStream, class MutableBufferSequence&gt;
+    size_t read(SyncReadStream&amp; stream,
+                const MutableBufferSequence&amp; buffers);
+  template&lt;class SyncReadStream, class MutableBufferSequence&gt;
+    size_t read(SyncReadStream&amp; stream,
+                const MutableBufferSequence&amp; buffers, error_code&amp; ec);
+  template&lt;class SyncReadStream, class MutableBufferSequence,
+    class CompletionCondition&gt;
+      size_t read(SyncReadStream&amp; stream,
+                  const MutableBufferSequence&amp; buffers,
+                  CompletionCondition completion_condition);
+  template&lt;class SyncReadStream, class MutableBufferSequence,
+    class CompletionCondition&gt;
+      size_t read(SyncReadStream&amp; stream,
+                  const MutableBufferSequence&amp; buffers,
+                  CompletionCondition completion_condition,
+                  error_code&amp; ec);
+
+  template&lt;class SyncReadStream, class DynamicBuffer&gt;
+    size_t read(SyncReadStream&amp; stream, DynamicBuffer&amp;&amp; b);
+  template&lt;class SyncReadStream, class DynamicBuffer&gt;
+    size_t read(SyncReadStream&amp; stream, DynamicBuffer&amp;&amp; b, error_code&amp; ec);
+  template&lt;class SyncReadStream, class DynamicBuffer, class CompletionCondition&gt;
+    size_t read(SyncReadStream&amp; stream, DynamicBuffer&amp;&amp; b,
+                CompletionCondition completion_condition);
+  template&lt;class SyncReadStream, class DynamicBuffer, class CompletionCondition&gt;
+    size_t read(SyncReadStream&amp; stream, DynamicBuffer&amp;&amp; b,
+                CompletionCondition completion_condition, error_code&amp; ec);
+
+  <span class='comment'>// asynchronous read operations:
+</span>
+  template&lt;class AsyncReadStream, class MutableBufferSequence,
+    class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_read(AsyncReadStream&amp; stream,
+                         const MutableBufferSequence&amp; buffers,
+                         CompletionToken&amp;&amp; token);
+  template&lt;class AsyncReadStream, class MutableBufferSequence,
+    class CompletionCondition, class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_read(AsyncReadStream&amp; stream,
+                         const MutableBufferSequence&amp; buffers,
+                         CompletionCondition completion_condition,
+                         CompletionToken&amp;&amp; token);
+
+  template&lt;class AsyncReadStream, class DynamicBuffer, class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> async_read(AsyncReadStream&amp; stream,
+                       DynamicBuffer&amp;&amp; b, CompletionToken&amp;&amp; token);
+  template&lt;class AsyncReadStream, class DynamicBuffer,
+    class CompletionCondition, class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_read(AsyncReadStream&amp; stream,
+                         DynamicBuffer&amp;&amp; b,
+                         CompletionCondition completion_condition,
+                         CompletionToken&amp;&amp; token);
+
+  <span class='comment'>// synchronous write operations:
+</span>
+  template&lt;class SyncWriteStream, class ConstBufferSequence&gt;
+    size_t write(SyncWriteStream&amp; stream,
+                 const ConstBufferSequence&amp; buffers);
+  template&lt;class SyncWriteStream, class ConstBufferSequence&gt;
+    size_t write(SyncWriteStream&amp; stream,
+                 const ConstBufferSequence&amp; buffers, error_code&amp; ec);
+  template&lt;class SyncWriteStream, class ConstBufferSequence,
+    class CompletionCondition&gt;
+      size_t write(SyncWriteStream&amp; stream,
+                   const ConstBufferSequence&amp; buffers,
+                   CompletionCondition completion_condition);
+  template&lt;class SyncWriteStream, class ConstBufferSequence,
+    class CompletionCondition&gt;
+      size_t write(SyncWriteStream&amp; stream,
+                   const ConstBufferSequence&amp; buffers,
+                   CompletionCondition completion_condition,
+                   error_code&amp; ec);
+
+  template&lt;class SyncWriteStream, class DynamicBuffer&gt;
+    size_t write(SyncWriteStream&amp; stream, DynamicBuffer&amp;&amp; b);
+  template&lt;class SyncWriteStream, class DynamicBuffer&gt;
+    size_t write(SyncWriteStream&amp; stream, DynamicBuffer&amp;&amp; b, error_code&amp; ec);
+  template&lt;class SyncWriteStream, class DynamicBuffer, class CompletionCondition&gt;
+    size_t write(SyncWriteStream&amp; stream, DynamicBuffer&amp;&amp; b,
+                 CompletionCondition completion_condition);
+  template&lt;class SyncWriteStream, class DynamicBuffer, class CompletionCondition&gt;
+    size_t write(SyncWriteStream&amp; stream, DynamicBuffer&amp;&amp; b,
+                 CompletionCondition completion_condition, error_code&amp; ec);
+
+  <span class='comment'>// asynchronous write operations:
+</span>
+  template&lt;class AsyncWriteStream, class ConstBufferSequence,
+    class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_write(AsyncWriteStream&amp; stream,
+                          const ConstBufferSequence&amp; buffers,
+                          CompletionToken&amp;&amp; token);
+  template&lt;class AsyncWriteStream, class ConstBufferSequence,
+    class CompletionCondition, class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_write(AsyncWriteStream&amp; stream,
+                          const ConstBufferSequence&amp; buffers,
+                          CompletionCondition completion_condition,
+                          CompletionToken&amp;&amp; token);
+
+  template&lt;class AsyncWriteStream, class DynamicBuffer, class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> async_write(AsyncWriteStream&amp; stream,
+                     DynamicBuffer&amp;&amp; b, CompletionToken&amp;&amp; token);
+  template&lt;class AsyncWriteStream, class DynamicBuffer,
+    class CompletionCondition, class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_write(AsyncWriteStream&amp; stream,
+                          DynamicBuffer&amp;&amp; b,
+                          CompletionCondition completion_condition,
+                          CompletionToken&amp;&amp; token);
+
+  <span class='comment'>// synchronous delimited read operations:
+</span>
+  template&lt;class SyncReadStream, class DynamicBuffer&gt;
+    size_t read_until(SyncReadStream&amp; s, DynamicBuffer&amp;&amp; b, char delim);
+  template&lt;class SyncReadStream, class DynamicBuffer&gt;
+    size_t read_until(SyncReadStream&amp; s, DynamicBuffer&amp;&amp; b,
+                      char delim, error_code&amp; ec);
+  template&lt;class SyncReadStream, class DynamicBuffer&gt;
+    size_t read_until(SyncReadStream&amp; s, DynamicBuffer&amp;&amp; b, string_view delim);
+  template&lt;class SyncReadStream, class DynamicBuffer&gt;
+    size_t read_until(SyncReadStream&amp; s, DynamicBuffer&amp;&amp; b,
+                      string_view delim, error_code&amp; ec);
+
+  <span class='comment'>// asynchronous delimited read operations:
+</span>
+  template&lt;class AsyncReadStream, class DynamicBuffer, class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> async_read_until(AsyncReadStream&amp; s,
+                             DynamicBuffer&amp;&amp; b, char delim,
+                             CompletionToken&amp;&amp; token);
+  template&lt;class AsyncReadStream, class DynamicBuffer, class CompletionToken&gt;
+    <i><span class='texttt'>DEDUCED</span></i> async_read_until(AsyncReadStream&amp; s,
+                             DynamicBuffer&amp;&amp; b, string_view delim,
+                             CompletionToken&amp;&amp; token);
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>
+  template&lt;&gt; struct is_error_code_enum&lt;
+    experimental::net::v1::stream_errc&gt;
+      : public true_type {};
+
+} <span class='comment'>// namespace std
+</span></pre></div><div id='reqmts'><h2 ><a class='secnum' href='#reqmts' style='min-width:88pt'>16.2</a> Requirements <a class='abbr_ref' href='buffer.reqmts'>[buffer.reqmts]</a></h2><div id='reqmts.mutablebuffersequence'><h3 ><a class='secnum' href='#reqmts.mutablebuffersequence' style='min-width:103pt'>16.2.1</a> Mutable buffer sequence requirements <a class='abbr_ref' href='buffer.reqmts.mutablebuffersequence'>[buffer.reqmts.mutablebuffersequence]</a></h3><div class='para' id='reqmts.mutablebuffersequence-1'><div class='marginalizedparent'><a class='marginalized' href='#reqmts.mutablebuffersequence-1'>1</a></div><p >A <a class='hidden_link' href='#def:mutable_buffer_sequence' id='def:mutable_buffer_sequence'><i>mutable buffer sequence</i></a> represents a set of memory regions that may be used to receive the output of an operation, such as the <span class='texttt'>receive</span> operation of a socket.</p></div><div class='para' id='reqmts.mutablebuffersequence-2'><div class='marginalizedparent'><a class='marginalized' href='#reqmts.mutablebuffersequence-2'>2</a></div><p >A type <span class='texttt'>X</span> meets the <span class='texttt'>MutableBufferSequence</span> requirements if it satisfies the requirements of <span class='texttt'>Destructible</span> (C++Std &sect;<a href='../n4140/destructible'>[destructible]</a>) and <span class='texttt'>CopyConstructible</span> (C++Std &sect;<a href='../n4140/copyconstructible'>[copyconstructible]</a>), as well as the additional requirements listed in Table <a href='#tab:buffer.reqmts.mutablebuffersequence.requirements'>[tab:buffer.reqmts.mutablebuffersequence.requirements]</a>.</p></div><div class='para' id='reqmts.mutablebuffersequence-3'><div class='marginalizedparent'><a class='marginalized' href='#reqmts.mutablebuffersequence-3'>3</a></div><p >In Table <a href='#tab:buffer.reqmts.mutablebuffersequence.requirements'>[tab:buffer.reqmts.mutablebuffersequence.requirements]</a>,
+<span class='texttt'>x</span> denotes a value of type <span class='texttt'>X</span> or <span class='texttt'>const X</span>,
+and <span class='texttt'>u</span> denotes an identifier.</p><p ><span class='indexparent'><a class='index' id='requirements,MutableBufferSequence'></a></span>
+ 
+ </p><div class='numberedTable' id='tab:buffer.reqmts.mutablebuffersequence.requirements'>Table <a href='#tab:buffer.reqmts.mutablebuffersequence.requirements'>12</a> — MutableBufferSequence requirements<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>expression</b></td><td colspan='1' class='center'><b>return type</b></td><td colspan='1' class='center'><b>assertion/note</b></td></tr><tr ><td colspan='1' class='center'><b></b></td><td colspan='1' class='center'><b></b></td><td colspan='1' class='center'><b>pre/post-condition</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='texttt'>net::buffer_sequence_begin(x)</span><br/>
+<span class='texttt'>net::buffer_sequence_end(x)</span>  </td><td class='left'>
+An iterator type meeting the requirements for bidirectional iterators (C++Std &sect;<a href='../n4140/bidirectional.iterators'>[bidirectional.iterators]</a>) whose value type is convertible to <span class='texttt'>mutable_buffer</span>.  </td><td class='left'>
+  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X u(x);</span>
+  </td><td class='left'>
+  </td><td class='left'>
+post: <pre class='codeblock'>
+equal(
+  net::buffer_sequence_begin(x),
+  net::buffer_sequence_end(x),
+  net::buffer_sequence_begin(u),
+  net::buffer_sequence_end(u),
+  [](const typename X::value_type&amp; v1,
+     const typename X::value_type&amp; v2)
+   {
+     mutable_buffer b1(v1);
+     mutable_buffer b2(v2);
+     return b1.data() == b2.data()
+         &amp;&amp; b1.size() == b2.size();
+   })
+</pre>
+  </td></tr></table></div></div></div><div id='reqmts.constbuffersequence'><h3 ><a class='secnum' href='#reqmts.constbuffersequence' style='min-width:103pt'>16.2.2</a> Constant buffer sequence requirements <a class='abbr_ref' href='buffer.reqmts.constbuffersequence'>[buffer.reqmts.constbuffersequence]</a></h3><div class='para' id='reqmts.constbuffersequence-1'><div class='marginalizedparent'><a class='marginalized' href='#reqmts.constbuffersequence-1'>1</a></div><p >A <a class='hidden_link' href='#def:constant_buffer_sequence' id='def:constant_buffer_sequence'><i>constant buffer sequence</i></a> represents a set of memory regions that may be used as input to an operation, such as the <span class='texttt'>send</span> operation of a socket.</p></div><div class='para' id='reqmts.constbuffersequence-2'><div class='marginalizedparent'><a class='marginalized' href='#reqmts.constbuffersequence-2'>2</a></div><p >A type <span class='texttt'>X</span> meets the <span class='texttt'>ConstBufferSequence</span> requirements if it satisfies the requirements of <span class='texttt'>Destructible</span> (C++Std &sect;<a href='../n4140/destructible'>[destructible]</a>) and <span class='texttt'>CopyConstructible</span> (C++Std &sect;<a href='../n4140/copyconstructible'>[copyconstructible]</a>), as well as the additional requirements listed in Table <a href='#tab:buffer.reqmts.constbuffersequence.requirements'>[tab:buffer.reqmts.constbuffersequence.requirements]</a>.</p></div><div class='para' id='reqmts.constbuffersequence-3'><div class='marginalizedparent'><a class='marginalized' href='#reqmts.constbuffersequence-3'>3</a></div><p >In Table <a href='#tab:buffer.reqmts.constbuffersequence.requirements'>[tab:buffer.reqmts.constbuffersequence.requirements]</a>,
+<span class='texttt'>x</span> denotes a value of type <span class='texttt'>X</span> or <span class='texttt'>const X</span>,
+and <span class='texttt'>u</span> denotes an identifier.</p><p ><span class='indexparent'><a class='index' id='requirements,ConstBufferSequence'></a></span>
+ 
+ </p><div class='numberedTable' id='tab:buffer.reqmts.constbuffersequence.requirements'>Table <a href='#tab:buffer.reqmts.constbuffersequence.requirements'>13</a> — ConstBufferSequence requirements<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>expression</b></td><td colspan='1' class='center'><b>return type</b></td><td colspan='1' class='center'><b>assertion/note</b></td></tr><tr ><td colspan='1' class='center'><b></b></td><td colspan='1' class='center'><b></b></td><td colspan='1' class='center'><b>pre/post-condition</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='texttt'>net::buffer_sequence_begin(x)</span><br/>
+<span class='texttt'>net::buffer_sequence_end(x)</span>  </td><td class='left'>
+An iterator type meeting the requirements for bidirectional iterators (C++Std &sect;<a href='../n4140/bidirectional.iterators'>[bidirectional.iterators]</a>) whose value type is convertible to <span class='texttt'>const_buffer</span>.  </td><td class='left'>
+  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X u(x);</span>
+  </td><td class='left'>
+  </td><td class='left'>
+post:
+<pre class='codeblock'>
+equal(
+  net::buffer_sequence_begin(x),
+  net::buffer_sequence_end(x),
+  net::buffer_sequence_begin(u),
+  net::buffer_sequence_end(u),
+  [](const typename X::value_type&amp; v1,
+     const typename X::value_type&amp; v2)
+   {
+     const_buffer b1(v1);
+     const_buffer b2(v2);
+     return b1.data() == b2.data()
+         &amp;&amp; b1.size() == b2.size();
+   })
+</pre>
+  </td></tr></table></div></div></div><div id='reqmts.dynamicbuffer'><h3 ><a class='secnum' href='#reqmts.dynamicbuffer' style='min-width:103pt'>16.2.3</a> Dynamic buffer requirements <a class='abbr_ref' href='buffer.reqmts.dynamicbuffer'>[buffer.reqmts.dynamicbuffer]</a></h3><div class='para' id='reqmts.dynamicbuffer-1'><div class='marginalizedparent'><a class='marginalized' href='#reqmts.dynamicbuffer-1'>1</a></div><p >A <a class='hidden_link' href='#def:dynamic_buffer' id='def:dynamic_buffer'><i>dynamic buffer</i></a> encapsulates memory storage that may be automatically resized as required, where the memory is divided into two regions: readable bytes followed by writable bytes. These memory regions are internal to the dynamic buffer, but direct access to the elements is provided to permit them to be efficiently used with I/O operations. [&nbsp;<i>Note:</i> Such as the <span class='texttt'>send</span> or <span class='texttt'>receive</span> operations of a socket. The readable bytes would be used as the constant buffer sequence for <span class='texttt'>send</span>, and the writable bytes used as the mutable buffer sequence for <span class='texttt'>receive</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;] Data written to the writable bytes of a dynamic buffer object is appended to the readable bytes of the same object.</p></div><div class='para' id='reqmts.dynamicbuffer-2'><div class='marginalizedparent'><a class='marginalized' href='#reqmts.dynamicbuffer-2'>2</a></div><p >A type <span class='texttt'>X</span> meets the <span class='texttt'>DynamicBuffer</span> requirements if it satisfies the requirements of <span class='texttt'>Destructible</span> (C++Std &sect;<a href='../n4140/destructible'>[destructible]</a>) and <span class='texttt'>MoveConstructible</span> (C++Std &sect;<a href='../n4140/moveconstructible'>[moveconstructible]</a>), as well as the additional requirements listed in Table <a href='#tab:buffer.reqmts.dynamicbuffer.requirements'>[tab:buffer.reqmts.dynamicbuffer.requirements]</a>.</p></div><div class='para' id='reqmts.dynamicbuffer-3'><div class='marginalizedparent'><a class='marginalized' href='#reqmts.dynamicbuffer-3'>3</a></div><p >In Table <a href='#tab:buffer.reqmts.dynamicbuffer.requirements'>[tab:buffer.reqmts.dynamicbuffer.requirements]</a>,
+<span class='texttt'>x</span> denotes a value of type <span class='texttt'>X</span>,
+<span class='texttt'>x1</span> denotes a value of type <span class='texttt'>X</span> or <span class='texttt'>const X</span>,
+and <span class='texttt'>n</span> denotes a value of type <span class='texttt'>size_t</span> or <span class='texttt'>const size_t</span>.</p><p ><span class='indexparent'><a class='index' id='requirements,DynamicBuffer'></a></span>
+ 
+ 
+ </p><div class='numberedTable' id='tab:buffer.reqmts.dynamicbuffer.requirements'>Table <a href='#tab:buffer.reqmts.dynamicbuffer.requirements'>14</a> — DynamicBuffer requirements<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>expression</b></td><td colspan='1' class='center'><b>type</b></td><td colspan='1' class='center'><b>assertion/note pre/post-conditions</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='texttt'>X::const_buffers_type</span>  </td><td class='left'>
+type meeting ConstBufferSequence (<a href='buffer.reqmts.constbuffersequence'>[buffer.reqmts.constbuffersequence]</a>) requirements.  </td><td class='left'>
+ This type represents the memory associated with the readable bytes.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X::mutable_buffers_type</span>  </td><td class='left'>
+type meeting MutableBufferSequence (<a href='buffer.reqmts.constbuffersequence'>[buffer.reqmts.constbuffersequence]</a>) requirements.  </td><td class='left'>
+ This type represents the memory associated with the writable bytes.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>x1.size()</span>  </td><td class='left'>
+<span class='texttt'>size_t</span>  </td><td class='left'>
+ Returns the number of readable bytes.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>x1.max_size()</span>  </td><td class='left'>
+<span class='texttt'>size_t</span>  </td><td class='left'>
+Returns the maximum number of bytes, both readable and writable, that can be held by <span class='texttt'>x1</span>.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>x1.capacity()</span>  </td><td class='left'>
+<span class='texttt'>size_t</span>  </td><td class='left'>
+Returns the maximum number of bytes, both readable and writable, that can be held by <span class='texttt'>x1</span> without requiring reallocation.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>x1.data()</span>  </td><td class='left'>
+<span class='texttt'>X::const_buffers_type</span>  </td><td class='left'>
+Returns a constant buffer sequence <span class='texttt'>u</span> that represents the readable bytes, and where <span class='texttt'>buffer_size(u) == size()</span>.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>x.prepare(n)</span>  </td><td class='left'>
+<span class='texttt'>X::mutable_buffers_type</span>  </td><td class='left'>
+Returns a mutable buffer sequence <span class='texttt'>u</span> representing the writable bytes, and where <span class='texttt'>buffer_size(u) == n</span>. The dynamic buffer reallocates memory as required. All constant or mutable buffer sequences previously obtained using <span class='texttt'>data()</span> or <span class='texttt'>prepare()</span> are invalidated.<br/> <i>Throws:</i> <span class='texttt'>length_error</span> if <span class='texttt'>size() + n</span> exceeds <span class='texttt'>max_size()</span>.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>x.commit(n)</span>  </td><td class='left'>
+  </td><td class='left'>
+Appends <span class='texttt'>n</span> bytes from the start of the writable bytes to the end of the readable bytes. The remainder of the writable bytes are discarded. If <span class='texttt'>n</span> is greater than the number of writable bytes, all writable bytes are appended to the readable bytes. All constant or mutable buffer sequences previously obtained using <span class='texttt'>data()</span> or <span class='texttt'>prepare()</span> are invalidated.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>x.consume(n)</span>  </td><td class='left'>
+  </td><td class='left'>
+Removes <span class='texttt'>n</span> bytes from beginning of the readable bytes. If <span class='texttt'>n</span> is greater than the number of readable bytes, all readable bytes are removed. All constant or mutable buffer sequences previously obtained using <span class='texttt'>data()</span> or <span class='texttt'>prepare()</span> are invalidated.  </td></tr></table></div></div></div><div id='reqmts.read.write'><h3 ><a class='secnum' href='#reqmts.read.write' style='min-width:103pt'>16.2.4</a> Requirements on read and write operations <a class='abbr_ref' href='buffer.reqmts.read.write'>[buffer.reqmts.read.write]</a></h3><div class='para' id='reqmts.read.write-1'><div class='marginalizedparent'><a class='marginalized' href='#reqmts.read.write-1'>1</a></div><p >A <a class='hidden_link' href='#def:read_operation' id='def:read_operation'><i>read operation</i></a> is an operation that reads data into a mutable buffer sequence argument of a type meeting <span class='texttt'>MutableBufferSequence</span> (<a href='buffer.reqmts.mutablebuffersequence'>[buffer.reqmts.mutablebuffersequence]</a>) requirements. The mutable buffer sequence specifies memory where the data should be placed. A read operation shall always fill a buffer in the sequence completely before proceeding to the next.</p></div><div class='para' id='reqmts.read.write-2'><div class='marginalizedparent'><a class='marginalized' href='#reqmts.read.write-2'>2</a></div><p >A <a class='hidden_link' href='#def:write_operation' id='def:write_operation'><i>write operation</i></a> is an operation that writes data from a constant buffer sequence argument of a type meeting <span class='texttt'>ConstBufferSequence</span> (<a href='buffer.reqmts.constbuffersequence'>[buffer.reqmts.constbuffersequence]</a>) requirements. The constant buffer sequence specifies memory where the data to be written is located. A write operation shall always write a buffer in the sequence completely before proceeding to the next.</p><p ><span class='indexparent'><a class='index' id='asynchronous_operation'></a></span></p></div><div class='para' id='reqmts.read.write-3'><div class='marginalizedparent'><a class='marginalized' href='#reqmts.read.write-3'>3</a></div><p >If a read or write operation is also an asynchronous operation (<a href='async.reqmts.async'>[async.reqmts.async]</a>), the operation shall maintain one or more copies of the buffer sequence until such time as the operation no longer requires access to the memory specified by the buffers in the sequence. The program shall ensure the memory remains valid until:</p><ul class='itemize'><li id='reqmts.read.write-3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#reqmts.read.write-3.1'>(3.1)</a></div><p >the last copy of the buffer sequence is destroyed, or
+</p></li><li id='reqmts.read.write-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#reqmts.read.write-3.2'>(3.2)</a></div><p >the completion handler for the asynchronous operation is invoked,
+</p></li></ul><p >whichever comes first.</p><p ><span class='indexparent'><a class='index' id='error_codes,stream'></a></span></p></div></div></div><div id='err'><h2 ><a class='secnum' href='#err' style='min-width:88pt'>16.3</a> Error codes <a class='abbr_ref' href='buffer.err'>[buffer.err]</a></h2><p ><span class='indexparent'><a class='index' id='stream_category'></a></span><code class='itemdecl'>
+const error_category&amp; stream_category() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='err-1'><div class='marginalizedparent'><a class='marginalized' href='#err-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> A reference to an object of a type derived from class <span class='texttt'>error_category</span>. All calls to this function return references to the same object.</p></div></div><div class='para' id='err-2'><div class='marginalizedparent'><a class='marginalized' href='#err-2'>2</a></div><div class='itemdescr'><p >The object's <span class='texttt'>default_error_condition</span> and <span class='texttt'>equivalent</span> virtual functions behave as specified for the class <span class='texttt'>error_category</span>. The object's <span class='texttt'>name</span> virtual function returns a pointer to the string <span class='texttt'>"stream"</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='make_error_code,stream_errc'></a></span><span class='indexparent'><a class='index' id='stream_errc,make_error_code'></a></span><code class='itemdecl'>
+error_code make_error_code(stream_errc e) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='err-3'><div class='marginalizedparent'><a class='marginalized' href='#err-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>error_code(static_cast&lt;int&gt;(e), stream_category())</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='make_error_condition,stream_errc'></a></span><span class='indexparent'><a class='index' id='stream_errc,make_error_condition'></a></span><code class='itemdecl'>
+error_condition make_error_condition(stream_errc e) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='err-4'><div class='marginalizedparent'><a class='marginalized' href='#err-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>error_condition(static_cast&lt;int&gt;(e), stream_category())</span>.
+</p></div></div></div><div id='mutable'><h2 ><a class='secnum' href='#mutable' style='min-width:88pt'>16.4</a> Class <span class='texttt'>mutable_buffer</span> <a class='abbr_ref' href='buffer.mutable'>[buffer.mutable]</a></h2><p ><span class='indexparent'><a class='index' id='mutable_buffer'></a></span></p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  class mutable_buffer
+  {
+  public:
+    <span class='comment'>// constructors:
+</span>    mutable_buffer() noexcept;
+    mutable_buffer(void* p, size_t n) noexcept;
+
+    <span class='comment'>// members:
+</span>    void* data() const noexcept;
+    size_t size() const noexcept;
+    mutable_buffer&amp; operator+=(size_t n) noexcept;
+
+  private:
+    void* data_; <span class='comment'>// <i>exposition only</i>
+</span>    size_t size_; <span class='comment'>// <i>exposition only</i>
+</span>  };
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre><div class='para' id='mutable-1'><div class='marginalizedparent'><a class='marginalized' href='#mutable-1'>1</a></div><p >The <span class='texttt'>mutable_buffer</span> class satisfies requirements of <span class='texttt'>MutableBufferSequence</span> (<a href='buffer.reqmts.mutablebuffersequence'>[buffer.reqmts.mutablebuffersequence]</a>), <span class='texttt'>DefaultConstructible</span> (C++Std &sect;<a href='../n4140/defaultconstructible'>[defaultconstructible]</a>), and <span class='texttt'>CopyAssignable</span> (C++Std &sect;<a href='../n4140/copyassignable'>[copyassignable]</a>).</p><p ><span class='indexparent'><a class='index' id='mutable_buffer,constructor'></a></span><code class='itemdecl'>
+mutable_buffer() noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='mutable-2'><div class='marginalizedparent'><a class='marginalized' href='#mutable-2'>2</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>data_ == nullptr</span> and <span class='texttt'>size_ == 0</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='mutable_buffer,constructor'></a></span><code class='itemdecl'>
+mutable_buffer(void* p, size_t n) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='mutable-3'><div class='marginalizedparent'><a class='marginalized' href='#mutable-3'>3</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>data_ == p</span> and <span class='texttt'>size_ == n</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='data,mutable_buffer'></a></span><span class='indexparent'><a class='index' id='mutable_buffer,data'></a></span><code class='itemdecl'>
+void* data() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='mutable-4'><div class='marginalizedparent'><a class='marginalized' href='#mutable-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>data_</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='size,mutable_buffer'></a></span><span class='indexparent'><a class='index' id='mutable_buffer,size'></a></span><code class='itemdecl'>
+size_t size() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='mutable-5'><div class='marginalizedparent'><a class='marginalized' href='#mutable-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>size_</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator+=,mutable_buffer'></a></span><span class='indexparent'><a class='index' id='mutable_buffer,operator+='></a></span><code class='itemdecl'>
+mutable_buffer&amp; operator+=(size_t n) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='mutable-6'><div class='marginalizedparent'><a class='marginalized' href='#mutable-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> Sets <span class='texttt'>data_</span> to <span class='texttt'>static_cast&lt;char*&gt;(data_) + min(n, size_)</span>, and then <span class='texttt'>size_</span> to <span class='texttt'>size_ - min(n, size_)</span>.</p></div></div><div class='para' id='mutable-7'><div class='marginalizedparent'><a class='marginalized' href='#mutable-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div></div><div id='const'><h2 ><a class='secnum' href='#const' style='min-width:88pt'>16.5</a> Class <span class='texttt'>const_buffer</span> <a class='abbr_ref' href='buffer.const'>[buffer.const]</a></h2><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  class const_buffer
+  {
+  public:
+    <span class='comment'>// constructors:
+</span>    const_buffer() noexcept;
+    const_buffer(const void* p, size_t n) noexcept;
+    const_buffer(const mutable_buffer&amp; b) noexcept;
+
+    <span class='comment'>// members:
+</span>    const void* data() const noexcept;
+    size_t size() const noexcept;
+    const_buffer&amp; operator+=(size_t n) noexcept;
+
+  private:
+    const void* data_; <span class='comment'>// <i>exposition only</i>
+</span>    size_t size_; <span class='comment'>// <i>exposition only</i>
+</span>  };
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre><div class='para' id='const-1'><div class='marginalizedparent'><a class='marginalized' href='#const-1'>1</a></div><p >The <span class='texttt'>const_buffer</span> class satisfies requirements of <span class='texttt'>ConstBufferSequence</span> (<a href='buffer.reqmts.constbuffersequence'>[buffer.reqmts.constbuffersequence]</a>), <span class='texttt'>DefaultConstructible</span> (C++Std &sect;<a href='../n4140/defaultconstructible'>[defaultconstructible]</a>), and <span class='texttt'>CopyAssignable</span> (C++Std &sect;<a href='../n4140/copyassignable'>[copyassignable]</a>).</p><p ><span class='indexparent'><a class='index' id='const_buffer,constructor'></a></span><code class='itemdecl'>
+const_buffer() noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='const-2'><div class='marginalizedparent'><a class='marginalized' href='#const-2'>2</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>data_ == nullptr</span> and <span class='texttt'>size_ == 0</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='const_buffer,constructor'></a></span><code class='itemdecl'>
+const_buffer(const void* p, size_t n) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='const-3'><div class='marginalizedparent'><a class='marginalized' href='#const-3'>3</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>data_ == p</span> and <span class='texttt'>size_ == n</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='const_buffer,constructor'></a></span><code class='itemdecl'>
+const_buffer(const mutable_buffer&amp; b);
+</code></p><div class='itemdescr'></div><div class='para' id='const-4'><div class='marginalizedparent'><a class='marginalized' href='#const-4'>4</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>data_ == b.data()</span> and <span class='texttt'>size_ == b.size()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='data,const_buffer'></a></span><span class='indexparent'><a class='index' id='const_buffer,data'></a></span><code class='itemdecl'>
+const void* data() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='const-5'><div class='marginalizedparent'><a class='marginalized' href='#const-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>data_</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='size,const_buffer'></a></span><span class='indexparent'><a class='index' id='const_buffer,size'></a></span><code class='itemdecl'>
+size_t size() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='const-6'><div class='marginalizedparent'><a class='marginalized' href='#const-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>size_</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='operator+=,const_buffer'></a></span><span class='indexparent'><a class='index' id='const_buffer,operator+='></a></span><code class='itemdecl'>
+const_buffer&amp; operator+=(size_t n) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='const-7'><div class='marginalizedparent'><a class='marginalized' href='#const-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> Sets <span class='texttt'>data_</span> to <span class='texttt'>static_cast&lt;const char*&gt;(data_) + min(n, size_)</span>, and then <span class='texttt'>size_</span> to <span class='texttt'>size_ - min(n, size_)</span>.</p></div></div><div class='para' id='const-8'><div class='marginalizedparent'><a class='marginalized' href='#const-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div></div><div id='traits'><h2 ><a class='secnum' href='#traits' style='min-width:88pt'>16.6</a> Buffer type traits <a class='abbr_ref' href='buffer.traits'>[buffer.traits]</a></h2><p ><span class='indexparent'><a class='index' id='is_mutable_buffer_sequence'></a></span><span class='indexparent'><a class='index' id='is_const_buffer_sequence'></a></span><span class='indexparent'><a class='index' id='is_dynamic_buffer'></a></span></p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  template&lt;class T&gt; struct is_mutable_buffer_sequence;
+  template&lt;class T&gt; struct is_const_buffer_sequence;
+  template&lt;class T&gt; struct is_dynamic_buffer;
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre><div class='para' id='traits-1'><div class='marginalizedparent'><a class='marginalized' href='#traits-1'>1</a></div><p >This sub-clause contains templates that may be used to query the properties of a type at compile time. Each of these templates is a UnaryTypeTrait (C++Std &sect;<a href='../n4140/meta.rqmts'>[meta.rqmts]</a>) with a BaseCharacteristic of <span class='texttt'>true_type</span> if the corresponding condition is true, otherwise <span class='texttt'>false_type</span>.</p><div class='numberedTable' id='tab:buffer.traits.requirements'>Table <a href='#tab:buffer.traits.requirements'>15</a> — Buffer type traits<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Template</b></td><td colspan='1' class='center'><b>Condition</b></td><td colspan='1' class='center'><b>Preconditions</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='texttt'>template&lt;class T&gt;</span><br/>
+<span class='texttt'>struct is_mutable_buffer_sequence</span>  </td><td class='left'>
+<span class='texttt'>T</span> meets the syntactic requirements for mutable buffer sequence (<a href='buffer.reqmts.mutablebuffersequence'>[buffer.reqmts.mutablebuffersequence]</a>).  </td><td class='left'>
+<span class='texttt'>T</span> is a complete type.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>template&lt;class T&gt;</span><br/>
+<span class='texttt'>struct is_const_buffer_sequence</span>  </td><td class='left'>
+<span class='texttt'>T</span> meets the syntactic requirements for constant buffer sequence (<a href='buffer.reqmts.constbuffersequence'>[buffer.reqmts.constbuffersequence]</a>).  </td><td class='left'>
+<span class='texttt'>T</span> is a complete type.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>template&lt;class T&gt;</span><br/>
+<span class='texttt'>struct is_dynamic_buffer</span>  </td><td class='left'>
+<span class='texttt'>T</span> meets the syntactic requirements for dynamic buffer (<a href='buffer.reqmts.dynamicbuffer'>[buffer.reqmts.dynamicbuffer]</a>).  </td><td class='left'>
+<span class='texttt'>T</span> is a complete type.  </td></tr></table></div></div></div><div id='seq.access'><h2 ><a class='secnum' href='#seq.access' style='min-width:88pt'>16.7</a> Buffer sequence access <a class='abbr_ref' href='buffer.seq.access'>[buffer.seq.access]</a></h2><p ><span class='indexparent'><a class='index' id='buffer_sequence_begin'></a></span><code class='itemdecl'>
+const mutable_buffer* buffer_sequence_begin(const mutable_buffer&amp; b);
+const const_buffer* buffer_sequence_begin(const const_buffer&amp; b);
+</code></p><div class='itemdescr'></div><div class='para' id='seq.access-1'><div class='marginalizedparent'><a class='marginalized' href='#seq.access-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::addressof(b)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='buffer_sequence_end'></a></span><code class='itemdecl'>
+const mutable_buffer* buffer_sequence_end(const mutable_buffer&amp; b);
+const const_buffer* buffer_sequence_end(const const_buffer&amp; b);
+</code></p><div class='itemdescr'></div><div class='para' id='seq.access-2'><div class='marginalizedparent'><a class='marginalized' href='#seq.access-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>std::addressof(b) + 1</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='buffer_sequence_begin'></a></span><code class='itemdecl'>
+template&lt;class C&gt; auto buffer_sequence_begin(C&amp; c) -&gt; decltype(c.begin());
+template&lt;class C&gt; auto buffer_sequence_begin(const C&amp; c) -&gt; decltype(c.begin());
+</code></p><div class='itemdescr'></div><div class='para' id='seq.access-3'><div class='marginalizedparent'><a class='marginalized' href='#seq.access-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>c.begin()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='buffer_sequence_end'></a></span><code class='itemdecl'>
+template&lt;class C&gt; auto buffer_sequence_end(C&amp; c) -&gt; decltype(c.end());
+template&lt;class C&gt; auto buffer_sequence_end(const C&amp; c) -&gt; decltype(c.end());
+</code></p><div class='itemdescr'></div><div class='para' id='seq.access-4'><div class='marginalizedparent'><a class='marginalized' href='#seq.access-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>c.end()</span>.
+</p></div></div></div><div id='size'><h2 ><a class='secnum' href='#size' style='min-width:88pt'>16.8</a> Function <span class='texttt'>buffer_size</span> <a class='abbr_ref' href='buffer.size'>[buffer.size]</a></h2><p ><span class='indexparent'><a class='index' id='buffer_sequence_size'></a></span><code class='itemdecl'>
+template&lt;class ConstBufferSequence&gt;
+  size_t buffer_size(const ConstBufferSequence&amp; buffers) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='size-1'><div class='marginalizedparent'><a class='marginalized' href='#size-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> The total size of all buffers in the sequence, as if computed as follows:
+</p><pre class='codeblock'>
+size_t total_size = 0;
+auto i = std::experimental::net::buffer_sequence_begin(buffers);
+auto end = std::experimental::net::buffer_sequence_end(buffers);
+for (; i != end; ++i){
+  const_buffer b(*i);
+  total_size += b.size();
+}
+return total_size;
+</pre></div></div></div><div id='copy'><h2 ><a class='secnum' href='#copy' style='min-width:88pt'>16.9</a> Function <span class='texttt'>buffer_copy</span> <a class='abbr_ref' href='buffer.copy'>[buffer.copy]</a></h2><p ><span class='indexparent'><a class='index' id='buffer_copy'></a></span><code class='itemdecl'>
+template&lt;class MutableBufferSequence, class ConstBufferSequence&gt;
+  size_t buffer_copy(const MutableBufferSequence&amp; dest,
+                     const ConstBufferSequence&amp; source) noexcept;
+template&lt;class MutableBufferSequence, class ConstBufferSequence&gt;
+  size_t buffer_copy(const MutableBufferSequence&amp; dest,
+                     const ConstBufferSequence&amp; source,
+                     size_t max_size) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='copy-1'><div class='marginalizedparent'><a class='marginalized' href='#copy-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Copies bytes from the buffer sequence <span class='texttt'>source</span> to the buffer sequence <span class='texttt'>dest</span>, as if by calls to <span class='texttt'>memcpy</span>.</p></div></div><div class='para' id='copy-2'><div class='marginalizedparent'><a class='marginalized' href='#copy-2'>2</a></div><div class='itemdescr'><p >The number of bytes copied is the lesser of:
+</p><ul class='itemize'><li id='copy-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#copy-2.1'>(2.1)</a></div><p ><span class='texttt'>buffer_size(dest)</span>;
+</p></li><li id='copy-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#copy-2.2'>(2.2)</a></div><p ><span class='texttt'>buffer_size(source)</span>; and
+</p></li><li id='copy-2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#copy-2.3'>(2.3)</a></div><p ><span class='texttt'>max_size</span>, if specified.
+</p></li></ul></div></div><div class='para' id='copy-3'><div class='marginalizedparent'><a class='marginalized' href='#copy-3'>3</a></div><div class='itemdescr'><p >The mutable buffer sequence <span class='texttt'>dest</span> specifies memory where the data should be placed. The operation always fills a buffer in the sequence completely before proceeding to the next.</p></div></div><div class='para' id='copy-4'><div class='marginalizedparent'><a class='marginalized' href='#copy-4'>4</a></div><div class='itemdescr'><p >The constant buffer sequence <span class='texttt'>source</span> specifies memory where the data to be written is located. The operation always copies a buffer in the sequence completely before proceeding to the next.</p></div></div><div class='para' id='copy-5'><div class='marginalizedparent'><a class='marginalized' href='#copy-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> The number of bytes copied from <span class='texttt'>source</span> to <span class='texttt'>dest</span>.
+</p></div></div></div><div id='arithmetic'><h2 ><a class='secnum' href='#arithmetic' style='min-width:88pt'>16.10</a> Buffer arithmetic <a class='abbr_ref' href='buffer.arithmetic'>[buffer.arithmetic]</a></h2><p ><code class='itemdecl'>
+mutable_buffer operator+(const mutable_buffer&amp; b, size_t n) noexcept;
+mutable_buffer operator+(size_t n, const mutable_buffer&amp; b) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='arithmetic-1'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> A <span class='texttt'>mutable_buffer</span> equivalent to
+</p><pre class='codeblock'>
+mutable_buffer(
+  static_cast&lt;char*&gt;(b.data()) + min(n, b.size()),
+  b.size() - min(n, b.size()));
+</pre></div></div><p ><code class='itemdecl'>
+const_buffer operator+(const const_buffer&amp; b, size_t n) noexcept;
+const_buffer operator+(size_t n, const const_buffer&amp; b) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='arithmetic-2'><div class='marginalizedparent'><a class='marginalized' href='#arithmetic-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> A <span class='texttt'>const_buffer</span> equivalent to
+</p><pre class='codeblock'>
+const_buffer(
+  static_cast&lt;const char*&gt;(b.data()) + min(n, b.size()),
+  b.size() - min(n, b.size()));
+</pre></div></div></div><div id='creation'><h2 ><a class='secnum' href='#creation' style='min-width:88pt'>16.11</a> Buffer creation functions <a class='abbr_ref' href='buffer.creation'>[buffer.creation]</a></h2><div class='para' id='creation-1'><div class='marginalizedparent'><a class='marginalized' href='#creation-1'>1</a></div><p >In the functions below, <span class='texttt'>T</span> must be a trivially copyable or standard-layout type (C++Std &sect;<a href='../n4140/basic.types'>[basic.types]</a>).</p></div><div class='para' id='creation-2'><div class='marginalizedparent'><a class='marginalized' href='#creation-2'>2</a></div><p >For the function overloads below that accept an argument of type <span class='texttt'>vector&lt;&gt;</span>, the buffer objects returned are invalidated by any vector operation that also invalidates all references, pointers and iterators referring to the elements in the sequence (C++Std &sect;<a href='../n4140/vector'>[vector]</a>).</p></div><div class='para' id='creation-3'><div class='marginalizedparent'><a class='marginalized' href='#creation-3'>3</a></div><p >For the function overloads below that accept an argument of type <span class='texttt'>basic_string&lt;&gt;</span>, the buffer objects returned are invalidated according to the rules defined for invalidation of references, pointers and iterators referring to elements of the sequence (C++Std &sect;<a href='../n4140/string.require'>[string.require]</a>).</p><p ><span class='indexparent'><a class='index' id='buffer'></a></span><code class='itemdecl'>
+mutable_buffer buffer(void* p, size_t n) noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='creation-4'><div class='marginalizedparent'><a class='marginalized' href='#creation-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>mutable_buffer(p, n)</span>.
+</p></div></div><p ><code class='itemdecl'>
+const_buffer buffer(const void* p, size_t n) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='creation-5'><div class='marginalizedparent'><a class='marginalized' href='#creation-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>const_buffer(p, n)</span>.
+</p></div></div><p ><code class='itemdecl'>
+mutable_buffer buffer(const mutable_buffer&amp; b) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='creation-6'><div class='marginalizedparent'><a class='marginalized' href='#creation-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>b</span>.
+</p></div></div><p ><code class='itemdecl'>
+mutable_buffer buffer(const mutable_buffer&amp; b, size_t n) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='creation-7'><div class='marginalizedparent'><a class='marginalized' href='#creation-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>mutable_buffer(b.data(), min(b.size(), n))</span>.
+</p></div></div><p ><code class='itemdecl'>
+const_buffer buffer(const const_buffer&amp; b) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='creation-8'><div class='marginalizedparent'><a class='marginalized' href='#creation-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>b</span>.
+</p></div></div><p ><code class='itemdecl'>
+const_buffer buffer(const const_buffer&amp; b, size_t n) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='creation-9'><div class='marginalizedparent'><a class='marginalized' href='#creation-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>const_buffer(b.data(), min(b.size(), n))</span>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class T, size_t N&gt;
+  mutable_buffer buffer(T (&amp;data)[N]) noexcept;
+template&lt;class T, size_t N&gt;
+  const_buffer buffer(const T (&amp;data)[N]) noexcept;
+template&lt;class T, size_t N&gt;
+  mutable_buffer buffer(array&lt;T, N&gt;&amp; data) noexcept;
+template&lt;class T, size_t N&gt;
+  const_buffer buffer(array&lt;const T, N&gt;&amp; data) noexcept;
+template&lt;class T, size_t N&gt;
+  const_buffer buffer(const array&lt;T, N&gt;&amp; data) noexcept;
+template&lt;class T, class Allocator&gt;
+  mutable_buffer buffer(vector&lt;T, Allocator&gt;&amp; data) noexcept;
+template&lt;class T, class Allocator&gt;
+  const_buffer buffer(const vector&lt;T, Allocator&gt;&amp; data) noexcept;
+template&lt;class CharT, class Traits, class Allocator&gt;
+  mutable_buffer buffer(basic_string&lt;CharT, Traits, Allocator&gt;&amp; data) noexcept;
+template&lt;class CharT, class Traits, class Allocator&gt;
+  const_buffer buffer(const basic_string&lt;CharT, Traits, Allocator&gt;&amp; data) noexcept;
+template&lt;class CharT, class Traits&gt;
+  const_buffer buffer(basic_string_view&lt;CharT, Traits&gt; data) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='creation-10'><div class='marginalizedparent'><a class='marginalized' href='#creation-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</p><pre class='codeblock'>
+buffer(
+  begin(data) != end(data) ? std::addressof(*begin(data)) : nullptr,
+  (end(data) - begin(data)) * sizeof(*begin(data)));
+</pre></div></div><p ><code class='itemdecl'>
+template&lt;class T, size_t N&gt;
+  mutable_buffer buffer(T (&amp;data)[N], size_t n) noexcept;
+template&lt;class T, size_t N&gt;
+  const_buffer buffer(const T (&amp;data)[N], size_t n) noexcept;
+template&lt;class T, size_t N&gt;
+  mutable_buffer buffer(array&lt;T, N&gt;&amp; data, size_t n) noexcept;
+template&lt;class T, size_t N&gt;
+  const_buffer buffer(array&lt;const T, N&gt;&amp; data, size_t n) noexcept;
+template&lt;class T, size_t N&gt;
+  const_buffer buffer(const array&lt;T, N&gt;&amp; data, size_t n) noexcept;
+template&lt;class T, class Allocator&gt;
+  mutable_buffer buffer(vector&lt;T, Allocator&gt;&amp; data, size_t n) noexcept;
+template&lt;class T, class Allocator&gt;
+  const_buffer buffer(const vector&lt;T, Allocator&gt;&amp; data, size_t n) noexcept;
+template&lt;class CharT, class Traits, class Allocator&gt;
+  mutable_buffer buffer(basic_string&lt;CharT, Traits, Allocator&gt;&amp; data,
+                        size_t n) noexcept;
+template&lt;class CharT, class Traits, class Allocator&gt;
+  const_buffer buffer(const basic_string&lt;CharT, Traits, Allocator&gt;&amp; data,
+                      size_t n) noexcept;
+template&lt;class CharT, class Traits&gt;
+  const_buffer buffer(basic_string_view&lt;CharT, Traits&gt; data,
+                      size_t n) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='creation-11'><div class='marginalizedparent'><a class='marginalized' href='#creation-11'>11</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>buffer(buffer(data), n)</span>.
+</p></div></div></div><div id='dynamic.vector'><h2 ><a class='secnum' href='#dynamic.vector' style='min-width:88pt'>16.12</a> Class template <span class='texttt'>dynamic_vector_buffer</span> <a class='abbr_ref' href='buffer.dynamic.vector'>[buffer.dynamic.vector]</a></h2><p ><span class='indexparent'><a class='index' id='dynamic_vector_buffer'></a></span></p><div class='para' id='dynamic.vector-1'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.vector-1'>1</a></div><p >Class template <span class='texttt'>dynamic_vector_buffer</span> is an adaptor used to automatically grow or shrink a <span class='texttt'>vector</span> object, to reflect the data successfully transferred in an I/O operation.</p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  template&lt;class T, class Allocator&gt;
+  class dynamic_vector_buffer
+  {
+  public:
+    <span class='comment'>// types:
+</span>    using const_buffers_type = const_buffer;
+    using mutable_buffers_type = mutable_buffer;
+
+    <span class='comment'>// constructors:
+</span>    explicit dynamic_vector_buffer(vector&lt;T, Allocator&gt;&amp; vec) noexcept;
+    dynamic_vector_buffer(vector&lt;T, Allocator&gt;&amp; vec,
+                          size_t maximum_size) noexcept;
+    dynamic_vector_buffer(dynamic_vector_buffer&amp;&amp;) = default;
+
+    <span class='comment'>// members:
+</span>    size_t size() const noexcept;
+    size_t max_size() const noexcept;
+    size_t capacity() const noexcept;
+    const_buffers_type data() const noexcept;
+    mutable_buffers_type prepare(size_t n);
+    void commit(size_t n);
+    void consume(size_t n);
+
+  private:
+    vector&lt;T, Allocator&gt;&amp; vec_; <span class='comment'>// <i>exposition only</i>
+</span>    size_t size_; <span class='comment'>// <i>exposition only</i>
+</span>    const size_t max_size_; <span class='comment'>// <i>exposition only</i>
+</span>  };
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre></div><div class='para' id='dynamic.vector-2'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.vector-2'>2</a></div><p >The <span class='texttt'>dynamic_vector_buffer</span> class template meets the requirements of <span class='texttt'>DynamicBuffer</span> (<a href='buffer.reqmts.dynamicbuffer'>[buffer.reqmts.dynamicbuffer]</a>).</p></div><div class='para' id='dynamic.vector-3'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.vector-3'>3</a></div><p >The <span class='texttt'>dynamic_vector_buffer</span> class template requires that <span class='texttt'>T</span> is a trivially copyable or standard-layout type (C++Std &sect;<a href='../n4140/basic.types'>[basic.types]</a>) and that <span class='texttt'>sizeof(T) == 1</span>.</p><p ><span class='indexparent'><a class='index' id='dynamic_vector_buffer,constructor'></a></span><code class='itemdecl'>
+explicit dynamic_vector_buffer(vector&lt;T, Allocator&gt;&amp; vec) noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='dynamic.vector-4'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.vector-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>vec_</span> with <span class='texttt'>vec</span>, <span class='texttt'>size_</span> with <span class='texttt'>vec.size()</span>, and <span class='texttt'>max_size_</span> with <span class='texttt'>vec.max_size()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='dynamic_vector_buffer,constructor'></a></span><code class='itemdecl'>
+dynamic_vector_buffer(vector&lt;T, Allocator&gt;&amp; vec,
+                      size_t maximum_size) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.vector-5'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.vector-5'>5</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>vec.size() &lt;= maximum_size</span>.</p></div></div><div class='para' id='dynamic.vector-6'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.vector-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>vec_</span> with <span class='texttt'>vec</span>, <span class='texttt'>size_</span> with <span class='texttt'>vec.size()</span>, and <span class='texttt'>max_size_</span> with <span class='texttt'>maximum_size</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='size,dynamic_vector_buffer'></a></span><span class='indexparent'><a class='index' id='dynamic_vector_buffer,size'></a></span><code class='itemdecl'>
+size_t size() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.vector-7'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.vector-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>size_</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='max_size,dynamic_vector_buffer'></a></span><span class='indexparent'><a class='index' id='dynamic_vector_buffer,max_size'></a></span><code class='itemdecl'>
+size_t max_size() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.vector-8'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.vector-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>max_size_</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='capacity,dynamic_vector_buffer'></a></span><span class='indexparent'><a class='index' id='dynamic_vector_buffer,capacity'></a></span><code class='itemdecl'>
+size_t capacity() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.vector-9'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.vector-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>vec_.capacity()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='data,dynamic_vector_buffer'></a></span><span class='indexparent'><a class='index' id='dynamic_vector_buffer,data'></a></span><code class='itemdecl'>
+const_buffers_type data() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.vector-10'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.vector-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>buffer(vec_, size_)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='prepare,dynamic_vector_buffer'></a></span><span class='indexparent'><a class='index' id='dynamic_vector_buffer,prepare'></a></span><code class='itemdecl'>
+mutable_buffers_type prepare(size_t n);
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.vector-11'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.vector-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> Performs <span class='texttt'>vec_.resize(size_ + n)</span>.</p></div></div><div class='para' id='dynamic.vector-12'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.vector-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>buffer(buffer(vec_) + size_, n)</span>.</p></div></div><div class='para' id='dynamic.vector-13'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.vector-13'>13</a></div><div class='itemdescr'><p ><i>Remarks:</i> <span class='texttt'>length_error</span> if <span class='texttt'>size() + n</span> exceeds <span class='texttt'>max_size()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='commit,dynamic_vector_buffer'></a></span><span class='indexparent'><a class='index' id='dynamic_vector_buffer,commit'></a></span><code class='itemdecl'>
+void commit(size_t n);
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.vector-14'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.vector-14'>14</a></div><div class='itemdescr'><p ><i>Effects:</i> Performs:
+</p><pre class='codeblock'>
+size_ += min(n, vec_.size() - size_);
+vec_.resize(size_);
+</pre></div></div><p ><span class='indexparent'><a class='index' id='consume,dynamic_vector_buffer'></a></span><span class='indexparent'><a class='index' id='dynamic_vector_buffer,consume'></a></span><code class='itemdecl'>
+void consume(size_t n);
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.vector-15'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.vector-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> Performs:
+</p><pre class='codeblock'>
+size_t m = min(n, size_);
+vec_.erase(vec_.begin(), vec_.begin() + m);
+size_ -= m;
+</pre></div></div></div><div id='dynamic.string'><h2 ><a class='secnum' href='#dynamic.string' style='min-width:88pt'>16.13</a> Class template <span class='texttt'>dynamic_string_buffer</span> <a class='abbr_ref' href='buffer.dynamic.string'>[buffer.dynamic.string]</a></h2><p ><span class='indexparent'><a class='index' id='dynamic_string_buffer'></a></span></p><div class='para' id='dynamic.string-1'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.string-1'>1</a></div><p >Class template <span class='texttt'>dynamic_string_buffer</span> is an adaptor used to automatically grow or shrink a <span class='texttt'>basic_string</span> object, to reflect the data successfully transferred in an I/O operation.</p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  template&lt;class CharT, class Traits, class Allocator&gt;
+  class dynamic_string_buffer
+  {
+  public:
+    <span class='comment'>// types:
+</span>    using const_buffers_type = const_buffer;
+    using mutable_buffers_type = mutable_buffer;
+
+    <span class='comment'>// constructors:
+</span>    explicit dynamic_string_buffer(basic_string&lt;CharT, Traits, Allocator&gt;&amp; str) noexcept;
+    dynamic_string_buffer(basic_string&lt;CharT, Traits, Allocator&gt;&amp; str,
+                          size_t maximum_size) noexcept;
+    dynamic_string_buffer(dynamic_string_buffer&amp;&amp;) = default;
+
+    <span class='comment'>// members:
+</span>    size_t size() const noexcept;
+    size_t max_size() const noexcept;
+    size_t capacity() const noexcept;
+    const_buffers_type data() const noexcept;
+    mutable_buffers_type prepare(size_t n);
+    void commit(size_t n) noexcept;
+    void consume(size_t n);
+
+  private:
+    basic_string&lt;CharT, Traits, Allocator&gt;&amp; str_; <span class='comment'>// <i>exposition only</i>
+</span>    size_t size_; <span class='comment'>// <i>exposition only</i>
+</span>    const size_t max_size_; <span class='comment'>// <i>exposition only</i>
+</span>  };
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre></div><div class='para' id='dynamic.string-2'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.string-2'>2</a></div><p >The <span class='texttt'>dynamic_string_buffer</span> class template meets the requirements of <span class='texttt'>DynamicBuffer</span> (<a href='buffer.reqmts.dynamicbuffer'>[buffer.reqmts.dynamicbuffer]</a>).</p></div><div class='para' id='dynamic.string-3'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.string-3'>3</a></div><p >The <span class='texttt'>dynamic_string_buffer</span> class template requires that <span class='texttt'>sizeof(CharT) == 1</span>.</p><p ><span class='indexparent'><a class='index' id='dynamic_string_buffer,constructor'></a></span><code class='itemdecl'>
+explicit dynamic_string_buffer(basic_string&lt;CharT, Traits, Allocator&gt;&amp; str) noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='dynamic.string-4'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.string-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>str_</span> with <span class='texttt'>str</span>, <span class='texttt'>size_</span> with <span class='texttt'>str.size()</span>, and <span class='texttt'>max_size_</span> with <span class='texttt'>str.max_size()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='dynamic_string_buffer,constructor'></a></span><code class='itemdecl'>
+dynamic_string_buffer(basic_string&lt;CharT, Traits, Allocator&gt;&amp; str,
+                      size_t maximum_size) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.string-5'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.string-5'>5</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>str.size() &lt;= maximum_size</span>.</p></div></div><div class='para' id='dynamic.string-6'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.string-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>str_</span> with <span class='texttt'>str</span>, <span class='texttt'>size_</span> with <span class='texttt'>str.size()</span>, and <span class='texttt'>max_size_</span> with <span class='texttt'>maximum_size</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='size,dynamic_string_buffer'></a></span><span class='indexparent'><a class='index' id='dynamic_string_buffer,size'></a></span><code class='itemdecl'>
+size_t size() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.string-7'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.string-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>size_</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='max_size,dynamic_string_buffer'></a></span><span class='indexparent'><a class='index' id='dynamic_string_buffer,max_size'></a></span><code class='itemdecl'>
+size_t max_size() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.string-8'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.string-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>max_size_</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='capacity,dynamic_string_buffer'></a></span><span class='indexparent'><a class='index' id='dynamic_string_buffer,capacity'></a></span><code class='itemdecl'>
+size_t capacity() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.string-9'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.string-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>str_.capacity()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='data,dynamic_string_buffer'></a></span><span class='indexparent'><a class='index' id='dynamic_string_buffer,data'></a></span><code class='itemdecl'>
+const_buffers_type data() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.string-10'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.string-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>buffer(str_, size_)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='prepare,dynamic_string_buffer'></a></span><span class='indexparent'><a class='index' id='dynamic_string_buffer,prepare'></a></span><code class='itemdecl'>
+mutable_buffers_type prepare(size_t n);
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.string-11'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.string-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> Performs <span class='texttt'>str_.resize(size_ + n)</span>.</p></div></div><div class='para' id='dynamic.string-12'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.string-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>buffer(buffer(str_) + size_, n)</span>.</p></div></div><div class='para' id='dynamic.string-13'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.string-13'>13</a></div><div class='itemdescr'><p ><i>Remarks:</i> <span class='texttt'>length_error</span> if <span class='texttt'>size() + n</span> exceeds <span class='texttt'>max_size()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='commit,dynamic_string_buffer'></a></span><span class='indexparent'><a class='index' id='dynamic_string_buffer,commit'></a></span><code class='itemdecl'>
+void commit(size_t n) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.string-14'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.string-14'>14</a></div><div class='itemdescr'><p ><i>Effects:</i> Performs:
+</p><pre class='codeblock'>
+size_ += min(n, str_.size() - size_);
+str_.resize(size_);
+</pre></div></div><p ><span class='indexparent'><a class='index' id='consume,dynamic_string_buffer'></a></span><span class='indexparent'><a class='index' id='dynamic_string_buffer,consume'></a></span><code class='itemdecl'>
+void consume(size_t n);
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.string-15'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.string-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> Performs:
+</p><pre class='codeblock'>
+size_t m = min(n, size_);
+str_.erase(0, m);
+size_ -= m;
+</pre></div></div></div><div id='dynamic.creation'><h2 ><a class='secnum' href='#dynamic.creation' style='min-width:88pt'>16.14</a> Dynamic buffer creation functions <a class='abbr_ref' href='buffer.dynamic.creation'>[buffer.dynamic.creation]</a></h2><p ><span class='indexparent'><a class='index' id='dynamic_buffer'></a></span><code class='itemdecl'>
+template&lt;class T, class Allocator&gt;
+  dynamic_vector_buffer&lt;T, Allocator&gt;
+  dynamic_buffer(vector&lt;T, Allocator&gt;&amp; vec) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.creation-1'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.creation-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>dynamic_vector_buffer&lt;T, Allocator&gt;(vec)</span>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class T, class Allocator&gt;
+  dynamic_vector_buffer&lt;T, Allocator&gt;
+  dynamic_buffer(vector&lt;T, Allocator&gt;&amp; vec, size_t n) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.creation-2'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.creation-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>dynamic_vector_buffer&lt;T, Allocator&gt;(vec, n)</span>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class CharT, class Traits, class Allocator&gt;
+  dynamic_string_buffer&lt;CharT, Traits, Allocator&gt;
+  dynamic_buffer(basic_string&lt;CharT, Traits, Allocator&gt;&amp; str) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.creation-3'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.creation-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>dynamic_string_buffer&lt;CharT, Traits, Allocator&gt;(str)</span>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class CharT, class Traits, class Allocator&gt;
+  dynamic_string_buffer&lt;CharT, Traits, Allocator&gt;
+  dynamic_buffer(basic_string&lt;CharT, Traits, Allocator&gt;&amp; str, size_t n) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='dynamic.creation-4'><div class='marginalizedparent'><a class='marginalized' href='#dynamic.creation-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>dynamic_string_buffer&lt;CharT, Traits, Allocator&gt;(str, n)</span>.
+</p></div></div></div></div></div></body></html>

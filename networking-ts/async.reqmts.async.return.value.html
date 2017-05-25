@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang='en'><head><title>[async.reqmts.async.return.value]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>13</a> Asynchronous model <a class='abbr_ref' href='./#async'>[async]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>13.2</a> Requirements <a class='abbr_ref' href='async.reqmts#async.return.value'>[async.reqmts]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>13.2.7</a> Requirements on asynchronous operations <a class='abbr_ref' href='async.reqmts.async#return.value'>[async.reqmts.async]</a></h3><div id='async.reqmts.async.return.value'><h4 ><a class='secnum' style='min-width:118pt'>13.2.7.4</a> Production of initiating function return value <a class='abbr_ref'>[async.reqmts.async.return.value]</a></h4><p ><span class='indexparent'><a class='index' id='initiating_function,production_of_return_value'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >An initiating function produces its return type as follows:</p><ul class='itemize'><li id='1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.1'>(1.1)</a></div><p >constructing an object <span class='texttt'>result</span> of type <span class='texttt'>async_result&lt;decay_t&lt;CompletionToken&gt;, Signature&gt;</span>, initialized as <span class='texttt'>result(completion_handler)</span>; and</p></li><li id='1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.2'>(1.2)</a></div><p >using <span class='texttt'>result.get()</span> as the operand of the return statement.
+</p></li></ul></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >[&nbsp;<i>Example:</i> Given an asynchronous operation with Completion signature <span class='texttt'>void(R1 r1, R2 r2)</span>, an initiating function meeting these requirements may be implemented as follows:</p><pre class='codeblock'>
+template&lt;class CompletionToken&gt;
+auto async_xyz(T1 t1, T2 t2, CompletionToken&amp;&amp; token){
+  typename async_result&lt;decay_t&lt;CompletionToken&gt;, void(R1, R2)&gt;::completion_handler_type
+    completion_handler(forward&lt;CompletionToken&gt;(token));
+
+  async_result&lt;decay_t&lt;CompletionToken&gt;, void(R1, R2)&gt; result(completion_handler);
+
+  <span class='comment'>// initiate the operation and cause completion_handler to be invoked with
+</span>  <span class='comment'>// the result
+</span>
+  return result.get();
+}
+</pre></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >For convenience, initiating functions may be implemented using the <span class='texttt'>async_completion</span> template:</p><pre class='codeblock'>
+template&lt;class CompletionToken&gt;
+auto async_xyz(T1 t1, T2 t2, CompletionToken&amp;&amp; token){
+  async_completion&lt;CompletionToken, void(R1, R2)&gt; init(token);
+
+  <span class='comment'>// initiate the operation and cause init.completion_handler to be invoked
+</span>  <span class='comment'>// with the result
+</span>
+  return init.result.get();
+}
+</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>

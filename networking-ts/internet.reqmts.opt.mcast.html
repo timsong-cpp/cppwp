@@ -1,0 +1,58 @@
+<!DOCTYPE html><html lang='en'><head><title>[internet.reqmts.opt.mcast]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>21</a> Internet protocol <a class='abbr_ref' href='./#internet'>[internet]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>21.2</a> Requirements <a class='abbr_ref' href='internet.reqmts#opt.mcast'>[internet.reqmts]</a></h2><div id='internet.reqmts.opt.mcast'><h3 ><a class='secnum' style='min-width:103pt'>21.2.2</a> Multicast group socket options <a class='abbr_ref'>[internet.reqmts.opt.mcast]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >A type <span class='texttt'>X</span> meets the <span class='texttt'>MulticastGroupSocketOption</span> requirements if it satisfies the requirements of <span class='texttt'>Destructible</span> (C++Std &sect;<a href='../n4140/destructible'>[destructible]</a>), <span class='texttt'>CopyConstructible</span> (C++Std &sect;<a href='../n4140/copyconstructible'>[copyconstructible]</a>), <span class='texttt'>CopyAssignable</span> (C++Std &sect;<a href='../n4140/copyassignable'>[copyassignable]</a>), and <span class='texttt'>SettableSocketOption</span> (<a href='socket.reqmts.settablesocketoption'>[socket.reqmts.settablesocketoption]</a>), as well as the additional requirements listed below.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >In the table below,
+<span class='texttt'>a</span> denotes a value of type <span class='texttt'>address</span> or <span class='texttt'>const address</span>,
+<span class='texttt'>b</span> and <span class='texttt'>c</span> denote values of type <span class='texttt'>address_v4</span> or <span class='texttt'>const address_v4</span>,
+<span class='texttt'>d</span> denotes a value of type <span class='texttt'>address_v6</span> or <span class='texttt'>const address_v6</span>,
+<span class='texttt'>e</span> denotes a value of type <span class='texttt'>unsigned int</span> or <span class='texttt'>const unsigned int</span>,
+and <span class='texttt'>u</span> denotes an identifier.</p><div class='numberedTable' id='tab:internet.reqmts.opt.mcast.requirements'>Table <a href='#tab:internet.reqmts.opt.mcast.requirements'>36</a> — MulticastGroupSocketOption requirements<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>expression</b></td><td colspan='1' class='center'><b>type</b></td><td colspan='1' class='center'><b>assertion/note pre/post-conditions</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='texttt'>X u(a);</span>  </td><td class='left'>
+  </td><td class='left'>
+ Constructs a multicast group socket option to join the group with the specified version-independent address.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X u(b, c);</span>  </td><td class='left'>
+  </td><td class='left'>
+ Constructs a multicast group socket option to join the specified IPv4 address on a specified network interface.  </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>X u(d, e);</span>  </td><td class='left'>
+  </td><td class='left'>
+ Constructs a multicast group socket option to join the specified IPv6 address on a specified network interface.  </td></tr></table></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >In this Technical Specification, types that satisfy the <span class='texttt'>MulticastGroupSocketOption</span> requirements are defined as follows.</p><pre class='codeblock'>
+class <i>C</i>{
+public:
+  <span class='comment'>// constructors:
+</span>  explicit <i>C</i>(const address&amp; multicast_group) noexcept;
+  explicit <i>C</i>(const address_v4&amp; multicast_group,
+             const address_v4&amp; network_interface = address_v4::any()) noexcept;
+  explicit <i>C</i>(const address_v6&amp; multicast_group,
+             unsigned int network_interface = 0) noexcept;
+};
+</pre><p ><span class='indexparent'><a class='index' id='extensible_implementation,MulticastGroupSocketOption'></a></span><span class='indexparent'><a class='index' id='MulticastGroupSocketOption,extensible_implementation'></a></span></p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Extensible implementations provide the following member functions:</p><pre class='codeblock'>
+class <i>C</i>{
+public:
+  template&lt;class Protocol&gt; int level(const Protocol&amp; p) const noexcept;
+  template&lt;class Protocol&gt; int name(const Protocol&amp; p) const noexcept;
+  template&lt;class Protocol&gt; const void* data(const Protocol&amp; p) const noexcept;
+  template&lt;class Protocol&gt; size_t size(const Protocol&amp; p) const noexcept;
+  <span class='comment'>// <i>remainder unchanged</i>
+</span>private:
+  ip_mreq v4_value_; <span class='comment'>// <i>exposition only</i>
+</span>  ipv6_mreq v6_value_; <span class='comment'>// <i>exposition only</i>
+</span>};
+</pre></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >Let <i>L</i> and <i>N</i> identify the POSIX macros to be passed as the <span class='texttt'>level</span> and <span class='texttt'>option_name</span> arguments, respectively, to POSIX <span class='texttt'>setsockopt</span> and <span class='texttt'>getsockopt</span>.</p><p ><code class='itemdecl'>
+explicit <i>C</i>(const address&amp; multicast_group) noexcept;
+</code></p></div><div class='itemdescr'></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>multicast_group.is_v6()</span> is <span class='texttt'>true</span>, calls <i>C</i><span class='texttt'>(multicast_group.to_v6())</span>; otherwise, calls <i>C</i><span class='texttt'>(multicast_group.to_v4())</span>.
+</p></div></div><p ><code class='itemdecl'>
+explicit <i>C</i>(const address_v4&amp; multicast_group,
+           const address_v4&amp; network_interface = address_v4::any()) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> For extensible implementations, <span class='texttt'>v4_value_.imr_multiaddr</span> is initialized to correspond to the address <span class='texttt'>multicast_group</span>, <span class='texttt'>v4_value_.imr_interface</span> is initialized to correspond to address <span class='texttt'>network_interface</span>, and <span class='texttt'>v6_value_</span> is zero-initialized.
+</p></div></div><p ><code class='itemdecl'>
+explicit <i>C</i>(const address_v6&amp; multicast_group,
+           unsigned int network_interface = 0) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i> For extensible implementations, <span class='texttt'>v6_value_.ipv6mr_multiaddr</span> is initialized to correspond to the address <span class='texttt'>multicast_group</span>, <span class='texttt'>v6_value_.ipv6mr_interface</span> is initialized to <span class='texttt'>network_interface</span>, and <span class='texttt'>v4_value_</span> is zero-initialized.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class Protocol&gt; int level(const Protocol&amp; p) const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i> <i>L</i>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class Protocol&gt; int name(const Protocol&amp; p) const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> <i>N</i>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class Protocol&gt; const void* data(const Protocol&amp; p) const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>addressof(v6_value_)</span> if <span class='texttt'>p.family() == AF_INET6</span>, otherwise <span class='texttt'>addressof(v4_value_)</span>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class Protocol&gt; size_t size(const Protocol&amp; p) const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>sizeof(v6_value_)</span> if <span class='texttt'>p.family() == AF_INET6</span>, otherwise <span class='texttt'>sizeof(v4_value_)</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='error_codes,resolver'></a></span></p></div></div></body></html>

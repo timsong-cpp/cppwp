@@ -1,0 +1,248 @@
+<!DOCTYPE html><html lang='en'><head><title>[internet.resolver]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>21</a> Internet protocol <a class='abbr_ref' href='./#internet'>[internet]</a></h1><div id='internet.resolver'><h2 ><a class='secnum' style='min-width:88pt'>21.17</a> Class template <span class='texttt'>ip::basic_resolver</span> <a class='abbr_ref'>[internet.resolver]</a></h2><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Objects of type <span class='texttt'>basic_resolver&lt;InternetProtocol&gt;</span> are used to perform name resolution. Name resolution is the translation of a host name and service name into a sequence of endpoints, or the translation of an endpoint into its corresponding host name and service name.</p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+namespace ip {
+
+  template&lt;class InternetProtocol&gt;
+  class basic_resolver : public resolver_base
+  {
+  public:
+    <span class='comment'>// types:
+</span>
+    using executor_type = io_context::executor_type;
+    using protocol_type = InternetProtocol;
+    using endpoint_type = typename InternetProtocol::endpoint;
+    using results_type = basic_resolver_results&lt;InternetProtocol&gt;;
+
+    <span class='comment'>// construct / copy / destroy:
+</span>
+    explicit basic_resolver(io_context&amp; ctx);
+    basic_resolver(const basic_resolver&amp;) = delete;
+    basic_resolver(basic_resolver&amp;&amp; rhs) noexcept;
+
+    ~basic_resolver();
+
+    basic_resolver&amp; operator=(const basic_resolver&amp;) = delete;
+    basic_resolver&amp; operator=(basic_resolver&amp;&amp; rhs);
+
+    <span class='comment'>// basic_resolver operations:
+</span>
+    executor_type get_executor() noexcept;
+
+    void cancel();
+
+    results_type resolve(string_view host_name, string_view service_name);
+    results_type resolve(string_view host_name, string_view service_name,
+                         error_code&amp; ec);
+    results_type resolve(string_view host_name, string_view service_name,
+                         flags f);
+    results_type resolve(string_view host_name, string_view service_name,
+                         flags f, error_code&amp; ec);
+
+    template&lt;class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_resolve(string_view host_name, string_view service_name,
+                            CompletionToken&amp;&amp; token);
+    template&lt;class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_resolve(string_view host_name, string_view service_name,
+                            flags f, CompletionToken&amp;&amp; token);
+
+    results_type resolve(const protocol_type&amp; protocol,
+                         string_view host_name, string_view service_name);
+    results_type resolve(const protocol_type&amp; protocol,
+                         string_view host_name, string_view service_name,
+                         error_code&amp; ec);
+    results_type resolve(const protocol_type&amp; protocol,
+                         string_view host_name, string_view service_name,
+                         flags f);
+    results_type resolve(const protocol_type&amp; protocol,
+                         string_view host_name, string_view service_name,
+                         flags f, error_code&amp; ec);
+
+    template&lt;class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_resolve(const protocol_type&amp; protocol,
+                            string_view host_name, string_view service_name,
+                            CompletionToken&amp;&amp; token);
+    template&lt;class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_resolve(const protocol_type&amp; protocol,
+                            string_view host_name, string_view service_name,
+                            flags f, CompletionToken&amp;&amp; token);
+
+    results_type resolve(const endpoint_type&amp; e);
+    results_type resolve(const endpoint_type&amp; e, error_code&amp; ec);
+
+    template&lt;class CompletionToken&gt;
+      <i><span class='texttt'>DEDUCED</span></i> async_resolve(const endpoint_type&amp; e,
+                            CompletionToken&amp;&amp; token);
+  };
+
+} <span class='comment'>// namespace ip
+</span>} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre></div><div id='cons'><h3 ><a class='secnum' href='#cons' style='min-width:103pt'>21.17.1</a> <span class='texttt'>ip::basic_resolver</span> constructors <a class='abbr_ref' href='internet.resolver.cons'>[internet.resolver.cons]</a></h3><p ><code class='itemdecl'>
+explicit basic_resolver(io_context&amp; ctx);
+</code></p><div class='itemdescr'></div><div class='para' id='cons-1'><div class='marginalizedparent'><a class='marginalized' href='#cons-1'>1</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>get_executor() == ctx.get_executor()</span>.
+</p></div></div><p ><code class='itemdecl'>
+basic_resolver(basic_resolver&amp;&amp; rhs) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='cons-2'><div class='marginalizedparent'><a class='marginalized' href='#cons-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Move constructs an object of class <span class='texttt'>basic_resolver&lt;InternetProtocol&gt;</span> that refers to the state originally represented by <span class='texttt'>rhs</span>.</p></div></div><div class='para' id='cons-3'><div class='marginalizedparent'><a class='marginalized' href='#cons-3'>3</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>get_executor() == rhs.get_executor()</span>.
+</p></div></div></div><div id='dtor'><h3 ><a class='secnum' href='#dtor' style='min-width:103pt'>21.17.2</a> <span class='texttt'>ip::basic_resolver</span> destructor <a class='abbr_ref' href='internet.resolver.dtor'>[internet.resolver.dtor]</a></h3><p ><code class='itemdecl'>
+~basic_resolver();
+</code></p><div class='itemdescr'></div><div class='para' id='dtor-1'><div class='marginalizedparent'><a class='marginalized' href='#dtor-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Destroys the resolver, canceling all asynchronous operations associated with this resolver as if by calling <span class='texttt'>cancel()</span>.
+</p></div></div></div><div id='assign'><h3 ><a class='secnum' href='#assign' style='min-width:103pt'>21.17.3</a> <span class='texttt'>ip::basic_resolver</span> assignment <a class='abbr_ref' href='internet.resolver.assign'>[internet.resolver.assign]</a></h3><p ><code class='itemdecl'>
+basic_resolver&amp; operator=(basic_resolver&amp;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='assign-1'><div class='marginalizedparent'><a class='marginalized' href='#assign-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Cancels all outstanding asynchronous operations associated with <span class='texttt'>*this</span> as if by calling <span class='texttt'>cancel()</span>, then moves into <span class='texttt'>*this</span> the state originally represented by <span class='texttt'>rhs</span>.</p></div></div><div class='para' id='assign-2'><div class='marginalizedparent'><a class='marginalized' href='#assign-2'>2</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>get_executor() == ctx.get_executor()</span>.</p></div></div><div class='para' id='assign-3'><div class='marginalizedparent'><a class='marginalized' href='#assign-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div></div><div id='ops'><h3 ><a class='secnum' href='#ops' style='min-width:103pt'>21.17.4</a> <span class='texttt'>ip::basic_resolver</span> operations <a class='abbr_ref' href='internet.resolver.ops'>[internet.resolver.ops]</a></h3><p ><code class='itemdecl'>
+executor_type get_executor() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='ops-1'><div class='marginalizedparent'><a class='marginalized' href='#ops-1'>1</a></div><div class='itemdescr'><p ><i>Returns:</i> The associated executor.
+</p></div></div><p ><code class='itemdecl'>
+void cancel();
+</code></p><div class='itemdescr'></div><div class='para' id='ops-2'><div class='marginalizedparent'><a class='marginalized' href='#ops-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Cancels all outstanding asynchronous resolve operations associated with <span class='texttt'>*this</span>. Completion handlers for canceled operations are passed an error code <span class='texttt'>ec</span> such that <span class='texttt'>ec == errc::operation_canceled</span> yields <span class='texttt'>true</span>.</p></div></div><div class='para' id='ops-3'><div class='marginalizedparent'><a class='marginalized' href='#ops-3'>3</a></div><div class='itemdescr'><p ><i>Remarks:</i> Does not block (C++Std &sect;<a href='../n4140/defns.block'>[defns.block]</a>) the calling thread pending completion of the canceled operations.
+</p></div></div><p ><code class='itemdecl'>
+results_type resolve(string_view host_name, string_view service_name);
+results_type resolve(string_view host_name, string_view service_name,
+                     error_code&amp; ec);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-4'><div class='marginalizedparent'><a class='marginalized' href='#ops-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>resolve(host_name, service_name, resolver_base::flags(), ec)</span>.
+</p></div></div><p ><code class='itemdecl'>
+results_type resolve(string_view host_name, string_view service_name,
+                     flags f);
+results_type resolve(string_view host_name, string_view service_name,
+                     flags f, error_code&amp; ec);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-5'><div class='marginalizedparent'><a class='marginalized' href='#ops-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>host_name.data() != nullptr</span>, let H be an <span class='textsc'>ntbs</span> constructed from <span class='texttt'>host_name</span>; otherwise, let H be <span class='texttt'>nullptr</span>. If <span class='texttt'>service_name.data() != nullptr</span>, let S be an <span class='textsc'>ntbs</span> constructed from <span class='texttt'>service_name</span>; otherwise, let S be <span class='texttt'>nullptr</span>. Resolves a host name and service name, as if by POSIX:
+</p><pre class='codeblock'>
+addrinfo hints;
+hints.ai_flags = static_cast&lt;int&gt;(f);
+hints.ai_family = AF_UNSPEC;
+hints.ai_socktype = endpoint_type().protocol().type();
+hints.ai_protocol = endpoint_type().protocol().protocol();
+hints.ai_addr = nullptr;
+hints.ai_addrlen = 0;
+hints.ai_canonname = nullptr;
+hints.ai_next = nullptr;
+addrinfo* result = nullptr;
+getaddrinfo(H, S, &amp;hints, &amp;result);
+</pre></div></div><div class='para' id='ops-6'><div class='marginalizedparent'><a class='marginalized' href='#ops-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> On success, a non-empty results object containing the results of the resolve operation. Otherwise <span class='texttt'>results_type()</span>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class CompletionToken&gt;
+  <i><span class='texttt'>DEDUCED</span></i> async_resolve(string_view host_name, string_view service_name,
+                        CompletionToken&amp;&amp; token);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-7'><div class='marginalizedparent'><a class='marginalized' href='#ops-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>async_resolve(host_name, service_name, resolver_base::flags(), forward&lt;CompletionToken&gt;(token))</span>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class CompletionToken&gt;
+  <i><span class='texttt'>DEDUCED</span></i> async_resolve(string_view host_name, string_view service_name,
+                        flags f, CompletionToken&amp;&amp; token);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-8'><div class='marginalizedparent'><a class='marginalized' href='#ops-8'>8</a></div><div class='itemdescr'><p ><i>Completion signature:</i> <span class='texttt'>void(error_code ec, results_type r)</span>.</p></div></div><div class='para' id='ops-9'><div class='marginalizedparent'><a class='marginalized' href='#ops-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>host_name.data() != nullptr</span>, let H be an <span class='textsc'>ntbs</span> constructed from <span class='texttt'>host_name</span>; otherwise, let H be <span class='texttt'>nullptr</span>. If <span class='texttt'>service_name.data() != nullptr</span>, let S be an <span class='textsc'>ntbs</span> constructed from <span class='texttt'>service_name</span>; otherwise, let S be <span class='texttt'>nullptr</span>. Initiates an asynchronous operation to resolve a host name and service name, as if by POSIX:
+</p><pre class='codeblock'>
+addrinfo hints;
+hints.ai_flags = static_cast&lt;int&gt;(f);
+hints.ai_family = AF_UNSPEC;
+hints.ai_socktype = endpoint_type().protocol().type();
+hints.ai_protocol = endpoint_type().protocol().protocol();
+hints.ai_addr = nullptr;
+hints.ai_addrlen = 0;
+hints.ai_canonname = nullptr;
+hints.ai_next = nullptr;
+addrinfo* result = nullptr;
+getaddrinfo(H, S, &amp;hints, &amp;result);
+</pre><p >On success, <span class='texttt'>r</span> is a non-empty results object containing the results of the resolve operation. Otherwise, <span class='texttt'>r</span> is <span class='texttt'>results_type()</span>.
+</p></div></div><p ><code class='itemdecl'>
+results_type resolve(const protocol_type&amp; protocol,
+                     string_view host_name, string_view service_name);
+results_type resolve(const protocol_type&amp; protocol,
+                     string_view host_name, string_view service_name,
+                     error_code&amp; ec);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-10'><div class='marginalizedparent'><a class='marginalized' href='#ops-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>resolve(protocol, host_name, service_name, resolver_base::flags(), ec)</span>.
+</p></div></div><p ><code class='itemdecl'>
+results_type resolve(const protocol_type&amp; protocol,
+                     string_view host_name, string_view service_name,
+                     flags f);
+results_type resolve(const protocol_type&amp; protocol,
+                     string_view host_name, string_view service_name,
+                     flags f, error_code&amp; ec);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-11'><div class='marginalizedparent'><a class='marginalized' href='#ops-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>host_name.data() != nullptr</span>, let H be an <span class='textsc'>ntbs</span> constructed from <span class='texttt'>host_name</span>; otherwise, let H be <span class='texttt'>nullptr</span>. If <span class='texttt'>service_name.data() != nullptr</span>, let S be an <span class='textsc'>ntbs</span> constructed from <span class='texttt'>service_name</span>; otherwise, let S be <span class='texttt'>nullptr</span>. Resolves a host name and service name, as if by POSIX:
+</p><pre class='codeblock'>
+addrinfo hints;
+hints.ai_flags = static_cast&lt;int&gt;(f);
+hints.ai_family = protocol.family();
+hints.ai_socktype = protocol.type();
+hints.ai_protocol = protocol.protocol();
+hints.ai_addr = nullptr;
+hints.ai_addrlen = 0;
+hints.ai_canonname = nullptr;
+hints.ai_next = nullptr;
+addrinfo* result = nullptr;
+getaddrinfo(H, S, &amp;hints, &amp;result);
+</pre></div></div><div class='para' id='ops-12'><div class='marginalizedparent'><a class='marginalized' href='#ops-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> On success, a non-empty results object containing the results of the resolve operation. Otherwise <span class='texttt'>results_type()</span>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class CompletionToken&gt;
+  <i><span class='texttt'>DEDUCED</span></i> async_resolve(const protocol_type&amp; protocol,
+                        string_view host_name, string_view service_name,
+                        CompletionToken&amp;&amp; token);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-13'><div class='marginalizedparent'><a class='marginalized' href='#ops-13'>13</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>async_resolve(protocol, host_name, service_name, resolver_base::flags(), forward&lt;CompletionToken&gt;(token))</span>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class CompletionToken&gt;
+  <i><span class='texttt'>DEDUCED</span></i> async_resolve(const protocol&amp; protocol,
+                        string_view host_name, string_view service_name,
+                        flags f, CompletionToken&amp;&amp; token);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-14'><div class='marginalizedparent'><a class='marginalized' href='#ops-14'>14</a></div><div class='itemdescr'><p ><i>Completion signature:</i> <span class='texttt'>void(error_code ec, results_type r)</span>.</p></div></div><div class='para' id='ops-15'><div class='marginalizedparent'><a class='marginalized' href='#ops-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>host_name.data() != nullptr</span>, let H be an <span class='textsc'>ntbs</span> constructed from <span class='texttt'>host_name</span>; otherwise, let H be <span class='texttt'>nullptr</span>. If <span class='texttt'>service_name.data() != nullptr</span>, let S be an <span class='textsc'>ntbs</span> constructed from <span class='texttt'>service_name</span>; otherwise, let S be <span class='texttt'>nullptr</span>. Initiates an asynchronous operation to resolve a host name and service name, as if by POSIX:
+</p><pre class='codeblock'>
+addrinfo hints;
+hints.ai_flags = static_cast&lt;int&gt;(f);
+hints.ai_family = protocol.family();
+hints.ai_socktype = protocol.type();
+hints.ai_protocol = protocol.protocol();
+hints.ai_addr = nullptr;
+hints.ai_addrlen = 0;
+hints.ai_canonname = nullptr;
+hints.ai_next = nullptr;
+addrinfo* result = nullptr;
+getaddrinfo(H, S, &amp;hints, &amp;result);
+</pre><p >On success, <span class='texttt'>r</span> is a non-empty results object containing the results of the resolve operation. Otherwise, <span class='texttt'>r</span> is <span class='texttt'>results_type()</span>.
+</p></div></div><p ><code class='itemdecl'>
+results_type resolve(const endpoint_type&amp; e);
+results_type resolve(const endpoint_type&amp; e, error_code&amp; ec);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-16'><div class='marginalizedparent'><a class='marginalized' href='#ops-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i> Let <span class='texttt'>S1</span> and <span class='texttt'>S2</span> be <span class='indexparent'><a class='index' id='maximum_length_of_host_and_service_names'></a></span>implementation-defined values that are sufficiently large to hold the host name and service name respectively. Resolves an endpoint as if by POSIX:
+</p><pre class='codeblock'>
+char host_name[S1];
+char service_name[S2];
+int flags = 0;
+if (endpoint_type().protocol().type() == SOCK_DGRAM)
+  flags |= NI_DGRAM;
+int result = getnameinfo((const sockaddr*)e.data(), e.size(),
+                         host_name, S1,
+                         service_name, S2,
+                         flags);
+if (result != 0){
+  flags |= NI_NUMERICSERV;
+  result = getnameinfo((const sockaddr*)e.data(), e.size(),
+                       host_name, S1,
+                       service_name, S2,
+                       flags);
+}
+</pre></div></div><div class='para' id='ops-17'><div class='marginalizedparent'><a class='marginalized' href='#ops-17'>17</a></div><div class='itemdescr'><p ><i>Returns:</i> On success, a results object with <span class='texttt'>size() == 1</span> containing the results of the resolve operation. Otherwise <span class='texttt'>results_type()</span>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class CompletionToken&gt;
+  <i><span class='texttt'>DEDUCED</span></i> async_resolve(const endpoint_type&amp; e,
+                        CompletionToken&amp;&amp; token);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-18'><div class='marginalizedparent'><a class='marginalized' href='#ops-18'>18</a></div><div class='itemdescr'><p ><i>Completion signature:</i> <span class='texttt'>void(error_code ec, results_type r)</span>.</p></div></div><div class='para' id='ops-19'><div class='marginalizedparent'><a class='marginalized' href='#ops-19'>19</a></div><div class='itemdescr'><p ><i>Effects:</i> Let <span class='texttt'>S1</span> and <span class='texttt'>S2</span> be <span class='indexparent'><a class='index' id='maximum_length_of_host_and_service_names'></a></span>implementation-defined values that are sufficiently large to hold the host name and service name respectively. Initiates an asynchronous operation to resolve an endpoint as if by POSIX:
+</p><pre class='codeblock'>
+char host_name[S1];
+char service_name[S2];
+int flags = 0;
+if (endpoint_type().protocol().type() == SOCK_DGRAM)
+  flags |= NI_DGRAM;
+int result = getnameinfo((const sockaddr*)e.data(), e.size(),
+                         host_name, S1,
+                         service_name, S2,
+                         flags);
+if (result != 0){
+  flags |= NI_NUMERICSERV;
+  result = getnameinfo((const sockaddr*)e.data(), e.size(),
+                       host_name, S1,
+                       service_name, S2,
+                       flags);
+}
+</pre><p >On success, <span class='texttt'>r</span> is a results object with <span class='texttt'>size() == 1</span> containing the results of the resolve operation; otherwise, <span class='texttt'>r</span> is <span class='texttt'>results_type()</span>.
+</p></div></div></div></div></div></body></html>

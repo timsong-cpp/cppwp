@@ -1,0 +1,230 @@
+<!DOCTYPE html><html lang='en'><head><title>[socket.iostreams]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><div id='socket.iostreams'><h1 ><a class='secnum' style='min-width:73pt'>19</a> Socket iostreams <a class='abbr_ref' href='./#socket.iostreams'>[socket.iostreams]</a></h1><div id='socket.streambuf'><h2 ><a class='secnum' href='#socket.streambuf' style='min-width:88pt'>19.1</a> Class template <span class='texttt'>basic_socket_streambuf</span> <a class='abbr_ref' href='socket.streambuf'>[socket.streambuf]</a></h2><div class='para' id='socket.streambuf-1'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf-1'>1</a></div><p >The class <span class='texttt'>basic_socket_streambuf&lt;Protocol, Clock, WaitTraits&gt;</span> associates both the input sequence and the output sequence with a socket. The input and output sequences do not support seeking. [&nbsp;<i>Note:</i> The input and output sequences are independent as a stream socket provides full duplex I/O. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='socket.streambuf-2'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf-2'>2</a></div><p >[&nbsp;<i>Note:</i> This class is intended for sending and receiving bytes, not characters. The conversion from characters to bytes, and vice versa, must occur elsewhere. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  template&lt;class Protocol, class Clock, class WaitTraits&gt;
+  class basic_socket_streambuf : public basic_streambuf&lt;char&gt;
+  {
+  public:
+    <span class='comment'>// types:
+</span>
+    using protocol_type = Protocol;
+    using endpoint_type = typename protocol_type::endpoint;
+    using clock_type = Clock;
+    using time_point = typename clock_type::time_point;
+    using duration = typename clock_type::duration;
+    using wait_traits_type = WaitTraits;
+
+    <span class='comment'>// construct / copy / destroy:
+</span>
+    basic_socket_streambuf();
+    explicit basic_socket_streambuf(basic_stream_socket&lt;protocol_type&gt; s);
+    basic_socket_streambuf(const basic_socket_streambuf&amp;) = delete;
+    basic_socket_streambuf(basic_socket_streambuf&amp;&amp; rhs);
+
+    virtual ~basic_socket_streambuf();
+
+    basic_socket_streambuf&amp; operator=(const basic_socket_streambuf&amp;) = delete;
+    basic_socket_streambuf&amp; operator=(basic_socket_streambuf&amp;&amp; rhs);
+
+    <span class='comment'>// members:
+</span>
+    basic_socket_streambuf* connect(const endpoint_type&amp; e);
+    template&lt;class... Args&gt; basic_socket_streambuf* connect(Args&amp;&amp;... );
+
+    basic_socket_streambuf* close();
+
+    basic_socket&lt;protocol_type&gt;&amp; socket();
+    error_code error() const;
+
+    time_point expiry() const;
+    void expires_at(const time_point&amp; t);
+    void expires_after(const duration&amp; d);
+
+  protected:
+    <span class='comment'>// overridden virtual functions:
+</span>    virtual int_type underflow() override;
+    virtual int_type pbackfail(int_type c = traits_type::eof()) override;
+    virtual int_type overflow(int_type c = traits_type::eof()) override;
+    virtual int sync() override;
+    virtual streambuf* setbuf(char_type* s, streamsize n) override;
+
+  private:
+    basic_stream_socket&lt;protocol_type&gt; socket_; <span class='comment'>// <i>exposition only</i>
+</span>    error_code ec_; <span class='comment'>// <i>exposition only</i>
+</span>    time_point expiry_; <span class='comment'>// <i>exposition only</i>
+</span>  };
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre></div><div class='para' id='socket.streambuf-3'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf-3'>3</a></div><p >Instances of class template <span class='texttt'>basic_socket_streambuf</span> meet the requirements of <span class='texttt'>Destructible</span> (C++Std &sect;<a href='../n4140/destructible'>[destructible]</a>), <span class='texttt'>MoveConstructible</span> (C++Std &sect;<a href='../n4140/moveconstructible'>[moveconstructible]</a>), and <span class='texttt'>MoveAssignable</span> (C++Std &sect;<a href='../n4140/moveassignable'>[moveassignable]</a>).</p></div><div id='socket.streambuf.cons'><h3 ><a class='secnum' href='#socket.streambuf.cons' style='min-width:103pt'>19.1.1</a> <span class='texttt'>basic_socket_streambuf</span> constructors <a class='abbr_ref' href='socket.streambuf.cons'>[socket.streambuf.cons]</a></h3><p ><code class='itemdecl'>
+basic_socket_streambuf();
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.cons-1'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.cons-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>socket_</span> with <span class='texttt'>ctx</span>, where <span class='texttt'>ctx</span> is an unspecified object of class <span class='texttt'>io_context</span>.</p></div></div><div class='para' id='socket.streambuf.cons-2'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.cons-2'>2</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>expiry() == time_point::max()</span>.
+</p></div></div><p ><code class='itemdecl'>
+explicit basic_socket_streambuf(basic_stream_socket&lt;protocol_type&gt; s);
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.cons-3'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.cons-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>socket_</span> with <span class='texttt'>std::move(s)</span>.</p></div></div><div class='para' id='socket.streambuf.cons-4'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.cons-4'>4</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>expiry() == time_point::max()</span>.
+</p></div></div><p ><code class='itemdecl'>
+basic_socket_streambuf(basic_socket_streambuf&amp;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.cons-5'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.cons-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Move constructs from the rvalue <span class='texttt'>rhs</span>. It is <span class='indexparent'><a class='index' id='whether_the_sequence_pointers_in_basic_socket_streambuf_obtain_the_source_object&#39;s_values_after_move-construction'></a></span>implementation-defined whether the sequence pointers in <span class='texttt'>*this</span> (<span class='texttt'>eback()</span>, <span class='texttt'>gptr()</span>, <span class='texttt'>egptr()</span>, <span class='texttt'>pbase()</span>, <span class='texttt'>pptr()</span>, <span class='texttt'>epptr()</span>) obtain the values which <span class='texttt'>rhs</span> had. Whether they do or not, <span class='texttt'>*this</span> and <span class='texttt'>rhs</span> reference separate buffers (if any at all) after the construction. Additionally <span class='texttt'>*this</span> references the socket which <span class='texttt'>rhs</span> did before the construction, and <span class='texttt'>rhs</span> references no open socket after the construction.</p></div></div><div class='para' id='socket.streambuf.cons-6'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.cons-6'>6</a></div><div class='itemdescr'><p ><i>Postconditions:</i> Let <span class='texttt'>rhs_p</span> refer to the state of <span class='texttt'>rhs</span> just prior to this construction and let <span class='texttt'>rhs_a</span> refer to the state of <span class='texttt'>rhs</span> just after this construction.
+</p><ul class='itemize'><li id='socket.streambuf.cons-6.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.cons-6.1'>(6.1)</a></div><p ><span class='texttt'>is_open() == rhs_p.is_open()</span>
+</p></li><li id='socket.streambuf.cons-6.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.cons-6.2'>(6.2)</a></div><p ><span class='texttt'>rhs_a.is_open() == false</span>
+</p></li><li id='socket.streambuf.cons-6.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.cons-6.3'>(6.3)</a></div><p ><span class='texttt'>expiry() == rhs_p.expiry()</span>
+</p></li><li id='socket.streambuf.cons-6.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.cons-6.4'>(6.4)</a></div><p ><span class='texttt'>rhs_a.expiry() == time_point::max()</span>
+</p></li><li id='socket.streambuf.cons-6.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.cons-6.5'>(6.5)</a></div><p ><span class='texttt'>gptr() - eback() == rhs_p.gptr() - rhs_p.eback()</span>
+</p></li><li id='socket.streambuf.cons-6.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.cons-6.6'>(6.6)</a></div><p ><span class='texttt'>egptr() - eback() == rhs_p.egptr() - rhs_p.eback()</span>
+</p></li><li id='socket.streambuf.cons-6.7'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.cons-6.7'>(6.7)</a></div><p ><span class='texttt'>ptr() - pbase() == rhs_p.pptr() - rhs_p.pbase()</span>
+</p></li><li id='socket.streambuf.cons-6.8'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.cons-6.8'>(6.8)</a></div><p ><span class='texttt'>pptr() - pbase() == rhs_p.epptr() - rhs_p.pbase()</span>
+</p></li><li id='socket.streambuf.cons-6.9'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.cons-6.9'>(6.9)</a></div><p ><span class='texttt'>if (eback()) eback() != rhs_a.eback()</span>
+</p></li><li id='socket.streambuf.cons-6.10'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.cons-6.10'>(6.10)</a></div><p ><span class='texttt'>if (gptr()) gptr() != rhs_a.gptr()</span>
+</p></li><li id='socket.streambuf.cons-6.11'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.cons-6.11'>(6.11)</a></div><p ><span class='texttt'>if (egptr()) egptr() != rhs_a.egptr()</span>
+</p></li><li id='socket.streambuf.cons-6.12'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.cons-6.12'>(6.12)</a></div><p ><span class='texttt'>if (pbase()) pbase() != rhs_a.pbase()</span>
+</p></li><li id='socket.streambuf.cons-6.13'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.cons-6.13'>(6.13)</a></div><p ><span class='texttt'>if (pptr()) pptr() != rhs_a.pptr()</span>
+</p></li><li id='socket.streambuf.cons-6.14'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.cons-6.14'>(6.14)</a></div><p ><span class='texttt'>if (epptr()) epptr() != rhs_a.epptr()</span>
+</p></li></ul></div></div><p ><code class='itemdecl'>
+virtual ~basic_socket_streambuf();
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.cons-7'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.cons-7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i> If a put area exists, calls <span class='texttt'>overflow(traits_type::eof())</span> to flush characters. [&nbsp;<i>Note:</i> The socket is closed by the <span class='texttt'>basic_stream_socket&lt;protocol_type&gt;</span> destructor. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div><p ><code class='itemdecl'>
+basic_socket_streambuf&amp; operator=(basic_socket_streambuf&amp;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.cons-8'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.cons-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>this-&gt;close()</span> then move assigns from <span class='texttt'>rhs</span>. After the move assignment <span class='texttt'>*this</span> has the observable state it would have had if it had been move constructed from <span class='texttt'>rhs</span>.</p></div></div><div class='para' id='socket.streambuf.cons-9'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.cons-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div></div><div id='socket.streambuf.members'><h3 ><a class='secnum' href='#socket.streambuf.members' style='min-width:103pt'>19.1.2</a> <span class='texttt'>basic_socket_streambuf</span> members <a class='abbr_ref' href='socket.streambuf.members'>[socket.streambuf.members]</a></h3><p ><code class='itemdecl'>
+basic_socket_streambuf* connect(const endpoint_type&amp; e);
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.members-1'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.members-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes the <span class='texttt'>basic_socket_streambuf</span> as required, closes and re-opens the socket by performing <span class='texttt'>socket_.close(ec_)</span> and <span class='texttt'>socket_.open(e.protocol(), ec_)</span>, then attempts to establish a connection as if by POSIX <span class='texttt'>connect(socket_.native_handle(), static_cast&lt;sockaddr*&gt;(e.data()), e.size())</span>. <span class='texttt'>ec_</span> is set to reflect the error code produced by the operation. If the operation does not complete before the absolute timeout specified by <span class='texttt'>expiry_</span>, the socket is closed and <span class='texttt'>ec_</span> is set to <span class='texttt'>errc::timed_out</span>.</p></div></div><div class='para' id='socket.streambuf.members-2'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.members-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> if <span class='texttt'>!ec_</span>, <span class='texttt'>this</span>; otherwise, a null pointer.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class... Args&gt;
+  basic_socket_streambuf* connect(Args&amp;&amp;... args);
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.members-3'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.members-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes the <span class='texttt'>basic_socket_streambuf</span> as required and closes the socket as if by calling <span class='texttt'>socket_.close(ec_)</span>. Obtains an endpoint sequence <span class='texttt'>endpoints</span> by performing <span class='texttt'>protocol_type::resolver(ctx).resolve(forward&lt;Args&gt;(args)...)</span>, where <span class='texttt'>ctx</span> is an unspecified object of class <span class='texttt'>io_context</span>. For each endpoint <span class='texttt'>e</span> in the sequence, closes and re-opens the socket by performing <span class='texttt'>socket_.close(ec_)</span> and <span class='texttt'>socket_.open(e.protocol(), ec_)</span>, then attempts to establish a connection as if by POSIX <span class='texttt'>connect(socket_.native_handle(), static_cast&lt;sockaddr*&gt;(e.data()), e.size())</span>. <span class='texttt'>ec_</span> is set to reflect the error code produced by the operation. If the operation does not complete before the absolute timeout specified by <span class='texttt'>expiry_</span>, the socket is closed and <span class='texttt'>ec_</span> is set to <span class='texttt'>errc::timed_out</span>.</p></div></div><div class='para' id='socket.streambuf.members-4'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.members-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> if <span class='texttt'>!ec_</span>, <span class='texttt'>this</span>; otherwise, a null pointer.</p></div></div><div class='para' id='socket.streambuf.members-5'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.members-5'>5</a></div><div class='itemdescr'><p ><i>Remarks:</i> This function shall not participate in overload resolution unless <span class='texttt'>Protocol</span> meets the requirements for an internet protocol (<a href='internet.reqmts.protocol'>[internet.reqmts.protocol]</a>).
+</p></div></div><p ><code class='itemdecl'>
+basic_socket_streambuf* close();
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.members-6'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.members-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> If a put area exists, calls <span class='texttt'>overflow(traits_type::eof())</span> to flush characters. Regardless of whether the preceding call fails or throws an exception, the function closes the socket as if by <span class='texttt'>basic_socket&lt;protocol_type&gt;::close(ec_)</span>. If any of the calls made by the function fail, <span class='texttt'>close</span> fails by returning a null pointer. If one of these calls throws an exception, the exception is caught and rethrown after closing the socket.</p></div></div><div class='para' id='socket.streambuf.members-7'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.members-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>this</span> on success, a null pointer otherwise.</p></div></div><div class='para' id='socket.streambuf.members-8'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.members-8'>8</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>is_open() == false</span>.
+</p></div></div><p ><code class='itemdecl'>
+basic_socket&lt;protocol_type&gt;&amp; socket();
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.members-9'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.members-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>socket_</span>.
+</p></div></div><p ><code class='itemdecl'>
+error_code error() const;
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.members-10'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.members-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>ec_</span>.
+</p></div></div><p ><code class='itemdecl'>
+time_point expiry() const;
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.members-11'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.members-11'>11</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>expiry_</span>.
+</p></div></div><p ><code class='itemdecl'>
+void expires_at(const time_point&amp; t);
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.members-12'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.members-12'>12</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>expiry_ == t</span>.
+</p></div></div><p ><code class='itemdecl'>
+void expires_after(const duration&amp; d);
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.members-13'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.members-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>expires_at(clock_type::now() + d)</span>.
+</p></div></div></div><div id='socket.streambuf.virtual'><h3 ><a class='secnum' href='#socket.streambuf.virtual' style='min-width:103pt'>19.1.3</a> <span class='texttt'>basic_socket_streambuf</span> overridden virtual functions <a class='abbr_ref' href='socket.streambuf.virtual'>[socket.streambuf.virtual]</a></h3><p ><code class='itemdecl'>
+virtual int_type underflow() override;
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.virtual-1'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.virtual-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Behaves according to the description of <span class='texttt'>basic_streambuf&lt;char&gt;::underflow()</span>, with the specialization that a sequence of characters is read from the input sequence as if by POSIX <span class='texttt'>recvmsg</span>, and <span class='texttt'>ec_</span> is set to reflect the error code produced by the operation. If the operation does not complete before the absolute timeout specified by <span class='texttt'>expiry_</span>, the socket is closed and <span class='texttt'>ec_</span> is set to <span class='texttt'>errc::timed_out</span>.</p></div></div><div class='para' id='socket.streambuf.virtual-2'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.virtual-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>traits_type::to_int_type(*gptr())</span> to indicate success,
+and <span class='texttt'>traits_type::eof()</span> to indicate failure.
+</p></div></div><p ><code class='itemdecl'>
+virtual int_type pbackfail(int_type c = traits_type::eof()) override;
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.virtual-3'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.virtual-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Puts back the character designated by <span class='texttt'>c</span> to the input sequence, if possible, in one of three ways:</p><ul class='itemize'><li id='socket.streambuf.virtual-3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.virtual-3.1'>(3.1)</a></div><p >If <span class='texttt'>traits_type::eq_int_type(c, traits_type::eof())</span> returns <span class='texttt'>false</span>, and if the function makes a putback position available, and if <span class='texttt'>traits_type::eq(traits_type::to_char_type(c), gptr()[-1])</span> returns <span class='texttt'>true</span>, decrements the next pointer for the input sequence, <span class='texttt'>gptr()</span>. Returns: <span class='texttt'>c</span>.</p></li><li id='socket.streambuf.virtual-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.virtual-3.2'>(3.2)</a></div><p >If <span class='texttt'>traits_type::eq_int_type(c, traits_type::eof())</span> returns <span class='texttt'>false</span>, and if the function makes a putback position available, and if the function is permitted to assign to the putback position, decrements the next pointer for the input sequence, and stores <span class='texttt'>c</span> there. Returns: <span class='texttt'>c</span>.</p></li><li id='socket.streambuf.virtual-3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#socket.streambuf.virtual-3.3'>(3.3)</a></div><p >If <span class='texttt'>traits_type::eq_int_type(c, traits_type::eof())</span> returns <span class='texttt'>true</span>, and if either the input sequence has a putback position available or the function makes a putback position available, decrements the next pointer for the input sequence, <span class='texttt'>gptr()</span>. Returns: <span class='texttt'>traits_type::not_eof(c)</span>.
+</p></li></ul></div></div><div class='para' id='socket.streambuf.virtual-4'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.virtual-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>traits_type::eof()</span> to indicate failure.</p></div></div><div class='para' id='socket.streambuf.virtual-5'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.virtual-5'>5</a></div><div class='itemdescr'><p >Notes: The function does not put back a character directly to the input sequence. If the function can succeed in more than one of these ways, it is unspecified which way is chosen. The function can alter the number of putback positions available as a result of any call.
+</p></div></div><p ><code class='itemdecl'>
+virtual int_type overflow(int_type c = traits_type::eof()) override;
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.virtual-6'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.virtual-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> Behaves according to the description of <span class='texttt'>basic_streambuf&lt;char&gt;::overflow(c)</span>, except that the behavior of “consuming characters” is performed by output of the characters to the socket as if by one or more calls to POSIX <span class='texttt'>sendmsg</span>, and <span class='texttt'>ec_</span> is set to reflect the error code produced by the operation. If the operation does not complete before the absolute timeout specified by <span class='texttt'>expiry_</span>, the socket is closed and <span class='texttt'>ec_</span> is set to <span class='texttt'>errc::timed_out</span>.</p></div></div><div class='para' id='socket.streambuf.virtual-7'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.virtual-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>traits_type::not_eof(c)</span> to indicate success, and <span class='texttt'>traits_type::eof()</span> to indicate failure.
+</p></div></div><p ><code class='itemdecl'>
+virtual int sync() override;
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.virtual-8'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.virtual-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i> If a put area exists, calls <span class='texttt'>overflow(traits_type::eof())</span> to flush characters.
+</p></div></div><p ><code class='itemdecl'>
+virtual streambuf* setbuf(char_type* s, streamsize n) override;
+</code></p><div class='itemdescr'></div><div class='para' id='socket.streambuf.virtual-9'><div class='marginalizedparent'><a class='marginalized' href='#socket.streambuf.virtual-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>setbuf(nullptr, 0)</span> is called on a stream before any I/O has occurred on that stream, the stream becomes unbuffered. Otherwise the results are unspecified. “Unbuffered” means that <span class='texttt'>pbase()</span> and <span class='texttt'>pptr()</span> always return null and output to the socket should appear as soon as possible.
+</p></div></div></div></div><div id='socket.iostream'><h2 ><a class='secnum' href='#socket.iostream' style='min-width:88pt'>19.2</a> Class template <span class='texttt'>basic_socket_iostream</span> <a class='abbr_ref' href='socket.iostream'>[socket.iostream]</a></h2><div class='para' id='socket.iostream-1'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream-1'>1</a></div><p >The class template <span class='texttt'>basic_socket_iostream&lt;Protocol, Clock, WaitTraits&gt;</span> supports reading and writing on sockets. It uses a <span class='texttt'>basic_socket_streambuf&lt;Protocol, Clock, WaitTraits&gt;</span> object to control the associated sequences.</p></div><div class='para' id='socket.iostream-2'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream-2'>2</a></div><p >[&nbsp;<i>Note:</i> This class is intended for sending and receiving bytes, not characters. The conversion from characters to bytes, and vice versa, must occur elsewhere. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  template&lt;class Protocol, class Clock, class WaitTraits&gt;
+  class basic_socket_iostream : public basic_iostream&lt;char&gt;
+  {
+  public:
+    <span class='comment'>// types:
+</span>
+    using protocol_type = Protocol;
+    using endpoint_type = typename protocol_type::endpoint;
+    using clock_type = Clock;
+    using time_point = typename clock_type::time_point;
+    using duration = typename clock_type::duration;
+    using wait_traits_type = WaitTraits;
+
+    <span class='comment'>// construct / copy / destroy:
+</span>
+    basic_socket_iostream();
+    explicit basic_socket_iostream(basic_stream_socket&lt;protocol_type&gt; s);
+    basic_socket_iostream(const basic_socket_iostream&amp;) = delete;
+    basic_socket_iostream(basic_socket_iostream&amp;&amp; rhs);
+    template&lt;class... Args&gt;
+      explicit basic_socket_iostream(Args&amp;&amp;... args);
+
+    basic_socket_iostream&amp; operator=(const basic_socket_iostream&amp;) = delete;
+    basic_socket_iostream&amp; operator=(basic_socket_iostream&amp;&amp; rhs);
+
+    <span class='comment'>// members:
+</span>
+    template&lt;class... Args&gt; void connect(Args&amp;&amp;... args);
+
+    void close();
+
+    basic_socket_streambuf&lt;protocol_type, clock_type, wait_traits_type&gt;* rdbuf() const;
+
+    basic_socket&lt;protocol_type&gt;&amp; socket();
+    error_code error() const;
+
+    time_point expiry() const;
+    void expires_at(const time_point&amp; t);
+    void expires_after(const duration&amp; d);
+
+  private:
+    basic_socket_streambuf&lt;protocol_type, clock_type, wait_traits_type&gt; sb_; <span class='comment'>// <i>exposition only</i>
+</span>  };
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre></div><div class='para' id='socket.iostream-3'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream-3'>3</a></div><p >Instances of class template <span class='texttt'>basic_socket_iostream</span> meet the requirements of <span class='texttt'>Destructible</span> (C++Std &sect;<a href='../n4140/destructible'>[destructible]</a>), <span class='texttt'>MoveConstructible</span> (C++Std &sect;<a href='../n4140/moveconstructible'>[moveconstructible]</a>), and <span class='texttt'>MoveAssignable</span> (C++Std &sect;<a href='../n4140/moveassignable'>[moveassignable]</a>).</p></div><div id='socket.iostream.cons'><h3 ><a class='secnum' href='#socket.iostream.cons' style='min-width:103pt'>19.2.1</a> <span class='texttt'>basic_socket_iostream</span> constructors <a class='abbr_ref' href='socket.iostream.cons'>[socket.iostream.cons]</a></h3><p ><code class='itemdecl'>
+basic_socket_iostream();
+</code></p><div class='itemdescr'></div><div class='para' id='socket.iostream.cons-1'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream.cons-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes the base class as <span class='texttt'>basic_iostream&lt;char&gt;(&amp;sb_)</span>, <span class='texttt'>sb_</span> as <span class='texttt'>basic_socket_streambuf&lt;Protocol, Clock, WaitTraits&gt;()</span>, and performs <span class='texttt'>setf(std::ios_base::unitbuf)</span>.
+</p></div></div><p ><code class='itemdecl'>
+explicit basic_socket_iostream(basic_stream_socket&lt;protocol_type&gt; s);
+</code></p><div class='itemdescr'></div><div class='para' id='socket.iostream.cons-2'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream.cons-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes the base class as <span class='texttt'>basic_iostream&lt;char&gt;(&amp;sb_)</span>, <span class='texttt'>sb_</span> as <span class='texttt'>basic_socket_streambuf&lt;Protocol, Clock, WaitTraits&gt;(std::move(s))</span>, and performs <span class='texttt'>setf(std::ios_base::unitbuf)</span>.
+</p></div></div><p ><code class='itemdecl'>
+basic_socket_iostream(basic_socket_iostream&amp;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='socket.iostream.cons-3'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream.cons-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Move constructs from the rvalue <span class='texttt'>rhs</span>. This is accomplished by move constructing the base class, and the contained <span class='texttt'>basic_socket_streambuf</span>. Next <span class='texttt'>basic_iostream&lt;char&gt;::set_rdbuf(&amp;sb_)</span> is called to install the contained <span class='texttt'>basic_socket_streambuf</span>.
+</p></div></div><p ><code class='itemdecl'>
+template&lt;class... Args&gt;
+  explicit basic_socket_iostream(Args&amp;&amp;... args);
+</code></p><div class='itemdescr'></div><div class='para' id='socket.iostream.cons-4'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream.cons-4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes the base class as <span class='texttt'>basic_iostream&lt;char&gt;(&amp;sb_)</span>, initializes <span class='texttt'>sb_</span> as <span class='texttt'>basic_socket_streambuf&lt;Protocol, Clock, WaitTraits&gt;()</span>, and performs <span class='texttt'>setf(std::ios_base::unitbuf)</span>. Then calls <span class='texttt'>rdbuf()-&gt;connect(forward&lt;Args&gt;(args)...)</span>. If that function returns a null pointer, calls <span class='texttt'>setstate(failbit)</span>.
+</p></div></div><p ><code class='itemdecl'>
+basic_socket_iostream&amp; operator=(basic_socket_iostream&amp;&amp; rhs);
+</code></p><div class='itemdescr'></div><div class='para' id='socket.iostream.cons-5'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream.cons-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Move assigns the base and members of <span class='texttt'>*this</span> from the base and corresponding members of <span class='texttt'>rhs</span>.</p></div></div><div class='para' id='socket.iostream.cons-6'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream.cons-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+</p></div></div></div><div id='socket.iostream.members'><h3 ><a class='secnum' href='#socket.iostream.members' style='min-width:103pt'>19.2.2</a> <span class='texttt'>basic_socket_iostream</span> members <a class='abbr_ref' href='socket.iostream.members'>[socket.iostream.members]</a></h3><p ><code class='itemdecl'>
+template&lt;class... Args&gt;
+  void connect(Args&amp;&amp;... args);
+</code></p><div class='itemdescr'></div><div class='para' id='socket.iostream.members-1'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream.members-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>rdbuf()-&gt;connect(forward&lt;Args&gt;(args)...)</span>. If that function returns a null pointer, calls <span class='texttt'>setstate(failbit)</span> (which may throw <span class='texttt'>ios_base::failure</span>).
+</p></div></div><p ><code class='itemdecl'>
+void close();
+</code></p><div class='itemdescr'></div><div class='para' id='socket.iostream.members-2'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream.members-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>rdbuf()-&gt;close()</span>. If that function returns a null pointer, calls <span class='texttt'>setstate(failbit)</span> (which may throw <span class='texttt'>ios_base::failure</span>).
+</p></div></div><p ><code class='itemdecl'>
+basic_socket_streambuf&lt;protocol_type, clock_type, wait_traits_type&gt;* rdbuf() const;
+</code></p><div class='itemdescr'></div><div class='para' id='socket.iostream.members-3'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream.members-3'>3</a></div><div class='itemdescr'><p >Let <span class='texttt'>SB</span> be the type <span class='texttt'>basic_socket_streambuf&lt;protocol_type, clock_type, wait_traits_type&gt;</span>.</p></div></div><div class='para' id='socket.iostream.members-4'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream.members-4'>4</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>const_cast&lt;SB*&gt;(addressof(sb_))</span>.
+</p></div></div><p ><code class='itemdecl'>
+basic_socket&lt;protocol_type&gt;&amp; socket();
+</code></p><div class='itemdescr'></div><div class='para' id='socket.iostream.members-5'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream.members-5'>5</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>rdbuf()-&gt;socket()</span>.
+</p></div></div><p ><code class='itemdecl'>
+error_code error() const;
+</code></p><div class='itemdescr'></div><div class='para' id='socket.iostream.members-6'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream.members-6'>6</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>rdbuf()-&gt;error()</span>.
+</p></div></div><p ><code class='itemdecl'>
+time_point expiry() const;
+</code></p><div class='itemdescr'></div><div class='para' id='socket.iostream.members-7'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream.members-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>rdbuf()-&gt;expiry()</span>.
+</p></div></div><p ><code class='itemdecl'>
+void expires_at(const time_point&amp; t);
+</code></p><div class='itemdescr'></div><div class='para' id='socket.iostream.members-8'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream.members-8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>rdbuf()-&gt;expires_at(t)</span>.
+</p></div></div><p ><code class='itemdecl'>
+void expires_after(const duration&amp; d);
+</code></p><div class='itemdescr'></div><div class='para' id='socket.iostream.members-9'><div class='marginalizedparent'><a class='marginalized' href='#socket.iostream.members-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>rdbuf()-&gt;expires_after(d)</span>.
+</p></div></div></div></div></div></div></body></html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html><html lang='en'><head><title>[async.exec.work.guard]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>13</a> Asynchronous model <a class='abbr_ref' href='./#async'>[async]</a></h1><div id='async.exec.work.guard'><h2 ><a class='secnum' style='min-width:88pt'>13.16</a> Class template <span class='texttt'>executor_work_guard</span> <a class='abbr_ref'>[async.exec.work.guard]</a></h2><p ><span class='indexparent'><a class='index' id='executor_work_guard'></a></span></p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  template&lt;class Executor&gt;
+  class executor_work_guard
+  {
+  public:
+    <span class='comment'>// types:
+</span>
+    using executor_type = Executor;
+
+    <span class='comment'>// construct / copy / destroy:
+</span>
+    explicit executor_work_guard(const executor_type&amp; ex) noexcept;
+    executor_work_guard(const executor_work_guard&amp; other) noexcept;
+    executor_work_guard(executor_work_guard&amp;&amp; other) noexcept;
+
+    executor_work_guard&amp; operator=(const executor_work_guard&amp;) = delete;
+
+    ~executor_work_guard();
+
+    <span class='comment'>// executor work guard observers:
+</span>
+    executor_type get_executor() const noexcept;
+    bool owns_work() const noexcept;
+
+    <span class='comment'>// executor work guard modifiers:
+</span>
+    void reset() noexcept;
+
+  private:
+    Executor ex_; <span class='comment'>// <i>exposition only</i>
+</span>    bool owns_; <span class='comment'>// <i>exposition only</i>
+</span>  };
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre><div id='members'><h3 ><a class='secnum' href='#members' style='min-width:103pt'>13.16.1</a> <span class='texttt'>executor_work_guard</span> members <a class='abbr_ref' href='async.exec.work.guard.members'>[async.exec.work.guard.members]</a></h3><p ><span class='indexparent'><a class='index' id='executor_work_guard,constructor'></a></span><code class='itemdecl'>
+explicit executor_work_guard(const executor_type&amp; ex) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='members-1'><div class='marginalizedparent'><a class='marginalized' href='#members-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>ex_</span> with <span class='texttt'>ex</span>, and then performs <span class='texttt'>ex_.on_work_started()</span>.</p></div></div><div class='para' id='members-2'><div class='marginalizedparent'><a class='marginalized' href='#members-2'>2</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>ex_ == ex</span> and <span class='texttt'>owns_ == true</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='executor_work_guard,constructor'></a></span><code class='itemdecl'>
+executor_work_guard(const executor_work_guard&amp; other) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='members-3'><div class='marginalizedparent'><a class='marginalized' href='#members-3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>ex_</span> with <span class='texttt'>other.ex_</span>. If <span class='texttt'>other.owns_ == true</span>, performs <span class='texttt'>ex_.on_work_started()</span>.</p></div></div><div class='para' id='members-4'><div class='marginalizedparent'><a class='marginalized' href='#members-4'>4</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>ex_ == other.ex_</span> and <span class='texttt'>owns_ == other.owns_</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='executor_work_guard,constructor'></a></span><code class='itemdecl'>
+executor_work_guard(executor_work_guard&amp;&amp; other) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='members-5'><div class='marginalizedparent'><a class='marginalized' href='#members-5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>ex_</span> with <span class='texttt'>std::move(other.ex_)</span>
+and initializes <span class='texttt'>owns_</span> with <span class='texttt'>other.owns_</span>,
+and sets <span class='texttt'>other.owns_</span> to <span class='texttt'>false</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='executor_work_guard,destructor'></a></span><code class='itemdecl'>
+~executor_work_guard();
+</code></p><div class='itemdescr'></div><div class='para' id='members-6'><div class='marginalizedparent'><a class='marginalized' href='#members-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>owns_</span> is <span class='texttt'>true</span>, performs <span class='texttt'>ex_.on_work_finished()</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='get_executor,executor_work_guard'></a></span><span class='indexparent'><a class='index' id='executor_work_guard,get_executor'></a></span><code class='itemdecl'>
+executor_type get_executor() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='members-7'><div class='marginalizedparent'><a class='marginalized' href='#members-7'>7</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>ex_</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='owns_work,executor_work_guard'></a></span><span class='indexparent'><a class='index' id='executor_work_guard,owns_work'></a></span><code class='itemdecl'>
+bool owns_work() const noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='members-8'><div class='marginalizedparent'><a class='marginalized' href='#members-8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>owns_</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='reset,executor_work_guard'></a></span><span class='indexparent'><a class='index' id='executor_work_guard,reset'></a></span><code class='itemdecl'>
+void reset() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='members-9'><div class='marginalizedparent'><a class='marginalized' href='#members-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>owns_</span> is <span class='texttt'>true</span>, performs <span class='texttt'>ex_.on_work_finished()</span>.</p></div></div><div class='para' id='members-10'><div class='marginalizedparent'><a class='marginalized' href='#members-10'>10</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>owns_ == false</span>.
+</p></div></div></div></div></div></body></html>

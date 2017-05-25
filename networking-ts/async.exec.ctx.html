@@ -1,0 +1,71 @@
+<!DOCTYPE html><html lang='en'><head><title>[async.exec.ctx]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>13</a> Asynchronous model <a class='abbr_ref' href='./#async'>[async]</a></h1><div id='async.exec.ctx'><h2 ><a class='secnum' style='min-width:88pt'>13.7</a> Class <span class='texttt'>execution_context</span> <a class='abbr_ref'>[async.exec.ctx]</a></h2><p ><span class='indexparent'><a class='index' id='execution_context'></a></span></p><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Class <span class='texttt'>execution_context</span> implements an extensible, type-safe, polymorphic set of services, indexed by service type.</p><pre class='codeblock'>
+namespace std {
+namespace experimental {
+namespace net {
+inline namespace v1 {
+
+  class execution_context
+  {
+  public:
+    class service;
+
+    <span class='comment'>// construct / copy / destroy:
+</span>
+    execution_context();
+    execution_context(const execution_context&amp;) = delete;
+    execution_context&amp; operator=(const execution_context&amp;) = delete;
+    virtual ~execution_context();
+
+    <span class='comment'>// execution context operations:
+</span>
+    void notify_fork(fork_event e);
+
+  protected:
+
+    <span class='comment'>// execution context protected operations:
+</span>
+    void shutdown() noexcept;
+    void destroy() noexcept;
+  };
+
+  <span class='comment'>// service access:
+</span>  template&lt;class Service&gt; typename Service::key_type&amp;
+    use_service(execution_context&amp; ctx);
+  template&lt;class Service, class... Args&gt; Service&amp;
+    make_service(execution_context&amp; ctx, Args&amp;&amp;... args);
+  template&lt;class Service&gt; bool has_service(const execution_context&amp; ctx) noexcept;
+  class service_already_exists : public logic_error { };
+
+} <span class='comment'>// inline namespace v1
+</span>} <span class='comment'>// namespace net
+</span>} <span class='comment'>// namespace experimental
+</span>} <span class='comment'>// namespace std
+</span></pre></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Access to the services of an <span class='texttt'>execution_context</span> is via three function templates, <span class='texttt'>use_service&lt;&gt;</span>, <span class='texttt'>make_service&lt;&gt;</span> and <span class='texttt'>has_service&lt;&gt;</span>.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >In a call to <span class='texttt'>use_service&lt;Service&gt;()</span>, the type argument chooses a service. If the service is not present in an <span class='texttt'>execution_context</span>, an object of type <span class='texttt'>Service</span> is created and added to the <span class='texttt'>execution_context</span>. A program can check if an <span class='texttt'>execution_context</span> implements a particular service with the function template <span class='texttt'>has_service&lt;Service&gt;()</span>.</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Service objects may be explicitly added to an <span class='texttt'>execution_context</span> using the function template <span class='texttt'>make_service&lt;Service&gt;()</span>. If the service is already present, <span class='texttt'>make_service</span> exits via an exception of type <span class='texttt'>service_already_exists</span>.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >Once a service reference is obtained from an <span class='texttt'>execution_context</span> object by calling <span class='texttt'>use_service&lt;&gt;</span>, that reference remains usable until a call to <span class='texttt'>destroy()</span>.</p></div><div id='cons'><h3 ><a class='secnum' href='#cons' style='min-width:103pt'>13.7.1</a> <span class='texttt'>execution_context</span> constructor <a class='abbr_ref' href='async.exec.ctx.cons'>[async.exec.ctx.cons]</a></h3><p ><span class='indexparent'><a class='index' id='execution_context,constructor'></a></span><code class='itemdecl'>
+execution_context();
+</code></p><div class='itemdescr'></div><div class='para' id='cons-1'><div class='marginalizedparent'><a class='marginalized' href='#cons-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Creates an object of class <span class='texttt'>execution_context</span> which contains no services. [&nbsp;<i>Note:</i> An implementation might preload services of internal service types for its own use. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div><div id='dtor'><h3 ><a class='secnum' href='#dtor' style='min-width:103pt'>13.7.2</a> <span class='texttt'>execution_context</span> destructor <a class='abbr_ref' href='async.exec.ctx.dtor'>[async.exec.ctx.dtor]</a></h3><p ><span class='indexparent'><a class='index' id='execution_context,destructor'></a></span><code class='itemdecl'>
+~execution_context();
+</code></p><div class='itemdescr'></div><div class='para' id='dtor-1'><div class='marginalizedparent'><a class='marginalized' href='#dtor-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Destroys an object of class <span class='texttt'>execution_context</span>. Performs <span class='texttt'>shutdown()</span> followed by <span class='texttt'>destroy()</span>.
+</p></div></div></div><div id='ops'><h3 ><a class='secnum' href='#ops' style='min-width:103pt'>13.7.3</a> <span class='texttt'>execution_context</span> operations <a class='abbr_ref' href='async.exec.ctx.ops'>[async.exec.ctx.ops]</a></h3><p ><span class='indexparent'><a class='index' id='notify_fork,execution_context'></a></span><span class='indexparent'><a class='index' id='execution_context,notify_fork'></a></span><code class='itemdecl'>
+void notify_fork(fork_event e);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-1'><div class='marginalizedparent'><a class='marginalized' href='#ops-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> For each service object <span class='texttt'>svc</span> in the set:
+</p><ul class='itemize'><li id='ops-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-1.1'>(1.1)</a></div><p >If <span class='texttt'>e == fork_event::prepare</span>, performs <span class='texttt'>svc-&gt;notify_fork(e)</span> in reverse order of addition to the set.
+</p></li><li id='ops-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-1.2'>(1.2)</a></div><p >Otherwise, performs <span class='texttt'>svc-&gt;notify_fork(e)</span> in order of addition to the set.
+</p></li></ul></div></div></div><div id='protected'><h3 ><a class='secnum' href='#protected' style='min-width:103pt'>13.7.4</a> <span class='texttt'>execution_context</span> protected operations <a class='abbr_ref' href='async.exec.ctx.protected'>[async.exec.ctx.protected]</a></h3><p ><span class='indexparent'><a class='index' id='shutdown,execution_context'></a></span><span class='indexparent'><a class='index' id='execution_context,shutdown'></a></span><code class='itemdecl'>
+void shutdown() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='protected-1'><div class='marginalizedparent'><a class='marginalized' href='#protected-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> For each service object <span class='texttt'>svc</span> in the <span class='texttt'>execution_context</span> set, in reverse order of addition to the set, performs <span class='texttt'>svc-&gt;shutdown()</span>. For each service in the set, <span class='texttt'>svc-&gt;shutdown()</span> is called only once irrespective of the number of calls to <span class='texttt'>shutdown</span> on the <span class='texttt'>execution_context</span>.
+</p></div></div><p ><code class='itemdecl'>
+void destroy() noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='protected-2'><div class='marginalizedparent'><a class='marginalized' href='#protected-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> Destroys each service object in the <span class='texttt'>execution_context</span> set, and removes it from the set, in reverse order of addition to the set.
+</p></div></div></div><div id='globals'><h3 ><a class='secnum' href='#globals' style='min-width:103pt'>13.7.5</a> <span class='texttt'>execution_context</span> globals <a class='abbr_ref' href='async.exec.ctx.globals'>[async.exec.ctx.globals]</a></h3><div class='para' id='globals-1'><div class='marginalizedparent'><a class='marginalized' href='#globals-1'>1</a></div><p >The functions <span class='texttt'>use_service</span>, <span class='texttt'>make_service</span>, and <span class='texttt'>has_service</span> do not introduce data races as a result of concurrent calls to those functions from different threads.</p><p ><span class='indexparent'><a class='index' id='use_service'></a></span><code class='itemdecl'>
+template&lt;class Service&gt; typename Service::key_type&amp;
+  use_service(execution_context&amp; ctx);
+</code></p></div><div class='itemdescr'></div><div class='para' id='globals-2'><div class='marginalizedparent'><a class='marginalized' href='#globals-2'>2</a></div><div class='itemdescr'><p ><i>Effects:</i> If an object of type <span class='texttt'>Service::key_type</span> does not already exist in the <span class='texttt'>execution_context</span> set identified by <span class='texttt'>ctx</span>, creates an object of type <span class='texttt'>Service</span>, initialized as <span class='texttt'>Service(ctx)</span>, and adds it to the set.</p></div></div><div class='para' id='globals-3'><div class='marginalizedparent'><a class='marginalized' href='#globals-3'>3</a></div><div class='itemdescr'><p ><i>Returns:</i> A reference to the corresponding service of <span class='texttt'>ctx</span>.</p></div></div><div class='para' id='globals-4'><div class='marginalizedparent'><a class='marginalized' href='#globals-4'>4</a></div><div class='itemdescr'><p >Notes: The reference returned remains valid until a call to <span class='texttt'>destroy</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='make_service'></a></span><code class='itemdecl'>
+template&lt;class Service, class... Args&gt; Service&amp;
+  make_service(execution_context&amp; ctx, Args&amp;&amp;... args);
+</code></p><div class='itemdescr'></div><div class='para' id='globals-5'><div class='marginalizedparent'><a class='marginalized' href='#globals-5'>5</a></div><div class='itemdescr'><p ><i>Requires:</i> A service object of type <span class='texttt'>Service::key_type</span> does not already exist in the <span class='texttt'>execution_context</span> set identified by <span class='texttt'>ctx</span>.</p></div></div><div class='para' id='globals-6'><div class='marginalizedparent'><a class='marginalized' href='#globals-6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i> Creates an object of type <span class='texttt'>Service</span>, initialized as <span class='texttt'>Service(ctx, forward&lt;Args&gt;(args)...)</span>, and adds it to the <span class='texttt'>execution_context</span> set identified by <span class='texttt'>ctx</span>.</p></div></div><div class='para' id='globals-7'><div class='marginalizedparent'><a class='marginalized' href='#globals-7'>7</a></div><div class='itemdescr'><p ><i>Remarks:</i> <span class='texttt'>service_already_exists</span> if a corresponding service object of type <span class='texttt'>Key</span> is already present in the set.</p></div></div><div class='para' id='globals-8'><div class='marginalizedparent'><a class='marginalized' href='#globals-8'>8</a></div><div class='itemdescr'><p >Notes: The reference returned remains valid until a call to <span class='texttt'>destroy</span>.
+</p></div></div><p ><span class='indexparent'><a class='index' id='has_service'></a></span><code class='itemdecl'>
+template&lt;class Service&gt; bool has_service(const execution_context&amp; ctx) noexcept;
+</code></p><div class='itemdescr'></div><div class='para' id='globals-9'><div class='marginalizedparent'><a class='marginalized' href='#globals-9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>true</span> if an object of type <span class='texttt'>Service::key_type</span> is present in <span class='texttt'>ctx</span>, otherwise <span class='texttt'>false</span>.
+</p></div></div></div></div></div></body></html>
