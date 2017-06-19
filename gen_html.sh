@@ -12,6 +12,7 @@ echo "Something was wrong."
 exit 1
 fi
 
+cd gh-pages
 git add -A
 git commit -m 'Update'
 
