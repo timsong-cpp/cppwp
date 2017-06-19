@@ -601,12 +601,12 @@ namespace std { namespace experimental { namespace ranges { inline namespace v1 
 
 namespace std {
   <span class='comment'>// <a href='iterator.stdtraits'>[iterator.stdtraits]</a>, iterator traits:
-</span>  template &lt;experimental::ranges::Iterator I&gt;
-    struct iterator_traits;
-  template &lt;experimental::ranges::InputIterator I&gt;
-    struct iterator_traits;
-  template &lt;experimental::ranges::InputIterator I&gt;
-      requires experimental::ranges::Sentinel&lt;I, I&gt;()
+</span>  template &lt;experimental::ranges::Iterator Out&gt;
+    struct iterator_traits&lt;Out&gt;;
+  template &lt;experimental::ranges::InputIterator In&gt;
+    struct iterator_traits&lt;In&gt;;
+  template &lt;experimental::ranges::InputIterator In&gt;
+      requires experimental::ranges::Sentinel&lt;In, In&gt;()
     struct iterator_traits;
 }
 </pre><div class='para' id='iterator.synopsis-1'><div class='marginalizedparent'><a class='marginalized' href='#iterator.synopsis-1'>1</a></div><p >Any entities declared or defined in namespace <span class='texttt'>std</span> in header <span class='texttt'>&lt;iterator&gt;</span>
@@ -1160,7 +1160,7 @@ from <span class='texttt'>a</span>. Let <span class='texttt'>n</span> be the sma
 </p></li><li id='random.access-2.11'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#random.access-2.11'>(2.11)</a></div><p >If <span class='texttt'>b</span> is dereferenceable, then <span class='texttt'>a[n]</span> is valid and is equal to <span class='texttt'>*b</span>.
 </p></li></ul></div></div></div><div id='indirectcallable'><h2 ><a class='secnum' href='#indirectcallable' style='min-width:88pt'>9.4</a> Indirect callable requirements <a class='abbr_ref' href='indirectcallable'>[indirectcallable]</a></h2><div id='indirectcallable.general'><h3 ><a class='secnum' href='#indirectcallable.general' style='min-width:103pt'>9.4.1</a> In general <a class='abbr_ref' href='indirectcallable.general'>[indirectcallable.general]</a></h3><div class='para' id='indirectcallable.general-1'><div class='marginalizedparent'><a class='marginalized' href='#indirectcallable.general-1'>1</a></div><p >There are several concepts that group requirements of algorithms that take callable
 objects (  ISO/IEC 14882:2014 &sect;<a href='../n4140/func.require'>[func.require]</a>) as arguments.</p></div></div><div id='indirectcallable.indirectinvocable'><h3 ><a class='secnum' href='#indirectcallable.indirectinvocable' style='min-width:103pt'>9.4.2</a> Indirect callables <a class='abbr_ref' href='indirectcallable.indirectinvocable'>[indirectcallable.indirectinvocable]</a></h3><div class='para' id='indirectcallable.indirectinvocable-1'><div class='marginalizedparent'><a class='marginalized' href='#indirectcallable.indirectinvocable-1'>1</a></div><p >The indirect callable concepts are used to constrain those algorithms that accept
-callable objects (  ISO/IEC 14882:2014 &sect;<a href='../n4140/func.def'>[func.def]</a>) as arguments.</p><p ><span class='indexparent'><a class='index' id='IndirectInvocable'></a></span><span class='indexparent'><a class='index' id='IndirectRegularInvocable'></a></span><span class='indexparent'><a class='index' id='IndirectPredicate'></a></span><span class='indexparent'><a class='index' id='IndirectRelation'></a></span><span class='indexparent'><a class='index' id='IndirectStrictWeakOrder'></a></span></p><pre class='codeblock'>
+callable objects (  ISO/IEC 14882:2014 &sect;<a href='../n4140/func.def'>[func.def]</a>) as arguments.</p><p ><span class='indexparent'><a class='index' id='indirect_result_of'></a></span><span class='indexparent'><a class='index' id='IndirectInvocable'></a></span><span class='indexparent'><a class='index' id='IndirectRegularInvocable'></a></span><span class='indexparent'><a class='index' id='IndirectPredicate'></a></span><span class='indexparent'><a class='index' id='IndirectRelation'></a></span><span class='indexparent'><a class='index' id='IndirectStrictWeakOrder'></a></span></p><pre class='codeblock'>
   template &lt;class F&gt;
   concept bool IndirectInvocable() {
     return CopyConstructible&lt;F&gt;() &amp;&amp;
@@ -1249,6 +1249,13 @@ callable objects (  ISO/IEC 14882:2014 &sect;<a href='../n4140/func.def'>[func.d
       StrictWeakOrder&lt;F&amp;, reference_t&lt;I1&gt;, reference_t&lt;I2&gt;&gt;() &amp;&amp;
       StrictWeakOrder&lt;F&amp;, iter_common_reference_t&lt;I1&gt;, iter_common_reference_t&lt;I2&gt;&gt;();
   }
+
+  template &lt;class&gt; struct indirect_result_of { };
+
+  template &lt;class F, class... Is&gt;
+    requires IndirectInvocable&lt;decay_t&lt;F&gt;, Is...&gt;()
+  struct indirect_result_of&lt;F(Is...)&gt; :
+    result_of&lt;F(reference_t&lt;Is&gt;...)&gt; { };
 </pre></div></div><div id='projected'><h3 ><a class='secnum' href='#projected' style='min-width:103pt'>9.4.3</a> Class template <span class='texttt'>projected</span> <a class='abbr_ref' href='projected'>[projected]</a></h3><div class='para' id='projected-1'><div class='marginalizedparent'><a class='marginalized' href='#projected-1'>1</a></div><p >The <span class='texttt'>projected</span> class template is intended for use when specifying the constraints of
 algorithms that accept callable objects and projections (<a href='defns.projection'>[defns.projection]</a>). It bundles a <span class='texttt'>Readable</span> type
 <span class='texttt'>I</span> and a function <span class='texttt'>Proj</span> into a new <span class='texttt'>Readable</span> type whose
@@ -3702,7 +3709,7 @@ to derive from <span class='texttt'>true_type</span> or <span class='texttt'>fal
 implies reference semantics. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
 </p></li><li id='ranges.view-4.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ranges.view-4.5'>(4.5)</a></div><p >Otherwise, <span class='texttt'>true</span>.
 </p></li></ul></div></div></div><div id='ranges.bounded'><h4 ><a class='secnum' href='#ranges.bounded' style='min-width:118pt'>9.9.2.5</a> Bounded ranges <a class='abbr_ref' href='ranges.bounded'>[ranges.bounded]</a></h4><div class='para' id='ranges.bounded-1'><div class='marginalizedparent'><a class='marginalized' href='#ranges.bounded-1'>1</a></div><p >The <span class='texttt'>BoundedRange</span> concept specifies requirements
-of an <span class='texttt'>Range</span> type for which <span class='texttt'>begin</span> and <span class='texttt'>end</span> return objects of
+of a <span class='texttt'>Range</span> type for which <span class='texttt'>begin</span> and <span class='texttt'>end</span> return objects of
 the same type. [&nbsp;<i>Note:</i> The standard containers (  ISO/IEC 14882:2014 &sect;<a href='../n4140/containers'>[containers]</a>)
 satisfy <span class='texttt'>BoundedRange</span>.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><pre class='codeblock'>
 template &lt;class T&gt;
