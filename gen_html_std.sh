@@ -1,7 +1,34 @@
 #! /bin/sh
 
+# check if we need to rebuild
+cd draft
+COMMITID=$(git rev-parse HEAD)
+
+echo "$COMMITID" > thisbuild.tmp
+
+if [ -f ../all.patch ]
+then
+sha1sum ../all.patch >> thisbuild.tmp
+fi
+
+if [ -f ../htmlgen.patch ]
+then
+sha1sum ../htmlgen.patch >> thisbuild.tmp
+fi
+
+if [ -f ../htmlgen_code.patch ]
+then
+sha1sum ../htmlgen_code.patch >> thisbuild.tmp
+fi
+
+
+if [ -f ../lastbuild.sig ]
+then
+    cmp --silent ../lastbuild.sig thisbuild.tmp && rm thisbuild.tmp && exit 0
+fi
+
 # Build the standard
-cd draft/source
+cd source
 git reset --hard origin/master
 
 if [ -f ../../all.patch ]
@@ -48,4 +75,11 @@ mv index.html.html index.html
 cp ../draft/source/std_orig.pdf ./draft.pdf
 
 cd ..
+
+if [ -f gh-pages/full.html ]
+then
+mv draft/thisbuild.tmp ./lastbuild.sig
+else
+rm draft/thisbuild.tmp
+fi
 
