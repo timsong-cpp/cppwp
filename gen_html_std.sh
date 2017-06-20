@@ -1,34 +1,39 @@
 #! /bin/sh
 
 # check if we need to rebuild
-cd draft
-COMMITID=$(git rev-parse HEAD)
+cd cxxdraft-htmlgen
 
-echo "$COMMITID" > thisbuild.tmp
+echo "htmlgen $(git rev-parse HEAD)" > ../thisbuild.tmp
 
-if [ -f ../all.patch ]
+cd ../draft
+
+echo "draft $(git rev-parse HEAD)" >> ../thisbuild.tmp
+
+cd ..
+
+if [ -f all.patch ]
 then
-sha1sum ../all.patch >> thisbuild.tmp
+sha1sum all.patch >> thisbuild.tmp
 fi
 
-if [ -f ../htmlgen.patch ]
+if [ -f htmlgen.patch ]
 then
-sha1sum ../htmlgen.patch >> thisbuild.tmp
+sha1sum htmlgen.patch >> thisbuild.tmp
 fi
 
-if [ -f ../htmlgen_code.patch ]
+if [ -f htmlgen_code.patch ]
 then
-sha1sum ../htmlgen_code.patch >> thisbuild.tmp
+sha1sum htmlgen_code.patch >> thisbuild.tmp
 fi
 
 
-if [ -f ../lastbuild.sig ]
+if [ -f lastbuild.sig ]
 then
-    cmp --silent ../lastbuild.sig thisbuild.tmp && rm thisbuild.tmp && exit 0
+    cmp --silent lastbuild.sig thisbuild.tmp && rm thisbuild.tmp && exit 0
 fi
 
 # Build the standard
-cd source
+cd draft/source
 git reset --hard origin/master
 
 if [ -f ../../all.patch ]
@@ -78,8 +83,8 @@ cd ..
 
 if [ -f gh-pages/full.html ]
 then
-mv draft/thisbuild.tmp ./lastbuild.sig
+mv thisbuild.tmp lastbuild.sig
 else
-rm draft/thisbuild.tmp
+rm thisbuild.tmp
 fi
 
