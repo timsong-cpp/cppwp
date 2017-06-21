@@ -48,7 +48,7 @@ cp std.pdf std_orig.pdf
 
 if [ -f ../../htmlgen.patch ]
 then
-git apply ../../htmlgen.patch
+git apply -3 ../../htmlgen.patch
 fi
 
 latexmk -c
