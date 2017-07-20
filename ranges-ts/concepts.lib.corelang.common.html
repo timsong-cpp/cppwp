@@ -3,22 +3,21 @@
 <span class='texttt'>C</span>. [&nbsp;<i>Note:</i> <span class='texttt'>C</span> could be the same as <span class='texttt'>T</span>, or <span class='texttt'>U</span>, or
 it could be a different type. <span class='texttt'>C</span> may not be unique.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='Common'></a></span><code class='itemdecl'>
 template &lt;class T, class U&gt;
-concept bool Common() {
-  return CommonReference&lt;const T&amp;, const U&amp;&gt;() &amp;&amp;
-    requires(T (&amp;t)(), U (&amp;u)()) {
-      typename common_type_t&lt;T, U&gt;;
-      typename common_type_t&lt;U, T&gt;;
-      requires Same&lt;common_type_t&lt;U, T&gt;, common_type_t&lt;T, U&gt;&gt;();
-      common_type_t&lt;T, U&gt;(t());
-      common_type_t&lt;T, U&gt;(u());
-      requires CommonReference&lt;add_lvalue_reference_t&lt;common_type_t&lt;T, U&gt;&gt;,
-                               common_reference_t&lt;add_lvalue_reference_t&lt;const T&gt;,
-                                                  add_lvalue_reference_t&lt;const U&gt;&gt;&gt;();
-    };
-}
+concept bool Common =
+  Same&lt;common_type_t&lt;T, U&gt;, common_type_t&lt;U, T&gt;&gt; &amp;&amp;
+  ConvertibleTo&lt;T, common_type_t&lt;T, U&gt;&gt; &amp;&amp;
+  ConvertibleTo&lt;U, common_type_t&lt;T, U&gt;&gt; &amp;&amp;
+  CommonReference&lt;
+    add_lvalue_reference_t&lt;const T&gt;,
+    add_lvalue_reference_t&lt;const U&gt;&gt; &amp;&amp;
+  CommonReference&lt;
+    add_lvalue_reference_t&lt;common_type_t&lt;T, U&gt;&gt;,
+    common_reference_t&lt;
+      add_lvalue_reference_t&lt;const T&gt;,
+      add_lvalue_reference_t&lt;const U&gt;&gt;&gt;;
 </code></p></div><div class='itemdescr'></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p >Let <span class='texttt'>C</span> be <span class='texttt'>common_type_t&lt;T, U&gt;</span>. Let
 <span class='texttt'>t</span> be a function whose return type is <span class='texttt'>T</span>, and let <span class='texttt'>u</span> be a function
-whose return type is <span class='texttt'>U</span>. <span class='texttt'>Common&lt;T, U&gt;()</span> is satisfied if and only if:
+whose return type is <span class='texttt'>U</span>. <span class='texttt'>Common&lt;T, U&gt;</span> is satisfied only if:
 </p><ul class='itemize'><li id='2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#2.1'>(2.1)</a></div><p ><span class='texttt'>C(t())</span> equals <span class='texttt'>C(t())</span> if and only if
   <span class='texttt'>t()</span> is an equality preserving
   expression (<a href='concepts.lib.general.equality'>[concepts.lib.general.equality]</a>).

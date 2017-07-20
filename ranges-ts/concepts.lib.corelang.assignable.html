@@ -1,19 +1,22 @@
 <!DOCTYPE html><html lang='en'><head><title>[concepts.lib.corelang.assignable]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>7</a> Concepts library <a class='abbr_ref' href='./#concepts.lib'>[concepts.lib]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>7.3</a> Core language concepts <a class='abbr_ref' href='concepts.lib.corelang#assignable'>[concepts.lib.corelang]</a></h2><div id='concepts.lib.corelang.assignable'><h3 ><a class='secnum' style='min-width:103pt'>7.3.10</a> Concept <span class='texttt'>Assignable</span> <a class='abbr_ref'>[concepts.lib.corelang.assignable]</a></h3><p ><span class='indexparent'><a class='index' id='Assignable'></a></span><code class='itemdecl'>
 template &lt;class T, class U&gt;
-concept bool Assignable() {
-  return CommonReference&lt;const T&amp;, const U&amp;&gt;() &amp;&amp; requires(T&amp;&amp; t, U&amp;&amp; u) {
-    { std::forward&lt;T&gt;(t) = std::forward&lt;U&gt;(u) } -&gt; Same&lt;T&amp;&gt;;
+concept bool Assignable =
+  is_lvalue_reference&lt;T&gt;::value &amp;&amp; <span class='comment'>// <i><span class='texttt'>see below</span></i>
+</span>  CommonReference&lt;
+    const remove_reference_t&lt;T&gt;&amp;,
+    const remove_reference_t&lt;U&gt;&amp;&gt; &amp;&amp;
+  requires(T t, U&amp;&amp; u) {
+    { t = std::forward&lt;U&gt;(u) } -&gt; Same&lt;T&gt;&amp;&amp;;
   };
-}
-</code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>t</span> be an lvalue of type <span class='texttt'>T</span>, and <span class='texttt'>R</span> be the
-type <span class='texttt'>remove_reference_t&lt;U&gt;</span>. If <span class='texttt'>U</span> is an lvalue reference
-type, let <span class='texttt'>v</span> be an lvalue of type <span class='texttt'>R</span>;
-otherwise, let <span class='texttt'>v</span> be an rvalue of type <span class='texttt'>R</span>.
-Let <span class='texttt'>uu</span> be a distinct object of type <span class='texttt'>R</span> such that
-<span class='texttt'>uu</span> is equal to <span class='texttt'>v</span>.
-Then <span class='texttt'>Assignable&lt;T, U&gt;()</span> is satisfied if and only if</p><ul class='itemize'><li id='1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.1'>(1.1)</a></div><p ><span class='texttt'>addressof(t = v) == addressof(t)</span>.
-</p></li><li id='1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.2'>(1.2)</a></div><p >After evaluating <span class='texttt'>t = v</span>, <span class='texttt'>t</span> is equal to <span class='texttt'>uu</span> and:
-</p><ul class='itemize'><li id='1.2.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#1.2.1'>(1.2.1)</a></div><p >If <span class='texttt'>v</span> is a non-<span class='texttt'>const</span> rvalue, its resulting
-state is valid but unspecified (  ISO/IEC 14882:2014 &sect;<a href='../n4140/lib.types.movedfrom'>[lib.types.movedfrom]</a>).
-</p></li><li id='1.2.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#1.2.2'>(1.2.2)</a></div><p >Otherwise, <span class='texttt'>v</span> is not modified.
-</p></li></ul></li></ul></div></div></div></div></body></html>
+</code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>t</span> be an lvalue that refers to an object <span class='texttt'>o</span> such that
+<span class='texttt'>decltype((t))</span> is <span class='texttt'>T</span>, and <span class='texttt'>u</span> an expression such that
+<span class='texttt'>decltype((u))</span> is <span class='texttt'>U</span>. Let <span class='texttt'>u2</span> be a distinct object that is
+equal to <span class='texttt'>u</span>. <span class='texttt'>Assignable&lt;T, U&gt;</span> is satisfied only if</p><ul class='itemize'><li id='1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.1'>(1.1)</a></div><p ><span class='texttt'>addressof(t = u) == addressof(o)</span>.</p></li><li id='1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.2'>(1.2)</a></div><p >After evaluating <span class='texttt'>t = u</span>:</p><ul class='itemize'><li id='1.2.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#1.2.1'>(1.2.1)</a></div><p ><span class='texttt'>t</span> is equal to <span class='texttt'>u2</span>, unless <span class='texttt'>u</span> is a non-const xvalue that refers to <span class='texttt'>o</span>.</p></li><li id='1.2.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#1.2.2'>(1.2.2)</a></div><p >If <span class='texttt'>u</span> is a non-<span class='texttt'>const</span> xvalue, the resulting state of the
+object to which it refers is valid but unspecified (  ISO/IEC 14882:2014 &sect;<a href='../n4140/lib.types.movedfrom'>[lib.types.movedfrom]</a>).</p></li><li id='1.2.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#1.2.3'>(1.2.3)</a></div><p >Otherwise, if <span class='texttt'>u</span> is a glvalue, the object to which it refers is not
+modified.
+</p></li></ul></li></ul></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p >There need not be any subsumption relationship between <span class='texttt'>Assignable&lt;T, U&gt;</span>
+and <span class='texttt'>is_lvalue_reference&lt;T&gt;::value</span>.</p></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> Assignment need not be a total function (<a href='structure.requirements'>[structure.requirements]</a>);
+in particular, if assignment to an object <span class='texttt'>x</span> can result in a modification
+of some other object <span class='texttt'>y</span>, then <span class='texttt'>x = y</span> is likely not in the domain
+of <span class='texttt'>=</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div></div></body></html>

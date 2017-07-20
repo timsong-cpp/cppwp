@@ -19,33 +19,44 @@ namespace std { namespace experimental { namespace ranges { inline namespace v1 
     using iterator_type = I;
     using difference_type = difference_type_t&lt;I&gt;;
 
-    counted_iterator();
-    counted_iterator(I x, difference_type_t&lt;I&gt; n);
-    counted_iterator(const counted_iterator&lt;ConvertibleTo&lt;I&gt;&gt;&amp; i);
-    counted_iterator&amp; operator=(const counted_iterator&lt;ConvertibleTo&lt;I&gt;&gt;&amp; i);
+    constexpr counted_iterator();
+    constexpr counted_iterator(I x, difference_type_t&lt;I&gt; n);
+    constexpr counted_iterator(const counted_iterator&lt;ConvertibleTo&lt;I&gt;&gt;&amp; i);
+    constexpr counted_iterator&amp; operator=(const counted_iterator&lt;ConvertibleTo&lt;I&gt;&gt;&amp; i);
 
-    I base() const;
-    difference_type_t&lt;I&gt; count() const;
-    <i><span class='texttt'>see below</span></i> operator*();
-    <i><span class='texttt'>see below</span></i> operator*() const;
+    constexpr I base() const;
+    constexpr difference_type_t&lt;I&gt; count() const;
+    constexpr decltype(auto) operator*();
+    constexpr decltype(auto) operator*() const
+      requires <i>dereferenceable</i>&lt;const I&gt;;
 
-    counted_iterator&amp; operator++();
-    counted_iterator operator++(int);
-    counted_iterator&amp; operator--()
-      requires BidirectionalIterator&lt;I&gt;();
-    counted_iterator operator--(int)
-      requires BidirectionalIterator&lt;I&gt;();
+    constexpr counted_iterator&amp; operator++();
+    decltype(auto) operator++(int);
+    constexpr counted_iterator operator++(int)
+      requires ForwardIterator&lt;I&gt;;
+    constexpr counted_iterator&amp; operator--()
+      requires BidirectionalIterator&lt;I&gt;;
+    constexpr counted_iterator operator--(int)
+      requires BidirectionalIterator&lt;I&gt;;
 
-    counted_iterator  operator+ (difference_type n) const
-      requires RandomAccessIterator&lt;I&gt;();
-    counted_iterator&amp; operator+=(difference_type n)
-      requires RandomAccessIterator&lt;I&gt;();
-    counted_iterator  operator- (difference_type n) const
-      requires RandomAccessIterator&lt;I&gt;();
-    counted_iterator&amp; operator-=(difference_type n)
-      requires RandomAccessIterator&lt;I&gt;();
-    <i><span class='texttt'>see below</span></i> operator[](difference_type n) const
-      requires RandomAccessIterator&lt;I&gt;();
+    constexpr counted_iterator  operator+ (difference_type n) const
+      requires RandomAccessIterator&lt;I&gt;;
+    constexpr counted_iterator&amp; operator+=(difference_type n)
+      requires RandomAccessIterator&lt;I&gt;;
+    constexpr counted_iterator  operator- (difference_type n) const
+      requires RandomAccessIterator&lt;I&gt;;
+    constexpr counted_iterator&amp; operator-=(difference_type n)
+      requires RandomAccessIterator&lt;I&gt;;
+    constexpr decltype(auto) operator[](difference_type n) const
+      requires RandomAccessIterator&lt;I&gt;;
+
+    friend constexpr rvalue_reference_t&lt;I&gt; iter_move(const counted_iterator&amp; i)
+      noexcept(<i><span class='texttt'>see below</span></i>)
+        requires InputIterator&lt;I&gt;;
+    template &lt;IndirectlySwappable&lt;I&gt; I2&gt;
+      friend constexpr void iter_swap(const counted_iterator&amp; x, const counted_iterator&lt;I2&gt;&amp; y)
+        noexcept(<i><span class='texttt'>see below</span></i>);
+
   private:
     I current; <span class='comment'>// <i>exposition only</i>
 </span>    difference_type_t&lt;I&gt; cnt; <span class='comment'>// <i>exposition only</i>
@@ -62,58 +73,55 @@ namespace std { namespace experimental { namespace ranges { inline namespace v1 
   };
 
   template &lt;class I1, class I2&gt;
-      requires Common&lt;I1, I2&gt;()
-    bool operator==(
+      requires Common&lt;I1, I2&gt;
+    constexpr bool operator==(
       const counted_iterator&lt;I1&gt;&amp; x, const counted_iterator&lt;I2&gt;&amp; y);
-    bool operator==(
+    constexpr bool operator==(
       const counted_iterator&lt;auto&gt;&amp; x, default_sentinel);
-    bool operator==(
+    constexpr bool operator==(
       default_sentinel, const counted_iterator&lt;auto&gt;&amp; x);
 
   template &lt;class I1, class I2&gt;
-      requires Common&lt;I1, I2&gt;()
-    bool operator!=(
+      requires Common&lt;I1, I2&gt;
+    constexpr bool operator!=(
       const counted_iterator&lt;I1&gt;&amp; x, const counted_iterator&lt;I2&gt;&amp; y);
-    bool operator!=(
+    constexpr bool operator!=(
       const counted_iterator&lt;auto&gt;&amp; x, default_sentinel y);
-    bool operator!=(
+    constexpr bool operator!=(
       default_sentinel x, const counted_iterator&lt;auto&gt;&amp; y);
 
   template &lt;class I1, class I2&gt;
-      requires Common&lt;I1, I2&gt;()
-    bool operator&lt;(
+      requires Common&lt;I1, I2&gt;
+    constexpr bool operator&lt;(
       const counted_iterator&lt;I1&gt;&amp; x, const counted_iterator&lt;I2&gt;&amp; y);
   template &lt;class I1, class I2&gt;
-      requires Common&lt;I1, I2&gt;()
-    bool operator&lt;=(
+      requires Common&lt;I1, I2&gt;
+    constexpr bool operator&lt;=(
       const counted_iterator&lt;I1&gt;&amp; x, const counted_iterator&lt;I2&gt;&amp; y);
   template &lt;class I1, class I2&gt;
-      requires Common&lt;I1, I2&gt;()
-    bool operator&gt;(
+      requires Common&lt;I1, I2&gt;
+    constexpr bool operator&gt;(
       const counted_iterator&lt;I1&gt;&amp; x, const counted_iterator&lt;I2&gt;&amp; y);
   template &lt;class I1, class I2&gt;
-      requires Common&lt;I1, I2&gt;()
-    bool operator&gt;=(
+      requires Common&lt;I1, I2&gt;
+    constexpr bool operator&gt;=(
       const counted_iterator&lt;I1&gt;&amp; x, const counted_iterator&lt;I2&gt;&amp; y);
   template &lt;class I1, class I2&gt;
-      requires Common&lt;I1, I2&gt;()
-    difference_type_t&lt;I2&gt; operator-(
+      requires Common&lt;I1, I2&gt;
+    constexpr difference_type_t&lt;I2&gt; operator-(
       const counted_iterator&lt;I1&gt;&amp; x, const counted_iterator&lt;I2&gt;&amp; y);
   template &lt;class I&gt;
-    difference_type_t&lt;I&gt; operator-(
+    constexpr difference_type_t&lt;I&gt; operator-(
       const counted_iterator&lt;I&gt;&amp; x, default_sentinel y);
   template &lt;class I&gt;
-    difference_type_t&lt;I&gt; operator-(
+    constexpr difference_type_t&lt;I&gt; operator-(
       default_sentinel x, const counted_iterator&lt;I&gt;&amp; y);
 
   template &lt;RandomAccessIterator I&gt;
-    counted_iterator&lt;I&gt;
-      operator+(difference_type_t&lt;I&gt; n, const counted_iterator&lt;I&gt;&amp; x);
+    constexpr counted_iterator&lt;I&gt; operator+(
+      difference_type_t&lt;I&gt; n, const counted_iterator&lt;I&gt;&amp; x);
 
   template &lt;Iterator I&gt;
-    counted_iterator&lt;I&gt; make_counted_iterator(I i, difference_type_t&lt;I&gt; n);
-
-  template &lt;Iterator I&gt;
-    void advance(counted_iterator&lt;I&gt;&amp; i, difference_type_t&lt;I&gt; n);
+    constexpr counted_iterator&lt;I&gt; make_counted_iterator(I i, difference_type_t&lt;I&gt; n);
 }}}}
 </pre></div></div></div></body></html>

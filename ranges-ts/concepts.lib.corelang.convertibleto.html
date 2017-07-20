@@ -1,8 +1,19 @@
 <!DOCTYPE html><html lang='en'><head><title>[concepts.lib.corelang.convertibleto]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>7</a> Concepts library <a class='abbr_ref' href='./#concepts.lib'>[concepts.lib]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>7.3</a> Core language concepts <a class='abbr_ref' href='concepts.lib.corelang#convertibleto'>[concepts.lib.corelang]</a></h2><div id='concepts.lib.corelang.convertibleto'><h3 ><a class='secnum' style='min-width:103pt'>7.3.4</a> Concept <span class='texttt'>ConvertibleTo</span> <a class='abbr_ref'>[concepts.lib.corelang.convertibleto]</a></h3><p ><span class='indexparent'><a class='index' id='ConvertibleTo'></a></span><code class='itemdecl'>
 template &lt;class T, class U&gt;
-concept bool ConvertibleTo() {
-  return <i><span class='texttt'>see below</span></i>;
+concept bool ConvertibleTo =
+  is_convertible&lt;From, To&gt;::value &amp;&amp; <span class='comment'>// <i><span class='texttt'>see below</span></i>
+</span>  requires(From (&amp;f)()) {
+    static_cast&lt;To&gt;(f());
+  };
+</code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>test</span> be the invented function:
+</p><pre class='codeblock'>
+To test(From (&amp;f)()) {
+  return f();
 }
-</code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p ><span class='texttt'>ConvertibleTo&lt;T, U&gt;()</span> is satisfied
-if and only if <span class='texttt'>is_convertible&lt;T, U&gt;::value</span> is <span class='texttt'>true</span>.
+</pre><p >and let <span class='texttt'>f</span> be a function with no arguments and return type <span class='texttt'>From</span>
+such that <span class='texttt'>f()</span> is equality preserving.
+<span class='texttt'>ConvertibleTo&lt;From, To&gt;</span> is satisfied only if:</p><ul class='itemize'><li id='1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.1'>(1.1)</a></div><p ><span class='texttt'>To</span> is not an object or reference-to-object type, or
+<span class='texttt'>static_cast&lt;To&gt;(f())</span> is equal to <span class='texttt'>test(f)</span>.</p></li><li id='1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.2'>(1.2)</a></div><p ><span class='texttt'>From</span> is not a reference-to-object type, or</p><ul class='itemize'><li id='1.2.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#1.2.1'>(1.2.1)</a></div><p >If <span class='texttt'>From</span> is an rvalue reference to a non const-qualified type, the resulting state of the object referenced by <span class='texttt'>f()</span> after either above expression is valid but unspecified (  ISO/IEC 14882:2014 &sect;<a href='../n4140/lib.types.movedfrom'>[lib.types.movedfrom]</a>).</p></li><li id='1.2.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#1.2.2'>(1.2.2)</a></div><p >Otherwise, the object referred to by <span class='texttt'>f()</span> is not modified by either above expression.
+</p></li></ul></li></ul></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p >There need not be any subsumption relationship between <span class='texttt'>ConvertibleTo&lt;From, To&gt;</span>
+and <span class='texttt'>is_convertible&lt;From, To&gt;::value</span>.
 </p></div></div></div></div></body></html>

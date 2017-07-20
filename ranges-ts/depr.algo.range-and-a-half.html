@@ -1,68 +1,96 @@
-<!DOCTYPE html><html lang='en'><head><title>[depr.algo.range-and-a-half]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='annexnum' style='min-width:73pt'>Annex A&emsp;(normative)</a> Compatibility features <a class='abbr_ref' href='./#depr'>[depr]</a></h1><div id='depr.algo.range-and-a-half'><h2 ><a class='secnum' style='min-width:88pt'>A.2</a> Range-and-a-half algorithms <a class='abbr_ref'>[depr.algo.range-and-a-half]</a></h2><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The following algorithm signatures are deemed unsafe and are deprecated in this document.</p><pre class='codeblock'>
-template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2,
-    class Proj1 = identity, class Proj2 = identity,
-    IndirectPredicate&lt;projected&lt;I1, Proj1&gt;, projected&lt;I2, Proj2&gt;&gt; Pred = equal_to&lt;&gt;&gt;
-  tagged_pair&lt;tag::in1(I1), tag::in2(I2)&gt;
-    mismatch(I1 first1, S1 last1, I2 first2, Pred pred = Pred{},
-             Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
-
-template &lt;InputRange Rng1, InputIterator I2,
-    class Proj1 = identity, class Proj2 = identity,
-    IndirectPredicate&lt;projected&lt;iterator_t&lt;Rng1&gt;, Proj1&gt;,
-      projected&lt;I2, Proj2&gt;&gt; Pred = equal_to&lt;&gt;&gt;
-  tagged_pair&lt;tag::in1(safe_iterator_t&lt;Rng1&gt;), tag::in2(I2)&gt;
-    mismatch(Rng1&amp;&amp; rng1, I2 first2, Pred pred = Pred{},
-             Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
-
-template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2,
-    class Pred = equal_to&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
-  requires IndirectlyComparable&lt;I1, I2, Pred, Proj1, Proj2&gt;()
-  bool equal(I1 first1, S1 last1,
-             I2 first2, Pred pred = Pred{},
-             Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
-
-template &lt;InputRange Rng1, InputIterator I2, class Pred = equal_to&lt;&gt;,
+<!DOCTYPE html><html lang='en'><head><title>[depr.algo.range-and-a-half]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='annexnum' style='min-width:73pt'>Annex B&emsp;(normative)</a> Compatibility features <a class='abbr_ref' href='./#depr'>[depr]</a></h1><div id='depr.algo.range-and-a-half'><h2 ><a class='secnum' style='min-width:88pt'>B.2</a> Range-and-a-half algorithms <a class='abbr_ref'>[depr.algo.range-and-a-half]</a></h2><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The following algorithm signatures are deemed unsafe and are deprecated in this document.</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Overloads of algorithms that take a <span class='texttt'>Range</span> argument and a forwarding
+reference parameter <span class='texttt'>first2_</span> behave as if they are implemented by calling
+<span class='texttt'>begin</span> and <span class='texttt'>end</span> on the <span class='texttt'>Range</span> and dispatching to the
+overload that takes separate iterator and sentinel arguments, perfectly forwarding
+<span class='texttt'>first2_</span>.</p><pre class='codeblock'>
+template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, class I2, class R = equal_to&lt;&gt;,
     class Proj1 = identity, class Proj2 = identity&gt;
-  requires IndirectlyComparable&lt;iterator_t&lt;Rng1&gt;, I2, Pred, Proj1, Proj2&gt;()
-  bool equal(Rng1&amp;&amp; rng1, I2 first2, Pred pred = Pred{},
+  requires InputIterator&lt;decay_t&lt;I2&gt;&gt; &amp;&amp; !Range&lt;I2&gt; &amp;&amp;
+    IndirectRelation&lt;R, projected&lt;I1, Proj1&gt;, projected&lt;decay_t&lt;I2&gt;, Proj2&gt;&gt;
+  tagged_pair&lt;tag::in1(I1), tag::in2(decay_t&lt;I2&gt;)&gt;
+    mismatch(I1 first1, S1 last1, I2&amp;&amp; first2_, R comp = R{},
              Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
 
-template &lt;ForwardIterator I1, Sentinel&lt;I1&gt; S1, ForwardIterator I2,
-    class Pred = equal_to&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
-  requires IndirectlyComparable&lt;I1, I2, Pred, Proj1, Proj2&gt;()
-  bool is_permutation(I1 first1, S1 last1, I2 first2,
-                      Pred pred = Pred{},
+template &lt;InputRange Rng1, class I2, class R = equal_to&lt;&gt;,
+    class Proj1 = identity, class Proj2 = identity&gt;
+  requires InputIterator&lt;decay_t&lt;I2&gt;&gt; &amp;&amp; !Range&lt;I2&gt; &amp;&amp;
+    IndirectRelation&lt;R, projected&lt;iterator_t&lt;Rng1&gt;, Proj1&gt;, projected&lt;decay_t&lt;I2&gt;, Proj2&gt;&gt;
+  tagged_pair&lt;tag::in1(safe_iterator_t&lt;Rng1&gt;), tag::in2(decay_t&lt;I2&gt;)&gt;
+    mismatch(Rng1&amp;&amp; rng1, I2&amp;&amp; first2_, R comp = R{},
+             Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+</pre></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return mismatch(first1, last1, std::forward&lt;I2&gt;(first2_), unreachable, comp, proj1, proj2);</span>,
+except that the underlying algorithm never increments <span class='texttt'>first2</span> more than <span class='texttt'>last1 - first1</span> times.</p><pre class='codeblock'>
+template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, class I2,
+    class R = equal_to&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+  requires InputIterator&lt;decay_t&lt;I2&gt;&gt; &amp;&amp; !Range&lt;I2&gt; &amp;&amp;
+    IndirectlyComparable&lt;I1, decay_t&lt;I2&gt;, R, Proj1, Proj2&gt;
+  bool equal(I1 first1, S1 last1, I2&amp;&amp; first2_, R comp = R{},
+             Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+
+template &lt;InputRange Rng1, class I2, class R = equal_to&lt;&gt;,
+    class Proj1 = identity, class Proj2 = identity&gt;
+  requires InputIterator&lt;decay_t&lt;I2&gt;&gt; &amp;&amp; !Range&lt;I2&gt; &amp;&amp;
+    IndirectlyComparable&lt;iterator_t&lt;Rng1&gt;, decay_t&lt;I2&gt;, R, Proj1, Proj2&gt;
+  bool equal(Rng1&amp;&amp; rng1, I2&amp;&amp; first2_, R comp = R{},
+             Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+</pre></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return first1 == mismatch(first1, last1, std::forward&lt;I2&gt;(first2_), comp, proj1, proj2).in1();</span></p><pre class='codeblock'>
+template &lt;ForwardIterator I1, Sentinel&lt;I1&gt; S1, class I2,
+    class R = equal_to&lt;&gt;, class Proj1 = identity, class Proj2 = identity&gt;
+  requires ForwardIterator&lt;decay_t&lt;I2&gt;&gt; &amp;&amp; !Range&lt;I2&gt; &amp;&amp;
+    IndirectlyComparable&lt;I1, decay_t&lt;I2&gt;, R, Proj1, Proj2&gt;
+  bool is_permutation(I1 first1, S1 last1, I2&amp;&amp; first2_, R comp = R{},
                       Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
 
-template &lt;ForwardRange Rng1, ForwardIterator I2, class Pred = equal_to&lt;&gt;,
+template &lt;ForwardRange Rng1, class I2, class R = equal_to&lt;&gt;,
     class Proj1 = identity, class Proj2 = identity&gt;
-  requires IndirectlyComparable&lt;iterator_t&lt;Rng1&gt;, I2, Pred, Proj1, Proj2&gt;()
-  bool is_permutation(Rng1&amp;&amp; rng1, I2 first2, Pred pred = Pred{},
+  requires ForwardIterator&lt;decay_t&lt;I2&gt;&gt; &amp;&amp; !Range&lt;I2&gt; &amp;&amp;
+    IndirectlyComparable&lt;iterator_t&lt;Rng1&gt;, decay_t&lt;I2&gt;, R, Proj1, Proj2&gt;
+  bool is_permutation(Rng1&amp;&amp; rng1, I2&amp;&amp; first2_, R comp = R{},
                       Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
+</pre></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p ><i>Effects:</i>
+Equivalent to:
+</p><pre class='codeblock'>
+  auto first2 = std::forward&lt;I2&gt;(first2_);
+  return is_permutation(first1, last1, first2, next(first2, distance(first1, last1)),
+                        comp, proj1, proj2);
+</pre><pre class='codeblock'>
+template &lt;ForwardIterator I1, Sentinel&lt;I1&gt; S1, class I2&gt;
+  requires ForwardIterator&lt;decay_t&lt;I2&gt;&gt; &amp;&amp; !Range&lt;I2&gt; &amp;&amp;
+    IndirectlySwappable&lt;I1, decay_t&lt;I2&gt;&gt;
+  tagged_pair&lt;tag::in1(I1), tag::in2(decay_t&lt;I2&gt;)&gt;
+    swap_ranges(I1 first1, S1 last1, I2&amp;&amp; first2_);
 
-template &lt;ForwardIterator I1, Sentinel&lt;I1&gt; S1, ForwardIterator I2&gt;
-  requires IndirectlySwappable&lt;I1, I2&gt;()
-  tagged_pair&lt;tag::in1(I1), tag::in2(I2)&gt;
-    swap_ranges(I1 first1, S1 last1, I2 first2);
-
-template &lt;ForwardRange Rng, ForwardIterator I&gt;
-  requires IndirectlySwappable&lt;iterator_t&lt;Rng&gt;, I&gt;()
-  tagged_pair&lt;tag::in1(safe_iterator_t&lt;Rng&gt;), tag::in2(I)&gt;
-    swap_ranges(Rng&amp;&amp; rng1, I first2);
-
-template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, InputIterator I2, WeaklyIncrementable O,
-    class F, class Proj1 = identity, class Proj2 = identity&gt;
-  requires Writable&lt;O, indirect_result_of_t&lt;F&amp;(projected&lt;I1, Proj1&gt;, projected&lt;I2, Proj2&gt;)&gt;&gt;()
-  tagged_tuple&lt;tag::in1(I1), tag::in2(I2), tag::out(O)&gt;
-    transform(I1 first1, S1 last1, I2 first2, O result,
+template &lt;ForwardRange Rng, class I2&gt;
+  requires ForwardIterator&lt;decay_t&lt;I2&gt;&gt; &amp;&amp; !Range&lt;I2&gt; &amp;&amp;
+    IndirectlySwappable&lt;iterator_t&lt;Rng&gt;, decay_t&lt;I2&gt;&gt;
+  tagged_pair&lt;tag::in1(safe_iterator_t&lt;Rng&gt;), tag::in2(decay_t&lt;I2&gt;)&gt;
+    swap_ranges(Rng&amp;&amp; rng1, I2&amp;&amp; first2_);
+</pre></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p ><i>Effects:</i>
+Equivalent to:
+</p><pre class='codeblock'>
+  auto first2 = std::forward&lt;I2&gt;(first2_);
+  return swap_ranges(first1, last1, first2, next(first2, distance(first1, last1)));
+</pre><pre class='codeblock'>
+template &lt;InputIterator I1, Sentinel&lt;I1&gt; S1, class I2, WeaklyIncrementable O,
+    CopyConstructible F, class Proj1 = identity, class Proj2 = identity&gt;
+  requires InputIterator&lt;decay_t&lt;I2&gt;&gt; &amp;&amp; !Range&lt;I2&gt; &amp;&amp;
+    Writable&lt;O, indirect_result_of_t&lt;F&amp;(projected&lt;I1, Proj1&gt;,
+        projected&lt;decay_t&lt;I2&gt;, Proj2&gt;)&gt;&gt;
+  tagged_tuple&lt;tag::in1(I1), tag::in2(decay_t&lt;I2&gt;), tag::out(O)&gt;
+    transform(I1 first1, S1 last1, I2&amp;&amp; first2_, O result,
               F binary_op, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
 
-template &lt;InputRange Rng, InputIterator I, WeaklyIncrementable O, class F,
+template &lt;InputRange Rng, class I2, WeaklyIncrementable O, CopyConstructible F,
     class Proj1 = identity, class Proj2 = identity&gt;
-  requires Writable&lt;O, indirect_result_of_t&lt;F&amp;(
-    projected&lt;iterator_t&lt;Rng&gt;, Proj1&gt;, projected&lt;I, Proj2&gt;&gt;)&gt;()
-  tagged_tuple&lt;tag::in1(safe_iterator_t&lt;Rng&gt;), tag::in2(I), tag::out(O)&gt;
-    transform(Rng&amp;&amp; rng1, I first2, O result,
+  requires InputIterator&lt;decay_t&lt;I2&gt;&gt; &amp;&amp; !Range&lt;I2&gt; &amp;&amp;
+    Writable&lt;O, indirect_result_of_t&lt;F&amp;(
+        projected&lt;iterator_t&lt;Rng&gt;, Proj1&gt;, projected&lt;decay_t&lt;I2&gt;, Proj2&gt;&gt;)&gt;
+  tagged_tuple&lt;tag::in1(safe_iterator_t&lt;Rng&gt;), tag::in2(decay_t&lt;I2&gt;), tag::out(O)&gt;
+    transform(Rng&amp;&amp; rng1, I2&amp;&amp; first2_, O result,
               F binary_op, Proj1 proj1 = Proj1{}, Proj2 proj2 = Proj2{});
-</pre><p ><i>Remark:</i> These signatures behave as described in Clause <a href='algorithms'>[algorithms]</a> with the name
-<span class='texttt'>last2</span> defined as <span class='texttt'>first2 + (last1 - first1)</span>.</p></div></div></div></body></html>
+</pre></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return transform(first1, last1, std::forward&lt;I2&gt;(first2_), unreachable, pred, proj1, proj2);</span>,
+except that the underlying algorithm never increments <span class='texttt'>first2</span> more than <span class='texttt'>last1 - first1</span> times.
+</p></div></div></div></body></html>

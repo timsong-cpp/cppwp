@@ -1,26 +1,26 @@
 <!DOCTYPE html><html lang='en'><head><title>[concepts.lib.corelang.swappable]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>7</a> Concepts library <a class='abbr_ref' href='./#concepts.lib'>[concepts.lib]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>7.3</a> Core language concepts <a class='abbr_ref' href='concepts.lib.corelang#swappable'>[concepts.lib.corelang]</a></h2><div id='concepts.lib.corelang.swappable'><h3 ><a class='secnum' style='min-width:103pt'>7.3.11</a> Concept <span class='texttt'>Swappable</span> <a class='abbr_ref'>[concepts.lib.corelang.swappable]</a></h3><p ><span class='indexparent'><a class='index' id='Swappable'></a></span><code class='itemdecl'>
 template &lt;class T&gt;
-concept bool Swappable() {
-  return requires(T&amp;&amp; a, T&amp;&amp; b) {
-    ranges::swap(std::forward&lt;T&gt;(a), std::forward&lt;T&gt;(b));
+concept bool Swappable =
+  requires(T&amp; a, T&amp; b) {
+    ranges::swap(a, b);
   };
-}
 
 template &lt;class T, class U&gt;
-concept bool Swappable() {
-  return Swappable&lt;T&gt;() &amp;&amp;
-    Swappable&lt;U&gt;() &amp;&amp;
-    CommonReference&lt;const T&amp;, const U&amp;&gt;() &amp;&amp;
-    requires(T&amp;&amp; t, U&amp;&amp; u) {
-      ranges::swap(std::forward&lt;T&gt;(t), std::forward&lt;U&gt;(u));
-      ranges::swap(std::forward&lt;U&gt;(u), std::forward&lt;T&gt;(t));
-    };
-}
+concept bool SwappableWith =
+  CommonReference&lt;
+    const remove_reference_t&lt;T&gt;&amp;,
+    const remove_reference_t&lt;U&gt;&amp;&gt; &amp;&amp;
+  requires(T&amp;&amp; t, U&amp;&amp; u) {
+    ranges::swap(std::forward&lt;T&gt;(t), std::forward&lt;T&gt;(t));
+    ranges::swap(std::forward&lt;U&gt;(u), std::forward&lt;U&gt;(u));
+    ranges::swap(std::forward&lt;T&gt;(t), std::forward&lt;U&gt;(u));
+    ranges::swap(std::forward&lt;U&gt;(u), std::forward&lt;T&gt;(t));
+  };
 </code></p><div class='itemdescr'></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='itemdescr'><p >This subclause provides definitions for swappable types and expressions. In these
 definitions, let <span class='texttt'>t</span> denote an expression of type <span class='texttt'>T</span>, and let <span class='texttt'>u</span>
 denote an expression of type <span class='texttt'>U</span>.</p></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p >An object <span class='texttt'>t</span> is <a class='hidden_link' href='#def:swappable_with' id='def:swappable_with'><i>swappable with</i></a> an object <span class='texttt'>u</span> if and only if
-<span class='texttt'>Swappable&lt;T, U&gt;()</span> is satisfied. <span class='texttt'>Swappable&lt;T, U&gt;()</span> is satisfied if
-and only if given distinct objects <span class='texttt'>t2</span> equal to <span class='texttt'>t</span>
+<span class='texttt'>SwappableWith&lt;T, U&gt;</span> is satisfied. <span class='texttt'>SwappableWith&lt;T, U&gt;</span> is satisfied
+only if given distinct objects <span class='texttt'>t2</span> equal to <span class='texttt'>t</span>
 and <span class='texttt'>u2</span> equal to <span class='texttt'>u</span>, after evaluating either
 <span class='texttt'>ranges::swap(t, u)</span> or <span class='texttt'>ranges::swap(u, t)</span>, <span class='texttt'>t2</span> is equal to
 <span class='texttt'>u</span> and <span class='texttt'>u2</span> is equal to <span class='texttt'>t</span>.</p></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p >An rvalue or lvalue <span class='texttt'>t</span> is <a class='hidden_link' href='#def:swappable' id='def:swappable'><i>swappable</i></a> if and only if <span class='texttt'>t</span> is

@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang='en'><head><title>[iterator.custpoints.iter_swap]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>9</a> Iterators library <a class='abbr_ref' href='./#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>9.3</a> Iterator requirements <a class='abbr_ref' href='iterator.requirements#iterator.custpoints.iter_swap'>[iterator.requirements]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>9.3.2</a> Customization points <a class='abbr_ref' href='iterator.custpoints#iter_swap'>[iterator.custpoints]</a></h3><div id='iterator.custpoints.iter_swap'><h4 ><a class='secnum' style='min-width:118pt'>9.3.2.2</a> <span class='texttt'>iter_swap</span> <a class='abbr_ref'>[iterator.custpoints.iter_swap]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The name <span class='texttt'>iter_swap</span> denotes a <i>customization point
-object</i> (<a href='customization.point.object'>[customization.point.object]</a>). The effect of the expression
-<span class='texttt'>ranges::iter_swap(E1, E2)</span> for some expressions <span class='texttt'>E1</span> and <span class='texttt'>E2</span>
-is equivalent to the following:</p><ul class='itemize'><li id='1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.1'>(1.1)</a></div><p ><span class='texttt'>(void)iter_swap(E1, E2)</span>, if that expression is well-formed when
+object</i> (<a href='customization.point.object'>[customization.point.object]</a>). The expression
+<span class='texttt'>ranges::iter_swap(E1, E2)</span> for some subexpressions <span class='texttt'>E1</span> and <span class='texttt'>E2</span>
+is expression-equivalent to the following:</p><ul class='itemize'><li id='1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.1'>(1.1)</a></div><p ><span class='texttt'>(void)iter_swap(E1, E2)</span>, if that expression is well-formed when
 evaluated in a context that does not include <span class='texttt'>ranges::iter_swap</span> but does
 include the lookup set produced by argument-dependent
 lookup (  ISO/IEC 14882:2014 &sect;<a href='../n4140/basic.lookup.argdep'>[basic.lookup.argdep]</a>) and the following declaration:
@@ -10,12 +10,32 @@ void iter_swap(auto, auto) = delete;
 </pre></li><li id='1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.2'>(1.2)</a></div><p >Otherwise, if the types of <span class='texttt'>E1</span> and <span class='texttt'>E2</span> both satisfy
 <span class='texttt'>Readable</span>, and if the reference type of <span class='texttt'>E1</span> is swappable
 with (<a href='concepts.lib.corelang.swappable'>[concepts.lib.corelang.swappable]</a>) the reference type of <span class='texttt'>E2</span>,
-then <span class='texttt'>ranges::swap(*E1, *E2)</span>
-</p></li><li id='1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.3'>(1.3)</a></div><p >Otherwise, if the types <span class='texttt'>T1</span> and <span class='texttt'>T2</span> of <span class='texttt'>E1</span> and
-<span class='texttt'>E2</span> satisfy <span class='texttt'>IndirectlyMovableStorable&lt;T1, T2&gt;() &amp;&amp;
-IndirectlyMovableStorable&lt;T2, T1&gt;()</span>, exchanges the values denoted by
-<span class='texttt'>E1</span> and <span class='texttt'>E2</span>.
-</p></li><li id='1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.4'>(1.4)</a></div><p >Otherwise, <span class='texttt'>ranges::iter_swap(E1, E2)</span> is ill-formed.
+then <span class='texttt'>ranges::swap(*E1, *E2)</span></p></li><li id='1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.3'>(1.3)</a></div><p >Otherwise, if the types <span class='texttt'>T1</span> and <span class='texttt'>T2</span> of <span class='texttt'>E1</span> and
+<span class='texttt'>E2</span> satisfy <span class='texttt'>IndirectlyMovableStorable&lt;T1, T2&gt; &amp;&amp;
+IndirectlyMovableStorable&lt;T2, T1&gt;</span>, <span class='texttt'>(void)(*E1 = iter_exchange_move(E2, E1))</span>,
+except that <span class='texttt'>E1</span> is evaluated only once.</p></li><li id='1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.4'>(1.4)</a></div><p >Otherwise, <span class='texttt'>ranges::iter_swap(E1, E2)</span> is ill-formed.
 </p></li></ul></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >If <span class='texttt'>ranges::iter_swap(E1, E2)</span> does not swap the values denoted by the
 expressions <span class='texttt'>E1</span> and <span class='texttt'>E2</span>, the program is ill-formed with no
-diagnostic required.</p></div></div></div></body></html>
+diagnostic required.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p ><span class='texttt'>iter_exchange_move</span> is an exposition-only function specified as:
+<code class='itemdecl'>
+template &lt;class X, class Y&gt;
+  constexpr value_type_t&lt;remove_reference_t&lt;X&gt;&gt; iter_exchange_move(X&amp;&amp; x, Y&amp;&amp; y)
+    noexcept(<i><span class='texttt'>see below</span></i>);
+</code></p></div><div class='itemdescr'></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to:
+</p><pre class='codeblock'>
+value_type_t&lt;remove_reference_t&lt;X&gt;&gt; old_value(iter_move(x));
+*x = iter_move(y);
+return old_value;
+</pre></div></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Remarks:</i> The expression in the <span class='texttt'>noexcept</span> is equivalent to:
+</p><pre class='codeblock'>
+NE(remove_reference_t&lt;X&gt;, remove_reference_t&lt;Y&gt;) &amp;&amp;
+NE(remove_reference_t&lt;Y&gt;, remove_reference_t&lt;X&gt;)
+</pre><p >Where <span class='texttt'>NE(T1, T2)</span> is the expression:
+</p><pre class='codeblock'>
+is_nothrow_constructible&lt;value_type_t&lt;T1&gt;, rvalue_reference_t&lt;T1&gt;&gt;::value &amp;&amp;
+is_nothrow_assignable&lt;value_type_t&lt;T1&gt;&amp;, rvalue_reference_t&lt;T1&gt;&gt;::value &amp;&amp;
+is_nothrow_assignable&lt;reference_t&lt;T1&gt;, rvalue_reference_t&lt;T2&gt;&gt;::value &amp;&amp;
+is_nothrow_assignable&lt;reference_t&lt;T1&gt;, value_type_t&lt;T2&gt;&gt;::value&gt; &amp;&amp;
+is_nothrow_move_constructible&lt;value_type_t&lt;T1&gt;&gt;::value &amp;&amp;
+noexcept(ranges::iter_move(declval&lt;T1&amp;&gt;()))
+</pre></div></div></div></div></body></html>

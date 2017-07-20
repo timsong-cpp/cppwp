@@ -1,24 +1,26 @@
 <!DOCTYPE html><html lang='en'><head><title>[iterator.operations]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>9</a> Iterators library <a class='abbr_ref' href='./#iterators'>[iterators]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>9.6</a> Iterator primitives <a class='abbr_ref' href='iterator.primitives#iterator.operations'>[iterator.primitives]</a></h2><div id='iterator.operations'><h3 ><a class='secnum' style='min-width:103pt'>9.6.4</a> Iterator operations <a class='abbr_ref'>[iterator.operations]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >Since only types that satisfy
 <span class='texttt'>RandomAccessIterator</span> provide the <span class='texttt'>+</span> operator, and
 types that satisfy <span class='texttt'>SizedSentinel</span> provide the <span class='texttt'>-</span>
-operator, the library provides four function templates
+operator, the library provides customization point objects (<a href='customization.point.object'>[customization.point.object]</a>)
 <span class='texttt'>advance</span>, <span class='texttt'>distance</span>, <span class='texttt'>next</span>, and <span class='texttt'>prev</span>.
 These
-function templates
+customization point objects
 use
 <span class='texttt'>+</span>
 and
 <span class='texttt'>-</span>
-for random access iterators and ranges that satisfy <span class='texttt'>SizedSentinel</span>, respectively (and are, therefore, constant
+for random access iterators and ranges that satisfy <span class='texttt'>SizedSentinel</span> (and are, therefore, constant
 time for them); for output, input, forward and bidirectional iterators they use
 <span class='texttt'>++</span>
 to provide linear time
-implementations.</p><p ><span class='indexparent'><a class='index' id='advance'></a></span><code class='itemdecl'>
+implementations.</p><p ><span class='indexparent'><a class='index' id='advance'></a></span></p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >The name <span class='texttt'>advance</span> denotes a
+customization point object (<a href='customization.point.object'>[customization.point.object]</a>).
+It has the following function call operators:</p><p ><code class='itemdecl'>
 template &lt;Iterator I&gt;
-  void advance(I&amp; i, difference_type_t&lt;I&gt; n);
-</code></p></div><div class='itemdescr'></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p ><i>Requires:</i>
+  constexpr void operator()(I&amp; i, difference_type_t&lt;I&gt; n) const;
+</code></p></div><div class='itemdescr'></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p ><i>Requires:</i>
 <span class='texttt'>n</span>
-shall be negative only for bidirectional iterators.</p></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p ><i>Effects:</i>
+shall be negative only for bidirectional iterators.</p></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><i>Effects:</i>
 For random access iterators, equivalent to <span class='texttt'>i += n</span>.
 Otherwise, increments (or decrements for negative
 <span class='texttt'>n</span>)
@@ -28,59 +30,85 @@ by
 <span class='texttt'>n</span>.
 </p></div></div><p ><code class='itemdecl'>
 template &lt;Iterator I, Sentinel&lt;I&gt; S&gt;
-  void advance(I&amp; i, S bound);
-</code></p><div class='itemdescr'></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><i>Requires:</i>
+  constexpr void operator()(I&amp; i, S bound) const;
+</code></p><div class='itemdescr'></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Requires:</i>
 If
-<span class='texttt'>Assignable&lt;I&amp;, S&gt;()</span> is not satisfied, <span class='texttt'>[i,bound)</span>
-shall denote a range.</p></div></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><i>Effects:</i>
-</p><ul class='itemize'><li id='5.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#5.1'>(5.1)</a></div><p >If <span class='texttt'>Assignable&lt;I&amp;, S&gt;()</span> is satisfied,
-      equivalent to <span class='texttt'>i = std::move(bound)</span>.</p></li><li id='5.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#5.2'>(5.2)</a></div><p >Otherwise, if
-      <span class='texttt'>SizedSentinel&lt;S, I&gt;()</span> is satisfied, equivalent to <span class='texttt'>advance(i, bound - i)</span>.</p></li><li id='5.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#5.3'>(5.3)</a></div><p >Otherwise, increments <span class='texttt'>i</span> until <span class='texttt'>i == bound</span>.
+<span class='texttt'>Assignable&lt;I&amp;, S&gt;</span> is not satisfied, <span class='texttt'>[i,bound)</span>
+shall denote a range.</p></div></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><ul class='itemize'><li id='6.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#6.1'>(6.1)</a></div><p >If <span class='texttt'>Assignable&lt;I&amp;, S&gt;</span> is satisfied,
+      equivalent to <span class='texttt'>i = std::move(bound)</span>.</p></li><li id='6.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#6.2'>(6.2)</a></div><p >Otherwise, if
+      <span class='texttt'>SizedSentinel&lt;S, I&gt;</span> is satisfied, equivalent to <span class='texttt'>advance(i, bound - i)</span>.</p></li><li id='6.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#6.3'>(6.3)</a></div><p >Otherwise, increments <span class='texttt'>i</span> until <span class='texttt'>i == bound</span>.
 </p></li></ul></div></div><p ><code class='itemdecl'>
 template &lt;Iterator I, Sentinel&lt;I&gt; S&gt;
-  difference_type_t&lt;I&gt; advance(I&amp; i, difference_type_t&lt;I&gt; n, S bound);
-</code></p><div class='itemdescr'></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><i>Requires:</i>
+  constexpr difference_type_t&lt;I&gt; operator()(I&amp; i, difference_type_t&lt;I&gt; n, S bound) const;
+</code></p><div class='itemdescr'></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><p ><i>Requires:</i>
 If <span class='texttt'>n &gt; 0</span>, <span class='texttt'>[i,bound)</span> shall denote a range. If
 <span class='texttt'>n == 0</span>, <span class='texttt'>[i,bound)</span> or <span class='texttt'>[bound,i)</span> shall denote a range. If <span class='texttt'>n &lt; 0</span>,
-<span class='texttt'>[bound,i)</span> shall denote a range and <span class='texttt'>(BidirectionalIterator&lt;I&gt;() &amp;&amp; Same&lt;I, S&gt;())</span>
-shall be satisfied.</p></div></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><p ><i>Effects:</i>
-</p><ul class='itemize'><li id='7.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#7.1'>(7.1)</a></div><p >If <span class='texttt'>SizedSentinel&lt;S, I&gt;()</span> is satisfied:
-      </p><ul class='itemize'><li id='7.1.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#7.1.1'>(7.1.1)</a></div><p >If <span class='math'>|<span class='texttt'>n</span>| &gt;= |<span class='texttt'>bound - i</span>|</span>, equivalent to <span class='texttt'>advance(i, bound)</span>.</p></li><li id='7.1.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#7.1.2'>(7.1.2)</a></div><p >Otherwise, equivalent to <span class='texttt'>advance(i, n)</span>.
-      </p></li></ul></li><li id='7.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#7.2'>(7.2)</a></div><p >Otherwise, increments (or decrements for negative <span class='texttt'>n</span>)
+<span class='texttt'>[bound,i)</span> shall denote a range and <span class='texttt'>(BidirectionalIterator&lt;I&gt; &amp;&amp; Same&lt;I, S&gt;)</span>
+shall be satisfied.</p></div></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><ul class='itemize'><li id='8.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#8.1'>(8.1)</a></div><p >If <span class='texttt'>SizedSentinel&lt;S, I&gt;</span> is satisfied:
+      </p><ul class='itemize'><li id='8.1.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#8.1.1'>(8.1.1)</a></div><p >If <span class='math'>|<span class='texttt'>n</span>| &gt;= |<span class='texttt'>bound - i</span>|</span>, equivalent to <span class='texttt'>advance(i, bound)</span>.</p></li><li id='8.1.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#8.1.2'>(8.1.2)</a></div><p >Otherwise, equivalent to <span class='texttt'>advance(i, n)</span>.
+      </p></li></ul></li><li id='8.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#8.2'>(8.2)</a></div><p >Otherwise, increments (or decrements for negative <span class='texttt'>n</span>)
       iterator <span class='texttt'>i</span> either <span class='texttt'>n</span> times or until <span class='texttt'>i == bound</span>,
       whichever comes first.
-</p></li></ul></div></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='itemdescr'><p ><i>Returns:</i>
+</p></li></ul></div></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>n - <span class='math'><span class='mathalpha'>M</span></span></span>, where <span class='math'><span class='mathalpha'>M</span></span> is the distance from the starting position of
 <span class='texttt'>i</span> to the ending position.
-</p></div></div><p ><span class='indexparent'><a class='index' id='distance'></a></span><code class='itemdecl'>
+</p></div></div><p ><span class='indexparent'><a class='index' id='distance'></a></span></p><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><p >The name <span class='texttt'>distance</span> denotes a customization point object.
+It has the following function call operators:</p><p ><code class='itemdecl'>
 template &lt;Iterator I, Sentinel&lt;I&gt; S&gt;
-  difference_type_t&lt;I&gt; distance(I first, S last);
-</code></p><div class='itemdescr'></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='itemdescr'><p ><i>Requires:</i>
-<span class='texttt'>[first,last)</span> shall denote a range, or <span class='texttt'>(Same&lt;S, I&gt;() &amp;&amp; SizedSentinel&lt;S, I&gt;())</span> shall be
-satisfied and <span class='texttt'>[last,first)</span> shall denote a range.</p></div></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i>
-If <span class='texttt'>SizedSentinel&lt;S, I&gt;()</span> is satisfied, returns <span class='texttt'>(last - first)</span>; otherwise,
+  constexpr difference_type_t&lt;I&gt; operator()(I first, S last) const;
+</code></p></div><div class='itemdescr'></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><div class='itemdescr'><p ><i>Requires:</i>
+<span class='texttt'>[first,last)</span> shall denote a range, or <span class='texttt'>(Same&lt;S, I&gt; &amp;&amp; SizedSentinel&lt;S, I&gt;)</span> shall be
+satisfied and <span class='texttt'>[last,first)</span> shall denote a range.</p></div></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><div class='itemdescr'><p ><i>Effects:</i>
+If <span class='texttt'>SizedSentinel&lt;S, I&gt;</span> is satisfied, returns <span class='texttt'>(last - first)</span>; otherwise,
 returns the number of increments needed to get from
 <span class='texttt'>first</span>
 to
 <span class='texttt'>last</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='next'></a></span><code class='itemdecl'>
+</p></div></div><p ><code class='itemdecl'>
+template &lt;Range R&gt;
+  constexpr difference_type_t&lt;iterator_t&lt;R&gt;&gt; operator()(R&amp;&amp; r) const;
+</code></p><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to:
+<span class='texttt'>return distance(ranges::begin(r), ranges::end(r));</span> (<a href='range.access'>[range.access]</a>)</p><p ><i>Remarks:</i>
+Instantiations of this member function template may be ill-formed if the
+declarations in <span class='texttt'>&lt;experimental/ranges/range&gt;</span> are not in scope at the
+point of instantiation (  ISO/IEC 14882:2014 &sect;<a href='../n4140/temp.point'>[temp.point]</a>).
+</p></div><p ><code class='itemdecl'>
+template &lt;SizedRange R&gt;
+  constexpr difference_type_t&lt;iterator_t&lt;R&gt;&gt; operator()(R&amp;&amp; r) const;
+</code></p><div class='itemdescr'></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i>
+Equivalent to: <span class='texttt'>return ranges::size(r);</span> (<a href='range.primitives.size'>[range.primitives.size]</a>)</p></div></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><div class='itemdescr'><p ><i>Remarks:</i>
+Instantiations of this member function template may be ill-formed if the
+declarations in <span class='texttt'>&lt;experimental/ranges/range&gt;</span> are not in scope at the
+point of instantiation (  ISO/IEC 14882:2014 &sect;<a href='../n4140/temp.point'>[temp.point]</a>).
+</p></div></div><p ><span class='indexparent'><a class='index' id='next'></a></span></p><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><p >The name <span class='texttt'>next</span> denotes a customization point object. It has the following function call operators:</p><p ><code class='itemdecl'>
 template &lt;Iterator I&gt;
-  I next(I x, difference_type_t&lt;I&gt; n = 1);
-</code></p><div class='itemdescr'></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>advance(x, n); return x;</span>
+  constexpr I operator()(I x) const;
+</code></p></div><div class='itemdescr'></div><div class='para' id='16'><div class='marginalizedparent'><a class='marginalized' href='#16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>++x; return x;</span>
+</p></div></div><p ><code class='itemdecl'>
+template &lt;Iterator I&gt;
+  constexpr I operator()(I x, difference_type_t&lt;I&gt; n) const;
+</code></p><div class='itemdescr'></div><div class='para' id='17'><div class='marginalizedparent'><a class='marginalized' href='#17'>17</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>advance(x, n); return x;</span>
 </p></div></div><p ><code class='itemdecl'>
 template &lt;Iterator I, Sentinel&lt;I&gt; S&gt;
-  I next(I x, S bound);
-</code></p><div class='itemdescr'></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>advance(x, bound); return x;</span>
+  constexpr I operator()(I x, S bound) const;
+</code></p><div class='itemdescr'></div><div class='para' id='18'><div class='marginalizedparent'><a class='marginalized' href='#18'>18</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>advance(x, bound); return x;</span>
 </p></div></div><p ><code class='itemdecl'>
 template &lt;Iterator I, Sentinel&lt;I&gt; S&gt;
-  I next(I x, difference_type_t&lt;I&gt; n, S bound);
-</code></p><div class='itemdescr'></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>advance(x, n, bound); return x;</span>
-</p></div></div><p ><span class='indexparent'><a class='index' id='prev'></a></span><code class='itemdecl'>
+  constexpr I operator()(I x, difference_type_t&lt;I&gt; n, S bound) const;
+</code></p><div class='itemdescr'></div><div class='para' id='19'><div class='marginalizedparent'><a class='marginalized' href='#19'>19</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>advance(x, n, bound); return x;</span>
+</p></div></div><p ><span class='indexparent'><a class='index' id='prev'></a></span></p><div class='para' id='20'><div class='marginalizedparent'><a class='marginalized' href='#20'>20</a></div><p >The name <span class='texttt'>prev</span> denotes a customization point object. It has the following function call operators:</p><p ><code class='itemdecl'>
 template &lt;BidirectionalIterator I&gt;
-  I prev(I x, difference_type_t&lt;I&gt; n = 1);
-</code></p><div class='itemdescr'></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>advance(x, -n); return x;</span>
+  constexpr I operator()(I x) const;
+</code></p></div><div class='itemdescr'></div><div class='para' id='21'><div class='marginalizedparent'><a class='marginalized' href='#21'>21</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>--x; return x;</span>
 </p></div></div><p ><code class='itemdecl'>
 template &lt;BidirectionalIterator I&gt;
-  I prev(I x, difference_type_t&lt;I&gt; n, I bound);
-</code></p><div class='itemdescr'></div><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>advance(x, -n, bound); return x;</span>
+  constexpr I operator()(I x, difference_type_t&lt;I&gt; n) const;
+</code></p><div class='itemdescr'></div><div class='para' id='22'><div class='marginalizedparent'><a class='marginalized' href='#22'>22</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>advance(x, -n); return x;</span>
+</p></div></div><p ><code class='itemdecl'>
+template &lt;BidirectionalIterator I&gt;
+  constexpr I operator()(I x, difference_type_t&lt;I&gt; n, I bound) const;
+</code></p><div class='itemdescr'></div><div class='para' id='23'><div class='marginalizedparent'><a class='marginalized' href='#23'>23</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <span class='texttt'>advance(x, -n, bound); return x;</span>
 </p></div></div></div></div></body></html>

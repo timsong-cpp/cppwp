@@ -5,10 +5,18 @@ can be used to write values (from the requirement for
 However, output iterators are not required to
 satisfy <span class='texttt'>EqualityComparable</span>.</p><p ><span class='indexparent'><a class='index' id='OutputIterator'></a></span></p><pre class='codeblock'>
   template &lt;class I, class T&gt;
-  concept bool OutputIterator() {
-    return Iterator&lt;I&gt;() &amp;&amp; Writable&lt;I, T&gt;();
-  }
-</pre></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >[&nbsp;<i>Note:</i>
+  concept bool OutputIterator =
+    Iterator&lt;I&gt; &amp;&amp; Writable&lt;I, T&gt; &amp;&amp;
+    requires(I i, T&amp;&amp; t) {
+      *i++ = std::forward(t); <span class='comment'>// not required to be equality preserving
+</span>    };
+</pre></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >Let <span class='texttt'>E</span> be an expression such that <span class='texttt'>decltype((E))</span> is <span class='texttt'>T</span>, and let <span class='texttt'>i</span> be a
+dereferenceable object of type <span class='texttt'>I</span>. <span class='texttt'>OutputIterator&lt;I, T&gt;</span> is satisfied only if
+<span class='texttt'>*i++ = E;</span> has effects equivalent to:
+</p><pre class='codeblock'>
+  *i = E;
+  ++i;
+</pre></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >[&nbsp;<i>Note:</i>
 Algorithms on output iterators should never attempt to pass through the same iterator twice.
 They should be
 <a class='hidden_link' href='#def:single_pass' id='def:single_pass'><i>single pass</i></a>

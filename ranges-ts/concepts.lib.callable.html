@@ -3,64 +3,57 @@ objects (<a href='function.objects'>[function.objects]</a>) and their arguments.
 type (  ISO/IEC 14882:2014 &sect;<a href='../n4140/func.def'>[func.def]</a>) <span class='texttt'>F</span> and a set of argument types <span class='texttt'>Args...</span> which
 can be evaluated by the library function <span class='texttt'>invoke</span> (<a href='func.invoke'>[func.invoke]</a>).</p><p ><span class='indexparent'><a class='index' id='Invocable'></a></span><code class='itemdecl'>
 template &lt;class F, class... Args&gt;
-concept bool Invocable() {
-  return requires(F&amp;&amp; f, Args&amp;&amp;... args) {
-      invoke(std::forward&lt;F&gt;(f), std::forward&lt;Args&gt;(args)...); <span class='comment'>// not required to be equality preserving
-</span>    };
-}
+concept bool Invocable =
+  requires(F&amp;&amp; f, Args&amp;&amp;... args) {
+    invoke(std::forward&lt;F&gt;(f), std::forward&lt;Args&gt;(args)...); <span class='comment'>// not required to be equality preserving
+</span>  };
 </code></p></div><div class='itemdescr'></div><div class='para' id='invocable-2'><div class='marginalizedparent'><a class='marginalized' href='#invocable-2'>2</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> Since the <span class='texttt'>invoke</span> function call
 expression is not required to be
 equality-preserving (<a href='concepts.lib.general.equality'>[concepts.lib.general.equality]</a>), a function that generates random numbers
 may satisfy <span class='texttt'>Invocable</span>.<i>&nbsp;—&nbsp;end note</i>&nbsp;]
 </p></div></div></div><div id='regularinvocable'><h3 ><a class='secnum' href='#regularinvocable' style='min-width:103pt'>7.6.3</a> Concept <span class='texttt'>RegularInvocable</span> <a class='abbr_ref' href='concepts.lib.callable.regularinvocable'>[concepts.lib.callable.regularinvocable]</a></h3><p ><span class='indexparent'><a class='index' id='RegularInvocable'></a></span><code class='itemdecl'>
 template &lt;class F, class... Args&gt;
-concept bool RegularInvocable() {
-  return Invocable&lt;F, Args...&gt;();
-}
-</code></p><div class='itemdescr'></div><div class='para' id='regularinvocable-1'><div class='marginalizedparent'><a class='marginalized' href='#regularinvocable-1'>1</a></div><div class='itemdescr'><p >The <span class='texttt'>invoke</span> function call expression shall be
-equality-preserving (<a href='concepts.lib.general.equality'>[concepts.lib.general.equality]</a>). [&nbsp;<i>Note:</i> This requirement supersedes the
+concept bool RegularInvocable =
+  Invocable&lt;F, Args...&gt;;
+</code></p><div class='itemdescr'></div><div class='para' id='regularinvocable-1'><div class='marginalizedparent'><a class='marginalized' href='#regularinvocable-1'>1</a></div><div class='itemdescr'><p >The <span class='texttt'>invoke</span> function call expression shall be equality-preserving and
+shall not modify the function object or the arguments (<a href='concepts.lib.general.equality'>[concepts.lib.general.equality]</a>).
+[&nbsp;<i>Note:</i> This requirement supersedes the
 annotation in the definition of <span class='texttt'>Invocable</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='regularinvocable-2'><div class='marginalizedparent'><a class='marginalized' href='#regularinvocable-2'>2</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> A random number generator does not satisfy
 <span class='texttt'>RegularInvocable</span>.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='regularinvocable-3'><div class='marginalizedparent'><a class='marginalized' href='#regularinvocable-3'>3</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> The distinction between <span class='texttt'>Invocable</span> and
 <span class='texttt'>RegularInvocable</span> is purely semantic.<i>&nbsp;—&nbsp;end note</i>&nbsp;]
 </p></div></div></div><div id='predicate'><h3 ><a class='secnum' href='#predicate' style='min-width:103pt'>7.6.4</a> Concept <span class='texttt'>Predicate</span> <a class='abbr_ref' href='concepts.lib.callable.predicate'>[concepts.lib.callable.predicate]</a></h3><p ><span class='indexparent'><a class='index' id='Predicate'></a></span><code class='itemdecl'>
 template &lt;class F, class... Args&gt;
-concept bool Predicate() {
-  return RegularInvocable&lt;F, Args...&gt;() &amp;&amp;
-    Boolean&lt;result_of_t&lt;F&amp;&amp;(Args&amp;&amp;...)&gt;&gt;();
-}
+concept bool Predicate =
+  RegularInvocable&lt;F, Args...&gt; &amp;&amp;
+  Boolean&lt;result_of_t&lt;F&amp;&amp;(Args&amp;&amp;...)&gt;&gt;;
 </code></p></div><div id='relation'><h3 ><a class='secnum' href='#relation' style='min-width:103pt'>7.6.5</a> Concept <span class='texttt'>Relation</span> <a class='abbr_ref' href='concepts.lib.callable.relation'>[concepts.lib.callable.relation]</a></h3><p ><span class='indexparent'><a class='index' id='Relation'></a></span><code class='itemdecl'>
-template &lt;class R, class T&gt;
-concept bool Relation() {
-  return Predicate&lt;R, T, T&gt;();
-}
-
 template &lt;class R, class T, class U&gt;
-concept bool Relation() {
-  return Relation&lt;R, T&gt;() &amp;&amp;
-    Relation&lt;R, U&gt;() &amp;&amp;
-    CommonReference&lt;const T&amp;, const U&amp;&gt;() &amp;&amp;
-    Relation&lt;R,
-      common_reference_t&lt;const T&amp;, const U&amp;&gt;&gt;() &amp;&amp;
-    Predicate&lt;R, T, U&gt;() &amp;&amp;
-    Predicate&lt;R, U, T&gt;();
-}
-</code></p><div class='itemdescr'></div><div class='para' id='relation-1'><div class='marginalizedparent'><a class='marginalized' href='#relation-1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>r</span> be any object of type <span class='texttt'>R</span>, <span class='texttt'>t</span> be any
-object of type <span class='texttt'>T</span>, <span class='texttt'>u</span> be any
-object of type <span class='texttt'>U</span>, and <span class='texttt'>C</span> be
-<span class='texttt'>common_reference_t&lt;const T&amp;, const U&amp;&gt;</span>.
-Then <span class='texttt'>Relation&lt;R, T, U&gt;()</span> is satisfied if and only if</p><ul class='itemize'><li id='relation-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#relation-1.1'>(1.1)</a></div><p ><span class='texttt'>bool(r(t, u)) == bool(r(C(t), C(u))).</span>
+concept bool Relation =
+  Predicate&lt;R, T, T&gt; &amp;&amp;
+  Predicate&lt;R, U, U&gt; &amp;&amp;
+  CommonReference&lt;
+    const remove_reference_t&lt;T&gt;&amp;,
+    const remove_reference_t&lt;U&gt;&amp;&gt; &amp;&amp;
+  Predicate&lt;R,
+    common_reference_t&lt;
+      const remove_reference_t&lt;T&gt;&amp;,
+      const remove_reference_t&lt;U&gt;&amp;&gt;,
+    common_reference_t&lt;
+      const remove_reference_t&lt;T&gt;&amp;,
+      const remove_reference_t&lt;U&gt;&amp;&gt;&gt; &amp;&amp;
+  Predicate&lt;R, T, U&gt; &amp;&amp;
+  Predicate&lt;R, U, T&gt;;
+</code></p><div class='itemdescr'></div><div class='para' id='relation-1'><div class='marginalizedparent'><a class='marginalized' href='#relation-1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>r</span> be an expression such that <span class='texttt'>decltype((r))</span> is <span class='texttt'>R</span>,
+<span class='texttt'>t</span> be an expression such that <span class='texttt'>decltype((t))</span> is <span class='texttt'>T</span>,
+<span class='texttt'>u</span> be an expression such that <span class='texttt'>decltype((u))</span> is <span class='texttt'>U</span>,
+and <span class='texttt'>C</span> be <span class='texttt'>common_reference_t&lt;const remove_reference_t&lt;T&gt;&amp;,
+const remove_reference_t&lt;U&gt;&amp;&gt;</span>.
+<span class='texttt'>Relation&lt;R, T, U&gt;</span> is satisfied only if</p><ul class='itemize'><li id='relation-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#relation-1.1'>(1.1)</a></div><p ><span class='texttt'>bool(r(t, u)) == bool(r(C(t), C(u))).</span>
 </p></li><li id='relation-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#relation-1.2'>(1.2)</a></div><p ><span class='texttt'>bool(r(u, t)) == bool(r(C(u), C(t))).</span>
 </p></li></ul></div></div></div><div id='strictweakorder'><h3 ><a class='secnum' href='#strictweakorder' style='min-width:103pt'>7.6.6</a> Concept <span class='texttt'>StrictWeakOrder</span> <a class='abbr_ref' href='concepts.lib.callable.strictweakorder'>[concepts.lib.callable.strictweakorder]</a></h3><p ><span class='indexparent'><a class='index' id='Relation'></a></span><code class='itemdecl'>
-template &lt;class R, class T&gt;
-concept bool StrictWeakOrder() {
-  return Relation&lt;R, T&gt;();
-}
-
 template &lt;class R, class T, class U&gt;
-concept bool StrictWeakOrder() {
-  return Relation&lt;R, T, U&gt;();
-}
-</code></p><div class='itemdescr'></div><div class='para' id='strictweakorder-1'><div class='marginalizedparent'><a class='marginalized' href='#strictweakorder-1'>1</a></div><div class='itemdescr'><p >A <span class='texttt'>Relation</span> satisfies <span class='texttt'>StrictWeakOrder</span> if and only if
+concept bool StrictWeakOrder = Relation&lt;R, T, U&gt;;
+</code></p><div class='itemdescr'></div><div class='para' id='strictweakorder-1'><div class='marginalizedparent'><a class='marginalized' href='#strictweakorder-1'>1</a></div><div class='itemdescr'><p >A <span class='texttt'>Relation</span> satisfies <span class='texttt'>StrictWeakOrder</span> only if
 it imposes a <i>strict weak ordering</i> on its arguments.</p></div></div><div class='para' id='strictweakorder-2'><div class='marginalizedparent'><a class='marginalized' href='#strictweakorder-2'>2</a></div><div class='itemdescr'><p >The term
 <i>strict</i>
 refers to the

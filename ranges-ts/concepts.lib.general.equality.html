@@ -15,42 +15,41 @@ changes to an object, changes to an object from another thread of execution, cha
 to an object as side effects of non-modifying expressions, and changes to an object as
 side effects of modifying a distinct object if those changes could be observable
 to a library function via an equality preserving expression that is required to be
-valid for that object. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Expressions declared in a <i>requires-expression</i> in this document are
+valid for that object. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><p >Expressions declared in a <span class='grammarterm'>requires-expression</span> in this document are
 required to be equality preserving, except for those annotated with the comment
 “not required to be equality preserving.” An expression so annotated
 may be equality preserving, but is not required to be so.</p></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><p >An expression that may alter the value of one or more of its inputs in a manner
 observable to equality preserving expressions is said to modify those inputs.
 This document uses a notational convention to specify which expressions declared
-in a <i>requires-expression</i> modify which inputs: except where otherwise
+in a <span class='grammarterm'>requires-expression</span> modify which inputs: except where otherwise
 specified, an expression operand that is a non-constant lvalue or rvalue may be
-modified. Operands that are constant lvalues or rvalues must not be modified.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >Where a <i>requires-expression</i> declares an expression that is non-modifying
-for some constant lvalue operand, additional variants of that expression that accept
+modified. Operands that are constant lvalues or rvalues must not be modified.</p></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><p >Where a <span class='grammarterm'>requires-expression</span> declares an expression that is non-modifying
+for some constant lvalue operand, additional variations of that expression that accept
 a non-constant lvalue or (possibly constant) rvalue for the given operand are also
-required except where such an expression variant is explicitly required with
-differing semantics. Such implicit expression variants must meet the semantic
+required except where such an expression variation is explicitly required with
+differing semantics. These <i>implicit expression variations</i> must meet the semantic
 requirements of the declared expression. The extent to which an implementation
-validates the syntax of these implicit expression variants is unspecified.</p><p >[&nbsp;<i>Example:</i>
+validates the syntax of the variations is unspecified.</p><p >[&nbsp;<i>Example:</i>
 </p><pre class='codeblock'>
 template &lt;class T&gt;
-concept bool C() {
-  return requires(T a, T b, const T c, const T d) {
+concept bool C =
+  requires(T a, T b, const T c, const T d) {
     c == d;           <span class='comment'>// #1
 </span>    a = std::move(b); <span class='comment'>// #2
 </span>    a = c;            <span class='comment'>// #3
 </span>  };
-}
 </pre><p >Expression #1 does not modify either of its operands, #2 modifies both of its
-operands, and #3 modifies only its first operand <span class='texttt'>a</span>.</p><p >Expression #1 implicitly requires additional expression variants that meet the
+operands, and #3 modifies only its first operand <span class='texttt'>a</span>.</p><p >Expression #1 implicitly requires additional expression variations that meet the
 requirements for <span class='texttt'>c == d</span> (including non-modification), as if the expressions
 </p><pre class='codeblock'>
 a == d;       a == b;             a == move(b);       a == d;
 c == a;       c == move(a);       c == move(d);
 move(a) == d; move(a) == b;       move(a) == move(b); move(a) == move(d);
 move(c) == b; move(c) == move(b); move(c) == d;       move(c) == move(d);
-</pre><p >had been declared as well.</p><p >Expression #3 implicitly requires additional expression variants that meet the
+</pre><p >had been declared as well.</p><p >Expression #3 implicitly requires additional expression variations that meet the
 requirements for <span class='texttt'>a = c</span> (including non-modification of the second operand),
 as if the expressions <span class='texttt'>a = b</span> and <span class='texttt'>a = move(c)</span> had been declared.
-Expression #3 does not implicitly require an expression variant with a
+Expression #3 does not implicitly require an expression variation with a
 non-constant rvalue second operand, since expression #2 already specifies exactly
 such an expression explicitly.
 <i>&nbsp;—&nbsp;end example</i>&nbsp;]</p><p >[&nbsp;<i>Example:</i>
@@ -61,8 +60,8 @@ struct T {
   bool operator==(T&amp;) = delete;
 };
 </pre><p ><span class='texttt'>T</span> fails to meet the implicit
-requirements of <span class='texttt'>C</span>, so <span class='texttt'>C&lt;T&gt;()</span> is not satisfied. Since
+requirements of <span class='texttt'>C</span>, so <span class='texttt'>C&lt;T&gt;</span> is not satisfied. Since
 implementations are not required to validate the syntax of implicit requirements, it
 is unspecified whether or not an implementation diagnoses as ill-formed a program
-which requires <span class='texttt'>C&lt;T&gt;()</span>.
+which requires <span class='texttt'>C&lt;T&gt;</span>.
 <i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div></div></div></body></html>

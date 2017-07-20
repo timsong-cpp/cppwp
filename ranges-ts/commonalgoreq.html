@@ -5,90 +5,81 @@ concepts that specify how element values are transferred between <span class='te
 for rearrangements: <span class='texttt'>Permutable</span>, <span class='texttt'>Mergeable</span>, and <span class='texttt'>Sortable</span>.
 There is one relational concept for comparing values from different sequences: <span class='texttt'>IndirectlyComparable</span>.</p></div><div class='para' id='general-2'><div class='marginalizedparent'><a class='marginalized' href='#general-2'>2</a></div><p >[&nbsp;<i>Note:</i> The <span class='texttt'>equal_to&lt;&gt;</span> and <span class='texttt'>less&lt;&gt;</span> (<a href='comparisons'>[comparisons]</a>) function types used in the
 concepts below impose additional constraints on their arguments beyond those that appear explicitly in the
-concepts' bodies. <span class='texttt'>equal_to&lt;&gt;</span> requires its arguments satisfy <span class='texttt'>EqualityComparable</span> (<a href='concepts.lib.compare.equalitycomparable'>[concepts.lib.compare.equalitycomparable]</a>),
-and <span class='texttt'>less&lt;&gt;</span> requires its arguments satisfy <span class='texttt'>StrictTotallyOrdered</span> (<a href='concepts.lib.compare.stricttotallyordered'>[concepts.lib.compare.stricttotallyordered]</a>).<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='indirectlymovable'><h3 ><a class='secnum' href='#indirectlymovable' style='min-width:103pt'>9.5.2</a> Concept <span class='texttt'>IndirectlyMovable</span> <a class='abbr_ref' href='commonalgoreq.indirectlymovable'>[commonalgoreq.indirectlymovable]</a></h3><div class='para' id='indirectlymovable-1'><div class='marginalizedparent'><a class='marginalized' href='#indirectlymovable-1'>1</a></div><p >The <span class='texttt'>IndirectlyMovable</span> concept specifies the relationship between a <span class='texttt'>Readable</span>
+concepts' bodies. <span class='texttt'>equal_to&lt;&gt;</span> requires its arguments satisfy <span class='texttt'>EqualityComparableWith</span> (<a href='concepts.lib.compare.equalitycomparable'>[concepts.lib.compare.equalitycomparable]</a>),
+and <span class='texttt'>less&lt;&gt;</span> requires its arguments satisfy <span class='texttt'>StrictTotallyOrderedWith</span> (<a href='concepts.lib.compare.stricttotallyordered'>[concepts.lib.compare.stricttotallyordered]</a>).<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='indirectlymovable'><h3 ><a class='secnum' href='#indirectlymovable' style='min-width:103pt'>9.5.2</a> Concept <span class='texttt'>IndirectlyMovable</span> <a class='abbr_ref' href='commonalgoreq.indirectlymovable'>[commonalgoreq.indirectlymovable]</a></h3><div class='para' id='indirectlymovable-1'><div class='marginalizedparent'><a class='marginalized' href='#indirectlymovable-1'>1</a></div><p >The <span class='texttt'>IndirectlyMovable</span> concept specifies the relationship between a <span class='texttt'>Readable</span>
 type and a <span class='texttt'>Writable</span> type between which values may be moved.</p><p ><span class='indexparent'><a class='index' id='IndirectlyMovable'></a></span></p><pre class='codeblock'>
   template &lt;class In, class Out&gt;
-  concept bool IndirectlyMovable() {
-    return Readable&lt;In&gt;() &amp;&amp;
-      Writable&lt;Out, rvalue_reference_t&lt;In&gt;&gt;();
-  }
+  concept bool IndirectlyMovable =
+    Readable&lt;In&gt; &amp;&amp;
+    Writable&lt;Out, rvalue_reference_t&lt;In&gt;&gt;;
 </pre></div><div class='para' id='indirectlymovable-2'><div class='marginalizedparent'><a class='marginalized' href='#indirectlymovable-2'>2</a></div><p >The <span class='texttt'>IndirectlyMovableStorable</span> concept augments <span class='texttt'>IndirectlyMovable</span> with additional
 requirements enabling the transfer to be performed through an intermediate object of the
 <span class='texttt'>Readable</span> type's value type.</p><p ><span class='indexparent'><a class='index' id='IndirectlyMovableStorable'></a></span></p><pre class='codeblock'>
   template &lt;class In, class Out&gt;
-  concept bool IndirectlyMovableStorable() {
-    return IndirectlyMovable&lt;In, Out&gt;() &amp;&amp;
-      Writable&lt;Out, value_type_t&lt;In&gt;&gt;() &amp;&amp;
-      Movable&lt;value_type_t&lt;In&gt;&gt;() &amp;&amp;
-      Constructible&lt;value_type_t&lt;In&gt;, rvalue_reference_t&lt;In&gt;&gt;() &amp;&amp;
-      Assignable&lt;value_type_t&lt;In&gt;&amp;, rvalue_reference_t&lt;In&gt;&gt;();
-  }
+  concept bool IndirectlyMovableStorable =
+    IndirectlyMovable&lt;In, Out&gt; &amp;&amp;
+    Writable&lt;Out, value_type_t&lt;In&gt;&gt; &amp;&amp;
+    Movable&lt;value_type_t&lt;In&gt;&gt; &amp;&amp;
+    Constructible&lt;value_type_t&lt;In&gt;, rvalue_reference_t&lt;In&gt;&gt; &amp;&amp;
+    Assignable&lt;value_type_t&lt;In&gt;&amp;, rvalue_reference_t&lt;In&gt;&gt;;
 </pre></div></div><div id='indirectlycopyable'><h3 ><a class='secnum' href='#indirectlycopyable' style='min-width:103pt'>9.5.3</a> Concept <span class='texttt'>IndirectlyCopyable</span> <a class='abbr_ref' href='commonalgoreq.indirectlycopyable'>[commonalgoreq.indirectlycopyable]</a></h3><div class='para' id='indirectlycopyable-1'><div class='marginalizedparent'><a class='marginalized' href='#indirectlycopyable-1'>1</a></div><p >The <span class='texttt'>IndirectlyCopyable</span> concept specifies the relationship between a <span class='texttt'>Readable</span>
 type and a <span class='texttt'>Writable</span> type between which values may be copied.</p><p ><span class='indexparent'><a class='index' id='IndirectlyCopyable'></a></span></p><pre class='codeblock'>
   template &lt;class In, class Out&gt;
-  concept bool IndirectlyCopyable() {
-    return Readable&lt;In&gt;() &amp;&amp;
-      Writable&lt;Out, reference_t&lt;In&gt;&gt;();
-  }
+  concept bool IndirectlyCopyable =
+    Readable&lt;In&gt; &amp;&amp;
+    Writable&lt;Out, reference_t&lt;In&gt;&gt;;
 </pre></div><div class='para' id='indirectlycopyable-2'><div class='marginalizedparent'><a class='marginalized' href='#indirectlycopyable-2'>2</a></div><p >The <span class='texttt'>IndirectlyCopyableStorable</span> concept augments <span class='texttt'>IndirectlyCopyable</span> with additional
 requirements enabling the transfer to be performed through an intermediate object of the
 <span class='texttt'>Readable</span> type's value type. It also requires the capability to make copies of values.</p><p ><span class='indexparent'><a class='index' id='IndirectlyCopyableStorable'></a></span></p><pre class='codeblock'>
   template &lt;class In, class Out&gt;
-  concept bool IndirectlyCopyableStorable() {
-    return IndirectlyCopyable&lt;In, Out&gt;() &amp;&amp;
-      Writable&lt;Out, const value_type_t&lt;In&gt;&amp;&gt;() &amp;&amp;
-      Copyable&lt;value_type_t&lt;In&gt;&gt;() &amp;&amp;
-      Constructible&lt;value_type_t&lt;In&gt;, reference_t&lt;In&gt;&gt;() &amp;&amp;
-      Assignable&lt;value_type_t&lt;In&gt;&amp;, reference_t&lt;In&gt;&gt;();
-  }
+  concept bool IndirectlyCopyableStorable =
+    IndirectlyCopyable&lt;In, Out&gt; &amp;&amp;
+    Writable&lt;Out, const value_type_t&lt;In&gt;&amp;&gt; &amp;&amp;
+    Copyable&lt;value_type_t&lt;In&gt;&gt; &amp;&amp;
+    Constructible&lt;value_type_t&lt;In&gt;, reference_t&lt;In&gt;&gt; &amp;&amp;
+    Assignable&lt;value_type_t&lt;In&gt;&amp;, reference_t&lt;In&gt;&gt;;
 </pre></div></div><div id='indirectlyswappable'><h3 ><a class='secnum' href='#indirectlyswappable' style='min-width:103pt'>9.5.4</a> Concept <span class='texttt'>IndirectlySwappable</span> <a class='abbr_ref' href='commonalgoreq.indirectlyswappable'>[commonalgoreq.indirectlyswappable]</a></h3><div class='para' id='indirectlyswappable-1'><div class='marginalizedparent'><a class='marginalized' href='#indirectlyswappable-1'>1</a></div><p >The <span class='texttt'>IndirectlySwappable</span> concept specifies a swappable relationship between the
 values referenced by two <span class='texttt'>Readable</span> types.</p><p ><span class='indexparent'><a class='index' id='IndirectlySwappable'></a></span></p><pre class='codeblock'>
   template &lt;class I1, class I2 = I1&gt;
-  concept bool IndirectlySwappable() {
-    return Readable&lt;I1&gt;() &amp;&amp; Readable&lt;I2&gt;() &amp;&amp;
-      requires(I1&amp;&amp; i1, I2&amp;&amp; i2) {
-        ranges::iter_swap(std::forward&lt;I1&gt;(i1), std::forward&lt;I2&gt;(i2));
-        ranges::iter_swap(std::forward&lt;I2&gt;(i2), std::forward&lt;I1&gt;(i1));
-        ranges::iter_swap(std::forward&lt;I1&gt;(i1), std::forward&lt;I1&gt;(i1));
-        ranges::iter_swap(std::forward&lt;I2&gt;(i2), std::forward&lt;I2&gt;(i2));
-      };
-  }
+  concept bool IndirectlySwappable =
+    Readable&lt;I1&gt; &amp;&amp; Readable&lt;I2&gt; &amp;&amp;
+    requires(I1&amp;&amp; i1, I2&amp;&amp; i2) {
+      ranges::iter_swap(std::forward&lt;I1&gt;(i1), std::forward&lt;I2&gt;(i2));
+      ranges::iter_swap(std::forward&lt;I2&gt;(i2), std::forward&lt;I1&gt;(i1));
+      ranges::iter_swap(std::forward&lt;I1&gt;(i1), std::forward&lt;I1&gt;(i1));
+      ranges::iter_swap(std::forward&lt;I2&gt;(i2), std::forward&lt;I2&gt;(i2));
+    };
 </pre></div><div class='para' id='indirectlyswappable-2'><div class='marginalizedparent'><a class='marginalized' href='#indirectlyswappable-2'>2</a></div><p >Given an object <span class='texttt'>i1</span> of type <span class='texttt'>I1</span> and an object <span class='texttt'>i2</span> of
-type <span class='texttt'>I2</span>, <span class='texttt'>IndirectlySwappable&lt;I1, I2&gt;()</span> is satisfied if after
+type <span class='texttt'>I2</span>, <span class='texttt'>IndirectlySwappable&lt;I1, I2&gt;</span> is satisfied if after
 <span class='texttt'>ranges::iter_swap(i1, i2)</span>, the value of <span class='texttt'>*i1</span> is equal to the
 value of <span class='texttt'>*i2</span> before the call, and <i>vice versa</i>.</p></div></div><div id='indirectlycomparable'><h3 ><a class='secnum' href='#indirectlycomparable' style='min-width:103pt'>9.5.5</a> Concept <span class='texttt'>IndirectlyComparable</span> <a class='abbr_ref' href='commonalgoreq.indirectlycomparable'>[commonalgoreq.indirectlycomparable]</a></h3><div class='para' id='indirectlycomparable-1'><div class='marginalizedparent'><a class='marginalized' href='#indirectlycomparable-1'>1</a></div><p >The <span class='texttt'>IndirectlyComparable</span> concept specifies the common requirements of algorithms that
 compare values from two different sequences.</p><p ><span class='indexparent'><a class='index' id='IndirectlyComparable'></a></span></p><pre class='codeblock'>
   template &lt;class I1, class I2, class R = equal_to&lt;&gt;, class P1 = identity,
     class P2 = identity&gt;
-  concept bool IndirectlyComparable() {
-    return IndirectRelation&lt;R, projected&lt;I1, P1&gt;, projected&lt;I2, P2&gt;&gt;();
-  }
+  concept bool IndirectlyComparable =
+    IndirectRelation&lt;R, projected&lt;I1, P1&gt;, projected&lt;I2, P2&gt;&gt;;
 </pre></div></div><div id='permutable'><h3 ><a class='secnum' href='#permutable' style='min-width:103pt'>9.5.6</a> Concept <span class='texttt'>Permutable</span> <a class='abbr_ref' href='commonalgoreq.permutable'>[commonalgoreq.permutable]</a></h3><div class='para' id='permutable-1'><div class='marginalizedparent'><a class='marginalized' href='#permutable-1'>1</a></div><p >The <span class='texttt'>Permutable</span> concept specifies the common requirements of algorithms that reorder
 elements in place by moving or swapping them.</p><p ><span class='indexparent'><a class='index' id='Permutable'></a></span></p><pre class='codeblock'>
   template &lt;class I&gt;
-  concept bool Permutable() {
-    return ForwardIterator&lt;I&gt;() &amp;&amp;
-      IndirectlyMovableStorable&lt;I, I&gt;() &amp;&amp;
-      IndirectlySwappable&lt;I, I&gt;();
-  }
+  concept bool Permutable =
+    ForwardIterator&lt;I&gt; &amp;&amp;
+    IndirectlyMovableStorable&lt;I, I&gt; &amp;&amp;
+    IndirectlySwappable&lt;I, I&gt;;
 </pre></div></div><div id='mergeable'><h3 ><a class='secnum' href='#mergeable' style='min-width:103pt'>9.5.7</a> Concept <span class='texttt'>Mergeable</span> <a class='abbr_ref' href='commonalgoreq.mergeable'>[commonalgoreq.mergeable]</a></h3><div class='para' id='mergeable-1'><div class='marginalizedparent'><a class='marginalized' href='#mergeable-1'>1</a></div><p >The <span class='texttt'>Mergeable</span> concept specifies the requirements of
 algorithms that merge sorted sequences into an output sequence by copying elements.</p><p ><span class='indexparent'><a class='index' id='Mergeable'></a></span></p><pre class='codeblock'>
   template &lt;class I1, class I2, class Out,
       class R = less&lt;&gt;, class P1 = identity, class P2 = identity&gt;
-  concept bool Mergeable() {
-    return InputIterator&lt;I1&gt;() &amp;&amp;
-      InputIterator&lt;I2&gt;() &amp;&amp;
-      WeaklyIncrementable&lt;Out&gt;() &amp;&amp;
-      IndirectlyCopyable&lt;I1, Out&gt;() &amp;&amp;
-      IndirectlyCopyable&lt;I2, Out&gt;() &amp;&amp;
-      IndirectStrictWeakOrder&lt;R, projected&lt;I1, P1&gt;, projected&lt;I2, P2&gt;&gt;();
-  }
+  concept bool Mergeable =
+    InputIterator&lt;I1&gt; &amp;&amp;
+    InputIterator&lt;I2&gt; &amp;&amp;
+    WeaklyIncrementable&lt;Out&gt; &amp;&amp;
+    IndirectlyCopyable&lt;I1, Out&gt; &amp;&amp;
+    IndirectlyCopyable&lt;I2, Out&gt; &amp;&amp;
+    IndirectStrictWeakOrder&lt;R, projected&lt;I1, P1&gt;, projected&lt;I2, P2&gt;&gt;;
 </pre></div></div><div id='sortable'><h3 ><a class='secnum' href='#sortable' style='min-width:103pt'>9.5.8</a> Concept <span class='texttt'>Sortable</span> <a class='abbr_ref' href='commonalgoreq.sortable'>[commonalgoreq.sortable]</a></h3><div class='para' id='sortable-1'><div class='marginalizedparent'><a class='marginalized' href='#sortable-1'>1</a></div><p >The <span class='texttt'>Sortable</span> concept specifies the common requirements of algorithms that permute
 sequences into ordered sequences (e.g., <span class='texttt'>sort</span>).</p><p ><span class='indexparent'><a class='index' id='Sortable'></a></span></p><pre class='codeblock'>
   template &lt;class I, class R = less&lt;&gt;, class P = identity&gt;
-  concept bool Sortable() {
-    return Permutable&lt;I&gt;() &amp;&amp;
-      IndirectStrictWeakOrder&lt;R, projected&lt;I, P&gt;&gt;();
-  }
+  concept bool Sortable =
+    Permutable&lt;I&gt; &amp;&amp;
+    IndirectStrictWeakOrder&lt;R, projected&lt;I, P&gt;&gt;;
 </pre></div></div></div></div></body></html>

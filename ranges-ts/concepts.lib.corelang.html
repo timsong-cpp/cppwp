@@ -2,48 +2,54 @@
 These concepts express relationships between types, type classifications, and
 fundamental type properties.</p></div></div><div id='same'><h3 ><a class='secnum' href='#same' style='min-width:103pt'>7.3.2</a> Concept <span class='texttt'>Same</span> <a class='abbr_ref' href='concepts.lib.corelang.same'>[concepts.lib.corelang.same]</a></h3><p ><span class='indexparent'><a class='index' id='Same'></a></span><code class='itemdecl'>
 template &lt;class T, class U&gt;
-concept bool Same() {
-  return <i><span class='texttt'>see below</span></i>;
-}
-</code></p><div class='itemdescr'></div><div class='para' id='same-1'><div class='marginalizedparent'><a class='marginalized' href='#same-1'>1</a></div><div class='itemdescr'><p ><span class='texttt'>Same&lt;T, U&gt;()</span> is satisfied if and
-only if <span class='texttt'>T</span> and <span class='texttt'>U</span> denote the same type.</p></div></div><div class='para' id='same-2'><div class='marginalizedparent'><a class='marginalized' href='#same-2'>2</a></div><div class='itemdescr'><p ><i>Remarks:</i> For the purposes of constraint checking, <span class='texttt'>Same&lt;T, U&gt;()</span> implies
-<span class='texttt'>Same&lt;U, T&gt;()</span>.
+concept bool Same = is_same&lt;T, U&gt;::value; <span class='comment'>// <i><span class='texttt'>see below</span></i>
+</span></code></p><div class='itemdescr'></div><div class='para' id='same-1'><div class='marginalizedparent'><a class='marginalized' href='#same-1'>1</a></div><div class='itemdescr'><p >There need not be any subsumption relationship between <span class='texttt'>Same&lt;T, U&gt;</span> and
+<span class='texttt'>is_same&lt;T, U&gt;::value</span>.</p></div></div><div class='para' id='same-2'><div class='marginalizedparent'><a class='marginalized' href='#same-2'>2</a></div><div class='itemdescr'><p ><i>Remarks:</i> For the purposes of constraint checking, <span class='texttt'>Same&lt;T, U&gt;</span> implies
+<span class='texttt'>Same&lt;U, T&gt;</span>.
 </p></div></div></div><div id='derived'><h3 ><a class='secnum' href='#derived' style='min-width:103pt'>7.3.3</a> Concept <span class='texttt'>DerivedFrom</span> <a class='abbr_ref' href='concepts.lib.corelang.derived'>[concepts.lib.corelang.derived]</a></h3><p ><span class='indexparent'><a class='index' id='DerivedFrom'></a></span><code class='itemdecl'>
 template &lt;class T, class U&gt;
-concept bool DerivedFrom() {
-  return <i><span class='texttt'>see below</span></i>;
-}
-</code></p><div class='itemdescr'></div><div class='para' id='derived-1'><div class='marginalizedparent'><a class='marginalized' href='#derived-1'>1</a></div><div class='itemdescr'><p ><span class='texttt'>DerivedFrom&lt;T, U&gt;()</span> is satisfied if and only if
-<span class='texttt'>is_base_of&lt;U, T&gt;::value</span> is <span class='texttt'>true</span>.
+concept bool DerivedFrom =
+  is_base_of&lt;U, T&gt;::value &amp;&amp;
+  is_convertible&lt;remove_cv_t&lt;T&gt;*, remove_cv_t&lt;U&gt;*&gt;::value; <span class='comment'>// <i><span class='texttt'>see below</span></i>
+</span></code></p><div class='itemdescr'></div><div class='para' id='derived-1'><div class='marginalizedparent'><a class='marginalized' href='#derived-1'>1</a></div><div class='itemdescr'><p >There need not be any subsumption relationship between <span class='texttt'>DerivedFrom&lt;T, U&gt;</span>
+and either <span class='texttt'>is_base_of&lt;U, T&gt;::value</span> or
+<span class='texttt'>is_convertible&lt;remove_cv_t&lt;T&gt;*, remove_cv_t&lt;U&gt;*&gt;::value</span>.</p></div></div><div class='para' id='derived-2'><div class='marginalizedparent'><a class='marginalized' href='#derived-2'>2</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> <span class='texttt'>DerivedFrom&lt;T, U&gt;</span> is satisfied if and only if <span class='texttt'>T</span> is
+publicly and unambiguously derived from <span class='texttt'>U</span>, or <span class='texttt'>T</span> and <span class='texttt'>U</span>
+are the same class type ignoring <i>cv</i>-qualifiers. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
 </p></div></div></div><div id='convertibleto'><h3 ><a class='secnum' href='#convertibleto' style='min-width:103pt'>7.3.4</a> Concept <span class='texttt'>ConvertibleTo</span> <a class='abbr_ref' href='concepts.lib.corelang.convertibleto'>[concepts.lib.corelang.convertibleto]</a></h3><p ><span class='indexparent'><a class='index' id='ConvertibleTo'></a></span><code class='itemdecl'>
 template &lt;class T, class U&gt;
-concept bool ConvertibleTo() {
-  return <i><span class='texttt'>see below</span></i>;
+concept bool ConvertibleTo =
+  is_convertible&lt;From, To&gt;::value &amp;&amp; <span class='comment'>// <i><span class='texttt'>see below</span></i>
+</span>  requires(From (&amp;f)()) {
+    static_cast&lt;To&gt;(f());
+  };
+</code></p><div class='itemdescr'></div><div class='para' id='convertibleto-1'><div class='marginalizedparent'><a class='marginalized' href='#convertibleto-1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>test</span> be the invented function:
+</p><pre class='codeblock'>
+To test(From (&amp;f)()) {
+  return f();
 }
-</code></p><div class='itemdescr'></div><div class='para' id='convertibleto-1'><div class='marginalizedparent'><a class='marginalized' href='#convertibleto-1'>1</a></div><div class='itemdescr'><p ><span class='texttt'>ConvertibleTo&lt;T, U&gt;()</span> is satisfied
-if and only if <span class='texttt'>is_convertible&lt;T, U&gt;::value</span> is <span class='texttt'>true</span>.
+</pre><p >and let <span class='texttt'>f</span> be a function with no arguments and return type <span class='texttt'>From</span>
+such that <span class='texttt'>f()</span> is equality preserving.
+<span class='texttt'>ConvertibleTo&lt;From, To&gt;</span> is satisfied only if:</p><ul class='itemize'><li id='convertibleto-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#convertibleto-1.1'>(1.1)</a></div><p ><span class='texttt'>To</span> is not an object or reference-to-object type, or
+<span class='texttt'>static_cast&lt;To&gt;(f())</span> is equal to <span class='texttt'>test(f)</span>.</p></li><li id='convertibleto-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#convertibleto-1.2'>(1.2)</a></div><p ><span class='texttt'>From</span> is not a reference-to-object type, or</p><ul class='itemize'><li id='convertibleto-1.2.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#convertibleto-1.2.1'>(1.2.1)</a></div><p >If <span class='texttt'>From</span> is an rvalue reference to a non const-qualified type, the resulting state of the object referenced by <span class='texttt'>f()</span> after either above expression is valid but unspecified (  ISO/IEC 14882:2014 &sect;<a href='../n4140/lib.types.movedfrom'>[lib.types.movedfrom]</a>).</p></li><li id='convertibleto-1.2.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#convertibleto-1.2.2'>(1.2.2)</a></div><p >Otherwise, the object referred to by <span class='texttt'>f()</span> is not modified by either above expression.
+</p></li></ul></li></ul></div></div><div class='para' id='convertibleto-2'><div class='marginalizedparent'><a class='marginalized' href='#convertibleto-2'>2</a></div><div class='itemdescr'><p >There need not be any subsumption relationship between <span class='texttt'>ConvertibleTo&lt;From, To&gt;</span>
+and <span class='texttt'>is_convertible&lt;From, To&gt;::value</span>.
 </p></div></div></div><div id='commonref'><h3 ><a class='secnum' href='#commonref' style='min-width:103pt'>7.3.5</a> Concept <span class='texttt'>CommonReference</span> <a class='abbr_ref' href='concepts.lib.corelang.commonref'>[concepts.lib.corelang.commonref]</a></h3><div class='para' id='commonref-1'><div class='marginalizedparent'><a class='marginalized' href='#commonref-1'>1</a></div><p >For two types <span class='texttt'>T</span> and <span class='texttt'>U</span>, if <span class='texttt'>common_reference_t&lt;T, U&gt;</span>
 is well-formed and denotes a type <span class='texttt'>C</span> such that both
-<span class='texttt'>ConvertibleTo&lt;T, C&gt;()</span> and <span class='texttt'>ConvertibleTo&lt;U, C&gt;()</span> are
+<span class='texttt'>ConvertibleTo&lt;T, C&gt;</span> and <span class='texttt'>ConvertibleTo&lt;U, C&gt;</span> are
 satisfied, then <span class='texttt'>T</span> and <span class='texttt'>U</span> share a <i>common reference
 type</i>, <span class='texttt'>C</span>. [&nbsp;<i>Note:</i> <span class='texttt'>C</span> could be the same as <span class='texttt'>T</span>, or
 <span class='texttt'>U</span>, or it could be a different type. <span class='texttt'>C</span> may be a reference
 type. <span class='texttt'>C</span> need not be unique.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='CommonReference'></a></span><code class='itemdecl'>
 template &lt;class T, class U&gt;
-concept bool CommonReference() {
-  return requires(T (&amp;t)(), U (&amp;u)()) {
-    typename common_reference_t&lt;T, U&gt;;
-    typename common_reference_t&lt;U, T&gt;;
-    requires Same&lt;common_reference_t&lt;T, U&gt;,
-                  common_reference_t&lt;U, T&gt;&gt;();
-    common_reference_t&lt;T, U&gt;(t());
-    common_reference_t&lt;T, U&gt;(u());
-  };
-}
+concept bool CommonReference =
+  Same&lt;common_reference_t&lt;T, U&gt;, common_reference_t&lt;U, T&gt;&gt; &amp;&amp;
+  ConvertibleTo&lt;T, common_reference_t&lt;T, U&gt;&gt; &amp;&amp;
+  ConvertibleTo&lt;U, common_reference_t&lt;T, U&gt;&gt;;
 </code></p></div><div class='itemdescr'></div><div class='para' id='commonref-2'><div class='marginalizedparent'><a class='marginalized' href='#commonref-2'>2</a></div><div class='itemdescr'><p >Let <span class='texttt'>C</span> be <span class='texttt'>common_reference_t&lt;T, U&gt;</span>. Let <span class='texttt'>t</span> be a
 function whose return type is <span class='texttt'>T</span>, and let <span class='texttt'>u</span> be a function
-whose return type is <span class='texttt'>U</span>. <span class='texttt'>CommonReference&lt;T, U&gt;()</span> is satisfied
-if and only if:
+whose return type is <span class='texttt'>U</span>. <span class='texttt'>CommonReference&lt;T, U&gt;</span> is satisfied
+only if:
 </p><ul class='itemize'><li id='commonref-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#commonref-2.1'>(2.1)</a></div><p ><span class='texttt'>C(t())</span> equals <span class='texttt'>C(t())</span> if and only if <span class='texttt'>t()</span> is an
   equality preserving expression (<a href='concepts.lib.general.equality'>[concepts.lib.general.equality]</a>).
 </p></li><li id='commonref-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#commonref-2.2'>(2.2)</a></div><p ><span class='texttt'>C(u())</span> equals <span class='texttt'>C(u())</span> if and only if <span class='texttt'>u()</span> is an
@@ -55,22 +61,21 @@ if and only if:
 <span class='texttt'>C</span>. [&nbsp;<i>Note:</i> <span class='texttt'>C</span> could be the same as <span class='texttt'>T</span>, or <span class='texttt'>U</span>, or
 it could be a different type. <span class='texttt'>C</span> may not be unique.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p><p ><span class='indexparent'><a class='index' id='Common'></a></span><code class='itemdecl'>
 template &lt;class T, class U&gt;
-concept bool Common() {
-  return CommonReference&lt;const T&amp;, const U&amp;&gt;() &amp;&amp;
-    requires(T (&amp;t)(), U (&amp;u)()) {
-      typename common_type_t&lt;T, U&gt;;
-      typename common_type_t&lt;U, T&gt;;
-      requires Same&lt;common_type_t&lt;U, T&gt;, common_type_t&lt;T, U&gt;&gt;();
-      common_type_t&lt;T, U&gt;(t());
-      common_type_t&lt;T, U&gt;(u());
-      requires CommonReference&lt;add_lvalue_reference_t&lt;common_type_t&lt;T, U&gt;&gt;,
-                               common_reference_t&lt;add_lvalue_reference_t&lt;const T&gt;,
-                                                  add_lvalue_reference_t&lt;const U&gt;&gt;&gt;();
-    };
-}
+concept bool Common =
+  Same&lt;common_type_t&lt;T, U&gt;, common_type_t&lt;U, T&gt;&gt; &amp;&amp;
+  ConvertibleTo&lt;T, common_type_t&lt;T, U&gt;&gt; &amp;&amp;
+  ConvertibleTo&lt;U, common_type_t&lt;T, U&gt;&gt; &amp;&amp;
+  CommonReference&lt;
+    add_lvalue_reference_t&lt;const T&gt;,
+    add_lvalue_reference_t&lt;const U&gt;&gt; &amp;&amp;
+  CommonReference&lt;
+    add_lvalue_reference_t&lt;common_type_t&lt;T, U&gt;&gt;,
+    common_reference_t&lt;
+      add_lvalue_reference_t&lt;const T&gt;,
+      add_lvalue_reference_t&lt;const U&gt;&gt;&gt;;
 </code></p></div><div class='itemdescr'></div><div class='para' id='common-2'><div class='marginalizedparent'><a class='marginalized' href='#common-2'>2</a></div><div class='itemdescr'><p >Let <span class='texttt'>C</span> be <span class='texttt'>common_type_t&lt;T, U&gt;</span>. Let
 <span class='texttt'>t</span> be a function whose return type is <span class='texttt'>T</span>, and let <span class='texttt'>u</span> be a function
-whose return type is <span class='texttt'>U</span>. <span class='texttt'>Common&lt;T, U&gt;()</span> is satisfied if and only if:
+whose return type is <span class='texttt'>U</span>. <span class='texttt'>Common&lt;T, U&gt;</span> is satisfied only if:
 </p><ul class='itemize'><li id='common-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#common-2.1'>(2.1)</a></div><p ><span class='texttt'>C(t())</span> equals <span class='texttt'>C(t())</span> if and only if
   <span class='texttt'>t()</span> is an equality preserving
   expression (<a href='concepts.lib.general.equality'>[concepts.lib.general.equality]</a>).
@@ -80,68 +85,68 @@ whose return type is <span class='texttt'>U</span>. <span class='texttt'>Common&
 </p></li></ul></div></div><div class='para' id='common-3'><div class='marginalizedparent'><a class='marginalized' href='#common-3'>3</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> Users can customize the behavior of <span class='texttt'>Common</span> by specializing the <span class='texttt'>common_type</span>
 class template (<a href='meta.unary.prop'>[meta.unary.prop]</a>).<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div></div><div id='integral'><h3 ><a class='secnum' href='#integral' style='min-width:103pt'>7.3.7</a> Concept <span class='texttt'>Integral</span> <a class='abbr_ref' href='concepts.lib.corelang.integral'>[concepts.lib.corelang.integral]</a></h3><p ><span class='indexparent'><a class='index' id='Integral'></a></span><code class='itemdecl'>
 template &lt;class T&gt;
-concept bool Integral() {
-  return is_integral&lt;T&gt;::value;
-}
-</code></p></div><div id='signedintegral'><h3 ><a class='secnum' href='#signedintegral' style='min-width:103pt'>7.3.8</a> Concept <span class='texttt'>SignedIntegral</span> <a class='abbr_ref' href='concepts.lib.corelang.signedintegral'>[concepts.lib.corelang.signedintegral]</a></h3><p ><span class='indexparent'><a class='index' id='SignedIntegral'></a></span><code class='itemdecl'>
+concept bool Integral = is_integral&lt;T&gt;::value; <span class='comment'>// <i><span class='texttt'>see below</span></i>
+</span></code></p><div class='itemdescr'></div><div class='para' id='integral-1'><div class='marginalizedparent'><a class='marginalized' href='#integral-1'>1</a></div><div class='itemdescr'><p >There need not be any subsumption relationship between <span class='texttt'>Integral&lt;T&gt;</span> and
+<span class='texttt'>is_integral&lt;T&gt;::value</span>.
+</p></div></div></div><div id='signedintegral'><h3 ><a class='secnum' href='#signedintegral' style='min-width:103pt'>7.3.8</a> Concept <span class='texttt'>SignedIntegral</span> <a class='abbr_ref' href='concepts.lib.corelang.signedintegral'>[concepts.lib.corelang.signedintegral]</a></h3><p ><span class='indexparent'><a class='index' id='SignedIntegral'></a></span><code class='itemdecl'>
 template &lt;class T&gt;
-concept bool SignedIntegral() {
-  return Integral&lt;T&gt;() &amp;&amp; is_signed&lt;T&gt;::value;
-}
-</code></p><div class='itemdescr'></div><div class='para' id='signedintegral-1'><div class='marginalizedparent'><a class='marginalized' href='#signedintegral-1'>1</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> <span class='texttt'>SignedIntegral&lt;T&gt;()</span> may be satisfied even for
+concept bool SignedIntegral = Integral&lt;T&gt; &amp;&amp; is_signed&lt;T&gt;::value; <span class='comment'>// <i><span class='texttt'>see below</span></i>
+</span></code></p><div class='itemdescr'></div><div class='para' id='signedintegral-1'><div class='marginalizedparent'><a class='marginalized' href='#signedintegral-1'>1</a></div><div class='itemdescr'><p >There need not be any subsumption relationship between <span class='texttt'>SignedIntegral&lt;T&gt;</span> and
+<span class='texttt'>is_signed&lt;T&gt;::value</span>.</p></div></div><div class='para' id='signedintegral-2'><div class='marginalizedparent'><a class='marginalized' href='#signedintegral-2'>2</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> <span class='texttt'>SignedIntegral&lt;T&gt;</span> may be satisfied even for
 types that are not signed integral types (  ISO/IEC 14882:2014 &sect;<a href='../n4140/basic.fundamental'>[basic.fundamental]</a>);
 for example, <span class='texttt'>char</span>.
 <i>&nbsp;—&nbsp;end note</i>&nbsp;]
 </p></div></div></div><div id='unsignedintegral'><h3 ><a class='secnum' href='#unsignedintegral' style='min-width:103pt'>7.3.9</a> Concept <span class='texttt'>UnsignedIntegral</span> <a class='abbr_ref' href='concepts.lib.corelang.unsignedintegral'>[concepts.lib.corelang.unsignedintegral]</a></h3><p ><span class='indexparent'><a class='index' id='UnsignedIntegral'></a></span><code class='itemdecl'>
 template &lt;class T&gt;
-concept bool UnsignedIntegral() {
-  return Integral&lt;T&gt;() &amp;&amp; !SignedIntegral&lt;T&gt;();
-}
-</code></p><div class='itemdescr'></div><div class='para' id='unsignedintegral-1'><div class='marginalizedparent'><a class='marginalized' href='#unsignedintegral-1'>1</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> <span class='texttt'>UnsignedIntegral&lt;T&gt;()</span> may be satisfied even for
+concept bool UnsignedIntegral = Integral&lt;T&gt; &amp;&amp; !SignedIntegral&lt;T&gt;;
+</code></p><div class='itemdescr'></div><div class='para' id='unsignedintegral-1'><div class='marginalizedparent'><a class='marginalized' href='#unsignedintegral-1'>1</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> <span class='texttt'>UnsignedIntegral&lt;T&gt;</span> may be satisfied even for
 types that are not unsigned integral types (  ISO/IEC 14882:2014 &sect;<a href='../n4140/basic.fundamental'>[basic.fundamental]</a>);
 for example, <span class='texttt'>char</span>.
 <i>&nbsp;—&nbsp;end note</i>&nbsp;]
 </p></div></div></div><div id='assignable'><h3 ><a class='secnum' href='#assignable' style='min-width:103pt'>7.3.10</a> Concept <span class='texttt'>Assignable</span> <a class='abbr_ref' href='concepts.lib.corelang.assignable'>[concepts.lib.corelang.assignable]</a></h3><p ><span class='indexparent'><a class='index' id='Assignable'></a></span><code class='itemdecl'>
 template &lt;class T, class U&gt;
-concept bool Assignable() {
-  return CommonReference&lt;const T&amp;, const U&amp;&gt;() &amp;&amp; requires(T&amp;&amp; t, U&amp;&amp; u) {
-    { std::forward&lt;T&gt;(t) = std::forward&lt;U&gt;(u) } -&gt; Same&lt;T&amp;&gt;;
+concept bool Assignable =
+  is_lvalue_reference&lt;T&gt;::value &amp;&amp; <span class='comment'>// <i><span class='texttt'>see below</span></i>
+</span>  CommonReference&lt;
+    const remove_reference_t&lt;T&gt;&amp;,
+    const remove_reference_t&lt;U&gt;&amp;&gt; &amp;&amp;
+  requires(T t, U&amp;&amp; u) {
+    { t = std::forward&lt;U&gt;(u) } -&gt; Same&lt;T&gt;&amp;&amp;;
   };
-}
-</code></p><div class='itemdescr'></div><div class='para' id='assignable-1'><div class='marginalizedparent'><a class='marginalized' href='#assignable-1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>t</span> be an lvalue of type <span class='texttt'>T</span>, and <span class='texttt'>R</span> be the
-type <span class='texttt'>remove_reference_t&lt;U&gt;</span>. If <span class='texttt'>U</span> is an lvalue reference
-type, let <span class='texttt'>v</span> be an lvalue of type <span class='texttt'>R</span>;
-otherwise, let <span class='texttt'>v</span> be an rvalue of type <span class='texttt'>R</span>.
-Let <span class='texttt'>uu</span> be a distinct object of type <span class='texttt'>R</span> such that
-<span class='texttt'>uu</span> is equal to <span class='texttt'>v</span>.
-Then <span class='texttt'>Assignable&lt;T, U&gt;()</span> is satisfied if and only if</p><ul class='itemize'><li id='assignable-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#assignable-1.1'>(1.1)</a></div><p ><span class='texttt'>addressof(t = v) == addressof(t)</span>.
-</p></li><li id='assignable-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#assignable-1.2'>(1.2)</a></div><p >After evaluating <span class='texttt'>t = v</span>, <span class='texttt'>t</span> is equal to <span class='texttt'>uu</span> and:
-</p><ul class='itemize'><li id='assignable-1.2.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#assignable-1.2.1'>(1.2.1)</a></div><p >If <span class='texttt'>v</span> is a non-<span class='texttt'>const</span> rvalue, its resulting
-state is valid but unspecified (  ISO/IEC 14882:2014 &sect;<a href='../n4140/lib.types.movedfrom'>[lib.types.movedfrom]</a>).
-</p></li><li id='assignable-1.2.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#assignable-1.2.2'>(1.2.2)</a></div><p >Otherwise, <span class='texttt'>v</span> is not modified.
-</p></li></ul></li></ul></div></div></div><div id='swappable'><h3 ><a class='secnum' href='#swappable' style='min-width:103pt'>7.3.11</a> Concept <span class='texttt'>Swappable</span> <a class='abbr_ref' href='concepts.lib.corelang.swappable'>[concepts.lib.corelang.swappable]</a></h3><p ><span class='indexparent'><a class='index' id='Swappable'></a></span><code class='itemdecl'>
+</code></p><div class='itemdescr'></div><div class='para' id='assignable-1'><div class='marginalizedparent'><a class='marginalized' href='#assignable-1'>1</a></div><div class='itemdescr'><p >Let <span class='texttt'>t</span> be an lvalue that refers to an object <span class='texttt'>o</span> such that
+<span class='texttt'>decltype((t))</span> is <span class='texttt'>T</span>, and <span class='texttt'>u</span> an expression such that
+<span class='texttt'>decltype((u))</span> is <span class='texttt'>U</span>. Let <span class='texttt'>u2</span> be a distinct object that is
+equal to <span class='texttt'>u</span>. <span class='texttt'>Assignable&lt;T, U&gt;</span> is satisfied only if</p><ul class='itemize'><li id='assignable-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#assignable-1.1'>(1.1)</a></div><p ><span class='texttt'>addressof(t = u) == addressof(o)</span>.</p></li><li id='assignable-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#assignable-1.2'>(1.2)</a></div><p >After evaluating <span class='texttt'>t = u</span>:</p><ul class='itemize'><li id='assignable-1.2.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#assignable-1.2.1'>(1.2.1)</a></div><p ><span class='texttt'>t</span> is equal to <span class='texttt'>u2</span>, unless <span class='texttt'>u</span> is a non-const xvalue that refers to <span class='texttt'>o</span>.</p></li><li id='assignable-1.2.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#assignable-1.2.2'>(1.2.2)</a></div><p >If <span class='texttt'>u</span> is a non-<span class='texttt'>const</span> xvalue, the resulting state of the
+object to which it refers is valid but unspecified (  ISO/IEC 14882:2014 &sect;<a href='../n4140/lib.types.movedfrom'>[lib.types.movedfrom]</a>).</p></li><li id='assignable-1.2.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#assignable-1.2.3'>(1.2.3)</a></div><p >Otherwise, if <span class='texttt'>u</span> is a glvalue, the object to which it refers is not
+modified.
+</p></li></ul></li></ul></div></div><div class='para' id='assignable-2'><div class='marginalizedparent'><a class='marginalized' href='#assignable-2'>2</a></div><div class='itemdescr'><p >There need not be any subsumption relationship between <span class='texttt'>Assignable&lt;T, U&gt;</span>
+and <span class='texttt'>is_lvalue_reference&lt;T&gt;::value</span>.</p></div></div><div class='para' id='assignable-3'><div class='marginalizedparent'><a class='marginalized' href='#assignable-3'>3</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> Assignment need not be a total function (<a href='structure.requirements'>[structure.requirements]</a>);
+in particular, if assignment to an object <span class='texttt'>x</span> can result in a modification
+of some other object <span class='texttt'>y</span>, then <span class='texttt'>x = y</span> is likely not in the domain
+of <span class='texttt'>=</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</p></div></div></div><div id='swappable'><h3 ><a class='secnum' href='#swappable' style='min-width:103pt'>7.3.11</a> Concept <span class='texttt'>Swappable</span> <a class='abbr_ref' href='concepts.lib.corelang.swappable'>[concepts.lib.corelang.swappable]</a></h3><p ><span class='indexparent'><a class='index' id='Swappable'></a></span><code class='itemdecl'>
 template &lt;class T&gt;
-concept bool Swappable() {
-  return requires(T&amp;&amp; a, T&amp;&amp; b) {
-    ranges::swap(std::forward&lt;T&gt;(a), std::forward&lt;T&gt;(b));
+concept bool Swappable =
+  requires(T&amp; a, T&amp; b) {
+    ranges::swap(a, b);
   };
-}
 
 template &lt;class T, class U&gt;
-concept bool Swappable() {
-  return Swappable&lt;T&gt;() &amp;&amp;
-    Swappable&lt;U&gt;() &amp;&amp;
-    CommonReference&lt;const T&amp;, const U&amp;&gt;() &amp;&amp;
-    requires(T&amp;&amp; t, U&amp;&amp; u) {
-      ranges::swap(std::forward&lt;T&gt;(t), std::forward&lt;U&gt;(u));
-      ranges::swap(std::forward&lt;U&gt;(u), std::forward&lt;T&gt;(t));
-    };
-}
+concept bool SwappableWith =
+  CommonReference&lt;
+    const remove_reference_t&lt;T&gt;&amp;,
+    const remove_reference_t&lt;U&gt;&amp;&gt; &amp;&amp;
+  requires(T&amp;&amp; t, U&amp;&amp; u) {
+    ranges::swap(std::forward&lt;T&gt;(t), std::forward&lt;T&gt;(t));
+    ranges::swap(std::forward&lt;U&gt;(u), std::forward&lt;U&gt;(u));
+    ranges::swap(std::forward&lt;T&gt;(t), std::forward&lt;U&gt;(u));
+    ranges::swap(std::forward&lt;U&gt;(u), std::forward&lt;T&gt;(t));
+  };
 </code></p><div class='itemdescr'></div><div class='para' id='swappable-1'><div class='marginalizedparent'><a class='marginalized' href='#swappable-1'>1</a></div><div class='itemdescr'><p >This subclause provides definitions for swappable types and expressions. In these
 definitions, let <span class='texttt'>t</span> denote an expression of type <span class='texttt'>T</span>, and let <span class='texttt'>u</span>
 denote an expression of type <span class='texttt'>U</span>.</p></div></div><div class='para' id='swappable-2'><div class='marginalizedparent'><a class='marginalized' href='#swappable-2'>2</a></div><div class='itemdescr'><p >An object <span class='texttt'>t</span> is <a class='hidden_link' href='#def:swappable_with' id='def:swappable_with'><i>swappable with</i></a> an object <span class='texttt'>u</span> if and only if
-<span class='texttt'>Swappable&lt;T, U&gt;()</span> is satisfied. <span class='texttt'>Swappable&lt;T, U&gt;()</span> is satisfied if
-and only if given distinct objects <span class='texttt'>t2</span> equal to <span class='texttt'>t</span>
+<span class='texttt'>SwappableWith&lt;T, U&gt;</span> is satisfied. <span class='texttt'>SwappableWith&lt;T, U&gt;</span> is satisfied
+only if given distinct objects <span class='texttt'>t2</span> equal to <span class='texttt'>t</span>
 and <span class='texttt'>u2</span> equal to <span class='texttt'>u</span>, after evaluating either
 <span class='texttt'>ranges::swap(t, u)</span> or <span class='texttt'>ranges::swap(u, t)</span>, <span class='texttt'>t2</span> is equal to
 <span class='texttt'>u</span> and <span class='texttt'>u2</span> is equal to <span class='texttt'>t</span>.</p></div></div><div class='para' id='swappable-3'><div class='marginalizedparent'><a class='marginalized' href='#swappable-3'>3</a></div><div class='itemdescr'><p >An rvalue or lvalue <span class='texttt'>t</span> is <a class='hidden_link' href='#def:swappable' id='def:swappable'><i>swappable</i></a> if and only if <span class='texttt'>t</span> is

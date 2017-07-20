@@ -20,19 +20,15 @@ namespace std { namespace experimental { namespace ranges { inline namespace v1 
 
   <span class='comment'>// <a href='utility.exchange'>[utility.exchange]</a>, exchange:
 </span>  template &lt;MoveConstructible T, class U=T&gt;
-    requires Assignable&lt;T&amp;, U&gt;()
-  T exchange(T&amp; obj, U&amp;&amp; new_val);
+    requires Assignable&lt;T&amp;, U&gt;
+  constexpr T exchange(T&amp; obj, U&amp;&amp; new_val) noexcept(<i><span class='texttt'>see below</span></i>);
 
   <span class='comment'>// <a href='taggedtup.tagged'>[taggedtup.tagged]</a>, struct with named accessors
 </span>  template &lt;class T&gt;
-  concept bool TagSpecifier() {
-    return <i><span class='texttt'>see below</span></i>;
-  }
+  concept bool TagSpecifier = <i><span class='texttt'>see below</span></i>;
 
   template &lt;class F&gt;
-  concept bool TaggedType() {
-    return <i><span class='texttt'>see below</span></i>;
-  }
+  concept bool TaggedType = <i><span class='texttt'>see below</span></i>;
 
   template &lt;class Base, TagSpecifier... Tags&gt;
     requires sizeof...(Tags) &lt;= tuple_size&lt;Base&gt;::value
@@ -53,17 +49,7 @@ namespace std {
   template &lt;size_t N, class Base, class... Tags&gt;
   struct tuple_element&lt;N, experimental::ranges::tagged&lt;Base, Tags...&gt;&gt;;
 }
-</pre></div><div class='para' id='utility-3'><div class='marginalizedparent'><a class='marginalized' href='#utility-3'>3</a></div><p >Any entities declared or defined directly in namespace <span class='texttt'>std</span> in header <span class='texttt'>&lt;utility&gt;</span>
-that are not already defined in namespace <span class='texttt'>std::experimental::ranges::v1</span> in header
-<span class='texttt'>&lt;experimental/ranges/utility&gt;</span> are imported with
-<span class='grammarterm'>using-declarations</span> (  ISO/IEC 14882:2014 &sect;<a href='../n4140/namespace.udecl'>[namespace.udecl]</a>). [&nbsp;<i>Example:</i>
-</p><pre class='codeblock'>
-namespace std { namespace experimental { namespace ranges { inline namespace v1 {
-  using std::pair;
-  using std::make_pair;
-  <span class='comment'>// ... others
-</span>}}}}
-</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div id='utility.swap'><h3 ><a class='secnum' href='#utility.swap' style='min-width:103pt'>8.2.1</a> <span class='texttt'>swap</span> <a class='abbr_ref' href='utility.swap'>[utility.swap]</a></h3><p ><span class='indexparent'><a class='index' id='swap'></a></span></p><div class='para' id='utility.swap-1'><div class='marginalizedparent'><a class='marginalized' href='#utility.swap-1'>1</a></div><p >The name <span class='texttt'>swap</span> denotes a customization point
+</pre></div><div id='utility.swap'><h3 ><a class='secnum' href='#utility.swap' style='min-width:103pt'>8.2.1</a> <span class='texttt'>swap</span> <a class='abbr_ref' href='utility.swap'>[utility.swap]</a></h3><p ><span class='indexparent'><a class='index' id='swap'></a></span></p><div class='para' id='utility.swap-1'><div class='marginalizedparent'><a class='marginalized' href='#utility.swap-1'>1</a></div><p >The name <span class='texttt'>swap</span> denotes a customization point
 object (<a href='customization.point.object'>[customization.point.object]</a>). The effect of the expression
 <span class='texttt'>ranges::swap(E1, E2)</span> for some expressions <span class='texttt'>E1</span>
 and <span class='texttt'>E2</span> is equivalent to:</p><ul class='itemize'><li id='utility.swap-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#utility.swap-1.1'>(1.1)</a></div><p ><span class='texttt'>(void)swap(E1, E2)</span>, if that expression is valid, with overload resolution
@@ -83,8 +69,8 @@ and <span class='texttt'>E2</span> is equivalent to:</p><ul class='itemize'><li 
   <span class='texttt'>noexcept(ranges::swap(E1, E2))</span> is equal to
   <span class='texttt'>noexcept(ranges::swap(*(E1), *(E2)))</span>.</p></li><li id='utility.swap-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#utility.swap-1.3'>(1.3)</a></div><p >Otherwise, if <span class='texttt'>E1</span> and <span class='texttt'>E2</span> are lvalues of the
   same type <span class='texttt'>T</span> which meets the syntactic requirements of
-  <span class='texttt'>MoveConstructible&lt;T&gt;()</span> and
-  <span class='texttt'>Assignable&lt;T&amp;, T&gt;()</span>, exchanges the referenced values.
+  <span class='texttt'>MoveConstructible&lt;T&gt;</span> and
+  <span class='texttt'>Assignable&lt;T&amp;, T&gt;</span>, exchanges the referenced values.
   <span class='texttt'>ranges::swap(E1, E2)</span> is a constant expression if
   the constructor selected by overload resolution for
   <span class='texttt'>T{std::move(E1)}</span> is a constexpr constructor and
@@ -99,13 +85,18 @@ and <span class='texttt'>E2</span> is equivalent to:</p><ul class='itemize'><li 
 expression, it exchanges the values referenced by <span class='texttt'>E1</span>
 and <span class='texttt'>E2</span> and has type <span class='texttt'>void</span>.</p></div></div><div id='utility.exchange'><h3 ><a class='secnum' href='#utility.exchange' style='min-width:103pt'>8.2.2</a> <span class='texttt'>exchange</span> <a class='abbr_ref' href='utility.exchange'>[utility.exchange]</a></h3><p ><code class='itemdecl'>
 template &lt;MoveConstructible T, class U=T&gt;
-  requires Assignable&lt;T&amp;, U&gt;()
-T exchange(T&amp; obj, U&amp;&amp; new_val);
+  requires Assignable&lt;T&amp;, U&gt;
+constexpr T exchange(T&amp; obj, U&amp;&amp; new_val) noexcept(<i><span class='texttt'>see below</span></i>);
 </code></p><div class='itemdescr'></div><div class='para' id='utility.exchange-1'><div class='marginalizedparent'><a class='marginalized' href='#utility.exchange-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
 Equivalent to:</p><pre class='codeblock'>
 T old_val = std::move(obj);
 obj = std::forward&lt;U&gt;(new_val);
 return old_val;
+</pre><p ><i>Remarks:</i>
+The expression in <span class='texttt'>noexcept</span> is equivalent to:
+</p><pre class='codeblock'>
+is_nothrow_move_constructible&lt;T&gt;::value &amp;&amp;
+is_nothrow_assignable&lt;T&amp;, U&gt;::value
 </pre></div></div></div></div><div id='function.objects'><h2 ><a class='secnum' href='#function.objects' style='min-width:88pt'>8.3</a> Function objects <a class='abbr_ref' href='function.objects'>[function.objects]</a></h2><div class='para' id='function.objects-1'><div class='marginalizedparent'><a class='marginalized' href='#function.objects-1'>1</a></div><p ><b>Header <span class='texttt'>&lt;experimental/ranges/functional&gt;</span> synopsis</b></p><pre class='codeblock'>
 namespace std { namespace experimental { namespace ranges { inline namespace v1 {
   <span class='comment'>// <a href='func.invoke'>[func.invoke]</a>, invoke:
@@ -114,27 +105,27 @@ namespace std { namespace experimental { namespace ranges { inline namespace v1 
 
   <span class='comment'>// <a href='comparisons'>[comparisons]</a>, comparisons:
 </span>  template &lt;class T = void&gt;
-    requires EqualityComparable&lt;T&gt;() || Same&lt;T, void&gt;()
+    requires <i><span class='texttt'>see below</span></i>
   struct equal_to;
 
   template &lt;class T = void&gt;
-    requires EqualityComparable&lt;T&gt;() || Same&lt;T, void&gt;()
+    requires <i><span class='texttt'>see below</span></i>
   struct not_equal_to;
 
   template &lt;class T = void&gt;
-    requires StrictTotallyOrdered&lt;T&gt;() || Same&lt;T, void&gt;()
+    requires <i><span class='texttt'>see below</span></i>
   struct greater;
 
   template &lt;class T = void&gt;
-    requires StrictTotallyOrdered&lt;T&gt;() || Same&lt;T, void&gt;()
+    requires <i><span class='texttt'>see below</span></i>
   struct less;
 
   template &lt;class T = void&gt;
-    requires StrictTotallyOrdered&lt;T&gt;() || Same&lt;T, void&gt;()
+    requires <i><span class='texttt'>see below</span></i>
   struct greater_equal;
 
   template &lt;class T = void&gt;
-    requires StrictTotallyOrdered&lt;T&gt;() || Same&lt;T, void&gt;()
+    requires <i><span class='texttt'>see below</span></i>
   struct less_equal;
 
   template &lt;&gt; struct equal_to&lt;void&gt;;
@@ -147,265 +138,257 @@ namespace std { namespace experimental { namespace ranges { inline namespace v1 
   <span class='comment'>// <a href='func.identity'>[func.identity]</a>, identity:
 </span>  struct identity;
 }}}}
-</pre></div><div class='para' id='function.objects-2'><div class='marginalizedparent'><a class='marginalized' href='#function.objects-2'>2</a></div><p >Any entities declared or defined directly in namespace <span class='texttt'>std</span> in header <span class='texttt'>&lt;functional&gt;</span>
-that are not already defined in namespace <span class='texttt'>std::experimental::ranges</span> in header
-<span class='texttt'>&lt;experimental/ranges/functional&gt;</span> are imported with
-<span class='grammarterm'>using-declarations</span> (  ISO/IEC 14882:2014 &sect;<a href='../n4140/namespace.udecl'>[namespace.udecl]</a>). [&nbsp;<i>Example:</i>
-</p><pre class='codeblock'>
-namespace std { namespace experimental { namespace ranges { inline namespace v1 {
-  using std::reference_wrapper;
-  using std::ref;
-  <span class='comment'>// ... others
-</span>}}}}
-</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='function.objects-3'><div class='marginalizedparent'><a class='marginalized' href='#function.objects-3'>3</a></div><p >Any nested namespaces defined directly in namespace <span class='texttt'>std</span> in header <span class='texttt'>&lt;functional&gt;</span>
-that are not already defined in namespace <span class='texttt'>std::experimental::ranges</span> in header
-<span class='texttt'>&lt;experimental/ranges/functional&gt;</span> are aliased with a
-<span class='grammarterm'>namespace-alias-definition</span> (  ISO/IEC 14882:2014 &sect;<a href='../n4140/namespace.alias'>[namespace.alias]</a>). [&nbsp;<i>Example:</i>
-</p><pre class='codeblock'>
-namespace std { namespace experimental { namespace ranges { inline namespace v1 {
-  namespace placeholders = std::placeholders;
-}}}}
-</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div id='func.invoke'><h3 ><a class='secnum' href='#func.invoke' style='min-width:103pt'>8.3.1</a> Function template <span class='texttt'>invoke</span> <a class='abbr_ref' href='func.invoke'>[func.invoke]</a></h3><p ><code class='itemdecl'>
+</pre></div><div id='func.invoke'><h3 ><a class='secnum' href='#func.invoke' style='min-width:103pt'>8.3.1</a> Function template <span class='texttt'>invoke</span> <a class='abbr_ref' href='func.invoke'>[func.invoke]</a></h3><p ><code class='itemdecl'>
 template &lt;class F, class... Args&gt;
 result_of_t&lt;F&amp;&amp;(Args&amp;&amp;...)&gt; invoke(F&amp;&amp; f, Args&amp;&amp;... args);
 </code>
 </p><div class='itemdescr'></div><div class='para' id='func.invoke-1'><div class='marginalizedparent'><a class='marginalized' href='#func.invoke-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to: <br/> <span class='texttt'>return <i>INVOKE</i>(std::forward&lt;F&gt;(f), std::forward&lt;Args&gt;(args)...);</span> (  ISO/IEC 14882:2014 &sect;<a href='../n4140/func.require'>[func.require]</a>).
 </p></div></div></div><div id='comparisons'><h3 ><a class='secnum' href='#comparisons' style='min-width:103pt'>8.3.2</a> Comparisons <a class='abbr_ref' href='comparisons'>[comparisons]</a></h3><div class='para' id='comparisons-1'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-1'>1</a></div><p >The library provides basic function object classes for all of the comparison
-operators in the language (  ISO/IEC 14882:2014 &sect;<a href='../n4140/expr.rel'>[expr.rel]</a>,   ISO/IEC 14882:2014 &sect;<a href='../n4140/expr.eq'>[expr.eq]</a>).</p><p ><span class='indexparent'><a class='index' id='equal_to'></a></span><code class='itemdecl'>
+operators in the language (  ISO/IEC 14882:2014 &sect;<a href='../n4140/expr.rel'>[expr.rel]</a>,   ISO/IEC 14882:2014 &sect;<a href='../n4140/expr.eq'>[expr.eq]</a>).</p></div><div class='para' id='comparisons-2'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-2'>2</a></div><p >In this section, <span class='texttt'><i>BUILTIN_PTR_CMP</i>(T, <span class='math'><span class='mathalpha'>op</span></span>, U)</span> for types <span class='texttt'>T</span>
+and <span class='texttt'>U</span> and where <span class='math'><span class='mathalpha'>op</span></span> is an equality (  ISO/IEC 14882:2014 &sect;<a href='../n4140/expr.eq'>[expr.eq]</a>) or relational
+operator (  ISO/IEC 14882:2014 &sect;<a href='../n4140/expr.rel'>[expr.rel]</a>) is a boolean constant expression.
+<span class='texttt'><i>BUILTIN_PTR_CMP</i>(T, <span class='math'><span class='mathalpha'>op</span></span>, U)</span> is <span class='texttt'>true</span> if and only if <span class='math'><span class='mathalpha'>op</span></span>
+in the expression <span class='texttt'>declval&lt;T&gt;() <span class='math'><span class='mathalpha'>op</span></span> declval&lt;U&gt;()</span> resolves to a built-in
+operator comparing pointers.</p></div><div class='para' id='comparisons-3'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-3'>3</a></div><p >There is an implementation-defined strict total ordering over all pointer values
+of a given type. This total ordering is consistent with the partial order imposed
+by the builtin operators <span class='texttt'>&lt;</span>, <span class='texttt'>&gt;</span>, <span class='texttt'>&lt;=</span>, and <span class='texttt'>&gt;=</span>.</p><p ><span class='indexparent'><a class='index' id='equal_to'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt;
-  requires EqualityComparable&lt;T&gt;() || Same&lt;T, void&gt;()
+  requires EqualityComparable&lt;T&gt; || Same&lt;T, void&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(const T&amp;, ==, const T&amp;)
 struct equal_to {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
-</code></p></div><div class='itemdescr'></div><div class='para' id='comparisons-2'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-2'>2</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>x == y</span>.
+</code></p></div><div class='itemdescr'></div><div class='para' id='comparisons-4'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-4'>4</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to: <span class='texttt'>return equal_to&lt;&gt;(x, y);</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='not_equal_to'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt;
-  requires EqualityComparable&lt;T&gt;() || Same&lt;T, void&gt;()
+  requires EqualityComparable&lt;T&gt; || Same&lt;T, void&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(const T&amp;, ==, const T&amp;)
 struct not_equal_to {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='comparisons-3'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-3'>3</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>x != y</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-5'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-5'>5</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to: <span class='texttt'>return !equal_to&lt;&gt;(x, y);</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='greater'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt;
-  requires StrictTotallyOrdered&lt;T&gt;() || Same&lt;T, void&gt;()
+  requires StrictTotallyOrdered&lt;T&gt; || Same&lt;T, void&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(const T&amp;, &lt;, const T&amp;)
 struct greater {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='comparisons-4'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-4'>4</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>x &gt; y</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-6'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-6'>6</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to: <span class='texttt'>return less&lt;&gt;(y, x);</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='less'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt;
-  requires StrictTotallyOrdered&lt;T&gt;() || Same&lt;T, void&gt;()
+  requires StrictTotallyOrdered&lt;T&gt; || Same&lt;T, void&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(const T&amp;, &lt;, const T&amp;)
 struct less {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='comparisons-5'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-5'>5</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>x &lt; y</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-7'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-7'>7</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to: <span class='texttt'>return less&lt;&gt;(x, y);</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='greater_equal'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt;
-  requires StrictTotallyOrdered&lt;T&gt;() || Same&lt;T, void&gt;()
+  requires StrictTotallyOrdered&lt;T&gt; || Same&lt;T, void&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(const T&amp;, &lt;, const T&amp;)
 struct greater_equal {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='comparisons-6'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-6'>6</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>x &gt;= y</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-8'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-8'>8</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to: <span class='texttt'>return !less&lt;&gt;(x, y);</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='less_equal'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt;
-  requires StrictTotallyOrdered&lt;T&gt;() || Same&lt;T, void&gt;()
+  requires StrictTotallyOrdered&lt;T&gt; || Same&lt;T, void&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(const T&amp;, &lt;, const T&amp;)
 struct less_equal {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='comparisons-7'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-7'>7</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>x &lt;= y</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-9'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-9'>9</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to: <span class='texttt'>return !less&lt;&gt;(y, x);</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='equal_to<>'></a></span><code class='itemdecl'>
 template &lt;&gt; struct equal_to&lt;void&gt; {
   template &lt;class T, class U&gt;
-    requires EqualityComparable&lt;T, U&gt;()
-  constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
-    -&gt; decltype(std::forward&lt;T&gt;(t) == std::forward&lt;U&gt;(u));
+    requires EqualityComparableWith&lt;T, U&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(T, ==, U)
+  constexpr bool operator()(T&amp;&amp; t, U&amp;&amp; u) const;
 
   typedef <i><span class='texttt'>unspecified</span></i> is_transparent;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='comparisons-8'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-8'>8</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>std::forward&lt;T&gt;(t) == std::forward&lt;U&gt;(u)</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='not_equal_to<>'></a></span><code class='itemdecl'>
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-10'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-10'>10</a></div><div class='itemdescr'><p ><i>Requires:</i> If the expression <span class='texttt'>std::forward&lt;T&gt;(t) == std::forward&lt;U&gt;(u)</span>
+results in a call to a built-in operator <span class='texttt'>==</span> comparing pointers of type
+<span class='texttt'>P</span>, the conversion sequences from both <span class='texttt'>T</span> and <span class='texttt'>U</span> to <span class='texttt'>P</span>
+shall be equality-preserving (<a href='concepts.lib.general.equality'>[concepts.lib.general.equality]</a>).</p></div></div><div class='para' id='comparisons-11'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><ul class='itemize'><li id='comparisons-11.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#comparisons-11.1'>(11.1)</a></div><p >If the expression <span class='texttt'>std::forward&lt;T&gt;(t) == std::forward&lt;U&gt;(u)</span> results in a
+call to a built-in operator <span class='texttt'>==</span> comparing pointers of type <span class='texttt'>P</span>:
+returns <span class='texttt'>false</span> if either (the converted value of) <span class='texttt'>t</span> precedes
+<span class='texttt'>u</span> or <span class='texttt'>u</span> precedes <span class='texttt'>t</span> in the implementation-defined strict
+total order over pointers of type <span class='texttt'>P</span> and otherwise <span class='texttt'>true</span>.</p></li><li id='comparisons-11.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#comparisons-11.2'>(11.2)</a></div><p >Otherwise, equivalent to: <span class='texttt'>return std::forward&lt;T&gt;(t) == std::forward&lt;U&gt;(u);</span>
+</p></li></ul></div></div><p ><span class='indexparent'><a class='index' id='not_equal_to<>'></a></span><code class='itemdecl'>
 template &lt;&gt; struct not_equal_to&lt;void&gt; {
   template &lt;class T, class U&gt;
-    requires EqualityComparable&lt;T, U&gt;()
-  constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
-    -&gt; decltype(std::forward&lt;T&gt;(t) != std::forward&lt;U&gt;(u));
+    requires EqualityComparableWith&lt;T, U&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(T, ==, U)
+  constexpr bool operator()(T&amp;&amp; t, U&amp;&amp; u) const;
 
   typedef <i><span class='texttt'>unspecified</span></i> is_transparent;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='comparisons-9'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-9'>9</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>std::forward&lt;T&gt;(t) != std::forward&lt;U&gt;(u)</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='greater<>'></a></span><code class='itemdecl'>
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-12'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-12'>12</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to:
+</p><pre class='codeblock'>
+return !equal_to&lt;&gt;{}(std::forward&lt;T&gt;(t), std::forward&lt;U&gt;(u));
+</pre></div></div><p ><span class='indexparent'><a class='index' id='greater<>'></a></span><code class='itemdecl'>
 template &lt;&gt; struct greater&lt;void&gt; {
   template &lt;class T, class U&gt;
-    requires StrictTotallyOrdered&lt;T, U&gt;()
-  constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
-    -&gt; decltype(std::forward&lt;T&gt;(t) &gt; std::forward&lt;U&gt;(u));
+    requires StrictTotallyOrderedWith&lt;T, U&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(U, &lt;, T)
+  constexpr bool operator()(T&amp;&amp; t, U&amp;&amp; u) const;
 
   typedef <i><span class='texttt'>unspecified</span></i> is_transparent;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='comparisons-10'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-10'>10</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>std::forward&lt;T&gt;(t) &gt; std::forward&lt;U&gt;(u)</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='less<>'></a></span><code class='itemdecl'>
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-13'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-13'>13</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to:
+</p><pre class='codeblock'>
+return less&lt;&gt;{}(std::forward&lt;U&gt;(u), std::forward&lt;T&gt;(t));
+</pre></div></div><p ><span class='indexparent'><a class='index' id='less<>'></a></span><code class='itemdecl'>
 template &lt;&gt; struct less&lt;void&gt; {
   template &lt;class T, class U&gt;
-    requires StrictTotallyOrdered&lt;T, U&gt;()
-  constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
-    -&gt; decltype(std::forward&lt;T&gt;(t) &lt; std::forward&lt;U&gt;(u));
+    requires StrictTotallyOrderedWith&lt;T, U&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(T, &lt;, U)
+  constexpr bool operator()(T&amp;&amp; t, U&amp;&amp; u) const;
 
   typedef <i><span class='texttt'>unspecified</span></i> is_transparent;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='comparisons-11'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-11'>11</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>std::forward&lt;T&gt;(t) &lt; std::forward&lt;U&gt;(u)</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='greater_equal<>'></a></span><code class='itemdecl'>
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-14'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-14'>14</a></div><div class='itemdescr'><p ><i>Requires:</i>
+If the expression <span class='texttt'>std::forward&lt;T&gt;(t) &lt; std::forward&lt;U&gt;(u)</span> results in a
+call to a built-in operator <span class='texttt'>&lt;</span> comparing pointers of type <span class='texttt'>P</span>, the
+conversion sequences from both <span class='texttt'>T</span> and <span class='texttt'>U</span> to <span class='texttt'>P</span> shall be
+equality-preserving (<a href='concepts.lib.general.equality'>[concepts.lib.general.equality]</a>). For any expressions
+<span class='texttt'>ET</span> and <span class='texttt'>EU</span> such that <span class='texttt'>decltype((ET))</span> is <span class='texttt'>T</span> and
+<span class='texttt'>decltype((EU))</span> is <span class='texttt'>U</span>, exactly one of <span class='texttt'>less&lt;&gt;{}(ET, EU)</span>,
+<span class='texttt'>less&lt;&gt;{}(EU, ET)</span> or <span class='texttt'>equal_to&lt;&gt;{}(ET, EU)</span> shall be
+<span class='texttt'>true</span>.</p></div></div><div class='para' id='comparisons-15'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><ul class='itemize'><li id='comparisons-15.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#comparisons-15.1'>(15.1)</a></div><p >If the expression <span class='texttt'>std::forward&lt;T&gt;(t) &lt; std::forward&lt;U&gt;(u)</span> results in a
+call to a built-in operator <span class='texttt'>&lt;</span> comparing pointers of type <span class='texttt'>P</span>:
+returns <span class='texttt'>true</span> if (the converted value of) <span class='texttt'>t</span> precedes <span class='texttt'>u</span> in
+the implementation-defined strict total order over pointers of type <span class='texttt'>P</span>
+and otherwise <span class='texttt'>false</span>.</p></li><li id='comparisons-15.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#comparisons-15.2'>(15.2)</a></div><p >Otherwise, equivalent to: <span class='texttt'>return std::forward&lt;T&gt;(t) &lt; std::forward&lt;U&gt;(u);</span>
+</p></li></ul></div></div><p ><span class='indexparent'><a class='index' id='greater_equal<>'></a></span><code class='itemdecl'>
 template &lt;&gt; struct greater_equal&lt;void&gt; {
   template &lt;class T, class U&gt;
-    requires StrictTotallyOrdered&lt;T, U&gt;()
-  constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
-    -&gt; decltype(std::forward&lt;T&gt;(t) &gt;= std::forward&lt;U&gt;(u));
+    requires StrictTotallyOrderedWith&lt;T, U&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(T, &lt;, U)
+  constexpr bool operator()(T&amp;&amp; t, U&amp;&amp; u) const;
 
   typedef <i><span class='texttt'>unspecified</span></i> is_transparent;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='comparisons-12'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-12'>12</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>std::forward&lt;T&gt;(t) &gt;= std::forward&lt;U&gt;(u)</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='less_equal<>'></a></span><code class='itemdecl'>
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-16'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-16'>16</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to:
+</p><pre class='codeblock'>
+return !less&lt;&gt;{}(std::forward&lt;T&gt;(t), std::forward&lt;U&gt;(u));
+</pre></div></div><p ><span class='indexparent'><a class='index' id='less_equal<>'></a></span><code class='itemdecl'>
 template &lt;&gt; struct less_equal&lt;void&gt; {
   template &lt;class T, class U&gt;
-    requires StrictTotallyOrdered&lt;T, U&gt;()
-  constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
-    -&gt; decltype(std::forward&lt;T&gt;(t) &lt;= std::forward&lt;U&gt;(u));
+    requires StrictTotallyOrderedWith&lt;T, U&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(U, &lt;, T)
+  constexpr bool operator()(T&amp;&amp; t, U&amp;&amp; u) const;
 
   typedef <i><span class='texttt'>unspecified</span></i> is_transparent;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='comparisons-13'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-13'>13</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>std::forward&lt;T&gt;(t) &lt;= std::forward&lt;U&gt;(u)</span>.
-</p></div></div><div class='para' id='comparisons-14'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-14'>14</a></div><p >For templates <span class='texttt'>greater</span>, <span class='texttt'>less</span>, <span class='texttt'>greater_equal</span>, and
-<span class='texttt'>less_equal</span>, the specializations for any pointer type yield a total order,
-even if the built-in operators <span class='texttt'>&lt;</span>, <span class='texttt'>&gt;</span>, <span class='texttt'>&lt;=</span>, <span class='texttt'>&gt;=</span>
-do not.</p></div></div><div id='func.identity'><h3 ><a class='secnum' href='#func.identity' style='min-width:103pt'>8.3.3</a> Class <span class='texttt'>identity</span> <a class='abbr_ref' href='func.identity'>[func.identity]</a></h3><p ><span class='indexparent'><a class='index' id='identity'></a></span><code class='itemdecl'>
+</code></p><div class='itemdescr'></div><div class='para' id='comparisons-17'><div class='marginalizedparent'><a class='marginalized' href='#comparisons-17'>17</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to:
+</p><pre class='codeblock'>
+return !less&lt;&gt;{}(std::forward&lt;U&gt;(u), std::forward&lt;T&gt;(t));
+</pre></div></div></div><div id='func.identity'><h3 ><a class='secnum' href='#func.identity' style='min-width:103pt'>8.3.3</a> Class <span class='texttt'>identity</span> <a class='abbr_ref' href='func.identity'>[func.identity]</a></h3><p ><span class='indexparent'><a class='index' id='identity'></a></span><code class='itemdecl'>
 struct identity {
   template &lt;class T&gt;
   constexpr T&amp;&amp; operator()(T&amp;&amp; t) const noexcept;
 
   typedef <i><span class='texttt'>unspecified</span></i> is_transparent;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='func.identity-1'><div class='marginalizedparent'><a class='marginalized' href='#func.identity-1'>1</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>std::forward&lt;T&gt;(t)</span>.</p></div></div></div></div><div id='meta'><h2 ><a class='secnum' href='#meta' style='min-width:88pt'>8.4</a> Metaprogramming and type traits <a class='abbr_ref' href='meta'>[meta]</a></h2><div id='meta.type.synop'><h3 ><a class='secnum' href='#meta.type.synop' style='min-width:103pt'>8.4.1</a> Header <span class='texttt'>&lt;type_traits&gt;</span> synopsis <a class='abbr_ref' href='meta.type.synop'>[meta.type.synop]</a></h3><p ><span class='enote'>[Editor's note: Change the <span class='texttt'>&lt;type_traits&gt;</span> synopsis (  ISO/IEC 14882:2014 &sect;<a href='../n4140/meta.type.synop'>[meta.type.synop]</a>) as
-follows. Note: this change is intended to be made in <span class='texttt'>namespace std</span>.]</span></p><pre class='codeblock'>
-namespace std {
-  [...]
-  <span class='comment'>// 20.10.4.3, type properties:
-</span>  [...]
-  template &lt;class T&gt; struct is_move_assignable;
+</code></p><div class='itemdescr'></div><div class='para' id='func.identity-1'><div class='marginalizedparent'><a class='marginalized' href='#func.identity-1'>1</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>std::forward&lt;T&gt;(t)</span>.</p></div></div></div></div><div id='meta'><h2 ><a class='secnum' href='#meta' style='min-width:88pt'>8.4</a> Metaprogramming and type traits <a class='abbr_ref' href='meta'>[meta]</a></h2><div id='meta.type.synop'><h3 ><a class='secnum' href='#meta.type.synop' style='min-width:103pt'>8.4.1</a> Header <span class='texttt'>&lt;experimental/ranges/type_traits&gt;</span> synopsis <a class='abbr_ref' href='meta.type.synop'>[meta.type.synop]</a></h3><pre class='codeblock'>
+namespace std { namespace experimental { namespace ranges { inline namespace v1 {
+  <span class='comment'>// <a href='meta.unary.prop'>[meta.unary.prop]</a>, type properties:
+</span>  template &lt;class T, class U&gt; struct is_swappable_with;
+  template &lt;class T&gt; struct is_swappable;
 
-  <span class='added'>template &lt;class T, class U&gt; struct is_swappable_with;</span>
-  <span class='added'>template &lt;class T&gt; struct is_swappable;</span>
+  template &lt;class T, class U&gt; struct is_nothrow_swappable_with;
+  template &lt;class T&gt; struct is_nothrow_swappable;
 
-  template &lt;class T&gt; struct is_destructible;
-  [...]
-  template &lt;class T&gt; struct is_nothrow_move_assignable;
+  template &lt;class T, class U&gt; constexpr bool is_swappable_with_v
+    = is_swappable_with&lt;T, U&gt;::value;
+  template &lt;class T&gt; constexpr bool is_swappable_v
+    = is_swappable&lt;T&gt;::value;
 
-  <span class='added'>template &lt;class T, class U&gt; struct is_nothrow_swappable_with;</span>
-  <span class='added'>template &lt;class T&gt; struct is_nothrow_swappable;</span>
+  template &lt;class T, class U&gt; constexpr bool is_nothrow_swappable_with_v
+    = is_nothrow_swappable_with&lt;T, U&gt;::value;
+  template &lt;class T&gt; constexpr bool is_nothrow_swappable_v
+    = is_nothrow_swappable&lt;T&gt;::value;
 
-  template &lt;class T&gt; struct is_nothrow_destructible;
-  [...]
-
-  <span class='comment'>// 20.10.7.6, other transformations:
-</span>  [...]
-  template &lt;class... T&gt; struct common_type;
-  <span class='added'>template &lt;class T, class U, template &lt;class&gt; class TQual, template &lt;class&gt; class UQual&gt;</span>
-    <span class='added'>struct basic_common_reference { };</span>
-  <span class='added'>template &lt;class... T&gt; struct common_reference;</span>
-  template &lt;class T&gt; struct underlying_type;
-  [...]
+  <span class='comment'>// <a href='meta.trans.other'>[meta.trans.other]</a>, other transformations:
+</span>  template &lt;class... T&gt; struct common_type;
+  template &lt;class T, class U, template &lt;class&gt; class TQual, template &lt;class&gt; class UQual&gt;
+    struct basic_common_reference { };
+  template &lt;class... T&gt; struct common_reference;
+  
   template &lt;class... T&gt;
     using common_type_t = typename common_type&lt;T...&gt;::type;
-  <span class='added'>template &lt;class... T&gt;</span>
-    <span class='added'>using common_reference_t = typename common_reference&lt;T...&gt;::type;</span>
-  template &lt;class T&gt;
-    using underlying_type_t = typename underlying_type&lt;T&gt;::type;
-  [...]
-
-  <span class='comment'>// 20.15.4.3, type properties
-</span>  [...]
-  <span class='added'>template &lt;class T, class U&gt; constexpr bool is_swappable_with_v</span>
-    <span class='added'>= is_swappable_with&lt;T, U&gt;::value;</span>
-  <span class='added'>template &lt;class T&gt; constexpr bool is_swappable_v</span>
-    <span class='added'>= is_swappable&lt;T&gt;::value;</span>
-  [...]
-  <span class='added'>template &lt;class T, class U&gt; constexpr bool is_nothrow_swappable_with_v</span>
-    <span class='added'>= is_nothrow_swappable_with&lt;T, U&gt;::value;</span>
-  <span class='added'>template &lt;class T&gt; constexpr bool is_nothrow_swappable_v</span>
-    <span class='added'>= is_nothrow_swappable&lt;T&gt;::value;</span>
-  [...]
-}
-</pre></div><div id='meta.unary.prop'><h3 ><a class='secnum' href='#meta.unary.prop' style='min-width:103pt'>8.4.2</a> Type properties <a class='abbr_ref' href='meta.unary.prop'>[meta.unary.prop]</a></h3><p ><span class='enote'>[Editor's note: Change [meta.unary.prop], Table 49 – “Type property predicates” in
-ISO/IEC 14882:2014 as indicated. The following is taken from the current
-Working Draft of C++17.]</span></p><div class='numberedTable' id='tab:type-traits.properties'>Table <a href='#tab:type-traits.properties'>5</a> — Type property predicates<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Template</b></td><td colspan='1' class='center'><b>Condition</b></td><td colspan='1' class='center'><b>Preconditions</b></td></tr><tr class='capsep'><td class='left'> 
-...  </td><td class='left'> </td><td class='left'> </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_swappable_with'></a></span><span class='added'><span class='texttt'>template &lt;class T, class U&gt;</span></span><br/>
-  <span class='added'><span class='texttt'>struct is_swappable_with;</span></span> </td><td class='left'>
-  <span class='added'>The expressions <span class='texttt'>swap(declval&lt;T&gt;(),</span></span><span class='added'><span class='texttt'> declval&lt;U&gt;())</span>
-  and <span class='texttt'>swap(</span></span><span class='added'><span class='texttt'>declval&lt;U&gt;(),</span></span><span class='added'><span class='texttt'> declval&lt;T&gt;())</span>
-  are each well-formed when treated as an unevaluated operand (Clause   ISO/IEC 14882:2014 &sect;<a href='../n4140/expr'>[expr]</a>)
-  in an overload-resolution context for swappable
-  values (<a href='concepts.lib.corelang.swappable'>[concepts.lib.corelang.swappable]</a>).
+  template &lt;class... T&gt;
+    using common_reference_t = typename common_reference&lt;T...&gt;::type;
+}}}}
+</pre></div><div id='meta.unary.prop'><h3 ><a class='secnum' href='#meta.unary.prop' style='min-width:103pt'>8.4.2</a> Type properties <a class='abbr_ref' href='meta.unary.prop'>[meta.unary.prop]</a></h3><div class='para' id='meta.unary.prop-1'><div class='marginalizedparent'><a class='marginalized' href='#meta.unary.prop-1'>1</a></div><p >These templates provide access to some of the more important properties of types.</p></div><div class='para' id='meta.unary.prop-2'><div class='marginalizedparent'><a class='marginalized' href='#meta.unary.prop-2'>2</a></div><p >It is unspecified whether the library defines any full or partial specializations
+of any of these templates.</p></div><div class='para' id='meta.unary.prop-3'><div class='marginalizedparent'><a class='marginalized' href='#meta.unary.prop-3'>3</a></div><p >For all of the class templates <span class='texttt'>X</span> declared in this subclause, instantiating
+that template with a template argument that is a class template specialization may
+result in the implicit instantiation of the template argument if and only if the
+semantics of <span class='texttt'>X</span> require that the argument must be a complete type.</p></div><div class='para' id='meta.unary.prop-4'><div class='marginalizedparent'><a class='marginalized' href='#meta.unary.prop-4'>4</a></div><p >For the purpose of defining the templates in this subclause, a function call
+expression <span class='texttt'>declval&lt;T&gt;()</span> for any type <span class='texttt'>T</span> is considered to be a
+trivial (  ISO/IEC 14882:2014 &sect;<a href='../n4140/basic.types'>[basic.types]</a>,   ISO/IEC 14882:2014 &sect;<a href='../n4140/special'>[special]</a>) function call that is not an
+odr-use (  ISO/IEC 14882:2014 &sect;<a href='../n4140/basic.def.odr'>[basic.def.odr]</a>) of <span class='texttt'>declval</span> in the context of the
+corresponding definition notwithstanding the restrictions of (  ISO/IEC 14882:2014 &sect;<a href='../n4140/declval'>[declval]</a>).</p><div class='numberedTable' id='tab:type-traits.properties'>Table <a href='#tab:type-traits.properties'>5</a> — Additional type property predicates<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Template</b></td><td colspan='1' class='center'><b>Condition</b></td><td colspan='1' class='center'><b>Precondition</b></td></tr><tr class='capsep'><td class='left'> 
+<span class='indexparent'><a class='index' id='is_swappable_with'></a></span><span class='texttt'>template &lt;class T, class U&gt;</span><br/>
+  <span class='texttt'>struct is_swappable_with;</span> </td><td class='left'>
+  The expressions <span class='texttt'>ranges::swap(</span><span class='texttt'>declval&lt;T&gt;(),</span><span class='texttt'> declval&lt;U&gt;())</span>
+  and <span class='texttt'>ranges::swap(</span><span class='texttt'>declval&lt;U&gt;(),</span><span class='texttt'> declval&lt;T&gt;())</span>
+  are each well-formed when treated as an unevaluated operand (Clause   ISO/IEC 14882:2014 &sect;<a href='../n4140/expr'>[expr]</a>).
   Access checking is performed as if in a context unrelated to <span class='texttt'>T</span> and <span class='texttt'>U</span>.
   Only the validity of the immediate context of the <span class='texttt'>swap</span> expressions is
-  considered.</span>
+  considered.
   [&nbsp;<i>Note:</i>
-  <span class='added'>The compilation of the expressions can result in side effects such as the
+  The compilation of the expressions can result in side effects such as the
   instantiation of class template specializations and function template specializations,
   the generation of implicitly-defined functions, and so on. Such side effects are not
-  in the “immediate context” and can result in the program being ill-formed.</span>
+  in the “immediate context” and can result in the program being ill-formed.
   <i>&nbsp;—&nbsp;end note</i>&nbsp;] </td><td class='left'>
-  <span class='added'><span class='texttt'>T</span> and <span class='texttt'>U</span> shall be complete types,
-  (possibly cv-qualified) <span class='texttt'>void</span>, or
-  arrays of unknown bound.</span>  </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_swappable'></a></span><span class='added'><span class='texttt'>template &lt;class T&gt;</span></span><br/>
-  <span class='added'><span class='texttt'>struct is_swappable;</span></span> </td><td class='left'>
-  <span class='added'>For a referenceable type <span class='texttt'>T</span>,
-  the same result as <span class='texttt'>is_swappable_with_v&lt;</span></span><span class='added'><span class='texttt'>T&amp;, T&amp;&gt;</span>,
-  otherwise <span class='texttt'>false</span>.</span> </td><td class='left'>
-  <span class='added'><span class='texttt'>T</span> shall be a complete type,
-  (possibly cv-qualified) <span class='texttt'>void</span>, or
-  an array of unknown bound.</span> </td></tr><tr class='rowsep'><td class='left'> ... </td><td class='left'> </td><td class='left'> </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_nothrow_swappable_with'></a></span><span class='texttt'><span class='added'>template &lt;class T, class U&gt;</span></span><br/>
-  <span class='added'><span class='texttt'>struct is_nothrow_swappable_with;</span></span> </td><td class='left'>
-  <span class='added'><span class='texttt'>is_swappable_with_v&lt;T, </span></span><span class='added'><span class='texttt'>U&gt;</span> is <span class='texttt'>true</span> and
+  <span class='texttt'>T</span> and <span class='texttt'>U</span> shall be complete types,
+  (possibly <i>cv</i>-qualified) <span class='texttt'>void</span>, or
+  arrays of unknown bound.  </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_swappable'></a></span><span class='texttt'>template &lt;class T&gt;</span><br/>
+  <span class='texttt'>struct is_swappable;</span> </td><td class='left'>
+  For a referenceable type <span class='texttt'>T</span>,
+  the same result as <span class='texttt'>is_swappable_with_v&lt;</span><span class='texttt'>T&amp;, T&amp;&gt;</span>,
+  otherwise <span class='texttt'>false</span>. </td><td class='left'>
+  <span class='texttt'>T</span> shall be a complete type,
+  (possibly <i>cv</i>-qualified) <span class='texttt'>void</span>, or
+  an array of unknown bound. </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_nothrow_swappable_with'></a></span><span class='texttt'>template &lt;class T, class U&gt;</span><br/>
+  <span class='texttt'>struct is_nothrow_swappable_with;</span> </td><td class='left'>
+  <span class='texttt'>is_swappable_with_v&lt;T, </span><span class='texttt'>U&gt;</span> is <span class='texttt'>true</span> and
   each <span class='texttt'>swap</span> expression of the definition of
   <span class='texttt'>is_swappable_with&lt;T, U&gt;</span> is known not to throw
-  any exceptions (  ISO/IEC 14882:2014 &sect;<a href='../n4140/expr.unary.noexcept'>[expr.unary.noexcept]</a>).</span> </td><td class='left'>
-  <span class='added'><span class='texttt'>T</span> and <span class='texttt'>U</span> shall be complete types,
-  (possibly cv-qualified) <span class='texttt'>void</span>, or
-  arrays of unknown bound.</span> </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_nothrow_swappable'></a></span><span class='texttt'><span class='added'>template &lt;class T&gt;</span></span><br/>
-  <span class='added'><span class='texttt'>struct is_nothrow_swappable;</span></span> </td><td class='left'>
-  <span class='added'>For a referenceable type <span class='texttt'>T</span>,
-  the same result as <span class='texttt'>is_nothrow_swappable_</span></span><span class='added'><span class='texttt'>with_v&lt;T&amp;, T&amp;&gt;</span>,
-  otherwise <span class='texttt'>false</span>.</span> </td><td class='left'>
-  <span class='added'><span class='texttt'>T</span> shall be a complete type,
-  (possibly cv-qualified) <span class='texttt'>void</span>, or
-  an array of unknown bound.</span> </td></tr><tr class='rowsep'><td class='left'> ... </td><td class='left'> </td><td class='left'> </td></tr></table></div></div><div id='meta.trans.other'><h3 ><a class='secnum' href='#meta.trans.other' style='min-width:103pt'>8.4.3</a> Other transformations <a class='abbr_ref' href='meta.trans.other'>[meta.trans.other]</a></h3><p ><span class='enote'>[Editor's note: Change Table 57 – “Other Transformations” in ISO/IEC 14882:2014 as
-follows:]</span></p><div class='numberedTable' id='tab:type-traits.other'>Table <a href='#tab:type-traits.other'>6</a> — Other transformations<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Template</b></td><td colspan='1' class='center'><b>Condition</b></td><td colspan='1' class='center'><b>Comments</b></td></tr><tr class='capsep'><td class='left'> 
-... </td><td class='left'> </td><td class='left'> </td></tr><tr class='rowsep'><td class='left'>  <span class='texttt'>template &lt;class... T&gt;</span> <span class='texttt'>struct common_type;</span>
- </td><td class='left'> </td><td class='left'>
+  any exceptions (  ISO/IEC 14882:2014 &sect;<a href='../n4140/expr.unary.noexcept'>[expr.unary.noexcept]</a>). </td><td class='left'>
+  <span class='texttt'>T</span> and <span class='texttt'>U</span> shall be complete types,
+  (possibly <i>cv</i>-qualified) <span class='texttt'>void</span>, or
+  arrays of unknown bound. </td></tr><tr class='rowsep'><td class='left'> <span class='indexparent'><a class='index' id='is_nothrow_swappable'></a></span><span class='texttt'>template &lt;class T&gt;</span><br/>
+  <span class='texttt'>struct is_nothrow_swappable;</span> </td><td class='left'>
+  For a referenceable type <span class='texttt'>T</span>,
+  the same result as <span class='texttt'>is_nothrow_swappable_</span><span class='texttt'>with_v&lt;T&amp;, T&amp;&gt;</span>,
+  otherwise <span class='texttt'>false</span>. </td><td class='left'>
+  <span class='texttt'>T</span> shall be a complete type,
+  (possibly <i>cv</i>-qualified) <span class='texttt'>void</span>, or
+  an array of unknown bound. </td></tr></table></div></div></div><div id='meta.trans.other'><h3 ><a class='secnum' href='#meta.trans.other' style='min-width:103pt'>8.4.3</a> Other transformations <a class='abbr_ref' href='meta.trans.other'>[meta.trans.other]</a></h3><div class='numberedTable' id='tab:type-traits.other'>Table <a href='#tab:type-traits.other'>6</a> — Other transformations<br><table ><tr class='rowsep'><td colspan='1' class='center'><b>Template</b></td><td colspan='1' class='center'><b>Comments</b></td></tr><tr class='capsep'><td class='left'> 
+ <span class='texttt'>template &lt;class... T&gt;</span><br/>
+ <span class='texttt'>  struct common_type;</span>
+ </td><td class='left'>
  The member typedef <span class='texttt'>type</span> shall be defined or omitted as specified below.
- If it is omitted, there shall be no member <span class='texttt'>type</span>. <span class='removed'>All types</span>
- <span class='added'>Each type</span> in the parameter pack <span class='texttt'>T</span> shall be complete or
+ If it is omitted, there shall be no member <span class='texttt'>type</span>.
+ Each type in the parameter pack <span class='texttt'>T</span> shall be complete or
  (possibly <i>cv</i>) <span class='texttt'>void</span>. A program may specialize this trait if at least one
- template parameter in the specialization <span class='removed'>is</span><span class='added'>depends on</span> a
- user-defined type<span class='added'> and <span class='texttt'>sizeof...(T) == 2</span></span>. [&nbsp;<i>Note:</i> Such
+ template parameter in the specialization depends on a
+ user-defined type and <span class='texttt'>sizeof...(T) == 2</span>. [&nbsp;<i>Note:</i> Such
  specializations are needed when only explicit conversions are desired among the
  template arguments.
- <i>&nbsp;—&nbsp;end note</i>&nbsp;] </td></tr><tr class='rowsep'><td class='left'> <span class='added'><span class='texttt'>template &lt;class T, class U,</span></span><br/>
-<span class='added'><span class='texttt'>  template &lt;class&gt; class TQual,</span></span>
-<span class='added'><span class='texttt'>  template &lt;class&gt; class UQual&gt;</span></span>
-<span class='added'><span class='texttt'>struct basic_common_reference;</span></span> </td><td class='left'> </td><td class='left'>
-<span class='added'>The primary template shall have no member typedef
+ <i>&nbsp;—&nbsp;end note</i>&nbsp;] </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>template &lt;class T, class U,</span><br/>
+<span class='texttt'>    template &lt;class&gt; class TQual,</span><br/>
+<span class='texttt'>    template &lt;class&gt; class UQual&gt;</span><br/>
+<span class='texttt'>  struct basic_common_reference;</span> </td><td class='left'>
+The primary template shall have no member typedef
 <span class='texttt'>type</span>. A program may specialize this trait if at least one
 template parameter in the specialization depends on a user-defined
 type. In such a specialization, a member typedef <span class='texttt'>type</span> may be
 defined or omitted. If it is omitted, there shall be no member
-<span class='texttt'>type</span>.</span>
-[&nbsp;<i>Note:</i> <span class='added'>Such specializations may be used to influence
-the result of <span class='texttt'>common_reference</span>.</span><i>&nbsp;—&nbsp;end note</i>&nbsp;] </td></tr><tr class='rowsep'><td class='left'> <span class='added'><span class='texttt'>template &lt;class... T&gt;</span></span>
-<span class='added'><span class='texttt'>struct common_reference;</span></span> </td><td class='left'> </td><td class='left'>
-<span class='added'>The member typedef <span class='texttt'>type</span> shall be defined or omitted
+<span class='texttt'>type</span>.
+[&nbsp;<i>Note:</i> Such specializations may be used to influence
+the result of <span class='texttt'>common_reference</span>.<i>&nbsp;—&nbsp;end note</i>&nbsp;] </td></tr><tr class='rowsep'><td class='left'> <span class='texttt'>template &lt;class... T&gt;</span><br/>
+<span class='texttt'>  struct common_reference;</span> </td><td class='left'>
+The member typedef <span class='texttt'>type</span> shall be defined or omitted
 as specified below. If it is omitted, there shall be no member
 <span class='texttt'>type</span>. Each type in the parameter pack <span class='texttt'>T</span> shall be
-complete or (possibly <i>cv</i>) <span class='texttt'>void</span>.</span> </td></tr><tr class='rowsep'><td class='left'> ... </td><td class='left'> </td><td class='left'> </td></tr></table></div><p ><span class='enote'>[Editor's note: Delete [meta.trans.other]/p3 from ISO/IEC 14882:2014 and replace it with
-the following:]</span></p><div class='para' id='meta.trans.other-1'><div class='marginalizedparent'><a class='marginalized' href='#meta.trans.other-1'>1</a></div><p ><span class='added'>Let <span class='texttt'>CREF(A)</span> be <span class='texttt'>add_lvalue_reference_t&lt;const
+complete or (possibly <i>cv</i>) <span class='texttt'>void</span>. </td></tr></table></div><div class='para' id='meta.trans.other-1'><div class='marginalizedparent'><a class='marginalized' href='#meta.trans.other-1'>1</a></div><p >Let <span class='texttt'>CREF(A)</span> be <span class='texttt'>add_lvalue_reference_t&lt;const
 remove_reference_t&lt;A&gt;&gt;</span>. Let <span class='texttt'>UNCVREF(A)</span> be
 <span class='texttt'>remove_cv_t&lt;remove_reference_t&lt;A&gt;&gt;</span>. Let <span class='texttt'>XREF(A)</span>
 denote a unary template <span class='texttt'>T</span> such that <span class='texttt'>T&lt;UNCVREF(A)&gt;</span>
@@ -416,85 +399,116 @@ volatile short)</span> is an alias for <span class='texttt'>const volatile short
 <i>&nbsp;—&nbsp;end example</i>&nbsp;] Let <span class='texttt'>RREF_RES(Z)</span> be
 <span class='texttt'>remove_reference_t&lt;Z&gt;&amp;&amp;</span> if <span class='texttt'>Z</span> is a reference type
 or <span class='texttt'>Z</span> otherwise. Let <span class='texttt'>COND_RES(X, Y)</span> be
-<span class='texttt'>decltype(declval&lt;bool&gt;() ? declval&lt;X&gt;() : declval&lt;Y&gt;())</span>.
+<span class='texttt'>decltype(declval&lt;bool&gt;() ? declval&lt;X(&amp;)()&gt;()() : declval&lt;Y(&amp;)()&gt;()())</span>.
 Given types <span class='texttt'>A</span> and <span class='texttt'>B</span>, let <span class='texttt'>X</span> be
 <span class='texttt'>remove_reference_t&lt;A&gt;</span>, let <span class='texttt'>Y</span> be
-<span class='texttt'>remove_reference_t&lt;B&gt;</span>, and let <span class='texttt'>COMMON_REF(A, B)</span> be:</span>
-</p><ul class='itemize'><li id='meta.trans.other-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-1.1'>(1.1)</a></div><p ><span class='added'>If <span class='texttt'>A</span> and <span class='texttt'>B</span> are both lvalue reference types,
+<span class='texttt'>remove_reference_t&lt;B&gt;</span>, and let <span class='texttt'>COMMON_REF(A, B)</span> be:
+</p><ul class='itemize'><li id='meta.trans.other-1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-1.1'>(1.1)</a></div><p >If <span class='texttt'>A</span> and <span class='texttt'>B</span> are both lvalue reference types,
   <span class='texttt'>COMMON_REF(A, B)</span> is
-  <span class='texttt'>COND_RES(COPYCV(X, Y) &amp;, COPYCV(Y, X) &amp;)</span>.</span>
-</p></li><li id='meta.trans.other-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-1.2'>(1.2)</a></div><p ><span class='added'>Otherwise, let <span class='texttt'>C</span> be
+  <span class='texttt'>COND_RES(COPYCV(X, Y) &amp;, COPYCV(Y, X) &amp;)</span>.
+</p></li><li id='meta.trans.other-1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-1.2'>(1.2)</a></div><p >Otherwise, let <span class='texttt'>C</span> be
   <span class='texttt'>RREF_RES(COMMON_REF(X&amp;, Y&amp;))</span>. If <span class='texttt'>A</span> and <span class='texttt'>B</span>
   are both rvalue reference types, and <span class='texttt'>C</span> is well-formed,
   and <span class='texttt'>is_convertible&lt;A, C&gt;::value</span> and
   <span class='texttt'>is_convertible&lt;B, C&gt;::value</span> are <span class='texttt'>true</span>, then
-  <span class='texttt'>COMMON_REF(A, B)</span> is <span class='texttt'>C</span>.</span>
-</p></li><li id='meta.trans.other-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-1.3'>(1.3)</a></div><p ><span class='added'>Otherwise, let <span class='texttt'>D</span> be
+  <span class='texttt'>COMMON_REF(A, B)</span> is <span class='texttt'>C</span>.
+</p></li><li id='meta.trans.other-1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-1.3'>(1.3)</a></div><p >Otherwise, let <span class='texttt'>D</span> be
   <span class='texttt'>COMMON_REF(const X&amp;, Y&amp;)</span>. If <span class='texttt'>A</span> is an rvalue
   reference and <span class='texttt'>B</span> is an lvalue reference and <span class='texttt'>D</span> is
   well-formed and <span class='texttt'>is_convertible&lt;A, D&gt;::value</span> is
-  <span class='texttt'>true</span>, then <span class='texttt'>COMMON_REF(A, B)</span> is <span class='texttt'>D</span>.</span>
-</p></li><li id='meta.trans.other-1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-1.4'>(1.4)</a></div><p ><span class='added'>Otherwise, if <span class='texttt'>A</span> is an lvalue reference and <span class='texttt'>B</span>
+  <span class='texttt'>true</span>, then <span class='texttt'>COMMON_REF(A, B)</span> is <span class='texttt'>D</span>.
+</p></li><li id='meta.trans.other-1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-1.4'>(1.4)</a></div><p >Otherwise, if <span class='texttt'>A</span> is an lvalue reference and <span class='texttt'>B</span>
   is an rvalue reference, then <span class='texttt'>COMMON_REF(A, B)</span> is
-  <span class='texttt'>COMMON_REF(B, A)</span>.</span>
-</p></li><li id='meta.trans.other-1.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-1.5'>(1.5)</a></div><p ><span class='added'>Otherwise, <span class='texttt'>COMMON_REF(A, B)</span> is
-  <span class='texttt'>decay_t&lt;COND_RES(CREF(A), CREF(B))&gt;</span>.</span>
-</p></li></ul><p ><span class='added'>If any of the types computed above are ill-formed, then
-<span class='texttt'>COMMON_REF(A, B)</span> is ill-formed.</span></p></div><div class='para' id='meta.trans.other-2'><div class='marginalizedparent'><a class='marginalized' href='#meta.trans.other-2'>2</a></div><p >For the <span class='texttt'>common_type</span> trait applied to a parameter pack
+  <span class='texttt'>COMMON_REF(B, A)</span>.
+</p></li><li id='meta.trans.other-1.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-1.5'>(1.5)</a></div><p >Otherwise, <span class='texttt'>COMMON_REF(A, B)</span> is
+  <span class='texttt'>decay_t&lt;COND_RES(CREF(A), CREF(B))&gt;</span>.
+</p></li></ul><p >If any of the types computed above are ill-formed, then
+<span class='texttt'>COMMON_REF(A, B)</span> is ill-formed.</p></div><div class='para' id='meta.trans.other-2'><div class='marginalizedparent'><a class='marginalized' href='#meta.trans.other-2'>2</a></div><p >Note A: For the <span class='texttt'>common_type</span> trait applied to a parameter pack
 <span class='texttt'>T</span> of types, the member <span class='texttt'>type</span> shall be either defined or not
 present as follows:
 </p><ul class='itemize'><li id='meta.trans.other-2.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-2.1'>(2.1)</a></div><p >If <span class='texttt'>sizeof...(T)</span> is zero, there shall be no member <span class='texttt'>type</span>.
-</p></li><li id='meta.trans.other-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-2.2'>(2.2)</a></div><p >Otherwise, if <span class='texttt'>sizeof...(T)</span> is one, let <span class='removed'>T0</span><span class='added'>T1</span>
+</p></li><li id='meta.trans.other-2.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-2.2'>(2.2)</a></div><p >Otherwise, if <span class='texttt'>sizeof...(T)</span> is one, let T1
   denote the sole type in the pack <span class='texttt'>T</span>. The member typedef <span class='texttt'>type</span>
-  shall denote the same type as <span class='texttt'>decay_t&lt;<span class='removed'>T0</span><span class='added'>T1</span>&gt;</span>.
-</p></li><li id='meta.trans.other-2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-2.3'>(2.3)</a></div><p ><span class='added'>Otherwise, if <span class='texttt'>sizeof...(T)</span> is two, let <span class='texttt'>T1</span> and <span class='texttt'>T2</span>
+  shall denote the same type as <span class='texttt'>decay_t&lt;T1&gt;</span>.
+</p></li><li id='meta.trans.other-2.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-2.3'>(2.3)</a></div><p >Otherwise, if <span class='texttt'>sizeof...(T)</span> is two, let <span class='texttt'>T1</span> and <span class='texttt'>T2</span>
   denote the two types in the pack <span class='texttt'>T</span>, and let <span class='texttt'>D1</span> and <span class='texttt'>D2</span>
-  be <span class='texttt'>decay_t&lt;T1&gt;</span> and <span class='texttt'>decay_t&lt;T2&gt;</span> respectively. Then</span>
-</p><ul class='itemize'><li id='meta.trans.other-2.3.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-2.3.1'>(2.3.1)</a></div><p ><span class='added'>If <span class='texttt'>D1</span> and <span class='texttt'>T1</span> denote the same type and <span class='texttt'>D2</span> and
-  <span class='texttt'>T2</span> denote the same type, then</span>
-</p><ul class='itemize'><li id='meta.trans.other-2.3.1.1'><div class='marginalizedparent' style='left:-11em'><a class='marginalized' href='#meta.trans.other-2.3.1.1'>(2.3.1.1)</a></div><p ><span class='added'>If <span class='texttt'>COMMON_REF(T1, T2)</span> is well-formed, then the member typedef
-  <span class='texttt'>type</span> denotes that type.</span>
-</p></li><li id='meta.trans.other-2.3.1.2'><div class='marginalizedparent' style='left:-11em'><a class='marginalized' href='#meta.trans.other-2.3.1.2'>(2.3.1.2)</a></div><p ><span class='added'>Otherwise, there shall be no member <span class='texttt'>type</span>.</span>
-</p></li></ul></li><li id='meta.trans.other-2.3.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-2.3.2'>(2.3.2)</a></div><p ><span class='added'>Otherwise, if <span class='texttt'>common_type_t&lt;D1, D2&gt;</span> is well-formed, then the
-  member typedef <span class='texttt'>type</span> denotes that type.</span>
-</p></li><li id='meta.trans.other-2.3.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-2.3.3'>(2.3.3)</a></div><p ><span class='added'>Otherwise, there shall be no member <span class='texttt'>type</span>.</span>
-</p></li></ul></li><li id='meta.trans.other-2.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-2.4'>(2.4)</a></div><p >Otherwise, if <span class='texttt'>sizeof...(T)</span> is greater than <span class='removed'>one</span><span class='added'>two</span>,
-  let <span class='texttt'>T1</span>, <span class='texttt'>T2</span>, and <span class='texttt'>R<span class='added'>est</span></span>,
+  be <span class='texttt'>decay_t&lt;T1&gt;</span> and <span class='texttt'>decay_t&lt;T2&gt;</span> respectively. Then
+</p><ul class='itemize'><li id='meta.trans.other-2.3.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-2.3.1'>(2.3.1)</a></div><p >If <span class='texttt'>D1</span> and <span class='texttt'>T1</span> denote the same type and <span class='texttt'>D2</span> and
+  <span class='texttt'>T2</span> denote the same type, then
+</p><ul class='itemize'><li id='meta.trans.other-2.3.1.1'><div class='marginalizedparent' style='left:-11em'><a class='marginalized' href='#meta.trans.other-2.3.1.1'>(2.3.1.1)</a></div><p >If <span class='texttt'>std::common_type_t&lt;T1, T2&gt;</span> is well-formed, then the member typedef
+  <span class='texttt'>type</span> denotes <span class='texttt'>std::common_type_t&lt;T1, T2&gt;</span>.
+</p></li><li id='meta.trans.other-2.3.1.2'><div class='marginalizedparent' style='left:-11em'><a class='marginalized' href='#meta.trans.other-2.3.1.2'>(2.3.1.2)</a></div><p >If <span class='texttt'>COMMON_REF(T1, T2)</span> is well-formed, then the member typedef
+  <span class='texttt'>type</span> denotes that type.
+</p></li><li id='meta.trans.other-2.3.1.3'><div class='marginalizedparent' style='left:-11em'><a class='marginalized' href='#meta.trans.other-2.3.1.3'>(2.3.1.3)</a></div><p >Otherwise, there shall be no member <span class='texttt'>type</span>.
+</p></li></ul></li><li id='meta.trans.other-2.3.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-2.3.2'>(2.3.2)</a></div><p >Otherwise, if <span class='texttt'>common_type_t&lt;D1, D2&gt;</span> is well-formed, then the
+  member typedef <span class='texttt'>type</span> denotes that type.
+</p></li><li id='meta.trans.other-2.3.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-2.3.3'>(2.3.3)</a></div><p >Otherwise, there shall be no member <span class='texttt'>type</span>.
+</p></li></ul></li><li id='meta.trans.other-2.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-2.4'>(2.4)</a></div><p >Otherwise, if <span class='texttt'>sizeof...(T)</span> is greater than two,
+  let <span class='texttt'>T1</span>, <span class='texttt'>T2</span>, and <span class='texttt'>Rest</span>,
   respectively, denote the first, second, and (pack of) remaining types
-  comprising <span class='texttt'>T</span>. <span class='removed'>[&nbsp;<i>Note:</i> <span class='texttt'>sizeof...(R)</span> may be zero.
-  <i>&nbsp;—&nbsp;end note</i>&nbsp;]</span> Let <span class='texttt'>C</span> <span class='removed'>denote the type, if any, of an unevaluated
-  conditional expression (5.16) whose first operand is an arbitrary value of
-  type <span class='texttt'>bool</span>, whose second operand is an xvalue of type <span class='texttt'>T1</span>, and
-  whose third operand is an xvalue of type <span class='texttt'>T2</span>.</span><span class='added'>be the type
-  <span class='texttt'>common_type_t&lt;T1, T2&gt;</span>. Then:</span>
+  comprising <span class='texttt'>T</span>. Let <span class='texttt'>C</span> be the type
+  <span class='texttt'>common_type_t&lt;T1, T2&gt;</span>. Then:
 </p><ul class='itemize'><li id='meta.trans.other-2.4.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-2.4.1'>(2.4.1)</a></div><p >If there is such a type <span class='texttt'>C</span>, the member typedef
   <span class='texttt'>type</span> shall denote the same type, if any, as
-  <span class='texttt'>common_type_t&lt;C, R<span class='added'>est</span>...&gt;</span>.
+  <span class='texttt'>common_type_t&lt;C, Rest...&gt;</span>.
 </p></li><li id='meta.trans.other-2.4.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-2.4.2'>(2.4.2)</a></div><p >Otherwise, there shall be no member <span class='texttt'>type</span>.
-</p></li></ul></li></ul></div><div class='para' id='meta.trans.other-3'><div class='marginalizedparent'><a class='marginalized' href='#meta.trans.other-3'>3</a></div><p ><span class='added'>For the <span class='texttt'>common_reference</span> trait applied to a parameter pack <span class='texttt'>T</span> of
-types, the member <span class='texttt'>type</span> shall be either defined or not present as follows:</span>
-</p><ul class='itemize'><li id='meta.trans.other-3.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-3.1'>(3.1)</a></div><p ><span class='added'>If <span class='texttt'>sizeof...(T)</span> is zero, there shall be no member <span class='texttt'>type</span>.</span>
-</p></li><li id='meta.trans.other-3.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-3.2'>(3.2)</a></div><p ><span class='added'>Otherwise, if <span class='texttt'>sizeof...(T)</span> is one, let <span class='texttt'>T1</span> denote the sole
+</p></li></ul></li></ul></div><div class='para' id='meta.trans.other-3'><div class='marginalizedparent'><a class='marginalized' href='#meta.trans.other-3'>3</a></div><p >Note B: Notwithstanding the provisions of   ISO/IEC 14882:2014 &sect;<a href='../n4140/meta.type.synop'>[meta.type.synop]</a>, and
+pursuant to   ISO/IEC 14882:2014 &sect;<a href='../n4140/namespace.std'>[namespace.std]</a>,
+a program may specialize <span class='texttt'>common_type&lt;T1, T2&gt;</span>
+for types <span class='texttt'>T1</span> and <span class='texttt'>T2</span> such that
+<span class='texttt'>is_same&lt;T1, decay_t&lt;T1&gt;&gt;::value</span> and
+<span class='texttt'>is_same&lt;T2, decay_t&lt;T2&gt;&gt;::value</span> are each <span class='texttt'>true</span>.
+[&nbsp;<i>Note:</i> Such specializations are needed when only explicit conversions
+are desired between the template arguments. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+Such a specialization need not have a member named <span class='texttt'>type</span>,
+but if it does, that member shall be a <span class='grammarterm'>typedef-name</span>
+for an accessible and unambiguous <i>cv</i>-unqualified non-reference type <span class='texttt'>C</span>
+to which each of the types <span class='texttt'>T1</span> and <span class='texttt'>T2</span> is explicitly convertible.
+Moreover, <span class='texttt'>common_type_t&lt;T1, T2&gt;</span> shall denote
+the same type, if any, as does <span class='texttt'>common_type_t&lt;T2, T1&gt;</span>.
+No diagnostic is required for a violation of this Note's rules.</p></div><div class='para' id='meta.trans.other-4'><div class='marginalizedparent'><a class='marginalized' href='#meta.trans.other-4'>4</a></div><p >For the <span class='texttt'>common_reference</span> trait applied to a parameter pack <span class='texttt'>T</span> of
+types, the member <span class='texttt'>type</span> shall be either defined or not present as follows:
+</p><ul class='itemize'><li id='meta.trans.other-4.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-4.1'>(4.1)</a></div><p >If <span class='texttt'>sizeof...(T)</span> is zero, there shall be no member <span class='texttt'>type</span>.
+</p></li><li id='meta.trans.other-4.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-4.2'>(4.2)</a></div><p >Otherwise, if <span class='texttt'>sizeof...(T)</span> is one, let <span class='texttt'>T1</span> denote the sole
   type in the pack <span class='texttt'>T</span>. The member typedef <span class='texttt'>type</span> shall denote the
-  same type as <span class='texttt'>T1</span>.</span>
-</p></li><li id='meta.trans.other-3.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-3.3'>(3.3)</a></div><p ><span class='added'>Otherwise, if <span class='texttt'>sizeof...(T)</span> is two, let <span class='texttt'>T1</span> and <span class='texttt'>T2</span>
-  denote the two types in the pack <span class='texttt'>T</span>. Then</span>
-</p><ul class='itemize'><li id='meta.trans.other-3.3.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-3.3.1'>(3.3.1)</a></div><p ><span class='added'>If <span class='texttt'>COMMON_REF(T1, T2)</span> is well-formed and denotes a reference type
-  then the member typedef <span class='texttt'>type</span> denotes that type.</span>
-</p></li><li id='meta.trans.other-3.3.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-3.3.2'>(3.3.2)</a></div><p ><span class='added'>Otherwise, if <span class='texttt'>basic_common_reference&lt;UNCVREF(T1), UNCVREF(T2),
+  same type as <span class='texttt'>T1</span>.
+</p></li><li id='meta.trans.other-4.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-4.3'>(4.3)</a></div><p >Otherwise, if <span class='texttt'>sizeof...(T)</span> is two, let <span class='texttt'>T1</span> and <span class='texttt'>T2</span>
+  denote the two types in the pack <span class='texttt'>T</span>. Then
+</p><ul class='itemize'><li id='meta.trans.other-4.3.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-4.3.1'>(4.3.1)</a></div><p >If <span class='texttt'>T1</span> and <span class='texttt'>T2</span> are reference types and
+  <span class='texttt'>COMMON_REF(T1, T2)</span> is well-formed and denotes a reference type
+  then the member typedef <span class='texttt'>type</span> denotes that type.
+</p></li><li id='meta.trans.other-4.3.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-4.3.2'>(4.3.2)</a></div><p >Otherwise, if <span class='texttt'>basic_common_reference&lt;UNCVREF(T1), UNCVREF(T2),
   XREF(T1), XREF(T2)&gt;::type</span> is well-formed, then the member typedef
-  <span class='texttt'>type</span> denotes that type.</span>
-</p></li><li id='meta.trans.other-3.3.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-3.3.3'>(3.3.3)</a></div><p ><span class='added'>Otherwise, if <span class='texttt'>common_type_t&lt;T1, T2&gt;</span> is well-formed, then the
-  member typedef <span class='texttt'>type</span> denotes that type.</span>
-</p></li><li id='meta.trans.other-3.3.4'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-3.3.4'>(3.3.4)</a></div><p ><span class='added'>Otherwise, there shall be no member <span class='texttt'>type</span>.</span>
-</p></li></ul></li><li id='meta.trans.other-3.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-3.4'>(3.4)</a></div><p ><span class='added'>Otherwise, if <span class='texttt'>sizeof...(T)</span> is greater than two, let <span class='texttt'>T1</span>,
+  <span class='texttt'>type</span> denotes that type.
+</p></li><li id='meta.trans.other-4.3.3'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-4.3.3'>(4.3.3)</a></div><p >Otherwise, if <span class='texttt'>COND_RES(T1, T2)</span> is well-formed, then the
+  member typedef <span class='texttt'>type</span> denotes that type.
+</p></li><li id='meta.trans.other-4.3.4'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-4.3.4'>(4.3.4)</a></div><p >Otherwise, if <span class='texttt'>common_type_t&lt;T1, T2&gt;</span> is well-formed, then the
+  member typedef <span class='texttt'>type</span> denotes that type.
+</p></li><li id='meta.trans.other-4.3.5'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-4.3.5'>(4.3.5)</a></div><p >Otherwise, there shall be no member <span class='texttt'>type</span>.
+</p></li></ul></li><li id='meta.trans.other-4.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#meta.trans.other-4.4'>(4.4)</a></div><p >Otherwise, if <span class='texttt'>sizeof...(T)</span> is greater than two, let <span class='texttt'>T1</span>,
   <span class='texttt'>T2</span>, and <span class='texttt'>Rest</span>, respectively, denote the first, second, and
   (pack of) remaining types comprising <span class='texttt'>T</span>. Let <span class='texttt'>C</span> be the type
-  <span class='texttt'>common_reference_t&lt;T1, T2&gt;</span>. Then:</span>
-</p><ul class='itemize'><li id='meta.trans.other-3.4.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-3.4.1'>(3.4.1)</a></div><p ><span class='added'>If there is such a type <span class='texttt'>C</span>, the member typedef <span class='texttt'>type</span> shall
-  denote the same type, if any, as <span class='texttt'>common_reference_t&lt;C, Rest...&gt;</span>.</span>
-</p></li><li id='meta.trans.other-3.4.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-3.4.2'>(3.4.2)</a></div><p ><span class='added'>Otherwise, there shall be no member <span class='texttt'>type</span>.</span>
-</p></li></ul></li></ul></div></div></div><div id='taggedtup'><h2 ><a class='secnum' href='#taggedtup' style='min-width:88pt'>8.5</a> Tagged tuple-like types <a class='abbr_ref' href='taggedtup'>[taggedtup]</a></h2><div id='taggedtup.general'><h3 ><a class='secnum' href='#taggedtup.general' style='min-width:103pt'>8.5.1</a> In general <a class='abbr_ref' href='taggedtup.general'>[taggedtup.general]</a></h3><div class='para' id='taggedtup.general-1'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.general-1'>1</a></div><p >The library provides a template for augmenting a tuple-like type with named element accessor
+  <span class='texttt'>common_reference_t&lt;T1, T2&gt;</span>. Then:
+</p><ul class='itemize'><li id='meta.trans.other-4.4.1'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-4.4.1'>(4.4.1)</a></div><p >If there is such a type <span class='texttt'>C</span>, the member typedef <span class='texttt'>type</span> shall
+  denote the same type, if any, as <span class='texttt'>common_reference_t&lt;C, Rest...&gt;</span>.
+</p></li><li id='meta.trans.other-4.4.2'><div class='marginalizedparent' style='left:-9em'><a class='marginalized' href='#meta.trans.other-4.4.2'>(4.4.2)</a></div><p >Otherwise, there shall be no member <span class='texttt'>type</span>.
+</p></li></ul></li></ul></div><div class='para' id='meta.trans.other-5'><div class='marginalizedparent'><a class='marginalized' href='#meta.trans.other-5'>5</a></div><p >Notwithstanding the provisions of   ISO/IEC 14882:2014 &sect;<a href='../n4140/meta.type.synop'>[meta.type.synop]</a>, and
+pursuant to   ISO/IEC 14882:2014 &sect;<a href='../n4140/namespace.std'>[namespace.std]</a>,
+a program may specialize <span class='texttt'>basic_common_reference&lt;T, U, TQual, UQual&gt;</span>
+for types <span class='texttt'>T</span> and <span class='texttt'>U</span> such that
+<span class='texttt'>is_same&lt;T, decay_t&lt;T&gt;&gt;::value</span> and
+<span class='texttt'>is_same&lt;U, decay_t&lt;U&gt;&gt;::value</span> are each <span class='texttt'>true</span>.
+[&nbsp;<i>Note:</i> Such specializations are needed when only explicit conversions
+are desired between the template arguments. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+Such a specialization need not have a member named <span class='texttt'>type</span>,
+but if it does, that member shall be a <span class='grammarterm'>typedef-name</span>
+for an accessible and unambiguous type <span class='texttt'>C</span>
+to which each of the types <span class='texttt'>TQual&lt;T&gt;</span> and <span class='texttt'>UQual&lt;U&gt;</span> is convertible.
+Moreover, <span class='texttt'>basic_common_reference&lt;T, U, TQual, UQual&gt;::type</span> shall denote
+the same type, if any, as does <span class='texttt'>basic_common_reference&lt;U, T, UQual, TQual&gt;::type</span>.
+A program may not specialize <span class='texttt'>basic_common_reference</span> on the third or
+fourth parameters, <span class='texttt'>TQual</span> or <span class='texttt'>UQual</span>. No diagnostic is required for
+a violation of these rules.</p></div></div></div><div id='taggedtup'><h2 ><a class='secnum' href='#taggedtup' style='min-width:88pt'>8.5</a> Tagged tuple-like types <a class='abbr_ref' href='taggedtup'>[taggedtup]</a></h2><div id='taggedtup.general'><h3 ><a class='secnum' href='#taggedtup.general' style='min-width:103pt'>8.5.1</a> In general <a class='abbr_ref' href='taggedtup.general'>[taggedtup.general]</a></h3><div class='para' id='taggedtup.general-1'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.general-1'>1</a></div><p >The library provides a template for augmenting a tuple-like type with named element accessor
 member functions. The library also provides several templates that provide access to <span class='texttt'>tagged</span>
 objects as if they were <span class='texttt'>tuple</span> objects (see   ISO/IEC 14882:2014 &sect;<a href='../n4140/tuple.elem'>[tuple.elem]</a>).</p></div></div><div id='taggedtup.tagged'><h3 ><a class='secnum' href='#taggedtup.tagged' style='min-width:103pt'>8.5.2</a> Class template <span class='texttt'>tagged</span> <a class='abbr_ref' href='taggedtup.tagged'>[taggedtup.tagged]</a></h3><div class='para' id='taggedtup.tagged-1'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-1'>1</a></div><p >Class template <span class='texttt'>tagged</span> augments a tuple-like class type (e.g., <span class='texttt'>pair</span> (  ISO/IEC 14882:2014 &sect;<a href='../n4140/pairs'>[pairs]</a>),
 <span class='texttt'>tuple</span> (  ISO/IEC 14882:2014 &sect;<a href='../n4140/tuple'>[tuple]</a>)) by giving it named accessors. It is used to define the alias
@@ -506,14 +520,10 @@ is zero-based.</p><p ><span class='indexparent'><a class='index' id='tagged'></a
 </span>
 namespace std { namespace experimental { namespace ranges { inline namespace v1 {
   template &lt;class T&gt;
-  concept bool TagSpecifier() {
-    return <i>implementation-defined</i>;
-  }
+  concept bool TagSpecifier = <i>implementation-defined</i>;
 
   template &lt;class F&gt;
-  concept bool TaggedType() {
-    return <i>implementation-defined</i>;
-  }
+  concept bool TaggedType = <i>implementation-defined</i>;
 
   template &lt;class Base, TagSpecifier... Tags&gt;
     requires sizeof...(Tags) &lt;= tuple_size&lt;Base&gt;::value
@@ -525,25 +535,29 @@ namespace std { namespace experimental { namespace ranges { inline namespace v1 
     tagged(const tagged&amp;) = default;
     tagged &amp;operator=(tagged&amp;&amp;) = default;
     tagged &amp;operator=(const tagged&amp;) = default;
+    tagged(Base&amp;&amp;) noexcept(<i><span class='texttt'>see below</span></i>)
+      requires MoveConstructible&lt;Base&gt;;
+    tagged(const Base&amp;) noexcept(<i><span class='texttt'>see below</span></i>)
+      requires CopyConstructible&lt;Base&gt;;
     template &lt;class Other&gt;
-      requires Constructible&lt;Base, Other&gt;()
-    tagged(tagged&lt;Other, Tags...&gt; &amp;&amp;that) noexcept(<i><span class='texttt'>see below</span></i>);
+      requires Constructible&lt;Base, Other&gt;
+    constexpr tagged(tagged&lt;Other, Tags...&gt; &amp;&amp;that) noexcept(<i><span class='texttt'>see below</span></i>);
     template &lt;class Other&gt;
-      requires Constructible&lt;Base, const Other&amp;&gt;()
-    tagged(const tagged&lt;Other, Tags...&gt; &amp;that);
+      requires Constructible&lt;Base, const Other&amp;&gt;
+    constexpr tagged(const tagged&lt;Other, Tags...&gt; &amp;that);
     template &lt;class Other&gt;
-      requires Assignable&lt;Base&amp;, Other&gt;()
-    tagged&amp; operator=(tagged&lt;Other, Tags...&gt;&amp;&amp; that) noexcept(<i><span class='texttt'>see below</span></i>);
+      requires Assignable&lt;Base&amp;, Other&gt;
+    constexpr tagged&amp; operator=(tagged&lt;Other, Tags...&gt;&amp;&amp; that) noexcept(<i><span class='texttt'>see below</span></i>);
     template &lt;class Other&gt;
-      requires Assignable&lt;Base&amp;, const Other&amp;&gt;()
-    tagged&amp; operator=(const tagged&lt;Other, Tags...&gt;&amp; that);
+      requires Assignable&lt;Base&amp;, const Other&amp;&gt;
+    constexpr tagged&amp; operator=(const tagged&lt;Other, Tags...&gt;&amp; that);
     template &lt;class U&gt;
-      requires Assignable&lt;Base&amp;, U&gt;() &amp;&amp; !Same&lt;decay_t&lt;U&gt;, tagged&gt;()
-    tagged&amp; operator=(U&amp;&amp; u) noexcept(<i><span class='texttt'>see below</span></i>);
-    void swap(tagged&amp; that) noexcept(<i><span class='texttt'>see below</span></i>)
-      requires Swappable&lt;Base&amp;&gt;();
-    friend void swap(tagged&amp;, tagged&amp;) noexcept(<i><span class='texttt'>see below</span></i>)
-      requires Swappable&lt;Base&amp;&gt;();
+      requires Assignable&lt;Base&amp;, U&gt; &amp;&amp; !Same&lt;decay_t&lt;U&gt;, tagged&gt;
+    constexpr tagged&amp; operator=(U&amp;&amp; u) noexcept(<i><span class='texttt'>see below</span></i>);
+    constexpr void swap(tagged&amp; that) noexcept(<i><span class='texttt'>see below</span></i>)
+      requires Swappable&lt;Base&gt;;
+    friend constexpr void swap(tagged&amp;, tagged&amp;) noexcept(<i><span class='texttt'>see below</span></i>)
+      requires Swappable&lt;Base&gt;;
   };
 }}}}
 </pre></div><div class='para' id='taggedtup.tagged-3'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-3'>3</a></div><p >A <i>tagged getter</i> is an empty trivial class type that has a named member function that
@@ -560,68 +574,72 @@ struct __<i>TAGGED_GETTER</i> {
 };
 </pre></div><div class='para' id='taggedtup.tagged-5'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-5'>5</a></div><p >A <i>tag specifier</i> is a type that facilitates a mapping from a tuple-like type and an
 element index into a <i>tagged getter</i> that gives named access to the element at that index.
-<span class='texttt'>TagSpecifier&lt;T&gt;()</span> is satisfied if and only if <span class='texttt'>T</span> is a tag specifier. The tag specifiers in the
+<span class='texttt'>TagSpecifier&lt;T&gt;</span> is satisfied if and only if <span class='texttt'>T</span> is a tag specifier. The tag specifiers in the
 <span class='texttt'>Tags</span> parameter pack shall be unique. [&nbsp;<i>Note:</i> The mapping mechanism from tag specifier to
 tagged getter is unspecified.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='taggedtup.tagged-6'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-6'>6</a></div><p >Let <span class='texttt'><i>TAGGET</i>(D, T, <span class='math'><span class='mathalpha'>N</span></span>)</span> name a tagged getter type that gives named
 access to the <span class='math'><span class='mathalpha'>N</span></span>-th element of the tuple-like type <span class='texttt'>D</span>.</p></div><div class='para' id='taggedtup.tagged-7'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-7'>7</a></div><p >It shall not be possible to delete an instance of class template <span class='texttt'>tagged</span> through a
-pointer to any base other than <span class='texttt'>Base</span>.</p></div><div class='para' id='taggedtup.tagged-8'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-8'>8</a></div><p ><span class='texttt'>TaggedType&lt;F&gt;()</span> is satisfied if and only if <span class='texttt'>F</span> is a unary function
-type with return type <span class='texttt'>T</span> which satisfies <span class='texttt'>TagSpecifier&lt;T&gt;()</span>. Let
+pointer to any base other than <span class='texttt'>Base</span>.</p></div><div class='para' id='taggedtup.tagged-8'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-8'>8</a></div><p ><span class='texttt'>TaggedType&lt;F&gt;</span> is satisfied if and only if <span class='texttt'>F</span> is a unary function
+type with return type <span class='texttt'>T</span> which satisfies <span class='texttt'>TagSpecifier&lt;T&gt;</span>. Let
 <span class='texttt'><i>TAGSPEC</i>(F)</span> name the tag specifier of the <span class='texttt'>TaggedType</span> <span class='texttt'>F</span>, and let
-<span class='texttt'><i>TAGELEM</i>(F)</span> name the argument type of the <span class='texttt'>TaggedType</span> <span class='texttt'>F</span>.</p><p ><span class='indexparent'><a class='index' id='tagged,tagged'></a></span>
-<code class='itemdecl'>
+<span class='texttt'><i>TAGELEM</i>(F)</span> name the argument type of the <span class='texttt'>TaggedType</span> <span class='texttt'>F</span>.</p><p ><span class='indexparent'><a class='index' id='tagged,tagged'></a></span></p><p ><code class='itemdecl'>
+tagged(Base&amp;&amp; that) noexcept(<i><span class='texttt'>see below</span></i>)
+  requires MoveConstructible&lt;Base&gt;;
+</code></p></div><div class='itemdescr'></div><div class='para' id='taggedtup.tagged-9'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-9'>9</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>Base</span> with <span class='texttt'>std::move(that)</span>.</p></div></div><div class='para' id='taggedtup.tagged-10'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-10'>10</a></div><div class='itemdescr'><p ><i>Remarks:</i> The expression in the <span class='texttt'>noexcept</span> is equivalent to:</p><pre class='codeblock'>
+is_nothrow_move_constructible&lt;Base&gt;::value
+</pre></div></div><p ><code class='itemdecl'>
+tagged(const Base&amp; that) noexcept(<i><span class='texttt'>see below</span></i>)
+  requires CopyConstructible&lt;Base&gt;;
+</code></p><div class='itemdescr'></div><div class='para' id='taggedtup.tagged-11'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>Base</span> with <span class='texttt'>that</span>.</p></div></div><div class='para' id='taggedtup.tagged-12'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-12'>12</a></div><div class='itemdescr'><p ><i>Remarks:</i> The expression in the <span class='texttt'>noexcept</span> is equivalent to:</p><pre class='codeblock'>
+is_nothrow_copy_constructible&lt;Base&gt;::value
+</pre></div></div><p ><code class='itemdecl'>
 template &lt;class Other&gt;
-  requires Constructible&lt;Base, Other&gt;()
-tagged(tagged&lt;Other, Tags...&gt; &amp;&amp;that) noexcept(<i><span class='texttt'>see below</span></i>);
-</code></p></div><div class='itemdescr'></div><div class='para' id='taggedtup.tagged-9'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-9'>9</a></div><div class='itemdescr'><p ><i>Remarks:</i> The expression in the <span class='texttt'>noexcept</span> is equivalent to:</p><pre class='codeblock'>
+  requires Constructible&lt;Base, Other&gt;
+constexpr tagged(tagged&lt;Other, Tags...&gt; &amp;&amp;that) noexcept(<i><span class='texttt'>see below</span></i>);
+</code></p><div class='itemdescr'></div><div class='para' id='taggedtup.tagged-13'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>Base</span> with <span class='texttt'>static_cast&lt;Other&amp;&amp;&gt;(that)</span>.</p></div></div><div class='para' id='taggedtup.tagged-14'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-14'>14</a></div><div class='itemdescr'><p ><i>Remarks:</i> The expression in the <span class='texttt'>noexcept</span> is equivalent to:</p><pre class='codeblock'>
 is_nothrow_constructible&lt;Base, Other&gt;::value
-</pre></div></div><div class='para' id='taggedtup.tagged-10'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-10'>10</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>Base</span> with <span class='texttt'>static_cast&lt;Other&amp;&amp;&gt;(that)</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='tagged,tagged'></a></span>
+</pre></div></div><p ><span class='indexparent'><a class='index' id='tagged,tagged'></a></span>
 <code class='itemdecl'>
 template &lt;class Other&gt;
-  requires Constructible&lt;Base, const Other&amp;&gt;()
-tagged(const tagged&lt;Other, Tags...&gt;&amp; that);
-</code></p><div class='itemdescr'></div><div class='para' id='taggedtup.tagged-11'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>Base</span> with <span class='texttt'>static_cast&lt;const Other&amp;&gt;(that)</span>.
+  requires Constructible&lt;Base, const Other&amp;&gt;
+constexpr tagged(const tagged&lt;Other, Tags...&gt;&amp; that);
+</code></p><div class='itemdescr'></div><div class='para' id='taggedtup.tagged-15'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> Initializes <span class='texttt'>Base</span> with <span class='texttt'>static_cast&lt;const Other&amp;&gt;(that)</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,tagged'></a></span>
 <span class='indexparent'><a class='index' id='tagged,operator='></a></span>
 <code class='itemdecl'>
 template &lt;class Other&gt;
-  requires Assignable&lt;Base&amp;, Other&gt;()
-tagged&amp; operator=(tagged&lt;Other, Tags...&gt;&amp;&amp; that) noexcept(<i><span class='texttt'>see below</span></i>);
-</code></p><div class='itemdescr'></div><div class='para' id='taggedtup.tagged-12'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-12'>12</a></div><div class='itemdescr'><p ><i>Remarks:</i> The expression in the <span class='texttt'>noexcept</span> is equivalent to:</p><pre class='codeblock'>
+  requires Assignable&lt;Base&amp;, Other&gt;
+constexpr tagged&amp; operator=(tagged&lt;Other, Tags...&gt;&amp;&amp; that) noexcept(<i><span class='texttt'>see below</span></i>);
+</code></p><div class='itemdescr'></div><div class='para' id='taggedtup.tagged-16'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i> Assigns <span class='texttt'>static_cast&lt;Other&amp;&amp;&gt;(that)</span> to <span class='texttt'>static_cast&lt;Base&amp;&gt;(*this)</span>.</p></div></div><div class='para' id='taggedtup.tagged-17'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-17'>17</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.</p></div></div><div class='para' id='taggedtup.tagged-18'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-18'>18</a></div><div class='itemdescr'><p ><i>Remarks:</i> The expression in the <span class='texttt'>noexcept</span> is equivalent to:</p><pre class='codeblock'>
 is_nothrow_assignable&lt;Base&amp;, Other&gt;::value
-</pre></div></div><div class='para' id='taggedtup.tagged-13'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i> Assigns <span class='texttt'>static_cast&lt;Other&amp;&amp;&gt;(that)</span> to <span class='texttt'>static_cast&lt;Base&amp;&gt;(*this)</span>.</p></div></div><div class='para' id='taggedtup.tagged-14'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-14'>14</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='operator=,tagged'></a></span>
+</pre></div></div><p ><span class='indexparent'><a class='index' id='operator=,tagged'></a></span>
 <span class='indexparent'><a class='index' id='tagged,operator='></a></span>
 <code class='itemdecl'>
 template &lt;class Other&gt;
-  requires Assignable&lt;Base&amp;, const Other&amp;&gt;()
-tagged&amp; operator=(const tagged&lt;Other, Tags...&gt;&amp; that);
-</code></p><div class='itemdescr'></div><div class='para' id='taggedtup.tagged-15'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> Assigns <span class='texttt'>static_cast&lt;const Other&amp;&gt;(that)</span> to <span class='texttt'>static_cast&lt;Base&amp;&gt;(*this)</span>.</p></div></div><div class='para' id='taggedtup.tagged-16'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-16'>16</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
+  requires Assignable&lt;Base&amp;, const Other&amp;&gt;
+constexpr tagged&amp; operator=(const tagged&lt;Other, Tags...&gt;&amp; that);
+</code></p><div class='itemdescr'></div><div class='para' id='taggedtup.tagged-19'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-19'>19</a></div><div class='itemdescr'><p ><i>Effects:</i> Assigns <span class='texttt'>static_cast&lt;const Other&amp;&gt;(that)</span> to <span class='texttt'>static_cast&lt;Base&amp;&gt;(*this)</span>.</p></div></div><div class='para' id='taggedtup.tagged-20'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-20'>20</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
 </p></div></div><p ><span class='indexparent'><a class='index' id='operator=,tagged'></a></span>
 <span class='indexparent'><a class='index' id='tagged,operator='></a></span>
 <code class='itemdecl'>
 template &lt;class U&gt;
-  requires Assignable&lt;Base&amp;, U&gt;() &amp;&amp; !Same&lt;decay_t&lt;U&gt;, tagged&gt;()
-tagged&amp; operator=(U&amp;&amp; u) noexcept(<i><span class='texttt'>see below</span></i>);
-</code></p><div class='itemdescr'></div><div class='para' id='taggedtup.tagged-17'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-17'>17</a></div><div class='itemdescr'><p ><i>Remarks:</i> The expression in the <span class='texttt'>noexcept</span> is equivalent to:</p><pre class='codeblock'>
+  requires Assignable&lt;Base&amp;, U&gt; &amp;&amp; !Same&lt;decay_t&lt;U&gt;, tagged&gt;
+constexpr tagged&amp; operator=(U&amp;&amp; u) noexcept(<i><span class='texttt'>see below</span></i>);
+</code></p><div class='itemdescr'></div><div class='para' id='taggedtup.tagged-21'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-21'>21</a></div><div class='itemdescr'><p ><i>Effects:</i> Assigns <span class='texttt'>std::forward&lt;U&gt;(u)</span> to <span class='texttt'>static_cast&lt;Base&amp;&gt;(*this)</span>.</p></div></div><div class='para' id='taggedtup.tagged-22'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-22'>22</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.</p></div></div><div class='para' id='taggedtup.tagged-23'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-23'>23</a></div><div class='itemdescr'><p ><i>Remarks:</i> The expression in the <span class='texttt'>noexcept</span> is equivalent to:</p><pre class='codeblock'>
 is_nothrow_assignable&lt;Base&amp;, U&gt;::value
-</pre></div></div><div class='para' id='taggedtup.tagged-18'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-18'>18</a></div><div class='itemdescr'><p ><i>Effects:</i> Assigns <span class='texttt'>std::forward&lt;U&gt;(u)</span> to <span class='texttt'>static_cast&lt;Base&amp;&gt;(*this)</span>.</p></div></div><div class='para' id='taggedtup.tagged-19'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-19'>19</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>*this</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='swap,tagged'></a></span>
+</pre></div></div><p ><span class='indexparent'><a class='index' id='swap,tagged'></a></span>
 <span class='indexparent'><a class='index' id='tagged,swap'></a></span>
 <code class='itemdecl'>
-void swap(tagged&amp; rhs) noexcept(<i><span class='texttt'>see below</span></i>)
-  requires Swappable&lt;Base&amp;&gt;();
-</code></p><div class='itemdescr'></div><div class='para' id='taggedtup.tagged-20'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-20'>20</a></div><div class='itemdescr'><p ><i>Remarks:</i> The expression in the <span class='texttt'>noexcept</span> is equivalent to:</p><pre class='codeblock'>
+constexpr void swap(tagged&amp; rhs) noexcept(<i><span class='texttt'>see below</span></i>)
+  requires Swappable&lt;Base&gt;;
+</code></p><div class='itemdescr'></div><div class='para' id='taggedtup.tagged-24'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-24'>24</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>swap</span> on the result of applying <span class='texttt'>static_cast</span> to <span class='texttt'>*this</span> and
+<span class='texttt'>that</span>.</p></div></div><div class='para' id='taggedtup.tagged-25'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-25'>25</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing unless the call to <span class='texttt'>swap</span> on the <span class='texttt'>Base</span> sub-objects throws.</p></div></div><div class='para' id='taggedtup.tagged-26'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-26'>26</a></div><div class='itemdescr'><p ><i>Remarks:</i> The expression in the <span class='texttt'>noexcept</span> is equivalent to:</p><pre class='codeblock'>
 noexcept(swap(declval&lt;Base&amp;&gt;(), declval&lt;Base&amp;&gt;()))
-</pre></div></div><div class='para' id='taggedtup.tagged-21'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-21'>21</a></div><div class='itemdescr'><p ><i>Effects:</i> Calls <span class='texttt'>swap</span> on the result of applying <span class='texttt'>static_cast</span> to <span class='texttt'>*this</span> and
-<span class='texttt'>that</span>.</p></div></div><div class='para' id='taggedtup.tagged-22'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-22'>22</a></div><div class='itemdescr'><p ><i>Throws:</i> Nothing unless the call to <span class='texttt'>swap</span> on the <span class='texttt'>Base</span> sub-objects throws.
-</p></div></div><p ><span class='indexparent'><a class='index' id='swap,tagged'></a></span><code class='itemdecl'>
-friend void swap(tagged&amp; lhs, tagged&amp; rhs) noexcept(<i><span class='texttt'>see below</span></i>)
-  requires Swappable&lt;Base&amp;&gt;();
-</code></p><div class='itemdescr'></div><div class='para' id='taggedtup.tagged-23'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-23'>23</a></div><div class='itemdescr'><p ><i>Remarks:</i> The expression in the <span class='texttt'>noexcept</span> is equivalent to:</p><pre class='codeblock'>
+</pre></div></div><p ><span class='indexparent'><a class='index' id='swap,tagged'></a></span><code class='itemdecl'>
+friend constexpr void swap(tagged&amp; lhs, tagged&amp; rhs) noexcept(<i><span class='texttt'>see below</span></i>)
+  requires Swappable&lt;Base&gt;;
+</code></p><div class='itemdescr'></div><div class='para' id='taggedtup.tagged-27'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-27'>27</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>lhs.swap(rhs)</span>.</p></div></div><div class='para' id='taggedtup.tagged-28'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-28'>28</a></div><div class='itemdescr'><p ><i>Remarks:</i> The expression in the <span class='texttt'>noexcept</span> is equivalent to:</p><pre class='codeblock'>
 noexcept(lhs.swap(rhs))
-</pre></div></div><div class='para' id='taggedtup.tagged-24'><div class='marginalizedparent'><a class='marginalized' href='#taggedtup.tagged-24'>24</a></div><div class='itemdescr'><p ><i>Effects:</i> Equivalent to <span class='texttt'>lhs.swap(rhs)</span>.
-</p></div></div></div><div id='tagged.astuple'><h3 ><a class='secnum' href='#tagged.astuple' style='min-width:103pt'>8.5.3</a> Tuple-like access to <span class='texttt'>tagged</span> <a class='abbr_ref' href='tagged.astuple'>[tagged.astuple]</a></h3><p ><span class='indexparent'><a class='index' id='tuple_size'></a></span><span class='indexparent'><a class='index' id='tuple_element'></a></span><code class='itemdecl'>
+</pre></div></div></div><div id='tagged.astuple'><h3 ><a class='secnum' href='#tagged.astuple' style='min-width:103pt'>8.5.3</a> Tuple-like access to <span class='texttt'>tagged</span> <a class='abbr_ref' href='tagged.astuple'>[tagged.astuple]</a></h3><p ><span class='indexparent'><a class='index' id='tuple_size'></a></span><span class='indexparent'><a class='index' id='tuple_element'></a></span><code class='itemdecl'>
 namespace std {
   template &lt;class Base, class... Tags&gt;
   struct tuple_size&lt;experimental::ranges::tagged&lt;Base, Tags...&gt;&gt;
@@ -670,21 +688,11 @@ namespace std { namespace experimental { namespace ranges { inline namespace v1 
     requires sizeof...(Tags) == sizeof...(Types)
       constexpr <i><span class='texttt'>see below</span></i> make_tagged_tuple(Types&amp;&amp;... t);
 }}}}
-</pre></div><div class='para' id='tagged.tuple-2'><div class='marginalizedparent'><a class='marginalized' href='#tagged.tuple-2'>2</a></div><p >Any entities declared or defined in namespace <span class='texttt'>std</span> in header <span class='texttt'>&lt;tuple&gt;</span>
-that are not already defined in namespace <span class='texttt'>std::experimental::ranges</span> in header
-<span class='texttt'>&lt;experimental/ranges/tuple&gt;</span> are imported with
-<span class='grammarterm'>using-declarations</span> (  ISO/IEC 14882:2014 &sect;<a href='../n4140/namespace.udecl'>[namespace.udecl]</a>). [&nbsp;<i>Example:</i>
-</p><pre class='codeblock'>
-namespace std { namespace experimental { namespace ranges { inline namespace v1 {
-  using std::tuple;
-  using std::make_tuple;
-  <span class='comment'>// ... others
-</span>}}}}
-</pre><p ><i>&nbsp;—&nbsp;end example</i>&nbsp;]</p></div><div class='para' id='tagged.tuple-3'><div class='marginalizedparent'><a class='marginalized' href='#tagged.tuple-3'>3</a></div><pre class='codeblock'>
+</pre></div><div class='para' id='tagged.tuple-2'><div class='marginalizedparent'><a class='marginalized' href='#tagged.tuple-2'>2</a></div><pre class='codeblock'>
 template &lt;TaggedType... Types&gt;
 using tagged_tuple = tagged&lt;tuple&lt;<i>TAGELEM</i>(Types)...&gt;,
                             <i>TAGSPEC</i>(Types)...&gt;;
-</pre></div><div class='para' id='tagged.tuple-4'><div class='marginalizedparent'><a class='marginalized' href='#tagged.tuple-4'>4</a></div><p >[&nbsp;<i>Example:</i>
+</pre></div><div class='para' id='tagged.tuple-3'><div class='marginalizedparent'><a class='marginalized' href='#tagged.tuple-3'>3</a></div><p >[&nbsp;<i>Example:</i>
 </p><pre class='codeblock'>
 <span class='comment'>// See <a href='alg.tagspec'>[alg.tagspec]</a>:
 </span>tagged_tuple&lt;tag::in(char*), tag::out(char*)&gt; t{0, 0};

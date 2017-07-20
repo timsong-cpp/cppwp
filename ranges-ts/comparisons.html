@@ -1,107 +1,134 @@
 <!DOCTYPE html><html lang='en'><head><title>[comparisons]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>8</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>8.3</a> Function objects <a class='abbr_ref' href='function.objects#comparisons'>[function.objects]</a></h2><div id='comparisons'><h3 ><a class='secnum' style='min-width:103pt'>8.3.2</a> Comparisons <a class='abbr_ref'>[comparisons]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><p >The library provides basic function object classes for all of the comparison
-operators in the language (  ISO/IEC 14882:2014 &sect;<a href='../n4140/expr.rel'>[expr.rel]</a>,   ISO/IEC 14882:2014 &sect;<a href='../n4140/expr.eq'>[expr.eq]</a>).</p><p ><span class='indexparent'><a class='index' id='equal_to'></a></span><code class='itemdecl'>
+operators in the language (  ISO/IEC 14882:2014 &sect;<a href='../n4140/expr.rel'>[expr.rel]</a>,   ISO/IEC 14882:2014 &sect;<a href='../n4140/expr.eq'>[expr.eq]</a>).</p></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><p >In this section, <span class='texttt'><i>BUILTIN_PTR_CMP</i>(T, <span class='math'><span class='mathalpha'>op</span></span>, U)</span> for types <span class='texttt'>T</span>
+and <span class='texttt'>U</span> and where <span class='math'><span class='mathalpha'>op</span></span> is an equality (  ISO/IEC 14882:2014 &sect;<a href='../n4140/expr.eq'>[expr.eq]</a>) or relational
+operator (  ISO/IEC 14882:2014 &sect;<a href='../n4140/expr.rel'>[expr.rel]</a>) is a boolean constant expression.
+<span class='texttt'><i>BUILTIN_PTR_CMP</i>(T, <span class='math'><span class='mathalpha'>op</span></span>, U)</span> is <span class='texttt'>true</span> if and only if <span class='math'><span class='mathalpha'>op</span></span>
+in the expression <span class='texttt'>declval&lt;T&gt;() <span class='math'><span class='mathalpha'>op</span></span> declval&lt;U&gt;()</span> resolves to a built-in
+operator comparing pointers.</p></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><p >There is an implementation-defined strict total ordering over all pointer values
+of a given type. This total ordering is consistent with the partial order imposed
+by the builtin operators <span class='texttt'>&lt;</span>, <span class='texttt'>&gt;</span>, <span class='texttt'>&lt;=</span>, and <span class='texttt'>&gt;=</span>.</p><p ><span class='indexparent'><a class='index' id='equal_to'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt;
-  requires EqualityComparable&lt;T&gt;() || Same&lt;T, void&gt;()
+  requires EqualityComparable&lt;T&gt; || Same&lt;T, void&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(const T&amp;, ==, const T&amp;)
 struct equal_to {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
-</code></p></div><div class='itemdescr'></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>x == y</span>.
+</code></p></div><div class='itemdescr'></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to: <span class='texttt'>return equal_to&lt;&gt;(x, y);</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='not_equal_to'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt;
-  requires EqualityComparable&lt;T&gt;() || Same&lt;T, void&gt;()
+  requires EqualityComparable&lt;T&gt; || Same&lt;T, void&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(const T&amp;, ==, const T&amp;)
 struct not_equal_to {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>x != y</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to: <span class='texttt'>return !equal_to&lt;&gt;(x, y);</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='greater'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt;
-  requires StrictTotallyOrdered&lt;T&gt;() || Same&lt;T, void&gt;()
+  requires StrictTotallyOrdered&lt;T&gt; || Same&lt;T, void&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(const T&amp;, &lt;, const T&amp;)
 struct greater {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>x &gt; y</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to: <span class='texttt'>return less&lt;&gt;(y, x);</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='less'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt;
-  requires StrictTotallyOrdered&lt;T&gt;() || Same&lt;T, void&gt;()
+  requires StrictTotallyOrdered&lt;T&gt; || Same&lt;T, void&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(const T&amp;, &lt;, const T&amp;)
 struct less {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>x &lt; y</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to: <span class='texttt'>return less&lt;&gt;(x, y);</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='greater_equal'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt;
-  requires StrictTotallyOrdered&lt;T&gt;() || Same&lt;T, void&gt;()
+  requires StrictTotallyOrdered&lt;T&gt; || Same&lt;T, void&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(const T&amp;, &lt;, const T&amp;)
 struct greater_equal {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>x &gt;= y</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to: <span class='texttt'>return !less&lt;&gt;(x, y);</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='less_equal'></a></span><code class='itemdecl'>
 template &lt;class T = void&gt;
-  requires StrictTotallyOrdered&lt;T&gt;() || Same&lt;T, void&gt;()
+  requires StrictTotallyOrdered&lt;T&gt; || Same&lt;T, void&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(const T&amp;, &lt;, const T&amp;)
 struct less_equal {
   constexpr bool operator()(const T&amp; x, const T&amp; y) const;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>x &lt;= y</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to: <span class='texttt'>return !less&lt;&gt;(y, x);</span>
 </p></div></div><p ><span class='indexparent'><a class='index' id='equal_to<>'></a></span><code class='itemdecl'>
 template &lt;&gt; struct equal_to&lt;void&gt; {
   template &lt;class T, class U&gt;
-    requires EqualityComparable&lt;T, U&gt;()
-  constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
-    -&gt; decltype(std::forward&lt;T&gt;(t) == std::forward&lt;U&gt;(u));
+    requires EqualityComparableWith&lt;T, U&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(T, ==, U)
+  constexpr bool operator()(T&amp;&amp; t, U&amp;&amp; u) const;
 
   typedef <i><span class='texttt'>unspecified</span></i> is_transparent;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>std::forward&lt;T&gt;(t) == std::forward&lt;U&gt;(u)</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='not_equal_to<>'></a></span><code class='itemdecl'>
+</code></p><div class='itemdescr'></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><div class='itemdescr'><p ><i>Requires:</i> If the expression <span class='texttt'>std::forward&lt;T&gt;(t) == std::forward&lt;U&gt;(u)</span>
+results in a call to a built-in operator <span class='texttt'>==</span> comparing pointers of type
+<span class='texttt'>P</span>, the conversion sequences from both <span class='texttt'>T</span> and <span class='texttt'>U</span> to <span class='texttt'>P</span>
+shall be equality-preserving (<a href='concepts.lib.general.equality'>[concepts.lib.general.equality]</a>).</p></div></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><ul class='itemize'><li id='11.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#11.1'>(11.1)</a></div><p >If the expression <span class='texttt'>std::forward&lt;T&gt;(t) == std::forward&lt;U&gt;(u)</span> results in a
+call to a built-in operator <span class='texttt'>==</span> comparing pointers of type <span class='texttt'>P</span>:
+returns <span class='texttt'>false</span> if either (the converted value of) <span class='texttt'>t</span> precedes
+<span class='texttt'>u</span> or <span class='texttt'>u</span> precedes <span class='texttt'>t</span> in the implementation-defined strict
+total order over pointers of type <span class='texttt'>P</span> and otherwise <span class='texttt'>true</span>.</p></li><li id='11.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#11.2'>(11.2)</a></div><p >Otherwise, equivalent to: <span class='texttt'>return std::forward&lt;T&gt;(t) == std::forward&lt;U&gt;(u);</span>
+</p></li></ul></div></div><p ><span class='indexparent'><a class='index' id='not_equal_to<>'></a></span><code class='itemdecl'>
 template &lt;&gt; struct not_equal_to&lt;void&gt; {
   template &lt;class T, class U&gt;
-    requires EqualityComparable&lt;T, U&gt;()
-  constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
-    -&gt; decltype(std::forward&lt;T&gt;(t) != std::forward&lt;U&gt;(u));
+    requires EqualityComparableWith&lt;T, U&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(T, ==, U)
+  constexpr bool operator()(T&amp;&amp; t, U&amp;&amp; u) const;
 
   typedef <i><span class='texttt'>unspecified</span></i> is_transparent;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>std::forward&lt;T&gt;(t) != std::forward&lt;U&gt;(u)</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='greater<>'></a></span><code class='itemdecl'>
+</code></p><div class='itemdescr'></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to:
+</p><pre class='codeblock'>
+return !equal_to&lt;&gt;{}(std::forward&lt;T&gt;(t), std::forward&lt;U&gt;(u));
+</pre></div></div><p ><span class='indexparent'><a class='index' id='greater<>'></a></span><code class='itemdecl'>
 template &lt;&gt; struct greater&lt;void&gt; {
   template &lt;class T, class U&gt;
-    requires StrictTotallyOrdered&lt;T, U&gt;()
-  constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
-    -&gt; decltype(std::forward&lt;T&gt;(t) &gt; std::forward&lt;U&gt;(u));
+    requires StrictTotallyOrderedWith&lt;T, U&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(U, &lt;, T)
+  constexpr bool operator()(T&amp;&amp; t, U&amp;&amp; u) const;
 
   typedef <i><span class='texttt'>unspecified</span></i> is_transparent;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>std::forward&lt;T&gt;(t) &gt; std::forward&lt;U&gt;(u)</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='less<>'></a></span><code class='itemdecl'>
+</code></p><div class='itemdescr'></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to:
+</p><pre class='codeblock'>
+return less&lt;&gt;{}(std::forward&lt;U&gt;(u), std::forward&lt;T&gt;(t));
+</pre></div></div><p ><span class='indexparent'><a class='index' id='less<>'></a></span><code class='itemdecl'>
 template &lt;&gt; struct less&lt;void&gt; {
   template &lt;class T, class U&gt;
-    requires StrictTotallyOrdered&lt;T, U&gt;()
-  constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
-    -&gt; decltype(std::forward&lt;T&gt;(t) &lt; std::forward&lt;U&gt;(u));
+    requires StrictTotallyOrderedWith&lt;T, U&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(T, &lt;, U)
+  constexpr bool operator()(T&amp;&amp; t, U&amp;&amp; u) const;
 
   typedef <i><span class='texttt'>unspecified</span></i> is_transparent;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>std::forward&lt;T&gt;(t) &lt; std::forward&lt;U&gt;(u)</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='greater_equal<>'></a></span><code class='itemdecl'>
+</code></p><div class='itemdescr'></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><div class='itemdescr'><p ><i>Requires:</i>
+If the expression <span class='texttt'>std::forward&lt;T&gt;(t) &lt; std::forward&lt;U&gt;(u)</span> results in a
+call to a built-in operator <span class='texttt'>&lt;</span> comparing pointers of type <span class='texttt'>P</span>, the
+conversion sequences from both <span class='texttt'>T</span> and <span class='texttt'>U</span> to <span class='texttt'>P</span> shall be
+equality-preserving (<a href='concepts.lib.general.equality'>[concepts.lib.general.equality]</a>). For any expressions
+<span class='texttt'>ET</span> and <span class='texttt'>EU</span> such that <span class='texttt'>decltype((ET))</span> is <span class='texttt'>T</span> and
+<span class='texttt'>decltype((EU))</span> is <span class='texttt'>U</span>, exactly one of <span class='texttt'>less&lt;&gt;{}(ET, EU)</span>,
+<span class='texttt'>less&lt;&gt;{}(EU, ET)</span> or <span class='texttt'>equal_to&lt;&gt;{}(ET, EU)</span> shall be
+<span class='texttt'>true</span>.</p></div></div><div class='para' id='15'><div class='marginalizedparent'><a class='marginalized' href='#15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i>
+</p><ul class='itemize'><li id='15.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#15.1'>(15.1)</a></div><p >If the expression <span class='texttt'>std::forward&lt;T&gt;(t) &lt; std::forward&lt;U&gt;(u)</span> results in a
+call to a built-in operator <span class='texttt'>&lt;</span> comparing pointers of type <span class='texttt'>P</span>:
+returns <span class='texttt'>true</span> if (the converted value of) <span class='texttt'>t</span> precedes <span class='texttt'>u</span> in
+the implementation-defined strict total order over pointers of type <span class='texttt'>P</span>
+and otherwise <span class='texttt'>false</span>.</p></li><li id='15.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#15.2'>(15.2)</a></div><p >Otherwise, equivalent to: <span class='texttt'>return std::forward&lt;T&gt;(t) &lt; std::forward&lt;U&gt;(u);</span>
+</p></li></ul></div></div><p ><span class='indexparent'><a class='index' id='greater_equal<>'></a></span><code class='itemdecl'>
 template &lt;&gt; struct greater_equal&lt;void&gt; {
   template &lt;class T, class U&gt;
-    requires StrictTotallyOrdered&lt;T, U&gt;()
-  constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
-    -&gt; decltype(std::forward&lt;T&gt;(t) &gt;= std::forward&lt;U&gt;(u));
+    requires StrictTotallyOrderedWith&lt;T, U&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(T, &lt;, U)
+  constexpr bool operator()(T&amp;&amp; t, U&amp;&amp; u) const;
 
   typedef <i><span class='texttt'>unspecified</span></i> is_transparent;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='12'><div class='marginalizedparent'><a class='marginalized' href='#12'>12</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>std::forward&lt;T&gt;(t) &gt;= std::forward&lt;U&gt;(u)</span>.
-</p></div></div><p ><span class='indexparent'><a class='index' id='less_equal<>'></a></span><code class='itemdecl'>
+</code></p><div class='itemdescr'></div><div class='para' id='16'><div class='marginalizedparent'><a class='marginalized' href='#16'>16</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to:
+</p><pre class='codeblock'>
+return !less&lt;&gt;{}(std::forward&lt;T&gt;(t), std::forward&lt;U&gt;(u));
+</pre></div></div><p ><span class='indexparent'><a class='index' id='less_equal<>'></a></span><code class='itemdecl'>
 template &lt;&gt; struct less_equal&lt;void&gt; {
   template &lt;class T, class U&gt;
-    requires StrictTotallyOrdered&lt;T, U&gt;()
-  constexpr auto operator()(T&amp;&amp; t, U&amp;&amp; u) const
-    -&gt; decltype(std::forward&lt;T&gt;(t) &lt;= std::forward&lt;U&gt;(u));
+    requires StrictTotallyOrderedWith&lt;T, U&gt; || <i><span class='texttt'>BUILTIN_PTR_CMP</span></i>(U, &lt;, T)
+  constexpr bool operator()(T&amp;&amp; t, U&amp;&amp; u) const;
 
   typedef <i><span class='texttt'>unspecified</span></i> is_transparent;
 };
-</code></p><div class='itemdescr'></div><div class='para' id='13'><div class='marginalizedparent'><a class='marginalized' href='#13'>13</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> returns <span class='texttt'>std::forward&lt;T&gt;(t) &lt;= std::forward&lt;U&gt;(u)</span>.
-</p></div></div><div class='para' id='14'><div class='marginalizedparent'><a class='marginalized' href='#14'>14</a></div><p >For templates <span class='texttt'>greater</span>, <span class='texttt'>less</span>, <span class='texttt'>greater_equal</span>, and
-<span class='texttt'>less_equal</span>, the specializations for any pointer type yield a total order,
-even if the built-in operators <span class='texttt'>&lt;</span>, <span class='texttt'>&gt;</span>, <span class='texttt'>&lt;=</span>, <span class='texttt'>&gt;=</span>
-do not.</p></div></div></div></body></html>
+</code></p><div class='itemdescr'></div><div class='para' id='17'><div class='marginalizedparent'><a class='marginalized' href='#17'>17</a></div><div class='itemdescr'><p ><span class='texttt'>operator()</span> has effects equivalent to:
+</p><pre class='codeblock'>
+return !less&lt;&gt;{}(std::forward&lt;U&gt;(u), std::forward&lt;T&gt;(t));
+</pre></div></div></div></div></body></html>

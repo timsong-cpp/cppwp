@@ -19,7 +19,7 @@ iterator_category_t&lt;II&gt;
     : enable_if&lt;is_object&lt;T&gt;::value, ptrdiff_t&gt; { };
 
   template &lt;class I&gt;
-  struct difference_type&lt;I const&gt; : difference_type&lt;decay_t&lt;I&gt;&gt; { };
+  struct difference_type&lt;const I&gt; : difference_type&lt;decay_t&lt;I&gt;&gt; { };
 
   template &lt;class T&gt;
     requires requires { typename T::difference_type; }
@@ -49,7 +49,7 @@ iterator_category_t&lt;II&gt;
   struct value_type&lt;I&gt; : value_type&lt;decay_t&lt;I&gt;&gt; { };
 
   template &lt;class I&gt;
-  struct value_type&lt;I const&gt; : value_type&lt;decay_t&lt;I&gt;&gt; { };
+  struct value_type&lt;const I&gt; : value_type&lt;decay_t&lt;I&gt;&gt; { };
 
   template &lt;class T&gt;
     requires requires { typename T::value_type; }
@@ -59,7 +59,10 @@ iterator_category_t&lt;II&gt;
   template &lt;class T&gt;
     requires requires { typename T::element_type; }
   struct value_type&lt;T&gt;
-    : enable_if&lt;is_object&lt;typename T::element_type&gt;::value, typename T::element_type&gt; { };
+    : enable_if&lt;
+        is_object&lt;typename T::element_type&gt;::value,
+        remove_cv_t&lt;typename T::element_type&gt;&gt;
+    { };
 
   template &lt;class T&gt; using value_type_t
     = typename value_type&lt;T&gt;::type;
@@ -71,7 +74,8 @@ such that <span class='texttt'>I::value_type</span> is valid and denotes a type,
 iterators define a nested type named <span class='texttt'>value_type</span> that is an alias for <span class='texttt'>void</span>. These
 types are not <span class='texttt'>Readable</span> and have no associated value types.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div><div class='para' id='value_type-5'><div class='marginalizedparent'><a class='marginalized' href='#value_type-5'>5</a></div><p >When instantiated with a type <span class='texttt'>I</span>
 such that <span class='texttt'>I::element_type</span> is valid and denotes a type,
-<span class='texttt'>value_type&lt;I&gt;::type</span> names that type, unless it is not an object type (  ISO/IEC 14882:2014 &sect;<a href='../n4140/basic.types'>[basic.types]</a>) in which case
+<span class='texttt'>value_type&lt;I&gt;::type</span> names the type <span class='texttt'>remove_cv_t&lt;I::element_type&gt;</span>, unless it is
+not an object type (  ISO/IEC 14882:2014 &sect;<a href='../n4140/basic.types'>[basic.types]</a>) in which case
 <span class='texttt'>value_type&lt;I&gt;</span> shall have no nested type <span class='texttt'>type</span>. [&nbsp;<i>Note:</i> Smart pointers like
 <span class='texttt'>shared_ptr&lt;int&gt;</span> are <span class='texttt'>Readable</span> and have an associated value type. But a smart pointer
 like <span class='texttt'>shared_ptr&lt;void&gt;</span> is not <span class='texttt'>Readable</span> and has no associated value type.<i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div id='iterator_category'><h4 ><a class='secnum' href='#iterator_category' style='min-width:118pt'>9.3.3.3</a> <span class='texttt'>iterator_category</span> <a class='abbr_ref' href='iterator.assoc.types.iterator_category'>[iterator.assoc.types.iterator_category]</a></h4><div class='para' id='iterator_category-1'><div class='marginalizedparent'><a class='marginalized' href='#iterator_category-1'>1</a></div><p ><span class='indexparent'><a class='index' id='iterator_category_t'></a></span><span class='texttt'>iterator_category_t&lt;T&gt;</span>
