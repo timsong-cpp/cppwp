@@ -51,6 +51,9 @@ inline namespace v1 {
                 const native_handle_type&amp; native_acceptor,
                 error_code&amp; ec); <span class='comment'>// see <a href='socket.reqmts.native'>[socket.reqmts.native]</a>
 </span>
+    native_handle_type release(); <span class='comment'>// see <a href='socket.reqmts.native'>[socket.reqmts.native]</a>
+</span>    native_handle_type release(error_code&amp; ec); <span class='comment'>// see <a href='socket.reqmts.native'>[socket.reqmts.native]</a>
+</span>
     bool is_open() const;
 
     void close();
@@ -176,8 +179,9 @@ basic_socket_acceptor(basic_socket_acceptor&amp;&amp; rhs);
 </p></li><li id='cons-10.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#cons-10.2'>(10.2)</a></div><p ><span class='texttt'>is_open()</span> returns the same value as <span class='texttt'>rhs.is_open()</span> prior to the constructor invocation.
 </p></li><li id='cons-10.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#cons-10.3'>(10.3)</a></div><p ><span class='texttt'>non_blocking()</span> returns the same value as <span class='texttt'>rhs.non_blocking()</span> prior to the constructor invocation.
 </p></li><li id='cons-10.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#cons-10.4'>(10.4)</a></div><p ><span class='texttt'>enable_connection_aborted()</span> returns the same value as <span class='texttt'>rhs.enable_connection_aborted()</span> prior to the constructor invocation.
-</p></li><li id='cons-10.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#cons-10.5'>(10.5)</a></div><p ><span class='texttt'>protocol_</span> is equal to the prior value of <span class='texttt'>rhs.protocol_</span>.
-</p></li><li id='cons-10.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#cons-10.6'>(10.6)</a></div><p ><span class='texttt'>rhs.is_open() == false</span>.
+</p></li><li id='cons-10.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#cons-10.5'>(10.5)</a></div><p ><span class='texttt'>native_handle()</span> returns the same value as <span class='texttt'>rhs.native_handle()</span> prior to the constructor invocation.
+</p></li><li id='cons-10.6'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#cons-10.6'>(10.6)</a></div><p ><span class='texttt'>protocol_</span> is equal to the prior value of <span class='texttt'>rhs.protocol_</span>.
+</p></li><li id='cons-10.7'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#cons-10.7'>(10.7)</a></div><p ><span class='texttt'>rhs.is_open() == false</span>.
 </p></li></ul></div></div><p ><code class='itemdecl'>
 template&lt;class OtherProtocol&gt;
   basic_socket_acceptor(basic_socket_acceptor&lt;OtherProtocol&gt;&amp;&amp; rhs);
@@ -245,30 +249,37 @@ void assign(const protocol_type&amp; protocol,
 </p></li></ul></div></div><div class='para' id='ops-9'><div class='marginalizedparent'><a class='marginalized' href='#ops-9'>9</a></div><div class='itemdescr'><p ><i>Error conditions:</i>
 </p><ul class='itemize'><li id='ops-9.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-9.1'>(9.1)</a></div><p ><span class='texttt'>socket_errc::already_open</span> — if <span class='texttt'>is_open()</span> is <span class='texttt'>true</span>.
 </p></li></ul></div></div><p ><code class='itemdecl'>
+native_handle_type release();
+native_handle_type release(error_code&amp; ec);
+</code></p><div class='itemdescr'></div><div class='para' id='ops-10'><div class='marginalizedparent'><a class='marginalized' href='#ops-10'>10</a></div><div class='itemdescr'><p ><i>Requires:</i> <span class='texttt'>is_open() == true</span>.</p></div></div><div class='para' id='ops-11'><div class='marginalizedparent'><a class='marginalized' href='#ops-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> Cancels all outstanding asynchronous operations associated with this acceptor.
+Completion handlers for canceled asynchronous operations are passed an error code <span class='texttt'>ec</span>
+such that <span class='texttt'>ec == errc::operation_canceled</span> yields <span class='texttt'>true</span>.</p></div></div><div class='para' id='ops-12'><div class='marginalizedparent'><a class='marginalized' href='#ops-12'>12</a></div><div class='itemdescr'><p ><i>Returns:</i> The native representation of this acceptor.</p></div></div><div class='para' id='ops-13'><div class='marginalizedparent'><a class='marginalized' href='#ops-13'>13</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>is_open() == false</span>.</p></div></div><div class='para' id='ops-14'><div class='marginalizedparent'><a class='marginalized' href='#ops-14'>14</a></div><div class='itemdescr'><p ><i>Remarks:</i> Since the native acceptor is not closed prior to returning it,
+the caller is responsible for closing it.
+</p></div></div><p ><code class='itemdecl'>
 bool is_open() const;
-</code></p><div class='itemdescr'></div><div class='para' id='ops-10'><div class='marginalizedparent'><a class='marginalized' href='#ops-10'>10</a></div><div class='itemdescr'><p ><i>Returns:</i> A <span class='texttt'>bool</span> indicating whether this acceptor was opened by a previous call to <span class='texttt'>open</span> or <span class='texttt'>assign</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-15'><div class='marginalizedparent'><a class='marginalized' href='#ops-15'>15</a></div><div class='itemdescr'><p ><i>Returns:</i> A <span class='texttt'>bool</span> indicating whether this acceptor was opened by a previous call to <span class='texttt'>open</span> or <span class='texttt'>assign</span>.
 </p></div></div><p ><code class='itemdecl'>
 void close();
 void close(error_code&amp; ec);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-11'><div class='marginalizedparent'><a class='marginalized' href='#ops-11'>11</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>is_open()</span> is <span class='texttt'>true</span>, cancels all outstanding asynchronous operations associated with this acceptor, and establishes the postcondition as if by POSIX <span class='texttt'>close(native_handle())</span>. Completion handlers for canceled asynchronous operations are passed an error code <span class='texttt'>ec</span> such that <span class='texttt'>ec == errc::operation_canceled</span> yields <span class='texttt'>true</span>.</p></div></div><div class='para' id='ops-12'><div class='marginalizedparent'><a class='marginalized' href='#ops-12'>12</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>is_open() == false</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-16'><div class='marginalizedparent'><a class='marginalized' href='#ops-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>is_open()</span> is <span class='texttt'>true</span>, cancels all outstanding asynchronous operations associated with this acceptor, and establishes the postcondition as if by POSIX <span class='texttt'>close(native_handle())</span>. Completion handlers for canceled asynchronous operations are passed an error code <span class='texttt'>ec</span> such that <span class='texttt'>ec == errc::operation_canceled</span> yields <span class='texttt'>true</span>.</p></div></div><div class='para' id='ops-17'><div class='marginalizedparent'><a class='marginalized' href='#ops-17'>17</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>is_open() == false</span>.
 </p></div></div><p ><code class='itemdecl'>
 void cancel();
 void cancel(error_code&amp; ec);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-13'><div class='marginalizedparent'><a class='marginalized' href='#ops-13'>13</a></div><div class='itemdescr'><p ><i>Effects:</i> Cancels all outstanding asynchronous operations associated with this acceptor. Completion handlers for canceled asynchronous operations are passed an error code <span class='texttt'>ec</span> such that <span class='texttt'>ec == errc::operation_canceled</span> yields <span class='texttt'>true</span>.</p></div></div><div class='para' id='ops-14'><div class='marginalizedparent'><a class='marginalized' href='#ops-14'>14</a></div><div class='itemdescr'><p ><i>Error conditions:</i>
-</p><ul class='itemize'><li id='ops-14.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-14.1'>(14.1)</a></div><p ><span class='texttt'>errc::bad_file_descriptor</span> — if <span class='texttt'>is_open()</span> is <span class='texttt'>false</span>.
-</p></li><li id='ops-14.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-14.2'>(14.2)</a></div><p ><span class='texttt'>errc::operation_not_supported</span> — current conditions do not permit cancelation. The conditions under which cancelation of asynchronous operations is permitted are <span class='indexparent'><a class='index' id='conditions_under_which_cancelation_of_asynchronous_operations_is_permitted'></a></span>implementation-defined.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-18'><div class='marginalizedparent'><a class='marginalized' href='#ops-18'>18</a></div><div class='itemdescr'><p ><i>Effects:</i> Cancels all outstanding asynchronous operations associated with this acceptor. Completion handlers for canceled asynchronous operations are passed an error code <span class='texttt'>ec</span> such that <span class='texttt'>ec == errc::operation_canceled</span> yields <span class='texttt'>true</span>.</p></div></div><div class='para' id='ops-19'><div class='marginalizedparent'><a class='marginalized' href='#ops-19'>19</a></div><div class='itemdescr'><p ><i>Error conditions:</i>
+</p><ul class='itemize'><li id='ops-19.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-19.1'>(19.1)</a></div><p ><span class='texttt'>errc::bad_file_descriptor</span> — if <span class='texttt'>is_open()</span> is <span class='texttt'>false</span>.
+</p></li><li id='ops-19.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-19.2'>(19.2)</a></div><p ><span class='texttt'>errc::operation_not_supported</span> — current conditions do not permit cancelation. The conditions under which cancelation of asynchronous operations is permitted are <span class='indexparent'><a class='index' id='conditions_under_which_cancelation_of_asynchronous_operations_is_permitted'></a></span>implementation-defined.
 </p></li></ul></div></div><p ><code class='itemdecl'>
 template&lt;class SettableSocketOption&gt;
   void set_option(const SettableSocketOption&amp; option);
 template&lt;class SettableSocketOption&gt;
   void set_option(const SettableSocketOption&amp; option, error_code&amp; ec);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-15'><div class='marginalizedparent'><a class='marginalized' href='#ops-15'>15</a></div><div class='itemdescr'><p ><i>Effects:</i> Sets an option on this acceptor, as if by POSIX <span class='texttt'>setsockopt(native_handle(), option.level( protocol_), option.name(protocol_), option.data(protocol_), option.size(protocol_))</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-20'><div class='marginalizedparent'><a class='marginalized' href='#ops-20'>20</a></div><div class='itemdescr'><p ><i>Effects:</i> Sets an option on this acceptor, as if by POSIX <span class='texttt'>setsockopt(native_handle(), option.level( protocol_), option.name(protocol_), option.data(protocol_), option.size(protocol_))</span>.
 </p></div></div><p ><code class='itemdecl'>
 template&lt;class GettableSocketOption&gt;
   void get_option(GettableSocketOption&amp; option);
 template&lt;class GettableSocketOption&gt;
   void get_option(GettableSocketOption&amp; option, error_code&amp; ec);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-16'><div class='marginalizedparent'><a class='marginalized' href='#ops-16'>16</a></div><div class='itemdescr'><p ><i>Effects:</i> Gets an option from this acceptor, as if by POSIX:
+</code></p><div class='itemdescr'></div><div class='para' id='ops-21'><div class='marginalizedparent'><a class='marginalized' href='#ops-21'>21</a></div><div class='itemdescr'><p ><i>Effects:</i> Gets an option from this acceptor, as if by POSIX:
 </p><pre class='codeblock'>
 socklen_t option_len = option.size(protocol_);
 int result = getsockopt(native_handle(), option.level(protocol_),
@@ -281,20 +292,20 @@ template&lt;class IoControlCommand&gt;
   void io_control(IoControlCommand&amp; command);
 template&lt;class IoControlCommand&gt;
   void io_control(IoControlCommand&amp; command, error_code&amp; ec);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-17'><div class='marginalizedparent'><a class='marginalized' href='#ops-17'>17</a></div><div class='itemdescr'><p ><i>Effects:</i> Executes an I/O control command on this acceptor, as if by POSIX <span class='texttt'>ioctl(native_handle(), command.name(), command.data())</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-22'><div class='marginalizedparent'><a class='marginalized' href='#ops-22'>22</a></div><div class='itemdescr'><p ><i>Effects:</i> Executes an I/O control command on this acceptor, as if by POSIX <span class='texttt'>ioctl(native_handle(), command.name(), command.data())</span>.
 </p></div></div><p ><code class='itemdecl'>
 void non_blocking(bool mode);
 void non_blocking(bool mode, error_code&amp; ec);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-18'><div class='marginalizedparent'><a class='marginalized' href='#ops-18'>18</a></div><div class='itemdescr'><p ><i>Effects:</i> Sets the non-blocking mode of this acceptor. The non-blocking mode determines whether subsequent synchronous socket operations (<a href='socket.reqmts.sync'>[socket.reqmts.sync]</a>) on <span class='texttt'>*this</span> block the calling thread.</p></div></div><div class='para' id='ops-19'><div class='marginalizedparent'><a class='marginalized' href='#ops-19'>19</a></div><div class='itemdescr'><p ><i>Error conditions:</i>
-</p><ul class='itemize'><li id='ops-19.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-19.1'>(19.1)</a></div><p ><span class='texttt'>errc::bad_file_descriptor</span> — if <span class='texttt'>is_open()</span> is <span class='texttt'>false</span>.
-</p></li></ul></div></div><div class='para' id='ops-20'><div class='marginalizedparent'><a class='marginalized' href='#ops-20'>20</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>non_blocking() == mode</span>.</p></div></div><div class='para' id='ops-21'><div class='marginalizedparent'><a class='marginalized' href='#ops-21'>21</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> The non-blocking mode has no effect on the behavior of asynchronous operations. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</code></p><div class='itemdescr'></div><div class='para' id='ops-23'><div class='marginalizedparent'><a class='marginalized' href='#ops-23'>23</a></div><div class='itemdescr'><p ><i>Effects:</i> Sets the non-blocking mode of this acceptor. The non-blocking mode determines whether subsequent synchronous socket operations (<a href='socket.reqmts.sync'>[socket.reqmts.sync]</a>) on <span class='texttt'>*this</span> block the calling thread.</p></div></div><div class='para' id='ops-24'><div class='marginalizedparent'><a class='marginalized' href='#ops-24'>24</a></div><div class='itemdescr'><p ><i>Error conditions:</i>
+</p><ul class='itemize'><li id='ops-24.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-24.1'>(24.1)</a></div><p ><span class='texttt'>errc::bad_file_descriptor</span> — if <span class='texttt'>is_open()</span> is <span class='texttt'>false</span>.
+</p></li></ul></div></div><div class='para' id='ops-25'><div class='marginalizedparent'><a class='marginalized' href='#ops-25'>25</a></div><div class='itemdescr'><p ><i>Postconditions:</i> <span class='texttt'>non_blocking() == mode</span>.</p></div></div><div class='para' id='ops-26'><div class='marginalizedparent'><a class='marginalized' href='#ops-26'>26</a></div><div class='itemdescr'><p >[&nbsp;<i>Note:</i> The non-blocking mode has no effect on the behavior of asynchronous operations. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
 </p></div></div><p ><code class='itemdecl'>
 bool non_blocking() const;
-</code></p><div class='itemdescr'></div><div class='para' id='ops-22'><div class='marginalizedparent'><a class='marginalized' href='#ops-22'>22</a></div><div class='itemdescr'><p ><i>Returns:</i> The non-blocking mode of this acceptor.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-27'><div class='marginalizedparent'><a class='marginalized' href='#ops-27'>27</a></div><div class='itemdescr'><p ><i>Returns:</i> The non-blocking mode of this acceptor.
 </p></div></div><p ><code class='itemdecl'>
 void native_non_blocking(bool mode);
 void native_non_blocking(bool mode, error_code&amp; ec);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-23'><div class='marginalizedparent'><a class='marginalized' href='#ops-23'>23</a></div><div class='itemdescr'><p ><i>Effects:</i> Sets the non-blocking mode of the underlying native acceptor, as if by POSIX:
+</code></p><div class='itemdescr'></div><div class='para' id='ops-28'><div class='marginalizedparent'><a class='marginalized' href='#ops-28'>28</a></div><div class='itemdescr'><p ><i>Effects:</i> Sets the non-blocking mode of the underlying native acceptor, as if by POSIX:
 </p><pre class='codeblock'>
 int flags = fcntl(native_handle(), F_GETFL, 0);
 if (flags &gt;= 0){
@@ -304,69 +315,69 @@ if (flags &gt;= 0){
     flags &amp;= ~O_NONBLOCK;
   fcntl(native_handle(), F_SETFL, flags);
 }
-</pre></div></div><div class='para' id='ops-24'><div class='marginalizedparent'><a class='marginalized' href='#ops-24'>24</a></div><div class='itemdescr'><p >The native non-blocking mode has no effect on the behavior of the synchronous or asynchronous operations specified in this clause.</p></div></div><div class='para' id='ops-25'><div class='marginalizedparent'><a class='marginalized' href='#ops-25'>25</a></div><div class='itemdescr'><p ><i>Error conditions:</i>
-</p><ul class='itemize'><li id='ops-25.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-25.1'>(25.1)</a></div><p ><span class='texttt'>errc::bad_file_descriptor</span> — if <span class='texttt'>is_open()</span> is <span class='texttt'>false</span>.
-</p></li><li id='ops-25.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-25.2'>(25.2)</a></div><p ><span class='texttt'>errc::invalid_argument</span> — if <span class='texttt'>mode == false</span> and <span class='texttt'>non_blocking() == true</span>. [&nbsp;<i>Note:</i> As the combination does not make sense. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
+</pre></div></div><div class='para' id='ops-29'><div class='marginalizedparent'><a class='marginalized' href='#ops-29'>29</a></div><div class='itemdescr'><p >The native non-blocking mode has no effect on the behavior of the synchronous or asynchronous operations specified in this clause.</p></div></div><div class='para' id='ops-30'><div class='marginalizedparent'><a class='marginalized' href='#ops-30'>30</a></div><div class='itemdescr'><p ><i>Error conditions:</i>
+</p><ul class='itemize'><li id='ops-30.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-30.1'>(30.1)</a></div><p ><span class='texttt'>errc::bad_file_descriptor</span> — if <span class='texttt'>is_open()</span> is <span class='texttt'>false</span>.
+</p></li><li id='ops-30.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-30.2'>(30.2)</a></div><p ><span class='texttt'>errc::invalid_argument</span> — if <span class='texttt'>mode == false</span> and <span class='texttt'>non_blocking() == true</span>. [&nbsp;<i>Note:</i> As the combination does not make sense. <i>&nbsp;—&nbsp;end note</i>&nbsp;]
 </p></li></ul></div></div><p ><code class='itemdecl'>
 bool native_non_blocking() const;
-</code></p><div class='itemdescr'></div><div class='para' id='ops-26'><div class='marginalizedparent'><a class='marginalized' href='#ops-26'>26</a></div><div class='itemdescr'><p ><i>Returns:</i> The non-blocking mode of the underlying native acceptor.</p></div></div><div class='para' id='ops-27'><div class='marginalizedparent'><a class='marginalized' href='#ops-27'>27</a></div><div class='itemdescr'><p ><i>Remarks:</i> Implementations are permitted and encouraged to cache the native non-blocking mode that was applied through a prior call to <span class='texttt'>native_non_blocking</span>. Implementations may return an incorrect value if a program sets the non-blocking mode directly on the acceptor, by calling an operating system-specific function on the result of <span class='texttt'>native_handle()</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-31'><div class='marginalizedparent'><a class='marginalized' href='#ops-31'>31</a></div><div class='itemdescr'><p ><i>Returns:</i> The non-blocking mode of the underlying native acceptor.</p></div></div><div class='para' id='ops-32'><div class='marginalizedparent'><a class='marginalized' href='#ops-32'>32</a></div><div class='itemdescr'><p ><i>Remarks:</i> Implementations are permitted and encouraged to cache the native non-blocking mode that was applied through a prior call to <span class='texttt'>native_non_blocking</span>. Implementations may return an incorrect value if a program sets the non-blocking mode directly on the acceptor, by calling an operating system-specific function on the result of <span class='texttt'>native_handle()</span>.
 </p></div></div><p ><code class='itemdecl'>
 void bind(const endpoint_type&amp; endpoint);
 void bind(const endpoint_type&amp; endpoint, error_code&amp; ec);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-28'><div class='marginalizedparent'><a class='marginalized' href='#ops-28'>28</a></div><div class='itemdescr'><p ><i>Effects:</i> Binds this acceptor to the specified local endpoint, as if by POSIX <span class='texttt'>bind(native_handle(), endpoint.data(), endpoint.size())</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-33'><div class='marginalizedparent'><a class='marginalized' href='#ops-33'>33</a></div><div class='itemdescr'><p ><i>Effects:</i> Binds this acceptor to the specified local endpoint, as if by POSIX <span class='texttt'>bind(native_handle(), endpoint.data(), endpoint.size())</span>.
 </p></div></div><p ><code class='itemdecl'>
 void listen(int backlog = socket_base::max_listen_connections);
 void listen(int backlog, error_code&amp; ec);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-29'><div class='marginalizedparent'><a class='marginalized' href='#ops-29'>29</a></div><div class='itemdescr'><p ><i>Effects:</i> Marks this acceptor as ready to accept connections, as if by POSIX <span class='texttt'>listen(native_handle(), backlog)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-34'><div class='marginalizedparent'><a class='marginalized' href='#ops-34'>34</a></div><div class='itemdescr'><p ><i>Effects:</i> Marks this acceptor as ready to accept connections, as if by POSIX <span class='texttt'>listen(native_handle(), backlog)</span>.
 </p></div></div><p ><code class='itemdecl'>
 endpoint_type local_endpoint() const;
 endpoint_type local_endpoint(error_code&amp; ec) const;
-</code></p><div class='itemdescr'></div><div class='para' id='ops-30'><div class='marginalizedparent'><a class='marginalized' href='#ops-30'>30</a></div><div class='itemdescr'><p ><i>Effects:</i> Determines the locally-bound endpoint associated with this acceptor, as if by POSIX:
+</code></p><div class='itemdescr'></div><div class='para' id='ops-35'><div class='marginalizedparent'><a class='marginalized' href='#ops-35'>35</a></div><div class='itemdescr'><p ><i>Effects:</i> Determines the locally-bound endpoint associated with this acceptor, as if by POSIX:
 </p><pre class='codeblock'>
 endpoint_type endpoint;
 socklen_t endpoint_len = endpoint.capacity();
 int result = getsockname(native_handle(), endpoint.data(), &amp;endpoint_len);
 if (result == 0)
   endpoint.resize(endpoint_len);
-</pre></div></div><div class='para' id='ops-31'><div class='marginalizedparent'><a class='marginalized' href='#ops-31'>31</a></div><div class='itemdescr'><p ><i>Returns:</i> On success, <span class='texttt'>endpoint</span>. Otherwise <span class='texttt'>endpoint_type()</span>.
+</pre></div></div><div class='para' id='ops-36'><div class='marginalizedparent'><a class='marginalized' href='#ops-36'>36</a></div><div class='itemdescr'><p ><i>Returns:</i> On success, <span class='texttt'>endpoint</span>. Otherwise <span class='texttt'>endpoint_type()</span>.
 </p></div></div><p ><code class='itemdecl'>
 void enable_connection_aborted(bool mode);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-32'><div class='marginalizedparent'><a class='marginalized' href='#ops-32'>32</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>mode</span> is true, subsequent synchronous or asynchronous accept operations on this acceptor are permitted to fail with error condition <span class='texttt'>errc::connection_aborted</span>. If <span class='texttt'>mode</span> is <span class='texttt'>false</span>, subsequent accept operations will not fail with <span class='texttt'>errc::connection_aborted</span>. [&nbsp;<i>Note:</i> If <span class='texttt'>mode</span> is <span class='texttt'>false</span>, the implementation will restart the call to POSIX <span class='texttt'>accept</span> if it fails with <span class='texttt'>ECONNABORTED</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='ops-33'><div class='marginalizedparent'><a class='marginalized' href='#ops-33'>33</a></div><div class='itemdescr'><p ><i>Error conditions:</i>
-</p><ul class='itemize'><li id='ops-33.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-33.1'>(33.1)</a></div><p ><span class='texttt'>errc::bad_file_descriptor</span> — if <span class='texttt'>is_open()</span> is <span class='texttt'>false</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-37'><div class='marginalizedparent'><a class='marginalized' href='#ops-37'>37</a></div><div class='itemdescr'><p ><i>Effects:</i> If <span class='texttt'>mode</span> is true, subsequent synchronous or asynchronous accept operations on this acceptor are permitted to fail with error condition <span class='texttt'>errc::connection_aborted</span>. If <span class='texttt'>mode</span> is <span class='texttt'>false</span>, subsequent accept operations will not fail with <span class='texttt'>errc::connection_aborted</span>. [&nbsp;<i>Note:</i> If <span class='texttt'>mode</span> is <span class='texttt'>false</span>, the implementation will restart the call to POSIX <span class='texttt'>accept</span> if it fails with <span class='texttt'>ECONNABORTED</span>. <i>&nbsp;—&nbsp;end note</i>&nbsp;]</p></div></div><div class='para' id='ops-38'><div class='marginalizedparent'><a class='marginalized' href='#ops-38'>38</a></div><div class='itemdescr'><p ><i>Error conditions:</i>
+</p><ul class='itemize'><li id='ops-38.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-38.1'>(38.1)</a></div><p ><span class='texttt'>errc::bad_file_descriptor</span> — if <span class='texttt'>is_open()</span> is <span class='texttt'>false</span>.
 </p></li></ul></div></div><p ><code class='itemdecl'>
 bool enable_connection_aborted() const;
-</code></p><div class='itemdescr'></div><div class='para' id='ops-34'><div class='marginalizedparent'><a class='marginalized' href='#ops-34'>34</a></div><div class='itemdescr'><p ><i>Returns:</i> Whether accept operations on this acceptor are permitted to fail with <span class='texttt'>errc::connection_aborted</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-39'><div class='marginalizedparent'><a class='marginalized' href='#ops-39'>39</a></div><div class='itemdescr'><p ><i>Returns:</i> Whether accept operations on this acceptor are permitted to fail with <span class='texttt'>errc::connection_aborted</span>.
 </p></div></div><p ><code class='itemdecl'>
 socket_type accept();
 socket_type accept(error_code&amp; ec);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-35'><div class='marginalizedparent'><a class='marginalized' href='#ops-35'>35</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>accept(get_executor().context(), ec)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-40'><div class='marginalizedparent'><a class='marginalized' href='#ops-40'>40</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>accept(get_executor().context(), ec)</span>.
 </p></div></div><p ><code class='itemdecl'>
 socket_type accept(io_context&amp; ctx);
 socket_type accept(io_context&amp; ctx, error_code&amp; ec);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-36'><div class='marginalizedparent'><a class='marginalized' href='#ops-36'>36</a></div><div class='itemdescr'><p ><i>Effects:</i> Extracts a socket from the queue of pending connections of the acceptor, as if by POSIX:
+</code></p><div class='itemdescr'></div><div class='para' id='ops-41'><div class='marginalizedparent'><a class='marginalized' href='#ops-41'>41</a></div><div class='itemdescr'><p ><i>Effects:</i> Extracts a socket from the queue of pending connections of the acceptor, as if by POSIX:
 </p><pre class='codeblock'>
 native_handle_type h = accept(native_handle(), nullptr, 0);
-</pre></div></div><div class='para' id='ops-37'><div class='marginalizedparent'><a class='marginalized' href='#ops-37'>37</a></div><div class='itemdescr'><p ><i>Returns:</i> On success, <span class='texttt'>socket_type(ctx, protocol_, h)</span>. Otherwise <span class='texttt'>socket_type(ctx)</span>.
+</pre></div></div><div class='para' id='ops-42'><div class='marginalizedparent'><a class='marginalized' href='#ops-42'>42</a></div><div class='itemdescr'><p ><i>Returns:</i> On success, <span class='texttt'>socket_type(ctx, protocol_, h)</span>. Otherwise <span class='texttt'>socket_type(ctx)</span>.
 </p></div></div><p ><code class='itemdecl'>
 template&lt;class CompletionToken&gt;
   <i><span class='texttt'>DEDUCED</span></i> async_accept(CompletionToken&amp;&amp; token);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-38'><div class='marginalizedparent'><a class='marginalized' href='#ops-38'>38</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>async_accept(get_executor().context(), forward&lt;CompletionToken&gt;(token))</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-43'><div class='marginalizedparent'><a class='marginalized' href='#ops-43'>43</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>async_accept(get_executor().context(), forward&lt;CompletionToken&gt;(token))</span>.
 </p></div></div><p ><code class='itemdecl'>
 template&lt;class CompletionToken&gt;
   <i><span class='texttt'>DEDUCED</span></i> async_accept(io_context&amp; ctx, CompletionToken&amp;&amp; token);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-39'><div class='marginalizedparent'><a class='marginalized' href='#ops-39'>39</a></div><div class='itemdescr'><p ><i>Completion signature:</i> <span class='texttt'>void(error_code ec, socket_type s)</span>.</p></div></div><div class='para' id='ops-40'><div class='marginalizedparent'><a class='marginalized' href='#ops-40'>40</a></div><div class='itemdescr'><p ><i>Effects:</i> Initiates an asynchronous operation to extract a socket from the queue of pending connections of the acceptor, as if by POSIX:
+</code></p><div class='itemdescr'></div><div class='para' id='ops-44'><div class='marginalizedparent'><a class='marginalized' href='#ops-44'>44</a></div><div class='itemdescr'><p ><i>Completion signature:</i> <span class='texttt'>void(error_code ec, socket_type s)</span>.</p></div></div><div class='para' id='ops-45'><div class='marginalizedparent'><a class='marginalized' href='#ops-45'>45</a></div><div class='itemdescr'><p ><i>Effects:</i> Initiates an asynchronous operation to extract a socket from the queue of pending connections of the acceptor, as if by POSIX:
 </p><pre class='codeblock'>
 native_handle_type h = accept(native_handle(), nullptr, 0);
 </pre><p >On success, <span class='texttt'>s</span> is <span class='texttt'>socket_type(ctx, protocol_, h)</span>. Otherwise, <span class='texttt'>s</span> is <span class='texttt'>socket_type(ctx)</span>.
 </p></div></div><p ><code class='itemdecl'>
 socket_type accept(endpoint_type&amp; endpoint);
 socket_type accept(endpoint_type&amp; endpoint, error_code&amp; ec);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-41'><div class='marginalizedparent'><a class='marginalized' href='#ops-41'>41</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>accept(get_executor().context(), endpoint, ec)</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-46'><div class='marginalizedparent'><a class='marginalized' href='#ops-46'>46</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>accept(get_executor().context(), endpoint, ec)</span>.
 </p></div></div><p ><code class='itemdecl'>
 socket_type accept(io_context&amp; ctx, endpoint_type&amp; endpoint);
 socket_type accept(io_context&amp; ctx, endpoint_type&amp; endpoint,
                    error_code&amp; ec);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-42'><div class='marginalizedparent'><a class='marginalized' href='#ops-42'>42</a></div><div class='itemdescr'><p ><i>Effects:</i> Extracts a socket from the queue of pending connections of the acceptor, as if by POSIX:
+</code></p><div class='itemdescr'></div><div class='para' id='ops-47'><div class='marginalizedparent'><a class='marginalized' href='#ops-47'>47</a></div><div class='itemdescr'><p ><i>Effects:</i> Extracts a socket from the queue of pending connections of the acceptor, as if by POSIX:
 </p><pre class='codeblock'>
 socklen_t endpoint_len = endpoint.capacity();
 native_handle_type h = accept(native_handle(),
@@ -374,17 +385,17 @@ native_handle_type h = accept(native_handle(),
                               &amp;endpoint_len);
 if (h &gt;= 0)
   endpoint.resize(endpoint_len);
-</pre></div></div><div class='para' id='ops-43'><div class='marginalizedparent'><a class='marginalized' href='#ops-43'>43</a></div><div class='itemdescr'><p ><i>Returns:</i> On success, <span class='texttt'>socket_type(ctx, protocol_, h)</span>. Otherwise <span class='texttt'>socket_type(ctx)</span>.
+</pre></div></div><div class='para' id='ops-48'><div class='marginalizedparent'><a class='marginalized' href='#ops-48'>48</a></div><div class='itemdescr'><p ><i>Returns:</i> On success, <span class='texttt'>socket_type(ctx, protocol_, h)</span>. Otherwise <span class='texttt'>socket_type(ctx)</span>.
 </p></div></div><p ><code class='itemdecl'>
 template&lt;class CompletionToken&gt;
   <i><span class='texttt'>DEDUCED</span></i> async_accept(endpoint_type&amp; endpoint,
                        CompletionToken&amp;&amp; token);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-44'><div class='marginalizedparent'><a class='marginalized' href='#ops-44'>44</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>async_accept(get_executor().context(), endpoint, forward&lt;CompletionToken&gt;(token))</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-49'><div class='marginalizedparent'><a class='marginalized' href='#ops-49'>49</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>async_accept(get_executor().context(), endpoint, forward&lt;CompletionToken&gt;(token))</span>.
 </p></div></div><p ><code class='itemdecl'>
 template&lt;class CompletionToken&gt;
   <i><span class='texttt'>DEDUCED</span></i> async_accept(io_context&amp; ctx, endpoint_type&amp; endpoint,
                        CompletionToken&amp;&amp; token);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-45'><div class='marginalizedparent'><a class='marginalized' href='#ops-45'>45</a></div><div class='itemdescr'><p ><i>Completion signature:</i> <span class='texttt'>void(error_code ec, socket_type s)</span>.</p></div></div><div class='para' id='ops-46'><div class='marginalizedparent'><a class='marginalized' href='#ops-46'>46</a></div><div class='itemdescr'><p ><i>Effects:</i> Initiates an asynchronous operation to extract a socket from the queue of pending connections of the acceptor, as if by POSIX:
+</code></p><div class='itemdescr'></div><div class='para' id='ops-50'><div class='marginalizedparent'><a class='marginalized' href='#ops-50'>50</a></div><div class='itemdescr'><p ><i>Completion signature:</i> <span class='texttt'>void(error_code ec, socket_type s)</span>.</p></div></div><div class='para' id='ops-51'><div class='marginalizedparent'><a class='marginalized' href='#ops-51'>51</a></div><div class='itemdescr'><p ><i>Effects:</i> Initiates an asynchronous operation to extract a socket from the queue of pending connections of the acceptor, as if by POSIX:
 </p><pre class='codeblock'>
 socklen_t endpoint_len = endpoint.capacity();
 native_handle_type h = accept(native_handle(),
@@ -396,10 +407,10 @@ if (h &gt;= 0)
 </p></div></div><p ><code class='itemdecl'>
 void wait(wait_type w);
 void wait(wait_type w, error_code&amp; ec);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-47'><div class='marginalizedparent'><a class='marginalized' href='#ops-47'>47</a></div><div class='itemdescr'><p ><i>Effects:</i> Waits for the acceptor to have a queued incoming connection, or to have error conditions pending, as if by POSIX <span class='texttt'>poll</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-52'><div class='marginalizedparent'><a class='marginalized' href='#ops-52'>52</a></div><div class='itemdescr'><p ><i>Effects:</i> Waits for the acceptor to have a queued incoming connection, or to have error conditions pending, as if by POSIX <span class='texttt'>poll</span>.
 </p></div></div><p ><code class='itemdecl'>
 template&lt;class CompletionToken&gt;
   <i><span class='texttt'>DEDUCED</span></i> async_wait(wait_type w, CompletionToken&amp;&amp; token);
-</code></p><div class='itemdescr'></div><div class='para' id='ops-48'><div class='marginalizedparent'><a class='marginalized' href='#ops-48'>48</a></div><div class='itemdescr'><p ><i>Completion signature:</i> <span class='texttt'>void(error_code ec)</span>.</p></div></div><div class='para' id='ops-49'><div class='marginalizedparent'><a class='marginalized' href='#ops-49'>49</a></div><div class='itemdescr'><p ><i>Effects:</i> Initiates an asynchronous operation to wait for the acceptor to have a queued incoming connection, or to have error conditions pending, as if by POSIX <span class='texttt'>poll</span>.</p></div></div><div class='para' id='ops-50'><div class='marginalizedparent'><a class='marginalized' href='#ops-50'>50</a></div><div class='itemdescr'><p >When multiple asynchronous wait operations are initiated with the same <span class='texttt'>wait_type</span> value, all outstanding operations complete when the acceptor enters the corresponding ready state. The order of invocation of the completions handlers for these operations is unspecified.</p></div></div><div class='para' id='ops-51'><div class='marginalizedparent'><a class='marginalized' href='#ops-51'>51</a></div><div class='itemdescr'><p ><i>Error conditions:</i>
-</p><ul class='itemize'><li id='ops-51.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-51.1'>(51.1)</a></div><p ><span class='texttt'>errc::bad_file_descriptor</span> — if <span class='texttt'>is_open()</span> is <span class='texttt'>false</span>.
+</code></p><div class='itemdescr'></div><div class='para' id='ops-53'><div class='marginalizedparent'><a class='marginalized' href='#ops-53'>53</a></div><div class='itemdescr'><p ><i>Completion signature:</i> <span class='texttt'>void(error_code ec)</span>.</p></div></div><div class='para' id='ops-54'><div class='marginalizedparent'><a class='marginalized' href='#ops-54'>54</a></div><div class='itemdescr'><p ><i>Effects:</i> Initiates an asynchronous operation to wait for the acceptor to have a queued incoming connection, or to have error conditions pending, as if by POSIX <span class='texttt'>poll</span>.</p></div></div><div class='para' id='ops-55'><div class='marginalizedparent'><a class='marginalized' href='#ops-55'>55</a></div><div class='itemdescr'><p >When multiple asynchronous wait operations are initiated with the same <span class='texttt'>wait_type</span> value, all outstanding operations complete when the acceptor enters the corresponding ready state. The order of invocation of the completions handlers for these operations is unspecified.</p></div></div><div class='para' id='ops-56'><div class='marginalizedparent'><a class='marginalized' href='#ops-56'>56</a></div><div class='itemdescr'><p ><i>Error conditions:</i>
+</p><ul class='itemize'><li id='ops-56.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#ops-56.1'>(56.1)</a></div><p ><span class='texttt'>errc::bad_file_descriptor</span> — if <span class='texttt'>is_open()</span> is <span class='texttt'>false</span>.
 </p></li></ul></div></div></div></div></div></body></html>
