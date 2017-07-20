@@ -1,19 +1,18 @@
-From ff270cf79e982231f345d03fb2dd544ae490dc6a Mon Sep 17 00:00:00 2001
+From bf7ade2efc75466b884c94e1422347d2c04aedcf Mon Sep 17 00:00:00 2001
 From: timsong-cpp <rs2740@gmail.com>
-Date: Mon, 19 Jun 2017 22:24:53 -0400
-Subject: [PATCH] Hacks to make Ranges TS work with cxxdraft-htmlgen
+Date: Thu, 20 Jul 2017 07:20:09 -0400
+Subject: [PATCH] Hacks to make cxxdraft-htmlgen work
 
 ---
- concepts.tex   |   1 -
- cxx.tex        |   4 ---
- intro.tex      |   6 ++--
- macros.tex     |   8 ++---
- statements.tex |  49 +++++++++++++-------------
- utilities.tex  | 106 ++++++++++++++++++++++++++++-----------------------------
- 6 files changed, 82 insertions(+), 92 deletions(-)
+ concepts.tex   |  1 -
+ cxx.tex        |  4 ----
+ intro.tex      |  6 +++---
+ macros.tex     |  8 +++----
+ statements.tex | 67 ++++++++++++++++++++++++++--------------------------------
+ 5 files changed, 37 insertions(+), 49 deletions(-)
 
 diff --git a/concepts.tex b/concepts.tex
-index fa76dac..6429df4 100644
+index aab41c1..2348b6f 100644
 --- a/concepts.tex
 +++ b/concepts.tex
 @@ -1,5 +1,4 @@
@@ -23,7 +22,7 @@ index fa76dac..6429df4 100644
  
  \rSec1[concepts.lib.general]{General}
 diff --git a/cxx.tex b/cxx.tex
-index 6f709d7..999d248 100644
+index a130a1e..2c49cd8 100644
 --- a/cxx.tex
 +++ b/cxx.tex
 @@ -16,10 +16,6 @@
@@ -38,7 +37,7 @@ index 6f709d7..999d248 100644
    ISO/IEC 14882:2014 \S\stdcxxref{#1}%
  }
 diff --git a/intro.tex b/intro.tex
-index b1fa674..a59e3a1 100644
+index 8aac742..efeca8a 100644
 --- a/intro.tex
 +++ b/intro.tex
 @@ -72,7 +72,7 @@ edition of the referenced document (including any amendments) applies.
@@ -57,9 +56,9 @@ index b1fa674..a59e3a1 100644
 -\def\definition{\definitionx{\section}}%
 +%\def\definition{\definitionx{\section}}%
  
- \indexdefn{projection}%
- \definition{projection}{defns.projection}
-@@ -103,7 +103,7 @@ ranges::sort(pairs, std::less<>{}, [](auto const& p) { return p.first; });
+ \indexdefn{constant subexpression}%
+ \definition{constant subexpression}{defns.const.subexpr}
+@@ -123,7 +123,7 @@ ranges::sort(pairs, std::less<>{}, [](auto const& p) { return p.first; });
  \end{codeblock}
  sorts the pairs in increasing order of their \tcode{first} members:
  \begin{codeblock}
@@ -95,7 +94,7 @@ index 9667c1c..14f82f9 100644
  \newenvironment{addedblock}
  {
 diff --git a/statements.tex b/statements.tex
-index f6a1f06..dcbed28 100644
+index 06d3f96..b215e82 100644
 --- a/statements.tex
 +++ b/statements.tex
 @@ -1,5 +1,4 @@
@@ -104,19 +103,42 @@ index f6a1f06..dcbed28 100644
  \rSec0[stmt]{Statements}
  
  \rSec1[stmt.iter]{Iteration statements}
-@@ -9,7 +8,6 @@
+@@ -9,64 +8,59 @@
  \ednote{Modify \cxxref{stmt.ranged}/p1 to allow differently typed begin and end
  iterators, like in C++17.}
  
 -\begin{quote}
  \pnum
- For a range-based for statement of the form
- 
-@@ -32,33 +30,33 @@ and for a range-based for statement of the form
- let \grammarterm{range-init} be equivalent to the \grammarterm{braced-init-list}.
- %
- In each case, a range-based for statement is equivalent to
 -\begin{removedblock}
+-For a range-based for statement of the form
++\removed{For a range-based for statement of the form}
+ 
+ \begin{bnf}
+-\terminal{for} \terminal{(} for-range-declaration \terminal{:} expression \terminal{)} statement
++\removed{\terminal{for} \terminal{(} for-range-declaration \terminal{:} expression \terminal{)} statement}
+ \end{bnf}
+ %
+-let \grammarterm{range-init} be equivalent to the expression surrounded by parentheses
++\removed{let \grammarterm{range-init} be equivalent to the expression surrounded by parentheses}
+ 
+ \begin{bnf}
+-\terminal{(} expression \terminal{)}
++\removed{\terminal{(} expression \terminal{)}}
+ \end{bnf}
+ %
+-and for a range-based for statement of the form
++\removed{and for a range-based for statement of the form}
+ 
+ \begin{bnf}
+-\terminal{for} \terminal{(} for-range-declaration \terminal{:} braced-init-list \terminal{)} statement
++\removed{\terminal{for} \terminal{(} for-range-declaration \terminal{:} braced-init-list \terminal{)} statement}
+ \end{bnf}
+ %
+-let \grammarterm{range-init} be equivalent to the \grammarterm{braced-init-list}.
++\removed{let \grammarterm{range-init} be equivalent to the \grammarterm{braced-init-list}.}
+ %
+-In each case, a range-based for statement is equivalent to
++\removed{In each case, a range-based for statement is equivalent to}
  \begin{codeblock}
 -{
 -  auto && __range = range-init;
@@ -128,9 +150,8 @@ index f6a1f06..dcbed28 100644
 -    @\grammarterm{statement}@
 -  }
 -}
-+
 +@\removed{\{}@
-+  @\removed{auto \&\& __range = \grammarterm{range-init};}@
++  @\removed{auto && __range = \grammerterm{range-init};}@
 +  @\removed{for ( auto __begin = \grammarterm{begin-expr},}@
 +             @\removed{__end = \grammarterm{end-expr};}@
 +        @\removed{__begin != __end;}@
@@ -139,13 +160,23 @@ index f6a1f06..dcbed28 100644
 +    @\removed{\grammarterm{statement}}@
 +  @\removed{\}}@
 +@\removed{\}}@
-+
  \end{codeblock}
 -\end{removedblock}
+ 
 -\begin{addedblock}
+-The range-based for statement
++\added{The range-based for statement}
+ 
+ \begin{bnf}
+-\terminal{for} \terminal{(} for-range-declaration \terminal{:} for-range-initializer \terminal{)} statement
++\added{\terminal{for} \terminal{(} for-range-declaration \terminal{:} for-range-initializer \terminal{)} statement}
+ \end{bnf}
+ %
+-is equivalent to
++\added{is equivalent to}
  \begin{codeblock}
 -{
--  auto && __range = @\grammarterm{range-init}@;
+-  auto && __range = @\grammarterm{for-range-initializer}@;
 -  auto __begin = @\grammarterm{begin-expr}@;
 -  auto __end = @\grammarterm{end-expr}@;
 -  for ( ; __begin != __end; ++__begin ) {
@@ -153,9 +184,8 @@ index f6a1f06..dcbed28 100644
 -    @\grammarterm{statement}@
 -  }
 -}
-+
 +@\added{\{}@
-+  @\added{auto \&\& __range = \grammarterm{range-init};}@
++  @\added{auto && __range = \grammarterm{for-range-initializer};}@
 +  @\added{auto __begin = \grammarterm{begin-expr};}@
 +  @\added{auto __end = \grammarterm{end-expr};}@
 +  @\added{for ( ; __begin != __end; ++__begin ) \{}@
@@ -163,190 +193,16 @@ index f6a1f06..dcbed28 100644
 +    @\added{\grammarterm{statement}}@
 +  @\added{\}}@
 +@\added{\}}@
-+
  \end{codeblock}
 -\end{addedblock}
  %
- where \tcode{__range}, \tcode{__begin}, and \tcode{__end} are variables defined for
- exposition only, and \tcode{_RangeT} is the type of the
-@@ -99,4 +97,3 @@ In the \grammarterm{decl-specifier-seq} of a \grammarterm{for-range-declaration}
+ where
+ \begin{itemize}
+@@ -125,4 +119,3 @@ In the \grammarterm{decl-specifier-seq} of a \grammarterm{for-range-declaration}
  each \grammarterm{decl-specifier} shall be either a \grammarterm{type-specifier}
  or \tcode{constexpr}. The \grammarterm{decl-specifier-seq} shall not define a
  class or enumeration.
 -\end{quote}
-diff --git a/utilities.tex b/utilities.tex
-index 4cf0b3b..7406af8 100644
---- a/utilities.tex
-+++ b/utilities.tex
-@@ -658,9 +658,9 @@ complete or (possibly \cv) \tcode{void}.} \\ \rowsep
- \ednote{Delete [meta.trans.other]/p3 from ISO/IEC 14882:2014 and replace it with
- the following:}
- 
--{\color{addclr}
-+%{\color{addclr}
- \pnum
--Let \tcode{CREF(A)} be \tcode{add_lvalue_reference_t<const
-+\added{Let \tcode{CREF(A)} be \tcode{add_lvalue_reference_t<const
- remove_reference_t<A>{}>}. Let \tcode{UNCVREF(A)} be
- \tcode{remove_cv_t<remove_reference_t<A>{}>}. Let \tcode{XREF(A)}
- denote a unary template \tcode{T} such that \tcode{T<UNCVREF(A)>}
-@@ -674,34 +674,34 @@ or \tcode{Z} otherwise. Let \tcode{COND_RES(X, Y)} be
- \tcode{decltype(declval<bool>() ? declval<X>() : declval<Y>())}.
- Given types \tcode{A} and \tcode{B}, let \tcode{X} be
- \tcode{remove_reference_t<A>}, let \tcode{Y} be
--\tcode{remove_reference_t<B>}, and let \tcode{COMMON_REF(A, B)} be:
-+\tcode{remove_reference_t<B>}, and let \tcode{COMMON_REF(A, B)} be:}
- \begin{itemize}
--\item If \tcode{A} and \tcode{B} are both lvalue reference types,
-+\item \added{If \tcode{A} and \tcode{B} are both lvalue reference types,
-   \tcode{COMMON_REF(A, B)} is
--  \tcode{COND_RES(COPYCV(X, Y) \&, COPYCV(Y, X) \&)}.
--\item Otherwise, let \tcode{C} be
-+  \tcode{COND_RES(COPYCV(X, Y) \&, COPYCV(Y, X) \&)}.}
-+\item \added{Otherwise, let \tcode{C} be
-   \tcode{RREF_RES(COMMON_REF(X\&, Y\&))}. If \tcode{A} and \tcode{B}
-   are both rvalue reference types, and \tcode{C} is well-formed,
-   and \tcode{is_convertible<A, C>::value} and
-   \tcode{is_convertible<B, C>::value} are \tcode{true}, then
--  \tcode{COMMON_REF(A, B)} is \tcode{C}.
--\item Otherwise, let \tcode{D} be
-+  \tcode{COMMON_REF(A, B)} is \tcode{C}.}
-+\item \added{Otherwise, let \tcode{D} be
-   \tcode{COMMON_REF(const X\&, Y\&)}. If \tcode{A} is an rvalue
-   reference and \tcode{B} is an lvalue reference and \tcode{D} is
-   well-formed and \tcode{is_convertible<A, D>::value} is
--  \tcode{true}, then \tcode{COMMON_REF(A, B)} is \tcode{D}.
--\item Otherwise, if \tcode{A} is an lvalue reference and \tcode{B}
-+  \tcode{true}, then \tcode{COMMON_REF(A, B)} is \tcode{D}.}
-+\item \added{Otherwise, if \tcode{A} is an lvalue reference and \tcode{B}
-   is an rvalue reference, then \tcode{COMMON_REF(A, B)} is
--  \tcode{COMMON_REF(B, A)}.
--\item Otherwise, \tcode{COMMON_REF(A, B)} is
--  \tcode{decay_t<COND_RES(CREF(A), CREF(B))>}.
-+  \tcode{COMMON_REF(B, A)}.}
-+\item \added{Otherwise, \tcode{COMMON_REF(A, B)} is
-+  \tcode{decay_t<COND_RES(CREF(A), CREF(B))>}.}
- \end{itemize}
- 
--If any of the types computed above are ill-formed, then
--\tcode{COMMON_REF(A, B)} is ill-formed.
-+\added{If any of the types computed above are ill-formed, then
-+\tcode{COMMON_REF(A, B)} is ill-formed.}
- 
- \pnum
--\color{black} For the \tcode{common_type} trait applied to a parameter pack
-+For the \tcode{common_type} trait applied to a parameter pack
- \tcode{T} of types, the member \tcode{type} shall be either defined or not
- present as follows:
- \begin{itemize}
-@@ -709,22 +709,21 @@ present as follows:
- \item Otherwise, if \tcode{sizeof...(T)} is one, let \changed{T0}{T1}
-   denote the sole type in the pack \tcode{T}. The member typedef \tcode{type}
-   shall denote the same type as \tcode{decay_t<\changed{T0}{T1}>}.
--  \color{addclr}
--\item Otherwise, if \tcode{sizeof...(T)} is two, let \tcode{T1} and \tcode{T2}
-+\item \added{Otherwise, if \tcode{sizeof...(T)} is two, let \tcode{T1} and \tcode{T2}
-   denote the two types in the pack \tcode{T}, and let \tcode{D1} and \tcode{D2}
--  be \tcode{decay_t<T1>} and \tcode{decay_t<T2>} respectively. Then
-+  be \tcode{decay_t<T1>} and \tcode{decay_t<T2>} respectively. Then}
- \begin{itemize}
--\item If \tcode{D1} and \tcode{T1} denote the same type and \tcode{D2} and
--  \tcode{T2} denote the same type, then
-+\item \added{If \tcode{D1} and \tcode{T1} denote the same type and \tcode{D2} and
-+  \tcode{T2} denote the same type, then}
- \begin{itemize}
--\item If \tcode{COMMON_REF(T1, T2)} is well-formed, then the member typedef
--  \tcode{type} denotes that type.
--\item Otherwise, there shall be no member \tcode{type}.
-+\item \added{If \tcode{COMMON_REF(T1, T2)} is well-formed, then the member typedef
-+  \tcode{type} denotes that type.}
-+\item \added{Otherwise, there shall be no member \tcode{type}.}
-+\end{itemize}
-+\item \added{Otherwise, if \tcode{common_type_t<D1, D2>} is well-formed, then the
-+  member typedef \tcode{type} denotes that type.}
-+\item \added{Otherwise, there shall be no member \tcode{type}.}
- \end{itemize}
--\item Otherwise, if \tcode{common_type_t<D1, D2>} is well-formed, then the
--  member typedef \tcode{type} denotes that type.
--\item Otherwise, there shall be no member \tcode{type}.
--\end{itemize}\color{black}
- \item Otherwise, if \tcode{sizeof...(T)} is greater than \changed{one}{two},
-   let \tcode{T1}, \tcode{T2}, and \tcode{R\added{est}},
-   respectively, denote the first, second, and (pack of) remaining types
-@@ -732,48 +731,47 @@ present as follows:
-   \exitnote} Let \tcode{C} \removed{denote the type, if any, of an unevaluated
-   conditional expression (5.16) whose first operand is an arbitrary value of
-   type \tcode{bool}, whose second operand is an xvalue of type \tcode{T1}, and
--  whose third operand is an xvalue of type \tcode{T2}.}\color{addclr}be the type
--  \tcode{common_type_t<T1, T2>}. Then:
-+  whose third operand is an xvalue of type \tcode{T2}.}\added{be the type
-+  \tcode{common_type_t<T1, T2>}. Then:}
- \begin{itemize}
--\item {\color{black}If there is such a type \tcode{C}, the member typedef
-+\item If there is such a type \tcode{C}, the member typedef
-   \tcode{type} shall denote the same type, if any, as
--  \tcode{common_type_t<C, R\added{est}...>}.}
--\item {\color{black}Otherwise, there shall be no member \tcode{type}.}
-+  \tcode{common_type_t<C, R\added{est}...>}.
-+\item Otherwise, there shall be no member \tcode{type}.
- \end{itemize}
- \end{itemize}
- 
--\color{addclr}
- \pnum
--For the \tcode{common_reference} trait applied to a parameter pack \tcode{T} of
--types, the member \tcode{type} shall be either defined or not present as follows:
-+\added{For the \tcode{common_reference} trait applied to a parameter pack \tcode{T} of
-+types, the member \tcode{type} shall be either defined or not present as follows:}
- \begin{itemize}
--\item If \tcode{sizeof...(T)} is zero, there shall be no member \tcode{type}.
--\item Otherwise, if \tcode{sizeof...(T)} is one, let \tcode{T1} denote the sole
-+\item \added{If \tcode{sizeof...(T)} is zero, there shall be no member \tcode{type}.}
-+\item \added{Otherwise, if \tcode{sizeof...(T)} is one, let \tcode{T1} denote the sole
-   type in the pack \tcode{T}. The member typedef \tcode{type} shall denote the
--  same type as \tcode{T1}.
--\item Otherwise, if \tcode{sizeof...(T)} is two, let \tcode{T1} and \tcode{T2}
--  denote the two types in the pack \tcode{T}. Then
-+  same type as \tcode{T1}.}
-+\item \added{Otherwise, if \tcode{sizeof...(T)} is two, let \tcode{T1} and \tcode{T2}
-+  denote the two types in the pack \tcode{T}. Then}
- \begin{itemize}
--\item If \tcode{COMMON_REF(T1, T2)} is well-formed and denotes a reference type
--  then the member typedef \tcode{type} denotes that type.
--\item Otherwise, if \tcode{basic_common_reference<UNCVREF(T1), UNCVREF(T2),
-+\item \added{If \tcode{COMMON_REF(T1, T2)} is well-formed and denotes a reference type
-+  then the member typedef \tcode{type} denotes that type.}
-+\item \added{Otherwise, if \tcode{basic_common_reference<UNCVREF(T1), UNCVREF(T2),
-   XREF(T1), XREF(T2)>::type} is well-formed, then the member typedef
--  \tcode{type} denotes that type.
--\item Otherwise, if \tcode{common_type_t<T1, T2>} is well-formed, then the
--  member typedef \tcode{type} denotes that type.
--\item Otherwise, there shall be no member \tcode{type}.
-+  \tcode{type} denotes that type.}
-+\item \added{Otherwise, if \tcode{common_type_t<T1, T2>} is well-formed, then the
-+  member typedef \tcode{type} denotes that type.}
-+\item \added{Otherwise, there shall be no member \tcode{type}.}
- \end{itemize}
--\item Otherwise, if \tcode{sizeof...(T)} is greater than two, let \tcode{T1},
-+\item \added{Otherwise, if \tcode{sizeof...(T)} is greater than two, let \tcode{T1},
-   \tcode{T2}, and \tcode{Rest}, respectively, denote the first, second, and
-   (pack of) remaining types comprising \tcode{T}. Let \tcode{C} be the type
--  \tcode{common_reference_t<T1, T2>}. Then:
-+  \tcode{common_reference_t<T1, T2>}. Then:}
- \begin{itemize}
--\item If there is such a type \tcode{C}, the member typedef \tcode{type} shall
--  denote the same type, if any, as \tcode{common_reference_t<C, Rest...>}.
--\item Otherwise, there shall be no member \tcode{type}.
-+\item \added{If there is such a type \tcode{C}, the member typedef \tcode{type} shall
-+  denote the same type, if any, as \tcode{common_reference_t<C, Rest...>}.}
-+\item \added{Otherwise, there shall be no member \tcode{type}.}
- \end{itemize}
- \end{itemize}
--} %\color{addclr}
-+%} %\color{addclr}
- 
- \rSec1[taggedtup]{Tagged tuple-like types}
- 
 -- 
 2.7.4
 
