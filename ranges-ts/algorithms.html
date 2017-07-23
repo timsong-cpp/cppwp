@@ -393,16 +393,16 @@ namespace std { namespace experimental { namespace ranges { inline namespace v1 
     O fill_n(O first, difference_type_t&lt;O&gt; n, const T&amp; value);
 
   template &lt;Iterator O, Sentinel&lt;O&gt; S, CopyConstructible F&gt;
-      requires Callable&lt;F&amp;&gt; &amp;&amp; Writable&lt;O, result_of_t&lt;F&amp;()&gt;&gt;
+      requires Invocable&lt;F&amp;&gt; &amp;&amp; Writable&lt;O, result_of_t&lt;F&amp;()&gt;&gt;
     O generate(O first, S last, F gen);
 
   template &lt;class Rng, CopyConstructible F&gt;
-      requires Callable&lt;F&amp;&gt; &amp;&amp; OutputRange&lt;Rng, result_of_t&lt;F&amp;()&gt;&gt;
+      requires Invocable&lt;F&amp;&gt; &amp;&amp; OutputRange&lt;Rng, result_of_t&lt;F&amp;()&gt;&gt;
     safe_iterator_t&lt;Rng&gt;
       generate(Rng&amp;&amp; rng, F gen);
 
   template &lt;Iterator O, CopyConstructible F&gt;
-      requires Callable&lt;F&amp;&gt; &amp;&amp; Writable&lt;O, result_of_t&lt;F&amp;()&gt;&gt;
+      requires Invocable&lt;F&amp;&gt; &amp;&amp; Writable&lt;O, result_of_t&lt;F&amp;()&gt;&gt;
     O generate_n(O first, difference_type_t&lt;O&gt; n, F gen);
 
   template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class T, class Proj = identity&gt;
@@ -1782,23 +1782,21 @@ template &lt;class T, OutputIterator&lt;const T&amp;&gt; O&gt;
 <span class='texttt'>fill</span> assigns <span class='texttt'>value</span> through all the
 iterators in the range <span class='texttt'>[first,last)</span>. <span class='texttt'>fill_n</span>
 assigns <span class='texttt'>value</span> through all the iterators in the counted range <span class='texttt'>[first,n)</span>
-if <span class='texttt'>n</span> is positive, otherwise it does nothing.</p></div></div><div class='para' id='alg.fill-2'><div class='marginalizedparent'><a class='marginalized' href='#alg.fill-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i> <span class='texttt'>fill</span> returns <span class='texttt'>last</span>. <span class='texttt'>fill_n</span> returns <span class='texttt'>first + n</span>
-for non-negative values of <span class='texttt'>n</span> and <span class='texttt'>first</span> for negative values.</p></div></div><div class='para' id='alg.fill-3'><div class='marginalizedparent'><a class='marginalized' href='#alg.fill-3'>3</a></div><div class='itemdescr'><p ><i>Complexity:</i>
-Exactly
-<span class='texttt'>last - first</span>,
-<span class='texttt'>n</span>, or 0 assignments, respectively.
+if <span class='texttt'>n</span> is positive, otherwise it does nothing.</p></div></div><div class='para' id='alg.fill-2'><div class='marginalizedparent'><a class='marginalized' href='#alg.fill-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
+<span class='texttt'>last</span>, where <span class='texttt'>last</span> is <span class='texttt'>first + max(n, 0)</span> for <span class='texttt'>fill_n</span>.</p></div></div><div class='para' id='alg.fill-3'><div class='marginalizedparent'><a class='marginalized' href='#alg.fill-3'>3</a></div><div class='itemdescr'><p ><i>Complexity:</i>
+Exactly <span class='texttt'>last - first</span> assignments.
 </p></div></div></div><div id='alg.generate'><h3 ><a class='secnum' href='#alg.generate' style='min-width:103pt'>11.4.7</a> Generate <a class='abbr_ref' href='alg.generate'>[alg.generate]</a></h3><p ><span class='indexparent'><a class='index' id='generate'></a></span><span class='indexparent'><a class='index' id='generate_n'></a></span><code class='itemdecl'>
 template &lt;Iterator O, Sentinel&lt;O&gt; S, CopyConstructible F&gt;
-    requires Callable&lt;F&amp;&gt; &amp;&amp; Writable&lt;O, result_of_t&lt;F&amp;()&gt;&gt;
+    requires Invocable&lt;F&amp;&gt; &amp;&amp; Writable&lt;O, result_of_t&lt;F&amp;()&gt;&gt;
   O generate(O first, S last, F gen);
 
 template &lt;class Rng, CopyConstructible F&gt;
-    requires Callable&lt;F&amp;&gt; &amp;&amp; OutputRange&lt;Rng, result_of_t&lt;F&amp;()&gt;&gt;
+    requires Invocable&lt;F&amp;&gt; &amp;&amp; OutputRange&lt;Rng, result_of_t&lt;F&amp;()&gt;&gt;
   safe_iterator_t&lt;Rng&gt;
     generate(Rng&amp;&amp; rng, F gen);
 
 template &lt;Iterator O, CopyConstructible F&gt;
-    requires Callable&lt;F&amp;&gt; &amp;&amp; Writable&lt;O, result_of_t&lt;F&amp;()&gt;&gt;
+    requires Invocable&lt;F&amp;&gt; &amp;&amp; Writable&lt;O, result_of_t&lt;F&amp;()&gt;&gt;
   O generate_n(O first, difference_type_t&lt;O&gt; n, F gen);
 </code></p><div class='itemdescr'></div><div class='para' id='alg.generate-1'><div class='marginalizedparent'><a class='marginalized' href='#alg.generate-1'>1</a></div><div class='itemdescr'><p ><i>Effects:</i>
 The generate algorithms invoke the function object <span class='texttt'>gen</span> and assign the
@@ -1808,8 +1806,7 @@ return value of <span class='texttt'>gen</span> through all the iterators in the
 in the counted range <span class='texttt'>[first,n)</span> if <span class='texttt'>n</span> is positive, otherwise it does
 nothing.</p></div></div><div class='para' id='alg.generate-2'><div class='marginalizedparent'><a class='marginalized' href='#alg.generate-2'>2</a></div><div class='itemdescr'><p ><i>Returns:</i>
 <span class='texttt'>last</span>, where <span class='texttt'>last</span> is <span class='texttt'>first + max(n, 0)</span> for <span class='texttt'>generate_n</span>.</p></div></div><div class='para' id='alg.generate-3'><div class='marginalizedparent'><a class='marginalized' href='#alg.generate-3'>3</a></div><div class='itemdescr'><p ><i>Complexity:</i>
-Exactly <span class='texttt'>last - first</span> or <span class='texttt'>n</span> evaluations of <span class='texttt'>invoke(gen)</span> and
-assignments, respectively.
+Exactly <span class='texttt'>last - first</span> evaluations of <span class='texttt'>invoke(gen)</span> and assignments.
 </p></div></div></div><div id='alg.remove'><h3 ><a class='secnum' href='#alg.remove' style='min-width:103pt'>11.4.8</a> Remove <a class='abbr_ref' href='alg.remove'>[alg.remove]</a></h3><p ><span class='indexparent'><a class='index' id='remove'></a></span><span class='indexparent'><a class='index' id='remove_if'></a></span><code class='itemdecl'>
 template &lt;ForwardIterator I, Sentinel&lt;I&gt; S, class T, class Proj = identity&gt;
   requires Permutable&lt;I&gt; &amp;&amp;
