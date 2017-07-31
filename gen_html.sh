@@ -6,7 +6,7 @@ git submodule foreach 'git pull origin || :'
 ./gen_html_networking.sh
 ./gen_html_ranges.sh
 
-if [ ! -f gh-pages/full.html ] ||  [ ! -f gh-pages/ranges-ts/full.html ] || [ ! -f gh-pages/networking-ts/full.html ]
+if [ ! -f gh-pages/intro.html ] ||  [ ! -f gh-pages/ranges-ts/intro.html ] || [ ! -f gh-pages/networking-ts/scope.html ]
 then
 echo "Something was wrong."
 exit 1
