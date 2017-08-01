@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang='en'><head><title>[memory.syn]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Notes and examples expanded'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='alternate stylesheet' type='text/css' href='collapsed.css' title='Notes and examples collapsed'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>23</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>23.10</a> Memory <a class='abbr_ref' href='memory#syn'>[memory]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>23.10.2</a> Header <span class='texttt'>&lt;memory&gt;</span> synopsis <a class='abbr_ref'>[memory.syn]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/78f8e15e9acb75272c0c32cd7df9085e81668b1e/source/utilities.tex#L6543'>#</a></div><div id='1.sentence-1' class='sentence'>The header <span class='texttt'>&lt;memory&gt;</span> defines several types and function templates that
+<!DOCTYPE html><html lang='en'><head><title>[memory.syn]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Notes and examples expanded'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='alternate stylesheet' type='text/css' href='collapsed.css' title='Notes and examples collapsed'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>23</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>23.10</a> Memory <a class='abbr_ref' href='memory#syn'>[memory]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>23.10.2</a> Header <span class='texttt'>&lt;memory&gt;</span> synopsis <a class='abbr_ref'>[memory.syn]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/e3b4927ea0f4e8c8bf1f7461226c729b4e2c00be/source/utilities.tex#L6543'>#</a></div><div id='1.sentence-1' class='sentence'>The header <span class='texttt'>&lt;memory&gt;</span> defines several types and function templates that
 describe properties of pointers and pointer-like types, manage memory
 for containers and other template types, destroy objects, and
 construct multiple objects in
@@ -125,7 +125,8 @@ namespace std {
   template &lt;class T&gt; unique_ptr&lt;T&gt; make_unique(size_t n);
   template &lt;class T, class... Args&gt; <span class='textit'><span class='texttt'>unspecified</span></span> make_unique(Args&amp;&amp;...) = delete;
 
-  template &lt;class T, class D&gt; void swap(unique_ptr&lt;T, D&gt;&amp; x, unique_ptr&lt;T, D&gt;&amp; y) noexcept;
+  template &lt;class T, class D&gt;
+    void swap(unique_ptr&lt;T, D&gt;&amp; x, unique_ptr&lt;T, D&gt;&amp; y) noexcept;
 
   template &lt;class T1, class D1, class T2, class D2&gt;
     bool operator==(const unique_ptr&lt;T1, D1&gt;&amp; x, const unique_ptr&lt;T2, D2&gt;&amp; y);
@@ -173,10 +174,31 @@ namespace std {
 
   <span class='comment'>// <a href='util.smartptr.shared.create'>[util.smartptr.shared.create]</a>, <span class='tcode_in_codeblock'>shared_&shy;ptr</span> creation
 </span>  template&lt;class T, class... Args&gt;
-    shared_ptr&lt;T&gt; make_shared(Args&amp;&amp;... args);
-  template&lt;class T, class A, class... Args&gt;
-    shared_ptr&lt;T&gt; allocate_shared(const A&amp; a, Args&amp;&amp;... args);
-
+    shared_ptr&lt;T&gt; make_shared(Args&amp;&amp;... args);                                  <span class='comment'>// <span class='tcode_in_codeblock'>T</span> is not array
+</span>  template&lt;class T, class A, class... Args&gt;
+    shared_ptr&lt;T&gt; allocate_shared(const A&amp; a, Args&amp;&amp;... args);                  <span class='comment'>// <span class='tcode_in_codeblock'>T</span> is not array
+</span>
+  template&lt;class T&gt;
+    shared_ptr&lt;T&gt; make_shared(size_t N);                                        <span class='comment'>// <span class='tcode_in_codeblock'>T</span> is <span class='tcode_in_codeblock'>U[]</span>
+</span>  template&lt;class T, class A&gt;
+    shared_ptr&lt;T&gt; allocate_shared(const A&amp; a, size_t N);                        <span class='comment'>// <span class='tcode_in_codeblock'>T</span> is <span class='tcode_in_codeblock'>U[]</span>
+</span>
+  template&lt;class T&gt;
+    shared_ptr&lt;T&gt; make_shared();                                                <span class='comment'>// <span class='tcode_in_codeblock'>T</span> is <span class='tcode_in_codeblock'>U[N]</span>
+</span>  template&lt;class T, class A&gt;
+    shared_ptr&lt;T&gt; allocate_shared(const A&amp; a);                                  <span class='comment'>// <span class='tcode_in_codeblock'>T</span> is <span class='tcode_in_codeblock'>U[N]</span>
+</span>
+  template&lt;class T&gt;
+    shared_ptr&lt;T&gt; make_shared(size_t N, const remove_extent_t&lt;T&gt;&amp; u);           <span class='comment'>// <span class='tcode_in_codeblock'>T</span> is <span class='tcode_in_codeblock'>U[]</span>
+</span>  template&lt;class T, class A&gt;
+    shared_ptr&lt;T&gt; allocate_shared(const A&amp; a, size_t N,
+                                  const remove_extent_t&lt;T&gt;&amp; u);                 <span class='comment'>// <span class='tcode_in_codeblock'>T</span> is <span class='tcode_in_codeblock'>U[]</span>
+</span>
+  template&lt;class T&gt; shared_ptr&lt;T&gt;
+    make_shared(const remove_extent_t&lt;T&gt;&amp; u);                                   <span class='comment'>// <span class='tcode_in_codeblock'>T</span> is <span class='tcode_in_codeblock'>U[N]</span>
+</span>  template&lt;class T, class A&gt;
+    shared_ptr&lt;T&gt; allocate_shared(const A&amp; a, const remove_extent_t&lt;T&gt;&amp; u);     <span class='comment'>// <span class='tcode_in_codeblock'>T</span> is <span class='tcode_in_codeblock'>U[N]</span>
+</span>
   <span class='comment'>// <a href='util.smartptr.shared.cmp'>[util.smartptr.shared.cmp]</a>, <span class='tcode_in_codeblock'>shared_&shy;ptr</span> comparisons
 </span>  template&lt;class T, class U&gt;
     bool operator==(const shared_ptr&lt;T&gt;&amp; a, const shared_ptr&lt;U&gt;&amp; b) noexcept;
