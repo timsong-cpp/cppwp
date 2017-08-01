@@ -7,7 +7,7 @@ echo "htmlgen $(git rev-parse HEAD)" > ../thisbuild.tmp
 
 cd ../draft
 
-echo "draft $(git rev-parse HEAD)" >> ../thisbuild.tmp
+echo "draft $(git rev-parse origin/master)" >> ../thisbuild.tmp
 
 cd ..
 
