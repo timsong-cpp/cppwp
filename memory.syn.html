@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang='en'><head><title>[memory.syn]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Notes and examples expanded'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='alternate stylesheet' type='text/css' href='collapsed.css' title='Notes and examples collapsed'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>23</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>23.10</a> Memory <a class='abbr_ref' href='memory#syn'>[memory]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>23.10.2</a> Header <span class='texttt'>&lt;memory&gt;</span> synopsis <a class='abbr_ref'>[memory.syn]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/4ba4e9c2c04b7680ac2a56b65c241ec10c427c3f/source/utilities.tex#L6543'>#</a></div><div id='1.sentence-1' class='sentence'>The header <span class='texttt'>&lt;memory&gt;</span> defines several types and function templates that
+<!DOCTYPE html><html lang='en'><head><title>[memory.syn]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Notes and examples expanded'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='alternate stylesheet' type='text/css' href='collapsed.css' title='Notes and examples collapsed'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>23</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>23.10</a> Memory <a class='abbr_ref' href='memory#syn'>[memory]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>23.10.2</a> Header <span class='texttt'>&lt;memory&gt;</span> synopsis <a class='abbr_ref'>[memory.syn]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/9d8d06a6601794478075b01009c82d61e7d47445/source/utilities.tex#L6481'>#</a></div><div id='1.sentence-1' class='sentence'>The header <span class='texttt'>&lt;memory&gt;</span> defines several types and function templates that
 describe properties of pointers and pointer-like types, manage memory
 for containers and other template types, destroy objects, and
 construct multiple objects in
@@ -10,6 +10,12 @@ namespace std {
   <span class='comment'>// <a href='pointer.traits'>[pointer.traits]</a>, pointer traits
 </span>  template &lt;class Ptr&gt; struct pointer_traits;
   template &lt;class T&gt; struct pointer_traits&lt;T*&gt;;
+
+  <span class='comment'>// <a href='pointer.conversion'>[pointer.conversion]</a>, pointer conversion
+</span>  template &lt;class Ptr&gt;
+    auto to_address(const Ptr&amp; p) noexcept;
+  template &lt;class T&gt;
+    constexpr T* to_address(T* p) noexcept;
 
   <span class='comment'>// <a href='util.dynamic.safety'>[util.dynamic.safety]</a>, pointer safety
 </span>  enum class pointer_safety { relaxed, preferred, strict };
@@ -170,6 +176,9 @@ namespace std {
   template &lt;class T, class D&gt;
     bool operator&gt;=(nullptr_t, const unique_ptr&lt;T, D&gt;&amp; y);
 
+  template&lt;class E, class T, class Y, class D&gt;
+    basic_ostream&lt;E, T&gt;&amp; operator&lt;&lt;(basic_ostream&lt;E, T&gt;&amp; os, const unique_ptr&lt;Y, D&gt;&amp; p);
+
   <span class='comment'>// <a href='util.smartptr.weak.bad'>[util.smartptr.weak.bad]</a>, class <span class='tcode_in_codeblock'>bad_&shy;weak_&shy;ptr</span>
 </span>  class bad_weak_ptr;
 
@@ -276,44 +285,14 @@ namespace std {
   <span class='comment'>// <a href='util.smartptr.enab'>[util.smartptr.enab]</a>, class template <span class='tcode_in_codeblock'>enable_&shy;shared_&shy;from_&shy;this</span>
 </span>  template&lt;class T&gt; class enable_shared_from_this;
 
-  <span class='comment'>// <a href='util.smartptr.shared.atomic'>[util.smartptr.shared.atomic]</a>, <span class='tcode_in_codeblock'>shared_&shy;ptr</span> atomic access
-</span>  template&lt;class T&gt;
-    bool atomic_is_lock_free(const shared_ptr&lt;T&gt;* p);
-
-  template&lt;class T&gt;
-    shared_ptr&lt;T&gt; atomic_load(const shared_ptr&lt;T&gt;* p);
-  template&lt;class T&gt;
-    shared_ptr&lt;T&gt; atomic_load_explicit(const shared_ptr&lt;T&gt;* p, memory_order mo);
-
-  template&lt;class T&gt;
-    void atomic_store(shared_ptr&lt;T&gt;* p, shared_ptr&lt;T&gt; r);
-  template&lt;class T&gt;
-    void atomic_store_explicit(shared_ptr&lt;T&gt;* p, shared_ptr&lt;T&gt; r, memory_order mo);
-
-  template&lt;class T&gt;
-    shared_ptr&lt;T&gt; atomic_exchange(shared_ptr&lt;T&gt;* p, shared_ptr&lt;T&gt; r);
-  template&lt;class T&gt;
-    shared_ptr&lt;T&gt; atomic_exchange_explicit(shared_ptr&lt;T&gt;* p, shared_ptr&lt;T&gt; r, memory_order mo);
-
-  template&lt;class T&gt;
-    bool atomic_compare_exchange_weak(
-      shared_ptr&lt;T&gt;* p, shared_ptr&lt;T&gt;* v, shared_ptr&lt;T&gt; w);
-  template&lt;class T&gt;
-    bool atomic_compare_exchange_strong(
-      shared_ptr&lt;T&gt;* p, shared_ptr&lt;T&gt;* v, shared_ptr&lt;T&gt; w);
-  template&lt;class T&gt;
-    bool atomic_compare_exchange_weak_explicit(
-      shared_ptr&lt;T&gt;* p, shared_ptr&lt;T&gt;* v, shared_ptr&lt;T&gt; w,
-      memory_order success, memory_order failure);
-  template&lt;class T&gt;
-    bool atomic_compare_exchange_strong_explicit(
-      shared_ptr&lt;T&gt;* p, shared_ptr&lt;T&gt;* v, shared_ptr&lt;T&gt; w,
-      memory_order success, memory_order failure);
-
   <span class='comment'>// <a href='util.smartptr.hash'>[util.smartptr.hash]</a>, hash support
 </span>  template &lt;class T&gt; struct hash;
   template &lt;class T, class D&gt; struct hash&lt;unique_ptr&lt;T, D&gt;&gt;;
   template &lt;class T&gt; struct hash&lt;shared_ptr&lt;T&gt;&gt;;
+
+  <span class='comment'>// <a href='util.smartptr.atomic'>[util.smartptr.atomic]</a>, atomic smart pointers
+</span>  template &lt;class T&gt; struct atomic&lt;shared_ptr&lt;T&gt;&gt;;
+  template &lt;class T&gt; struct atomic&lt;weak_ptr&lt;T&gt;&gt;;
 
   <span class='comment'>// <a href='allocator.uses.trait'>[allocator.uses.trait]</a>, <span class='tcode_in_codeblock'>uses_&shy;allocator</span>
 </span>  template &lt;class T, class Alloc&gt;

@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang='en'><head><title>[syncstream.syncbuf.overview]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Notes and examples expanded'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='alternate stylesheet' type='text/css' href='collapsed.css' title='Notes and examples collapsed'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>30</a> Input/output library <a class='abbr_ref' href='./#input.output'>[input.output]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>30.10</a> Synchronized output streams <a class='abbr_ref' href='syncstream#syncbuf.overview'>[syncstream]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>30.10.2</a> Class template <span class='texttt'>basic_&shy;syncbuf</span> <a class='abbr_ref' href='syncstream.syncbuf#overview'>[syncstream.syncbuf]</a></h3><h4 ><a class='secnum' style='min-width:118pt'>30.10.2.1</a> Overview <a class='abbr_ref'>[syncstream.syncbuf.overview]</a></h4><span class='indexparent'><a class='index' id='lib:basic_syncbuf'></a></span><pre class='codeblock'>
+namespace std {
+  template &lt;class charT, class traits, class Allocator&gt;
+  class basic_syncbuf : public basic_streambuf&lt;charT, traits&gt; {
+  public:
+    using char_type      = charT;
+    using int_type       = typename traits::int_type;
+    using pos_type       = typename traits::pos_type;
+    using off_type       = typename traits::off_type;
+    using traits_type    = traits;
+    using allocator_type = Allocator;
+
+    using streambuf_type = basic_streambuf&lt;charT, traits&gt;;
+
+    <span class='comment'>// <a href='syncstream.syncbuf.cons'>[syncstream.syncbuf.cons]</a>, construction and destruction
+</span>    explicit basic_syncbuf(streambuf_type* obuf = nullptr)
+      : basic_syncbuf(obuf, Allocator()) {}
+    basic_syncbuf(streambuf_type*, const Allocator&amp;);
+    basic_syncbuf(basic_syncbuf&amp;&amp;);
+    ~basic_syncbuf();
+
+    <span class='comment'>// <a href='syncstream.syncbuf.assign'>[syncstream.syncbuf.assign]</a>, assignment and swap
+</span>    basic_syncbuf&amp; operator=(basic_syncbuf&amp;&amp;);
+    void swap(basic_syncbuf&amp;);
+
+    <span class='comment'>// <a href='syncstream.syncbuf.members'>[syncstream.syncbuf.members]</a>, member functions
+</span>    bool emit();
+    streambuf_type* get_wrapped() const noexcept;
+    allocator_type get_allocator() const noexcept;
+    void set_emit_on_sync(bool) noexcept;
+
+  protected:
+    <span class='comment'>// <a href='syncstream.syncbuf.virtuals'>[syncstream.syncbuf.virtuals]</a>, overridden virtual functions
+</span>    int sync() override;
+
+  private:
+    streambuf_type* wrapped;    <span class='comment'>// <span class='textit'>exposition only</span>
+</span>    bool emit_on_sync{};        <span class='comment'>// <span class='textit'>exposition only</span>
+</span>  };
+
+  <span class='comment'>// <a href='syncstream.syncbuf.special'>[syncstream.syncbuf.special]</a>, specialized algorithms
+</span>  template &lt;class charT, class traits, class Allocator&gt;
+    void swap(basic_syncbuf&lt;charT, traits, Allocator&gt;&amp;,
+              basic_syncbuf&lt;charT, traits, Allocator&gt;&amp;);
+}</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/9d8d06a6601794478075b01009c82d61e7d47445/source/iostreams.tex#L10053'>#</a></div><div id='1.sentence-1' class='sentence'>Class template <span class='texttt'>basic_&shy;syncbuf</span> stores character data
+written to it, known as the associated output, into internal
+buffers allocated using the object's allocator<a class='hidden_link' href='#1.sentence-1'>.</a></div> <div id='1.sentence-2' class='sentence'>The associated output is transferred to the
+wrapped stream buffer object <span class='texttt'>*wrapped</span>
+when <span class='texttt'>emit()</span> is called
+or when the <span class='texttt'>basic_&shy;syncbuf</span> object is destroyed<a class='hidden_link' href='#1.sentence-2'>.</a></div> <div id='1.sentence-3' class='sentence'>Such transfers are atomic with respect to transfers
+by other <span class='texttt'>basic_&shy;syncbuf</span> objects
+with the same wrapped stream buffer object<a class='hidden_link' href='#1.sentence-3'>.</a></div></div></div></body></html>
