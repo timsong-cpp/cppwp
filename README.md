@@ -1,8 +1,8 @@
 ### HTML version of the C++ working paper
 
-Complete unofficial, of course. Generated using the amazing [cxxdraft-htmlgen](https://github.com/Eelis/cxxdraft-htmlgen).
+Completely unofficial, of course. Generated using the amazing [cxxdraft-htmlgen](https://github.com/Eelis/cxxdraft-htmlgen).
 
-Currently four versions are available:
+Currently five versions are available:
 
 * Tip of trunk: [HTML](https://timsong-cpp.github.io/cppwp/) [Full PDF](https://timsong-cpp.github.io/cppwp/draft.pdf)
 * N3337 (C++11 + editorial fixes): [HTML](https://timsong-cpp.github.io/cppwp/n3337/) [Full PDF](https://timsong-cpp.github.io/cppwp/n3337/draft.pdf)
