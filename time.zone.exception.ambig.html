@@ -1,0 +1,38 @@
+<!DOCTYPE html><html lang='en'><head><title>[time.zone.exception.ambig]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Notes and examples expanded'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='alternate stylesheet' type='text/css' href='collapsed.css' title='Notes and examples collapsed'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>23</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>23.17</a> Time utilities <a class='abbr_ref' href='time#zone.exception.ambig'>[time]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>23.17.10</a> Time zones <a class='abbr_ref' href='time.zone#exception.ambig'>[time.zone]</a></h3><h4 ><a class='secnum' style='min-width:118pt'>23.17.10.3</a> Exception classes <a class='abbr_ref' href='time.zone.exception#ambig'>[time.zone.exception]</a></h4><h4 ><a class='secnum' style='min-width:133pt'>23.17.10.3.2</a> Class <span class='texttt'>ambiguous_&shy;local_&shy;time</span> <a class='abbr_ref'>[time.zone.exception.ambig]</a></h4><span class='indexparent'><a class='index' id='lib:ambiguous_local_time'></a></span><pre class='codeblock'>
+namespace std::chrono {
+  class ambiguous_local_time : public runtime_error {
+  public:
+    template&lt;class Duration&gt;
+      ambiguous_local_time(const local_time&lt;Duration&gt;&amp; tp, const local_info&amp; i);
+  };
+}</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/31d6168980ef064112d1ad5498635fa9ca07bc65/source/utilities.tex#L26673'>#</a></div><div id='1.sentence-1' class='sentence'><span class='texttt'>ambiguous_&shy;local_&shy;time</span> is thrown when
+an attempt is made
+to convert an ambiguous <span class='texttt'>local_&shy;time</span> to a <span class='texttt'>sys_&shy;time</span>
+without specifying <span class='texttt'>choose&#x200b;::&#x200b;earliest</span> or <span class='texttt'>choose&#x200b;::&#x200b;latest</span><a class='hidden_link' href='#1.sentence-1'>.</a></div> <span class='indexparent'><a class='index' id='lib:ambiguous_local_time,constructor'></a></span></div><div class='itemdecl' id='itemdecl:1'><div class='marginalizedparent'><a class='itemDeclLink' href='#itemdecl:1'>🔗</a></div><code class='itemdeclcode'>template&lt;class Duration&gt;
+  ambiguous_local_time(const local_time&lt;Duration&gt;&amp; tp, const local_info&amp; i);
+</code></div><div class='itemdescr'></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/31d6168980ef064112d1ad5498635fa9ca07bc65/source/utilities.tex#L26686'>#</a></div><div id='2.sentence-1' class='sentence'><span class='textit'>Requires:</span> <span class='texttt'>i.result == local_&shy;info&#x200b;::&#x200b;ambiguous</span><a class='hidden_link' href='#2.sentence-1'>.</a></div></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/31d6168980ef064112d1ad5498635fa9ca07bc65/source/utilities.tex#L26689'>#</a></div><div id='3.sentence-1' class='sentence'><span class='textit'>Effects:</span> 
+Constructs an <span class='texttt'>ambiguous_&shy;local_&shy;time</span>
+by initializing the base class with a sequence of <span class='texttt'>char</span>
+equivalent to that produced by <span class='texttt'>os.str()</span>
+initialized as shown below:</div><pre class='codeblock'>
+ostringstream os;
+os &lt;&lt; tp &lt;&lt; " is ambiguous.  It could be\n"
+   &lt;&lt; tp &lt;&lt; ' ' &lt;&lt; i.first.abbrev &lt;&lt; " == "
+   &lt;&lt; tp - i.first.offset &lt;&lt; " UTC or\n"
+   &lt;&lt; tp &lt;&lt; ' ' &lt;&lt; i.second.abbrev  &lt;&lt; " == "
+   &lt;&lt; tp - i.second.offset  &lt;&lt; " UTC";</pre></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='itemdescr'><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/31d6168980ef064112d1ad5498635fa9ca07bc65/source/utilities.tex#L26705'>#</a></div><div id='4.example-1' class='example'>[<span style='white-space:nowrap'> </span><a class='example_link' href='#4.example-1'><span class='textit'>Example</span></a><div class='exampleBody'><span class='textit'>:</span> <pre class='codeblock'>
+#include &lt;chrono&gt;
+#include &lt;iostream&gt;
+
+int main() {
+  using namespace std::chrono;
+  try {
+    auto zt = zoned_time{"America/New_York",
+                         local_days{Sunday[1]/November/2016} + 1h + 30min};
+  } catch (const ambiguous_local_time&amp; e) {
+    std::cout &lt;&lt; e.what() &lt;&lt; '\n';
+  }
+}</pre><div id='4.sentence-1' class='sentence'>Produces the output:</div><pre class='codeblock'>
+2016-11-06 01:30:00 is ambiguous.  It could be
+2016-11-06 01:30:00 EDT == 2016-11-06 05:30:00 UTC or
+2016-11-06 01:30:00 EST == 2016-11-06 06:30:00 UTC</pre> —<span style='white-space:nowrap'> </span><i>end example</i></div><span style='white-space:nowrap'> </span>]</div> </div></div></div></body></html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang='en'><head><title>[span.overview]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Notes and examples expanded'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='alternate stylesheet' type='text/css' href='collapsed.css' title='Notes and examples collapsed'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>26</a> Containers library <a class='abbr_ref' href='./#containers'>[containers]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>26.7</a> Views <a class='abbr_ref' href='views#span.overview'>[views]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>26.7.3</a> Class template <span class='texttt'>span</span> <a class='abbr_ref' href='views.span#span.overview'>[views.span]</a></h3><h4 ><a class='secnum' style='min-width:118pt'>26.7.3.1</a> Overview <a class='abbr_ref'>[span.overview]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/31d6168980ef064112d1ad5498635fa9ca07bc65/source/containers.tex#L9939'>#</a></div><div id='1.sentence-1' class='sentence'><span class='indexparent'><a class='index' id='lib:span'></a></span>A <span class='texttt'>span</span> is a view over a contiguous sequence of objects,
+the storage of which is owned by some other object<a class='hidden_link' href='#1.sentence-1'>.</a></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/31d6168980ef064112d1ad5498635fa9ca07bc65/source/containers.tex#L9944'>#</a></div><div id='2.sentence-1' class='sentence'><span class='texttt'>ElementType</span> is required to be a complete object type that is not an abstract class type<a class='hidden_link' href='#2.sentence-1'>.</a></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/31d6168980ef064112d1ad5498635fa9ca07bc65/source/containers.tex#L9947'>#</a></div><div id='3.sentence-1' class='sentence'>If <span class='texttt'>Extent</span> is negative and not equal to <span class='texttt'>dynamic_&shy;extent</span>,
+the program is ill-formed<a class='hidden_link' href='#3.sentence-1'>.</a></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/31d6168980ef064112d1ad5498635fa9ca07bc65/source/containers.tex#L9951'>#</a></div><div id='4.sentence-1' class='sentence'>The iterator type for span is a random access iterator and a contiguous iterator<a class='hidden_link' href='#4.sentence-1'>.</a></div></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/31d6168980ef064112d1ad5498635fa9ca07bc65/source/containers.tex#L9954'>#</a></div><div id='5.sentence-1' class='sentence'>All member functions of <span class='texttt'>span</span> have constant time complexity<a class='hidden_link' href='#5.sentence-1'>.</a></div><span class='indexparent'><a class='index' id='lib:span_'></a></span><pre class='codeblock'>
+nnamespace std {
+  template&lt;class ElementType, ptrdiff_t Extent = dynamic_extent&gt;
+  class span {
+  public:
+    <span class='comment'>// constants and types
+</span>    using element_type = ElementType;
+    using value_type = remove_cv_t&lt;ElementType&gt;;
+    using index_type = ptrdiff_t;
+    using difference_type = ptrdiff_t;
+    using pointer = element_type*;
+    using reference = element_type&amp;;
+    using iterator = <span class='indexparent'><a class='index' id=':type_of_span::iterator'></a></span><span class='textit'>implementation-defined</span>;
+    using const_iterator = <span class='indexparent'><a class='index' id=':type_of_span::const_iterator'></a></span><span class='textit'>implementation-defined</span>;
+    using reverse_iterator = reverse_iterator&lt;iterator&gt;;
+    using const_reverse_iterator = reverse_iterator&lt;const_iterator&gt;;
+    static constexpr index_type extent = Extent;
+
+    <span class='comment'>// <a href='span.cons'>[span.cons]</a>, constructors, copy, assignment, and destructor
+</span>    constexpr span() noexcept;
+    constexpr span(pointer ptr, index_type count);
+    constexpr span(pointer first, pointer last);
+    template&lt;size_t N&gt;
+      constexpr span(element_type (&amp;arr)[N]) noexcept;
+    template&lt;size_t N&gt;
+      constexpr span(array&lt;value_type, N&gt;&amp; arr) noexcept;
+    template&lt;size_t N&gt;
+      constexpr span(const array&lt;value_type, N&gt;&amp; arr) noexcept;
+    template&lt;class Container&gt;
+      constexpr span(Container&amp; cont);
+    template&lt;class Container&gt;
+      constexpr span(const Container&amp; cont);
+    constexpr span(const span&amp; other) noexcept = default;
+    template&lt;class OtherElementType, ptrdiff_t OtherExtent&gt;
+      constexpr span(const span&lt;OtherElementType, OtherExtent&gt;&amp; s) noexcept;
+
+    ~span() noexcept = default;
+
+    constexpr span&amp; operator=(const span&amp; other) noexcept = default;
+
+    <span class='comment'>// <a href='span.sub'>[span.sub]</a>, span subviews
+</span>    template&lt;ptrdiff_t Count&gt;
+      constexpr span&lt;element_type, Count&gt; first() const;
+    template&lt;ptrdiff_t Count&gt;
+      constexpr span&lt;element_type, Count&gt; last() const;
+    template&lt;ptrdiff_t Offset, ptrdiff_t Count = dynamic_extent&gt;
+      constexpr span&lt;element_type, <span class='textit'><span class='texttt'>see below</span></span>&gt; subspan() const;
+
+    constexpr span&lt;element_type, dynamic_extent&gt; first(index_type count) const;
+    constexpr span&lt;element_type, dynamic_extent&gt; last(index_type count) const;
+    constexpr span&lt;element_type, dynamic_extent&gt; subspan(
+      index_type offset, index_type count = dynamic_extent) const;
+
+    <span class='comment'>// <a href='span.obs'>[span.obs]</a>, span observers
+</span>    constexpr index_type size() const noexcept;
+    constexpr index_type size_bytes() const noexcept;
+    constexpr bool empty() const noexcept;
+
+    <span class='comment'>// <a href='span.elem'>[span.elem]</a>, span element access
+</span>    constexpr reference operator[](index_type idx) const;
+    constexpr reference operator()(index_type idx) const;
+    constexpr pointer data() const noexcept;
+
+    <span class='comment'>// <a href='span.iterators'>[span.iterators]</a>, span iterator support
+</span>    constexpr iterator begin() const noexcept;
+    constexpr iterator end() const noexcept;
+    constexpr const_iterator cbegin() const noexcept;
+    constexpr const_iterator cend() const noexcept;
+    constexpr reverse_iterator rbegin() const noexcept;
+    constexpr reverse_iterator rend() const noexcept;
+    constexpr const_reverse_iterator crbegin() const noexcept;
+    constexpr const_reverse_iterator crend() const noexcept;
+
+  private:
+    pointer data_;    <span class='comment'>// <span class='textit'>exposition only</span>
+</span>    index_type size_; <span class='comment'>// <span class='textit'>exposition only</span>
+</span>  };
+
+  template&lt;class T, size_t N&gt;
+    span(T (&amp;)[N]) -&gt; span&lt;T, N&gt;;
+  template&lt;class T, size_t N&gt;
+    span(array&lt;T, N&gt;&amp;) -&gt; span&lt;T, N&gt;;
+  template&lt;class T, size_t N&gt;
+    span(const array&lt;T, N&gt;&amp;) -&gt; span&lt;const T, N&gt;;
+  template&lt;class Container&gt;
+    span(Container&amp;) -&gt; span&lt;typename Container::value_type&gt;;
+  template&lt;class Container&gt;
+    span(const Container&amp;) -&gt; span&lt;const typename Container::value_type&gt;;
+}</pre></div></div></body></html>
