@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang='en'><head><title>[meta.type.synop]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Notes and examples expanded'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='alternate stylesheet' type='text/css' href='collapsed.css' title='Notes and examples collapsed'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>23</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>23.15</a> Metaprogramming and type traits <a class='abbr_ref' href='meta#type.synop'>[meta]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>23.15.2</a> Header <span class='texttt'>&lt;type_&shy;traits&gt;</span> synopsis <a class='abbr_ref'>[meta.type.synop]</a></h3><span class='indexparent'><a class='index' id=':<type_traits>'></a></span><span class='indexparent'><a class='index' id=':<type_traits>'></a></span><pre class='codeblock'>
+<!DOCTYPE html><html lang='en'><head><title>[meta.type.synop]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Notes and examples expanded'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='alternate stylesheet' type='text/css' href='collapsed.css' title='Notes and examples collapsed'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>23</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>23.15</a> Metaprogramming and type traits <a class='abbr_ref' href='meta#type.synop'>[meta]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>23.15.2</a> Header <span class='texttt'>&lt;type_&shy;traits&gt;</span> synopsis <a class='abbr_ref'>[meta.type.synop]</a></h3><span class='indexparent'><a class='index' id='lib:is_nothrow_convertible_v'></a></span><span class='indexparent'><a class='index' id=':<type_traits>'></a></span><span class='indexparent'><a class='index' id=':<type_traits>'></a></span><span class='indexparent'><a class='index' id='lib:type_identity_t'></a></span><pre class='codeblock'>
 namespace std {
   <span class='comment'>// <a href='meta.help'>[meta.help]</a>, helper class
 </span>  template&lt;class T, T v&gt; struct integral_constant;
@@ -99,6 +99,7 @@ namespace std {
 </span>  template&lt;class T, class U&gt; struct is_same;
   template&lt;class Base, class Derived&gt; struct is_base_of;
   template&lt;class From, class To&gt; struct is_convertible;
+  template&lt;class From, class To&gt; struct is_nothrow_convertible;
 
   template&lt;class Fn, class... ArgTypes&gt; struct is_invocable;
   template&lt;class R, class Fn, class... ArgTypes&gt; struct is_invocable_r;
@@ -167,7 +168,8 @@ namespace std {
     using add_pointer_t    = typename add_pointer&lt;T&gt;::type;
 
   <span class='comment'>// <a href='meta.trans.other'>[meta.trans.other]</a>, other transformations
-</span>  template&lt;size_t Len, size_t Align = <span class='textit'>default-alignment</span>&gt; <span class='comment'>// see <a href='meta.trans.other'>[meta.trans.other]</a>
+</span>  template&lt;class T&gt; struct type_identity;
+  template&lt;size_t Len, size_t Align = <span class='textit'>default-alignment</span>&gt; <span class='comment'>// see <a href='meta.trans.other'>[meta.trans.other]</a>
 </span>    struct aligned_storage;
   template&lt;size_t Len, class... Types&gt; struct aligned_union;
   template&lt;class T&gt; struct remove_cvref;
@@ -178,6 +180,8 @@ namespace std {
   template&lt;class T&gt; struct underlying_type;
   template&lt;class Fn, class... ArgTypes&gt; struct invoke_result;
 
+  template&lt;class T&gt;
+    using type_identity_t   = typename type_identity&lt;T&gt;::type;
   template&lt;size_t Len, size_t Align = <span class='textit'>default-alignment</span>&gt; <span class='comment'>// see <a href='meta.trans.other'>[meta.trans.other]</a>
 </span>    using aligned_storage_t = typename aligned_storage&lt;Len, Align&gt;::type;
   template&lt;size_t Len, class... Types&gt;
@@ -369,6 +373,8 @@ namespace std {
     inline constexpr bool is_base_of_v = is_base_of&lt;Base, Derived&gt;::value;
   template&lt;class From, class To&gt;
     inline constexpr bool is_convertible_v = is_convertible&lt;From, To&gt;::value;
+  template&lt;class From, class To&gt;
+    inline constexpr bool is_nothrow_convertible_v = is_nothrow_convertible&lt;From, To&gt;::value;
   template&lt;class Fn, class... ArgTypes&gt;
     inline constexpr bool is_invocable_v = is_invocable&lt;Fn, ArgTypes...&gt;::value;
   template&lt;class R, class Fn, class... ArgTypes&gt;
@@ -386,6 +392,6 @@ namespace std {
     inline constexpr bool disjunction_v = disjunction&lt;B...&gt;::value;
   template&lt;class B&gt;
     inline constexpr bool negation_v = negation&lt;B&gt;::value;
-}</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/61b6c21f218e3cbb9d15426975f1a26d8b72a7fe/source/utilities.tex#L15765'>#</a></div><div id='1.sentence-1' class='sentence'>The behavior of a program that adds specializations for any of
-the templates defined in this subclause is undefined unless otherwise specified<a class='hidden_link' href='#1.sentence-1'>.</a></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/61b6c21f218e3cbb9d15426975f1a26d8b72a7fe/source/utilities.tex#L15769'>#</a></div><div id='2.sentence-1' class='sentence'>Unless otherwise specified, an incomplete type may be used
+}</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/04eb7aa1d517df2712d1298ed7551ebb77523483/source/utilities.tex#L15798'>#</a></div><div id='1.sentence-1' class='sentence'>The behavior of a program that adds specializations for any of
+the templates defined in this subclause is undefined unless otherwise specified<a class='hidden_link' href='#1.sentence-1'>.</a></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/04eb7aa1d517df2712d1298ed7551ebb77523483/source/utilities.tex#L15802'>#</a></div><div id='2.sentence-1' class='sentence'>Unless otherwise specified, an incomplete type may be used
 to instantiate a template in this subclause<a class='hidden_link' href='#2.sentence-1'>.</a></div></div></div></body></html>
