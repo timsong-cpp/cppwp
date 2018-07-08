@@ -2,12 +2,11 @@
 
 Completely unofficial, of course. Generated using the amazing [cxxdraft-htmlgen](https://github.com/Eelis/cxxdraft-htmlgen).
 
-Currently five versions are available:
+Currently the following versions are available:
 
 * Tip of trunk: [HTML](https://timsong-cpp.github.io/cppwp/) [Full PDF](https://timsong-cpp.github.io/cppwp/draft.pdf)
 * N3337 (C++11 + editorial fixes): [HTML](https://timsong-cpp.github.io/cppwp/n3337/) [Full PDF](https://timsong-cpp.github.io/cppwp/n3337/draft.pdf)
 * N4140 (C++14 + editorial fixes): [HTML](https://timsong-cpp.github.io/cppwp/n4140/) [Full PDF](https://timsong-cpp.github.io/cppwp/n4140/draft.pdf)
-* N4618 (November 2016 post-Issaquah working draft): [HTML](https://timsong-cpp.github.io/cppwp/n4618/) [Full PDF](https://timsong-cpp.github.io/cppwp/n4618/draft.pdf)
 * N4659 (March 2017 post-Kona working draft/C++17 DIS): [HTML](https://timsong-cpp.github.io/cppwp/n4659/) [Full PDF](https://timsong-cpp.github.io/cppwp/n4659/draft.pdf)
 
 The following TSes are also available:
