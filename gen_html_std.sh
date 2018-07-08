@@ -51,9 +51,6 @@ then
 git apply -3 ../../htmlgen.patch
 fi
 
-latexmk -c
-latexmk -pdf std
-
 # Build the HTML
 cd ../../cxxdraft-htmlgen
 
