@@ -1,325 +1,7 @@
-From c9db38373ca4cc4e7ddad65d49462fee6d832598 Mon Sep 17 00:00:00 2001
-From: Richard Smith <richard@metafoo.co.uk>
-Date: Fri, 6 Jul 2018 17:51:14 -0700
-Subject: [PATCH 01/16] Add draft of Editors' Report for new working draft.
-
----
- papers/d4764.md | 298 ++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 298 insertions(+)
- create mode 100644 papers/d4764.md
-
-diff --git a/papers/d4764.md b/papers/d4764.md
-new file mode 100644
-index 00000000..53551b29
---- /dev/null
-+++ b/papers/d4764.md
-@@ -0,0 +1,298 @@
-+# D4764 Editors' Report -- Programming Languages -- C++
-+
-+2018-07-06  
-+Richard Smith (editor) (Google Inc)  
-+Thomas Köppe (co-editor) (Google DeepMind)  
-+Jens Maurer (co-editor)  
-+Dawn Perchik (co-editor) (Bright Side Computing, LLC)  
-+`<cxxeditor@gmail.com>`
-+
-+## Acknowledgements
-+
-+Special thanks to Casey Carter for supplying a pull request to merge
-+[P0898R3](http://wg21.link/p0898r3) (LWG motion 28),
-+and working with us on editorial cleanups within the
-+12 pages of added text.
-+
-+Thanks to all those who have [submitted editorial
-+issues](https://github.com/cplusplus/draft/wiki/How-to-submit-an-editorial-issue)
-+and to those who have provided pull requests with fixes.
-+
-+## New papers
-+
-+ * [N4762](http://wg21.link/n4762) is the current working draft for C++20. It replaces [N4750](http://wg21.link/n4750).
-+ * N4764 is this Editors' Report.
-+
-+## Motions incorporated into working draft
-+
-+### Core working group motions
-+
-+CWG motion 1: [Core issue resolutions](http://wg21.link/p1113r0) for 6 issues in "ready" status applied:
-+
-+ * [2254](http://wg21.link/cwg2254) Standard-layout classes and bit-fields
-+ * [2293](http://wg21.link/cwg2293) Requirements for *simple-template-id* used as a *class-name*
-+ * [2294](http://wg21.link/cwg2294) Dependent `auto` static data members
-+ * [2321](http://wg21.link/cwg2321) Conditional operator and cv-qualified class prvalues
-+ * [2322](http://wg21.link/cwg2322) Substitution failure and lexical order
-+ * [2339](http://wg21.link/cwg2339) Underspecified template arguments in structured bindings
-+
-+CWG motion 2: [Core issue resolutions](http://wg21.link/p1114r0) for 6 issues in "tentatively ready" status applied:
-+
-+ * [2233](http://wg21.link/cwg2233) Function parameter packs following default arguments
-+ * [2249](http://wg21.link/cwg2249) *identifier*s and *id-expression*s
-+ * [2285](http://wg21.link/cwg2285) Issues with structured bindings
-+ * [2351](http://wg21.link/cwg2351) `void{}`
-+ * [2356](http://wg21.link/cwg2356) Base class copy and move constructors should not be inherited
-+ * [2359](http://wg21.link/cwg2359) Unintended copy initialization with designated initializers **(not a DR)**
-+
-+CWG motion 3: [P0806R2 "Deprecate implicit capture of `this` via `[=]`"](http://wg21.link/p0806r2)
-+
-+CWG motion 4: [P1042R1 `__VA_OPT__` wording clarifications"](http://wg21.link/p1042r1)
-+
-+CWG motion 5: [P0929R2 "Checking for abstract class types"](http://wg21.link/p0929r2) applied, resolving 2 core issues:
-+
-+ * [1640](http://wg21.link/cwg1640) Array of abstract instance of class template
-+ * [1646](http://wg21.link/cwg1646) *decltype-specifier*s, abstract classes, and deduction failure
-+
-+CWG motion 6: [P0732R2 "Class types in non-type template parameters"](http://wg21.link/p0732r2)
-+
-+CWG motion 7 was not approved
-+
-+CWG motion 8: [P1025R1 "Update the reference to the Unicode standard"](http://wg21.link/p1025r1)
-+
-+CWG motion 9: [P0528R3 "The curious case of padding bits, featuring atomic compare-and-exchange"](http://wg21.link/p0528r3)
-+
-+CWG motion 10: [P0722R3 "Efficient sized delete for variable sized classes"](http://wg21.link/p0722r3)
-+
-+CWG motion 11: [P1064R0 "Allowing virtual function calls in constant expressions"](http://wg21.link/p1064r0)
-+
-+CWG motion 12: [P1008R1 "Prohibit aggregates with user-declared constructors"](http://wg21.link/p1008r1)
-+
-+CWG motion 13: [P1120R0 "Consistency improvements for `<=>` and other comparison operators"](http://wg21.link/p1120r0)
-+
-+CWG motion 14: [P0542R5 "Contract-based programming"](http://wg21.link/p0542r5) **see below**
-+
-+CWG motion 15: [P0941R2 "Feature-test macros"](http://wg21.link/p0941r2) **see below**
-+
-+CWG motion 16: [P0892R2 "`explicit(bool)`"](http://wg21.link/p0892r2)
-+
-+### Library working group motions
-+
-+LWG motions 1-5 apply to the Parallelism TS
-+
-+LWG motions 6 and 7 apply to the Reflection TS
-+
-+LWG motions 8 and 9 apply to the Coroutines TS
-+
-+LWG motion 10 applies to the Networking TS
-+
-+LWG motion 11: [Library issue resolutions](http://wg21.link/p1082r0) for 14 issues in "Ready" and "Tentatively Ready" status applied:
-+
-+ * [2139](http://wg21.link/lwg2139) What is a user-defined type? **see below**
-+ * [2970](http://wg21.link/lwg2970) Return type of `std::visit` misspecified
-+ * [3058](http://wg21.link/lwg3058) Parallel `adjacent_difference` shouldn't require creating temporaries
-+ * [3062](http://wg21.link/lwg3062) Unnecessary `decay_t` in `is_execution_policy_v` should be `remove_cvref_t`
-+ * [3067](http://wg21.link/lwg3067) `recursive_directory_iterator::pop` must invalidate
-+ * [3074](http://wg21.link/lwg3074) Non-member functions for `valarray` should only deduce from the `valarray`
-+ * [3076](http://wg21.link/lwg3076) `basic_string` CTAD ambiguity
-+ * [3079](http://wg21.link/lwg3079) [LWG 2935](http://wg21.link/lwg2935) forgot to fix the `existing_p` overloads of `create_directory`
-+ * [3080](http://wg21.link/lwg3080) Floating point `from_chars` pattern specification breaks round-tripping
-+ * [3083](http://wg21.link/lwg3083) What should `ios::iword(-1)` do?
-+ * [3094](http://wg21.link/lwg3094) [time.duration.io]p4 makes surprising claims about encoding
-+ * [3100](http://wg21.link/lwg3100) Unnecessary and confusing "empty span" wording
-+ * [3102](http://wg21.link/lwg3102) Clarify `span` `iterator` and `const_iterator` behavior
-+ * [3104](http://wg21.link/lwg3104) Fixing `duration` division
-+ * Resolution of [3071](http://wg21.link/lwg3071) (`read_until` still refers to
-+   "input sequence") from P1082R0 was not part of this motion, as it applies to
-+   the Networking TS.
-+
-+LWG motion 12: [Library issue resolution](http://wg21.link/p0475r1) for 1 issue applied:
-+
-+ * [2511](http://wg21.link/lwg2511) Guaranteed copy elision for piecewise construction
-+
-+LWG motion 13: [P0476R2 "Bit-casting object representations"](http://wg21.link/p0476r2)
-+
-+LWG motion 14: [P0788R3 "Standard library specification in a concepts and contracts world"](http://wg21.link/p0788r3)
-+
-+LWG motion 15 was not approved
-+
-+LWG motion 16: [P0458R2 "Checking for existence of an element in associative containers"](http://wg21.link/p0458r2)
-+
-+LWG motion 17: [P0759R1 "`fpos` requirements"](http://wg21.link/p0759r1)
-+
-+LWG motion 18: [P1023R0 "`constexpr` comparison operators for `std::array`"](http://wg21.link/p1023r0)
-+
-+LWG motion 19: [P0769R2 "Add `shift` to `<algorithm>`"](http://wg21.link/p0769r2)
-+
-+LWG motion 20: [P0887R1 "The `identity` metafunction"](http://wg21.link/p0887r1)
-+
-+LWG motion 21: [P0879R0 "`constexpr` for `swap` and `swap`-related functions"](http://wg21.link/p0879r0) applied, resolving 1 issue:
-+
-+ * [2800](http://wg21.link/lwg2800) `constexpr` `swap`
-+
-+LWG motion 22: [P0758R1 "Implicit conversion traits and utility functions"](http://wg21.link/p0758r1)
-+
-+LWG motion 23: [P0556R3 "Integral power-of-2 operations"](http://wg21.link/p0556r3)
-+
-+LWG motion 24: [P0019R8 "`atomic_ref`"](http://wg21.link/p0019r8)
-+
-+LWG motion 25: [P0935R0 "Eradicating unnecessarily explicit default constructors from the standard library"](http://wg21.link/p0935r0)
-+
-+LWG motion 26: [P0646R1 "Improving the return value of `erase`-like algorithms"](http://wg21.link/p0646r1)
-+
-+LWG motion 27: [P0619R4 "Reviewing deprecated facilities of C++17 for C++20"](http://wg21.link/p0619r4) **see below**
-+
-+LWG motion 28: [P0898R3 "Standard library concepts"](http://wg21.link/p0898r3) **see below**
-+
-+## Notable editorial changes
-+
-+### CWG motion 14
-+
-+Subclause structure and paragraph order of [dcl.attr.contracts] was reworked.
-+Several normatively-redundant statements were converted to notes or removed.
-+
-+### CWG motion 15
-+
-+Multiple papers moved at this meeting included suggested feature-test macros.
-+However, these were not presented as editing instructions, because we did not
-+have feature-test macros in the standard wording yet. After consultation with
-+CWG and LWG, the following feature test macros have been added in addition to
-+those listed in CWG motion 15 (all with value `201806L`):
-+
-+ *  `__has_cpp_attribute(assert)`
-+ *  `__has_cpp_attribute(ensures)`
-+ *  `__has_cpp_attribute(expects)`
-+ *  `__cpp_explicit_bool`
-+ *  `__cpp_nontype_template_parameter_class`
-+ *  `__cpp_lib_atomic_ref`
-+ *  `__cpp_lib_bit_cast`
-+ *  `__cpp_lib_concepts`
-+ *  `__cpp_lib_constexpr_swap_algorithms`
-+ *  `__cpp_lib_list_remove_return_type`
-+
-+### CWG motions 16 and 12
-+
-+CWG motion 16 would have us change wording that was deleted by CWG motion 12.
-+The requested change in CWG motion 16 (from teletype "`explicit`" to body font "explicit")
-+was ignored.
-+
-+### LWG motion 11: issue 2139
-+
-+The underlying text has changed between the drafting of the resolution to this
-+issue and its application. We believe every requested edit has been applied;
-+however, an additional use of "user-defined type" has been added to
-+[namespace.std] that should likely also have been covered by this wording.
-+It has *not* been changed.
-+
-+### LWG motions 13 and 23
-+
-+These motions both introduce a `<bit>` header, but the organizational structure
-+suggested by motion 23 doesn't make sense for the functionality
-+added by motion 13.
-+The wording of motion 23 has been rearranged to fit into
-+the structure established by motion 13.
-+
-+### LWG motions 16
-+
-+Added the new `contains` member function for associative containers to the list
-+of member function templates that do not participate in overload resolution
-+unless the comparator is transparent, after consultation with LWG.
-+
-+### LWG motions 19 and 21
-+
-+LWG motion 19 adds a `shift_right` algorithm to `<algorithm>`
-+as a non-`constexpr` function template.
-+
-+LWG motion 21 instructs that we mark
-+all non-parallel algorithms in `<algorithm>`
-+as `constexpr`.
-+Naturally, however,
-+its proposed wording change does not list the `shift_right` algorithm.
-+After consultation with LWG, `shift_right` has been marked `constexpr`
-+to satisfy the intent of LWG motion 21.
-+
-+### LWG motion 27
-+
-+Synopses for
-+`<ccomplex>`,
-+`<cstdalign>`,
-+`<cstdbool>`, and
-+`<ctgmath>`
-+were not removed;
-+instead, they have been repurposed as synopses for
-+`<complex.h>`,
-+`<stdalign.h>`,
-+`<stdbool.h>`, and
-+`<tgmath.h>`.
-+(The latter used to be defined in terms of the former,
-+but can no longer be specified in that way.)
-+Also introduced a synopsis for `<iso646.h>`.
-+
-+### LWG motion 28
-+
-+Clause labels shortened and simplified throughout.
-+
-+The single-item clauses [concept.movable], [concept.copyable],
-+[concept.semiregular], and [concept.regular] have been merged into their
-+parent, [concepts.object].
-+
-+The single-item clauses [concept.signed.int] and [concept.unsigned.int]
-+have been merged into their parent, [concept.integral].
-+
-+Legacy concept names changed from Cpp98Something to Cpp17Something. Many of
-+these concepts did not exist in C++98 (which in any case was revoked and
-+replaced by C++03).
-+
-+Reworked "uniform random bit generator" requirements to describe them in terms
-+of the UniformRandomBitGenerator concept.
-+
-+Removed "there need be no subsumption relationship" wording that is already
-+implied by the core language rules for concepts.
-+
-+### Editorial paper [P1076R1 "Clause reorganization"](http://wg21.likn/p1076r1)
-+
-+The claue reorganization described in P1076R1 and discussed at the WG21
-+Rapperswil meeting has been applied to the working draft, with the following
-+modifications:
-+
-+[class.copy] was left containing only two paragraphs of text, neither of which
-+had any normative impact. It has been removed.
-+
-+The top-level subclauses of [algorithms] have been reordered to make the
-+description of the `<numeric>` header fit better into its structure.
-+
-+Several paragraphs of [class] describing various properties of classes have
-+been moved into a new subclause [class.prop] "Properties of clases".
-+
-+### Removal of single-item subclauses
-+
-+The single-item subclauses
-+[move.iter.op=] and
-+[move.iter.op.const]
-+have been merged into [move.iter.cons].
-+
-+The single-item subclauses
-+[move.iter.op.star],
-+[move.iter.op.ref], and
-+[move.iter.op.index]
-+have been merged into [move.iter.elem].
-+
-+The single-item subclauses
-+[move.iter.op.+],
-+[move.iter.op.-],
-+[move.iter.op.incr],
-+[move.iter.op.+=],
-+[move.iter.op.decr], and
-+[move.iter.op.-=]
-+have been merged into [move.iter.nav].
-+
-+The now-empty [move.iter.ops] has been removed.
-+
-+## Minor editorial fixes
-+
-+A log of editorial fixes made to the working draft since N4750 is below.
-+This list excludes changes
-+that do not affect the body text or only affect whitespace or typeface. For a
-+complete list including such changes (or for the actual deltas applied by these
-+changes), consult the [draft sources on github](https://github.com/cplusplus/draft/compare/n4750...n4762).
-+
--- 
-2.17.1
-
-
-From ea28a94a56cc4ced730a9213c5caa34597d6451d Mon Sep 17 00:00:00 2001
+From 945ff0035850e33b3eca852860106ce02157babb Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Fri, 10 Mar 2017 14:45:02 +0100
-Subject: [PATCH 02/16] [expr.mptr.oper] Add missing indentation in example
+Subject: [PATCH 01/15] [expr.mptr.oper] Add missing indentation in example
  code. [rejected upstream: 1529]
 
 ---
@@ -347,10 +29,10 @@ index bfe65b46..796f3a7d 100644
 2.17.1
 
 
-From 90689108690422b1860dad3a2b64e94eb58f7030 Mon Sep 17 00:00:00 2001
+From f20125606b3f879b22308c68e94857cdf4170598 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sun, 26 Feb 2017 14:24:19 +0100
-Subject: [PATCH 03/16] [some.where] Replace \term with \placeholder.
+Subject: [PATCH 02/15] [some.where] Replace \term with \placeholder.
 
 ---
  source/expressions.tex | 2 +-
@@ -373,10 +55,10 @@ index 796f3a7d..dfc69ed0 100644
 2.17.1
 
 
-From d7cd9fbebb67673fc6d7cf6d6f432c10c4f5ec30 Mon Sep 17 00:00:00 2001
+From 706df76eb7be67ec9479cd1a7a6877350310abd5 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Wed, 1 Feb 2017 03:39:27 +0100
-Subject: [PATCH 04/16] Make references more precise.
+Subject: [PATCH 03/15] Make references more precise.
 
 ---
  source/basic.tex        | 2 +-
@@ -425,7 +107,7 @@ index 55f5236f..4e58584d 100644
  \begin{codeblock}
  T(a)->m = 7;        // expression-statement
 diff --git a/source/strings.tex b/source/strings.tex
-index fa0b6a7f..95242ffb 100644
+index 397af559..a8ab6094 100644
 --- a/source/strings.tex
 +++ b/source/strings.tex
 @@ -1549,7 +1549,7 @@ basic_string& operator=(basic_string&& str)
@@ -441,10 +123,10 @@ index fa0b6a7f..95242ffb 100644
 2.17.1
 
 
-From 52a1de277cd50a03f4c484c1f7fbc5952ca20509 Mon Sep 17 00:00:00 2001
+From d58af3132529468a42b0adaa16d044d55a674cea Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sat, 7 Jan 2017 01:59:05 +0100
-Subject: [PATCH 05/16] [rand.req.eng] Omit superfluous dollar-math wrapping
+Subject: [PATCH 04/15] [rand.req.eng] Omit superfluous dollar-math wrapping
  inside \bigoh. [rejected upstream: 1340]
 
 ---
@@ -518,10 +200,10 @@ index 24773dae..9a73e7ff 100644
 2.17.1
 
 
-From 8e2a0b60f9f0b87c5e06a54379b0782dac5a616d Mon Sep 17 00:00:00 2001
+From 714c6bec6f9adf35cb43a46a6f1670f43c8da727 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Thu, 5 Jan 2017 23:06:32 +0100
-Subject: [PATCH 06/16] Move index entries for first item in enumeration into
+Subject: [PATCH 05/15] Move index entries for first item in enumeration into
  item.
 
 ---
@@ -548,10 +230,10 @@ index 78ea6c21..3c5aacb8 100644
 2.17.1
 
 
-From f666778457f6628f31336f9e3c7186b16d191dd8 Mon Sep 17 00:00:00 2001
+From 6f6a8fe514ab792c40a9c5201c394b9c56a3be0c Mon Sep 17 00:00:00 2001
 From: timsong-cpp <rs2740@gmail.com>
 Date: Sun, 1 Jan 2017 16:12:50 +0100
-Subject: [PATCH 07/16] Use floattable for [optional] tables.
+Subject: [PATCH 06/15] Use floattable for [optional] tables.
 
 ---
  source/tables.tex | 31 ++++---------------------------
@@ -606,10 +288,10 @@ index 1b638348..a733e409 100644
 2.17.1
 
 
-From 07bddb8f6f1ad566fd52248c8a0afea6a516aee9 Mon Sep 17 00:00:00 2001
+From 4368a88bee184e7df907a87cf5448b432c8bc481 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Mon, 23 Jan 2017 06:58:26 +0100
-Subject: [PATCH 08/16] Reduce excessive indentation of comments. Helps layout
+Subject: [PATCH 07/15] Reduce excessive indentation of comments. Helps layout
  on smaller (e.g. half-screen) window sizes.
 
 ---
@@ -766,16 +448,16 @@ index 6437e308..b9076587 100644
 2.17.1
 
 
-From f954eaced990c79f02c15843bca46fc68875902a Mon Sep 17 00:00:00 2001
+From 1ea63c1775463fb9f31dd6a069bc5860e1b6b3ba Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Wed, 1 Feb 2017 03:24:29 +0100
-Subject: [PATCH 09/16] Add and use new link macros.
+Subject: [PATCH 08/15] Add and use new link macros.
 
 ---
  source/algorithms.tex    |   6 +-
  source/atomics.tex       |  10 +-
  source/basic.tex         | 308 +++++++++++------------
- source/classes.tex       | 114 ++++-----
+ source/classes.tex       | 112 ++++-----
  source/compatibility.tex |  54 ++--
  source/containers.tex    |  80 +++---
  source/declarations.tex  | 185 +++++++-------
@@ -801,7 +483,7 @@ Subject: [PATCH 09/16] Add and use new link macros.
  source/templates.tex     | 227 ++++++++---------
  source/threads.tex       | 113 ++++-----
  source/utilities.tex     | 287 +++++++++++----------
- 29 files changed, 1583 insertions(+), 1468 deletions(-)
+ 29 files changed, 1582 insertions(+), 1467 deletions(-)
 
 diff --git a/source/algorithms.tex b/source/algorithms.tex
 index 4bf758ba..d87f5a2e 100644
@@ -1747,18 +1429,9 @@ index 71d9240d..cd0d6825 100644
  \tcode{char32_t} denote distinct types with the same size, signedness,
  and alignment as \tcode{uint_least16_t} and \tcode{uint_least32_t},
 diff --git a/source/classes.tex b/source/classes.tex
-index af6e193c..a7613a07 100644
+index af6e193c..3a41f865 100644
 --- a/source/classes.tex
 +++ b/source/classes.tex
-@@ -85,7 +85,7 @@ If a \grammarterm{class-head-name} contains a \grammarterm{nested-name-specifier
- the \grammarterm{class-specifier} shall refer to a class that was
- previously declared directly in the class or namespace to which the
- \grammarterm{nested-name-specifier} refers,
--or in an element of the inline namespace set\iref{namespace.def} of that namespace
-+or in an element of the \deflink{inline namespace set}{\ref{namespace.def}} of that namespace
- (i.e., not merely inherited or
- introduced by a \grammarterm{using-declaration}), and the
- \grammarterm{class-specifier} shall appear in a namespace enclosing the
 @@ -151,12 +151,12 @@ and move assignment operator~(\ref{class.copy.ctor}, \ref{class.copy.assign})
  is either deleted or trivial,
  \item that has at least one non-deleted copy constructor, move constructor,
@@ -2207,7 +1880,7 @@ index 6947f19b..67798648 100644
  Subclause \ref{support.types.layout} describes the change.
  
 diff --git a/source/containers.tex b/source/containers.tex
-index 6c2e03ba..9cc4f843 100644
+index 768e2c26..2cf433a3 100644
 --- a/source/containers.tex
 +++ b/source/containers.tex
 @@ -58,9 +58,9 @@ is itself linear.
@@ -5614,7 +5287,7 @@ index 2bebcfeb..8fa5fa04 100644
  intmax_t abs(intmax_t);
  imaxdiv_t div(intmax_t, intmax_t);
 diff --git a/source/iterators.tex b/source/iterators.tex
-index 2d86d12f..ad87b8ec 100644
+index b92af7ed..10f8d692 100644
 --- a/source/iterators.tex
 +++ b/source/iterators.tex
 @@ -5,9 +5,9 @@
@@ -5630,7 +5303,7 @@ index 2d86d12f..ad87b8ec 100644
  
  \pnum
  The following subclauses describe
-@@ -263,7 +263,7 @@ denotes a value of value type
+@@ -265,7 +265,7 @@ denotes a value of value type
  \tcode{o}
  denotes a value of some type that is writable to the output iterator.
  \begin{note} For an iterator type \tcode{X} there must be an instantiation
@@ -5639,7 +5312,7 @@ index 2d86d12f..ad87b8ec 100644
  
  \rSec2[iterator.iterators]{\oldconcept{Iterator}}
  
-@@ -272,7 +272,7 @@ The \oldconcept{Iterator} requirements form the basis of the iterator
+@@ -274,7 +274,7 @@ The \oldconcept{Iterator} requirements form the basis of the iterator
  taxonomy; every iterator satisfies the \oldconcept{Iterator} requirements. This
  set of requirements specifies operations for dereferencing and incrementing
  an iterator. Most algorithms will require additional operations to
@@ -5648,7 +5321,7 @@ index 2d86d12f..ad87b8ec 100644
  to provide a richer set of iterator movements~(\ref{forward.iterators},
  \ref{bidirectional.iterators}, \ref{random.access.iterators}).
  
-@@ -2491,7 +2491,7 @@ and prints the partial sums onto
+@@ -2493,7 +2493,7 @@ and prints the partial sums onto
  \indexlibrary{\idxcode{istream_iterator}}%
  The class template
  \tcode{istream_iterator}
@@ -5657,7 +5330,7 @@ index 2d86d12f..ad87b8ec 100644
  reads (using
  \tcode{operator>>})
  successive elements from the input stream for which it was constructed.
-@@ -2840,10 +2840,11 @@ The iterator is destroyed.
+@@ -2842,10 +2842,11 @@ The iterator is destroyed.
  
  \rSec3[ostream.iterator.ops]{\tcode{ostream_iterator} operations}
  
@@ -5670,7 +5343,7 @@ index 2d86d12f..ad87b8ec 100644
  
  \begin{itemdescr}
  \pnum
-@@ -2886,7 +2887,7 @@ ostream_iterator& operator++(int);
+@@ -2888,7 +2889,7 @@ ostream_iterator& operator++(int);
  The
  class template
  \tcode{istreambuf_iterator}
@@ -5906,7 +5579,7 @@ index 3c5aacb8..f0ada746 100644
  purpose. During concatenation, \grammarterm{ud-suffix}{es} are removed and ignored and
  the concatenation process occurs as described in~\ref{lex.string}. At the end of phase
 diff --git a/source/lib-intro.tex b/source/lib-intro.tex
-index 600ee402..3d75e10b 100644
+index 97c96f01..1d03a750 100644
 --- a/source/lib-intro.tex
 +++ b/source/lib-intro.tex
 @@ -10,8 +10,8 @@ how a well-formed \Cpp{} program makes use of the library, and
@@ -5920,7 +5593,7 @@ index 600ee402..3d75e10b 100644
  library. \ref{requirements}, \ref{\firstlibchapter}
  through \ref{\lastlibchapter}, and \ref{depr} specify the contents of the
  library, as well as library requirements and constraints on both well-formed
-@@ -40,9 +40,9 @@ Detailed specifications for each of the components in the library are in
+@@ -41,9 +41,9 @@ Detailed specifications for each of the components in the library are in
  \end{libsumtabbase}
  
  \pnum
@@ -5932,7 +5605,7 @@ index 600ee402..3d75e10b 100644
  
  \pnum
  The concepts library\iref{concepts} describes library components that \Cpp{}
-@@ -54,15 +54,15 @@ The diagnostics library\iref{diagnostics} provides a consistent framework for
+@@ -55,15 +55,15 @@ The diagnostics library\iref{diagnostics} provides a consistent framework for
  reporting errors in a \Cpp{} program, including predefined exception classes.
  
  \pnum
@@ -5952,7 +5625,7 @@ index 600ee402..3d75e10b 100644
  as sequences of type
  \tcode{char},
  sequences of type
-@@ -74,16 +74,16 @@ sequences of type
+@@ -75,16 +75,16 @@ sequences of type
  and sequences of any other character-like type.
  
  \pnum
@@ -5973,7 +5646,7 @@ index 600ee402..3d75e10b 100644
  numeric algorithms and complex number components that extend support for numeric processing.
  The
  \tcode{valarray}
-@@ -94,21 +94,21 @@ potentially implemented as parallel operations on platforms that support such pr
+@@ -95,21 +95,21 @@ potentially implemented as parallel operations on platforms that support such pr
  The random number component provides facilities for generating pseudo-random numbers.
  
  \pnum
@@ -5999,7 +5672,7 @@ index 600ee402..3d75e10b 100644
  and manage threads, including mutual exclusion and interthread communication.
  
  \rSec1[library.c]{The C standard library}
-@@ -200,7 +200,7 @@ strings are referred to as the
+@@ -201,7 +201,7 @@ strings are referred to as the
  expression whose evaluation as subexpression of a
  \grammarterm{conditional-expression}
  \tcode{CE}\iref{expr.cond} would not prevent \tcode{CE}
@@ -6008,7 +5681,7 @@ index 600ee402..3d75e10b 100644
  
  \definition{deadlock}{defns.deadlock}
  \indexdefn{deadlock}%
-@@ -279,7 +279,7 @@ necessary to implement the iostream class templates.
+@@ -280,7 +280,7 @@ necessary to implement the iostream class templates.
  
  \definition{modifier function}{defns.modifier}
  \indexdefn{function!modifier}%
@@ -6017,7 +5690,7 @@ index 600ee402..3d75e10b 100644
  assignment operator, or destructor
  that alters the state of an object of the class
  
-@@ -681,8 +681,8 @@ of other standards\iref{intro.refs}.
+@@ -682,8 +682,8 @@ of other standards\iref{intro.refs}.
  This subclause describes several editorial conventions used to describe the contents
  of the \Cpp{} standard library.
  These conventions are for describing
@@ -6028,7 +5701,7 @@ index 600ee402..3d75e10b 100644
  
  \rSec3[type.descriptions]{Type descriptions}
  
-@@ -764,7 +764,7 @@ and \ref{depr} are
+@@ -765,7 +765,7 @@ and \ref{depr} are
  Each bitmask type can be implemented as an
  enumerated type that overloads certain operators, as an integer type,
  or as a
@@ -6037,7 +5710,7 @@ index 600ee402..3d75e10b 100644
  \indextext{type!enumerated}%
  
  \pnum
-@@ -869,7 +869,7 @@ also its value in the \tcode{"C"}
+@@ -870,7 +870,7 @@ also its value in the \tcode{"C"}
  locale, but may change during program
  execution by a call to
  \tcode{setlocale(int, const char*)},\footnote{declared in
@@ -6046,7 +5719,7 @@ index 600ee402..3d75e10b 100644
  \indextext{\idxcode{setlocale}}%
  \indexlibrary{\idxcode{setlocale}}%
  \indexhdr{clocale}%
-@@ -880,7 +880,7 @@ object, as described in \ref{locales} and \ref{input.output}.
+@@ -881,7 +881,7 @@ object, as described in \ref{locales} and \ref{input.output}.
  \item
  A
  \defn{character sequence}
@@ -6055,7 +5728,7 @@ index 600ee402..3d75e10b 100644
  can be declared as
  \tcode{\placeholdernc{T\;A}[\placeholder{N}]},
  where \tcode{\placeholder{T}} is any of the types
-@@ -911,7 +911,7 @@ no other element in the sequence has the value zero.%
+@@ -912,7 +912,7 @@ no other element in the sequence has the value zero.%
  \indexhdr{cstring}%
  \footnote{Many of the objects manipulated by
  function signatures declared in
@@ -6064,7 +5737,7 @@ index 600ee402..3d75e10b 100644
  \indexhdr{cstring}%
  The size of some of these character sequences is limited by
  a length value, maintained separately from the character sequence.}
-@@ -1083,7 +1083,7 @@ Type \tcode{T} is \oldconcept{LessThanComparable} (\tref{lessthancomparable}).
+@@ -1084,7 +1084,7 @@ Type \tcode{T} is \oldconcept{LessThanComparable} (\tref{lessthancomparable}).
  \pnum
  \ref{\firstlibchapter} through \ref{\lastlibchapter} and
  \ref{depr} do not specify the representation of classes, and intentionally
@@ -6073,7 +5746,7 @@ index 600ee402..3d75e10b 100644
  define static or non-static class members, or both, as needed to implement the
  semantics of the member functions specified in \ref{\firstlibchapter}
  through \ref{\lastlibchapter} and \ref{depr}.
-@@ -1298,10 +1298,10 @@ for any of these C headers:
+@@ -1299,10 +1299,10 @@ for any of these C headers:
  Except as noted in \ref{library} through \ref{\lastlibchapter}
  and \ref{depr}, the contents of each header \tcode{c\placeholder{name}} is
  the same as that of the corresponding header \tcode{\placeholder{name}.h} as
@@ -6086,7 +5759,7 @@ index 600ee402..3d75e10b 100644
  It is unspecified whether these names (including any overloads added in
  \ref{\firstlibchapter} through \ref{\lastlibchapter} and \ref{depr})
  are first declared within the global namespace scope
-@@ -1493,8 +1493,8 @@ The other headers listed in this table shall meet the same requirements as for a
+@@ -1494,8 +1494,8 @@ The other headers listed in this table shall meet the same requirements as for a
  \pnum
  Subclause \ref{using} describes how a \Cpp{} program gains access to the facilities of the
  \Cpp{} standard library. \ref{using.headers} describes effects during translation
@@ -6097,7 +5770,7 @@ index 600ee402..3d75e10b 100644
  
  \rSec3[using.headers]{Headers}
  
-@@ -1502,8 +1502,8 @@ phase 4, while~\ref{using.linkage} describes effects during phase
+@@ -1503,8 +1503,8 @@ phase 4, while~\ref{using.linkage} describes effects during phase
  The entities in the \Cpp{} standard library are defined in headers,
  whose contents are made available to a translation unit when it contains the appropriate
  \indextext{unit!translation}%
@@ -6108,7 +5781,7 @@ index 600ee402..3d75e10b 100644
  \indextext{\idxcode{\#include}}%
  \indextext{source file}
  
-@@ -1533,7 +1533,7 @@ declared in that header. No diagnostic is required.
+@@ -1534,7 +1534,7 @@ declared in that header. No diagnostic is required.
  \rSec3[using.linkage]{Linkage}
  
  \pnum
@@ -6117,7 +5790,7 @@ index 600ee402..3d75e10b 100644
  Unless otherwise specified, objects and functions have the default
  \tcode{extern "C++"}
  linkage\iref{dcl.link}.
-@@ -1565,8 +1565,8 @@ the program prior to program startup.
+@@ -1566,8 +1566,8 @@ the program prior to program startup.
  \indextext{startup!program}%
  \pnum
  See also
@@ -6128,7 +5801,7 @@ index 600ee402..3d75e10b 100644
  
  \rSec2[utility.requirements]{Requirements on types and expressions}
  
-@@ -1603,7 +1603,7 @@ type \tcode{const T}.
+@@ -1604,7 +1604,7 @@ type \tcode{const T}.
  In general, a default constructor is not required. Certain container class
  member function signatures specify \tcode{T()} as a default argument.
  \tcode{T()} shall be a well-defined expression\iref{dcl.init} if one of those
@@ -6137,7 +5810,7 @@ index 600ee402..3d75e10b 100644
  
  \indextext{requirements!\idxoldconcept{EqualityComparable}}%
  \begin{concepttable}{\oldconcept{EqualityComparable} requirements}{equalitycomparable}
-@@ -1631,7 +1631,7 @@ If \tcode{a == b} and \tcode{b == c}, then \tcode{a == c}.
+@@ -1632,7 +1632,7 @@ If \tcode{a == b} and \tcode{b == c}, then \tcode{a == c}.
  \hdstyle{Expression}  &   \hdstyle{Return type} &   \hdstyle{Requirement} \\ \capsep
  \tcode{a < b}   &
  convertible to \tcode{bool} &
@@ -6146,7 +5819,7 @@ index 600ee402..3d75e10b 100644
  \end{concepttable}
  
  \enlargethispage{-3\baselineskip}
-@@ -1727,14 +1727,14 @@ evaluated in the context described below, and
+@@ -1728,14 +1728,14 @@ evaluated in the context described below, and
  
  \pnum
  The context in which \tcode{swap(t, u)} and \tcode{swap(u, t)} are evaluated shall
@@ -6165,7 +5838,7 @@ index 600ee402..3d75e10b 100644
  \end{itemize}
  
  \begin{note} If \tcode{T} and \tcode{U} are both fundamental types or arrays of
-@@ -1813,7 +1813,7 @@ A type \tcode{P} satisfies the \oldconcept{\-Nullable\-Pointer} requirements if:
+@@ -1814,7 +1814,7 @@ A type \tcode{P} satisfies the \oldconcept{\-Nullable\-Pointer} requirements if:
  \oldconcept{DefaultConstructible}, \oldconcept{CopyConstructible}, \oldconcept{\-Copy\-Assign\-able},
  and \oldconcept{Destructible} requirements,
  
@@ -6174,7 +5847,7 @@ index 600ee402..3d75e10b 100644
  
  \item the expressions shown in \tref{nullablepointer} are
  valid and have the indicated semantics, and
-@@ -1828,8 +1828,9 @@ of type \tcode{P} may have an indeterminate value. \begin{note} Operations invol
+@@ -1829,8 +1829,9 @@ of type \tcode{P} may have an indeterminate value. \begin{note} Operations invol
  indeterminate values may cause undefined behavior. \end{note}
  
  \pnum
@@ -6186,7 +5859,7 @@ index 600ee402..3d75e10b 100644
  had been evaluated in place of \tcode{p}.
  
  \pnum
-@@ -1927,14 +1928,14 @@ which are class-type objects that encapsulate the information about an allocatio
+@@ -1928,14 +1929,14 @@ which are class-type objects that encapsulate the information about an allocatio
  This information includes the knowledge of pointer types, the type of their
  difference, the type of the size of objects in this allocation model, as well
  as the memory allocation and deallocation primitives for it. All of the
@@ -6205,7 +5878,7 @@ index 600ee402..3d75e10b 100644
  a uniform interface to all allocator types.
  \tref{desc.var.def} describes the types manipulated
  through allocators. \tref{utilities.allocator.requirements}
-@@ -2209,7 +2210,7 @@ If \tcode{X::propagate_on_container_move_assignment::value} is \tcode{true},
+@@ -2210,7 +2211,7 @@ If \tcode{X::propagate_on_container_move_assignment::value} is \tcode{true},
  \oldconcept{\-Move\-Assign\-able} requirements (\tref{moveassignable})
  and the move operation shall not throw exceptions.
  If \tcode{X::propagate_on_container_swap::value} is \tcode{true},
@@ -6214,7 +5887,7 @@ index 600ee402..3d75e10b 100644
  and the \tcode{swap} operation shall not throw exceptions.
  
  \pnum
-@@ -2222,8 +2223,8 @@ No constructor,
+@@ -2223,8 +2224,8 @@ No constructor,
  comparison function, copy operation, move operation, or swap operation on
  these pointer types shall exit via an exception. \tcode{X::pointer} and \tcode{X::const_pointer} shall also
  satisfy the requirements for
@@ -6225,7 +5898,7 @@ index 600ee402..3d75e10b 100644
  
  \pnum
  Let \tcode{x1} and \tcode{x2} denote objects of (possibly different) types
-@@ -2306,7 +2307,7 @@ whether or not \tcode{T} is a complete type:
+@@ -2307,7 +2308,7 @@ whether or not \tcode{T} is a complete type:
  
  \begin{itemize}
  \item \tcode{X} is a complete type, and
@@ -6234,7 +5907,7 @@ index 600ee402..3d75e10b 100644
    other than \tcode{value_type} are complete types.
  \end{itemize}
  
-@@ -2317,11 +2318,11 @@ whether or not \tcode{T} is a complete type:
+@@ -2318,11 +2319,11 @@ whether or not \tcode{T} is a complete type:
  \pnum
  Subclause \ref{constraints} describes restrictions on \Cpp{} programs that use the facilities of
  the \Cpp{} standard library. The following subclauses specify constraints on the
@@ -6250,7 +5923,7 @@ index 600ee402..3d75e10b 100644
  
  \rSec3[namespace.constraints]{Namespace use}
  
-@@ -2688,7 +2689,7 @@ shall be identical to
+@@ -2689,7 +2690,7 @@ shall be identical to
  \rSec4[usrlit.suffix]{User-defined literal suffixes}
  
  \pnum
@@ -6259,7 +5932,7 @@ index 600ee402..3d75e10b 100644
  
  \rSec3[alt.headers]{Headers}
  
-@@ -2696,7 +2697,7 @@ Literal suffix identifiers\iref{over.literal} that do not start with an undersco
+@@ -2697,7 +2698,7 @@ Literal suffix identifiers\iref{over.literal} that do not start with an undersco
  If a file with a name
  equivalent to the derived file name for one of the \Cpp{} standard library headers
  is not provided as part of the implementation, and a file with that name
@@ -6268,7 +5941,7 @@ index 600ee402..3d75e10b 100644
  the behavior is undefined.%
  \indextext{source file}%
  \indextext{undefined}
-@@ -2829,7 +2830,7 @@ In particular, the effects are undefined in the following cases:
+@@ -2830,7 +2831,7 @@ In particular, the effects are undefined in the following cases:
  
  \begin{itemize}
  \item
@@ -6277,7 +5950,7 @@ index 600ee402..3d75e10b 100644
  implement the semantics of the applicable
  \required
  paragraph.
-@@ -2914,7 +2915,7 @@ specified as being shareable without data races or the user supplies a locking m
+@@ -2915,7 +2916,7 @@ specified as being shareable without data races or the user supplies a locking m
  
  \pnum
  If an object of a standard library type is accessed, and
@@ -6286,7 +5959,7 @@ index 600ee402..3d75e10b 100644
  does not happen before the access, or
  the access does not happen before the end of the object's lifetime,
  the behavior is undefined unless otherwise specified.
-@@ -2973,7 +2974,7 @@ Every such entity shall be defined such that any header that defines it may be
+@@ -2974,7 +2975,7 @@ Every such entity shall be defined such that any header that defines it may be
  included after any other header that also defines it\iref{basic.def.odr}.
  
  \pnum
@@ -6295,7 +5968,7 @@ index 600ee402..3d75e10b 100644
  shall include only their corresponding \Cpp{} standard library header,
  as described in~\ref{headers}.
  
-@@ -3001,7 +3002,7 @@ explicitly stated otherwise.
+@@ -3002,7 +3003,7 @@ explicitly stated otherwise.
  It is unspecified whether any
  non-member
  functions in the \Cpp{} standard library are defined as
@@ -6304,7 +5977,7 @@ index 600ee402..3d75e10b 100644
  
  \pnum
  A call to a non-member function signature
-@@ -3026,7 +3027,7 @@ The phrase ``unless otherwise specified'' applies to cases such as
+@@ -3027,7 +3028,7 @@ The phrase ``unless otherwise specified'' applies to cases such as
  the swappable with requirements\iref{swappable.requirements}.
  The exception for overloaded operators allows argument-dependent lookup
  in cases like that of
@@ -6313,7 +5986,7 @@ index 600ee402..3d75e10b 100644
  
  \effects
  \begin{codeblock}
-@@ -3041,7 +3042,7 @@ return *this;
+@@ -3042,7 +3043,7 @@ return *this;
  
  \pnum
  It is unspecified whether any member functions in the \Cpp{} standard library are defined as
@@ -6322,7 +5995,7 @@ index 600ee402..3d75e10b 100644
  
  \pnum
  For a non-virtual member function described in the \Cpp{} standard library,
-@@ -3097,8 +3098,8 @@ library may be recursively reentered.
+@@ -3098,8 +3099,8 @@ library may be recursively reentered.
  \rSec3[res.on.data.races]{Data race avoidance}
  
  \pnum
@@ -6333,7 +6006,7 @@ index 600ee402..3d75e10b 100644
  Every standard library function shall meet each requirement unless otherwise specified.
  Implementations may prevent data races in cases other than those specified below.
  
-@@ -3137,7 +3138,7 @@ not visible to users and are protected against data races.
+@@ -3138,7 +3139,7 @@ not visible to users and are protected against data races.
  \pnum
  Unless otherwise specified, \Cpp{} standard library functions shall perform all operations
  solely within the current thread if those operations have effects that are
@@ -6342,7 +6015,7 @@ index 600ee402..3d75e10b 100644
  
  \pnum
  \begin{note} This allows implementations to parallelize operations if there are no visible
-@@ -3185,8 +3186,8 @@ Every base class not specified as
+@@ -3186,8 +3187,8 @@ Every base class not specified as
  Unless explicitly stated otherwise, types with distinct names shall be distinct
  types.\footnote{There is an implicit exception to this rule for types that are
  described as synonyms for basic integral types, such as
@@ -6353,7 +6026,7 @@ index 600ee402..3d75e10b 100644
  \end{itemize}
  
  \pnum
-@@ -3242,9 +3243,9 @@ may throw \impldef{exceptions thrown by standard library functions that have a
+@@ -3243,9 +3244,9 @@ may throw \impldef{exceptions thrown by standard library functions that have a
  potentially-throwing exception specification} exceptions.%
  \footnote{In particular, they
  can report a failure to allocate storage by throwing an exception of type
@@ -6365,7 +6038,7 @@ index 600ee402..3d75e10b 100644
  Implementations should
  report errors by throwing exceptions of or derived
  from the standard exception classes~(\ref{bad.alloc},
-@@ -3262,8 +3263,8 @@ by adding a non-throwing exception specification.
+@@ -3263,8 +3264,8 @@ by adding a non-throwing exception specification.
  \indextext{traceable pointer object}%
  \indextext{pointer!to traceable object}%
  Objects constructed by the standard library that may hold a user-supplied pointer value
@@ -6376,7 +6049,7 @@ index 600ee402..3d75e10b 100644
  strongly encouraged to do the same, since not doing so may result in accidental use of
  pointers that are not safely derived. Libraries that store pointers outside the user's
  address space should make it appear that they are stored and retrieved from a traceable
-@@ -3273,7 +3274,7 @@ pointer location. \end{note}
+@@ -3274,7 +3275,7 @@ pointer location. \end{note}
  
  \pnum
  Certain functions in the \Cpp{} standard library report errors via a
@@ -7688,7 +7361,7 @@ index 4e58584d..3f3f2275 100644
  \grammarterm{declarator} starts with a \tcode{(}. In those cases the
  \grammarterm{statement} is a \grammarterm{declaration}.
 diff --git a/source/strings.tex b/source/strings.tex
-index 95242ffb..2c9987c2 100644
+index a8ab6094..8f614f08 100644
 --- a/source/strings.tex
 +++ b/source/strings.tex
 @@ -849,7 +849,7 @@ contained char-like objects.\footnote{\tcode{Allocator::value_type} must name th
@@ -7843,7 +7516,7 @@ index 95242ffb..2c9987c2 100644
  In the rest of this subclause, the type of the char-like objects held in a \tcode{basic_string_view} object is designated by \tcode{charT}.
  
  \pnum
-@@ -5851,8 +5854,8 @@ template<class charT, class traits>
+@@ -5852,8 +5855,8 @@ template<class charT, class traits>
  \begin{itemdescr}
  \pnum
  \effects
@@ -7854,7 +7527,7 @@ index 95242ffb..2c9987c2 100644
  \tcode{seq}, initially consisting of the elements defined by the range
  \range{str.begin()}{str.end()}. Determines padding for \tcode{seq}
  as described in~\ref{ostream.formatted.reqmts}.
-@@ -6106,20 +6109,20 @@ The contents and meaning of the header \tcode{<cstring>}
+@@ -6107,20 +6110,20 @@ The contents and meaning of the header \tcode{<cstring>}
  are the same as the C standard library header \tcode{<string.h>}.
  
  \pnum
@@ -7879,7 +7552,7 @@ index 95242ffb..2c9987c2 100644
  \end{note}
  
  \xrefc{7.24}
-@@ -6287,7 +6290,7 @@ are the same as the C standard library header
+@@ -6288,7 +6291,7 @@ are the same as the C standard library header
  The functions
  \tcode{wcschr}, \tcode{wcspbrk}, \tcode{wcsrchr}, \tcode{wcsstr}, and \tcode{wmemchr}
  have different signatures in this document,
@@ -7888,7 +7561,7 @@ index 95242ffb..2c9987c2 100644
  \end{note}
  
  \xrefc{7.29}
-@@ -6328,8 +6331,8 @@ are the same as the C standard library header
+@@ -6329,8 +6332,8 @@ are the same as the C standard library header
  \indexhdr{cstdlib}%
  \indexhdr{cwchar}%
  \begin{note}
@@ -7900,7 +7573,7 @@ index 95242ffb..2c9987c2 100644
  \end{note}
  
 diff --git a/source/support.tex b/source/support.tex
-index 052c0975..8bda9e44 100644
+index 5e118c1a..6be33955 100644
 --- a/source/support.tex
 +++ b/source/support.tex
 @@ -47,21 +47,14 @@ as summarized in \tref{lang.sup.lib.summary}.
@@ -10675,10 +10348,10 @@ index f94a9f7a..ea37489c 100644
 2.17.1
 
 
-From 2aa8494e06854c425e89379d0680309638f2f65c Mon Sep 17 00:00:00 2001
+From 7517532aa13d2720349d746c062aee7ee2c06669 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sat, 25 Feb 2017 18:01:58 +0100
-Subject: [PATCH 10/16] Add and use \weblink for external references.
+Subject: [PATCH 09/15] Add and use \weblink for external references.
 
 ---
  source/iostreams.tex | 14 +++++++-------
@@ -10811,10 +10484,10 @@ index 05d6abb4..96de23fb 100644
 2.17.1
 
 
-From 8b2348cb6982b2e1accabfb60ab03f45ef6710ee Mon Sep 17 00:00:00 2001
+From 52819d729ffcd7d9fb63f50e7eda612e34095f40 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sun, 26 Feb 2017 13:04:04 +0100
-Subject: [PATCH 11/16] Remove some index entries that cause unnecessary
+Subject: [PATCH 10/15] Remove some index entries that cause unnecessary
  duplicate ids.
 
 ---
@@ -10823,10 +10496,10 @@ Subject: [PATCH 11/16] Remove some index entries that cause unnecessary
  2 files changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/source/lib-intro.tex b/source/lib-intro.tex
-index 3d75e10b..1a4ee083 100644
+index 1d03a750..804f63b0 100644
 --- a/source/lib-intro.tex
 +++ b/source/lib-intro.tex
-@@ -675,7 +675,7 @@ Paragraphs labeled ``\textsc{See also}'' contain cross-references to the relevan
+@@ -676,7 +676,7 @@ Paragraphs labeled ``\textsc{See also}'' contain cross-references to the relevan
  of other standards\iref{intro.refs}.
  
  \rSec2[conventions]{Other conventions}
@@ -10862,10 +10535,10 @@ index ff54e141..3833ea4a 100644
 2.17.1
 
 
-From 1dc4289e7361cd947f0e8b7b4b0e1219d7450fb3 Mon Sep 17 00:00:00 2001
+From 715b4e1d89ecbb054bab244219cb3d15c427c9fe Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sun, 26 Feb 2017 13:11:19 +0100
-Subject: [PATCH 12/16] [temp.class.order] Merge \defn with index entry.
+Subject: [PATCH 11/15] [temp.class.order] Merge \defn with index entry.
 
 ---
  source/templates.tex | 3 +--
@@ -10890,10 +10563,10 @@ index 3833ea4a..a840f97d 100644
 2.17.1
 
 
-From 2f067ecf933c6f5bacebdd74ea3d4e9422450437 Mon Sep 17 00:00:00 2001
+From fa7170e95b7d0173ceefa4f9c78dc8782e6e69d9 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Mon, 17 Apr 2017 13:10:27 +0200
-Subject: [PATCH 13/16] Remove inappropriate paragraph breaks.
+Subject: [PATCH 12/15] Remove inappropriate paragraph breaks.
 
 ---
  source/basic.tex        | 46 -----------------------------------------
@@ -11224,7 +10897,7 @@ index cd0d6825..2ad4d346 100644
  namespace X {
    void p() {
 diff --git a/source/classes.tex b/source/classes.tex
-index a7613a07..ed6c1fc0 100644
+index 3a41f865..91149eb7 100644
 --- a/source/classes.tex
 +++ b/source/classes.tex
 @@ -689,7 +689,6 @@ There are no special member function types or data member types.
@@ -11577,10 +11250,10 @@ index 108a4e5a..561f4f80 100644
  bool f() {
      char array[1 + int(1 + 0.2 - 0.1 - 0.1)];  // Must be evaluated during translation
 diff --git a/source/iterators.tex b/source/iterators.tex
-index ad87b8ec..c8654da4 100644
+index 10f8d692..3808b3a6 100644
 --- a/source/iterators.tex
 +++ b/source/iterators.tex
-@@ -886,7 +886,6 @@ Accordingly, it is required that if
+@@ -888,7 +888,6 @@ Accordingly, it is required that if
  \tcode{Iterator}
  is the type of an iterator,
  the types
@@ -11588,7 +11261,7 @@ index ad87b8ec..c8654da4 100644
  \indexlibrarymember{difference_type}{iterator_traits}%
  \indexlibrarymember{value_type}{iterator_traits}%
  \indexlibrarymember{iterator_category}{iterator_traits}%
-@@ -895,28 +894,23 @@ iterator_traits<Iterator>::difference_type
+@@ -897,28 +896,23 @@ iterator_traits<Iterator>::difference_type
  iterator_traits<Iterator>::value_type
  iterator_traits<Iterator>::iterator_category
  \end{codeblock}
@@ -11617,7 +11290,7 @@ index ad87b8ec..c8654da4 100644
  may be defined as \tcode{void}.
  
  \pnum
-@@ -937,7 +931,6 @@ shall have no members by any of the above names.
+@@ -939,7 +933,6 @@ shall have no members by any of the above names.
  
  \pnum
  It is specialized for pointers as
@@ -11625,7 +11298,7 @@ index ad87b8ec..c8654da4 100644
  \begin{codeblock}
  namespace std {
    template<class T> struct iterator_traits<T*> {
-@@ -955,7 +948,6 @@ namespace std {
+@@ -957,7 +950,6 @@ namespace std {
  To implement a generic
  \tcode{reverse}
  function, a \Cpp{} program can do the following:
@@ -11633,7 +11306,7 @@ index ad87b8ec..c8654da4 100644
  \begin{codeblock}
  template<class BidirectionalIterator>
  void reverse(BidirectionalIterator first, BidirectionalIterator last) {
-@@ -1645,11 +1637,9 @@ adaptors, called
+@@ -1647,11 +1639,9 @@ adaptors, called
  \term{insert iterators},
  are provided in the library.
  With regular iterator classes,
@@ -11645,7 +11318,7 @@ index ad87b8ec..c8654da4 100644
  causes a range \range{first}{last}
  to be copied into a range starting with result.
  The same code with
-@@ -2745,7 +2735,6 @@ is written to the stream after every
+@@ -2747,7 +2737,6 @@ is written to the stream after every
  is written.
  It is not possible to get a value out of the output iterator.
  Its only use is as an output iterator in situations like
@@ -11653,7 +11326,7 @@ index ad87b8ec..c8654da4 100644
  \begin{codeblock}
  while (first != last)
    *result++ = *first++;
-@@ -2754,7 +2743,6 @@ while (first != last)
+@@ -2756,7 +2745,6 @@ while (first != last)
  \pnum
  \tcode{ostream_iterator}
  is defined as:
@@ -12181,7 +11854,7 @@ index 3f3f2275..943ca753 100644
  while (--x >= 0) {
    int i;
 diff --git a/source/strings.tex b/source/strings.tex
-index 2c9987c2..7f8c4165 100644
+index 8f614f08..aa275407 100644
 --- a/source/strings.tex
 +++ b/source/strings.tex
 @@ -196,12 +196,10 @@ is \tcode{false} for all values \tcode{c}.                                  &
@@ -12198,7 +11871,7 @@ index 2c9987c2..7f8c4165 100644
  \tcode{<string>}
  as a basis for explicit specializations.
 diff --git a/source/support.tex b/source/support.tex
-index 8bda9e44..19df9119 100644
+index 6be33955..ae9fcbdf 100644
 --- a/source/support.tex
 +++ b/source/support.tex
 @@ -1747,7 +1747,6 @@ namespace std {
@@ -12297,10 +11970,10 @@ index ea37489c..ad916c87 100644
 2.17.1
 
 
-From 023cb4f81940d55775ca060aa45a23d989b3a507 Mon Sep 17 00:00:00 2001
+From c055bad1fd2d71b090dde28d02602b15f1bd0a05 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Sun, 30 Apr 2017 20:01:43 +0200
-Subject: [PATCH 14/16] Prevent cxxdraft-htmlgen from interpreting some periods
+Subject: [PATCH 13/15] Prevent cxxdraft-htmlgen from interpreting some periods
  as sentence terminators.
 
 ---
@@ -12327,10 +12000,10 @@ index fe766874..ea512394 100644
 2.17.1
 
 
-From eb97484f1d95679f609b0697b669e3315f5ac74d Mon Sep 17 00:00:00 2001
+From 5288a49f50511038bbd5d8014de1069be345cc1a Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Tue, 1 Aug 2017 14:38:23 +0200
-Subject: [PATCH 15/16] Fix dubious \defnx that has see{} in it, and remove
+Subject: [PATCH 14/15] Fix dubious \defnx that has see{} in it, and remove
  range index entry with the same key.
 
 ---
@@ -12388,10 +12061,10 @@ index 4b895353..5b10d4f4 100644
 2.17.1
 
 
-From 5069805b33d7f9fed1331d1da831ee43e2176595 Mon Sep 17 00:00:00 2001
+From c0efe60ada31db9bb7bf5de48e9ad9feaf02d4a4 Mon Sep 17 00:00:00 2001
 From: Eelis van der Weegen <eelis@eelis.net>
 Date: Fri, 11 Aug 2017 19:33:53 +0200
-Subject: [PATCH 16/16] Use link macros more.
+Subject: [PATCH 15/15] Use link macros more.
 
 ---
  source/basic.tex        |  56 +++++-----
@@ -12577,7 +12250,7 @@ index 2ad4d346..63cb1fc5 100644
  a \grammarterm{constant-expression}\iref{expr.const},
  \item
 diff --git a/source/classes.tex b/source/classes.tex
-index ed6c1fc0..64a34e93 100644
+index 91149eb7..4b0cd749 100644
 --- a/source/classes.tex
 +++ b/source/classes.tex
 @@ -541,7 +541,7 @@ Any other data member or member function is a \defn{non-static member}
@@ -13278,10 +12951,10 @@ index e2ed318c..e19daf92 100644
  template<class charT, class traits>
    basic_ostream<charT, traits>& endl(basic_ostream<charT, traits>& os);
 diff --git a/source/iterators.tex b/source/iterators.tex
-index c8654da4..895ad48d 100644
+index 3808b3a6..7ce6697d 100644
 --- a/source/iterators.tex
 +++ b/source/iterators.tex
-@@ -2991,10 +2991,11 @@ an end-of-stream iterator is constructed if and only if
+@@ -2993,10 +2993,11 @@ an end-of-stream iterator is constructed if and only if
  the exposition-only member \tcode{sbuf_} is initialized with a null pointer value.
  
  
@@ -13294,7 +12967,7 @@ index c8654da4..895ad48d 100644
  
  \begin{itemdescr}
  \pnum
-@@ -3002,11 +3003,11 @@ constexpr istreambuf_iterator() noexcept;
+@@ -3004,11 +3005,11 @@ constexpr istreambuf_iterator() noexcept;
  Initializes \tcode{sbuf_} with \tcode{nullptr}.
  \end{itemdescr}
  
@@ -13308,7 +12981,7 @@ index c8654da4..895ad48d 100644
  
  \begin{itemdescr}
  \pnum
-@@ -3014,11 +3015,11 @@ istreambuf_iterator(istream_type& s) noexcept;
+@@ -3016,11 +3017,11 @@ istreambuf_iterator(istream_type& s) noexcept;
  Initializes \tcode{sbuf_} with \tcode{s.rdbuf()}.
  \end{itemdescr}
  
@@ -13322,7 +12995,7 @@ index c8654da4..895ad48d 100644
  
  \begin{itemdescr}
  \pnum
-@@ -3026,11 +3027,11 @@ istreambuf_iterator(streambuf_type* s) noexcept;
+@@ -3028,11 +3029,11 @@ istreambuf_iterator(streambuf_type* s) noexcept;
  Initializes \tcode{sbuf_} with \tcode{s}.
  \end{itemdescr}
  
@@ -13336,7 +13009,7 @@ index c8654da4..895ad48d 100644
  
  \begin{itemdescr}
  \pnum
-@@ -3165,11 +3166,11 @@ It is not possible to get a character value out of the output iterator.
+@@ -3167,11 +3168,11 @@ It is not possible to get a character value out of the output iterator.
  
  \rSec3[ostreambuf.iter.cons]{\tcode{ostreambuf_iterator} constructors}
  
@@ -13350,7 +13023,7 @@ index c8654da4..895ad48d 100644
  
  \begin{itemdescr}
  \pnum
-@@ -3182,11 +3183,11 @@ shall not be a null pointer.
+@@ -3184,11 +3185,11 @@ shall not be a null pointer.
  Initializes \tcode{sbuf_} with \tcode{s.rdbuf()}.
  \end{itemdescr}
  
@@ -13364,7 +13037,7 @@ index c8654da4..895ad48d 100644
  
  \begin{itemdescr}
  \pnum
-@@ -3446,10 +3447,11 @@ template<class T, size_t N> [[nodiscard]] constexpr bool empty(const T (&array)[
+@@ -3448,10 +3449,11 @@ template<class T, size_t N> [[nodiscard]] constexpr bool empty(const T (&array)[
  \pnum \returns \tcode{false}.
  \end{itemdescr}
  
@@ -13378,10 +13051,10 @@ index c8654da4..895ad48d 100644
  \pnum \returns \tcode{il.size() == 0}.
  \end{itemdescr}
 diff --git a/source/lib-intro.tex b/source/lib-intro.tex
-index 1a4ee083..407b3e58 100644
+index 804f63b0..db59fba7 100644
 --- a/source/lib-intro.tex
 +++ b/source/lib-intro.tex
-@@ -177,8 +177,8 @@ iostream, and regular expression class templates.
+@@ -178,8 +178,8 @@ iostream, and regular expression class templates.
  
  \definition{comparison function}{defns.comparison}
  \indexdefn{function!comparison}%
@@ -13392,7 +13065,7 @@ index 1a4ee083..407b3e58 100644
  
  \definition{component}{defns.component}
  \indexdefn{component}%
-@@ -222,8 +222,8 @@ semantics
+@@ -223,8 +223,8 @@ semantics
  
  \definition{direct-non-list-initialization}{defns.direct-non-list-init}
  \indexdefn{direct-non-list-initialization}%
@@ -13403,7 +13076,7 @@ index 1a4ee083..407b3e58 100644
  
  \definition{expression-equivalent}{defns.expression-equivalent}
  \indexdefn{expression-equivalent}%
-@@ -302,7 +302,7 @@ value
+@@ -303,7 +303,7 @@ value
  
  \definition{observer function}{defns.observer}
  \indexdefn{function!observer}%
@@ -14016,7 +13689,7 @@ index 96de23fb..4a291bc4 100644
  \begin{itemdescr}
  \pnum
 diff --git a/source/support.tex b/source/support.tex
-index 19df9119..2e6cda52 100644
+index ae9fcbdf..1c138729 100644
 --- a/source/support.tex
 +++ b/source/support.tex
 @@ -737,24 +737,19 @@ values:
