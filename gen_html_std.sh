@@ -41,7 +41,6 @@ then
 git apply ../../all.patch
 fi
 
-latexmk -c
 latexmk -pdf std
 
 cp std.pdf std_orig.pdf
@@ -50,9 +49,6 @@ if [ -f ../../htmlgen.patch ]
 then
 git apply -3 ../../htmlgen.patch
 fi
-
-latexmk -c
-latexmk -pdf std
 
 # Build the HTML
 cd ../../cxxdraft-htmlgen
