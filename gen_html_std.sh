@@ -41,7 +41,6 @@ then
 git apply ../../all.patch
 fi
 
-latexmk -c
 latexmk -pdf std
 
 cp std.pdf std_orig.pdf
