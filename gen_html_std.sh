@@ -61,6 +61,7 @@ fi
 
 rm -rf 14882
 cabal update
+cabal install --only-dependencies
 cabal build
 dist/build/cxxdraft-htmlgen/cxxdraft-htmlgen ../draft Bare
 
