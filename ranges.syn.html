@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang='en'><head><title>[ranges.syn]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Notes and examples expanded'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='alternate stylesheet' type='text/css' href='collapsed.css' title='Notes and examples collapsed'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>23</a> Ranges library <a class='abbr_ref' href='./#ranges'>[ranges]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>23.2</a> Header <span class='texttt'>&lt;ranges&gt;</span> synopsis <a class='abbr_ref'>[ranges.syn]</a></h2><span class='indexparent'><a class='index' id='lib:<ranges>'></a></span><pre class='codeblock'>
+<!DOCTYPE html><html lang='en'><head><title>[ranges.syn]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Notes and examples expanded'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='alternate stylesheet' type='text/css' href='collapsed.css' title='Notes and examples collapsed'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>24</a> Ranges library <a class='abbr_ref' href='./#ranges'>[ranges]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>24.2</a> Header <span class='texttt'>&lt;ranges&gt;</span> synopsis <a class='abbr_ref'>[ranges.syn]</a></h2><span class='indexparent'><a class='index' id='lib:<ranges>'></a></span><pre class='codeblock'>
 <span class='preprocessordirective'>#include</span> <span class='anglebracket'>&lt;</span>initializer_list<span class='anglebracket'>&gt;</span>
 <span class='preprocessordirective'>#include</span> <span class='anglebracket'>&lt;</span>iterator<span class='anglebracket'>&gt;</span>
 
@@ -26,9 +26,6 @@
 
   <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
     <span class='keyword'>using</span> sentinel_t <span class='operator'>=</span> <span class='keyword'>decltype</span><span class='parenthesis'>(</span>ranges<span class='operator'>:</span><span class='operator'>:</span>end<span class='parenthesis'>(</span>declval<span class='anglebracket'>&lt;</span>T<span class='operator'>&amp;</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span>;
-
-  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='textit'>forwarding-range</span> R<span class='anglebracket'>&gt;</span>
-    <span class='keyword'>using</span> safe_iterator_t <span class='operator'>=</span> iterator_t<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span>;
 
   <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
     <span class='keyword'>concept</span> Range <span class='operator'>=</span> <span class='textit'><span class='texttt'>see below</span></span>;
@@ -86,8 +83,15 @@
     <span class='keyword'>requires</span> <span class='parenthesis'>(</span>K <span class='operator'>=</span><span class='operator'>=</span> subrange_kind<span class='operator'>:</span><span class='operator'>:</span>sized <span class='operator'>|</span><span class='operator'>|</span> <span class='operator'>!</span>SizedSentinel<span class='anglebracket'>&lt;</span>S, I<span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>
   <span class='keyword'>class</span> subrange;
 
-  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='textit'>forwarding-range</span> R<span class='anglebracket'>&gt;</span>
-    <span class='keyword'>using</span> safe_subrange_t <span class='operator'>=</span> subrange<span class='anglebracket'>&lt;</span>iterator_t<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>;
+  <span class='comment'>// <a href='range.dangling'>[range.dangling]</a>, dangling iterator handling</span>
+  <span class='keyword'>struct</span> dangling;
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>Range R<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>using</span> safe_iterator_t <span class='operator'>=</span> conditional_t<span class='anglebracket'>&lt;</span><span class='textit'>forwarding-range</span><span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span>, iterator_t<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span>, dangling<span class='anglebracket'>&gt;</span>;
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>Range R<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>using</span> safe_subrange_t <span class='operator'>=</span>
+      conditional_t<span class='anglebracket'>&lt;</span><span class='textit'>forwarding-range</span><span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span>, subrange<span class='anglebracket'>&lt;</span>iterator_t<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>, dangling<span class='anglebracket'>&gt;</span>;
 
   <span class='comment'>// <a href='range.empty'>[range.empty]</a>, empty view</span>
   <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
@@ -118,6 +122,10 @@
 
   <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>ViewableRange R<span class='anglebracket'>&gt;</span>
     <span class='keyword'>using</span> all_view <span class='operator'>=</span> <span class='keyword'>decltype</span><span class='parenthesis'>(</span>view<span class='operator'>:</span><span class='operator'>:</span>all<span class='parenthesis'>(</span>declval<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span><span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span>;
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>Range R<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>requires</span> is_object_v<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span>
+  <span class='keyword'>class</span> ref_view;
 
   <span class='comment'>// <a href='range.filter'>[range.filter]</a>, filter view</span>
   <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>InputRange V, IndirectUnaryPredicate<span class='anglebracket'>&lt;</span>iterator_t<span class='anglebracket'>&lt;</span>V<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span> Pred<span class='anglebracket'>&gt;</span>
@@ -154,7 +162,7 @@
 
   <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>InputRange V, ForwardRange Pattern<span class='anglebracket'>&gt;</span>
     <span class='keyword'>requires</span> View<span class='anglebracket'>&lt;</span>V<span class='anglebracket'>&gt;</span> <span class='operator'>&amp;</span><span class='operator'>&amp;</span> View<span class='anglebracket'>&lt;</span>Pattern<span class='anglebracket'>&gt;</span> <span class='operator'>&amp;</span><span class='operator'>&amp;</span>
-             IndirectlyComparable<span class='anglebracket'>&lt;</span>iterator_t<span class='anglebracket'>&lt;</span>V<span class='anglebracket'>&gt;</span>, iterator_t<span class='anglebracket'>&lt;</span>Pattern<span class='anglebracket'>&gt;</span>, ranges<span class='operator'>:</span><span class='operator'>:</span>equal_to<span class='anglebracket'>&lt;</span><span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span> <span class='operator'>&amp;</span><span class='operator'>&amp;</span>
+             IndirectlyComparable<span class='anglebracket'>&lt;</span>iterator_t<span class='anglebracket'>&lt;</span>V<span class='anglebracket'>&gt;</span>, iterator_t<span class='anglebracket'>&lt;</span>Pattern<span class='anglebracket'>&gt;</span>, ranges<span class='operator'>:</span><span class='operator'>:</span>equal_to<span class='anglebracket'>&gt;</span> <span class='operator'>&amp;</span><span class='operator'>&amp;</span>
              <span class='parenthesis'>(</span>ForwardRange<span class='anglebracket'>&lt;</span>V<span class='anglebracket'>&gt;</span> <span class='operator'>|</span><span class='operator'>|</span> <span class='textit'>tiny-range</span><span class='anglebracket'>&lt;</span>Pattern<span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>
   <span class='keyword'>class</span> split_view;
 
