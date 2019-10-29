@@ -60,10 +60,9 @@ git apply ../htmlgen_code.patch
 fi
 
 rm -rf 14882
-cabal update
-cabal install --only-dependencies
-cabal build
-dist/build/cxxdraft-htmlgen/cxxdraft-htmlgen ../draft Bare
+cabal v2-update
+cabal v2-build
+cabal v2-run cxxdraft-htmlgen ../draft Bare
 
 rm ../gh-pages/*.html ../gh-pages/draft.pdf
 find 14882/ -maxdepth 1 -type f -execdir cp '{}' ../../gh-pages/'{}'.html \;
