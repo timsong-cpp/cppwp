@@ -3,8 +3,8 @@
 git submodule foreach 'git pull origin || :'
 
 ./gen_html_std.sh
-./gen_html_networking.sh
-./gen_html_ranges.sh
+#./gen_html_networking.sh
+#./gen_html_ranges.sh
 
 if [ ! -f gh-pages/intro.html ] ||  [ ! -f gh-pages/ranges-ts/intro.html ] || [ ! -f gh-pages/networking-ts/scope.html ]
 then
