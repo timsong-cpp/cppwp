@@ -45,6 +45,17 @@ latexmk -pdf std
 
 cp std.pdf std_orig.pdf
 
+# create the "annex-f" file that maps stable names to section numbers
+  grep newlabel *.aux \
+| sed 's/\\newlabel{\([^}]*\)}.*TitleReference {\([^}]*\)}.*/\1 \2/' \
+| sed 's/\\newlabel{\([^}]*\)}.*Clause \([^}]*\)}.*/\1 \2/' \
+| sed 's/\\newlabel{\([^}]*\)}.*Annex \([^}]*\)}.*/\1 \2/' \
+| grep -v "aux:tab:" \
+| grep -v "aux:fig:" \
+| sed 's/\(.*\).aux://' \
+| grep -v '^\\' \
+| sort > annex-f
+
 if [ -f ../../htmlgen.patch ]
 then
 git apply -3 ../../htmlgen.patch
@@ -64,7 +75,7 @@ cabal v2-update
 cabal v2-build
 cabal v2-run cxxdraft-htmlgen ../draft Bare
 
-rm ../gh-pages/*.html ../gh-pages/draft.pdf
+rm -f ../gh-pages/*.html ../gh-pages/draft.pdf ../gh-pages/annex-f
 find 14882/ -maxdepth 1 -type f -execdir cp '{}' ../../gh-pages/'{}'.html \;
 rm -r 14882
 
@@ -74,6 +85,7 @@ rm *.css *.png
 rename 's/.html//' *.css.html *.png.html
 mv index.html.html index.html
 cp ../draft/source/std_orig.pdf ./draft.pdf
+cp ../draft/source/annex-f ./
 
 cd ..
 
