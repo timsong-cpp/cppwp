@@ -24,6 +24,12 @@
   <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
     <span class='keyword'>concept</span> range <span class='operator'>=</span> <span class='textit'><span class='texttt'>see below</span></span>;
 
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>range T<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>inline</span> <span class='keyword'>constexpr</span> <span class='keyword'>bool</span> enable_safe_range <span class='operator'>=</span> <span class='literal'>false</span>;
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>concept</span> safe_range <span class='operator'>=</span> <span class='textit'><span class='texttt'>see below</span></span>;
+
   <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>range R<span class='anglebracket'>&gt;</span>
     <span class='keyword'>using</span> iterator_t <span class='operator'>=</span> <span class='keyword'>decltype</span><span class='parenthesis'>(</span>ranges<span class='operator'>::</span>begin<span class='parenthesis'>(</span>declval<span class='anglebracket'>&lt;</span>R<span class='operator'>&amp;</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span>;
   <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>range R<span class='anglebracket'>&gt;</span>
@@ -90,20 +96,26 @@
     <span class='keyword'>requires</span> <span class='parenthesis'>(</span>K <span class='operator'>=</span><span class='operator'>=</span> subrange_kind<span class='operator'>::</span>sized <span class='operator'>|</span><span class='operator'>|</span> <span class='operator'>!</span>sized_sentinel_for<span class='anglebracket'>&lt;</span>S, I<span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>
   <span class='keyword'>class</span> subrange;
 
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>input_or_output_iterator I, sentinel_for<span class='anglebracket'>&lt;</span>I<span class='anglebracket'>&gt;</span> S, subrange_kind K<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>inline</span> <span class='keyword'>constexpr</span> <span class='keyword'>bool</span> enable_safe_range<span class='anglebracket'>&lt;</span>subrange<span class='anglebracket'>&lt;</span>I, S, K<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span> <span class='operator'>=</span> <span class='literal'>true</span>;
+
   <span class='comment'>// <a href='range.dangling'>[range.dangling]</a>, dangling iterator handling</span>
   <span class='keyword'>struct</span> dangling;
 
   <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>range R<span class='anglebracket'>&gt;</span>
-    <span class='keyword'>using</span> safe_iterator_t <span class='operator'>=</span> conditional_t<span class='anglebracket'>&lt;</span><span class='textit'>forwarding-range</span><span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span>, iterator_t<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span>, dangling<span class='anglebracket'>&gt;</span>;
+    <span class='keyword'>using</span> safe_iterator_t <span class='operator'>=</span> conditional_t<span class='anglebracket'>&lt;</span>safe_range<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span>, iterator_t<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span>, dangling<span class='anglebracket'>&gt;</span>;
 
   <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>range R<span class='anglebracket'>&gt;</span>
     <span class='keyword'>using</span> safe_subrange_t <span class='operator'>=</span>
-      conditional_t<span class='anglebracket'>&lt;</span><span class='textit'>forwarding-range</span><span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span>, subrange<span class='anglebracket'>&lt;</span>iterator_t<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>, dangling<span class='anglebracket'>&gt;</span>;
+      conditional_t<span class='anglebracket'>&lt;</span>safe_range<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span>, subrange<span class='anglebracket'>&lt;</span>iterator_t<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>, dangling<span class='anglebracket'>&gt;</span>;
 
   <span class='comment'>// <a href='range.empty'>[range.empty]</a>, empty view</span>
   <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
     <span class='keyword'>requires</span> is_object_v<span class='anglebracket'>&lt;</span>T<span class='anglebracket'>&gt;</span>
   <span class='keyword'>class</span> empty_view;
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>inline</span> <span class='keyword'>constexpr</span> <span class='keyword'>bool</span> enable_safe_range<span class='anglebracket'>&lt;</span>empty_view<span class='anglebracket'>&lt;</span>T<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span> <span class='operator'>=</span> <span class='literal'>true</span>;
 
   <span class='keyword'>namespace</span> views <span class='curlybracket'>{</span>
     <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
@@ -122,7 +134,17 @@
     <span class='keyword'>requires</span> <span class='textit'>weakly-equality-comparable-with</span><span class='anglebracket'>&lt;</span>W, Bound<span class='anglebracket'>&gt;</span>
   <span class='keyword'>class</span> iota_view;
 
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>weakly_incrementable W, semiregular Bound<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>inline</span> <span class='keyword'>constexpr</span> <span class='keyword'>bool</span> enable_safe_range<span class='anglebracket'>&lt;</span>iota_view<span class='anglebracket'>&lt;</span>W, Bound<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span> <span class='operator'>=</span> <span class='literal'>true</span>;
+
   <span class='keyword'>namespace</span> views <span class='curlybracket'>{</span> <span class='keyword'>inline</span> <span class='keyword'>constexpr</span> <span class='textit'><span class='texttt'>unspecified</span></span> iota <span class='operator'>=</span> <span class='textit'><span class='texttt'>unspecified</span></span>; <span class='curlybracket'>}</span>
+
+  <span class='comment'>// <a href='range.istream'>[range.istream]</a>, istream view</span>
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>movable Val, <span class='keyword'>class</span> CharT, <span class='keyword'>class</span> Traits <span class='operator'>=</span> char_traits<span class='anglebracket'>&lt;</span>CharT<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
+    <span class='keyword'>requires</span> <span class='textit'><span class='texttt'>see below</span></span>
+  <span class='keyword'>class</span> basic_istream_view;
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> Val, <span class='keyword'>class</span> CharT, <span class='keyword'>class</span> Traits<span class='anglebracket'>&gt;</span>
+    basic_istream_view<span class='anglebracket'>&lt;</span>Val, CharT, Traits<span class='anglebracket'>&gt;</span> istream_view<span class='parenthesis'>(</span>basic_istream<span class='anglebracket'>&lt;</span>CharT, Traits<span class='anglebracket'>&gt;</span><span class='operator'>&amp;</span> s<span class='parenthesis'>)</span>;
 
   <span class='comment'>// <a href='range.all'>[range.all]</a>, all view</span>
   <span class='keyword'>namespace</span> views <span class='curlybracket'>{</span> <span class='keyword'>inline</span> <span class='keyword'>constexpr</span> <span class='textit'><span class='texttt'>unspecified</span></span> all <span class='operator'>=</span> <span class='textit'><span class='texttt'>unspecified</span></span>; <span class='curlybracket'>}</span>
@@ -133,6 +155,9 @@
   <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>range R<span class='anglebracket'>&gt;</span>
     <span class='keyword'>requires</span> is_object_v<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span>
   <span class='keyword'>class</span> ref_view;
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>inline</span> <span class='keyword'>constexpr</span> <span class='keyword'>bool</span> enable_safe_range<span class='anglebracket'>&lt;</span>ref_view<span class='anglebracket'>&lt;</span>T<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span> <span class='operator'>=</span> <span class='literal'>true</span>;
 
   <span class='comment'>// <a href='range.filter'>[range.filter]</a>, filter view</span>
   <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>input_range V, indirect_unary_predicate<span class='anglebracket'>&lt;</span>iterator_t<span class='anglebracket'>&lt;</span>V<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span> Pred<span class='anglebracket'>&gt;</span>
@@ -155,23 +180,23 @@
   <span class='keyword'>namespace</span> views <span class='curlybracket'>{</span> <span class='keyword'>inline</span> <span class='keyword'>constexpr</span> <span class='textit'><span class='texttt'>unspecified</span></span> take <span class='operator'>=</span> <span class='textit'><span class='texttt'>unspecified</span></span>; <span class='curlybracket'>}</span>
 
   <span class='comment'>// <a href='range.take.while'>[range.take.while]</a>, take while view</span>
-  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>view R, <span class='keyword'>class</span> Pred<span class='anglebracket'>&gt;</span>
-    <span class='keyword'>requires</span> input_range<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span> <span class='operator'>&amp;</span><span class='operator'>&amp;</span> is_object_v<span class='anglebracket'>&lt;</span>Pred<span class='anglebracket'>&gt;</span> <span class='operator'>&amp;</span><span class='operator'>&amp;</span>
-      indirect_unary_predicate<span class='anglebracket'>&lt;</span><span class='keyword'>const</span> Pred, iterator_t<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>view V, <span class='keyword'>class</span> Pred<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>requires</span> input_range<span class='anglebracket'>&lt;</span>V<span class='anglebracket'>&gt;</span> <span class='operator'>&amp;</span><span class='operator'>&amp;</span> is_object_v<span class='anglebracket'>&lt;</span>Pred<span class='anglebracket'>&gt;</span> <span class='operator'>&amp;</span><span class='operator'>&amp;</span>
+      indirect_unary_predicate<span class='anglebracket'>&lt;</span><span class='keyword'>const</span> Pred, iterator_t<span class='anglebracket'>&lt;</span>V<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
     <span class='keyword'>class</span> take_while_view;
 
   <span class='keyword'>namespace</span> views <span class='curlybracket'>{</span> <span class='keyword'>inline</span> <span class='keyword'>constexpr</span> <span class='textit'><span class='texttt'>unspecified</span></span> take_while <span class='operator'>=</span> <span class='textit'><span class='texttt'>unspecified</span></span>; <span class='curlybracket'>}</span>
 
   <span class='comment'>// <a href='range.drop'>[range.drop]</a>, drop view</span>
-  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>view R<span class='anglebracket'>&gt;</span>
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>view V<span class='anglebracket'>&gt;</span>
     <span class='keyword'>class</span> drop_view;
 
   <span class='keyword'>namespace</span> views <span class='curlybracket'>{</span> <span class='keyword'>inline</span> <span class='keyword'>constexpr</span> <span class='textit'><span class='texttt'>unspecified</span></span> drop <span class='operator'>=</span> <span class='textit'><span class='texttt'>unspecified</span></span>; <span class='curlybracket'>}</span>
 
   <span class='comment'>// <a href='range.drop.while'>[range.drop.while]</a>, drop while view</span>
-  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>view R, <span class='keyword'>class</span> Pred<span class='anglebracket'>&gt;</span>
-    <span class='keyword'>requires</span> input_range<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span> <span class='operator'>&amp;</span><span class='operator'>&amp;</span> is_object_v<span class='anglebracket'>&lt;</span>Pred<span class='anglebracket'>&gt;</span> <span class='operator'>&amp;</span><span class='operator'>&amp;</span>
-      indirect_unary_predicate<span class='anglebracket'>&lt;</span><span class='keyword'>const</span> Pred, iterator_t<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>view V, <span class='keyword'>class</span> Pred<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>requires</span> input_range<span class='anglebracket'>&lt;</span>V<span class='anglebracket'>&gt;</span> <span class='operator'>&amp;</span><span class='operator'>&amp;</span> is_object_v<span class='anglebracket'>&lt;</span>Pred<span class='anglebracket'>&gt;</span> <span class='operator'>&amp;</span><span class='operator'>&amp;</span>
+      indirect_unary_predicate<span class='anglebracket'>&lt;</span><span class='keyword'>const</span> Pred, iterator_t<span class='anglebracket'>&lt;</span>V<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
     <span class='keyword'>class</span> drop_while_view;
 
   <span class='keyword'>namespace</span> views <span class='curlybracket'>{</span> <span class='keyword'>inline</span> <span class='keyword'>constexpr</span> <span class='textit'><span class='texttt'>unspecified</span></span> drop_while <span class='operator'>=</span> <span class='textit'><span class='texttt'>unspecified</span></span>; <span class='curlybracket'>}</span>
@@ -202,7 +227,7 @@
 
   <span class='comment'>// <a href='range.common'>[range.common]</a>, common view</span>
   <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>view V<span class='anglebracket'>&gt;</span>
-    <span class='keyword'>requires</span> <span class='parenthesis'>(</span><span class='operator'>!</span>common_range<span class='anglebracket'>&lt;</span>V<span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>
+    <span class='keyword'>requires</span> <span class='parenthesis'>(</span><span class='operator'>!</span>common_range<span class='anglebracket'>&lt;</span>V<span class='anglebracket'>&gt;</span> <span class='operator'>&amp;</span><span class='operator'>&amp;</span> copyable<span class='anglebracket'>&lt;</span>iterator_t<span class='anglebracket'>&lt;</span>V<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>
   <span class='keyword'>class</span> common_view;
 
   <span class='keyword'>namespace</span> views <span class='curlybracket'>{</span> <span class='keyword'>inline</span> <span class='keyword'>constexpr</span> <span class='textit'><span class='texttt'>unspecified</span></span> common <span class='operator'>=</span> <span class='textit'><span class='texttt'>unspecified</span></span>; <span class='curlybracket'>}</span>
@@ -214,15 +239,8 @@
 
   <span class='keyword'>namespace</span> views <span class='curlybracket'>{</span> <span class='keyword'>inline</span> <span class='keyword'>constexpr</span> <span class='textit'><span class='texttt'>unspecified</span></span> reverse <span class='operator'>=</span> <span class='textit'><span class='texttt'>unspecified</span></span>; <span class='curlybracket'>}</span>
 
-  <span class='comment'>// <a href='range.istream'>[range.istream]</a>, istream view</span>
-  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>movable Val, <span class='keyword'>class</span> CharT, <span class='keyword'>class</span> Traits <span class='operator'>=</span> char_traits<span class='anglebracket'>&lt;</span>CharT<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
-    <span class='keyword'>requires</span> <span class='textit'><span class='texttt'>see below</span></span>
-  <span class='keyword'>class</span> basic_istream_view;
-  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> Val, <span class='keyword'>class</span> CharT, <span class='keyword'>class</span> Traits<span class='anglebracket'>&gt;</span>
-    basic_istream_view<span class='anglebracket'>&lt;</span>Val, CharT, Traits<span class='anglebracket'>&gt;</span> istream_view<span class='parenthesis'>(</span>basic_istream<span class='anglebracket'>&lt;</span>CharT, Traits<span class='anglebracket'>&gt;</span><span class='operator'>&amp;</span> s<span class='parenthesis'>)</span>;
-
   <span class='comment'>// <a href='range.elements'>[range.elements]</a>, elements view</span>
-  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>input_range R, size_t N<span class='anglebracket'>&gt;</span>
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>input_range V, size_t N<span class='anglebracket'>&gt;</span>
     <span class='keyword'>requires</span> <span class='textit'><span class='texttt'>see below</span></span>;
   <span class='keyword'>class</span> elements_view;
 
@@ -254,7 +272,7 @@
     <span class='keyword'>using</span> type <span class='operator'>=</span> S;
   <span class='curlybracket'>}</span>;
 <span class='curlybracket'>}</span>
-</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/81f1d689f51fe823d7f6faa659f03b2d787aebf6/source/ranges.tex#L285'>#</a></div><div id='1.sentence-1' class='sentence'><span class='indexparent'><a class='index' id=':make-unsigned-like'></a></span><span class='indexparent'><a class='index' id=':make-unsigned-like-t'></a></span>Within this clause,
+</pre><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/aed2cbc451be619f3788387b02379067ae5fcb9c/source/ranges.tex#L303'>#</a></div><div id='1.sentence-1' class='sentence'><span class='indexparent'><a class='index' id=':make-unsigned-like'></a></span><span class='indexparent'><a class='index' id=':make-unsigned-like-t'></a></span>Within this clause,
 for some integer-like type <span class='texttt'>X</span> (<a href='iterator.concept.winc'>[iterator.concept.winc]</a>),
 <span class='texttt'><span class='textit'>make-unsigned-like-t</span><span class='parenthesis'>(</span>X<span class='parenthesis'>)</span></span> denotes
 <span class='texttt'>make_&shy;unsigned_&shy;t<span class='anglebracket'>&lt;</span>X<span class='anglebracket'>&gt;</span></span> if <span class='texttt'>X</span> is an integer type;
