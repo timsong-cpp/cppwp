@@ -1,0 +1,84 @@
+<!DOCTYPE html><html lang='en'><head><title>[mem.res.pool.overview]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Notes and examples expanded'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>20.12</a> Memory resources <a class='abbr_ref' href='mem.res#pool.overview'>[mem.res]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>20.12.5</a> Pool resource classes <a class='abbr_ref' href='mem.res.pool#overview'>[mem.res.pool]</a></h3><h4 ><a class='secnum' style='min-width:118pt'>20.12.5.1</a> Classes <span class='texttt'>synchronized_&shy;pool_&shy;resource</span> and <span class='texttt'>unsynchronized_&shy;pool_&shy;resource</span> <a class='abbr_ref'>[mem.res.pool.overview]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/utilities.tex#L12069'>#</a></div><div id='1.sentence-1' class='sentence'>The <span class='texttt'>synchronized_&shy;pool_&shy;resource</span> and
+<span class='texttt'>unsynchronized_&shy;pool_&shy;resource</span> classes
+(collectively called <a class='hidden_link' href='#def:pool_resource_classes' id='def:pool_resource_classes'><i >pool resource classes</i></a>)
+are general-purpose memory resources having the following qualities:
+<ul class='itemize'><li id='1.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.1'>(1.1)</a></div>Each resource frees its allocated memory on destruction,
+even if <span class='texttt'>deallocate</span> has not been called for some of the allocated blocks.</li><li id='1.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.2'>(1.2)</a></div>A pool resource consists of a collection of <a class='hidden_link' href='#def:pools' id='def:pools'><i >pools</i></a>,
+serving requests for different block sizes. Each individual pool manages a collection of <a class='hidden_link' href='#def:chunks' id='def:chunks'><i >chunks</i></a>
+that are in turn divided into blocks of uniform size,
+returned via calls to <span class='texttt'>do_&shy;allocate</span>. Each call to <span class='texttt'>do_&shy;allocate<span class='parenthesis'>(</span>size, alignment<span class='parenthesis'>)</span></span> is dispatched
+to the pool serving the smallest blocks accommodating at least <span class='texttt'>size</span> bytes.</li><li id='1.3'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.3'>(1.3)</a></div>When a particular pool is exhausted,
+allocating a block from that pool results in the allocation
+of an additional chunk of memory from the <a class='hidden_link' href='#def:upstream_allocator' id='def:upstream_allocator'><i >upstream allocator</i></a>
+(supplied at construction), thus replenishing the pool. With each successive replenishment,
+the chunk size obtained increases geometrically. <div id='1.3.note-1' class='note'>[&nbsp;<a class='note_link' href='#1.3.note-1'><span class='textit'>Note</span></a><div class='noteBody'><span class='textit'>:</span> By allocating memory in chunks,
+the pooling strategy increases the chance that consecutive allocations
+will be close together in memory. —&nbsp;<i>end note</i></div>&nbsp;]</div> </li><li id='1.4'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.4'>(1.4)</a></div>Allocation requests that exceed the largest block size of any pool
+are fulfilled directly from the upstream allocator.</li><li id='1.5'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#1.5'>(1.5)</a></div>A <span class='texttt'>pool_&shy;options</span> struct may be passed to the pool resource constructors
+to tune the largest block size and the maximum chunk size.</li></ul></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/utilities.tex#L12106'>#</a></div><div id='2.sentence-1' class='sentence'>A <span class='texttt'>synchronized_&shy;pool_&shy;resource</span> may be accessed from multiple threads
+without external synchronization
+and may have thread-specific pools to reduce synchronization costs<a class='hidden_link' href='#2.sentence-1'>.</a></div> <div id='2.sentence-2' class='sentence'>An <span class='texttt'>unsynchronized_&shy;pool_&shy;resource</span> class may not be accessed
+from multiple threads simultaneously
+and thus avoids the cost of synchronization entirely
+in single-threaded applications<a class='hidden_link' href='#2.sentence-2'>.</a></div><span class='indexparent'><a class='index' id='lib:pool_options'></a></span><span class='indexparent'><a class='index' id='lib:synchronized_pool_resource'></a></span><span class='indexparent'><a class='index' id='lib:unsynchronized_pool_resource'></a></span><pre class='codeblock'>
+<span class='keyword'>namespace</span> std<span class='operator'>::</span>pmr <span class='curlybracket'>{</span>
+  <span class='keyword'>struct</span> pool_options <span class='curlybracket'>{</span>
+    size_t max_blocks_per_chunk <span class='operator'>=</span> <span class='literal'>0</span>;
+    size_t largest_required_pool_block <span class='operator'>=</span> <span class='literal'>0</span>;
+  <span class='curlybracket'>}</span>;
+
+  <span class='keyword'>class</span> synchronized_pool_resource <span class='operator'>:</span> <span class='keyword'>public</span> memory_resource <span class='curlybracket'>{</span>
+  <span class='keyword'>public</span><span class='operator'>:</span>
+    synchronized_pool_resource<span class='parenthesis'>(</span><span class='keyword'>const</span> pool_options<span class='operator'>&amp;</span> opts, memory_resource<span class='operator'>*</span> upstream<span class='parenthesis'>)</span>;
+
+    synchronized_pool_resource<span class='parenthesis'>(</span><span class='parenthesis'>)</span>
+        <span class='operator'>:</span> synchronized_pool_resource<span class='parenthesis'>(</span>pool_options<span class='parenthesis'>(</span><span class='parenthesis'>)</span>, get_default_resource<span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span>
+    <span class='keyword'>explicit</span> synchronized_pool_resource<span class='parenthesis'>(</span>memory_resource<span class='operator'>*</span> upstream<span class='parenthesis'>)</span>
+        <span class='operator'>:</span> synchronized_pool_resource<span class='parenthesis'>(</span>pool_options<span class='parenthesis'>(</span><span class='parenthesis'>)</span>, upstream<span class='parenthesis'>)</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span>
+    <span class='keyword'>explicit</span> synchronized_pool_resource<span class='parenthesis'>(</span><span class='keyword'>const</span> pool_options<span class='operator'>&amp;</span> opts<span class='parenthesis'>)</span>
+        <span class='operator'>:</span> synchronized_pool_resource<span class='parenthesis'>(</span>opts, get_default_resource<span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span>
+
+    synchronized_pool_resource<span class='parenthesis'>(</span><span class='keyword'>const</span> synchronized_pool_resource<span class='operator'>&amp;</span><span class='parenthesis'>)</span> <span class='operator'>=</span> <span class='keyword'>delete</span>;
+    <span class='keyword'>virtual</span> <span class='operator'>~</span>synchronized_pool_resource<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+
+    synchronized_pool_resource<span class='operator'>&amp;</span> <span class='keyword'>operator</span><span class='operator'>=</span><span class='parenthesis'>(</span><span class='keyword'>const</span> synchronized_pool_resource<span class='operator'>&amp;</span><span class='parenthesis'>)</span> <span class='operator'>=</span> <span class='keyword'>delete</span>;
+
+    <span class='keyword'>void</span> release<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+    memory_resource<span class='operator'>*</span> upstream_resource<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='keyword'>const</span>;
+    pool_options options<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='keyword'>const</span>;
+
+  <span class='keyword'>protected</span><span class='operator'>:</span>
+    <span class='keyword'>void</span><span class='operator'>*</span> do_allocate<span class='parenthesis'>(</span>size_t bytes, size_t alignment<span class='parenthesis'>)</span> <span class='keyword'>override</span>;
+    <span class='keyword'>void</span> do_deallocate<span class='parenthesis'>(</span><span class='keyword'>void</span><span class='operator'>*</span> p, size_t bytes, size_t alignment<span class='parenthesis'>)</span> <span class='keyword'>override</span>;
+
+    <span class='keyword'>bool</span> do_is_equal<span class='parenthesis'>(</span><span class='keyword'>const</span> memory_resource<span class='operator'>&amp;</span> other<span class='parenthesis'>)</span> <span class='keyword'>const</span> <span class='keyword'>noexcept</span> <span class='keyword'>override</span>;
+  <span class='curlybracket'>}</span>;
+
+  <span class='keyword'>class</span> unsynchronized_pool_resource <span class='operator'>:</span> <span class='keyword'>public</span> memory_resource <span class='curlybracket'>{</span>
+  <span class='keyword'>public</span><span class='operator'>:</span>
+    unsynchronized_pool_resource<span class='parenthesis'>(</span><span class='keyword'>const</span> pool_options<span class='operator'>&amp;</span> opts, memory_resource<span class='operator'>*</span> upstream<span class='parenthesis'>)</span>;
+
+    unsynchronized_pool_resource<span class='parenthesis'>(</span><span class='parenthesis'>)</span>
+        <span class='operator'>:</span> unsynchronized_pool_resource<span class='parenthesis'>(</span>pool_options<span class='parenthesis'>(</span><span class='parenthesis'>)</span>, get_default_resource<span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span>
+    <span class='keyword'>explicit</span> unsynchronized_pool_resource<span class='parenthesis'>(</span>memory_resource<span class='operator'>*</span> upstream<span class='parenthesis'>)</span>
+        <span class='operator'>:</span> unsynchronized_pool_resource<span class='parenthesis'>(</span>pool_options<span class='parenthesis'>(</span><span class='parenthesis'>)</span>, upstream<span class='parenthesis'>)</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span>
+    <span class='keyword'>explicit</span> unsynchronized_pool_resource<span class='parenthesis'>(</span><span class='keyword'>const</span> pool_options<span class='operator'>&amp;</span> opts<span class='parenthesis'>)</span>
+        <span class='operator'>:</span> unsynchronized_pool_resource<span class='parenthesis'>(</span>opts, get_default_resource<span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span>
+
+    unsynchronized_pool_resource<span class='parenthesis'>(</span><span class='keyword'>const</span> unsynchronized_pool_resource<span class='operator'>&amp;</span><span class='parenthesis'>)</span> <span class='operator'>=</span> <span class='keyword'>delete</span>;
+    <span class='keyword'>virtual</span> <span class='operator'>~</span>unsynchronized_pool_resource<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+
+    unsynchronized_pool_resource<span class='operator'>&amp;</span> <span class='keyword'>operator</span><span class='operator'>=</span><span class='parenthesis'>(</span><span class='keyword'>const</span> unsynchronized_pool_resource<span class='operator'>&amp;</span><span class='parenthesis'>)</span> <span class='operator'>=</span> <span class='keyword'>delete</span>;
+
+    <span class='keyword'>void</span> release<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+    memory_resource<span class='operator'>*</span> upstream_resource<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='keyword'>const</span>;
+    pool_options options<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='keyword'>const</span>;
+
+  <span class='keyword'>protected</span><span class='operator'>:</span>
+    <span class='keyword'>void</span><span class='operator'>*</span> do_allocate<span class='parenthesis'>(</span>size_t bytes, size_t alignment<span class='parenthesis'>)</span> <span class='keyword'>override</span>;
+    <span class='keyword'>void</span> do_deallocate<span class='parenthesis'>(</span><span class='keyword'>void</span><span class='operator'>*</span> p, size_t bytes, size_t alignment<span class='parenthesis'>)</span> <span class='keyword'>override</span>;
+
+    <span class='keyword'>bool</span> do_is_equal<span class='parenthesis'>(</span><span class='keyword'>const</span> memory_resource<span class='operator'>&amp;</span> other<span class='parenthesis'>)</span> <span class='keyword'>const</span> <span class='keyword'>noexcept</span> <span class='keyword'>override</span>;
+  <span class='curlybracket'>}</span>;
+<span class='curlybracket'>}</span>
+</pre></div></div></body></html>

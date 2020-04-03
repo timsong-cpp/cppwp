@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang='en'><head><title>[over.ics.list]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Notes and examples expanded'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>12</a> Overloading <a class='abbr_ref' href='./#over'>[over]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>12.4</a> Overload resolution <a class='abbr_ref' href='over.match#over.ics.list'>[over.match]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>12.4.3</a> Best viable function <a class='abbr_ref' href='over.match.best#over.ics.list'>[over.match.best]</a></h3><h4 ><a class='secnum' style='min-width:118pt'>12.4.3.1</a> Implicit conversion sequences <a class='abbr_ref' href='over.best.ics#over.ics.list'>[over.best.ics]</a></h4><h4 ><a class='secnum' style='min-width:133pt'>12.4.3.1.5</a> List-initialization sequence <a class='abbr_ref'>[over.ics.list]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/overloading.tex#L2584'>#</a></div><div id='1.sentence-1' class='sentence'>When an argument is an initializer list (<a href='dcl.init.list'>[dcl.init.list]</a>), it is not an expression and special rules apply for converting it to a parameter type<a class='hidden_link' href='#1.sentence-1'>.</a></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/overloading.tex#L2588'>#</a></div><div id='2.sentence-1' class='sentence'>If the initializer list is a <a class='grammarterm' href='dcl.init#nt:designated-initializer-list'>designated-initializer-list</a>,
+a conversion is only possible if
+the parameter has an aggregate type
+that can be initialized from the initializer list
+according to the rules for aggregate initialization (<a href='dcl.init.aggr'>[dcl.init.aggr]</a>),
+in which case the implicit conversion sequence is
+a user-defined conversion sequence
+whose second standard conversion sequence
+is an identity conversion<a class='hidden_link' href='#2.sentence-1'>.</a></div> <div id='2.note-1' class='note'>[&nbsp;<a class='note_link' href='#2.note-1'><span class='textit'>Note</span></a><div class='noteBody'><span class='textit'>:</span> <div id='2.sentence-2' class='sentence'>Aggregate initialization does not require that
+the members are declared in designation order<a class='hidden_link' href='#2.sentence-2'>.</a></div> <div id='2.sentence-3' class='sentence'>If, after overload resolution, the order does not match
+for the selected overload,
+the initialization of the parameter will be ill-formed (<a href='dcl.init.list'>[dcl.init.list]</a>)<a class='hidden_link' href='#2.sentence-3'>.</a></div> <div id='2.example-1' class='example'>[&nbsp;<a class='example_link' href='#2.example-1'><span class='textit'>Example</span></a><div class='exampleBody'><span class='textit'>:</span> <pre class='codeblock'>
+<span class='keyword'>struct</span> A <span class='curlybracket'>{</span> <span class='keyword'>int</span> x, y; <span class='curlybracket'>}</span>;
+<span class='keyword'>struct</span> B <span class='curlybracket'>{</span> <span class='keyword'>int</span> y, x; <span class='curlybracket'>}</span>;
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>A a, <span class='keyword'>int</span><span class='parenthesis'>)</span>;               <span class='comment'>// #1</span>
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>B b, <span class='operator'>.</span><span class='operator'>.</span><span class='operator'>.</span><span class='parenthesis'>)</span>;               <span class='comment'>// #2</span>
+<span class='keyword'>void</span> g<span class='parenthesis'>(</span>A a<span class='parenthesis'>)</span>;                    <span class='comment'>// #3</span>
+<span class='keyword'>void</span> g<span class='parenthesis'>(</span>B b<span class='parenthesis'>)</span>;                    <span class='comment'>// #4</span>
+<span class='keyword'>void</span> h<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  f<span class='parenthesis'>(</span><span class='curlybracket'>{</span><span class='operator'>.</span>x <span class='operator'>=</span> <span class='literal'>1</span>, <span class='operator'>.</span>y <span class='operator'>=</span> <span class='literal'>2</span><span class='curlybracket'>}</span>, <span class='literal'>0</span><span class='parenthesis'>)</span>;       <span class='comment'>// OK; calls #1</span>
+  f<span class='parenthesis'>(</span><span class='curlybracket'>{</span><span class='operator'>.</span>y <span class='operator'>=</span> <span class='literal'>2</span>, <span class='operator'>.</span>x <span class='operator'>=</span> <span class='literal'>1</span><span class='curlybracket'>}</span>, <span class='literal'>0</span><span class='parenthesis'>)</span>;       <span class='comment'>// error: selects #1, initialization of <span class='tcode_in_codeblock'>a</span> fails</span>
+                                <span class='comment'>// due to non-matching member order (<a href='dcl.init.list'>[dcl.init.list]</a>)</span>
+  g<span class='parenthesis'>(</span><span class='curlybracket'>{</span><span class='operator'>.</span>x <span class='operator'>=</span> <span class='literal'>1</span>, <span class='operator'>.</span>y <span class='operator'>=</span> <span class='literal'>2</span><span class='curlybracket'>}</span><span class='parenthesis'>)</span>;          <span class='comment'>// error: ambiguous between #3 and #4</span>
+<span class='curlybracket'>}</span>
+</pre> —&nbsp;<i>end example</i></div>&nbsp;]</div>  —&nbsp;<i>end note</i></div>&nbsp;]</div> </div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/overloading.tex#L2622'>#</a></div><div id='3.sentence-1' class='sentence'>Otherwise,
+if the parameter type is an aggregate class <span class='texttt'>X</span> and the initializer list has a
+single element of type <span class='mathit'>cv</span> <span class='texttt'>U</span>, where <span class='texttt'>U</span> is <span class='texttt'>X</span>
+or a class derived from <span class='texttt'>X</span>, the implicit conversion sequence is the one
+required to convert the element to the parameter type<a class='hidden_link' href='#3.sentence-1'>.</a></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/overloading.tex#L2629'>#</a></div><div id='4.sentence-1' class='sentence'>Otherwise, if the parameter type is a character array<a class='footnotenum' href='#footnote-125' id='footnoteref-125'>125</a>
+and the initializer list has a single element that is an appropriately-typed
+<a class='grammarterm' href='lex.string#nt:string-literal'>string-literal</a> (<a href='dcl.init.string'>[dcl.init.string]</a>), the implicit conversion
+sequence is the identity conversion<a class='hidden_link' href='#4.sentence-1'>.</a></div></div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/overloading.tex#L2637'>#</a></div><div id='5.sentence-1' class='sentence'>Otherwise, if the parameter type is <span class='texttt'>std<span class='operator'>&#x200b;::&#x200b;</span>initializer_&shy;list<span class='anglebracket'>&lt;</span>X<span class='anglebracket'>&gt;</span></span>
+and all the elements
+of the initializer list can be implicitly converted to <span class='texttt'>X</span>, the implicit
+conversion sequence is the worst conversion necessary to convert an element of
+the list to <span class='texttt'>X</span>, or if the initializer list has no elements, the identity
+conversion<a class='hidden_link' href='#5.sentence-1'>.</a></div> <div id='5.sentence-2' class='sentence'>This conversion can be a user-defined conversion even in
+the context of a call to an initializer-list constructor<a class='hidden_link' href='#5.sentence-2'>.</a></div> <div id='5.example-1' class='example'>[&nbsp;<a class='example_link' href='#5.example-1'><span class='textit'>Example</span></a><div class='exampleBody'><span class='textit'>:</span> <pre class='codeblock'>
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>std<span class='operator'>::</span>initializer_list<span class='anglebracket'>&lt;</span><span class='keyword'>int</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>;
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;                        <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(initializer_&shy;list&lt;int&gt;)</span> identity conversion</span>
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>1</span>,<span class='literal'>2</span>,<span class='literal'>3</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;                   <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(initializer_&shy;list&lt;int&gt;)</span> identity conversion</span>
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>'a'</span>,<span class='literal'>'b'</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;                 <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(initializer_&shy;list&lt;int&gt;)</span> integral promotion</span>
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>1.0</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;                     <span class='comment'>// error: narrowing</span>
+
+<span class='keyword'>struct</span> A <span class='curlybracket'>{</span>
+  A<span class='parenthesis'>(</span>std<span class='operator'>::</span>initializer_list<span class='anglebracket'>&lt;</span><span class='keyword'>double</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>;             <span class='comment'>// #1</span>
+  A<span class='parenthesis'>(</span>std<span class='operator'>::</span>initializer_list<span class='anglebracket'>&lt;</span>complex<span class='anglebracket'>&lt;</span><span class='keyword'>double</span><span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>;    <span class='comment'>// #2</span>
+  A<span class='parenthesis'>(</span>std<span class='operator'>::</span>initializer_list<span class='anglebracket'>&lt;</span>std<span class='operator'>::</span>string<span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>;        <span class='comment'>// #3</span>
+<span class='curlybracket'>}</span>;
+A a<span class='curlybracket'>{</span> <span class='literal'>1.0</span>,<span class='literal'>2.0</span> <span class='curlybracket'>}</span>;                 <span class='comment'>// OK, uses #1</span>
+
+<span class='keyword'>void</span> g<span class='parenthesis'>(</span>A<span class='parenthesis'>)</span>;
+g<span class='parenthesis'>(</span><span class='curlybracket'>{</span> <span class='literal'>"foo"</span>, <span class='literal'>"bar"</span> <span class='curlybracket'>}</span><span class='parenthesis'>)</span>;            <span class='comment'>// OK, uses #3</span>
+
+<span class='keyword'>typedef</span> <span class='keyword'>int</span> IA<span class='squarebracket'>[</span><span class='literal'>3</span><span class='squarebracket'>]</span>;
+<span class='keyword'>void</span> h<span class='parenthesis'>(</span><span class='keyword'>const</span> IA<span class='operator'>&amp;</span><span class='parenthesis'>)</span>;
+h<span class='parenthesis'>(</span><span class='curlybracket'>{</span> <span class='literal'>1</span>, <span class='literal'>2</span>, <span class='literal'>3</span> <span class='curlybracket'>}</span><span class='parenthesis'>)</span>;                 <span class='comment'>// OK: identity conversion</span>
+</pre> —&nbsp;<i>end example</i></div>&nbsp;]</div> </div><div class='para' id='6'><div class='marginalizedparent'><a class='marginalized' href='#6'>6</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/overloading.tex#L2669'>#</a></div><div id='6.sentence-1' class='sentence'>Otherwise, if the parameter type is “array of <span class='texttt'>N</span> <span class='texttt'>X</span>”
+or “array of unknown bound of <span class='texttt'>X</span>”,
+if there exists an implicit conversion sequence
+from each element of the initializer list
+(and from <span class='texttt'><span class='curlybracket'>{</span><span class='curlybracket'>}</span></span> in the former case
+if <span class='texttt'>N</span> exceeds the number of elements in the initializer list)
+to <span class='texttt'>X</span>, the implicit conversion sequence is
+the worst such implicit conversion sequence<a class='hidden_link' href='#6.sentence-1'>.</a></div></div><div class='para' id='7'><div class='marginalizedparent'><a class='marginalized' href='#7'>7</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/overloading.tex#L2679'>#</a></div><div id='7.sentence-1' class='sentence'>Otherwise, if the parameter is a non-aggregate class <span class='texttt'>X</span> and overload
+resolution per <a href='over.match.list'>[over.match.list]</a> chooses a single best constructor <span class='texttt'>C</span> of
+<span class='texttt'>X</span> to perform the initialization of an object of type <span class='texttt'>X</span> from the
+argument initializer list:
+<ul class='itemize'><li id='7.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#7.1'>(7.1)</a></div>If <span class='texttt'>C</span> is not an initializer-list constructor
+and the initializer list has a single element of type <span class='mathit'>cv</span> <span class='texttt'>U</span>,
+where <span class='texttt'>U</span> is <span class='texttt'>X</span> or a class derived from <span class='texttt'>X</span>,
+the implicit conversion sequence has Exact Match rank if <span class='texttt'>U</span> is <span class='texttt'>X</span>,
+or Conversion rank if <span class='texttt'>U</span> is derived from <span class='texttt'>X</span>.</li><li id='7.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#7.2'>(7.2)</a></div>Otherwise, the implicit conversion sequence is a user-defined
+conversion sequence with the second standard conversion sequence an
+identity conversion.</li></ul></div> <div id='7.sentence-2' class='sentence'>
+If multiple constructors are viable but none is better than
+the others, the implicit conversion sequence is the ambiguous conversion
+sequence<a class='hidden_link' href='#7.sentence-2'>.</a></div> <div id='7.sentence-3' class='sentence'>User-defined conversions are allowed for conversion of the initializer
+list elements to the constructor parameter types except as noted
+in <a href='over.best.ics'>[over.best.ics]</a><a class='hidden_link' href='#7.sentence-3'>.</a></div> <div id='7.example-1' class='example'>[&nbsp;<a class='example_link' href='#7.example-1'><span class='textit'>Example</span></a><div class='exampleBody'><span class='textit'>:</span> <pre class='codeblock'>
+<span class='keyword'>struct</span> A <span class='curlybracket'>{</span>
+  A<span class='parenthesis'>(</span>std<span class='operator'>::</span>initializer_list<span class='anglebracket'>&lt;</span><span class='keyword'>int</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>;
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>A<span class='parenthesis'>)</span>;
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>'a'</span>, <span class='literal'>'b'</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;        <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(A(std&#x200b;::&#x200b;initializer_&shy;list&lt;int&gt;))</span> user-defined conversion</span>
+
+<span class='keyword'>struct</span> B <span class='curlybracket'>{</span>
+  B<span class='parenthesis'>(</span><span class='keyword'>int</span>, <span class='keyword'>double</span><span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>;
+<span class='keyword'>void</span> g<span class='parenthesis'>(</span>B<span class='parenthesis'>)</span>;
+g<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>'a'</span>, <span class='literal'>'b'</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;        <span class='comment'>// OK: <span class='tcode_in_codeblock'>g(B(int, double))</span> user-defined conversion</span>
+g<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>1.0</span>, <span class='literal'>1.0</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;        <span class='comment'>// error: narrowing</span>
+
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>B<span class='parenthesis'>)</span>;
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>'a'</span>, <span class='literal'>'b'</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;        <span class='comment'>// error: ambiguous <span class='tcode_in_codeblock'>f(A)</span> or <span class='tcode_in_codeblock'>f(B)</span></span>
+
+<span class='keyword'>struct</span> C <span class='curlybracket'>{</span>
+  C<span class='parenthesis'>(</span>std<span class='operator'>::</span>string<span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>;
+<span class='keyword'>void</span> h<span class='parenthesis'>(</span>C<span class='parenthesis'>)</span>;
+h<span class='parenthesis'>(</span><span class='curlybracket'>{</span><span class='literal'>"foo"</span><span class='curlybracket'>}</span><span class='parenthesis'>)</span>;             <span class='comment'>// OK: <span class='tcode_in_codeblock'>h(C(std&#x200b;::&#x200b;string("foo")))</span></span>
+
+<span class='keyword'>struct</span> D <span class='curlybracket'>{</span>
+  D<span class='parenthesis'>(</span>A, C<span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>;
+<span class='keyword'>void</span> i<span class='parenthesis'>(</span>D<span class='parenthesis'>)</span>;
+i<span class='parenthesis'>(</span><span class='curlybracket'>{</span> <span class='curlybracket'>{</span><span class='literal'>1</span>,<span class='literal'>2</span><span class='curlybracket'>}</span>, <span class='curlybracket'>{</span><span class='literal'>"bar"</span><span class='curlybracket'>}</span> <span class='curlybracket'>}</span><span class='parenthesis'>)</span>;  <span class='comment'>// OK: <span class='tcode_in_codeblock'>i(D(A(std&#x200b;::&#x200b;initializer_&shy;list&lt;int&gt;{1,2}), C(std&#x200b;::&#x200b;string("bar"))))</span></span>
+</pre> —&nbsp;<i>end example</i></div>&nbsp;]</div> </div><div class='para' id='8'><div class='marginalizedparent'><a class='marginalized' href='#8'>8</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/overloading.tex#L2733'>#</a></div><div id='8.sentence-1' class='sentence'>Otherwise, if the parameter has an aggregate type which can be initialized from
+the initializer list according to the rules for <a href='dcl.init.aggr'>aggregate
+initialization</a>, the implicit conversion sequence is a
+user-defined conversion sequence with the second standard conversion
+sequence an identity conversion<a class='hidden_link' href='#8.sentence-1'>.</a></div> <div id='8.example-1' class='example'>[&nbsp;<a class='example_link' href='#8.example-1'><span class='textit'>Example</span></a><div class='exampleBody'><span class='textit'>:</span> <pre class='codeblock'>
+<span class='keyword'>struct</span> A <span class='curlybracket'>{</span>
+  <span class='keyword'>int</span> m1;
+  <span class='keyword'>double</span> m2;
+<span class='curlybracket'>}</span>;
+
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>A<span class='parenthesis'>)</span>;
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>'a'</span>, <span class='literal'>'b'</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;        <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(A(int,double))</span> user-defined conversion</span>
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>1.0</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;             <span class='comment'>// error: narrowing</span>
+</pre> —&nbsp;<i>end example</i></div>&nbsp;]</div> </div><div class='para' id='9'><div class='marginalizedparent'><a class='marginalized' href='#9'>9</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/overloading.tex#L2752'>#</a></div><div id='9.sentence-1' class='sentence'>Otherwise, if the parameter is a reference, see <a href='over.ics.ref'>[over.ics.ref]</a><a class='hidden_link' href='#9.sentence-1'>.</a></div> <div id='9.note-1' class='note'>[&nbsp;<a class='note_link' href='#9.note-1'><span class='textit'>Note</span></a><div class='noteBody'><span class='textit'>:</span> <div id='9.sentence-2' class='sentence'>The rules in this subclause will apply for initializing the underlying temporary
+for the reference<a class='hidden_link' href='#9.sentence-2'>.</a></div> —&nbsp;<i>end note</i></div>&nbsp;]</div>  <div id='9.example-1' class='example'>[&nbsp;<a class='example_link' href='#9.example-1'><span class='textit'>Example</span></a><div class='exampleBody'><span class='textit'>:</span> <pre class='codeblock'>
+<span class='keyword'>struct</span> A <span class='curlybracket'>{</span>
+  <span class='keyword'>int</span> m1;
+  <span class='keyword'>double</span> m2;
+<span class='curlybracket'>}</span>;
+
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span><span class='keyword'>const</span> A<span class='operator'>&amp;</span><span class='parenthesis'>)</span>;
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>'a'</span>, <span class='literal'>'b'</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;        <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(A(int,double))</span> user-defined conversion</span>
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>1.0</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;             <span class='comment'>// error: narrowing</span>
+
+<span class='keyword'>void</span> g<span class='parenthesis'>(</span><span class='keyword'>const</span> <span class='keyword'>double</span> <span class='operator'>&amp;</span><span class='parenthesis'>)</span>;
+g<span class='parenthesis'>(</span><span class='curlybracket'>{</span><span class='literal'>1</span><span class='curlybracket'>}</span><span class='parenthesis'>)</span>;                 <span class='comment'>// same conversion as <span class='tcode_in_codeblock'>int</span> to <span class='tcode_in_codeblock'>double</span></span>
+</pre> —&nbsp;<i>end example</i></div>&nbsp;]</div> </div><div class='para' id='10'><div class='marginalizedparent'><a class='marginalized' href='#10'>10</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/overloading.tex#L2774'>#</a></div><div id='10.sentence-1' class='sentence'>Otherwise, if the parameter type is not a class:
+<ul class='itemize'><li id='10.1'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#10.1'>(10.1)</a></div>if the initializer list has one element that is not itself an initializer list,
+the implicit conversion sequence is the one required to convert the element to
+the parameter type;
+<div id='10.1.example-1' class='example'>[&nbsp;<a class='example_link' href='#10.1.example-1'><span class='textit'>Example</span></a><div class='exampleBody'><span class='textit'>:</span> <pre class='codeblock'>
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span><span class='keyword'>int</span><span class='parenthesis'>)</span>;
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>'a'</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;             <span class='comment'>// OK: same conversion as <span class='tcode_in_codeblock'>char</span> to <span class='tcode_in_codeblock'>int</span></span>
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>1.0</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;             <span class='comment'>// error: narrowing</span>
+</pre> —&nbsp;<i>end example</i></div>&nbsp;]</div> </li><li id='10.2'><div class='marginalizedparent' style='left:-7em'><a class='marginalized' href='#10.2'>(10.2)</a></div>if the initializer list has no elements, the implicit conversion sequence
+is the identity conversion<a class='hidden_link' href='#10.sentence-1'>.</a> <div id='10.2.example-2' class='example'>[&nbsp;<a class='example_link' href='#10.2.example-2'><span class='textit'>Example</span></a><div class='exampleBody'><span class='textit'>:</span> <pre class='codeblock'>
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span><span class='keyword'>int</span><span class='parenthesis'>)</span>;
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span> <span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;               <span class='comment'>// OK: identity conversion</span>
+</pre> —&nbsp;<i>end example</i></div>&nbsp;]</div> </li></ul></div></div><div class='para' id='11'><div class='marginalizedparent'><a class='marginalized' href='#11'>11</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/overloading.tex#L2798'>#</a></div><div id='11.sentence-1' class='sentence'>In all cases other than those enumerated above, no conversion is possible<a class='hidden_link' href='#11.sentence-1'>.</a></div></div><div class='footnote' id='footnote-125'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-125'>125)</a></div><div id='footnote-125.sentence-1' class='sentence'>Since there are no parameters of array type,
+this will only occur as the referenced type of a reference parameter<a class='hidden_link' href='#footnote-125.sentence-1'>.</a></div> <a href='#footnoteref-125'>⮥</a></div></div></body></html>

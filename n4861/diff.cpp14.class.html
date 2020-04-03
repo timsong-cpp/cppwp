@@ -1,0 +1,21 @@
+<!DOCTYPE html><html lang='en'><head><title>[diff.cpp14.class]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Notes and examples expanded'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='annexnum' style='min-width:73pt'>Annex C&emsp;(informative)</a> Compatibility <a class='abbr_ref' href='./#diff'>[diff]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>C.2</a> C++ and ISO C++ 2014 <a class='abbr_ref' href='diff.cpp14#class'>[diff.cpp14]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>C.2.4</a> <a href='class'>[class]</a>: classes <a class='abbr_ref'>[diff.cpp14.class]</a></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/compatibility.tex#L852'>#</a></div><b>Affected subclause:</b> <a href='class.inhctor.init'>[class.inhctor.init]</a>
+<br/> <div id='1.sentence-1' class='sentence'><b>Change:</b> 
+Inheriting a constructor no longer injects a constructor into the derived class<a class='hidden_link' href='#1.sentence-1'>.</a></div> <br/> <div id='1.sentence-2' class='sentence'><b>Rationale:</b> 
+Better interaction with other language features<a class='hidden_link' href='#1.sentence-2'>.</a></div> <br/> <div id='1.sentence-3' class='sentence'><b>Effect on original feature:</b> 
+Valid C++ 2014 code that uses inheriting constructors may not be valid
+or may have different semantics<a class='hidden_link' href='#1.sentence-3'>.</a></div> <div id='1.sentence-4' class='sentence'>A <a class='grammarterm' href='namespace.udecl#nt:using-declaration'>using-declaration</a>
+that names a constructor now makes the corresponding base class constructors
+visible to initializations of the derived class
+rather than declaring additional derived class constructors<a class='hidden_link' href='#1.sentence-4'>.</a></div> <pre class='codeblock'>
+<span class='keyword'>struct</span> A <span class='curlybracket'>{</span>
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>typename</span> T<span class='anglebracket'>&gt;</span> A<span class='parenthesis'>(</span>T, <span class='keyword'>typename</span> T<span class='operator'>::</span>type <span class='operator'>=</span> <span class='literal'>0</span><span class='parenthesis'>)</span>;
+  A<span class='parenthesis'>(</span><span class='keyword'>int</span><span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>;
+<span class='keyword'>struct</span> B <span class='operator'>:</span> A <span class='curlybracket'>{</span>
+  <span class='keyword'>using</span> A<span class='operator'>::</span>A;
+  B<span class='parenthesis'>(</span><span class='keyword'>int</span><span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>;
+B b<span class='parenthesis'>(</span><span class='literal'>42L</span><span class='parenthesis'>)</span>;           <span class='comment'>// now calls <span class='tcode_in_codeblock'>B(int)</span>, used to call <span class='tcode_in_codeblock'>B&lt;long&gt;(long)</span>,</span>
+                    <span class='comment'>// which called <span class='tcode_in_codeblock'>A(int)</span> due to substitution failure</span>
+                    <span class='comment'>// in <span class='tcode_in_codeblock'>A&lt;long&gt;(long)</span>.</span>
+</pre></div></div></body></html>

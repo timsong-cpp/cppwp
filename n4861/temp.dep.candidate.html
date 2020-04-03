@@ -1,0 +1,127 @@
+<!DOCTYPE html><html lang='en'><head><title>[temp.dep.candidate]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Notes and examples expanded'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:73pt'>13</a> Templates <a class='abbr_ref' href='./#temp'>[temp]</a></h1><h2 ><a class='secnum' style='min-width:88pt'>13.8</a> Name resolution <a class='abbr_ref' href='temp.res#temp.dep.candidate'>[temp.res]</a></h2><h3 ><a class='secnum' style='min-width:103pt'>13.8.4</a> Dependent name resolution <a class='abbr_ref' href='temp.dep.res#temp.dep.candidate'>[temp.dep.res]</a></h3><h4 ><a class='secnum' style='min-width:118pt'>13.8.4.2</a> Candidate functions <a class='abbr_ref'>[temp.dep.candidate]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/templates.tex#L5732'>#</a></div><div id='1.sentence-1' class='sentence'><span class='indexparent'><a class='index' id=':functions,candidate'></a></span>For a function call where the <a class='grammarterm' href='expr.post#nt:postfix-expression'>postfix-expression</a> is a
+dependent name,
+the candidate functions are found using the usual lookup
+rules from the template definition context
+(<a href='basic.lookup.unqual'>[basic.lookup.unqual]</a>, <a href='basic.lookup.argdep'>[basic.lookup.argdep]</a>)<a class='hidden_link' href='#1.sentence-1'>.</a></div> <div id='1.note-1' class='note'>[&nbsp;<a class='note_link' href='#1.note-1'><span class='textit'>Note</span></a><div class='noteBody'><span class='textit'>:</span> <div id='1.sentence-2' class='sentence'>For the part of the lookup using associated namespaces (<a href='basic.lookup.argdep'>[basic.lookup.argdep]</a>),
+function declarations found in the template instantiation context
+are found by this lookup, as described in <a href='basic.lookup.argdep'>[basic.lookup.argdep]</a><a class='hidden_link' href='#1.sentence-2'>.</a></div> —&nbsp;<i>end note</i></div>&nbsp;]</div>  <div id='1.sentence-3' class='sentence'>
+If
+the call would be ill-formed or would find a better match had the lookup
+within the associated namespaces considered all the function declarations with
+external linkage introduced in those namespaces in all translation units,
+not just considering those declarations found in the template definition and
+template instantiation contexts, then the program has undefined behavior<a class='hidden_link' href='#1.sentence-3'>.</a></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/templates.tex#L5751'>#</a></div><div id='2.example-1' class='example'>[&nbsp;<a class='example_link' href='#2.example-1'><span class='textit'>Example</span></a><div class='exampleBody'><span class='textit'>:</span> <p>Source file <span class='texttt'><span class='literal'>"X.h"</span></span>:<pre class='codeblock'>
+<span class='keyword'>namespace</span> Q <span class='curlybracket'>{</span>
+  <span class='keyword'>struct</span> X <span class='curlybracket'>{</span> <span class='curlybracket'>}</span>;
+<span class='curlybracket'>}</span>
+</pre><p>Source file <span class='texttt'><span class='literal'>"G.h"</span></span>:<pre class='codeblock'>
+<span class='keyword'>namespace</span> Q <span class='curlybracket'>{</span>
+  <span class='keyword'>void</span> g_impl<span class='parenthesis'>(</span>X, X<span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>
+</pre><p>Module interface unit of <span class='texttt'>M1</span>:<pre class='codeblock'>
+<span class='keyword'>module</span>;
+<span class='preprocessordirective'>#include</span> <span class='literal'>"X.h"</span>
+<span class='preprocessordirective'>#include</span> <span class='literal'>"G.h"</span>
+<span class='keyword'>export</span> <span class='keyword'>module</span> M1;
+<span class='keyword'>export</span> <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>typename</span> T<span class='anglebracket'>&gt;</span>
+<span class='keyword'>void</span> g<span class='parenthesis'>(</span>T t<span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  g_impl<span class='parenthesis'>(</span>t, Q<span class='operator'>::</span>X<span class='curlybracket'>{</span> <span class='curlybracket'>}</span><span class='parenthesis'>)</span>;   <span class='comment'>// ADL in definition context finds <span class='tcode_in_codeblock'>Q&#x200b;::&#x200b;g_&shy;impl</span>, <span class='tcode_in_codeblock'>g_&shy;impl</span> not discarded</span>
+<span class='curlybracket'>}</span>
+</pre><p>Module interface unit of <span class='texttt'>M2</span>:<pre class='codeblock'>
+<span class='keyword'>module</span>;
+<span class='preprocessordirective'>#include</span> <span class='literal'>"X.h"</span>
+<span class='keyword'>export</span> <span class='keyword'>module</span> M2;
+<span class='keyword'>import</span> M1;
+<span class='keyword'>void</span> h<span class='parenthesis'>(</span>Q<span class='operator'>::</span>X x<span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+   g<span class='parenthesis'>(</span>x<span class='parenthesis'>)</span>;                <span class='comment'>// OK</span>
+<span class='curlybracket'>}</span>
+</pre> —&nbsp;<i>end example</i></div>&nbsp;]</div> </div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/templates.tex#L5787'>#</a></div><div id='3.example-1' class='example'>[&nbsp;<a class='example_link' href='#3.example-1'><span class='textit'>Example</span></a><div class='exampleBody'><span class='textit'>:</span> <p>Module interface unit of <span class='texttt'>Std</span>:<pre class='codeblock'>
+<span class='keyword'>export</span> <span class='keyword'>module</span> Std;
+<span class='keyword'>export</span> <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>typename</span> Iter<span class='anglebracket'>&gt;</span>
+<span class='keyword'>void</span> indirect_swap<span class='parenthesis'>(</span>Iter lhs, Iter rhs<span class='parenthesis'>)</span>
+<span class='curlybracket'>{</span>
+  swap<span class='parenthesis'>(</span><span class='operator'>*</span>lhs, <span class='operator'>*</span>rhs<span class='parenthesis'>)</span>;     <span class='comment'>// <span class='tcode_in_codeblock'>swap</span> not found by unqualified lookup, can be found only via ADL</span>
+<span class='curlybracket'>}</span>
+</pre><p>Module interface unit of <span class='texttt'>M</span>:<pre class='codeblock'>
+<span class='keyword'>export</span> <span class='keyword'>module</span> M;
+<span class='keyword'>import</span> Std;
+
+<span class='keyword'>struct</span> S <span class='curlybracket'>{</span> <span class='comment'>/* ...*/</span> <span class='curlybracket'>}</span>;
+<span class='keyword'>void</span> swap<span class='parenthesis'>(</span>S<span class='operator'>&amp;</span>, S<span class='operator'>&amp;</span><span class='parenthesis'>)</span>;      <span class='comment'>// #1</span>
+
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>S<span class='operator'>*</span> p, S<span class='operator'>*</span> q<span class='parenthesis'>)</span>
+<span class='curlybracket'>{</span>
+  indirect_swap<span class='parenthesis'>(</span>p, q<span class='parenthesis'>)</span>;  <span class='comment'>// finds #1 via ADL in instantiation context</span>
+<span class='curlybracket'>}</span>
+</pre> —&nbsp;<i>end example</i></div>&nbsp;]</div> </div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/templates.tex#L5812'>#</a></div><div id='4.example-1' class='example'>[&nbsp;<a class='example_link' href='#4.example-1'><span class='textit'>Example</span></a><div class='exampleBody'><span class='textit'>:</span> <p>Source file <span class='texttt'><span class='literal'>"X.h"</span></span>:<pre class='codeblock'>
+<span class='keyword'>struct</span> X <span class='curlybracket'>{</span> <span class='comment'>/* ... */</span> <span class='curlybracket'>}</span>;
+X <span class='keyword'>operator</span><span class='operator'>+</span><span class='parenthesis'>(</span>X, X<span class='parenthesis'>)</span>;
+</pre><p>Module interface unit of <span class='texttt'>F</span>:<pre class='codeblock'>
+<span class='keyword'>export</span> <span class='keyword'>module</span> F;
+<span class='keyword'>export</span> <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>typename</span> T<span class='anglebracket'>&gt;</span>
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>T t<span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  t <span class='operator'>+</span> t;
+<span class='curlybracket'>}</span>
+</pre><p>Module interface unit of <span class='texttt'>M</span>:<pre class='codeblock'>
+<span class='keyword'>module</span>;
+<span class='preprocessordirective'>#include</span> <span class='literal'>"X.h"</span>
+<span class='keyword'>export</span> <span class='keyword'>module</span> M;
+<span class='keyword'>import</span> F;
+<span class='keyword'>void</span> g<span class='parenthesis'>(</span>X x<span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  f<span class='parenthesis'>(</span>x<span class='parenthesis'>)</span>;             <span class='comment'>// OK: instantiates <span class='tcode_in_codeblock'>f</span> from <span class='tcode_in_codeblock'>F</span>,</span>
+                    <span class='comment'>// <span class='tcode_in_codeblock'>operator+</span> is visible in instantiation context</span>
+<span class='curlybracket'>}</span>
+</pre> —&nbsp;<i>end example</i></div>&nbsp;]</div> </div><div class='para' id='5'><div class='marginalizedparent'><a class='marginalized' href='#5'>5</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/ea10e25b784539f159580b58078ebe40f3179b20/source/templates.tex#L5839'>#</a></div><div id='5.example-1' class='example'>[&nbsp;<a class='example_link' href='#5.example-1'><span class='textit'>Example</span></a><div class='exampleBody'><span class='textit'>:</span> <p>Module interface unit of <span class='texttt'>A</span>:<pre class='codeblock'>
+<span class='keyword'>export</span> <span class='keyword'>module</span> A;
+<span class='keyword'>export</span> <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>typename</span> T<span class='anglebracket'>&gt;</span>
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>T t<span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  cat<span class='parenthesis'>(</span>t, t<span class='parenthesis'>)</span>;            <span class='comment'>// #1</span>
+  dog<span class='parenthesis'>(</span>t, t<span class='parenthesis'>)</span>;            <span class='comment'>// #2</span>
+<span class='curlybracket'>}</span>
+</pre><p>Module interface unit of <span class='texttt'>B</span>:<pre class='codeblock'>
+<span class='keyword'>export</span> <span class='keyword'>module</span> B;
+<span class='keyword'>import</span> A;
+<span class='keyword'>export</span> <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>typename</span> T, <span class='keyword'>typename</span> U<span class='anglebracket'>&gt;</span>
+<span class='keyword'>void</span> g<span class='parenthesis'>(</span>T t, U u<span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  f<span class='parenthesis'>(</span>t<span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>
+</pre><p>Source file <span class='texttt'><span class='literal'>"foo.h"</span></span>, not an importable header:<pre class='codeblock'>
+<span class='keyword'>struct</span> foo <span class='curlybracket'>{</span>
+  <span class='keyword'>friend</span> <span class='keyword'>int</span> cat<span class='parenthesis'>(</span>foo, foo<span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>;
+<span class='keyword'>int</span> dog<span class='parenthesis'>(</span>foo, foo<span class='parenthesis'>)</span>;
+</pre><p>Module interface unit of <span class='texttt'>C1</span>:<pre class='codeblock'>
+<span class='keyword'>module</span>;
+<span class='preprocessordirective'>#include</span> <span class='literal'>"foo.h"</span>        <span class='comment'>// <span class='tcode_in_codeblock'>dog</span> not referenced, discarded</span>
+<span class='keyword'>export</span> <span class='keyword'>module</span> C1;
+<span class='keyword'>import</span> B;
+<span class='keyword'>export</span> <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>typename</span> T<span class='anglebracket'>&gt;</span>
+<span class='keyword'>void</span> h<span class='parenthesis'>(</span>T t<span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  g<span class='parenthesis'>(</span>foo<span class='curlybracket'>{</span> <span class='curlybracket'>}</span>, t<span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>
+</pre><p>Translation unit:<pre class='codeblock'>
+<span class='keyword'>import</span> C1;
+<span class='keyword'>void</span> i<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+   h<span class='parenthesis'>(</span><span class='literal'>0</span><span class='parenthesis'>)</span>;                <span class='comment'>// error: <span class='tcode_in_codeblock'>dog</span> not found at #2</span>
+<span class='curlybracket'>}</span>
+</pre><p>Importable header <span class='texttt'><span class='literal'>"bar.h"</span></span>:<pre class='codeblock'>
+<span class='keyword'>struct</span> bar <span class='curlybracket'>{</span>
+  <span class='keyword'>friend</span> <span class='keyword'>int</span> cat<span class='parenthesis'>(</span>bar, bar<span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>;
+<span class='keyword'>int</span> dog<span class='parenthesis'>(</span>bar, bar<span class='parenthesis'>)</span>;
+</pre><p>Module interface unit of <span class='texttt'>C2</span>:<pre class='codeblock'>
+<span class='keyword'>module</span>;
+<span class='preprocessordirective'>#include</span> <span class='literal'>"bar.h"</span>        <span class='comment'>// imports header unit <span class='tcode_in_codeblock'>"bar.h"</span></span>
+<span class='keyword'>export</span> <span class='keyword'>module</span> C2;
+<span class='keyword'>import</span> B;
+<span class='keyword'>export</span> <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>typename</span> T<span class='anglebracket'>&gt;</span>
+<span class='keyword'>void</span> j<span class='parenthesis'>(</span>T t<span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  g<span class='parenthesis'>(</span>bar<span class='curlybracket'>{</span> <span class='curlybracket'>}</span>, t<span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>
+</pre><p>Translation unit:<pre class='codeblock'>
+<span class='keyword'>import</span> C2;
+<span class='keyword'>void</span> k<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+   j<span class='parenthesis'>(</span><span class='literal'>0</span><span class='parenthesis'>)</span>;                <span class='comment'>// OK, <span class='tcode_in_codeblock'>dog</span> found in instantiation context:</span>
+                        <span class='comment'>// visible at end of module interface unit of <span class='tcode_in_codeblock'>C2</span></span>
+<span class='curlybracket'>}</span>
+</pre> —&nbsp;<i>end example</i></div>&nbsp;]</div> </div></div></body></html>
