@@ -69,6 +69,10 @@ then
 git apply ../htmlgen_code.patch
 fi
 
+# For WSL, need to bump the limit of open files
+mylimit=9000
+sudo prlimit --nofile=$mylimit --pid $$; ulimit -n $mylimit
+
 rm -rf 14882
 cabal v2-update
 cabal v2-build
