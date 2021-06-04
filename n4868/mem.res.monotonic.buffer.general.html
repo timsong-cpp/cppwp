@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang='en'><head><title>[mem.res.monotonic.buffer.general]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Normal'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='alternate stylesheet' type='text/css' href='normative-only.css' title='Notes and examples hidden'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:50pt'>20</a> General utilities library <a class='abbr_ref' href='./#utilities'>[utilities]</a></h1><h2 ><a class='secnum' style='min-width:65pt'>20.12</a> Memory resources <a class='abbr_ref' href='mem.res#monotonic.buffer.general'>[mem.res]</a></h2><h3 ><a class='secnum' style='min-width:80pt'>20.12.6</a> Class <span class='texttt'>monotonic_&shy;buffer_&shy;resource</span> <a class='abbr_ref' href='mem.res.monotonic.buffer#general'>[mem.res.monotonic.buffer]</a></h3><h4 ><a class='secnum' style='min-width:95pt'>20.12.6.1</a> General <a class='abbr_ref'>[mem.res.monotonic.buffer.general]</a></h4><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/utilities.tex#L12369'>#</a></div><div class='texpara'><div id='1.sentence-1' class='sentence'>A <span class='texttt'>monotonic_&shy;buffer_&shy;resource</span> is a special-purpose memory resource
+intended for very fast memory allocations in situations
+where memory is used to build up a few objects
+and then is released all at once when the memory resource object is destroyed<a class='hidden_link' href='#1.sentence-1'>.</a></div> <div id='1.sentence-2' class='sentence'>It has the following qualities:
+<ul class='itemize'><li id='1.1'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#1.1'>(1.1)</a></div><div class='texpara'><div id='1.1.sentence-1' class='sentence'>A call to <span class='texttt'>deallocate</span> has no effect,
+thus the amount of memory consumed increases monotonically
+until the resource is destroyed<a class='hidden_link' href='#1.1.sentence-1'>.</a></div></div></li><li id='1.2'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#1.2'>(1.2)</a></div><div class='texpara'><div id='1.2.sentence-1' class='sentence'>The program can supply an initial buffer,
+which the allocator uses to satisfy memory requests<a class='hidden_link' href='#1.2.sentence-1'>.</a></div></div></li><li id='1.3'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#1.3'>(1.3)</a></div><div class='texpara'><div id='1.3.sentence-1' class='sentence'>When the initial buffer (if any) is exhausted,
+it obtains additional buffers from an <a class='hidden_link' href='#def:upstream' title='20.12.6.1&emsp;General&emsp;[mem.res.monotonic.buffer.general]'><span id='def:upstream'><i >upstream</i></span></a> memory resource
+supplied at construction<a class='hidden_link' href='#1.3.sentence-1'>.</a></div> <div id='1.3.sentence-2' class='sentence'>Each additional buffer is larger than the previous one,
+following a geometric progression<a class='hidden_link' href='#1.3.sentence-2'>.</a></div></div></li><li id='1.4'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#1.4'>(1.4)</a></div><div class='texpara'><div id='1.4.sentence-1' class='sentence'>It is intended for access from one thread of control at a time<a class='hidden_link' href='#1.4.sentence-1'>.</a></div> <div id='1.4.sentence-2' class='sentence'>Specifically, calls to <span class='texttt'>allocate</span> and <span class='texttt'>deallocate</span>
+do not synchronize with one another<a class='hidden_link' href='#1.4.sentence-2'>.</a></div></div></li><li id='1.5'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#1.5'>(1.5)</a></div><div class='texpara'><div id='1.5.sentence-1' class='sentence'>It frees the allocated memory on destruction,
+even if <span class='texttt'>deallocate</span> has not been called for some of the allocated blocks<a class='hidden_link' href='#1.5.sentence-1'>.</a></div></div></li></ul></div></div><div class='texpara'><span id='lib:monotonic_buffer_resource'><span class='codeblock'><span class='keyword'>namespace</span> std<span class='operator'>::</span>pmr <span class='curlybracket'>{</span>
+  <span class='keyword'>class</span> monotonic_buffer_resource <span class='operator'>:</span> <span class='keyword'>public</span> memory_resource <span class='curlybracket'>{</span>
+    memory_resource<span class='operator'>*</span> upstream_rsrc;     <span class='comment'>// <i >exposition only</i></span>
+    <span class='keyword'>void</span><span class='operator'>*</span> current_buffer;               <span class='comment'>// <i >exposition only</i></span>
+    size_t next_buffer_size;            <span class='comment'>// <i >exposition only</i></span>
+
+  <span class='keyword'>public</span><span class='operator'>:</span>
+    <span class='keyword'>explicit</span> monotonic_buffer_resource<span class='parenthesis'>(</span>memory_resource<span class='operator'>*</span> upstream<span class='parenthesis'>)</span>;
+    monotonic_buffer_resource<span class='parenthesis'>(</span>size_t initial_size, memory_resource<span class='operator'>*</span> upstream<span class='parenthesis'>)</span>;
+    monotonic_buffer_resource<span class='parenthesis'>(</span><span class='keyword'>void</span><span class='operator'>*</span> buffer, size_t buffer_size, memory_resource<span class='operator'>*</span> upstream<span class='parenthesis'>)</span>;
+
+    monotonic_buffer_resource<span class='parenthesis'>(</span><span class='parenthesis'>)</span>
+      <span class='operator'>:</span> monotonic_buffer_resource<span class='parenthesis'>(</span>get_default_resource<span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span>
+    <span class='keyword'>explicit</span> monotonic_buffer_resource<span class='parenthesis'>(</span>size_t initial_size<span class='parenthesis'>)</span>
+      <span class='operator'>:</span> monotonic_buffer_resource<span class='parenthesis'>(</span>initial_size, get_default_resource<span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span>
+    monotonic_buffer_resource<span class='parenthesis'>(</span><span class='keyword'>void</span><span class='operator'>*</span> buffer, size_t buffer_size<span class='parenthesis'>)</span>
+      <span class='operator'>:</span> monotonic_buffer_resource<span class='parenthesis'>(</span>buffer, buffer_size, get_default_resource<span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span>
+
+    monotonic_buffer_resource<span class='parenthesis'>(</span><span class='keyword'>const</span> monotonic_buffer_resource<span class='operator'>&amp;</span><span class='parenthesis'>)</span> <span class='operator'>=</span> <span class='keyword'>delete</span>;
+
+    <span class='keyword'>virtual</span> <span class='operator'>~</span>monotonic_buffer_resource<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+
+    monotonic_buffer_resource<span class='operator'>&amp;</span> <span class='keyword'>operator</span><span class='operator'>=</span><span class='parenthesis'>(</span><span class='keyword'>const</span> monotonic_buffer_resource<span class='operator'>&amp;</span><span class='parenthesis'>)</span> <span class='operator'>=</span> <span class='keyword'>delete</span>;
+
+    <span class='keyword'>void</span> release<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+    memory_resource<span class='operator'>*</span> upstream_resource<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='keyword'>const</span>;
+
+  <span class='keyword'>protected</span><span class='operator'>:</span>
+    <span class='keyword'>void</span><span class='operator'>*</span> do_allocate<span class='parenthesis'>(</span>size_t bytes, size_t alignment<span class='parenthesis'>)</span> <span class='keyword'>override</span>;
+    <span class='keyword'>void</span> do_deallocate<span class='parenthesis'>(</span><span class='keyword'>void</span><span class='operator'>*</span> p, size_t bytes, size_t alignment<span class='parenthesis'>)</span> <span class='keyword'>override</span>;
+
+    <span class='keyword'>bool</span> do_is_equal<span class='parenthesis'>(</span><span class='keyword'>const</span> memory_resource<span class='operator'>&amp;</span> other<span class='parenthesis'>)</span> <span class='keyword'>const</span> <span class='keyword'>noexcept</span> <span class='keyword'>override</span>;
+  <span class='curlybracket'>}</span>;
+<span class='curlybracket'>}</span>
+</span></span></div></div></div></body></html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang='en'><head><title>[class.protected]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Normal'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='alternate stylesheet' type='text/css' href='normative-only.css' title='Notes and examples hidden'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:50pt'>11</a> Classes <a class='abbr_ref' href='./#class'>[class]</a></h1><h2 ><a class='secnum' style='min-width:65pt'>11.9</a> Member access control <a class='abbr_ref' href='class.access#class.protected'>[class.access]</a></h2><h3 ><a class='secnum' style='min-width:80pt'>11.9.5</a> Protected member access <a class='abbr_ref'>[class.protected]</a></h3><div class='texpara'><a class='index' id=':access_control,protected'></a></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/classes.tex#L5348'>#</a></div><div class='texpara'><div id='1.sentence-1' class='sentence'>An additional access check beyond those described earlier in <a href='class.access' title='11.9&emsp;Member access control'>[class.<span class='shy'></span>access]</a>
+is applied when a non-static data member or non-static member function is a
+protected member of its naming class (<a href='class.access.base' title='11.9.3&emsp;Accessibility of base classes and base class members'>[class.<span class='shy'></span>access.<span class='shy'></span>base]</a>)<a class='hidden_link' href='#1.sentence-1'>.</a><a class='footnotenum' href='#footnote-117' id='footnoteref-117' title='This additional check does not apply to other members, e.g., static data members or enumerator member constants.'>117</a></div> <div id='1.sentence-2' class='sentence'>
+As described earlier, access to a protected member is granted because the
+reference occurs in a friend or member of some class <span class='texttt'>C</span><a class='hidden_link' href='#1.sentence-2'>.</a></div> <div id='1.sentence-3' class='sentence'>If the access is
+to form a pointer to member (<a href='expr.unary.op' title='7.6.2.2&emsp;Unary operators'>[expr.<span class='shy'></span>unary.<span class='shy'></span>op]</a>), the
+<a href='expr.prim.id.qual#nt:nested-name-specifier' title='7.5.4.3&emsp;Qualified names&emsp;[expr.prim.id.qual]'><span id='ntref:nested-name-specifier'><span class='textsf'><i >nested-name-specifier</i></span></span></a> shall denote <span class='texttt'>C</span> or a class derived from
+<span class='texttt'>C</span><a class='hidden_link' href='#1.sentence-3'>.</a></div> <div id='1.sentence-4' class='sentence'>All other accesses involve a (possibly implicit) object
+expression (<a href='expr.ref' title='7.6.1.5&emsp;Class member access'>[expr.<span class='shy'></span>ref]</a>)<a class='hidden_link' href='#1.sentence-4'>.</a></div> <div id='1.sentence-5' class='sentence'>In this case, the class of the object expression shall be
+<span class='texttt'>C</span> or a class derived from <span class='texttt'>C</span><a class='hidden_link' href='#1.sentence-5'>.</a></div> <div id='example-1' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#example-1'>1</a></i>: <span class='codeblock'><span class='keyword'>class</span> B <span class='curlybracket'>{</span>
+<span class='keyword'>protected</span><span class='operator'>:</span>
+  <span class='keyword'>int</span> i;
+  <span class='keyword'>static</span> <span class='keyword'>int</span> j;
+<span class='curlybracket'>}</span>;
+
+<span class='keyword'>class</span> D1 <span class='operator'>:</span> <span class='keyword'>public</span> B <span class='curlybracket'>{</span>
+<span class='curlybracket'>}</span>;
+
+<span class='keyword'>class</span> D2 <span class='operator'>:</span> <span class='keyword'>public</span> B <span class='curlybracket'>{</span>
+  <span class='keyword'>friend</span> <span class='keyword'>void</span> fr<span class='parenthesis'>(</span>B<span class='operator'>*</span>,D1<span class='operator'>*</span>,D2<span class='operator'>*</span><span class='parenthesis'>)</span>;
+  <span class='keyword'>void</span> mem<span class='parenthesis'>(</span>B<span class='operator'>*</span>,D1<span class='operator'>*</span><span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>;
+
+<span class='keyword'>void</span> fr<span class='parenthesis'>(</span>B<span class='operator'>*</span> pb, D1<span class='operator'>*</span> p1, D2<span class='operator'>*</span> p2<span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  pb<span class='operator'>-</span><span class='anglebracket'>&gt;</span>i <span class='operator'>=</span> <span class='literal'>1</span>;                    <span class='comment'>// error</span>
+  p1<span class='operator'>-</span><span class='anglebracket'>&gt;</span>i <span class='operator'>=</span> <span class='literal'>2</span>;                    <span class='comment'>// error</span>
+  p2<span class='operator'>-</span><span class='anglebracket'>&gt;</span>i <span class='operator'>=</span> <span class='literal'>3</span>;                    <span class='comment'>// OK (access through a <span class='tcode_in_codeblock'>D2</span>)</span>
+  p2<span class='operator'>-</span><span class='anglebracket'>&gt;</span>B<span class='operator'>::</span>i <span class='operator'>=</span> <span class='literal'>4</span>;                 <span class='comment'>// OK (access through a <span class='tcode_in_codeblock'>D2</span>, even though naming class is <span class='tcode_in_codeblock'>B</span>)</span>
+  <span class='keyword'>int</span> B<span class='operator'>::</span><span class='operator'>*</span> pmi_B <span class='operator'>=</span> <span class='operator'>&amp;</span>B<span class='operator'>::</span>i;       <span class='comment'>// error</span>
+  <span class='keyword'>int</span> B<span class='operator'>::</span><span class='operator'>*</span> pmi_B2 <span class='operator'>=</span> <span class='operator'>&amp;</span>D2<span class='operator'>::</span>i;     <span class='comment'>// OK (type of <span class='tcode_in_codeblock'>&amp;D2&#x200b;::&#x200b;i</span> is <span class='tcode_in_codeblock'>int B&#x200b;::&#x200b;*</span>)</span>
+  B<span class='operator'>::</span>j <span class='operator'>=</span> <span class='literal'>5</span>;                     <span class='comment'>// error: not a friend of naming class <span class='tcode_in_codeblock'>B</span></span>
+  D2<span class='operator'>::</span>j <span class='operator'>=</span> <span class='literal'>6</span>;                    <span class='comment'>// OK (because refers to static member)</span>
+<span class='curlybracket'>}</span>
+
+<span class='keyword'>void</span> D2<span class='operator'>::</span>mem<span class='parenthesis'>(</span>B<span class='operator'>*</span> pb, D1<span class='operator'>*</span> p1<span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  pb<span class='operator'>-</span><span class='anglebracket'>&gt;</span>i <span class='operator'>=</span> <span class='literal'>1</span>;                    <span class='comment'>// error</span>
+  p1<span class='operator'>-</span><span class='anglebracket'>&gt;</span>i <span class='operator'>=</span> <span class='literal'>2</span>;                    <span class='comment'>// error</span>
+  i <span class='operator'>=</span> <span class='literal'>3</span>;                        <span class='comment'>// OK (access through <span class='tcode_in_codeblock'>this</span>)</span>
+  B<span class='operator'>::</span>i <span class='operator'>=</span> <span class='literal'>4</span>;                     <span class='comment'>// OK (access through <span class='tcode_in_codeblock'>this</span>, qualification ignored)</span>
+  <span class='keyword'>int</span> B<span class='operator'>::</span><span class='operator'>*</span> pmi_B <span class='operator'>=</span> <span class='operator'>&amp;</span>B<span class='operator'>::</span>i;       <span class='comment'>// error</span>
+  <span class='keyword'>int</span> B<span class='operator'>::</span><span class='operator'>*</span> pmi_B2 <span class='operator'>=</span> <span class='operator'>&amp;</span>D2<span class='operator'>::</span>i;     <span class='comment'>// OK</span>
+  j <span class='operator'>=</span> <span class='literal'>5</span>;                        <span class='comment'>// OK (because <span class='tcode_in_codeblock'>j</span> refers to static member)</span>
+  B<span class='operator'>::</span>j <span class='operator'>=</span> <span class='literal'>6</span>;                     <span class='comment'>// OK (because <span class='tcode_in_codeblock'>B&#x200b;::&#x200b;j</span> refers to static member)</span>
+<span class='curlybracket'>}</span>
+
+<span class='keyword'>void</span> g<span class='parenthesis'>(</span>B<span class='operator'>*</span> pb, D1<span class='operator'>*</span> p1, D2<span class='operator'>*</span> p2<span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  pb<span class='operator'>-</span><span class='anglebracket'>&gt;</span>i <span class='operator'>=</span> <span class='literal'>1</span>;                    <span class='comment'>// error</span>
+  p1<span class='operator'>-</span><span class='anglebracket'>&gt;</span>i <span class='operator'>=</span> <span class='literal'>2</span>;                    <span class='comment'>// error</span>
+  p2<span class='operator'>-</span><span class='anglebracket'>&gt;</span>i <span class='operator'>=</span> <span class='literal'>3</span>;                    <span class='comment'>// error</span>
+<span class='curlybracket'>}</span>
+</span> —&nbsp;<i>end example</i>]</div></div></div></div><div class='footnote' id='footnote-117'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-117'>117)</a></div><div class='texpara'><div id='footnote-117.sentence-1' class='sentence'>This
+additional check does not apply to other members,
+e.g., static data members or enumerator member constants<a class='hidden_link' href='#footnote-117.sentence-1'>.</a></div>&nbsp;<a href='#footnoteref-117'>⮥</a></div></div></div></body></html>

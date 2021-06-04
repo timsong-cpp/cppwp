@@ -1,0 +1,814 @@
+<!DOCTYPE html><html lang='en'><head><title>[over.match.best]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Normal'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='alternate stylesheet' type='text/css' href='normative-only.css' title='Notes and examples hidden'/><link rel='icon' href='icon.png'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:50pt'>12</a> Overloading <a class='abbr_ref' href='./#over'>[over]</a></h1><h2 ><a class='secnum' style='min-width:65pt'>12.4</a> Overload resolution <a class='abbr_ref' href='over.match#best'>[over.match]</a></h2><h3 ><a class='secnum' style='min-width:80pt'>12.4.4</a> Best viable function <a class='abbr_ref'>[over.match.best]</a></h3><div id='general' class='section'><h4 ><a class='secnum' href='#general' style='min-width:95pt'>12.4.4.1</a> General <a class='abbr_ref' href='over.match.best.general'>[over.match.best.general]</a></h4><div class='texpara'><a class='index' id=':overloading,resolution,best_viable_function'></a></div><div class='para' id='general-1'><div class='marginalizedparent'><a class='marginalized' href='#general-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L1940'>#</a></div><div class='texpara'><div id='general-1.sentence-1' class='sentence'><a class='index' id=':conversion,overload_resolution_and'></a>Define ICS<i >i</i>(<span class='texttt'>F</span>) as follows:
+<ul class='itemize'><li id='general-1.1'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#general-1.1'>(1.1)</a></div>If
+<span class='texttt'>F</span>
+is a static member function, ICS<i >1</i>(<span class='texttt'>F</span>) is defined such that
+ICS<i >1</i>(<span class='texttt'>F</span>) is neither better nor worse than ICS<i >1</i>(<span class='texttt'>G</span>)
+for any function
+<span class='texttt'>G</span>,
+and, symmetrically, ICS<i >1</i>(<span class='texttt'>G</span>) is neither better nor worse than
+ICS<i >1</i>(<span class='texttt'>F</span>);<a class='footnotenum' href='#footnote-127' id='footnoteref-127' title='If a function is a static member function, this definition means that the first argument, the implied object argument, has no effect in the determination of whether the function is better or worse than any other function.'>127</a>
+otherwise,</li><li id='general-1.2'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#general-1.2'>(1.2)</a></div>let ICS<i >i</i>(<span class='texttt'>F</span>) denote the implicit conversion sequence that converts
+the <i >i</i>-th argument in the list to the type of the
+<i >i</i>-th
+parameter
+of viable function
+<span class='texttt'>F</span><a class='hidden_link' href='#general-1.sentence-1'>.</a> <div class='texpara'><div id='general-1.2.sentence-2' class='sentence'><a href='#over.best.ics' title='12.4.4.2&emsp;Implicit conversion sequences'>[over.<span class='shy'></span>best.<span class='shy'></span>ics]</a> defines the implicit conversion sequences and <a href='#over.ics.rank' title='12.4.4.3&emsp;Ranking implicit conversion sequences'>[over.<span class='shy'></span>ics.<span class='shy'></span>rank]</a>
+defines what it means for one implicit conversion sequence to be
+a better conversion sequence or worse conversion sequence than
+another<a class='hidden_link' href='#general-1.2.sentence-2'>.</a></div></div></li></ul></div></div></div><div class='para' id='general-2'><div class='marginalizedparent'><a class='marginalized' href='#general-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L1973'>#</a></div><div class='texpara'><div id='general-2.sentence-1' class='sentence'>Given these definitions, a viable function
+<span class='texttt'>F1</span>
+is defined
+to be a
+<a class='hidden_link' href='#def:overloading,resolution,better_viable_function' title='12.4.4.1&emsp;General&emsp;[over.match.best.general]'><span id='def:overloading,resolution,better_viable_function'><i >better</i></span></a>
+function than another viable function
+<span class='texttt'>F2</span>
+if
+for all arguments
+<i >i</i>,
+ICS<i >i</i>(<span class='texttt'>F1</span>) is not a worse conversion
+sequence than ICS<i >i</i>(<span class='texttt'>F2</span>), and then
+<ul class='itemize'><li id='general-2.1'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#general-2.1'>(2.1)</a></div>for some argument
+<i >j</i>,
+ICS<i >j</i>(<span class='texttt'>F1</span>) is a better conversion
+sequence than ICS<i >j</i>(<span class='texttt'>F2</span>), or, if not that,</li><li id='general-2.2'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#general-2.2'>(2.2)</a></div>the context is an initialization by user-defined conversion
+(see <a href='dcl.init' title='9.4&emsp;Initializers'>[dcl.<span class='shy'></span>init]</a>,
+<a href='over.match.conv' title='12.4.2.6&emsp;Initialization by conversion function'>[over.<span class='shy'></span>match.<span class='shy'></span>conv]</a>, and <a href='over.match.ref' title='12.4.2.7&emsp;Initialization by conversion function for direct reference binding'>[over.<span class='shy'></span>match.<span class='shy'></span>ref]</a>)
+and the standard conversion sequence from the return type of
+<span class='texttt'>F1</span>
+to the destination type (i.e., the type of the entity being initialized)
+is a better conversion sequence than the standard conversion sequence
+from the return type of
+<span class='texttt'>F2</span>
+to the destination type
+<div id='general-example-1' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#general-example-1'>1</a></i>: <span class='codeblock'><span class='keyword'>struct</span> A <span class='curlybracket'>{</span>
+  A<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+  <span class='keyword'>operator</span> <span class='keyword'>int</span><span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+  <span class='keyword'>operator</span> <span class='keyword'>double</span><span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span> a;
+<span class='keyword'>int</span> i <span class='operator'>=</span> a;          <span class='comment'>// <span class='tcode_in_codeblock'>a.<span id=':operator'><span class='tcode_in_codeblock'>operator</span></span> int()</span> followed by no conversion is better than</span>
+                    <span class='comment'>// <span class='tcode_in_codeblock'>a.<span id=':operator_'><span class='tcode_in_codeblock'>operator</span></span> double()</span> followed by a conversion to <span class='tcode_in_codeblock'>int</span></span>
+<span class='keyword'>float</span> x <span class='operator'>=</span> a;        <span class='comment'>// ambiguous: both possibilities require conversions,</span>
+                    <span class='comment'>// and neither is better than the other</span>
+</span> —&nbsp;<i>end example</i>]</div></div>
+or, if not that,</li><li id='general-2.3'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#general-2.3'>(2.3)</a></div>the context is an initialization by conversion function for <a href='over.match.ref' title='12.4.2.7&emsp;Initialization by conversion function for direct reference binding&emsp;[over.match.ref]'>direct
+reference binding</a> of a reference to function type, the
+return type of <span class='texttt'>F1</span> is the same kind of reference (lvalue or rvalue)
+as the reference being initialized, and the return type of <span class='texttt'>F2</span> is not
+<div id='general-example-2' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#general-example-2'>2</a></i>: <span class='codeblock'><span class='keyword'>template</span> <span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span> <span class='keyword'>struct</span> A <span class='curlybracket'>{</span>
+  <span class='keyword'>operator</span> T<span class='operator'>&amp;</span><span class='parenthesis'>(</span><span class='parenthesis'>)</span>;    <span class='comment'>// #1</span>
+  <span class='keyword'>operator</span> T<span class='operator'>&amp;</span><span class='operator'>&amp;</span><span class='parenthesis'>(</span><span class='parenthesis'>)</span>;   <span class='comment'>// #2</span>
+<span class='curlybracket'>}</span>;
+<span class='keyword'>typedef</span> <span class='keyword'>int</span> Fn<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+A<span class='anglebracket'>&lt;</span>Fn<span class='anglebracket'>&gt;</span> a;
+Fn<span class='operator'>&amp;</span> lf <span class='operator'>=</span> a;         <span class='comment'>// calls #1</span>
+Fn<span class='operator'>&amp;</span><span class='operator'>&amp;</span> rf <span class='operator'>=</span> a;        <span class='comment'>// calls #2</span>
+</span> —&nbsp;<i>end example</i>]</div></div>
+or, if not that,</li><li id='general-2.4'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#general-2.4'>(2.4)</a></div><span class='texttt'>F1</span>
+is not a function template specialization and
+<span class='texttt'>F2</span>
+is a
+function template
+specialization, or, if not that,</li><li id='general-2.5'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#general-2.5'>(2.5)</a></div><span class='texttt'>F1</span>
+and
+<span class='texttt'>F2</span>
+are
+function template specializations,
+and the function template
+for
+<span class='texttt'>F1</span>
+is more specialized than the template for
+<span class='texttt'>F2</span>
+according to the partial ordering rules described in <a href='temp.func.order' title='13.7.7.3&emsp;Partial ordering of function templates'>[temp.<span class='shy'></span>func.<span class='shy'></span>order]</a>,
+or, if not that,</li><li id='general-2.6'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#general-2.6'>(2.6)</a></div><span class='texttt'>F1</span> and <span class='texttt'>F2</span> are non-template functions with the same
+parameter-type-lists, and  <span class='texttt'>F1</span> is more constrained than <span class='texttt'>F2</span>
+according to the partial ordering of constraints described in
+<a href='temp.constr.order' title='13.5.5&emsp;Partial ordering by constraints'>[temp.<span class='shy'></span>constr.<span class='shy'></span>order]</a>, or if not that,</li><li id='general-2.7'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#general-2.7'>(2.7)</a></div><span class='texttt'>F1</span> is a constructor for a class <span class='texttt'>D</span>,
+<span class='texttt'>F2</span> is a constructor for a base class <span class='texttt'>B</span> of <span class='texttt'>D</span>, and
+for all arguments
+the corresponding parameters of <span class='texttt'>F1</span> and <span class='texttt'>F2</span> have the same type
+<div id='general-example-3' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#general-example-3'>3</a></i>: <span class='codeblock'><span class='keyword'>struct</span> A <span class='curlybracket'>{</span>
+  A<span class='parenthesis'>(</span><span class='keyword'>int</span> <span class='operator'>=</span> <span class='literal'>0</span><span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>;
+
+<span class='keyword'>struct</span> B<span class='operator'>:</span> A <span class='curlybracket'>{</span>
+  <span class='keyword'>using</span> A<span class='operator'>::</span>A;
+  B<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>;
+
+<span class='keyword'>int</span> main<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  B b;              <span class='comment'>// OK, <span class='tcode_in_codeblock'>B&#x200b;::&#x200b;B()</span></span>
+<span class='curlybracket'>}</span>
+</span> —&nbsp;<i>end example</i>]</div></div>
+or, if not that,</li><li id='general-2.8'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#general-2.8'>(2.8)</a></div><span class='texttt'>F2</span> is a rewritten candidate (<a href='over.match.oper' title='12.4.2.3&emsp;Operators in expressions'>[over.<span class='shy'></span>match.<span class='shy'></span>oper]</a>) and
+<span class='texttt'>F1</span> is not
+<div id='general-example-4' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#general-example-4'>4</a></i>: <span class='codeblock'><span class='keyword'>struct</span> S <span class='curlybracket'>{</span>
+  <span class='keyword'>friend</span> <span class='keyword'>auto</span> <span class='keyword'>operator</span><span class='anglebracket'>&lt;</span><span class='operator'>=</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>(</span><span class='keyword'>const</span> S<span class='operator'>&amp;</span>, <span class='keyword'>const</span> S<span class='operator'>&amp;</span><span class='parenthesis'>)</span> <span class='operator'>=</span> <span class='keyword'>default</span>;        <span class='comment'>// #1</span>
+  <span class='keyword'>friend</span> <span class='keyword'>bool</span> <span class='keyword'>operator</span><span class='anglebracket'>&lt;</span><span class='parenthesis'>(</span><span class='keyword'>const</span> S<span class='operator'>&amp;</span>, <span class='keyword'>const</span> S<span class='operator'>&amp;</span><span class='parenthesis'>)</span>;                    <span class='comment'>// #2</span>
+<span class='curlybracket'>}</span>;
+<span class='keyword'>bool</span> b <span class='operator'>=</span> S<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='anglebracket'>&lt;</span> S<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;                                             <span class='comment'>// calls #2</span>
+</span> —&nbsp;<i>end example</i>]</div></div>
+or, if not that,</li><li id='general-2.9'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#general-2.9'>(2.9)</a></div><span class='texttt'>F1</span> and <span class='texttt'>F2</span> are rewritten candidates, and
+<span class='texttt'>F2</span> is a synthesized candidate
+with reversed order of parameters
+and <span class='texttt'>F1</span> is not
+<div id='general-example-5' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#general-example-5'>5</a></i>: <span class='codeblock'><span class='keyword'>struct</span> S <span class='curlybracket'>{</span>
+  <span class='keyword'>friend</span> std<span class='operator'>::</span>weak_ordering <span class='keyword'>operator</span><span class='anglebracket'>&lt;</span><span class='operator'>=</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>(</span><span class='keyword'>const</span> S<span class='operator'>&amp;</span>, <span class='keyword'>int</span><span class='parenthesis'>)</span>;         <span class='comment'>// #1</span>
+  <span class='keyword'>friend</span> std<span class='operator'>::</span>weak_ordering <span class='keyword'>operator</span><span class='anglebracket'>&lt;</span><span class='operator'>=</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>(</span><span class='keyword'>int</span>, <span class='keyword'>const</span> S<span class='operator'>&amp;</span><span class='parenthesis'>)</span>;         <span class='comment'>// #2</span>
+<span class='curlybracket'>}</span>;
+<span class='keyword'>bool</span> b <span class='operator'>=</span> <span class='literal'>1</span> <span class='anglebracket'>&lt;</span> S<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;                                               <span class='comment'>// calls #2</span>
+</span> —&nbsp;<i>end example</i>]</div></div>
+or, if not that</li><li id='general-2.10'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#general-2.10'>(2.10)</a></div><span class='texttt'>F1</span> is generated from a
+<a href='temp.deduct.guide#nt:deduction-guide' title='13.7.2.3&emsp;Deduction guides&emsp;[temp.deduct.guide]'><span id='ntref:deduction-guide'><span class='textsf'><i >deduction-guide</i></span></span></a> (<a href='over.match.class.deduct' title='12.4.2.9&emsp;Class template argument deduction'>[over.<span class='shy'></span>match.<span class='shy'></span>class.<span class='shy'></span>deduct]</a>)
+and <span class='texttt'>F2</span> is not, or, if not that,</li><li id='general-2.11'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#general-2.11'>(2.11)</a></div><span class='texttt'>F1</span> is the <a href='over.match.class.deduct#def:copy_deduction_candidate' title='12.4.2.9&emsp;Class template argument deduction&emsp;[over.match.class.deduct]'>copy deduction candidate</a>
+and <span class='texttt'>F2</span> is not, or, if not that,</li><li id='general-2.12'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#general-2.12'>(2.12)</a></div><span class='texttt'>F1</span> is generated from a non-template constructor
+and <span class='texttt'>F2</span> is generated from a constructor template<a class='hidden_link' href='#general-2.sentence-1'>.</a> <div class='texpara'><div id='general-example-6' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#general-example-6'>6</a></i>: <span class='codeblock'><span class='keyword'>template</span> <span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span> <span class='keyword'>struct</span> A <span class='curlybracket'>{</span>
+  <span class='keyword'>using</span> value_type <span class='operator'>=</span> T;
+  A<span class='parenthesis'>(</span>value_type<span class='parenthesis'>)</span>;    <span class='comment'>// #1</span>
+  A<span class='parenthesis'>(</span><span class='keyword'>const</span> A<span class='operator'>&amp;</span><span class='parenthesis'>)</span>;      <span class='comment'>// #2</span>
+  A<span class='parenthesis'>(</span>T, T, <span class='keyword'>int</span><span class='parenthesis'>)</span>;     <span class='comment'>// #3</span>
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> U<span class='anglebracket'>&gt;</span>
+    A<span class='parenthesis'>(</span><span class='keyword'>int</span>, T, U<span class='parenthesis'>)</span>;   <span class='comment'>// #4</span>
+  <span class='comment'>// #5 is the copy deduction candidate, <span class='tcode_in_codeblock'>A(A)</span></span>
+<span class='curlybracket'>}</span>;
+
+A x<span class='parenthesis'>(</span><span class='literal'>1</span>, <span class='literal'>2</span>, <span class='literal'>3</span><span class='parenthesis'>)</span>;       <span class='comment'>// uses #3, generated from a non-template constructor</span>
+
+<span class='keyword'>template</span> <span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
+A<span class='parenthesis'>(</span>T<span class='parenthesis'>)</span> <span class='operator'>-</span><span class='anglebracket'>&gt;</span> A<span class='anglebracket'>&lt;</span>T<span class='anglebracket'>&gt;</span>;       <span class='comment'>// #6, less specialized than #5</span>
+
+A a<span class='parenthesis'>(</span><span class='literal'>42</span><span class='parenthesis'>)</span>;            <span class='comment'>// uses #6 to deduce <span class='tcode_in_codeblock'>A&lt;int&gt;</span> and #1 to initialize</span>
+A b <span class='operator'>=</span> a;            <span class='comment'>// uses #5 to deduce <span class='tcode_in_codeblock'>A&lt;int&gt;</span> and #2 to initialize</span>
+
+<span class='keyword'>template</span> <span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
+A<span class='parenthesis'>(</span>A<span class='anglebracket'>&lt;</span>T<span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span> <span class='operator'>-</span><span class='anglebracket'>&gt;</span> A<span class='anglebracket'>&lt;</span>A<span class='anglebracket'>&lt;</span>T<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>; <span class='comment'>// #7, as specialized as #5</span>
+
+A b2 <span class='operator'>=</span> a;           <span class='comment'>// uses #7 to deduce <span class='tcode_in_codeblock'>A&lt;A&lt;int&gt;&gt;</span> and #1 to initialize</span>
+</span> —&nbsp;<i>end example</i>]</div></div></div></li></ul></div></div></div><div class='para' id='general-3'><div class='marginalizedparent'><a class='marginalized' href='#general-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2158'>#</a></div><div class='texpara'><div id='general-3.sentence-1' class='sentence'>If there is exactly one viable function that is a better function
+than all other viable functions, then it is the one selected by
+overload resolution; otherwise the call is ill-formed<a class='hidden_link' href='#general-3.sentence-1'>.</a><a class='footnotenum' href='#footnote-128' id='footnoteref-128' title='The algorithm for selecting the best viable function is linear in the number of viable functions. Run a simple tournament to find a function W that is not worse than any opponent it faced. Although another function F that W did not face might be at least as good as W, F cannot be the best function because at some point in the tournament F encountered another function G such that F was not better than G. Hence, either W is the best function or there is no best function. So, make a second pass over the viable functions to verify that W is better than all other functions.'>128</a></div> <div id='general-example-7' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#general-example-7'>7</a></i>: <span class='codeblock'><span class='keyword'>void</span> Fcn<span class='parenthesis'>(</span><span class='keyword'>const</span> <span class='keyword'>int</span><span class='operator'>*</span>,  <span class='keyword'>short</span><span class='parenthesis'>)</span>;
+<span class='keyword'>void</span> Fcn<span class='parenthesis'>(</span><span class='keyword'>int</span><span class='operator'>*</span>, <span class='keyword'>int</span><span class='parenthesis'>)</span>;
+
+<span class='keyword'>int</span> i;
+<span class='keyword'>short</span> s <span class='operator'>=</span> <span class='literal'>0</span>;
+
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  Fcn<span class='parenthesis'>(</span><span class='operator'>&amp;</span>i, s<span class='parenthesis'>)</span>;       <span class='comment'>// is ambiguous because <span class='tcode_in_codeblock'>&amp;i</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>int*</span> is better than <span class='tcode_in_codeblock'>&amp;i</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>const int*</span></span>
+                    <span class='comment'>// but <span class='tcode_in_codeblock'>s</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>short</span> is also better than <span class='tcode_in_codeblock'>s</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>int</span></span>
+
+  Fcn<span class='parenthesis'>(</span><span class='operator'>&amp;</span>i, <span class='literal'>1L</span><span class='parenthesis'>)</span>;      <span class='comment'>// calls <span class='tcode_in_codeblock'>Fcn(int*, int)</span>, because <span class='tcode_in_codeblock'>&amp;i</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>int*</span> is better than <span class='tcode_in_codeblock'>&amp;i</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>const int*</span></span>
+                    <span class='comment'>// and <span class='tcode_in_codeblock'>1L</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>short</span> and <span class='tcode_in_codeblock'>1L</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>int</span> are indistinguishable</span>
+
+  Fcn<span class='parenthesis'>(</span><span class='operator'>&amp;</span>i, <span class='literal'>'c'</span><span class='parenthesis'>)</span>;     <span class='comment'>// calls <span class='tcode_in_codeblock'>Fcn(int*, int)</span>, because <span class='tcode_in_codeblock'>&amp;i</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>int*</span> is better than <span class='tcode_in_codeblock'>&amp;i</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>const int*</span></span>
+                    <span class='comment'>// and <span class='tcode_in_codeblock'>c</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>int</span> is better than <span class='tcode_in_codeblock'>c</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>short</span></span>
+<span class='curlybracket'>}</span>
+</span> —&nbsp;<i>end example</i>]</div></div></div></div><div class='para' id='general-4'><div class='marginalizedparent'><a class='marginalized' href='#general-4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2219'>#</a></div><div class='texpara'><div id='general-4.sentence-1' class='sentence'>If the best viable function resolves to a function for
+which multiple declarations were found, and if at least
+two of these declarations — or the declarations they
+refer to in the case of
+<a href='namespace.udecl#nt:using-declaration' title='9.9&emsp;The using declaration&emsp;[namespace.udecl]'><span id='ntref:using-declaration'><span class='textsf'><i >using-declaration</i></span></span></a><i >s</i>
+— specify a default argument that made the function
+viable, the program is ill-formed<a class='hidden_link' href='#general-4.sentence-1'>.</a></div> <div id='general-example-8' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#general-example-8'>8</a></i>: <span class='codeblock'><span class='keyword'>namespace</span> A <span class='curlybracket'>{</span>
+  <span class='keyword'>extern</span> <span class='literal'>"C"</span> <span class='keyword'>void</span> f<span class='parenthesis'>(</span><span class='keyword'>int</span> <span class='operator'>=</span> <span class='literal'>5</span><span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>
+<span class='keyword'>namespace</span> B <span class='curlybracket'>{</span>
+  <span class='keyword'>extern</span> <span class='literal'>"C"</span> <span class='keyword'>void</span> f<span class='parenthesis'>(</span><span class='keyword'>int</span> <span class='operator'>=</span> <span class='literal'>5</span><span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>
+
+<span class='keyword'>using</span> A<span class='operator'>::</span>f;
+<span class='keyword'>using</span> B<span class='operator'>::</span>f;
+
+<span class='keyword'>void</span> use<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  f<span class='parenthesis'>(</span><span class='literal'>3</span><span class='parenthesis'>)</span>;             <span class='comment'>// OK, default argument was not used for viability</span>
+  f<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;              <span class='comment'>// error: found default argument twice</span>
+<span class='curlybracket'>}</span>
+</span> —&nbsp;<i>end example</i>]</div></div></div></div><div class='footnote' id='footnote-127'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-127'>127)</a></div><div class='texpara'><div id='footnote-127.sentence-1' class='sentence'>If a function is a static member function, this
+definition means that the first argument, the implied object argument,
+has no effect in the determination of whether the function is better
+or worse than any other function<a class='hidden_link' href='#footnote-127.sentence-1'>.</a></div>&nbsp;<a href='#footnoteref-127'>⮥</a></div></div><div class='footnote' id='footnote-128'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-128'>128)</a></div><div class='texpara'><div id='footnote-128.sentence-1' class='sentence'>The algorithm
+for selecting the best viable function is linear in the number
+of viable
+functions<a class='hidden_link' href='#footnote-128.sentence-1'>.</a></div> <div id='footnote-128.sentence-2' class='sentence'>Run a simple tournament to find a function
+<span class='texttt'>W</span>
+that is not
+worse than any
+opponent it faced<a class='hidden_link' href='#footnote-128.sentence-2'>.</a></div> <div id='footnote-128.sentence-3' class='sentence'>Although another function
+<span class='texttt'>F</span>
+that
+<span class='texttt'>W</span>
+did not face
+might be at least as good as
+<span class='texttt'>W</span>,
+<span class='texttt'>F</span>
+cannot be the best function because at some point in the
+tournament
+<span class='texttt'>F</span>
+encountered another function
+<span class='texttt'>G</span>
+such that
+<span class='texttt'>F</span>
+was not better than
+<span class='texttt'>G</span><a class='hidden_link' href='#footnote-128.sentence-3'>.</a></div> <div id='footnote-128.sentence-4' class='sentence'>Hence,
+either <span class='texttt'>W</span> is
+the best function or there is no best function<a class='hidden_link' href='#footnote-128.sentence-4'>.</a></div> <div id='footnote-128.sentence-5' class='sentence'>So, make a second pass over
+the viable
+functions to verify that
+<span class='texttt'>W</span>
+is better than all other functions<a class='hidden_link' href='#footnote-128.sentence-5'>.</a></div>&nbsp;<a href='#footnoteref-128'>⮥</a></div></div></div><div id='over.best.ics' class='section'><h4 ><a class='secnum' href='#over.best.ics' style='min-width:95pt'>12.4.4.2</a> Implicit conversion sequences <a class='abbr_ref' href='over.best.ics'>[over.best.ics]</a></h4><div id='over.best.ics.general' class='section'><h4 ><a class='secnum' href='#over.best.ics.general' style='min-width:110pt'>12.4.4.2.1</a> General <a class='abbr_ref' href='over.best.ics.general'>[over.best.ics.general]</a></h4><div class='texpara'><a class='index' id=':overloading,resolution,implicit_conversions_and'></a>
+</div><div class='para' id='over.best.ics.general-1'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics.general-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2252'>#</a></div><div class='texpara'><div id='over.best.ics.general-1.sentence-1' class='sentence'>An <a class='hidden_link' href='#def:conversion_sequence,implicit' title='12.4.4.2.1&emsp;General&emsp;[over.best.ics.general]'><span id='def:conversion_sequence,implicit'><i >implicit conversion sequence</i></span></a>
+is a sequence of conversions used
+to convert an argument in a function call to the type of the
+corresponding parameter of the function being called<a class='hidden_link' href='#over.best.ics.general-1.sentence-1'>.</a></div> <div id='over.best.ics.general-1.sentence-2' class='sentence'>The
+sequence of conversions is an implicit conversion as defined in
+<a href='conv' title='7.3&emsp;Standard conversions'>[conv]</a>, which means it is governed by the rules for
+initialization of an object or reference by a single
+expression (<a href='dcl.init' title='9.4&emsp;Initializers'>[dcl.<span class='shy'></span>init]</a>, <a href='dcl.init.ref' title='9.4.4&emsp;References'>[dcl.<span class='shy'></span>init.<span class='shy'></span>ref]</a>)<a class='hidden_link' href='#over.best.ics.general-1.sentence-2'>.</a></div></div></div><div class='para' id='over.best.ics.general-2'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics.general-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2263'>#</a></div><div class='texpara'><div id='over.best.ics.general-2.sentence-1' class='sentence'>Implicit conversion sequences are concerned only with the type,
+cv-qualification, and value category of the argument and how these
+are converted to match the corresponding properties of the
+parameter<a class='hidden_link' href='#over.best.ics.general-2.sentence-1'>.</a></div> <div id='over.best.ics.general-note-1' class='note'><div class='texpara'>[<i>Note&nbsp;<a href='#over.best.ics.general-note-1'>1</a></i>: <div id='over.best.ics.general-2.sentence-2' class='sentence'>Other properties, such as the lifetime, storage class,
+alignment, accessibility of the argument, whether the argument is a bit-field,
+and whether a function is <a href='dcl.fct.def.delete' title='9.5.3&emsp;Deleted definitions&emsp;[dcl.fct.def.delete]'>deleted</a>, are ignored<a class='hidden_link' href='#over.best.ics.general-2.sentence-2'>.</a></div> <div id='over.best.ics.general-2.sentence-3' class='sentence'>So, although an implicit
+conversion sequence can be defined for a given argument-parameter
+pair, the conversion from the argument to the parameter might still
+be ill-formed in the final analysis<a class='hidden_link' href='#over.best.ics.general-2.sentence-3'>.</a></div> —&nbsp;<i>end note</i>]</div></div></div></div><div class='para' id='over.best.ics.general-3'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics.general-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2278'>#</a></div><div class='texpara'><div id='over.best.ics.general-3.sentence-1' class='sentence'>A
+well-formed implicit conversion
+sequence is one of the following forms:
+<ul class='itemize'><li id='over.best.ics.general-3.1'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.best.ics.general-3.1'>(3.1)</a></div>a <a href='#over.ics.scs' title='12.4.4.2.2&emsp;Standard conversion sequences&emsp;[over.ics.scs]'>standard conversion sequence</a>,</li><li id='over.best.ics.general-3.2'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.best.ics.general-3.2'>(3.2)</a></div>a <a href='#over.ics.user' title='12.4.4.2.3&emsp;User-defined conversion sequences&emsp;[over.ics.user]'>user-defined conversion sequence</a>, or</li><li id='over.best.ics.general-3.3'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.best.ics.general-3.3'>(3.3)</a></div>an <a href='#over.ics.ellipsis' title='12.4.4.2.4&emsp;Ellipsis conversion sequences&emsp;[over.ics.ellipsis]'>ellipsis conversion sequence</a><a class='hidden_link' href='#over.best.ics.general-3.sentence-1'>.</a></li></ul></div></div></div><div class='para' id='over.best.ics.general-4'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics.general-4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2291'>#</a></div><div class='texpara'><div id='over.best.ics.general-4.sentence-1' class='sentence'>However, if the target is
+<ul class='itemize'><li id='over.best.ics.general-4.1'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.best.ics.general-4.1'>(4.1)</a></div>the first parameter of a constructor or</li><li id='over.best.ics.general-4.2'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.best.ics.general-4.2'>(4.2)</a></div>the implicit object parameter of a user-defined conversion function</li></ul>
+and the constructor or user-defined conversion function is a candidate by
+<ul class='itemize'><li id='over.best.ics.general-4.3'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.best.ics.general-4.3'>(4.3)</a></div><a href='over.match.ctor' title='12.4.2.4&emsp;Initialization by constructor'>[over.<span class='shy'></span>match.<span class='shy'></span>ctor]</a>, when the argument is the temporary in the second
+step of a class copy-initialization,</li><li id='over.best.ics.general-4.4'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.best.ics.general-4.4'>(4.4)</a></div><a href='over.match.copy' title='12.4.2.5&emsp;Copy-initialization of class by user-defined conversion'>[over.<span class='shy'></span>match.<span class='shy'></span>copy]</a>, <a href='over.match.conv' title='12.4.2.6&emsp;Initialization by conversion function'>[over.<span class='shy'></span>match.<span class='shy'></span>conv]</a>, or <a href='over.match.ref' title='12.4.2.7&emsp;Initialization by conversion function for direct reference binding'>[over.<span class='shy'></span>match.<span class='shy'></span>ref]</a>
+(in all cases), or</li><li id='over.best.ics.general-4.5'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.best.ics.general-4.5'>(4.5)</a></div>the second phase of <a href='over.match.list' title='12.4.2.8&emsp;Initialization by list-initialization'>[over.<span class='shy'></span>match.<span class='shy'></span>list]</a>
+when the initializer list has exactly one element that
+is itself an initializer list, and
+the target is the first parameter of a constructor of class <span class='texttt'>X</span>, and
+the conversion is to <span class='texttt'>X</span> or reference to <span class='mathit'>cv</span> <span class='texttt'>X</span>,</li></ul>
+user-defined conversion sequences are not considered<a class='hidden_link' href='#over.best.ics.general-4.sentence-1'>.</a></div> <div id='over.best.ics.general-note-2' class='note'><div class='texpara'>[<i>Note&nbsp;<a href='#over.best.ics.general-note-2'>2</a></i>: <div id='over.best.ics.general-4.sentence-2' class='sentence'>These rules prevent more than one user-defined conversion from being
+applied during overload resolution, thereby avoiding infinite recursion<a class='hidden_link' href='#over.best.ics.general-4.sentence-2'>.</a></div> —&nbsp;<i>end note</i>]</div></div> <div id='over.best.ics.general-example-1' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.best.ics.general-example-1'>1</a></i>: <span class='codeblock'><span class='keyword'>struct</span> Y <span class='curlybracket'>{</span> Y<span class='parenthesis'>(</span><span class='keyword'>int</span><span class='parenthesis'>)</span>; <span class='curlybracket'>}</span>;
+<span class='keyword'>struct</span> A <span class='curlybracket'>{</span> <span class='keyword'>operator</span> <span class='keyword'>int</span><span class='parenthesis'>(</span><span class='parenthesis'>)</span>; <span class='curlybracket'>}</span>;
+Y y1 <span class='operator'>=</span> A<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;         <span class='comment'>// error: <span class='tcode_in_codeblock'>A&#x200b;::&#x200b;<span id=':operator__'><span class='tcode_in_codeblock'>operator</span></span> int()</span> is not a candidate</span>
+
+<span class='keyword'>struct</span> X <span class='curlybracket'>{</span> X<span class='parenthesis'>(</span><span class='parenthesis'>)</span>; <span class='curlybracket'>}</span>;
+<span class='keyword'>struct</span> B <span class='curlybracket'>{</span> <span class='keyword'>operator</span> X<span class='parenthesis'>(</span><span class='parenthesis'>)</span>; <span class='curlybracket'>}</span>;
+B b;
+X x<span class='curlybracket'>{</span><span class='curlybracket'>{</span>b<span class='curlybracket'>}</span><span class='curlybracket'>}</span>;           <span class='comment'>// error: <span class='tcode_in_codeblock'>B&#x200b;::&#x200b;<span id=':operator___'><span class='tcode_in_codeblock'>operator</span></span> X()</span> is not a candidate</span>
+</span> —&nbsp;<i>end example</i>]</div></div></div></div><div class='para' id='over.best.ics.general-5'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics.general-5'>5</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2327'>#</a></div><div class='texpara'><div id='over.best.ics.general-5.sentence-1' class='sentence'>For the case where the parameter type is a reference, see <a href='#over.ics.ref' title='12.4.4.2.5&emsp;Reference binding'>[over.<span class='shy'></span>ics.<span class='shy'></span>ref]</a><a class='hidden_link' href='#over.best.ics.general-5.sentence-1'>.</a></div></div></div><div class='para' id='over.best.ics.general-6'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics.general-6'>6</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2330'>#</a></div><div class='texpara'><div id='over.best.ics.general-6.sentence-1' class='sentence'>When the parameter type is not a reference, the implicit conversion
+sequence models a copy-initialization of the parameter from the argument
+expression<a class='hidden_link' href='#over.best.ics.general-6.sentence-1'>.</a></div> <div id='over.best.ics.general-6.sentence-2' class='sentence'>The implicit conversion sequence is the one required to convert the
+argument expression to a prvalue of the type of
+the parameter<a class='hidden_link' href='#over.best.ics.general-6.sentence-2'>.</a></div> <div id='over.best.ics.general-note-3' class='note'><div class='texpara'>[<i>Note&nbsp;<a href='#over.best.ics.general-note-3'>3</a></i>: <div id='over.best.ics.general-6.sentence-3' class='sentence'>When the parameter has a class type, this is a conceptual conversion
+defined for the purposes of <a href='over' title='12&emsp;Overloading'>[over]</a>; the actual initialization is
+defined in terms of constructors and is not a conversion<a class='hidden_link' href='#over.best.ics.general-6.sentence-3'>.</a></div> —&nbsp;<i>end note</i>]</div></div> <div id='over.best.ics.general-6.sentence-4' class='sentence'>
+Any difference in top-level cv-qualification is
+subsumed by the initialization itself and does not constitute a conversion<a class='hidden_link' href='#over.best.ics.general-6.sentence-4'>.</a></div> <div id='over.best.ics.general-example-2' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.best.ics.general-example-2'>2</a></i>: <div id='over.best.ics.general-6.sentence-5' class='sentence'>A parameter of type
+<span class='texttt'>A</span>
+can be initialized from an argument of type
+<span class='texttt'><span class='keyword'>const</span> A</span><a class='hidden_link' href='#over.best.ics.general-6.sentence-5'>.</a></div> <div id='over.best.ics.general-6.sentence-6' class='sentence'>The implicit conversion sequence for that case is the identity sequence; it
+contains no “conversion” from
+<span class='texttt'><span class='keyword'>const</span> A</span>
+to
+<span class='texttt'>A</span><a class='hidden_link' href='#over.best.ics.general-6.sentence-6'>.</a></div> —&nbsp;<i>end example</i>]</div></div> <div id='over.best.ics.general-6.sentence-7' class='sentence'>
+When the parameter has a class type and the argument expression has the
+same type, the implicit conversion sequence is an identity conversion<a class='hidden_link' href='#over.best.ics.general-6.sentence-7'>.</a></div> <div id='over.best.ics.general-6.sentence-8' class='sentence'>When the parameter has a class type and the argument expression has a
+derived class type, the implicit conversion sequence is a
+derived-to-base
+<a class='index' id=':conversion,derived-to-base'></a>conversion from the derived class to the base class<a class='hidden_link' href='#over.best.ics.general-6.sentence-8'>.</a></div> <div id='over.best.ics.general-note-4' class='note'><div class='texpara'>[<i>Note&nbsp;<a href='#over.best.ics.general-note-4'>4</a></i>: <div id='over.best.ics.general-6.sentence-9' class='sentence'>There is no such standard conversion; this derived-to-base conversion exists
+only in the description of implicit conversion sequences<a class='hidden_link' href='#over.best.ics.general-6.sentence-9'>.</a></div> —&nbsp;<i>end note</i>]</div></div> <div id='over.best.ics.general-6.sentence-10' class='sentence'>
+A derived-to-base conversion has Conversion rank (<a href='#over.ics.scs' title='12.4.4.2.2&emsp;Standard conversion sequences'>[over.<span class='shy'></span>ics.<span class='shy'></span>scs]</a>)<a class='hidden_link' href='#over.best.ics.general-6.sentence-10'>.</a></div></div></div><div class='para' id='over.best.ics.general-7'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics.general-7'>7</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2368'>#</a></div><div class='texpara'><div id='over.best.ics.general-7.sentence-1' class='sentence'>In all contexts, when converting to the implicit object parameter
+or when converting to the left operand of an assignment operation
+only standard conversion sequences are allowed<a class='hidden_link' href='#over.best.ics.general-7.sentence-1'>.</a></div></div></div><div class='para' id='over.best.ics.general-8'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics.general-8'>8</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2373'>#</a></div><div class='texpara'><div id='over.best.ics.general-8.sentence-1' class='sentence'>If no conversions are required to match an argument to a
+parameter type, the implicit conversion sequence is the standard
+conversion sequence consisting of the identity conversion (<a href='#over.ics.scs' title='12.4.4.2.2&emsp;Standard conversion sequences'>[over.<span class='shy'></span>ics.<span class='shy'></span>scs]</a>)<a class='hidden_link' href='#over.best.ics.general-8.sentence-1'>.</a></div></div></div><div class='para' id='over.best.ics.general-9'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics.general-9'>9</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2378'>#</a></div><div class='texpara'><div id='over.best.ics.general-9.sentence-1' class='sentence'>If no sequence of conversions can be found to convert an argument
+to a parameter type, an implicit conversion sequence cannot be formed<a class='hidden_link' href='#over.best.ics.general-9.sentence-1'>.</a></div></div></div><div class='para' id='over.best.ics.general-10'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics.general-10'>10</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2382'>#</a></div><div class='texpara'><div id='over.best.ics.general-10.sentence-1' class='sentence'>If there are multiple well-formed implicit conversion sequences
+converting the argument to the parameter type, the implicit
+conversion sequence associated with the parameter is defined to be
+the unique conversion sequence designated the
+<a class='hidden_link' href='#def:conversion_sequence,ambiguous' title='12.4.4.2.1&emsp;General&emsp;[over.best.ics.general]'><span id='def:conversion_sequence,ambiguous'><i >ambiguous conversion sequence</i></span></a><a class='hidden_link' href='#over.best.ics.general-10.sentence-1'>.</a></div> <div id='over.best.ics.general-10.sentence-2' class='sentence'>For the purpose of ranking implicit conversion sequences as described
+in <a href='#over.ics.rank' title='12.4.4.3&emsp;Ranking implicit conversion sequences'>[over.<span class='shy'></span>ics.<span class='shy'></span>rank]</a>, the ambiguous conversion sequence is treated
+as a user-defined conversion sequence that is indistinguishable from any
+other user-defined conversion sequence<a class='hidden_link' href='#over.best.ics.general-10.sentence-2'>.</a></div> <div id='over.best.ics.general-note-5' class='note'><div class='texpara'>[<i>Note&nbsp;<a href='#over.best.ics.general-note-5'>5</a></i>: <div id='over.best.ics.general-10.sentence-3' class='sentence'>This rule prevents a function from becoming non-viable because of an ambiguous
+conversion sequence for one of its parameters<a class='hidden_link' href='#over.best.ics.general-10.sentence-3'>.</a></div> <div id='over.best.ics.general-example-3' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.best.ics.general-example-3'>3</a></i>: <span class='codeblock'><span class='keyword'>class</span> B;
+<span class='keyword'>class</span> A <span class='curlybracket'>{</span> A <span class='parenthesis'>(</span>B<span class='operator'>&amp;</span><span class='parenthesis'>)</span>;<span class='curlybracket'>}</span>;
+<span class='keyword'>class</span> B <span class='curlybracket'>{</span> <span class='keyword'>operator</span> A <span class='parenthesis'>(</span><span class='parenthesis'>)</span>; <span class='curlybracket'>}</span>;
+<span class='keyword'>class</span> C <span class='curlybracket'>{</span> C <span class='parenthesis'>(</span>B<span class='operator'>&amp;</span><span class='parenthesis'>)</span>; <span class='curlybracket'>}</span>;
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>A<span class='parenthesis'>)</span> <span class='curlybracket'>{</span> <span class='curlybracket'>}</span>
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>C<span class='parenthesis'>)</span> <span class='curlybracket'>{</span> <span class='curlybracket'>}</span>
+B b;
+f<span class='parenthesis'>(</span>b<span class='parenthesis'>)</span>;               <span class='comment'>// error: ambiguous because there is a conversion <span class='tcode_in_codeblock'>b</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>C</span> (via constructor)</span>
+                    <span class='comment'>// and an (ambiguous) conversion <span class='tcode_in_codeblock'>b</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>A</span> (via constructor or conversion function)</span>
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>B<span class='parenthesis'>)</span> <span class='curlybracket'>{</span> <span class='curlybracket'>}</span>
+f<span class='parenthesis'>(</span>b<span class='parenthesis'>)</span>;               <span class='comment'>// OK, unambiguous</span>
+</span> —&nbsp;<i>end example</i>]</div></div> —&nbsp;<i>end note</i>]</div></div> <div id='over.best.ics.general-10.sentence-4' class='sentence'>
+If a function that uses the ambiguous conversion sequence is selected
+as the best viable function, the call will be ill-formed because the conversion
+of one of the arguments in the call is ambiguous<a class='hidden_link' href='#over.best.ics.general-10.sentence-4'>.</a></div></div></div><div class='para' id='over.best.ics.general-11'><div class='marginalizedparent'><a class='marginalized' href='#over.best.ics.general-11'>11</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2415'>#</a></div><div class='texpara'><div id='over.best.ics.general-11.sentence-1' class='sentence'>The three forms of implicit conversion sequences mentioned above
+are defined in the following subclauses<a class='hidden_link' href='#over.best.ics.general-11.sentence-1'>.</a></div></div></div></div><div id='over.ics.scs' class='section'><h4 ><a class='secnum' href='#over.ics.scs' style='min-width:110pt'>12.4.4.2.2</a> Standard conversion sequences <a class='abbr_ref' href='over.ics.scs'>[over.ics.scs]</a></h4><div class='para' id='over.ics.scs-1'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.scs-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2421'>#</a></div><div class='texpara'><div id='over.ics.scs-1.sentence-1' class='sentence'>Table <a href='#tab:over.ics.scs' title='Table 16: Conversions'>16</a>
+summarizes the conversions defined in <a href='conv' title='7.3&emsp;Standard conversions'>[conv]</a> and
+partitions them into four disjoint categories: Lvalue Transformation,
+Qualification Adjustment, Promotion, and Conversion<a class='hidden_link' href='#over.ics.scs-1.sentence-1'>.</a></div> <div id='over.ics.scs-note-1' class='note'><div class='texpara'>[<i>Note&nbsp;<a href='#over.ics.scs-note-1'>1</a></i>: <div id='over.ics.scs-1.sentence-2' class='sentence'>These categories are orthogonal with respect to value category,
+cv-qualification, and data representation: the Lvalue Transformations
+do not change the cv-qualification or data
+representation of the type; the Qualification Adjustments do not
+change the value category or data representation of the type; and
+the Promotions and Conversions do not change the
+value category or cv-qualification of the type<a class='hidden_link' href='#over.ics.scs-1.sentence-2'>.</a></div> —&nbsp;<i>end note</i>]</div></div></div></div><div class='para nonNormativeOnly' id='over.ics.scs-2'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.scs-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2436'>#</a></div><div class='texpara'><div id='over.ics.scs-note-2' class='note'><div class='texpara'>[<i>Note&nbsp;<a href='#over.ics.scs-note-2'>2</a></i>: <div id='over.ics.scs-2.sentence-1' class='sentence'>As described in <a href='conv' title='7.3&emsp;Standard conversions'>[conv]</a>,
+a standard conversion sequence either is the Identity conversion
+by itself (that is, no conversion) or consists of one to three
+conversions from the other
+four categories<a class='hidden_link' href='#over.ics.scs-2.sentence-1'>.</a></div> <div id='over.ics.scs-2.sentence-2' class='sentence'>If there are two or more conversions in the sequence, the
+conversions are applied in the canonical order:
+<b>Lvalue Transformation</b>,
+<b>Promotion</b>
+or
+<b>Conversion</b>,
+<b>Qualification Adjustment</b><a class='hidden_link' href='#over.ics.scs-2.sentence-2'>.</a></div> —&nbsp;<i>end note</i>]</div></div></div></div><div class='para' id='over.ics.scs-3'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.scs-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2452'>#</a></div><div class='texpara'><div id='over.ics.scs-3.sentence-1' class='sentence'><a class='index' id=':conversion_rank'></a>Each conversion in Table <a href='#tab:over.ics.scs' title='Table 16: Conversions'>16</a>
+also has an associated rank (Exact
+Match, Promotion, or Conversion)<a class='hidden_link' href='#over.ics.scs-3.sentence-1'>.</a></div> <div id='over.ics.scs-3.sentence-2' class='sentence'>These are used
+to <a href='#over.ics.rank' title='12.4.4.3&emsp;Ranking implicit conversion sequences&emsp;[over.ics.rank]'>rank standard conversion sequences</a><a class='hidden_link' href='#over.ics.scs-3.sentence-2'>.</a></div> <div id='over.ics.scs-3.sentence-3' class='sentence'>The rank of a conversion sequence is determined by considering the
+rank of each conversion in the sequence and the rank of any <a href='#over.ics.ref' title='12.4.4.2.5&emsp;Reference binding&emsp;[over.ics.ref]'>reference
+binding</a><a class='hidden_link' href='#over.ics.scs-3.sentence-3'>.</a></div> <div id='over.ics.scs-3.sentence-4' class='sentence'>If any of those has Conversion rank, the
+sequence has Conversion rank; otherwise, if any of those has Promotion rank,
+the sequence has Promotion rank; otherwise, the sequence has Exact
+Match rank<a class='hidden_link' href='#over.ics.scs-3.sentence-4'>.</a></div></div><div class='texpara'><div class='numberedTable' id='tab:over.ics.scs'>Table <a href='#tab:over.ics.scs'>16</a>: Conversions&emsp;<a href='./tab:over.ics.scs'>[tab:over.ics.scs]</a><br><table ><tr id='tab:over.ics.scs-row-1' class='rowsep'><td class='hidden'><div class='marginalizedparent'><a class='itemDeclLink' href='#tab:over.ics.scs-row-1'>🔗</a></div></td><td class='left'><div class='texpara'><div id='tab:over.ics.scs-row-1-column-1-sentence-1' class='sentence'><b>Conversion</b></div></div></td><td class='border center'><div class='texpara'><div id='tab:over.ics.scs-row-1-column-2-sentence-1' class='sentence'><b>Category</b></div></div></td><td class='border center'><div class='texpara'><div id='tab:over.ics.scs-row-1-column-3-sentence-1' class='sentence'><b>Rank</b></div></div></td><td class='border center'><div class='texpara'><div id='tab:over.ics.scs-row-1-column-4-sentence-1' class='sentence'><b>Subclause</b></div></div></td></tr><tr id='tab:over.ics.scs-row-2' class='capsep'><td class='hidden'><div class='marginalizedparent'><a class='itemDeclLink' href='#tab:over.ics.scs-row-2'>🔗</a></div></td><td class='left'><div class='texpara'><div id='tab:over.ics.scs-row-2-column-1-sentence-1' class='sentence'>No conversions required</div></div></td><td class='border center'><div class='texpara'><div id='tab:over.ics.scs-row-2-column-2-sentence-1' class='sentence'>Identity</div></div></td><td class='empty border center'></td><td class='empty border center'></td></tr><tr id='tab:over.ics.scs-row-3'><td class='hidden'><div class='marginalizedparent'><a class='itemDeclLink' href='#tab:over.ics.scs-row-3'>🔗</a></div></td><td class='left cline'><div class='texpara'><div id='tab:over.ics.scs-row-3-column-1-sentence-1' class='sentence'>
+Lvalue-to-rvalue conversion</div></div></td><td class='empty border center cline'></td><td class='empty border center'></td><td class='border center cline'><div class='texpara'><div id='tab:over.ics.scs-row-3-column-4-sentence-1' class='sentence'><a href='conv.lval' title='7.3.2&emsp;Lvalue-to-rvalue conversion'>[conv.<span class='shy'></span>lval]</a></div></div></td></tr><tr id='tab:over.ics.scs-row-4'><td class='hidden'><div class='marginalizedparent'><a class='itemDeclLink' href='#tab:over.ics.scs-row-4'>🔗</a></div></td><td class='left cline'><div class='texpara'><div id='tab:over.ics.scs-row-4-column-1-sentence-1' class='sentence'>
+Array-to-pointer conversion</div></div></td><td class='border center'><div class='texpara'><div id='tab:over.ics.scs-row-4-column-2-sentence-1' class='sentence'>Lvalue Transformation</div></div></td><td class='empty border center'></td><td class='border center cline'><div class='texpara'><div id='tab:over.ics.scs-row-4-column-4-sentence-1' class='sentence'><a href='conv.array' title='7.3.3&emsp;Array-to-pointer conversion'>[conv.<span class='shy'></span>array]</a></div></div></td></tr><tr id='tab:over.ics.scs-row-5'><td class='hidden'><div class='marginalizedparent'><a class='itemDeclLink' href='#tab:over.ics.scs-row-5'>🔗</a></div></td><td class='left cline'><div class='texpara'><div id='tab:over.ics.scs-row-5-column-1-sentence-1' class='sentence'>
+Function-to-pointer conversion</div></div></td><td class='empty border center'></td><td class='border center'><div class='texpara'><span style='position: relative; top: -1.5ex'>Exact Match</span></div></td><td class='border center cline'><div class='texpara'><div id='tab:over.ics.scs-row-5-column-4-sentence-1' class='sentence'><a href='conv.func' title='7.3.4&emsp;Function-to-pointer conversion'>[conv.<span class='shy'></span>func]</a></div></div></td></tr><tr id='tab:over.ics.scs-row-6'><td class='hidden'><div class='marginalizedparent'><a class='itemDeclLink' href='#tab:over.ics.scs-row-6'>🔗</a></div></td><td class='left cline'><div class='texpara'><div id='tab:over.ics.scs-row-6-column-1-sentence-1' class='sentence'>
+Qualification conversions</div></div></td><td class='empty border center cline'></td><td class='empty border center'></td><td class='border center cline'><div class='texpara'><div id='tab:over.ics.scs-row-6-column-4-sentence-1' class='sentence'><a href='conv.qual' title='7.3.6&emsp;Qualification conversions'>[conv.<span class='shy'></span>qual]</a></div></div></td></tr><tr id='tab:over.ics.scs-row-7'><td class='hidden'><div class='marginalizedparent'><a class='itemDeclLink' href='#tab:over.ics.scs-row-7'>🔗</a></div></td><td class='left cline'><div class='texpara'><div id='tab:over.ics.scs-row-7-column-1-sentence-1' class='sentence'>
+Function pointer conversion</div></div></td><td class='border center'><div class='texpara'><span style='position: relative; top: -1.5ex'>Qualification Adjustment</span></div></td><td class='empty border center'></td><td class='border center cline'><div class='texpara'><div id='tab:over.ics.scs-row-7-column-4-sentence-1' class='sentence'><a href='conv.fctptr' title='7.3.14&emsp;Function pointer conversions'>[conv.<span class='shy'></span>fctptr]</a></div></div></td></tr><tr id='tab:over.ics.scs-row-8' class='rowsep'><td class='hidden'><div class='marginalizedparent'><a class='itemDeclLink' href='#tab:over.ics.scs-row-8'>🔗</a></div></td><td class='left'><div class='texpara'><div id='tab:over.ics.scs-row-8-column-1-sentence-1' class='sentence'>Integral promotions</div></div></td><td class='empty border center'></td><td class='empty border center'></td><td class='border center'><div class='texpara'><div id='tab:over.ics.scs-row-8-column-4-sentence-1' class='sentence'><a href='conv.prom' title='7.3.7&emsp;Integral promotions'>[conv.<span class='shy'></span>prom]</a></div></div></td></tr><tr id='tab:over.ics.scs-row-9'><td class='hidden'><div class='marginalizedparent'><a class='itemDeclLink' href='#tab:over.ics.scs-row-9'>🔗</a></div></td><td class='left cline'><div class='texpara'><div id='tab:over.ics.scs-row-9-column-1-sentence-1' class='sentence'>
+Floating-point promotion</div></div></td><td class='border center'><div class='texpara'><span style='position: relative; top: -1.5ex'>Promotion</span></div></td><td class='border center'><div class='texpara'><span style='position: relative; top: -1.5ex'>Promotion</span></div></td><td class='border center cline'><div class='texpara'><div id='tab:over.ics.scs-row-9-column-4-sentence-1' class='sentence'><a href='conv.fpprom' title='7.3.8&emsp;Floating-point promotion'>[conv.<span class='shy'></span>fpprom]</a></div></div></td></tr><tr id='tab:over.ics.scs-row-10' class='rowsep'><td class='hidden'><div class='marginalizedparent'><a class='itemDeclLink' href='#tab:over.ics.scs-row-10'>🔗</a></div></td><td class='left'><div class='texpara'><div id='tab:over.ics.scs-row-10-column-1-sentence-1' class='sentence'>Integral conversions</div></div></td><td class='empty border center'></td><td class='empty border center'></td><td class='border center'><div class='texpara'><div id='tab:over.ics.scs-row-10-column-4-sentence-1' class='sentence'><a href='conv.integral' title='7.3.9&emsp;Integral conversions'>[conv.<span class='shy'></span>integral]</a></div></div></td></tr><tr id='tab:over.ics.scs-row-11'><td class='hidden'><div class='marginalizedparent'><a class='itemDeclLink' href='#tab:over.ics.scs-row-11'>🔗</a></div></td><td class='left cline'><div class='texpara'><div id='tab:over.ics.scs-row-11-column-1-sentence-1' class='sentence'>
+Floating-point conversions</div></div></td><td class='empty border center'></td><td class='empty border center'></td><td class='border center cline'><div class='texpara'><div id='tab:over.ics.scs-row-11-column-4-sentence-1' class='sentence'><a href='conv.double' title='7.3.10&emsp;Floating-point conversions'>[conv.<span class='shy'></span>double]</a></div></div></td></tr><tr id='tab:over.ics.scs-row-12'><td class='hidden'><div class='marginalizedparent'><a class='itemDeclLink' href='#tab:over.ics.scs-row-12'>🔗</a></div></td><td class='left cline'><div class='texpara'><div id='tab:over.ics.scs-row-12-column-1-sentence-1' class='sentence'>
+Floating-integral conversions</div></div></td><td class='empty border center'></td><td class='empty border center'></td><td class='border center cline'><div class='texpara'><div id='tab:over.ics.scs-row-12-column-4-sentence-1' class='sentence'><a href='conv.fpint' title='7.3.11&emsp;Floating-integral conversions'>[conv.<span class='shy'></span>fpint]</a></div></div></td></tr><tr id='tab:over.ics.scs-row-13'><td class='hidden'><div class='marginalizedparent'><a class='itemDeclLink' href='#tab:over.ics.scs-row-13'>🔗</a></div></td><td class='left cline'><div class='texpara'><div id='tab:over.ics.scs-row-13-column-1-sentence-1' class='sentence'>
+Pointer conversions</div></div></td><td class='border center'><div class='texpara'><span style='position: relative; top: -1.5ex'>Conversion</span></div></td><td class='border center'><div class='texpara'><span style='position: relative; top: -1.5ex'>Conversion</span></div></td><td class='border center cline'><div class='texpara'><div id='tab:over.ics.scs-row-13-column-4-sentence-1' class='sentence'><a href='conv.ptr' title='7.3.12&emsp;Pointer conversions'>[conv.<span class='shy'></span>ptr]</a></div></div></td></tr><tr id='tab:over.ics.scs-row-14'><td class='hidden'><div class='marginalizedparent'><a class='itemDeclLink' href='#tab:over.ics.scs-row-14'>🔗</a></div></td><td class='left cline'><div class='texpara'><div id='tab:over.ics.scs-row-14-column-1-sentence-1' class='sentence'>
+Pointer-to-member conversions</div></div></td><td class='empty border center'></td><td class='empty border center'></td><td class='border center cline'><div class='texpara'><div id='tab:over.ics.scs-row-14-column-4-sentence-1' class='sentence'><a href='conv.mem' title='7.3.13&emsp;Pointer-to-member conversions'>[conv.<span class='shy'></span>mem]</a></div></div></td></tr><tr id='tab:over.ics.scs-row-15'><td class='hidden'><div class='marginalizedparent'><a class='itemDeclLink' href='#tab:over.ics.scs-row-15'>🔗</a></div></td><td class='left cline'><div class='texpara'><div id='tab:over.ics.scs-row-15-column-1-sentence-1' class='sentence'>
+Boolean conversions</div></div></td><td class='empty border center'></td><td class='empty border center'></td><td class='border center cline'><div class='texpara'><div id='tab:over.ics.scs-row-15-column-4-sentence-1' class='sentence'><a href='conv.bool' title='7.3.15&emsp;Boolean conversions'>[conv.<span class='shy'></span>bool]</a></div></div></td></tr></table></div></div></div></div><div id='over.ics.user' class='section'><h4 ><a class='secnum' href='#over.ics.user' style='min-width:110pt'>12.4.4.2.3</a> User-defined conversion sequences <a class='abbr_ref' href='over.ics.user'>[over.ics.user]</a></h4><div class='para' id='over.ics.user-1'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.user-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2488'>#</a></div><div class='texpara'><div id='over.ics.user-1.sentence-1' class='sentence'>A <a class='hidden_link' href='#def:conversion_sequence,user-defined' title='12.4.4.2.3&emsp;User-defined conversion sequences&emsp;[over.ics.user]'><span id='def:conversion_sequence,user-defined'><i >user-defined conversion sequence</i></span></a> consists of an initial
+standard conversion sequence followed by a user-defined
+conversion (<a href='class.conv' title='11.4.8&emsp;Conversions'>[class.<span class='shy'></span>conv]</a>) followed by a second standard
+conversion sequence<a class='hidden_link' href='#over.ics.user-1.sentence-1'>.</a></div> <div id='over.ics.user-1.sentence-2' class='sentence'>If the user-defined conversion is specified
+by a constructor (<a href='class.conv.ctor' title='11.4.8.2&emsp;Conversion by constructor'>[class.<span class='shy'></span>conv.<span class='shy'></span>ctor]</a>), the initial standard
+conversion sequence converts the source type to the type of the
+first parameter of that constructor<a class='hidden_link' href='#over.ics.user-1.sentence-2'>.</a></div> <div id='over.ics.user-1.sentence-3' class='sentence'>If the user-defined
+conversion is specified by a <a href='class.conv.fct' title='11.4.8.3&emsp;Conversion functions&emsp;[class.conv.fct]'>conversion function</a>, the
+initial standard conversion sequence
+converts the source type to the type of the
+implicit object parameter of that conversion function<a class='hidden_link' href='#over.ics.user-1.sentence-3'>.</a></div></div></div><div class='para' id='over.ics.user-2'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.user-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2503'>#</a></div><div class='texpara'><div id='over.ics.user-2.sentence-1' class='sentence'>The second standard conversion sequence converts the result of
+the user-defined conversion to the target type for the sequence;
+any reference binding is included in the second standard
+conversion sequence<a class='hidden_link' href='#over.ics.user-2.sentence-1'>.</a></div> <div id='over.ics.user-2.sentence-2' class='sentence'>Since an implicit conversion sequence is an initialization, the
+special rules for initialization by user-defined conversion apply
+when selecting the best user-defined conversion for a
+user-defined conversion sequence (see <a href='#over.match.best' title='12.4.4&emsp;Best viable function'>[over.<span class='shy'></span>match.<span class='shy'></span>best]</a> and <a href='#over.best.ics' title='12.4.4.2&emsp;Implicit conversion sequences'>[over.<span class='shy'></span>best.<span class='shy'></span>ics]</a>)<a class='hidden_link' href='#over.ics.user-2.sentence-2'>.</a></div></div></div><div class='para' id='over.ics.user-3'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.user-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2513'>#</a></div><div class='texpara'><div id='over.ics.user-3.sentence-1' class='sentence'>If the user-defined conversion is specified by a
+specialization of a conversion function template,
+the second standard conversion sequence shall have exact match rank<a class='hidden_link' href='#over.ics.user-3.sentence-1'>.</a></div></div></div><div class='para' id='over.ics.user-4'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.user-4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2518'>#</a></div><div class='texpara'><div id='over.ics.user-4.sentence-1' class='sentence'>A conversion of an expression of class type
+to the same class type is given Exact Match rank, and
+a conversion of an expression of class type
+to a base class of that type is given Conversion rank,
+in spite of the
+fact that a constructor (i.e., a user-defined conversion
+function) is called for those cases<a class='hidden_link' href='#over.ics.user-4.sentence-1'>.</a></div></div></div></div><div id='over.ics.ellipsis' class='section'><h4 ><a class='secnum' href='#over.ics.ellipsis' style='min-width:110pt'>12.4.4.2.4</a> Ellipsis conversion sequences <a class='abbr_ref' href='over.ics.ellipsis'>[over.ics.ellipsis]</a></h4><div class='para' id='over.ics.ellipsis-1'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.ellipsis-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2529'>#</a></div><div class='texpara'><div id='over.ics.ellipsis-1.sentence-1' class='sentence'><a class='index' id=':ellipsis,conversion_sequence'></a>An ellipsis conversion sequence occurs when an argument in a
+function call is matched with the ellipsis parameter
+specification of the function called (see <a href='expr.call' title='7.6.1.3&emsp;Function call'>[expr.<span class='shy'></span>call]</a>)<a class='hidden_link' href='#over.ics.ellipsis-1.sentence-1'>.</a></div></div></div></div><div id='over.ics.ref' class='section'><h4 ><a class='secnum' href='#over.ics.ref' style='min-width:110pt'>12.4.4.2.5</a> Reference binding <a class='abbr_ref' href='over.ics.ref'>[over.ics.ref]</a></h4><div class='para' id='over.ics.ref-1'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.ref-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2537'>#</a></div><div class='texpara'><div id='over.ics.ref-1.sentence-1' class='sentence'>When a parameter of reference type <a href='dcl.init.ref' title='9.4.4&emsp;References&emsp;[dcl.init.ref]'>binds directly</a> to an
+argument expression, the implicit conversion sequence is the identity conversion,
+unless the argument expression has a type that is a derived class of the parameter
+type, in which case the implicit conversion sequence is a derived-to-base
+conversion (<a href='#over.best.ics' title='12.4.4.2&emsp;Implicit conversion sequences'>[over.<span class='shy'></span>best.<span class='shy'></span>ics]</a>)<a class='hidden_link' href='#over.ics.ref-1.sentence-1'>.</a></div> <div id='over.ics.ref-example-1' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.ref-example-1'>1</a></i>: <span class='codeblock'><span class='keyword'>struct</span> A <span class='curlybracket'>{</span><span class='curlybracket'>}</span>;
+<span class='keyword'>struct</span> B <span class='operator'>:</span> <span class='keyword'>public</span> A <span class='curlybracket'>{</span><span class='curlybracket'>}</span> b;
+<span class='keyword'>int</span> f<span class='parenthesis'>(</span>A<span class='operator'>&amp;</span><span class='parenthesis'>)</span>;
+<span class='keyword'>int</span> f<span class='parenthesis'>(</span>B<span class='operator'>&amp;</span><span class='parenthesis'>)</span>;
+<span class='keyword'>int</span> i <span class='operator'>=</span> f<span class='parenthesis'>(</span>b<span class='parenthesis'>)</span>;       <span class='comment'>// calls <span class='tcode_in_codeblock'>f(B&amp;)</span>, an exact match, rather than <span class='tcode_in_codeblock'>f(A&amp;)</span>, a conversion</span>
+</span> —&nbsp;<i>end example</i>]</div></div> <div id='over.ics.ref-1.sentence-2' class='sentence'>
+If the parameter binds directly to the result of
+applying a conversion function to the argument expression, the implicit
+conversion sequence is a <a href='#over.ics.user' title='12.4.4.2.3&emsp;User-defined conversion sequences&emsp;[over.ics.user]'>user-defined conversion sequence</a>,
+with the second standard conversion sequence either an identity conversion or,
+if the conversion function returns an entity of a type that is a derived class
+of the parameter type, a derived-to-base conversion<a class='hidden_link' href='#over.ics.ref-1.sentence-2'>.</a></div></div></div><div class='para' id='over.ics.ref-2'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.ref-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2559'>#</a></div><div class='texpara'><div id='over.ics.ref-2.sentence-1' class='sentence'>When a parameter of reference type is not bound directly to an argument
+expression, the conversion sequence is the one required to convert the argument
+expression to the referenced type according to <a href='#over.best.ics' title='12.4.4.2&emsp;Implicit conversion sequences'>[over.<span class='shy'></span>best.<span class='shy'></span>ics]</a><a class='hidden_link' href='#over.ics.ref-2.sentence-1'>.</a></div> <div id='over.ics.ref-2.sentence-2' class='sentence'>Conceptually, this conversion sequence corresponds to copy-initializing a
+temporary of the referenced type with the argument expression<a class='hidden_link' href='#over.ics.ref-2.sentence-2'>.</a></div> <div id='over.ics.ref-2.sentence-3' class='sentence'>Any difference
+in top-level cv-qualification is subsumed by the initialization itself and
+does not constitute a conversion<a class='hidden_link' href='#over.ics.ref-2.sentence-3'>.</a></div></div></div><div class='para' id='over.ics.ref-3'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.ref-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2569'>#</a></div><div class='texpara'><div id='over.ics.ref-3.sentence-1' class='sentence'>Except for an implicit object parameter, for which see <a href='over.match.funcs' title='12.4.2&emsp;Candidate functions and argument lists'>[over.<span class='shy'></span>match.<span class='shy'></span>funcs]</a>,
+an implicit conversion sequence cannot be formed if it requires
+binding an lvalue reference
+other than a reference to a non-volatile <span class='texttt'><span class='keyword'>const</span></span> type
+to an rvalue
+or binding an rvalue reference to an lvalue other than a function lvalue<a class='hidden_link' href='#over.ics.ref-3.sentence-1'>.</a></div> <div id='over.ics.ref-note-1' class='note'><div class='texpara'>[<i>Note&nbsp;<a href='#over.ics.ref-note-1'>1</a></i>: <div id='over.ics.ref-3.sentence-2' class='sentence'>This means, for example, that a candidate function cannot be a viable
+function if it has a non-<span class='texttt'><span class='keyword'>const</span></span> lvalue reference parameter (other than
+the implicit object parameter) and the corresponding argument
+would require a temporary to be created to initialize the lvalue
+reference (see <a href='dcl.init.ref' title='9.4.4&emsp;References'>[dcl.<span class='shy'></span>init.<span class='shy'></span>ref]</a>)<a class='hidden_link' href='#over.ics.ref-3.sentence-2'>.</a></div> —&nbsp;<i>end note</i>]</div></div></div></div><div class='para' id='over.ics.ref-4'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.ref-4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2584'>#</a></div><div class='texpara'><div id='over.ics.ref-4.sentence-1' class='sentence'>Other restrictions on binding a reference to a particular argument
+that are not based on the types of the reference and the argument
+do not affect the formation of an implicit conversion
+sequence, however<a class='hidden_link' href='#over.ics.ref-4.sentence-1'>.</a></div> <div id='over.ics.ref-example-2' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.ref-example-2'>2</a></i>: <div id='over.ics.ref-4.sentence-2' class='sentence'>A function with an “lvalue reference to <span class='texttt'><span class='keyword'>int</span></span>” parameter can
+be a viable candidate even if the corresponding argument is an
+<span class='texttt'><span class='keyword'>int</span></span>
+bit-field<a class='hidden_link' href='#over.ics.ref-4.sentence-2'>.</a></div> <div id='over.ics.ref-4.sentence-3' class='sentence'>The formation of implicit conversion sequences
+treats the
+<span class='texttt'><span class='keyword'>int</span></span>
+bit-field as an
+<span class='texttt'><span class='keyword'>int</span></span>
+lvalue and finds an exact
+match with the parameter<a class='hidden_link' href='#over.ics.ref-4.sentence-3'>.</a></div> <div id='over.ics.ref-4.sentence-4' class='sentence'>If the function is selected by overload
+resolution, the call will nonetheless be ill-formed because of
+the prohibition on binding a non-<span class='texttt'><span class='keyword'>const</span></span> lvalue reference to a bit-field (<a href='dcl.init.ref' title='9.4.4&emsp;References'>[dcl.<span class='shy'></span>init.<span class='shy'></span>ref]</a>)<a class='hidden_link' href='#over.ics.ref-4.sentence-4'>.</a></div> —&nbsp;<i>end example</i>]</div></div></div></div></div><div id='over.ics.list' class='section'><h4 ><a class='secnum' href='#over.ics.list' style='min-width:110pt'>12.4.4.2.6</a> List-initialization sequence <a class='abbr_ref' href='over.ics.list'>[over.ics.list]</a></h4><div class='para' id='over.ics.list-1'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2608'>#</a></div><div class='texpara'><div id='over.ics.list-1.sentence-1' class='sentence'>When an argument is an initializer list (<a href='dcl.init.list' title='9.4.5&emsp;List-initialization'>[dcl.<span class='shy'></span>init.<span class='shy'></span>list]</a>), it is not an expression and special rules apply for converting it to a parameter type<a class='hidden_link' href='#over.ics.list-1.sentence-1'>.</a></div></div></div><div class='para' id='over.ics.list-2'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2612'>#</a></div><div class='texpara'><div id='over.ics.list-2.sentence-1' class='sentence'>If the initializer list is a <a href='dcl.init.general#nt:designated-initializer-list' title='9.4.1&emsp;General&emsp;[dcl.init.general]'><span id='ntref:designated-initializer-list'><span class='textsf'><i >designated-initializer-list</i></span></span></a>,
+a conversion is only possible if
+the parameter has an aggregate type
+that can be initialized from the initializer list
+according to the rules for aggregate initialization (<a href='dcl.init.aggr' title='9.4.2&emsp;Aggregates'>[dcl.<span class='shy'></span>init.<span class='shy'></span>aggr]</a>),
+in which case the implicit conversion sequence is
+a user-defined conversion sequence
+whose second standard conversion sequence
+is an identity conversion<a class='hidden_link' href='#over.ics.list-2.sentence-1'>.</a></div> <div id='over.ics.list-note-1' class='note'><div class='texpara'>[<i>Note&nbsp;<a href='#over.ics.list-note-1'>1</a></i>: <div id='over.ics.list-2.sentence-2' class='sentence'>Aggregate initialization does not require that
+the members are declared in designation order<a class='hidden_link' href='#over.ics.list-2.sentence-2'>.</a></div> <div id='over.ics.list-2.sentence-3' class='sentence'>If, after overload resolution, the order does not match
+for the selected overload,
+the initialization of the parameter will be ill-formed (<a href='dcl.init.list' title='9.4.5&emsp;List-initialization'>[dcl.<span class='shy'></span>init.<span class='shy'></span>list]</a>)<a class='hidden_link' href='#over.ics.list-2.sentence-3'>.</a></div> <div id='over.ics.list-example-1' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.list-example-1'>1</a></i>: <span class='codeblock'><span class='keyword'>struct</span> A <span class='curlybracket'>{</span> <span class='keyword'>int</span> x, y; <span class='curlybracket'>}</span>;
+<span class='keyword'>struct</span> B <span class='curlybracket'>{</span> <span class='keyword'>int</span> y, x; <span class='curlybracket'>}</span>;
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>A a, <span class='keyword'>int</span><span class='parenthesis'>)</span>;               <span class='comment'>// #1</span>
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>B b, <span class='operator'>.</span><span class='operator'>.</span><span class='operator'>.</span><span class='parenthesis'>)</span>;               <span class='comment'>// #2</span>
+<span class='keyword'>void</span> g<span class='parenthesis'>(</span>A a<span class='parenthesis'>)</span>;                    <span class='comment'>// #3</span>
+<span class='keyword'>void</span> g<span class='parenthesis'>(</span>B b<span class='parenthesis'>)</span>;                    <span class='comment'>// #4</span>
+<span class='keyword'>void</span> h<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  f<span class='parenthesis'>(</span><span class='curlybracket'>{</span><span class='operator'>.</span>x <span class='operator'>=</span> <span class='literal'>1</span>, <span class='operator'>.</span>y <span class='operator'>=</span> <span class='literal'>2</span><span class='curlybracket'>}</span>, <span class='literal'>0</span><span class='parenthesis'>)</span>;       <span class='comment'>// OK; calls #1</span>
+  f<span class='parenthesis'>(</span><span class='curlybracket'>{</span><span class='operator'>.</span>y <span class='operator'>=</span> <span class='literal'>2</span>, <span class='operator'>.</span>x <span class='operator'>=</span> <span class='literal'>1</span><span class='curlybracket'>}</span>, <span class='literal'>0</span><span class='parenthesis'>)</span>;       <span class='comment'>// error: selects #1, initialization of <span class='tcode_in_codeblock'>a</span> fails</span>
+                                <span class='comment'>// due to non-matching member order (<a href='dcl.init.list' title='9.4.5&emsp;List-initialization'>[dcl.<span class='shy'></span>init.<span class='shy'></span>list]</a>)</span>
+  g<span class='parenthesis'>(</span><span class='curlybracket'>{</span><span class='operator'>.</span>x <span class='operator'>=</span> <span class='literal'>1</span>, <span class='operator'>.</span>y <span class='operator'>=</span> <span class='literal'>2</span><span class='curlybracket'>}</span><span class='parenthesis'>)</span>;          <span class='comment'>// error: ambiguous between #3 and #4</span>
+<span class='curlybracket'>}</span>
+</span> —&nbsp;<i>end example</i>]</div></div> —&nbsp;<i>end note</i>]</div></div></div></div><div class='para' id='over.ics.list-3'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2646'>#</a></div><div class='texpara'><div id='over.ics.list-3.sentence-1' class='sentence'>Otherwise,
+if the parameter type is an aggregate class <span class='texttt'>X</span> and the initializer list has a
+single element of type <span class='mathit'>cv</span> <span class='texttt'>U</span>, where <span class='texttt'>U</span> is <span class='texttt'>X</span>
+or a class derived from <span class='texttt'>X</span>, the implicit conversion sequence is the one
+required to convert the element to the parameter type<a class='hidden_link' href='#over.ics.list-3.sentence-1'>.</a></div></div></div><div class='para' id='over.ics.list-4'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2653'>#</a></div><div class='texpara'><div id='over.ics.list-4.sentence-1' class='sentence'>Otherwise, if the parameter type is a character array<a class='footnotenum' href='#footnote-129' id='footnoteref-129' title='Since there are no parameters of array type, this will only occur as the referenced type of a reference parameter.'>129</a>
+and the initializer list has a single element that is an appropriately-typed
+<a href='lex.string#nt:string-literal' title='5.13.5&emsp;String literals&emsp;[lex.string]'><span id='ntref:string-literal'><span class='textsf'><i >string-literal</i></span></span></a> (<a href='dcl.init.string' title='9.4.3&emsp;Character arrays'>[dcl.<span class='shy'></span>init.<span class='shy'></span>string]</a>), the implicit conversion
+sequence is the identity conversion<a class='hidden_link' href='#over.ics.list-4.sentence-1'>.</a></div></div></div><div class='para' id='over.ics.list-5'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-5'>5</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2663'>#</a></div><div class='texpara'><div id='over.ics.list-5.sentence-1' class='sentence'>Otherwise, if the parameter type is <span class='texttt'>std<span class='operator'>&#x200b;::&#x200b;</span>initializer_&shy;list<span class='anglebracket'>&lt;</span>X<span class='anglebracket'>&gt;</span></span>
+and all the elements
+of the initializer list can be implicitly converted to <span class='texttt'>X</span>, the implicit
+conversion sequence is the worst conversion necessary to convert an element of
+the list to <span class='texttt'>X</span>, or if the initializer list has no elements, the identity
+conversion<a class='hidden_link' href='#over.ics.list-5.sentence-1'>.</a></div> <div id='over.ics.list-5.sentence-2' class='sentence'>This conversion can be a user-defined conversion even in
+the context of a call to an initializer-list constructor<a class='hidden_link' href='#over.ics.list-5.sentence-2'>.</a></div> <div id='over.ics.list-example-2' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.list-example-2'>2</a></i>: <span class='codeblock'><span class='keyword'>void</span> f<span class='parenthesis'>(</span>std<span class='operator'>::</span>initializer_list<span class='anglebracket'>&lt;</span><span class='keyword'>int</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>;
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;                        <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(initializer_&shy;list&lt;int&gt;)</span> identity conversion</span>
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>1</span>,<span class='literal'>2</span>,<span class='literal'>3</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;                   <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(initializer_&shy;list&lt;int&gt;)</span> identity conversion</span>
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>'a'</span>,<span class='literal'>'b'</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;                 <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(initializer_&shy;list&lt;int&gt;)</span> integral promotion</span>
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>1.0</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;                     <span class='comment'>// error: narrowing</span>
+
+<span class='keyword'>struct</span> A <span class='curlybracket'>{</span>
+  A<span class='parenthesis'>(</span>std<span class='operator'>::</span>initializer_list<span class='anglebracket'>&lt;</span><span class='keyword'>double</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>;             <span class='comment'>// #1</span>
+  A<span class='parenthesis'>(</span>std<span class='operator'>::</span>initializer_list<span class='anglebracket'>&lt;</span>complex<span class='anglebracket'>&lt;</span><span class='keyword'>double</span><span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>;    <span class='comment'>// #2</span>
+  A<span class='parenthesis'>(</span>std<span class='operator'>::</span>initializer_list<span class='anglebracket'>&lt;</span>std<span class='operator'>::</span>string<span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>;        <span class='comment'>// #3</span>
+<span class='curlybracket'>}</span>;
+A a<span class='curlybracket'>{</span> <span class='literal'>1.0</span>,<span class='literal'>2.0</span> <span class='curlybracket'>}</span>;                 <span class='comment'>// OK, uses #1</span>
+
+<span class='keyword'>void</span> g<span class='parenthesis'>(</span>A<span class='parenthesis'>)</span>;
+g<span class='parenthesis'>(</span><span class='curlybracket'>{</span> <span class='literal'>"foo"</span>, <span class='literal'>"bar"</span> <span class='curlybracket'>}</span><span class='parenthesis'>)</span>;            <span class='comment'>// OK, uses #3</span>
+
+<span class='keyword'>typedef</span> <span class='keyword'>int</span> IA<span class='squarebracket'>[</span><span class='literal'>3</span><span class='squarebracket'>]</span>;
+<span class='keyword'>void</span> h<span class='parenthesis'>(</span><span class='keyword'>const</span> IA<span class='operator'>&amp;</span><span class='parenthesis'>)</span>;
+h<span class='parenthesis'>(</span><span class='curlybracket'>{</span> <span class='literal'>1</span>, <span class='literal'>2</span>, <span class='literal'>3</span> <span class='curlybracket'>}</span><span class='parenthesis'>)</span>;                 <span class='comment'>// OK: identity conversion</span>
+</span> —&nbsp;<i>end example</i>]</div></div></div></div><div class='para' id='over.ics.list-6'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-6'>6</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2695'>#</a></div><div class='texpara'><div id='over.ics.list-6.sentence-1' class='sentence'>Otherwise, if the parameter type is “array of <span class='texttt'>N</span> <span class='texttt'>X</span>”
+or “array of unknown bound of <span class='texttt'>X</span>”,
+if there exists an implicit conversion sequence
+from each element of the initializer list
+(and from <span class='texttt'><span class='curlybracket'>{</span><span class='curlybracket'>}</span></span> in the former case
+if <span class='texttt'>N</span> exceeds the number of elements in the initializer list)
+to <span class='texttt'>X</span>, the implicit conversion sequence is
+the worst such implicit conversion sequence<a class='hidden_link' href='#over.ics.list-6.sentence-1'>.</a></div></div></div><div class='para' id='over.ics.list-7'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-7'>7</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2705'>#</a></div><div class='texpara'><div id='over.ics.list-7.sentence-1' class='sentence'>Otherwise, if the parameter is a non-aggregate class <span class='texttt'>X</span> and overload
+resolution per <a href='over.match.list' title='12.4.2.8&emsp;Initialization by list-initialization'>[over.<span class='shy'></span>match.<span class='shy'></span>list]</a> chooses a single best constructor <span class='texttt'>C</span> of
+<span class='texttt'>X</span> to perform the initialization of an object of type <span class='texttt'>X</span> from the
+argument initializer list:
+<ul class='itemize'><li id='over.ics.list-7.1'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.ics.list-7.1'>(7.1)</a></div><div class='texpara'><div id='over.ics.list-7.1.sentence-1' class='sentence'>If <span class='texttt'>C</span> is not an initializer-list constructor
+and the initializer list has a single element of type <span class='mathit'>cv</span> <span class='texttt'>U</span>,
+where <span class='texttt'>U</span> is <span class='texttt'>X</span> or a class derived from <span class='texttt'>X</span>,
+the implicit conversion sequence has Exact Match rank if <span class='texttt'>U</span> is <span class='texttt'>X</span>,
+or Conversion rank if <span class='texttt'>U</span> is derived from <span class='texttt'>X</span><a class='hidden_link' href='#over.ics.list-7.1.sentence-1'>.</a></div></div></li><li id='over.ics.list-7.2'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.ics.list-7.2'>(7.2)</a></div><div class='texpara'><div id='over.ics.list-7.2.sentence-1' class='sentence'>Otherwise, the implicit conversion sequence is a user-defined
+conversion sequence with the second standard conversion sequence an
+identity conversion<a class='hidden_link' href='#over.ics.list-7.2.sentence-1'>.</a></div></div></li></ul></div> <div id='over.ics.list-7.sentence-2' class='sentence'>
+If multiple constructors are viable but none is better than
+the others, the implicit conversion sequence is the ambiguous conversion
+sequence<a class='hidden_link' href='#over.ics.list-7.sentence-2'>.</a></div> <div id='over.ics.list-7.sentence-3' class='sentence'>User-defined conversions are allowed for conversion of the initializer
+list elements to the constructor parameter types except as noted
+in <a href='#over.best.ics' title='12.4.4.2&emsp;Implicit conversion sequences'>[over.<span class='shy'></span>best.<span class='shy'></span>ics]</a><a class='hidden_link' href='#over.ics.list-7.sentence-3'>.</a></div> <div id='over.ics.list-example-3' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.list-example-3'>3</a></i>: <span class='codeblock'><span class='keyword'>struct</span> A <span class='curlybracket'>{</span>
+  A<span class='parenthesis'>(</span>std<span class='operator'>::</span>initializer_list<span class='anglebracket'>&lt;</span><span class='keyword'>int</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>;
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>A<span class='parenthesis'>)</span>;
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>'a'</span>, <span class='literal'>'b'</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;        <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(A(std&#x200b;::&#x200b;initializer_&shy;list&lt;int&gt;))</span> user-defined conversion</span>
+
+<span class='keyword'>struct</span> B <span class='curlybracket'>{</span>
+  B<span class='parenthesis'>(</span><span class='keyword'>int</span>, <span class='keyword'>double</span><span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>;
+<span class='keyword'>void</span> g<span class='parenthesis'>(</span>B<span class='parenthesis'>)</span>;
+g<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>'a'</span>, <span class='literal'>'b'</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;        <span class='comment'>// OK: <span class='tcode_in_codeblock'>g(B(int, double))</span> user-defined conversion</span>
+g<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>1.0</span>, <span class='literal'>1.0</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;        <span class='comment'>// error: narrowing</span>
+
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>B<span class='parenthesis'>)</span>;
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>'a'</span>, <span class='literal'>'b'</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;        <span class='comment'>// error: ambiguous <span class='tcode_in_codeblock'>f(A)</span> or <span class='tcode_in_codeblock'>f(B)</span></span>
+
+<span class='keyword'>struct</span> C <span class='curlybracket'>{</span>
+  C<span class='parenthesis'>(</span>std<span class='operator'>::</span>string<span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>;
+<span class='keyword'>void</span> h<span class='parenthesis'>(</span>C<span class='parenthesis'>)</span>;
+h<span class='parenthesis'>(</span><span class='curlybracket'>{</span><span class='literal'>"foo"</span><span class='curlybracket'>}</span><span class='parenthesis'>)</span>;             <span class='comment'>// OK: <span class='tcode_in_codeblock'>h(C(std&#x200b;::&#x200b;string("foo")))</span></span>
+
+<span class='keyword'>struct</span> D <span class='curlybracket'>{</span>
+  D<span class='parenthesis'>(</span>A, C<span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>;
+<span class='keyword'>void</span> i<span class='parenthesis'>(</span>D<span class='parenthesis'>)</span>;
+i<span class='parenthesis'>(</span><span class='curlybracket'>{</span> <span class='curlybracket'>{</span><span class='literal'>1</span>,<span class='literal'>2</span><span class='curlybracket'>}</span>, <span class='curlybracket'>{</span><span class='literal'>"bar"</span><span class='curlybracket'>}</span> <span class='curlybracket'>}</span><span class='parenthesis'>)</span>;  <span class='comment'>// OK: <span class='tcode_in_codeblock'>i(D(A(std&#x200b;::&#x200b;initializer_&shy;list&lt;int&gt;{1,2}), C(std&#x200b;::&#x200b;string("bar"))))</span></span>
+</span> —&nbsp;<i>end example</i>]</div></div></div></div><div class='para' id='over.ics.list-8'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-8'>8</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2759'>#</a></div><div class='texpara'><div id='over.ics.list-8.sentence-1' class='sentence'>Otherwise, if the parameter has an aggregate type which can be initialized from
+the initializer list according to the rules for <a href='dcl.init.aggr' title='9.4.2&emsp;Aggregates&emsp;[dcl.init.aggr]'>aggregate
+initialization</a>, the implicit conversion sequence is a
+user-defined conversion sequence with the second standard conversion
+sequence an identity conversion<a class='hidden_link' href='#over.ics.list-8.sentence-1'>.</a></div> <div id='over.ics.list-example-4' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.list-example-4'>4</a></i>: <span class='codeblock'><span class='keyword'>struct</span> A <span class='curlybracket'>{</span>
+  <span class='keyword'>int</span> m1;
+  <span class='keyword'>double</span> m2;
+<span class='curlybracket'>}</span>;
+
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span>A<span class='parenthesis'>)</span>;
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>'a'</span>, <span class='literal'>'b'</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;        <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(A(int,double))</span> user-defined conversion</span>
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>1.0</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;             <span class='comment'>// error: narrowing</span>
+</span> —&nbsp;<i>end example</i>]</div></div></div></div><div class='para' id='over.ics.list-9'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-9'>9</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2778'>#</a></div><div class='texpara'><div id='over.ics.list-9.sentence-1' class='sentence'>Otherwise, if the parameter is a reference, see <a href='#over.ics.ref' title='12.4.4.2.5&emsp;Reference binding'>[over.<span class='shy'></span>ics.<span class='shy'></span>ref]</a><a class='hidden_link' href='#over.ics.list-9.sentence-1'>.</a></div> <div id='over.ics.list-note-2' class='note'><div class='texpara'>[<i>Note&nbsp;<a href='#over.ics.list-note-2'>2</a></i>: <div id='over.ics.list-9.sentence-2' class='sentence'>The rules in this subclause will apply for initializing the underlying temporary
+for the reference<a class='hidden_link' href='#over.ics.list-9.sentence-2'>.</a></div> —&nbsp;<i>end note</i>]</div></div> <div id='over.ics.list-example-5' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.list-example-5'>5</a></i>: <span class='codeblock'><span class='keyword'>struct</span> A <span class='curlybracket'>{</span>
+  <span class='keyword'>int</span> m1;
+  <span class='keyword'>double</span> m2;
+<span class='curlybracket'>}</span>;
+
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span><span class='keyword'>const</span> A<span class='operator'>&amp;</span><span class='parenthesis'>)</span>;
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>'a'</span>, <span class='literal'>'b'</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;        <span class='comment'>// OK: <span class='tcode_in_codeblock'>f(A(int,double))</span> user-defined conversion</span>
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>1.0</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;             <span class='comment'>// error: narrowing</span>
+
+<span class='keyword'>void</span> g<span class='parenthesis'>(</span><span class='keyword'>const</span> <span class='keyword'>double</span> <span class='operator'>&amp;</span><span class='parenthesis'>)</span>;
+g<span class='parenthesis'>(</span><span class='curlybracket'>{</span><span class='literal'>1</span><span class='curlybracket'>}</span><span class='parenthesis'>)</span>;                 <span class='comment'>// same conversion as <span class='tcode_in_codeblock'>int</span> to <span class='tcode_in_codeblock'>double</span></span>
+</span> —&nbsp;<i>end example</i>]</div></div></div></div><div class='para' id='over.ics.list-10'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-10'>10</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2800'>#</a></div><div class='texpara'><div id='over.ics.list-10.sentence-1' class='sentence'>Otherwise, if the parameter type is not a class:
+<ul class='itemize'><li id='over.ics.list-10.1'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.ics.list-10.1'>(10.1)</a></div>if the initializer list has one element that is not itself an initializer list,
+the implicit conversion sequence is the one required to convert the element to
+the parameter type;
+<div id='over.ics.list-example-6' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.list-example-6'>6</a></i>: <span class='codeblock'><span class='keyword'>void</span> f<span class='parenthesis'>(</span><span class='keyword'>int</span><span class='parenthesis'>)</span>;
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>'a'</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;             <span class='comment'>// OK: same conversion as <span class='tcode_in_codeblock'>char</span> to <span class='tcode_in_codeblock'>int</span></span>
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>1.0</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;             <span class='comment'>// error: narrowing</span>
+</span> —&nbsp;<i>end example</i>]</div></div></li><li id='over.ics.list-10.2'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.ics.list-10.2'>(10.2)</a></div>if the initializer list has no elements, the implicit conversion sequence
+is the identity conversion<a class='hidden_link' href='#over.ics.list-10.sentence-1'>.</a> <div class='texpara'><div id='over.ics.list-example-7' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.list-example-7'>7</a></i>: <span class='codeblock'><span class='keyword'>void</span> f<span class='parenthesis'>(</span><span class='keyword'>int</span><span class='parenthesis'>)</span>;
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span> <span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;               <span class='comment'>// OK: identity conversion</span>
+</span> —&nbsp;<i>end example</i>]</div></div></div></li></ul></div></div></div><div class='para' id='over.ics.list-11'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.list-11'>11</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2824'>#</a></div><div class='texpara'><div id='over.ics.list-11.sentence-1' class='sentence'>In all cases other than those enumerated above, no conversion is possible<a class='hidden_link' href='#over.ics.list-11.sentence-1'>.</a></div></div></div><div class='footnote' id='footnote-129'><div class='footnoteNumberParent'><a class='marginalized' href='#footnote-129'>129)</a></div><div class='texpara'><div id='footnote-129.sentence-1' class='sentence'>Since there are no parameters of array type,
+this will only occur as the referenced type of a reference parameter<a class='hidden_link' href='#footnote-129.sentence-1'>.</a></div>&nbsp;<a href='#footnoteref-129'>⮥</a></div></div></div></div><div id='over.ics.rank' class='section'><h4 ><a class='secnum' href='#over.ics.rank' style='min-width:95pt'>12.4.4.3</a> Ranking implicit conversion sequences <a class='abbr_ref' href='over.ics.rank'>[over.ics.rank]</a></h4><div class='para' id='over.ics.rank-1'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.rank-1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2829'>#</a></div><div class='texpara'><div id='over.ics.rank-1.sentence-1' class='sentence'>This subclause defines a partial ordering of implicit conversion
+sequences based on the relationships
+<a class='hidden_link' href='#def:conversion_sequence,better' title='12.4.4.3&emsp;Ranking implicit conversion sequences&emsp;[over.ics.rank]'><span id='def:conversion_sequence,better'><i >better conversion sequence</i></span></a>
+and
+<a class='hidden_link' href='#def:conversion,better' title='12.4.4.3&emsp;Ranking implicit conversion sequences&emsp;[over.ics.rank]'><span id='def:conversion,better'><i >better conversion</i></span></a><a class='hidden_link' href='#over.ics.rank-1.sentence-1'>.</a></div> <div id='over.ics.rank-1.sentence-2' class='sentence'>If an implicit conversion sequence S1 is
+defined by these rules to be a better conversion sequence than
+S2, then it is also the case that S2 is a
+<a class='hidden_link' href='#def:conversion_sequence,worse' title='12.4.4.3&emsp;Ranking implicit conversion sequences&emsp;[over.ics.rank]'><span id='def:conversion_sequence,worse'><i >worse conversion sequence</i></span></a>
+than S1<a class='hidden_link' href='#over.ics.rank-1.sentence-2'>.</a></div> <div id='over.ics.rank-1.sentence-3' class='sentence'>If conversion sequence S1 is neither better
+than nor worse than conversion sequence S2, S1 and S2 are said to
+be
+<a class='hidden_link' href='#def:conversion_sequence,indistinguishable' title='12.4.4.3&emsp;Ranking implicit conversion sequences&emsp;[over.ics.rank]'><span id='def:conversion_sequence,indistinguishable'><i >indistinguishable conversion sequences</i></span></a><a class='hidden_link' href='#over.ics.rank-1.sentence-3'>.</a></div></div></div><div class='para' id='over.ics.rank-2'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.rank-2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2845'>#</a></div><div class='texpara'><div id='over.ics.rank-2.sentence-1' class='sentence'>When comparing the basic forms of implicit conversion sequences
+(as defined in <a href='#over.best.ics' title='12.4.4.2&emsp;Implicit conversion sequences'>[over.<span class='shy'></span>best.<span class='shy'></span>ics]</a>)
+<ul class='itemize'><li id='over.ics.rank-2.1'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.ics.rank-2.1'>(2.1)</a></div>a <a href='#over.ics.scs' title='12.4.4.2.2&emsp;Standard conversion sequences&emsp;[over.ics.scs]'>standard conversion sequence</a> is a better
+conversion sequence than a user-defined conversion sequence
+or an ellipsis conversion sequence, and</li><li id='over.ics.rank-2.2'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.ics.rank-2.2'>(2.2)</a></div>a <a href='#over.ics.user' title='12.4.4.2.3&emsp;User-defined conversion sequences&emsp;[over.ics.user]'>user-defined conversion sequence</a> is a
+better conversion sequence than an <a href='#over.ics.ellipsis' title='12.4.4.2.4&emsp;Ellipsis conversion sequences&emsp;[over.ics.ellipsis]'>ellipsis conversion
+sequence</a><a class='hidden_link' href='#over.ics.rank-2.sentence-1'>.</a></li></ul></div></div></div><div class='para' id='over.ics.rank-3'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.rank-3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L2859'>#</a></div><div class='texpara'><div id='over.ics.rank-3.sentence-1' class='sentence'>Two implicit conversion sequences of the same form are
+indistinguishable conversion sequences unless one of the
+following rules applies:
+<ul class='itemize'><li id='over.ics.rank-3.1'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.ics.rank-3.1'>(3.1)</a></div><div class='texpara'><div id='over.ics.rank-3.1.sentence-1' class='sentence'>List-initialization sequence <span class='texttt'>L1</span> is a better conversion sequence than
+list-initialization sequence <span class='texttt'>L2</span> if
+<ul class='itemize'><li id='over.ics.rank-3.1.1'><div class='marginalizedparent' style='left:-36mm'><a class='marginalized' href='#over.ics.rank-3.1.1'>(3.1.1)</a></div><span class='texttt'>L1</span> converts to <span class='texttt'>std<span class='operator'>&#x200b;::&#x200b;</span>initializer_&shy;list<span class='anglebracket'>&lt;</span>X<span class='anglebracket'>&gt;</span></span> for some <span class='texttt'>X</span> and
+<span class='texttt'>L2</span> does not, or, if not that,</li><li id='over.ics.rank-3.1.2'><div class='marginalizedparent' style='left:-36mm'><a class='marginalized' href='#over.ics.rank-3.1.2'>(3.1.2)</a></div><span class='texttt'>L1</span> and <span class='texttt'>L2</span> convert to arrays of the same element type, and
+either the number of elements <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow" aria-hidden="true"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">n</span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mn"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.372em; padding-bottom: 0.372em;">1</span></span></span></span></span></span></span> initialized by <span class='texttt'>L1</span>
+is less than the number of elements <span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow" aria-hidden="true"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">n</span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mn"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.372em; padding-bottom: 0.372em;">2</span></span></span></span></span></span></span> initialized by <span class='texttt'>L2</span>, or
+<span class="mjx-chtml"><span class="mjx-math"><span class="mjx-mrow" aria-hidden="true"><span class="mjx-msubsup"><span class="mjx-base"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">n</span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mn"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.372em; padding-bottom: 0.372em;">1</span></span></span></span><span class="mjx-mo MJXc-space3"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.077em; padding-bottom: 0.298em;">=</span></span><span class="mjx-msubsup MJXc-space3"><span class="mjx-base"><span class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.225em; padding-bottom: 0.298em;">n</span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span class="mjx-mn"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.372em; padding-bottom: 0.372em;">2</span></span></span></span></span></span></span> and
+<span class='texttt'>L2</span> converts to an array of unknown bound and <span class='texttt'>L1</span> does not,</li></ul>
+even if one of the other rules in this paragraph would otherwise apply<a class='hidden_link' href='#over.ics.rank-3.1.sentence-1'>.</a></div> <div id='over.ics.rank-example-1' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.rank-example-1'>1</a></i>: <span class='codeblock'><span class='keyword'>void</span> f1<span class='parenthesis'>(</span><span class='keyword'>int</span><span class='parenthesis'>)</span>;                                   <span class='comment'>// #1</span>
+<span class='keyword'>void</span> f1<span class='parenthesis'>(</span>std<span class='operator'>::</span>initializer_list<span class='anglebracket'>&lt;</span><span class='keyword'>long</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>;           <span class='comment'>// #2</span>
+<span class='keyword'>void</span> g1<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span> f1<span class='parenthesis'>(</span><span class='curlybracket'>{</span><span class='literal'>42</span><span class='curlybracket'>}</span><span class='parenthesis'>)</span>; <span class='curlybracket'>}</span>                         <span class='comment'>// chooses #2</span>
+
+<span class='keyword'>void</span> f2<span class='parenthesis'>(</span>std<span class='operator'>::</span>pair<span class='anglebracket'>&lt;</span><span class='keyword'>const</span> <span class='keyword'>char</span><span class='operator'>*</span>, <span class='keyword'>const</span> <span class='keyword'>char</span><span class='operator'>*</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>;   <span class='comment'>// #3</span>
+<span class='keyword'>void</span> f2<span class='parenthesis'>(</span>std<span class='operator'>::</span>initializer_list<span class='anglebracket'>&lt;</span>std<span class='operator'>::</span>string<span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span>;    <span class='comment'>// #4</span>
+<span class='keyword'>void</span> g2<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span> f2<span class='parenthesis'>(</span><span class='curlybracket'>{</span><span class='literal'>"foo"</span>,<span class='literal'>"bar"</span><span class='curlybracket'>}</span><span class='parenthesis'>)</span>; <span class='curlybracket'>}</span>                <span class='comment'>// chooses #4</span>
+</span> —&nbsp;<i>end example</i>]</div></div> <div id='over.ics.rank-example-2' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.rank-example-2'>2</a></i>: <span class='codeblock'><span class='keyword'>void</span> f<span class='parenthesis'>(</span><span class='keyword'>int</span>    <span class='parenthesis'>(</span><span class='operator'>&amp;</span><span class='operator'>&amp;</span><span class='parenthesis'>)</span><span class='squarebracket'>[</span><span class='squarebracket'>]</span> <span class='parenthesis'>)</span>;         <span class='comment'>// #1</span>
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span><span class='keyword'>double</span> <span class='parenthesis'>(</span><span class='operator'>&amp;</span><span class='operator'>&amp;</span><span class='parenthesis'>)</span><span class='squarebracket'>[</span><span class='squarebracket'>]</span> <span class='parenthesis'>)</span>;         <span class='comment'>// #2</span>
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span><span class='keyword'>int</span>    <span class='parenthesis'>(</span><span class='operator'>&amp;</span><span class='operator'>&amp;</span><span class='parenthesis'>)</span><span class='squarebracket'>[</span><span class='literal'>2</span><span class='squarebracket'>]</span><span class='parenthesis'>)</span>;         <span class='comment'>// #3</span>
+
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>1</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;           <span class='comment'>// Calls #1: Better than #2 due to conversion, better than #3 due to bounds</span>
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>1.0</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;         <span class='comment'>// Calls #2: Identity conversion is better than floating-integral conversion</span>
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>1.0</span>, <span class='literal'>2.0</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;    <span class='comment'>// Calls #2: Identity conversion is better than floating-integral conversion</span>
+f<span class='parenthesis'>(</span> <span class='curlybracket'>{</span><span class='literal'>1</span>, <span class='literal'>2</span><span class='curlybracket'>}</span> <span class='parenthesis'>)</span>;        <span class='comment'>// Calls #3: Converting to array of known bound is better than to unknown bound,</span>
+                    <span class='comment'>// and an identity conversion is better than floating-integral conversion</span>
+</span> —&nbsp;<i>end example</i>]</div></div></div></li><li id='over.ics.rank-3.2'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.ics.rank-3.2'>(3.2)</a></div><div class='texpara'><div id='over.ics.rank-3.2.sentence-1' class='sentence'>Standard conversion sequence
+<span class='texttt'>S1</span>
+is a better conversion
+sequence than standard conversion sequence
+<span class='texttt'>S2</span>
+if
+<ul class='itemize'><li id='over.ics.rank-3.2.1'><div class='marginalizedparent' style='left:-36mm'><a class='marginalized' href='#over.ics.rank-3.2.1'>(3.2.1)</a></div><div class='texpara'><div id='over.ics.rank-3.2.1.sentence-1' class='sentence'><a class='index' id=':subsequence_rule,overloading'></a><span class='texttt'>S1</span>
+is a proper subsequence of
+<span class='texttt'>S2</span>
+(comparing the conversion sequences in the canonical form defined
+by <a href='#over.ics.scs' title='12.4.4.2.2&emsp;Standard conversion sequences'>[over.<span class='shy'></span>ics.<span class='shy'></span>scs]</a>, excluding any Lvalue Transformation;
+the identity conversion sequence is considered to be a
+subsequence of any non-identity conversion sequence)
+or, if not that,</div></div></li><li id='over.ics.rank-3.2.2'><div class='marginalizedparent' style='left:-36mm'><a class='marginalized' href='#over.ics.rank-3.2.2'>(3.2.2)</a></div><div class='texpara'><div id='over.ics.rank-3.2.2.sentence-1' class='sentence'>the rank of
+<span class='texttt'>S1</span>
+is better than the rank of
+<span class='texttt'>S2</span>,
+or
+<span class='texttt'>S1</span>
+and
+<span class='texttt'>S2</span>
+have the same rank and are distinguishable by the rules
+in the paragraph below,
+or, if not that,</div></div></li><li id='over.ics.rank-3.2.3'><div class='marginalizedparent' style='left:-36mm'><a class='marginalized' href='#over.ics.rank-3.2.3'>(3.2.3)</a></div><div class='texpara'><div id='over.ics.rank-3.2.3.sentence-1' class='sentence'><span class='texttt'>S1</span> and <span class='texttt'>S2</span> include reference bindings (<a href='dcl.init.ref' title='9.4.4&emsp;References'>[dcl.<span class='shy'></span>init.<span class='shy'></span>ref]</a>) and
+neither refers to an implicit object parameter of a non-static member function
+declared without a <a href='dcl.decl.general#nt:ref-qualifier' title='9.3.1&emsp;General&emsp;[dcl.decl.general]'><span id='ntref:ref-qualifier'><span class='textsf'><i >ref-qualifier</i></span></span></a>,
+and <span class='texttt'>S1</span> binds an rvalue reference to an
+rvalue and <span class='texttt'>S2</span> binds an lvalue reference
+<div id='over.ics.rank-example-3' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.rank-example-3'>3</a></i>: <span class='codeblock'><span class='keyword'>int</span> i;
+<span class='keyword'>int</span> f1<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+<span class='keyword'>int</span><span class='operator'>&amp;</span><span class='operator'>&amp;</span> f2<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+<span class='keyword'>int</span> g<span class='parenthesis'>(</span><span class='keyword'>const</span> <span class='keyword'>int</span><span class='operator'>&amp;</span><span class='parenthesis'>)</span>;
+<span class='keyword'>int</span> g<span class='parenthesis'>(</span><span class='keyword'>const</span> <span class='keyword'>int</span><span class='operator'>&amp;</span><span class='operator'>&amp;</span><span class='parenthesis'>)</span>;
+<span class='keyword'>int</span> j <span class='operator'>=</span> g<span class='parenthesis'>(</span>i<span class='parenthesis'>)</span>;                   <span class='comment'>// calls <span class='tcode_in_codeblock'>g(const int&amp;)</span></span>
+<span class='keyword'>int</span> k <span class='operator'>=</span> g<span class='parenthesis'>(</span>f1<span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span>;                <span class='comment'>// calls <span class='tcode_in_codeblock'>g(const int&amp;&amp;)</span></span>
+<span class='keyword'>int</span> l <span class='operator'>=</span> g<span class='parenthesis'>(</span>f2<span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span>;                <span class='comment'>// calls <span class='tcode_in_codeblock'>g(const int&amp;&amp;)</span></span>
+
+<span class='keyword'>struct</span> A <span class='curlybracket'>{</span>
+  A<span class='operator'>&amp;</span> <span class='keyword'>operator</span><span class='anglebracket'>&lt;</span><span class='anglebracket'>&lt;</span><span class='parenthesis'>(</span><span class='keyword'>int</span><span class='parenthesis'>)</span>;
+  <span class='keyword'>void</span> p<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='operator'>&amp;</span>;
+  <span class='keyword'>void</span> p<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='operator'>&amp;</span><span class='operator'>&amp;</span>;
+<span class='curlybracket'>}</span>;
+A<span class='operator'>&amp;</span> <span class='keyword'>operator</span><span class='anglebracket'>&lt;</span><span class='anglebracket'>&lt;</span><span class='parenthesis'>(</span>A<span class='operator'>&amp;</span><span class='operator'>&amp;</span>, <span class='keyword'>char</span><span class='parenthesis'>)</span>;
+A<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='anglebracket'>&lt;</span><span class='anglebracket'>&lt;</span> <span class='literal'>1</span>;                       <span class='comment'>// calls <span class='tcode_in_codeblock'>A&#x200b;::&#x200b;<span id=':operator____'><span class='tcode_in_codeblock'>operator</span></span>&lt;&lt;(int)</span></span>
+A<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='anglebracket'>&lt;</span><span class='anglebracket'>&lt;</span> <span class='literal'>'c'</span>;                     <span class='comment'>// calls <span class='tcode_in_codeblock'><span id=':operator_____'><span class='tcode_in_codeblock'>operator</span></span>&lt;&lt;(A&amp;&amp;, char)</span></span>
+A a;
+a <span class='anglebracket'>&lt;</span><span class='anglebracket'>&lt;</span> <span class='literal'>1</span>;                         <span class='comment'>// calls <span class='tcode_in_codeblock'>A&#x200b;::&#x200b;<span id=':operator______'><span class='tcode_in_codeblock'>operator</span></span>&lt;&lt;(int)</span></span>
+a <span class='anglebracket'>&lt;</span><span class='anglebracket'>&lt;</span> <span class='literal'>'c'</span>;                       <span class='comment'>// calls <span class='tcode_in_codeblock'>A&#x200b;::&#x200b;<span id=':operator_______'><span class='tcode_in_codeblock'>operator</span></span>&lt;&lt;(int)</span></span>
+A<span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='operator'>.</span>p<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;                        <span class='comment'>// calls <span class='tcode_in_codeblock'>A&#x200b;::&#x200b;p()&amp;&amp;</span></span>
+a<span class='operator'>.</span>p<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;                          <span class='comment'>// calls <span class='tcode_in_codeblock'>A&#x200b;::&#x200b;p()&amp;</span></span>
+</span> —&nbsp;<i>end example</i>]</div></div>
+or, if not that,</div></div></li><li id='over.ics.rank-3.2.4'><div class='marginalizedparent' style='left:-36mm'><a class='marginalized' href='#over.ics.rank-3.2.4'>(3.2.4)</a></div><div class='texpara'><div id='over.ics.rank-3.2.4.sentence-1' class='sentence'><span class='texttt'>S1</span> and <span class='texttt'>S2</span> include reference bindings (<a href='dcl.init.ref' title='9.4.4&emsp;References'>[dcl.<span class='shy'></span>init.<span class='shy'></span>ref]</a>) and
+<span class='texttt'>S1</span> binds an lvalue reference to a function lvalue and <span class='texttt'>S2</span> binds
+an rvalue reference to a function lvalue
+<div id='over.ics.rank-example-4' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.rank-example-4'>4</a></i>: <span class='codeblock'><span class='keyword'>int</span> f<span class='parenthesis'>(</span><span class='keyword'>void</span><span class='parenthesis'>(</span><span class='operator'>&amp;</span><span class='parenthesis'>)</span><span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span>;               <span class='comment'>// #1</span>
+<span class='keyword'>int</span> f<span class='parenthesis'>(</span><span class='keyword'>void</span><span class='parenthesis'>(</span><span class='operator'>&amp;</span><span class='operator'>&amp;</span><span class='parenthesis'>)</span><span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span>;              <span class='comment'>// #2</span>
+<span class='keyword'>void</span> g<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+<span class='keyword'>int</span> i1 <span class='operator'>=</span> f<span class='parenthesis'>(</span>g<span class='parenthesis'>)</span>;                  <span class='comment'>// calls #1</span>
+</span> —&nbsp;<i>end example</i>]</div></div>
+or, if not that,</div></div></li><li id='over.ics.rank-3.2.5'><div class='marginalizedparent' style='left:-36mm'><a class='marginalized' href='#over.ics.rank-3.2.5'>(3.2.5)</a></div><div class='texpara'><div id='over.ics.rank-3.2.5.sentence-1' class='sentence'><span class='texttt'>S1</span> and <span class='texttt'>S2</span> differ only
+in their qualification conversion (<a href='conv.qual' title='7.3.6&emsp;Qualification conversions'>[conv.<span class='shy'></span>qual]</a>) and
+yield similar types <span class='texttt'>T1</span> and <span class='texttt'>T2</span>, respectively,
+where <span class='texttt'>T1</span> can be converted to <span class='texttt'>T2</span> by a qualification conversion<a class='hidden_link' href='#over.ics.rank-3.2.5.sentence-1'>.</a></div> <div id='over.ics.rank-example-5' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.rank-example-5'>5</a></i>: <span class='codeblock'><span class='keyword'>int</span> f<span class='parenthesis'>(</span><span class='keyword'>const</span> <span class='keyword'>volatile</span> <span class='keyword'>int</span> <span class='operator'>*</span><span class='parenthesis'>)</span>;
+<span class='keyword'>int</span> f<span class='parenthesis'>(</span><span class='keyword'>const</span> <span class='keyword'>int</span> <span class='operator'>*</span><span class='parenthesis'>)</span>;
+<span class='keyword'>int</span> i;
+<span class='keyword'>int</span> j <span class='operator'>=</span> f<span class='parenthesis'>(</span><span class='operator'>&amp;</span>i<span class='parenthesis'>)</span>;                  <span class='comment'>// calls <span class='tcode_in_codeblock'>f(const int*)</span></span>
+</span> —&nbsp;<i>end example</i>]</div></div> <div id='over.ics.rank-3.2.5.sentence-2' class='sentence'>
+or, if not that,</div></div></li><li id='over.ics.rank-3.2.6'><div class='marginalizedparent' style='left:-36mm'><a class='marginalized' href='#over.ics.rank-3.2.6'>(3.2.6)</a></div><div class='texpara'><div id='over.ics.rank-3.2.6.sentence-1' class='sentence'><span class='texttt'>S1</span>
+and
+<span class='texttt'>S2</span>
+include reference bindings (<a href='dcl.init.ref' title='9.4.4&emsp;References'>[dcl.<span class='shy'></span>init.<span class='shy'></span>ref]</a>), and the types to which the references
+refer are the same type except for top-level cv-qualifiers, and the type to
+which the reference initialized by
+<span class='texttt'>S2</span>
+refers is more cv-qualified than the type to which the reference initialized by
+<span class='texttt'>S1</span>
+refers<a class='hidden_link' href='#over.ics.rank-3.2.6.sentence-1'>.</a></div> <div id='over.ics.rank-example-6' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.rank-example-6'>6</a></i>: <span class='codeblock'><span class='keyword'>int</span> f<span class='parenthesis'>(</span><span class='keyword'>const</span> <span class='keyword'>int</span> <span class='operator'>&amp;</span><span class='parenthesis'>)</span>;
+<span class='keyword'>int</span> f<span class='parenthesis'>(</span><span class='keyword'>int</span> <span class='operator'>&amp;</span><span class='parenthesis'>)</span>;
+<span class='keyword'>int</span> g<span class='parenthesis'>(</span><span class='keyword'>const</span> <span class='keyword'>int</span> <span class='operator'>&amp;</span><span class='parenthesis'>)</span>;
+<span class='keyword'>int</span> g<span class='parenthesis'>(</span><span class='keyword'>int</span><span class='parenthesis'>)</span>;
+
+<span class='keyword'>int</span> i;
+<span class='keyword'>int</span> j <span class='operator'>=</span> f<span class='parenthesis'>(</span>i<span class='parenthesis'>)</span>;                   <span class='comment'>// calls <span class='tcode_in_codeblock'>f(int &amp;)</span></span>
+<span class='keyword'>int</span> k <span class='operator'>=</span> g<span class='parenthesis'>(</span>i<span class='parenthesis'>)</span>;                   <span class='comment'>// ambiguous</span>
+
+<span class='keyword'>struct</span> X <span class='curlybracket'>{</span>
+  <span class='keyword'>void</span> f<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='keyword'>const</span>;
+  <span class='keyword'>void</span> f<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>;
+<span class='keyword'>void</span> g<span class='parenthesis'>(</span><span class='keyword'>const</span> X<span class='operator'>&amp;</span> a, X b<span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  a<span class='operator'>.</span>f<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;                        <span class='comment'>// calls <span class='tcode_in_codeblock'>X&#x200b;::&#x200b;f() const</span></span>
+  b<span class='operator'>.</span>f<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;                        <span class='comment'>// calls <span class='tcode_in_codeblock'>X&#x200b;::&#x200b;f()</span></span>
+<span class='curlybracket'>}</span>
+</span> —&nbsp;<i>end example</i>]</div></div></div></li></ul></div></div></li><li id='over.ics.rank-3.3'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.ics.rank-3.3'>(3.3)</a></div><div class='texpara'><div id='over.ics.rank-3.3.sentence-1' class='sentence'>User-defined conversion sequence
+<span class='texttt'>U1</span>
+is a better conversion sequence than another user-defined conversion
+sequence
+<span class='texttt'>U2</span>
+if they contain the same user-defined conversion function or
+constructor or they initialize the same class in an aggregate
+initialization and in either case the second standard conversion
+sequence of
+<span class='texttt'>U1</span>
+is better than
+the second standard conversion sequence of
+<span class='texttt'>U2</span><a class='hidden_link' href='#over.ics.rank-3.3.sentence-1'>.</a></div> <div id='over.ics.rank-example-7' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.rank-example-7'>7</a></i>: <span class='codeblock'><span class='keyword'>struct</span> A <span class='curlybracket'>{</span>
+  <span class='keyword'>operator</span> <span class='keyword'>short</span><span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span> a;
+<span class='keyword'>int</span> f<span class='parenthesis'>(</span><span class='keyword'>int</span><span class='parenthesis'>)</span>;
+<span class='keyword'>int</span> f<span class='parenthesis'>(</span><span class='keyword'>float</span><span class='parenthesis'>)</span>;
+<span class='keyword'>int</span> i <span class='operator'>=</span> f<span class='parenthesis'>(</span>a<span class='parenthesis'>)</span>;                   <span class='comment'>// calls <span class='tcode_in_codeblock'>f(int)</span>, because <span class='tcode_in_codeblock'>short</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>int</span> is</span>
+                                <span class='comment'>// better than <span class='tcode_in_codeblock'>short</span> <span class='math'>→</span> <span class='tcode_in_codeblock'>float</span>.</span>
+</span> —&nbsp;<i>end example</i>]</div></div></div></li></ul></div></div></div><div class='para' id='over.ics.rank-4'><div class='marginalizedparent'><a class='marginalized' href='#over.ics.rank-4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/2c6009b1c756eb2e0391e9460d8f70b29015cc9c/source/overloading.tex#L3058'>#</a></div><div class='texpara'><div id='over.ics.rank-4.sentence-1' class='sentence'>Standard conversion sequences are ordered by their ranks: an Exact Match is a
+better conversion than a Promotion, which is a better conversion than
+a Conversion<a class='hidden_link' href='#over.ics.rank-4.sentence-1'>.</a></div> <div id='over.ics.rank-4.sentence-2' class='sentence'>Two conversion sequences with the same rank are indistinguishable unless
+one of the following rules applies:
+<ul class='itemize'><li id='over.ics.rank-4.1'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.ics.rank-4.1'>(4.1)</a></div><div class='texpara'><div id='over.ics.rank-4.1.sentence-1' class='sentence'>A conversion that does not convert a pointer or a pointer to member
+to
+<span class='texttt'><span class='keyword'>bool</span></span>
+is better than one that does<a class='hidden_link' href='#over.ics.rank-4.1.sentence-1'>.</a></div></div></li><li id='over.ics.rank-4.2'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.ics.rank-4.2'>(4.2)</a></div><div class='texpara'><div id='over.ics.rank-4.2.sentence-1' class='sentence'>A conversion that promotes an enumeration whose underlying type is fixed to its underlying
+type is better than one that promotes to the promoted underlying type, if the two are
+different<a class='hidden_link' href='#over.ics.rank-4.2.sentence-1'>.</a></div></div></li><li id='over.ics.rank-4.3'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.ics.rank-4.3'>(4.3)</a></div><div class='texpara'><div id='over.ics.rank-4.3.sentence-1' class='sentence'>If class
+<span class='texttt'>B</span>
+is derived directly or indirectly from class
+<span class='texttt'>A</span>,
+conversion of
+<span class='texttt'>B<span class='operator'>*</span></span>
+to
+<span class='texttt'>A<span class='operator'>*</span></span>
+is better than conversion of
+<span class='texttt'>B<span class='operator'>*</span></span>
+to
+<span class='texttt'><span class='keyword'>void</span><span class='operator'>*</span></span>,
+and conversion of
+<span class='texttt'>A<span class='operator'>*</span></span>
+to
+<span class='texttt'><span class='keyword'>void</span><span class='operator'>*</span></span>
+is better than conversion
+of
+<span class='texttt'>B<span class='operator'>*</span></span>
+to
+<span class='texttt'><span class='keyword'>void</span><span class='operator'>*</span></span><a class='hidden_link' href='#over.ics.rank-4.3.sentence-1'>.</a></div></div></li><li id='over.ics.rank-4.4'><div class='marginalizedparent' style='left:-27mm'><a class='marginalized' href='#over.ics.rank-4.4'>(4.4)</a></div><div class='texpara'><div id='over.ics.rank-4.4.sentence-1' class='sentence'>If class
+<span class='texttt'>B</span>
+is derived directly or indirectly from class
+<span class='texttt'>A</span>
+and class
+<span class='texttt'>C</span>
+is derived directly or indirectly from
+<span class='texttt'>B</span>,
+<ul class='itemize'><li id='over.ics.rank-4.4.1'><div class='marginalizedparent' style='left:-36mm'><a class='marginalized' href='#over.ics.rank-4.4.1'>(4.4.1)</a></div>conversion of
+<span class='texttt'>C<span class='operator'>*</span></span>
+to
+<span class='texttt'>B<span class='operator'>*</span></span>
+is better than conversion of
+<span class='texttt'>C<span class='operator'>*</span></span>
+to
+<span class='texttt'>A<span class='operator'>*</span></span>,
+<div id='over.ics.rank-example-8' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#over.ics.rank-example-8'>8</a></i>: <span class='codeblock'><span class='keyword'>struct</span> A <span class='curlybracket'>{</span><span class='curlybracket'>}</span>;
+<span class='keyword'>struct</span> B <span class='operator'>:</span> <span class='keyword'>public</span> A <span class='curlybracket'>{</span><span class='curlybracket'>}</span>;
+<span class='keyword'>struct</span> C <span class='operator'>:</span> <span class='keyword'>public</span> B <span class='curlybracket'>{</span><span class='curlybracket'>}</span>;
+C<span class='operator'>*</span> pc;
+<span class='keyword'>int</span> f<span class='parenthesis'>(</span>A<span class='operator'>*</span><span class='parenthesis'>)</span>;
+<span class='keyword'>int</span> f<span class='parenthesis'>(</span>B<span class='operator'>*</span><span class='parenthesis'>)</span>;
+<span class='keyword'>int</span> i <span class='operator'>=</span> f<span class='parenthesis'>(</span>pc<span class='parenthesis'>)</span>;                  <span class='comment'>// calls <span class='tcode_in_codeblock'>f(B*)</span></span>
+</span> —&nbsp;<i>end example</i>]</div></div></li><li id='over.ics.rank-4.4.2'><div class='marginalizedparent' style='left:-36mm'><a class='marginalized' href='#over.ics.rank-4.4.2'>(4.4.2)</a></div>binding of an expression of type
+<span class='texttt'>C</span>
+to a reference to type
+<span class='texttt'>B</span>
+is better than binding an expression of type
+<span class='texttt'>C</span>
+to a reference to type
+<span class='texttt'>A</span>,</li><li id='over.ics.rank-4.4.3'><div class='marginalizedparent' style='left:-36mm'><a class='marginalized' href='#over.ics.rank-4.4.3'>(4.4.3)</a></div>conversion of
+<span class='texttt'>A<span class='operator'>&#x200b;::&#x200b;</span><span class='operator'>*</span></span>
+to
+<span class='texttt'>B<span class='operator'>&#x200b;::&#x200b;</span><span class='operator'>*</span></span>
+is better than conversion of
+<span class='texttt'>A<span class='operator'>&#x200b;::&#x200b;</span><span class='operator'>*</span></span>
+to
+<span class='texttt'>C<span class='operator'>&#x200b;::&#x200b;</span><span class='operator'>*</span></span>,</li><li id='over.ics.rank-4.4.4'><div class='marginalizedparent' style='left:-36mm'><a class='marginalized' href='#over.ics.rank-4.4.4'>(4.4.4)</a></div>conversion of
+<span class='texttt'>C</span>
+to
+<span class='texttt'>B</span>
+is better than conversion of
+<span class='texttt'>C</span>
+to
+<span class='texttt'>A</span>,</li><li id='over.ics.rank-4.4.5'><div class='marginalizedparent' style='left:-36mm'><a class='marginalized' href='#over.ics.rank-4.4.5'>(4.4.5)</a></div>conversion of
+<span class='texttt'>B<span class='operator'>*</span></span>
+to
+<span class='texttt'>A<span class='operator'>*</span></span>
+is better than conversion of
+<span class='texttt'>C<span class='operator'>*</span></span>
+to
+<span class='texttt'>A<span class='operator'>*</span></span>,</li><li id='over.ics.rank-4.4.6'><div class='marginalizedparent' style='left:-36mm'><a class='marginalized' href='#over.ics.rank-4.4.6'>(4.4.6)</a></div>binding of an expression of type
+<span class='texttt'>B</span>
+to a reference to type
+<span class='texttt'>A</span>
+is better than binding an expression of type
+<span class='texttt'>C</span>
+to a
+reference to type
+<span class='texttt'>A</span>,</li><li id='over.ics.rank-4.4.7'><div class='marginalizedparent' style='left:-36mm'><a class='marginalized' href='#over.ics.rank-4.4.7'>(4.4.7)</a></div>conversion of
+<span class='texttt'>B<span class='operator'>&#x200b;::&#x200b;</span><span class='operator'>*</span></span>
+to
+<span class='texttt'>C<span class='operator'>&#x200b;::&#x200b;</span><span class='operator'>*</span></span>
+is better than conversion
+of
+<span class='texttt'>A<span class='operator'>&#x200b;::&#x200b;</span><span class='operator'>*</span></span>
+to
+<span class='texttt'>C<span class='operator'>&#x200b;::&#x200b;</span><span class='operator'>*</span></span>,
+and</li><li id='over.ics.rank-4.4.8'><div class='marginalizedparent' style='left:-36mm'><a class='marginalized' href='#over.ics.rank-4.4.8'>(4.4.8)</a></div>conversion of
+<span class='texttt'>B</span>
+to
+<span class='texttt'>A</span>
+is better than conversion of
+<span class='texttt'>C</span>
+to
+<span class='texttt'>A</span><a class='hidden_link' href='#over.ics.rank-4.4.sentence-1'>.</a></li></ul></div></div><div class='texpara'><div id='over.ics.rank-note-1' class='note'><div class='texpara'>[<i>Note&nbsp;<a href='#over.ics.rank-note-1'>1</a></i>: <div id='over.ics.rank-4.4.sentence-2' class='sentence'>Compared conversion sequences will have different source types only in the
+context of comparing the second standard conversion sequence of an
+initialization by user-defined conversion (see <a href='#over.match.best' title='12.4.4&emsp;Best viable function'>[over.<span class='shy'></span>match.<span class='shy'></span>best]</a>); in
+all other contexts, the source types will be the same and the target
+types will be different<a class='hidden_link' href='#over.ics.rank-4.4.sentence-2'>.</a></div> —&nbsp;<i>end note</i>]</div></div></div></li></ul></div> </div></div></div></div></body></html>
