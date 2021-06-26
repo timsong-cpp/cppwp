@@ -7,7 +7,7 @@ echo "htmlgen $(git rev-parse HEAD)" > ../thisbuild.tmp
 
 cd ../draft
 
-echo "draft $(git rev-parse origin/master)" >> ../thisbuild.tmp
+echo "draft $(git rev-parse origin/main)" >> ../thisbuild.tmp
 
 cd ..
 
@@ -34,7 +34,7 @@ fi
 
 # Build the standard
 cd draft/source
-git reset --hard origin/master
+git reset --hard origin/main
 
 if [ -f ../../all.patch ]
 then
