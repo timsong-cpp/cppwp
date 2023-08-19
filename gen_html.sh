@@ -24,6 +24,7 @@ fi
 cd ..
 if [ "$1" != "nopush" ]
 then
+git add *.patch
 git commit -am 'Update'
 git push
 fi
