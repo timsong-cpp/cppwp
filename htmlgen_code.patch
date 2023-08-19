@@ -1,7 +1,51 @@
-From 411eddd3f44b0a28cc959a5fec3e7087e9c7fafe Mon Sep 17 00:00:00 2001
+From 7e0735a612f164a1b0fdcc1880132f336d770ae2 Mon Sep 17 00:00:00 2001
 From: timsong-cpp <rs2740@gmail.com>
-Date: Tue, 15 Aug 2023 23:30:52 -0500
-Subject: [PATCH] update for assets
+Date: Sat, 19 Aug 2023 16:59:21 -0500
+Subject: [PATCH 1/3] Handle non-ASCII characters in parsing
+
+---
+ LaTeXParser.hs | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/LaTeXParser.hs b/LaTeXParser.hs
+index beefe80..b747da0 100644
+--- a/LaTeXParser.hs
++++ b/LaTeXParser.hs
+@@ -10,7 +10,7 @@ module LaTeXParser (parseString,
+ import LaTeXBase (LaTeXUnit(..), LaTeX, TeXArg, ArgKind(..), MathType(..), concatRaws)
+ import Data.Text (Text)
+ import qualified Data.Text as Text
+-import Data.Char (isAlphaNum, isSpace, isAlpha)
++import Data.Char (isAlphaNum, isSpace, isAlpha, isAscii)
+ import Data.Maybe (fromJust)
+ import Control.Arrow (first)
+ import Data.Map (Map)
+@@ -327,7 +327,7 @@ parseCode envname c = concatRaws . go Nothing
+ 		go b (Token "/" : rest) = TeXRaw "/" : go b rest
+ 		go b s = TeXRaw (Text.pack $ concatMap tokenChars code) : go b rest
+ 			where
+-			  breakToks = [Token "@", Token "/"] ++ 
++			  breakToks = [Token "@", Token "/"] ++
+ 			    case b of
+ 			      Nothing -> [Token "\"", Token "'"]
+ 			      Just StringLiteral -> [Token "\""]
+@@ -436,7 +436,7 @@ parse ctx (Token c : rest)
+ 	| all isAlphaNum c
+ 		= prependContent [TeXRaw $ Text.pack c] $ parse ctx rest
+ parse ctx (Token [c] : rest)
+-	| isAlphaNum c || isSpace c || (c `elem` (".^|,[]':@-+=()!/;*~\"“”_<>&$?#" :: String))
++	| isAlphaNum c || isSpace c || not (isAscii c) || (c `elem` (".^|,[]':@-+=()!/;*~\"“”_<>&$?#" :: String))
+ 		= prependContent [TeXRaw $ Text.pack [c]] $ parse ctx rest
+ parse _ s = error $ "parse: unexpected: " ++ take 100 (concatMap tokenChars s)
+ 
+-- 
+2.34.1
+
+
+From e1aa687e572582050902a67d6f60d71cfc671012 Mon Sep 17 00:00:00 2001
+From: timsong-cpp <rs2740@gmail.com>
+Date: Sat, 19 Aug 2023 17:00:00 -0500
+Subject: [PATCH 2/3] Handle new figure location
 
 ---
  RawDocument.hs | 2 +-
@@ -20,6 +64,131 @@ index 859a6ee..db4c7b5 100644
  		svg <- readProcess "dot" ["-Tsvg",
  			"-Gbgcolor=transparent",
  			"-Gsize=8",
+-- 
+2.34.1
+
+
+From 81a1e53805b1e9e423375ba92076eef8a454a649 Mon Sep 17 00:00:00 2001
+From: timsong-cpp <rs2740@gmail.com>
+Date: Sat, 19 Aug 2023 17:01:41 -0500
+Subject: [PATCH 3/3] Replace Courier New with font list from Bikeshed
+
+The former does not handle some combining characters (read: the ones used in the example) correctly.
+---
+ 14882.css | 34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
+
+diff --git a/14882.css b/14882.css
+index 21d78b6..948aea4 100644
+--- a/14882.css
++++ b/14882.css
+@@ -103,7 +103,7 @@ h4::after {
+ ul > li:before {
+ 	content: "\2014";
+ 	position: absolute;
+-	margin-left: -1.5em; 
++	margin-left: -1.5em;
+ }
+ 
+ .shy:before {
+@@ -221,7 +221,7 @@ div.itemdescr {
+ 	line-height: 1.4;
+ }
+ 
+-div.bnf span.texttt { font-family: Courier New; font-size: 9pt; font-style: normal; }
++div.bnf span.texttt { font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace; font-size: 9pt; font-style: normal; }
+ 
+ .rebnf {
+ 	font-family: Times New Roman;
+@@ -270,20 +270,20 @@ span.rlap {
+ }
+ 
+ span.terminal {
+-	font-family: Courier New;
++	font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace;
+ 	font-style: normal;
+ 	font-size: 9pt;
+ 	white-space: pre-wrap;
+ }
+ 
+ span.noncxxterminal {
+-	font-family: Courier New;
++	font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace;
+ 	font-style: normal;
+ 	font-size: 9pt;
+ }
+ 
+ span.term { font-style: italic; }
+-span.tcode { font-family: Courier New; font-style: normal; }
++span.tcode { font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace; font-style: normal; }
+ span.textbf { font-weight: bold; }
+ span.textsf { font-family: Arial; font-size: 15px; }
+ div.footnote span.textsf { font-family: Arial; font-size: 11px; }
+@@ -300,15 +300,15 @@ span.mathsf { font-family: Arial; }
+ span.mathrm { font-family: Times New Roman; font-style: normal; }
+ span.textrm { font-family: Times New Roman; font-size: 12pt; }
+ span.textsl { font-style: italic; }
+-span.mathtt { font-family: Courier New; font-style: normal; }
++span.mathtt { font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace; font-style: normal; }
+ span.mbox { font-family: Times New Roman; font-style: normal; }
+ span.ungap { display: inline-block; width: 2pt; }
+-h2 span.texttt { font-family: Courier New; font-size: 12pt; }
+-h3 span.texttt { font-family: Courier New; font-size: 12pt; }
+-h4 span.texttt { font-family: Courier New; font-size: 11pt; }
+-span.texttt { font-family: Courier New; font-size: 10pt; }
+-div.footnote span.texttt { font-family: Courier New; font-size: 11px; }
+-span.tcode_in_codeblock { font-family: Courier New; font-style: normal; font-size: 10pt; }
++h2 span.texttt { font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace; font-size: 12pt; }
++h3 span.texttt { font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace; font-size: 12pt; }
++h4 span.texttt { font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace; font-size: 11pt; }
++span.texttt { font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace; font-size: 10pt; }
++div.footnote span.texttt { font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace; font-size: 11px; }
++span.tcode_in_codeblock { font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace; font-style: normal; font-size: 10pt; }
+ 
+ span.phantom { color: white; }
+ 	/* Unfortunately, this way the text is still selectable. Another
+@@ -346,7 +346,7 @@ span.definition {
+ }
+ 
+ .codeblock {
+-	font-family: Courier New;
++	font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace;
+ 	margin-left: 1.2em;
+ 	line-height: 140%;
+ 	font-size: 10pt;
+@@ -363,12 +363,12 @@ table .codeblock { margin-right: 0; }
+ .outputblock {
+ 	margin-left: 1.2em;
+ 	line-height: 140%;
+-	font-family: Courier New;
++	font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace;
+ 	font-size: 10pt;
+ }
+ 
+ code {
+-	font-family: Courier New;
++	font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace;
+ 	font-style: normal;
+ }
+ 
+@@ -378,7 +378,7 @@ div.itemdecl {
+ 
+ code.itemdeclcode {
+ 	white-space: pre;
+-	font-family: Courier New;
++	font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace;
+ 	font-size: 10pt;
+ 	display: block;
+ 	overflow: auto;
+@@ -395,7 +395,7 @@ span.parenthesis { color: #af1915; }
+ span.curlybracket { color: #af1915; }
+ span.squarebracket { color: #af1915; }
+ span.literal { color: #9F6807; }
+-span.literalterminal { color: #9F6807; font-family: Courier New; font-style: normal; }
++span.literalterminal { color: #9F6807; font-family: Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace; font-style: normal; }
+ span.operator { color: #570057; }
+ span.anglebracket { color: #570057; }
+ span.preprocessordirective { color: #6F4E37; }
 -- 
 2.34.1
 
