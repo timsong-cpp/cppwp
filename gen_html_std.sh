@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /usr/bin/bash
 
 # check if we need to rebuild
 cd cxxdraft-htmlgen
