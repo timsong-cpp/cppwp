@@ -1,4 +1,4 @@
-#! /usr/bin/bash
+#! /bin/sh
 
 # check if we need to rebuild
 cd cxxdraft-htmlgen
@@ -48,7 +48,7 @@ cp std.pdf std_orig.pdf
 # create the "annex-f" file that maps stable names to section numbers
   grep newlabel *.aux \
 | sed 's/\\newlabel{\([^}]*\)}.*TitleReference {\([^}]*\)}.*/\1 \2/' \
-| sed 's/\\newlabel{\([^}]*\)}{{\(Clause\|Annex\) \([^}]*\)}.*/\1 \3/' \
+| sed 's/\(Clause\|Annex\) //' \
 | grep -v "aux:tab:" \
 | grep -v "aux:fig:" \
 | sed 's/\(.*\).aux://' \
