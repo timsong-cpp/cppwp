@@ -1,8 +1,21 @@
 <!DOCTYPE html><html lang='en'><head><title>[thread.stoptoken.syn]</title><meta charset='UTF-8'/><link rel='stylesheet' type='text/css' href='14882.css'/><link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css2?family=Noto+Serif'/><link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css2?family=Noto+Sans'/><link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css2?family=Noto+Sans+Mono'/><link rel='icon' href='icon.png'/><link rel='stylesheet' type='text/css' href='expanded.css' title='Normal'/><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'/><link rel='alternate stylesheet' type='text/css' href='normative-only.css' title='Notes and examples hidden'/></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:50pt'>33</a> Concurrency support library <a class='abbr_ref' href='./#thread'>[thread]</a></h1><h2 ><a class='secnum' style='min-width:65pt'>33.3</a> Stop tokens <a class='abbr_ref' href='thread.stoptoken#syn'>[thread.stoptoken]</a></h2><h3 ><a class='secnum' style='min-width:80pt'>33.3.2</a> Header <span class='texttt'>&lt;stop_<span class='shy'></span>token&gt;</span> synopsis <a class='abbr_ref'>[thread.stoptoken.syn]</a></h3><div class='texpara'><span id='header:<stop_token>'><div class='marginalizedparent'><a class='itemDeclLink' href='#header:%3cstop_token%3e'>🔗</a></div><span class='codeblock'><span class='keyword'>namespace</span> std <span class='curlybracket'>{</span>
-  <span class='comment'>// <a href='stoptoken' title='33.3.3&emsp;Class stop_&shy;token'>[stoptoken]</a>, class <span class='tcode_in_codeblock'>stop_<span class='shy'></span>token</span></span>
+  <span class='comment'>// <a href='stoptoken.concepts' title='33.3.3&emsp;Stop token concepts'>[stoptoken.<span class='shy'></span>concepts]</a>, stop token concepts</span>
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> CallbackFn, <span class='keyword'>class</span> Token, <span class='keyword'>class</span> Initializer <span class='operator'>=</span> CallbackFn<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>concept</span> <a href='stoptoken.concepts#concept:stoppable-callback-for' title='33.3.3&emsp;Stop token concepts&emsp;[stoptoken.concepts]'><span id='conceptref:stoppable-callback-for'><span class='tcode_in_codeblock'><i >stoppable-callback-for</i></span></span></a> <span class='operator'>=</span> <i ><span class='texttt'>see below</span></i>;           <span class='comment'>// <i >exposition only</i></span>
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> Token<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>concept</span> <a href='stoptoken.concepts#concept:stoppable_token' title='33.3.3&emsp;Stop token concepts&emsp;[stoptoken.concepts]'><span id='conceptref:stoppable_token'><span class='tcode_in_codeblock'>stoppable_<span class='shy'></span>token</span></span></a> <span class='operator'>=</span> <i ><span class='texttt'>see below</span></i>;
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> Token<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>concept</span> <a href='stoptoken.concepts#concept:unstoppable_token' title='33.3.3&emsp;Stop token concepts&emsp;[stoptoken.concepts]'><span id='conceptref:unstoppable_token'><span class='tcode_in_codeblock'>unstoppable_<span class='shy'></span>token</span></span></a> <span class='operator'>=</span> <i ><span class='texttt'>see below</span></i>;
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> Source<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>concept</span> <a href='stoptoken.concepts#concept:stoppable-source' title='33.3.3&emsp;Stop token concepts&emsp;[stoptoken.concepts]'><span id='conceptref:stoppable-source'><span class='tcode_in_codeblock'><i >stoppable-source</i></span></span></a> <span class='operator'>=</span> <i ><span class='texttt'>see below</span></i>;                 <span class='comment'>// <i >exposition only</i></span>
+
+  <span class='comment'>// <a href='stoptoken' title='33.3.4&emsp;Class stop_&shy;token'>[stoptoken]</a>, class <span class='tcode_in_codeblock'>stop_<span class='shy'></span>token</span></span>
   <span class='keyword'>class</span> stop_token;
 
-  <span class='comment'>// <a href='stopsource' title='33.3.4&emsp;Class stop_&shy;source'>[stopsource]</a>, class <span class='tcode_in_codeblock'>stop_<span class='shy'></span>source</span></span>
+  <span class='comment'>// <a href='stopsource' title='33.3.5&emsp;Class stop_&shy;source'>[stopsource]</a>, class <span class='tcode_in_codeblock'>stop_<span class='shy'></span>source</span></span>
   <span class='keyword'>class</span> stop_source;
 
   <span class='comment'>// no-shared-stop-state indicator</span>
@@ -11,8 +24,24 @@
   <span class='curlybracket'>}</span>;
   <span class='keyword'>inline</span> <span class='keyword'>constexpr</span> nostopstate_t nostopstate<span class='curlybracket'>{</span><span class='curlybracket'>}</span>;
 
-  <span class='comment'>// <a href='stopcallback' title='33.3.5&emsp;Class template stop_&shy;callback'>[stopcallback]</a>, class template <span class='tcode_in_codeblock'>stop_<span class='shy'></span>callback</span></span>
+  <span class='comment'>// <a href='stopcallback' title='33.3.6&emsp;Class template stop_&shy;callback'>[stopcallback]</a>, class template <span class='tcode_in_codeblock'>stop_<span class='shy'></span>callback</span></span>
   <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> Callback<span class='anglebracket'>&gt;</span>
     <span class='keyword'>class</span> stop_callback;
+
+  <span class='comment'>// <a href='stoptoken.never' title='33.3.7&emsp;Class never_&shy;stop_&shy;token'>[stoptoken.<span class='shy'></span>never]</a>, class <span class='tcode_in_codeblock'>never_<span class='shy'></span>stop_<span class='shy'></span>token</span></span>
+  <span class='keyword'>class</span> never_stop_token;
+
+  <span class='comment'>// <a href='stoptoken.inplace' title='33.3.8&emsp;Class inplace_&shy;stop_&shy;token'>[stoptoken.<span class='shy'></span>inplace]</a>, class <span class='tcode_in_codeblock'>inplace_<span class='shy'></span>stop_<span class='shy'></span>token</span></span>
+  <span class='keyword'>class</span> inplace_stop_token;
+
+  <span class='comment'>// <a href='stopsource.inplace' title='33.3.9&emsp;Class inplace_&shy;stop_&shy;source'>[stopsource.<span class='shy'></span>inplace]</a>, class <span class='tcode_in_codeblock'>inplace_<span class='shy'></span>stop_<span class='shy'></span>source</span></span>
+  <span class='keyword'>class</span> inplace_stop_source;
+
+  <span class='comment'>// <a href='stopcallback.inplace' title='33.3.10&emsp;Class template inplace_&shy;stop_&shy;callback'>[stopcallback.<span class='shy'></span>inplace]</a>, class template <span class='tcode_in_codeblock'>inplace_<span class='shy'></span>stop_<span class='shy'></span>callback</span></span>
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> CallbackFn<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>class</span> inplace_stop_callback;
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T, <span class='keyword'>class</span> CallbackFn<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>using</span> stop_callback_for_t <span class='operator'>=</span> T<span class='operator'>::</span><span class='keyword'>template</span> callback_type<span class='anglebracket'>&lt;</span>CallbackFn<span class='anglebracket'>&gt;</span>;
 <span class='curlybracket'>}</span>
 </span></span></div></div></body></html>
