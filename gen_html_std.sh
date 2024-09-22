@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/sh -e
 
 # check if we need to rebuild
 cd cxxdraft-htmlgen
@@ -84,7 +84,7 @@ rm -r 14882
 
 # Fixup gh-pages
 cd ../gh-pages
-rm *.css *.png
+rm -f *.css *.png
 rename 's/.html//' *.css.html *.png.html
 mv index.html.html index.html
 cp ../draft/source/std_orig.pdf ./draft.pdf
