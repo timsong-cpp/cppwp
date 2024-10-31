@@ -46,13 +46,12 @@ latexmk -pdf std
 cp std.pdf std_orig.pdf
 
 # create the "annex-f" file that maps stable names to section numbers
-  grep newlabel *.aux \
-| sed 's/\\newlabel{\([^}]*\)}.*TitleReference {\([^}]*\)}.*/\1 \2/' \
-| sed 's/\\newlabel{\([^}]*\)}{{\(Clause\|Annex\) \([^}]*\)}.*/\1 \3/' \
-| grep -v "aux:tab:" \
-| grep -v "aux:fig:" \
-| sed 's/\(.*\).aux://' \
+  grep '^\\newlabel{' *.aux \
+| grep -v '\\newlabel{\(fig\|tab\):' \
+| sed 's/^.*\.aux://' \
+| sed 's/^\\newlabel{\([^}]*\)}{{\([^}]*\)}.*/\1 \2/' \
 | grep -v '^\\' \
+| sed 's/\(Clause\|Annex\) //' \
 | sort > annex-f
 
 if [ -f ../../htmlgen.patch ]
