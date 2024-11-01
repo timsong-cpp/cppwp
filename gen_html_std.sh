@@ -46,12 +46,25 @@ latexmk -pdf std
 cp std.pdf std_orig.pdf
 
 # create the "annex-f" file that maps stable names to section numbers
-  grep -h '^\\newlabel{' *.aux \
+
+# Memoir 3.8 changed the content of the .aux files so as to require a different incantation
+if grep -q TitleReference *.aux
+then
+# Memoir < 3.8
+  grep -h '^\\newlabel{' *.aux                                         \
 | sed 's/\\newlabel{\([^}]*\)}.*TitleReference {\([^}]*\)}.*/\1 \2/'   \
 | sed 's/\\newlabel{\([^}]*\)}{{\(Clause\|Annex\) \([^}]*\)}.*/\1 \3/' \
 | sed 's/\\newlabel{\(eq:[^}]*\)}{{\([^}]*\)}.*/\1 \2/'                \
-| grep -v '^\\' \
+| grep -v '^\\'                                                        \
 | sort > annex-f
+else
+  grep -h '^\\newlabel{' *.aux                                         \
+| sed 's/^\\newlabel{\([^}]*\)}{{\([^}]*\)}.*/\1 \2/'                  \
+| grep -v '^\\'                                                        \
+| sed 's/\(Clause\|Annex\) //'                                         \
+| sort > annex-f
+fi
+
 
 if [ -f ../../htmlgen.patch ]
 then
