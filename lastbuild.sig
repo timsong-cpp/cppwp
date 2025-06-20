@@ -1,4 +1,3 @@
-htmlgen 4f9bc8a594c4d24fdaba261a97567964911c1f6e
-draft 9b8a5e51752efe9edd7a447e96ffab0f3313accc
-cbadb4af863399b71d988f0a85a6b863521dcc53  htmlgen.patch
-ac9b8a2f76b84ebdc6c8dc1e9f8f86da89506ad7  htmlgen_code.patch
+htmlgen eee5307c45c04761ef5c27956cbed742e08e5fb4
+draft 3bce8f7f15164dc455240e53acce596eeba97d45
+91ee1bafbee7fa1046b20953959ea058b939e826  htmlgen.patch
