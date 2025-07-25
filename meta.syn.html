@@ -1,0 +1,408 @@
+<!DOCTYPE html><html lang='en'><head><title>[meta.syn]</title><meta charset='UTF-8'><link rel='stylesheet' type='text/css' href='14882.css'><link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css2?family=Noto+Serif'><link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css2?family=Noto+Sans'><link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css2?family=Noto+Sans+Mono'><link rel='icon' href='icon.png'><link rel='stylesheet' type='text/css' href='expanded.css' title='Normal'><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'><link rel='alternate stylesheet' type='text/css' href='normative-only.css' title='Notes and examples hidden'></head><body><div class='wrapper'><h1 ><a class='secnum' style='min-width:50pt'>21</a> Metaprogramming library <a class='abbr_ref' href='./#meta'>[meta]</a></h1><h2 ><a class='secnum' style='min-width:65pt'>21.4</a> Reflection <a class='abbr_ref' href='meta.reflection#meta.syn'>[meta.reflection]</a></h2><h3 ><a class='secnum' style='min-width:80pt'>21.4.1</a> Header <span class='texttt'>&lt;meta&gt;</span> synopsis <a class='abbr_ref'>[meta.syn]</a></h3><div class='texpara'><span id='header:<meta>'><div class='marginalizedparent'><a class='itemDeclLink' href='#header:%3cmeta%3e'>🔗</a></div><span class='codeblock'><span class='preprocessordirective'>#include</span> <span class='anglebracket'>&lt;</span>initializer_list<span class='anglebracket'>&gt;</span>     <span class='comment'>// see <a href='initializer.list.syn' title='17.11.2&emsp;Header &lt;initializer_&shy;list&gt; synopsis'>[initializer.<span class='shy'></span>list.<span class='shy'></span>syn]</a></span>
+
+<span class='keyword'>namespace</span> std <span class='curlybracket'>{</span>
+  <span class='comment'>// <a href='meta.string.literal' title='21.4.2&emsp;Checking string literals'>[meta.<span class='shy'></span>string.<span class='shy'></span>literal]</a>, checking string literals</span>
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_string_literal<span class='parenthesis'>(</span><span class='keyword'>const</span> <span class='keyword'>char</span><span class='operator'>*</span> p<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_string_literal<span class='parenthesis'>(</span><span class='keyword'>const</span> <span class='keyword'>wchar_t</span><span class='operator'>*</span> p<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_string_literal<span class='parenthesis'>(</span><span class='keyword'>const</span> <span class='keyword'>char8_t</span><span class='operator'>*</span> p<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_string_literal<span class='parenthesis'>(</span><span class='keyword'>const</span> <span class='keyword'>char16_t</span><span class='operator'>*</span> p<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_string_literal<span class='parenthesis'>(</span><span class='keyword'>const</span> <span class='keyword'>char32_t</span><span class='operator'>*</span> p<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// <a href='meta.define.static' title='21.4.3&emsp;Promoting to static storage strings'>[meta.<span class='shy'></span>define.<span class='shy'></span>static]</a>, promoting to static storage strings</span>
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>ranges<span class='operator'>::</span><a href='range.refinements#concept:input_range' title='25.4.6&emsp;Other range refinements&emsp;[range.refinements]'><span id='conceptref:input_range'><span class='tcode_in_codeblock'>input_<span class='shy'></span>range</span></span></a> R<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> <span class='keyword'>const</span> ranges<span class='operator'>::</span>range_value_t<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span><span class='operator'>*</span> define_static_string<span class='parenthesis'>(</span>R<span class='operator'>&amp;</span><span class='operator'>&amp;</span> r<span class='parenthesis'>)</span>;
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>ranges<span class='operator'>::</span><a href='range.refinements#concept:input_range' title='25.4.6&emsp;Other range refinements&emsp;[range.refinements]'><span id='conceptref:input_range_'><span class='tcode_in_codeblock'>input_<span class='shy'></span>range</span></span></a> R<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> span<span class='anglebracket'>&lt;</span><span class='keyword'>const</span> ranges<span class='operator'>::</span>range_value_t<span class='anglebracket'>&lt;</span>R<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span> define_static_array<span class='parenthesis'>(</span>R<span class='operator'>&amp;</span><span class='operator'>&amp;</span> r<span class='parenthesis'>)</span>;
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> <span class='keyword'>const</span> remove_cvref_t<span class='anglebracket'>&lt;</span>T<span class='anglebracket'>&gt;</span><span class='operator'>*</span> define_static_object<span class='parenthesis'>(</span>T<span class='operator'>&amp;</span><span class='operator'>&amp;</span> r<span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>
+
+<span class='keyword'>namespace</span> std<span class='operator'>::</span>meta <span class='curlybracket'>{</span>
+  <span class='keyword'>using</span> info <span class='operator'>=</span> <span class='keyword'>decltype</span><span class='parenthesis'>(</span><span class='operator'>^</span><span class='operator'>^</span><span class='operator'>::</span><span class='parenthesis'>)</span>;
+
+  <span class='comment'>// <a href='meta.reflection.exception' title='21.4.4&emsp;Class exception'>[meta.<span class='shy'></span>reflection.<span class='shy'></span>exception]</a>, class <span class='tcode_in_codeblock'>exception</span></span>
+  <span class='keyword'>class</span> exception;
+
+  <span class='comment'>// <a href='meta.reflection.operators' title='21.4.5&emsp;Operator representations'>[meta.<span class='shy'></span>reflection.<span class='shy'></span>operators]</a>, operator representations</span>
+  <span class='keyword'>enum</span> <span class='keyword'>class</span> operators <span class='curlybracket'>{</span>
+    <i ><span class='texttt'>see below</span></i>;
+  <span class='curlybracket'>}</span>;
+  <span class='keyword'>using</span> <span class='keyword'>enum</span> operators;
+  <span class='keyword'>consteval</span> operators operator_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> string_view symbol_of<span class='parenthesis'>(</span>operators op<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> u8string_view u8symbol_of<span class='parenthesis'>(</span>operators op<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// <a href='meta.reflection.names' title='21.4.6&emsp;Reflection names and locations'>[meta.<span class='shy'></span>reflection.<span class='shy'></span>names]</a>, reflection names and locations</span>
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_identifier<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> string_view identifier_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> u8string_view u8identifier_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> string_view display_string_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> u8string_view u8display_string_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> source_location source_location_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// <a href='meta.reflection.queries' title='21.4.7&emsp;Reflection queries'>[meta.<span class='shy'></span>reflection.<span class='shy'></span>queries]</a>, reflection queries</span>
+  <span class='keyword'>consteval</span> info type_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info object_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info constant_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_public<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_protected<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_private<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_virtual<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_pure_virtual<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_override<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_final<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_deleted<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_defaulted<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_user_provided<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_user_declared<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_explicit<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_noexcept<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_bit_field<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_enumerator<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_annotation<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_const<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_volatile<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_mutable_member<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_lvalue_reference_qualified<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_rvalue_reference_qualified<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_static_storage_duration<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_thread_storage_duration<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_automatic_storage_duration<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_internal_linkage<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_module_linkage<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_external_linkage<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_c_language_linkage<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_linkage<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_complete_type<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_enumerable_type<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_variable<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_type<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_namespace<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_type_alias<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_namespace_alias<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_function<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_conversion_function<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_operator_function<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_literal_operator<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_special_member_function<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_constructor<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_default_constructor<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_copy_constructor<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_move_constructor<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_assignment<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_copy_assignment<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_move_assignment<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_destructor<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_function_parameter<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_explicit_object_parameter<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_default_argument<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_ellipsis_parameter<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_template<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_function_template<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_variable_template<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_class_template<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_alias_template<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_conversion_function_template<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_operator_function_template<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_literal_operator_template<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_constructor_template<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_concept<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_value<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_object<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_structured_binding<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_class_member<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_namespace_member<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_nonstatic_data_member<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_static_member<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_base<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_default_member_initializer<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_parent<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info parent_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> info dealias<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_template_arguments<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info template_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> vector<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span> template_arguments_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> vector<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span> parameters_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info variable_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info return_type_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// <a href='meta.reflection.access.context' title='21.4.8&emsp;Access control context'>[meta.<span class='shy'></span>reflection.<span class='shy'></span>access.<span class='shy'></span>context]</a>, access control context</span>
+  <span class='keyword'>struct</span> access_context;
+
+  <span class='comment'>// <a href='meta.reflection.access.queries' title='21.4.9&emsp;Member accessibility queries'>[meta.<span class='shy'></span>reflection.<span class='shy'></span>access.<span class='shy'></span>queries]</a>, member accessibility queries</span>
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_accessible<span class='parenthesis'>(</span>info r, access_context ctx<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_inaccessible_nonstatic_data_members<span class='parenthesis'>(</span>info r, access_context ctx<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_inaccessible_bases<span class='parenthesis'>(</span>info r, access_context ctx<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_inaccessible_subobjects<span class='parenthesis'>(</span>info r, access_context ctx<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// <a href='meta.reflection.member.queries' title='21.4.10&emsp;Reflection member queries'>[meta.<span class='shy'></span>reflection.<span class='shy'></span>member.<span class='shy'></span>queries]</a>, reflection member queries</span>
+  <span class='keyword'>consteval</span> vector<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span> members_of<span class='parenthesis'>(</span>info r, access_context ctx<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> vector<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span> bases_of<span class='parenthesis'>(</span>info type, access_context ctx<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> vector<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span> static_data_members_of<span class='parenthesis'>(</span>info type, access_context ctx<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> vector<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span> nonstatic_data_members_of<span class='parenthesis'>(</span>info type, access_context ctx<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> vector<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span> subobjects_of<span class='parenthesis'>(</span>info type, access_context ctx<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> vector<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span> enumerators_of<span class='parenthesis'>(</span>info type_enum<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// <a href='meta.reflection.layout' title='21.4.11&emsp;Reflection layout queries'>[meta.<span class='shy'></span>reflection.<span class='shy'></span>layout]</a>, reflection layout queries</span>
+  <span class='keyword'>struct</span> member_offset;
+  <span class='keyword'>consteval</span> member_offset offset_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> size_t size_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> size_t alignment_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> size_t bit_size_of<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// <a href='meta.reflection.extract' title='21.4.12&emsp;Value extraction'>[meta.<span class='shy'></span>reflection.<span class='shy'></span>extract]</a>, value extraction</span>
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> T extract<span class='parenthesis'>(</span>info<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// <a href='meta.reflection.substitute' title='21.4.13&emsp;Reflection substitution'>[meta.<span class='shy'></span>reflection.<span class='shy'></span>substitute]</a>, reflection substitution</span>
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> R<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>concept</span> reflection_range <span class='operator'>=</span> <i ><span class='texttt'>see below</span></i>;
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><a href='meta.reflection.substitute#concept:reflection_range' title='21.4.13&emsp;Reflection substitution&emsp;[meta.reflection.substitute]'><span id='conceptref:reflection_range'><span class='tcode_in_codeblock'>reflection_<span class='shy'></span>range</span></span></a> R <span class='operator'>=</span> initializer_list<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> <span class='keyword'>bool</span> can_substitute<span class='parenthesis'>(</span>info templ, R<span class='operator'>&amp;</span><span class='operator'>&amp;</span> arguments<span class='parenthesis'>)</span>;
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><a href='meta.reflection.substitute#concept:reflection_range' title='21.4.13&emsp;Reflection substitution&emsp;[meta.reflection.substitute]'><span id='conceptref:reflection_range_'><span class='tcode_in_codeblock'>reflection_<span class='shy'></span>range</span></span></a> R <span class='operator'>=</span> initializer_list<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> info substitute<span class='parenthesis'>(</span>info templ, R<span class='operator'>&amp;</span><span class='operator'>&amp;</span> arguments<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// <a href='meta.reflection.result' title='21.4.14&emsp;Expression result reflection'>[meta.<span class='shy'></span>reflection.<span class='shy'></span>result]</a>, expression result reflection</span>
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> info reflect_constant<span class='parenthesis'>(</span><span class='keyword'>const</span> T<span class='operator'>&amp;</span> value<span class='parenthesis'>)</span>;
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> info reflect_object<span class='parenthesis'>(</span>T<span class='operator'>&amp;</span> object<span class='parenthesis'>)</span>;
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> info reflect_function<span class='parenthesis'>(</span>T<span class='operator'>&amp;</span> fn<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// <a href='meta.reflection.array' title='21.4.15&emsp;Promoting to static storage arrays'>[meta.<span class='shy'></span>reflection.<span class='shy'></span>array]</a>, promoting to static storage arrays</span>
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>ranges<span class='operator'>::</span><a href='range.refinements#concept:input_range' title='25.4.6&emsp;Other range refinements&emsp;[range.refinements]'><span id='conceptref:input_range__'><span class='tcode_in_codeblock'>input_<span class='shy'></span>range</span></span></a> R<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> info reflect_constant_string<span class='parenthesis'>(</span>R<span class='operator'>&amp;</span><span class='operator'>&amp;</span> r<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span>ranges<span class='operator'>::</span><a href='range.refinements#concept:input_range' title='25.4.6&emsp;Other range refinements&emsp;[range.refinements]'><span id='conceptref:input_range___'><span class='tcode_in_codeblock'>input_<span class='shy'></span>range</span></span></a> R<span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> info reflect_constant_array<span class='parenthesis'>(</span>R<span class='operator'>&amp;</span><span class='operator'>&amp;</span> r<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// <a href='meta.reflection.define.aggregate' title='21.4.16&emsp;Reflection class definition generation'>[meta.<span class='shy'></span>reflection.<span class='shy'></span>define.<span class='shy'></span>aggregate]</a>, class definition generation</span>
+  <span class='keyword'>struct</span> data_member_options;
+  <span class='keyword'>consteval</span> info data_member_spec<span class='parenthesis'>(</span>info type, data_member_options options<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_data_member_spec<span class='parenthesis'>(</span>info r<span class='parenthesis'>)</span>;
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><a href='meta.reflection.substitute#concept:reflection_range' title='21.4.13&emsp;Reflection substitution&emsp;[meta.reflection.substitute]'><span id='conceptref:reflection_range__'><span class='tcode_in_codeblock'>reflection_<span class='shy'></span>range</span></span></a> R <span class='operator'>=</span> initializer_list<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> info define_aggregate<span class='parenthesis'>(</span>info type_class, R<span class='operator'>&amp;</span><span class='operator'>&amp;</span><span class='parenthesis'>)</span>;
+
+  <span class='comment'>// associated with <a href='meta.unary.cat' title='21.3.6.2&emsp;Primary type categories'>[meta.<span class='shy'></span>unary.<span class='shy'></span>cat]</a>, primary type categories</span>
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_void_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_null_pointer_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_integral_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_floating_point_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_array_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_pointer_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_lvalue_reference_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_rvalue_reference_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_member_object_pointer_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_member_function_pointer_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_enum_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_union_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_class_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_function_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_reflection_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// associated with <a href='meta.unary.comp' title='21.3.6.3&emsp;Composite type traits'>[meta.<span class='shy'></span>unary.<span class='shy'></span>comp]</a>, composite type categories</span>
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_reference_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_arithmetic_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_fundamental_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_object_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_scalar_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_compound_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_member_pointer_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// associated with <a href='meta.unary.prop' title='21.3.6.4&emsp;Type properties'>[meta.<span class='shy'></span>unary.<span class='shy'></span>prop]</a>, type properties</span>
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_const_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_volatile_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_trivially_copyable_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_trivially_relocatable_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_replaceable_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_standard_layout_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_empty_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_polymorphic_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_abstract_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_final_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_aggregate_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_consteval_only_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_signed_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_unsigned_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_bounded_array_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_unbounded_array_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_scoped_enum_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><a href='meta.reflection.substitute#concept:reflection_range' title='21.4.13&emsp;Reflection substitution&emsp;[meta.reflection.substitute]'><span id='conceptref:reflection_range___'><span class='tcode_in_codeblock'>reflection_<span class='shy'></span>range</span></span></a> R <span class='operator'>=</span> initializer_list<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_constructible_type<span class='parenthesis'>(</span>info type, R<span class='operator'>&amp;</span><span class='operator'>&amp;</span> type_args<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_default_constructible_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_copy_constructible_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_move_constructible_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_assignable_type<span class='parenthesis'>(</span>info type_dst, info type_src<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_copy_assignable_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_move_assignable_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_swappable_with_type<span class='parenthesis'>(</span>info type1, info type2<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_swappable_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_destructible_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><a href='meta.reflection.substitute#concept:reflection_range' title='21.4.13&emsp;Reflection substitution&emsp;[meta.reflection.substitute]'><span id='conceptref:reflection_range____'><span class='tcode_in_codeblock'>reflection_<span class='shy'></span>range</span></span></a> R <span class='operator'>=</span> initializer_list<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_trivially_constructible_type<span class='parenthesis'>(</span>info type, R<span class='operator'>&amp;</span><span class='operator'>&amp;</span> type_args<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_trivially_default_constructible_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_trivially_copy_constructible_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_trivially_move_constructible_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_trivially_assignable_type<span class='parenthesis'>(</span>info type_dst, info type_src<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_trivially_copy_assignable_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_trivially_move_assignable_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_trivially_destructible_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><a href='meta.reflection.substitute#concept:reflection_range' title='21.4.13&emsp;Reflection substitution&emsp;[meta.reflection.substitute]'><span id='conceptref:reflection_range_____'><span class='tcode_in_codeblock'>reflection_<span class='shy'></span>range</span></span></a> R <span class='operator'>=</span> initializer_list<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_nothrow_constructible_type<span class='parenthesis'>(</span>info type, R<span class='operator'>&amp;</span><span class='operator'>&amp;</span> type_args<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_nothrow_default_constructible_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_nothrow_copy_constructible_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_nothrow_move_constructible_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_nothrow_assignable_type<span class='parenthesis'>(</span>info type_dst, info type_src<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_nothrow_copy_assignable_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_nothrow_move_assignable_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_nothrow_swappable_with_type<span class='parenthesis'>(</span>info type1, info type2<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_nothrow_swappable_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_nothrow_destructible_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_nothrow_relocatable_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_implicit_lifetime_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_virtual_destructor<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> has_unique_object_representations<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> reference_constructs_from_temporary<span class='parenthesis'>(</span>info type_dst, info type_src<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> reference_converts_from_temporary<span class='parenthesis'>(</span>info type_dst, info type_src<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// associated with <a href='meta.unary.prop.query' title='21.3.7&emsp;Type property queries'>[meta.<span class='shy'></span>unary.<span class='shy'></span>prop.<span class='shy'></span>query]</a>, type property queries</span>
+  <span class='keyword'>consteval</span> size_t rank<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> size_t extent<span class='parenthesis'>(</span>info type, <span class='keyword'>unsigned</span> i <span class='operator'>=</span> <span class='literal'>0</span><span class='parenthesis'>)</span>;
+
+  <span class='comment'>// associated with <a href='meta.rel' title='21.3.8&emsp;Relationships between types'>[meta.<span class='shy'></span>rel]</a>, type relations</span>
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_same_type<span class='parenthesis'>(</span>info type1, info type2<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_base_of_type<span class='parenthesis'>(</span>info type_base, info type_derived<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_virtual_base_of_type<span class='parenthesis'>(</span>info type_base, info type_derived<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_convertible_type<span class='parenthesis'>(</span>info type_src, info type_dst<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_nothrow_convertible_type<span class='parenthesis'>(</span>info type_src, info type_dst<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_layout_compatible_type<span class='parenthesis'>(</span>info type1, info type2<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_pointer_interconvertible_base_of_type<span class='parenthesis'>(</span>info type_base, info type_derived<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><a href='meta.reflection.substitute#concept:reflection_range' title='21.4.13&emsp;Reflection substitution&emsp;[meta.reflection.substitute]'><span id='conceptref:reflection_range______'><span class='tcode_in_codeblock'>reflection_<span class='shy'></span>range</span></span></a> R <span class='operator'>=</span> initializer_list<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_invocable_type<span class='parenthesis'>(</span>info type, R<span class='operator'>&amp;</span><span class='operator'>&amp;</span> type_args<span class='parenthesis'>)</span>;
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><a href='meta.reflection.substitute#concept:reflection_range' title='21.4.13&emsp;Reflection substitution&emsp;[meta.reflection.substitute]'><span id='conceptref:reflection_range_______'><span class='tcode_in_codeblock'>reflection_<span class='shy'></span>range</span></span></a> R <span class='operator'>=</span> initializer_list<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_invocable_r_type<span class='parenthesis'>(</span>info type_result, info type, R<span class='operator'>&amp;</span><span class='operator'>&amp;</span> type_args<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><a href='meta.reflection.substitute#concept:reflection_range' title='21.4.13&emsp;Reflection substitution&emsp;[meta.reflection.substitute]'><span id='conceptref:reflection_range________'><span class='tcode_in_codeblock'>reflection_<span class='shy'></span>range</span></span></a> R <span class='operator'>=</span> initializer_list<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_nothrow_invocable_type<span class='parenthesis'>(</span>info type, R<span class='operator'>&amp;</span><span class='operator'>&amp;</span> type_args<span class='parenthesis'>)</span>;
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><a href='meta.reflection.substitute#concept:reflection_range' title='21.4.13&emsp;Reflection substitution&emsp;[meta.reflection.substitute]'><span id='conceptref:reflection_range_________'><span class='tcode_in_codeblock'>reflection_<span class='shy'></span>range</span></span></a> R <span class='operator'>=</span> initializer_list<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> <span class='keyword'>bool</span> is_nothrow_invocable_r_type<span class='parenthesis'>(</span>info type_result, info type, R<span class='operator'>&amp;</span><span class='operator'>&amp;</span> type_args<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// associated with <a href='meta.trans.cv' title='21.3.9.2&emsp;Const-volatile modifications'>[meta.<span class='shy'></span>trans.<span class='shy'></span>cv]</a>, const-volatile modifications</span>
+  <span class='keyword'>consteval</span> info remove_const<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info remove_volatile<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info remove_cv<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info add_const<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info add_volatile<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info add_cv<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// associated with <a href='meta.trans.ref' title='21.3.9.3&emsp;Reference modifications'>[meta.<span class='shy'></span>trans.<span class='shy'></span>ref]</a>, reference modifications</span>
+  <span class='keyword'>consteval</span> info remove_reference<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info add_lvalue_reference<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info add_rvalue_reference<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// associated with <a href='meta.trans.sign' title='21.3.9.4&emsp;Sign modifications'>[meta.<span class='shy'></span>trans.<span class='shy'></span>sign]</a>, sign modifications</span>
+  <span class='keyword'>consteval</span> info make_signed<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info make_unsigned<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// associated with <a href='meta.trans.arr' title='21.3.9.5&emsp;Array modifications'>[meta.<span class='shy'></span>trans.<span class='shy'></span>arr]</a>, array modifications</span>
+  <span class='keyword'>consteval</span> info remove_extent<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info remove_all_extents<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// associated with <a href='meta.trans.ptr' title='21.3.9.6&emsp;Pointer modifications'>[meta.<span class='shy'></span>trans.<span class='shy'></span>ptr]</a>, pointer modifications</span>
+  <span class='keyword'>consteval</span> info remove_pointer<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info add_pointer<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// associated with <a href='meta.trans.other' title='21.3.9.7&emsp;Other transformations'>[meta.<span class='shy'></span>trans.<span class='shy'></span>other]</a>, other transformations</span>
+  <span class='keyword'>consteval</span> info remove_cvref<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info decay<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><a href='meta.reflection.substitute#concept:reflection_range' title='21.4.13&emsp;Reflection substitution&emsp;[meta.reflection.substitute]'><span id='conceptref:reflection_range__________'><span class='tcode_in_codeblock'>reflection_<span class='shy'></span>range</span></span></a> R <span class='operator'>=</span> initializer_list<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> info common_type<span class='parenthesis'>(</span>R<span class='operator'>&amp;</span><span class='operator'>&amp;</span> type_args<span class='parenthesis'>)</span>;
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><a href='meta.reflection.substitute#concept:reflection_range' title='21.4.13&emsp;Reflection substitution&emsp;[meta.reflection.substitute]'><span id='conceptref:reflection_range___________'><span class='tcode_in_codeblock'>reflection_<span class='shy'></span>range</span></span></a> R <span class='operator'>=</span> initializer_list<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> info common_reference<span class='parenthesis'>(</span>R<span class='operator'>&amp;</span><span class='operator'>&amp;</span> type_args<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info type_underlying_type<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>template</span><span class='anglebracket'>&lt;</span><a href='meta.reflection.substitute#concept:reflection_range' title='21.4.13&emsp;Reflection substitution&emsp;[meta.reflection.substitute]'><span id='conceptref:reflection_range____________'><span class='tcode_in_codeblock'>reflection_<span class='shy'></span>range</span></span></a> R <span class='operator'>=</span> initializer_list<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span><span class='anglebracket'>&gt;</span>
+    <span class='keyword'>consteval</span> info invoke_result<span class='parenthesis'>(</span>info type, R<span class='operator'>&amp;</span><span class='operator'>&amp;</span> type_args<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info unwrap_reference<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info unwrap_ref_decay<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> size_t tuple_size<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info tuple_element<span class='parenthesis'>(</span>size_t index, info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> size_t variant_size<span class='parenthesis'>(</span>info type<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> info variant_alternative<span class='parenthesis'>(</span>size_t index, info type<span class='parenthesis'>)</span>;
+
+  <span class='keyword'>consteval</span> strong_ordering type_order<span class='parenthesis'>(</span>info type_a, info type_b<span class='parenthesis'>)</span>;
+
+  <span class='comment'>// <a href='meta.reflection.annotation' title='21.4.18&emsp;Annotation reflection'>[meta.<span class='shy'></span>reflection.<span class='shy'></span>annotation]</a>, annotation reflection</span>
+  <span class='keyword'>consteval</span> vector<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span> annotations_of<span class='parenthesis'>(</span>info item<span class='parenthesis'>)</span>;
+  <span class='keyword'>consteval</span> vector<span class='anglebracket'>&lt;</span>info<span class='anglebracket'>&gt;</span> annotations_of_with_type<span class='parenthesis'>(</span>info item, info type<span class='parenthesis'>)</span>;
+<span class='curlybracket'>}</span>
+</span></span></div><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/454ba171cb14531639e641cb1200617fbf8d943f/source/meta.tex#L3281'>#</a></div><div class='texpara'><div id='1.sentence-1' class='sentence'>Unless otherwise specified,
+each function, and each specialization of any function template,
+specified in this header
+is a designated addressable function (<a href='namespace.std' title='16.4.5.2.1&emsp;Namespace std'>[namespace.<span class='shy'></span>std]</a>)<a class='hidden_link' href='#1.sentence-1'>.</a></div></div></div><div class='para' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/454ba171cb14531639e641cb1200617fbf8d943f/source/meta.tex#L3287'>#</a></div><div class='texpara'><div id='2.sentence-1' class='sentence'>The behavior of any function specified in namespace <span class='texttt'>std<span class='operator'>&#x200b;::&#x200b;</span>meta</span> is
+<a class='index' id=':behavior_of_any_function_in_std::meta_for_implementation-specific_constructs'></a>implementation-defined
+when a reflection of a construct not otherwise specified by this document
+is provided as an argument<a class='hidden_link' href='#2.sentence-1'>.</a></div> <div id='note-1' class='note'><div class='texpara'>[<i>Note&nbsp;<a href='#note-1'>1</a></i>:&ensp;<div id='2.sentence-2' class='sentence'>Values of type <span class='texttt'>std<span class='operator'>&#x200b;::&#x200b;</span>meta<span class='operator'>&#x200b;::&#x200b;</span>info</span>
+can represent implementation-specific constructs (<a href='basic.fundamental' title='6.9.2&emsp;Fundamental types'>[basic.<span class='shy'></span>fundamental]</a>)<a class='hidden_link' href='#2.sentence-2'>.</a></div> —&nbsp;<i>end note</i>]</div></div> <div id='note-2' class='note'><div class='texpara'>[<i>Note&nbsp;<a href='#note-2'>2</a></i>:&ensp;<div id='2.sentence-3' class='sentence'>The behavior of many of the functions specified in namespace <span class='texttt'>std<span class='operator'>&#x200b;::&#x200b;</span>meta</span>
+have semantics that can be affected by
+the completeness of class types represented by reflection values<a class='hidden_link' href='#2.sentence-3'>.</a></div> <div id='2.sentence-4' class='sentence'>For such functions,
+for any reflection <span class='texttt'>r</span> such that <span class='texttt'>dealias<span class='parenthesis'>(</span>r<span class='parenthesis'>)</span></span>
+represents a specialization of a templated class with a reachable definition,
+the specialization is implicitly instantiated (<a href='temp.inst' title='13.9.2&emsp;Implicit instantiation'>[temp.<span class='shy'></span>inst]</a>)<a class='hidden_link' href='#2.sentence-4'>.</a></div> <div id='example-1' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#example-1'>1</a></i>:&ensp;<span class='codeblock'><span class='keyword'>template</span><span class='anglebracket'>&lt;</span><span class='keyword'>class</span> T<span class='anglebracket'>&gt;</span>
+<span class='keyword'>struct</span> X <span class='curlybracket'>{</span>
+  T mem;
+<span class='curlybracket'>}</span>;
+
+<span class='keyword'>static_assert</span><span class='parenthesis'>(</span>size_of<span class='parenthesis'>(</span><span class='operator'>^</span><span class='operator'>^</span>X<span class='anglebracket'>&lt;</span><span class='keyword'>int</span><span class='anglebracket'>&gt;</span><span class='parenthesis'>)</span> <span class='operator'>=</span><span class='operator'>=</span> <span class='keyword'>sizeof</span><span class='parenthesis'>(</span><span class='keyword'>int</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span>;    <span class='comment'>// instantiates <span class='tcode_in_codeblock'>X&lt;int&gt;</span></span>
+</span> —&nbsp;<i>end example</i>]</div></div> —&nbsp;<i>end note</i>]</div></div></div></div><div class='para' id='3'><div class='marginalizedparent'><a class='marginalized' href='#3'>3</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/454ba171cb14531639e641cb1200617fbf8d943f/source/meta.tex#L3317'>#</a></div><div class='texpara'><div id='3.sentence-1' class='sentence'>Any function in namespace <span class='texttt'>std<span class='operator'>&#x200b;::&#x200b;</span>meta</span>
+whose return type is <span class='texttt'>string_<span class='shy'></span>view</span> or <span class='texttt'>u8string_<span class='shy'></span>view</span>
+returns an object <span class='texttt'><i >V</i></span> such that
+<span class='texttt'><span class='texttt'><i >V</i></span><span class='operator'>.</span>data<span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='squarebracket'>[</span><span class='texttt'><i >V</i></span><span class='operator'>.</span>size<span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='squarebracket'>]</span></span> equals <span class='texttt'>'\<span class='literal'>0</span>'</span><a class='hidden_link' href='#3.sentence-1'>.</a></div> <div id='example-2' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#example-2'>2</a></i>:&ensp;<span class='codeblock'><span class='keyword'>struct</span> C <span class='curlybracket'>{</span> <span class='curlybracket'>}</span>;
+
+<span class='keyword'>constexpr</span> string_view sv <span class='operator'>=</span> identifier_of<span class='parenthesis'>(</span><span class='operator'>^</span><span class='operator'>^</span>C<span class='parenthesis'>)</span>;
+<span class='keyword'>static_assert</span><span class='parenthesis'>(</span>sv <span class='operator'>=</span><span class='operator'>=</span> <span class='literal'>"C"</span><span class='parenthesis'>)</span>;
+<span class='keyword'>static_assert</span><span class='parenthesis'>(</span>sv<span class='operator'>.</span>data<span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='squarebracket'>[</span><span class='literal'>0</span><span class='squarebracket'>]</span> <span class='operator'>=</span><span class='operator'>=</span> <span class='literal'>'C'</span><span class='parenthesis'>)</span>;
+<span class='keyword'>static_assert</span><span class='parenthesis'>(</span>sv<span class='operator'>.</span>data<span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='squarebracket'>[</span><span class='literal'>1</span><span class='squarebracket'>]</span> <span class='operator'>=</span><span class='operator'>=</span> <span class='literal'>'\0'</span><span class='parenthesis'>)</span>;
+</span> —&nbsp;<i>end example</i>]</div></div></div></div><div class='para' id='4'><div class='marginalizedparent'><a class='marginalized' href='#4'>4</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/454ba171cb14531639e641cb1200617fbf8d943f/source/meta.tex#L3333'>#</a></div><div class='texpara'><div id='4.sentence-1' class='sentence'>For the purpose of exposition,
+throughout this clause <span class='texttt'><span class='operator'>^</span><span class='operator'>^</span><i >E</i></span> is used
+to indicate a reflection representing source construct <span class='texttt'><i >E</i></span><a class='hidden_link' href='#4.sentence-1'>.</a></div></div></div></div></body></html>
