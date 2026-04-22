@@ -70,7 +70,7 @@ shopt -u extglob
 
 if [ -f ../../htmlgen.patch ]
 then
-git apply -3 ../../htmlgen.patch
+git apply ../../htmlgen.patch
 fi
 
 # Build the HTML
