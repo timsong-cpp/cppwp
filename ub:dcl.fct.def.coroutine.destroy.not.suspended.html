@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang='en'><head><title>[ub:dcl.fct.def.coroutine.destroy.not.suspended]</title><meta charset='UTF-8'><link rel='stylesheet' type='text/css' href='14882.css'><link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css2?family=Noto+Serif'><link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css2?family=Noto+Sans'><link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css2?family=Noto+Sans+Mono'><link rel='icon' href='icon-light.png' media='(prefers-color-scheme: light)'><link rel='icon' href='icon-dark.png' media='(prefers-color-scheme: dark)'><link rel='stylesheet' type='text/css' href='expanded.css' title='Normal'><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'><link rel='alternate stylesheet' type='text/css' href='normative-only.css' title='Notes and examples hidden'></head><body><div class='wrapper'><h1 ><a class='annexnum' style='min-width:50pt'>Annex F&emsp;(informative)</a> Core undefined behavior <a class='abbr_ref' href='./#ub'>[ub]</a></h1><h2 ><a class='secnum' style='min-width:65pt'>F.5</a> <a href='dcl' title='9&emsp;Declarations'>[dcl]</a>: Declarations <a class='abbr_ref' href='ub.dcl#ub:dcl.fct.def.coroutine.destroy.not.suspended'>[ub.dcl]</a></h2><h3 ><a class='secnum' style='min-width:80pt'>F.5.7</a><a class='abbr_ref'>[ub:dcl.fct.def.coroutine.destroy.not.suspended]</a><div class='behaviorspecifiedin'>Specified in: <a href='dcl.fct.def.coroutine#ubx:dcl.fct.def.coroutine.destroy.not.suspended' title='9.6.4&emsp;Coroutine definitions'>[dcl.<span class='shy'></span>fct.<span class='shy'></span>def.<span class='shy'></span>coroutine]</a></div></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/254debad796f8f4a544b20561a14cf7630b8c69c/source/ub.tex#L1553'>#</a></div><div class='texpara'><div id='1.sentence-1' class='sentence'>Invoking <span class='texttt'>destroy<span class='parenthesis'>(</span><span class='parenthesis'>)</span></span> on a coroutine that is not suspended has undefined behavior<a class='hidden_link' href='#1.sentence-1'>.</a></div></div></div><div class='para nonNormativeOnly' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/254debad796f8f4a544b20561a14cf7630b8c69c/source/ub.tex#L1556'>#</a></div><div class='texpara'><div id='example-1' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#example-1'>1</a></i>:&ensp;<span class='codeblock'><span class='preprocessordirective'>#include</span> <span class='anglebracket'>&lt;</span>coroutine<span class='anglebracket'>&gt;</span>
+
+<span class='keyword'>struct</span> minig <span class='curlybracket'>{</span>
+  <span class='keyword'>struct</span> promise_type <span class='curlybracket'>{</span>
+    <span class='keyword'>int</span> val;
+    minig get_return_object<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span> <span class='keyword'>return</span> <span class='curlybracket'>{</span><span class='operator'>*</span><span class='keyword'>this</span><span class='curlybracket'>}</span>; <span class='curlybracket'>}</span>
+    <span class='keyword'>constexpr</span> suspend_always initial_suspend<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='keyword'>noexcept</span> <span class='curlybracket'>{</span> <span class='keyword'>return</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span>; <span class='curlybracket'>}</span>
+    <span class='keyword'>constexpr</span> suspend_always final_suspend<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='keyword'>noexcept</span> <span class='curlybracket'>{</span> <span class='keyword'>return</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span>; <span class='curlybracket'>}</span>
+    <span class='keyword'>constexpr</span> <span class='keyword'>void</span> return_void<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='keyword'>noexcept</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span>
+    <span class='squarebracket'>[</span><span class='squarebracket'>[</span>noreturn<span class='squarebracket'>]</span><span class='squarebracket'>]</span> <span class='keyword'>void</span> unhandled_exception<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span> <span class='keyword'>throw</span>; <span class='curlybracket'>}</span>
+    suspend_always yield_value<span class='parenthesis'>(</span><span class='keyword'>int</span> v<span class='parenthesis'>)</span> <span class='keyword'>noexcept</span> <span class='curlybracket'>{</span>
+      val <span class='operator'>=</span> v;
+      <span class='keyword'>return</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span>;
+    <span class='curlybracket'>}</span>
+  <span class='curlybracket'>}</span>;
+  <span class='keyword'>using</span> HDL <span class='operator'>=</span> coroutine_handle<span class='anglebracket'>&lt;</span>promise_type<span class='anglebracket'>&gt;</span>;
+  HDL coro;
+  minig<span class='parenthesis'>(</span>promise_type<span class='operator'>&amp;</span> p<span class='parenthesis'>)</span> <span class='operator'>:</span> coro<span class='parenthesis'>(</span>HDL<span class='operator'>::</span>from_promise<span class='parenthesis'>(</span>p<span class='parenthesis'>)</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span>
+  <span class='operator'>~</span>minig<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span> coro<span class='operator'>.</span>destroy<span class='parenthesis'>(</span><span class='parenthesis'>)</span>; <span class='curlybracket'>}</span>
+  <span class='keyword'>bool</span> move_next<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+    coro<span class='operator'>.</span>resume<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+    <span class='keyword'>return</span> <span class='operator'>!</span>coro<span class='operator'>.</span>done<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+  <span class='curlybracket'>}</span>
+  <span class='keyword'>int</span> current_value<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+    <span class='comment'>// this coroutine is not suspended therefore a call to destroy has undefined behavior</span>
+    coro<span class='operator'>.</span>destroy<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+    <span class='keyword'>return</span> coro<span class='operator'>.</span>promise<span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='operator'>.</span>val;
+  <span class='curlybracket'>}</span>
+<span class='curlybracket'>}</span>;
+
+<span class='keyword'>static</span> minig f<span class='parenthesis'>(</span><span class='keyword'>int</span> n<span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  <span class='keyword'>for</span> <span class='parenthesis'>(</span><span class='keyword'>int</span> i <span class='operator'>=</span> <span class='literal'>0</span>; i <span class='anglebracket'>&lt;</span> n; <span class='operator'>+</span><span class='operator'>+</span>i<span class='parenthesis'>)</span>
+    <span class='keyword'>co_yield</span> i;
+<span class='curlybracket'>}</span>
+
+<span class='keyword'>int</span> main<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  <span class='keyword'>auto</span> g <span class='operator'>=</span> f<span class='parenthesis'>(</span><span class='literal'>10</span><span class='parenthesis'>)</span>;
+  <span class='keyword'>int</span> sum <span class='operator'>=</span> <span class='literal'>0</span>;
+  <span class='keyword'>while</span> <span class='parenthesis'>(</span>g<span class='operator'>.</span>move_next<span class='parenthesis'>(</span><span class='parenthesis'>)</span><span class='parenthesis'>)</span>
+    sum <span class='operator'>+</span><span class='operator'>=</span> g<span class='operator'>.</span>current_value<span class='parenthesis'>(</span><span class='parenthesis'>)</span>;
+
+  <span class='keyword'>return</span> sum;
+<span class='curlybracket'>}</span>
+</span> —&nbsp;<i>end example</i>]</div></div></div></div></div></body></html>

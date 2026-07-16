@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang='en'><head><title>[ub:basic.start.term.use.after.destruction]</title><meta charset='UTF-8'><link rel='stylesheet' type='text/css' href='14882.css'><link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css2?family=Noto+Serif'><link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css2?family=Noto+Sans'><link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css2?family=Noto+Sans+Mono'><link rel='icon' href='icon-light.png' media='(prefers-color-scheme: light)'><link rel='icon' href='icon-dark.png' media='(prefers-color-scheme: dark)'><link rel='stylesheet' type='text/css' href='expanded.css' title='Normal'><link rel='alternate stylesheet' type='text/css' href='colored.css' title='Notes and examples colored'><link rel='alternate stylesheet' type='text/css' href='normative-only.css' title='Notes and examples hidden'></head><body><div class='wrapper'><h1 ><a class='annexnum' style='min-width:50pt'>Annex F&emsp;(informative)</a> Core undefined behavior <a class='abbr_ref' href='./#ub'>[ub]</a></h1><h2 ><a class='secnum' style='min-width:65pt'>F.2</a> <a href='basic' title='6&emsp;Basics'>[basic]</a>: Basics <a class='abbr_ref' href='ub.basic#ub:basic.start.term.use.after.destruction'>[ub.basic]</a></h2><h3 ><a class='secnum' style='min-width:80pt'>F.2.22</a><a class='abbr_ref'>[ub:basic.start.term.use.after.destruction]</a><div class='behaviorspecifiedin'>Specified in: <a href='basic.start.term#ubx:basic.start.term.use.after.destruction' title='6.10.3.4&emsp;Termination'>[basic.<span class='shy'></span>start.<span class='shy'></span>term]</a></div></h3><div class='para' id='1'><div class='marginalizedparent'><a class='marginalized' href='#1'>1</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/254debad796f8f4a544b20561a14cf7630b8c69c/source/ub.tex#L525'>#</a></div><div class='texpara'><div id='1.sentence-1' class='sentence'>If a function contains a block-scope object of static
+or thread storage duration that has been destroyed
+and the function is called
+during the destruction of an object with static or thread storage duration,
+the program has undefined behavior if the flow of control
+passes through the definition of the previously destroyed block-scope object<a class='hidden_link' href='#1.sentence-1'>.</a></div> <div id='1.sentence-2' class='sentence'>Likewise, the behavior is undefined if the block-scope object
+is used indirectly (i.e., through a pointer) after its destruction<a class='hidden_link' href='#1.sentence-2'>.</a></div></div></div><div class='para nonNormativeOnly' id='2'><div class='marginalizedparent'><a class='marginalized' href='#2'>2</a></div><div class='sourceLinkParent'><a class='sourceLink' href='https://github.com/cplusplus/draft/tree/254debad796f8f4a544b20561a14cf7630b8c69c/source/ub.tex#L535'>#</a></div><div class='texpara'><div id='example-1' class='example'><div class='texpara'>[<i>Example&nbsp;<a href='#example-1'>1</a></i>:&ensp;<span class='codeblock'><span class='keyword'>struct</span> A <span class='curlybracket'>{</span><span class='curlybracket'>}</span>;
+<span class='keyword'>void</span> f<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span>
+  <span class='keyword'>static</span> A a;
+<span class='curlybracket'>}</span>
+
+<span class='keyword'>struct</span> B <span class='curlybracket'>{</span>
+  B<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span> f<span class='parenthesis'>(</span><span class='parenthesis'>)</span>; <span class='curlybracket'>}</span>
+<span class='curlybracket'>}</span>;
+<span class='keyword'>struct</span> C <span class='curlybracket'>{</span>
+  <span class='operator'>~</span>C<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span> f<span class='parenthesis'>(</span><span class='parenthesis'>)</span>; <span class='curlybracket'>}</span>
+<span class='curlybracket'>}</span>;
+
+C c;
+B b;    <span class='comment'>// call to <span class='tcode_in_codeblock'>f()</span> in constructor begins lifetime of <span class='tcode_in_codeblock'>a</span></span>
+
+<span class='keyword'>int</span> main<span class='parenthesis'>(</span><span class='parenthesis'>)</span> <span class='curlybracket'>{</span><span class='curlybracket'>}</span>
+<span class='comment'>// undefined behavior, static objects are destructed in reverse order, in this case <span class='tcode_in_codeblock'>a</span> then <span class='tcode_in_codeblock'>b</span> and</span>
+<span class='comment'>// finally <span class='tcode_in_codeblock'>c</span>. When the destructor of <span class='tcode_in_codeblock'>c</span> is called, it calls <span class='tcode_in_codeblock'>f()</span> which passes through the definition of</span>
+<span class='comment'>// previously destroyed block-scope object</span>
+</span> —&nbsp;<i>end example</i>]</div></div></div></div></div></body></html>
