@@ -11,6 +11,7 @@ Currently the following versions are available:
 * N4861 (March 2020 post-Prague working draft/C++20 DIS): [HTML](https://timsong-cpp.github.io/cppwp/n4861/) [Full PDF](https://timsong-cpp.github.io/cppwp/n4861/draft.pdf)
 * N4868 (October 2020 pre-virtual-plenary working draft/C++20 plus editorial changes): [HTML](https://timsong-cpp.github.io/cppwp/n4868/) [Full PDF](https://timsong-cpp.github.io/cppwp/n4868/draft.pdf)
 * N4950 with editorial changes (C++23 DIS): [HTML](https://timsong-cpp.github.io/cppwp/n4950/) [Full PDF](https://timsong-cpp.github.io/cppwp/n4950/draft.pdf)
+* N5050 (C++26 DIS): [HTML](https://timsong-cpp.github.io/cppwp/n5050/) [Full PDF](https://timsong-cpp.github.io/cppwp/n5050/draft.pdf)
 
 The following TSes are also available:
 * Ranges: [HTML](https://timsong-cpp.github.io/cppwp/ranges-ts/) [Full PDF](https://timsong-cpp.github.io/cppwp/ranges-ts.pdf)
